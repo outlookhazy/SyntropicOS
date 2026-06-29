@@ -90,7 +90,7 @@ void setup()
 
 void loop()
 {
-    syn_sched_run(&sched);   // Run all tasks, one step each
+    syn_sched_run(&sched);   // Run one ready task
 }
 ```
 
@@ -184,9 +184,9 @@ You can run as many tasks as you want:
 static SYN_Task tasks[3];  // Room for 3 tasks
 
 void setup() {
-    syn_task_create(&tasks[0], "blink",  blink_task,  0, NULL);
-    syn_task_create(&tasks[1], "serial", serial_task, 1, NULL);  // Higher priority
-    syn_task_create(&tasks[2], "sensor", sensor_task, 0, NULL);
+    syn_task_create(&tasks[0], "blink",  blink_task,  1, NULL);
+    syn_task_create(&tasks[1], "serial", serial_task, 0, NULL);  // Higher priority (0 = highest)
+    syn_task_create(&tasks[2], "sensor", sensor_task, 1, NULL);
     syn_sched_init(&sched, tasks, 3);
 }
 ```
@@ -196,8 +196,7 @@ All three run concurrently. No blocking. No threads. No heap allocation.
 ### Priority
 
 The second-to-last argument in `syn_task_create()` is the priority.
-Higher numbers = higher priority. Tasks at the same priority take turns
-equally.
+Lower numbers = higher priority (0 is the highest priority). Tasks at the same priority level take turns equally.
 
 ### CLI (Command Line Interface)
 

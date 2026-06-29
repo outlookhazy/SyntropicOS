@@ -3,7 +3,7 @@
 # Usage:
 #   SYN_DIR := lib/SyntropicOS
 #   include $(SYN_DIR)/sources.mk
-#   CFLAGS += -I$(SYN_DIR)/src
+#   CFLAGS += -I$(SYN_INC)
 #   SRCS   += $(SYN_SRCS)
 #
 # To also include weak stubs (recommended):
@@ -69,4 +69,4 @@ SYN_SRCS := \
 SYN_STUB_SRCS := \
 	$(SYN_DIR)/src/syntropic/port_stubs/syn_port_stubs.c
 
-SYN_INC := $(SYN_DIR)
+SYN_INC := $(SYN_DIR)/src

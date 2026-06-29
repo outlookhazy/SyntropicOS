@@ -77,7 +77,7 @@ target_sources(syntropic INTERFACE
 )
 
 target_include_directories(syntropic INTERFACE
-    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 
 # ── Optional: static library variant ────────────────────────────────────────

@@ -80,8 +80,8 @@ void syn_task_create(SYN_Task *task,
 /**
  * @brief Run one scheduler tick.
  *
- * Scans all tasks and runs every ready task once, in priority order
- * (highest priority first, round-robin among equal priorities).
+ * Scans all tasks and runs the single highest-priority ready task
+ * (lowest priority value first, round-robin among equal priorities).
  *
  * @param sched  Scheduler to run.
  * @return true if at least one task is still alive (not DEAD).

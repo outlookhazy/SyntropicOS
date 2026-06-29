@@ -43,7 +43,7 @@ git submodule update --init
 
     - `SYN_SRCS` — all SyntropicOS `.c` source files
     - `SYN_STUB_SRCS` — weak port stubs
-    - `SYN_INC` — include path (the repo root)
+    - `SYN_INC` — include path (`src/` subdirectory)
 
 === "Manual / IDE"
 
@@ -194,7 +194,7 @@ int main(void)
 
 1. `PT_BEGIN` / `PT_END` wrap the protothread body. The `SYN_PT` struct costs **2 bytes of RAM** — it stores a `uint16_t` line continuation using Duff's device (`switch`/`__LINE__`).
 2. `PT_TASK_DELAY_MS` saves a deadline tick in `task->delay_until` and yields. On each subsequent scheduler tick, the protothread resumes at this line and checks if `syn_port_get_tick_ms() >= deadline`. No blocking, no busy-wait.
-3. `syn_task_create` sets priority `0` (highest). The scheduler runs all ready tasks per tick in priority order, with round-robin among equal priorities.
+3. `syn_task_create` sets priority `0` (highest). Each call to `syn_sched_run()` selects and runs the single highest-priority ready task, with round-robin among equal priorities.
 4. `syn_sched_run_forever` loops forever calling `syn_sched_run()`. The scheduler does **not** own the task array — you allocate it, keeping everything on the stack or in static memory.
 
 !!! tip "Local variables in protothreads"

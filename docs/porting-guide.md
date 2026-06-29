@@ -37,22 +37,27 @@ void syn_port_delay_ms(uint32_t ms) {
     HAL_Delay(ms);
 }
 
+static volatile uint32_t critical_nesting = 0;
+
 void syn_port_enter_critical(void) {
     __disable_irq();
+    critical_nesting++;
 }
 
 void syn_port_exit_critical(void) {
-    __enable_irq();
+    if (critical_nesting > 0) {
+        critical_nesting--;
+        if (critical_nesting == 0) {
+            __enable_irq();
+        }
+    }
 }
 
-void syn_port_system_reset(void) {
+SYN_NORETURN void syn_port_system_reset(void) {
     NVIC_SystemReset();
-    while (1) {}  // unreachable, satisfies NORETURN
+    while (1) {}
 }
 ```
-
-!!! note "Critical section nesting"
-    The `enter_critical` / `exit_critical` contract requires that calls may be nested. The implementation must track nesting depth and only re-enable interrupts when the outermost critical section exits. The example above is simplified — a production port should use a nesting counter or `__get_PRIMASK()`.
 
 ## Weak Stubs
 

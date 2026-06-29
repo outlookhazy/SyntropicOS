@@ -82,10 +82,12 @@ static SYN_PT_Status counter_task(SYN_PT *pt, SYN_Task *task)
 }
 ```
 
-!!! note
-    Variables declared **before** `PT_BEGIN` or that are only used **between
-    two consecutive yield points** (i.e. not across a yield) are fine as
-    regular locals.
+!!! warning "Local Variables & Resumption"
+    Because protothreads are stackless and resume execution using a `switch` statement under the hood, **automatic local variables do not preserve their state across a yield**. 
+
+    * **Across a Yield:** Any variable whose value must survive a yield (`PT_YIELD`, `PT_WAIT_UNTIL`, etc.) **must** be declared `static` or stored in a persistent structure (like `user_data`).
+    * **Before `PT_BEGIN`:** Declaring a local variable before `PT_BEGIN` does **not** make it safe to use across a yield. Its declaration code will re-run on every invocation, resetting the variable to its initial value.
+    * **Between Yields:** Local variables are only safe if their entire usage is self-contained **between** two consecutive yield points. To avoid compiler warnings about jumping over variable initializations, declare them inside a nested block `{ ... }` between the yields, or declare them before `PT_BEGIN` (if they do not need to persist across yields).
 
 #### Rule 2: No `switch` statements inside a protothread body
 
@@ -165,7 +167,7 @@ static SYN_PT_Status my_task(SYN_PT *pt, SYN_Task *task)
 | Task | `sched/syn_task.h` | `SYN_USE_SCHED` |
 | Scheduler | `sched/syn_sched.h` | `SYN_USE_SCHED` |
 
-The scheduler manages a caller-owned array of `SYN_Task` descriptors. On each tick it runs every ready task in **priority order** (0 = highest), with **round-robin** among equal-priority tasks.
+The scheduler manages a caller-owned array of `SYN_Task` descriptors. Each call to `syn_sched_run()` selects and runs the **single highest-priority ready task** (0 = highest priority), with **round-robin** among equal-priority tasks.
 
 ```c
 static SYN_Task tasks[3];
