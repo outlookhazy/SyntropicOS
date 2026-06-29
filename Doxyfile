@@ -1,0 +1,124 @@
+# Doxyfile for SyntropicOS
+# Generates API reference and reports documentation coverage.
+
+PROJECT_NAME           = "SyntropicOS"
+PROJECT_BRIEF          = "Modular cooperative OS & application framework for microcontrollers"
+PROJECT_NUMBER         = ""
+
+# ── Input ──────────────────────────────────────────────────────────────────
+INPUT                  = syntropic
+RECURSIVE              = YES
+FILE_PATTERNS          = *.h *.c
+EXCLUDE_PATTERNS       = */port_stubs/*
+
+# ── Output ─────────────────────────────────────────────────────────────────
+OUTPUT_DIRECTORY       = doxygen_output
+GENERATE_HTML          = YES
+GENERATE_LATEX         = NO
+GENERATE_XML           = YES
+HTML_OUTPUT            = html
+
+# ── Extraction ─────────────────────────────────────────────────────────────
+EXTRACT_ALL            = NO
+EXTRACT_STATIC         = YES
+EXTRACT_PRIVATE        = NO
+
+# ── Documentation coverage warnings ───────────────────────────────────────
+WARNINGS               = YES
+WARN_IF_UNDOCUMENTED   = YES
+WARN_IF_DOC_ERROR      = YES
+WARN_NO_PARAMDOC       = YES
+WARN_AS_ERROR          = NO
+WARN_FORMAT            = "$file:$line: $text"
+WARN_LOGFILE           = doxygen_warnings.txt
+
+# ── Preprocessing ─────────────────────────────────────────────────────────
+ENABLE_PREPROCESSING   = YES
+MACRO_EXPANSION        = YES
+PREDEFINED             = SYN_USE_GPIO=1 \
+                         SYN_USE_UART=1 \
+                         SYN_USE_ADC=1 \
+                         SYN_USE_DAC=1 \
+                         SYN_USE_EXTI=1 \
+                         SYN_USE_CAN=1 \
+                         SYN_USE_SD=1 \
+                         SYN_USE_RTC=1 \
+                         SYN_USE_ONEWIRE=1 \
+                         SYN_USE_HWWDT=1 \
+                         SYN_USE_PT=1 \
+                         SYN_USE_SCHED=1 \
+                         SYN_USE_TIMER=1 \
+                         SYN_USE_EVENT=1 \
+                         SYN_USE_WATCHDOG=1 \
+                         SYN_USE_SEQUENCER=1 \
+                         SYN_USE_WORKQUEUE=1 \
+                         SYN_USE_AO=1 \
+                         SYN_USE_LOG=1 \
+                         SYN_USE_DATALOG=1 \
+                         SYN_USE_CLI=1 \
+                         SYN_USE_BUTTON=1 \
+                         SYN_USE_ENCODER=1 \
+                         SYN_USE_LED=1 \
+                         SYN_USE_SOFT_PWM=1 \
+                         SYN_USE_CANVAS=1 \
+                         SYN_USE_IMGUI=1 \
+                         SYN_USE_MENU=1 \
+                         SYN_USE_PID=1 \
+                         SYN_USE_AUTOTUNE=1 \
+                         SYN_USE_STEPPER=1 \
+                         SYN_USE_SERVO=1 \
+                         SYN_USE_DC_MOTOR=1 \
+                         SYN_USE_MOTOR_CTRL=1 \
+                         SYN_USE_ACTUATOR=1 \
+                         SYN_USE_FILTER=1 \
+                         SYN_USE_SIGNAL=1 \
+                         SYN_USE_FSM=1 \
+                         SYN_USE_FFT=1 \
+                         SYN_USE_BIQUAD=1 \
+                         SYN_USE_COBS=1 \
+                         SYN_USE_MODBUS=1 \
+                         SYN_USE_ROUTER=1 \
+                         SYN_USE_HEARTBEAT=1 \
+                         SYN_USE_HTTP=1 \
+                         SYN_USE_HTTPD=1 \
+                         SYN_USE_WEBSOCKET=1 \
+                         SYN_USE_MQTT=1 \
+                         SYN_USE_DNS=1 \
+                         SYN_USE_COAP=1 \
+                         SYN_USE_TRANSPORT_TCP=1 \
+                         SYN_USE_SENSOR=1 \
+                         SYN_USE_PARAM=1 \
+                         SYN_USE_SETTINGS=1 \
+                         SYN_USE_VFS=1 \
+                         SYN_USE_LFS=1 \
+                         SYN_USE_FAT=1 \
+                         SYN_USE_BOOT=1 \
+                         SYN_USE_ERRLOG=1 \
+                         SYN_USE_FAULT=1 \
+                         SYN_USE_POWER=1 \
+                         SYN_USE_TRACE=1 \
+                         SYN_USE_PROFILER=1 \
+                         SYN_USE_RAMP=1 \
+                         SYN_USE_SCURVE=1 \
+                         SYN_USE_FMT=1 \
+                         SYN_USE_JSON=1 \
+                         SYN_USE_CBOR=1 \
+                         SYN_USE_PUBSUB=1 \
+                         SYN_USE_SOFT_I2C=1 \
+                         SYN_USE_SOFT_SPI=1
+
+# ── Graph / diagram options ───────────────────────────────────────────────
+HAVE_DOT               = NO
+CALL_GRAPH             = NO
+CALLER_GRAPH           = NO
+
+# ── Source browsing ───────────────────────────────────────────────────────
+SOURCE_BROWSER         = YES
+INLINE_SOURCES         = NO
+STRIP_CODE_COMMENTS    = NO
+
+# ── Misc ──────────────────────────────────────────────────────────────────
+OPTIMIZE_OUTPUT_FOR_C  = YES
+TYPEDEF_HIDES_STRUCT   = YES
+SORT_MEMBER_DOCS       = NO
+QUIET                  = YES

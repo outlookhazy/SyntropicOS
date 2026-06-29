@@ -1,0 +1,17 @@
+# Static analysis Makefile
+# Usage: make -f tests/Makefile.check check
+
+CPPCHECK := cppcheck
+CPPCHECK_FLAGS := --enable=warning,style,performance,portability --inconclusive --std=c99 --force
+CPPCHECK_FLAGS += --suppress=missingIncludeSystem
+CPPCHECK_FLAGS += --suppress=unusedFunction
+CPPCHECK_FLAGS += --suppress=arrayIndexOutOfBoundsCond
+CPPCHECK_FLAGS += --suppress=variableScope
+CPPCHECK_FLAGS += --suppress=funcArgNamesDifferentUnnamed
+CPPCHECK_FLAGS += -i tests/unity/
+
+
+.PHONY: check
+
+check:
+	$(CPPCHECK) $(CPPCHECK_FLAGS) syntropic/

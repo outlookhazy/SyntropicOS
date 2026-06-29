@@ -1,0 +1,105 @@
+site_name: SyntropicOS
+site_description: Modular cooperative OS & application framework for microcontrollers
+site_url: https://outlookhazy.github.io/SyntropicOS/
+repo_url: https://github.com/outlookhazy/SyntropicOS
+repo_name: outlookhazy/SyntropicOS
+
+validation:
+  nav:
+    omitted_files: ignore
+
+
+theme:
+  name: material
+  palette:
+    - scheme: slate
+      primary: indigo
+      accent: cyan
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+    - scheme: default
+      primary: indigo
+      accent: cyan
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+  features:
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - search.highlight
+    - content.code.copy
+    - content.code.annotate
+  icon:
+    repo: fontawesome/brands/github
+
+plugins:
+  - search
+  - mkdoxy:
+      projects:
+        syntropic:
+          src-dirs: syntropic/
+          full-doc: True
+          doxy-cfg:
+            FILE_PATTERNS: "*.h *.c"
+            RECURSIVE: "YES"
+            EXTRACT_STATIC: "YES"
+            GENERATE_XML: "YES"
+            GENERATE_HTML: "NO"
+            GENERATE_LATEX: "NO"
+            OPTIMIZE_OUTPUT_FOR_C: "YES"
+            TYPEDEF_HIDES_STRUCT: "YES"
+            PREDEFINED: "SYN_USE_CAN=1 SYN_USE_EXTI=1 SYN_USE_ONEWIRE=1 SYN_LOG_COLOR=1"
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.tabbed:
+      alternate_style: true
+  - tables
+  - attr_list
+  - def_list
+  - toc:
+      permalink: true
+
+nav:
+  - Home: index.md
+  - Getting Started: getting-started.md
+  - Modules:
+    - Core & Utilities: modules/core.md
+    - Drivers: modules/drivers.md
+    - Multitasking: modules/multitasking.md
+    - Services: modules/services.md
+    - Input / Output: modules/io.md
+    - Display & UI: modules/display.md
+    - Control & Motor: modules/control.md
+    - DSP & Filters: modules/dsp.md
+    - Communication: modules/communication.md
+    - Storage: modules/storage.md
+    - System: modules/system.md
+    - Debug: modules/debug.md
+    - Cross-Module Integration: modules/integration.md
+  - API Reference:
+    - Overview: api/index.md
+    - Core & Utilities: syntropic/group__syn__core.md
+    - Scheduling: syntropic/group__syn__sched.md
+    - Drivers: syntropic/group__syn__drivers.md
+    - Input / Output: syntropic/group__syn__io.md
+    - Motor & Control: syntropic/group__syn__motor.md
+    - Display & UI: syntropic/group__syn__display.md
+    - Networking: syntropic/group__syn__net.md
+    - Protocols: syntropic/group__syn__protocol.md
+    - Storage: syntropic/group__syn__storage.md
+    - System: syntropic/group__syn__system.md
+    - DSP & Filters: syntropic/group__syn__dsp.md
+    - Debug & Diagnostics: syntropic/group__syn__debug.md
+    - All Files: syntropic/files.md
+    - All Structs: syntropic/annotated.md
+  - Porting Guide: porting-guide.md
+  - Testing: testing.md
+  - Directory Structure: directory-structure.md

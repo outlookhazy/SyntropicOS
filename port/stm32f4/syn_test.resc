@@ -1,0 +1,18 @@
+# SyntropicOS Renode test runner
+# Runs Unity test firmware on simulated STM32F4 Discovery
+# Captures USART2 output and exits after tests complete
+
+mach create "syntropic-test"
+machine LoadPlatformDescription $CWD/syn_test_spiflash.repl
+
+sysbus LoadELF $CWD/test_firmware.elf
+
+# Log USART2 output to file for verification
+emulation CreateUartPtyTerminal "term" "/tmp/syn_uart"
+connector Connect usart2 term
+
+start
+emulation RunFor "2.0"
+
+echo "=== Test run complete ==="
+quit

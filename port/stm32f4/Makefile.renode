@@ -1,0 +1,123 @@
+# Makefile for STM32F4 Renode test firmware
+# Usage: make -f port/stm32f4/Makefile.renode
+
+PREFIX   ?= arm-none-eabi-
+CC        = $(PREFIX)gcc
+OBJCOPY   = $(PREFIX)objcopy
+SIZE      = $(PREFIX)size
+
+# Directories
+PORT_DIR  = port/stm32f4
+SYN_DIR  = syntropic
+TEST_DIR  = tests
+
+# CPU flags
+CPU_FLAGS = -mcpu=cortex-m4 -mthumb -mfloat-abi=soft
+
+# Compiler flags
+CFLAGS    = $(CPU_FLAGS) \
+            -std=c99 -Wall -Wextra -Werror \
+            -Os -g3 \
+            -DSYN_USE_LOG=0 \
+            -ffunction-sections -fdata-sections \
+            -fno-common -fno-builtin \
+            -I. -I$(TEST_DIR)
+
+# Linker flags
+LDFLAGS   = $(CPU_FLAGS) \
+            -T $(PORT_DIR)/stm32f407.ld \
+            -Wl,--gc-sections \
+            -Wl,-Map=test_firmware.map \
+            --specs=nosys.specs --specs=nano.specs \
+            -lc -lnosys -lm
+
+# ── Source files ──────────────────────────────────────────────────────────
+
+# Startup + port
+PORT_SRC  = $(PORT_DIR)/startup_stm32f407.c \
+            $(PORT_DIR)/port_stm32f4.c
+
+# Test firmware main
+FW_SRC    = $(PORT_DIR)/test_firmware.c
+
+# Unity
+UNITY_SRC = $(TEST_DIR)/unity/unity.c
+
+# SyntropicOS modules needed by the tests
+SYN_SRC  = $(SYN_DIR)/util/syn_ringbuf.c \
+            $(SYN_DIR)/proto/syn_cobs.c \
+            $(SYN_DIR)/util/syn_crc.c \
+            $(SYN_DIR)/util/syn_fsm.c \
+            $(SYN_DIR)/sched/syn_sched.c \
+            $(SYN_DIR)/sched/syn_timer.c
+
+# All sources for single-node
+SRCS      = $(PORT_SRC) $(FW_SRC) $(UNITY_SRC) $(SYN_SRC)
+OBJS      = $(SRCS:.c=.o)
+
+# All sources/objs for multi-node
+MULTINODE_SYN_SRC = $(SYN_SRC) \
+                     $(SYN_DIR)/net/syn_router.c \
+                     $(SYN_DIR)/net/syn_heartbeat.c \
+                     $(SYN_DIR)/system/syn_errlog.c
+MULTINODE_OBJS     = $(PORT_SRC:.c=.o) $(UNITY_SRC:.c=.o) $(MULTINODE_SYN_SRC:.c=.o)
+
+
+# ── Targets ──────────────────────────────────────────────────────────────
+
+TARGET    = test_firmware
+
+.PHONY: all clean renode renode-test renode-multinode-test
+
+all: $(TARGET).elf $(TARGET).bin test_firmware_node0.elf test_firmware_node1.elf
+	$(SIZE) $(TARGET).elf
+	$(SIZE) test_firmware_node0.elf
+	$(SIZE) test_firmware_node1.elf
+
+$(TARGET).elf: $(OBJS)
+	$(CC) $(OBJS) $(LDFLAGS) -o $@
+
+$(TARGET).bin: $(TARGET).elf
+	$(OBJCOPY) -O binary $< $@
+
+test_firmware_node0.elf: port/stm32f4/test_firmware_node0.o $(MULTINODE_OBJS)
+	$(CC) $^ $(LDFLAGS) -o $@
+
+test_firmware_node0.elf: LDFLAGS := $(subst test_firmware.map,test_firmware_node0.map,$(LDFLAGS))
+
+test_firmware_node1.elf: port/stm32f4/test_firmware_node1.o $(MULTINODE_OBJS)
+	$(CC) $^ $(LDFLAGS) -o $@
+
+test_firmware_node1.elf: LDFLAGS := $(subst test_firmware.map,test_firmware_node1.map,$(LDFLAGS))
+
+port/stm32f4/test_firmware_node0.o: port/stm32f4/test_firmware_multinode.c
+	$(CC) $(CFLAGS) -DNODE_ID=1 -c $< -o $@
+
+port/stm32f4/test_firmware_node1.o: port/stm32f4/test_firmware_multinode.c
+	$(CC) $(CFLAGS) -DNODE_ID=2 -c $< -o $@
+
+%.o: %.c
+	$(CC) $(CFLAGS) -c $< -o $@
+
+clean:
+	rm -f $(OBJS) $(TARGET).elf $(TARGET).bin $(TARGET).map \
+	      $(MULTINODE_OBJS) port/stm32f4/test_firmware_node0.o port/stm32f4/test_firmware_node1.o \
+	      test_firmware_node0.elf test_firmware_node1.elf \
+	      test_firmware_node0.map test_firmware_node1.map
+
+# ── Renode ───────────────────────────────────────────────────────────────
+
+RENODE      ?= $(HOME)/.local/share/renode/renode
+RENODE_FLAGS ?= --show-log
+
+renode: $(TARGET).elf
+	$(RENODE) --disable-gui --disable-xwt \
+		-e "i @port/stm32f4/syn_test.resc; start" \
+		--console
+
+renode-test: $(TARGET).elf
+	$(RENODE)-test $(RENODE_FLAGS) port/stm32f4/syn_test.robot
+
+renode-multinode-test: test_firmware_node0.elf test_firmware_node1.elf
+	$(RENODE)-test $(RENODE_FLAGS) port/stm32f4/syn_multinode.robot
+

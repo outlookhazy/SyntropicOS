@@ -1,0 +1,76 @@
+# Unity test build
+# Usage: make -f tests/Makefile.unity [test|clean]
+
+CC      := gcc
+CFLAGS  := -std=c99 -pedantic -Wall -Wextra -Werror -I. -Itests
+
+# All SyntropicOS source files
+SYN_SRCS := \
+	syntropic/drivers/syn_gpio.c syntropic/drivers/syn_uart.c \
+	syntropic/drivers/syn_adc.c syntropic/drivers/syn_exti.c \
+	syntropic/drivers/syn_can.c syntropic/drivers/syn_soft_i2c.c \
+	syntropic/drivers/syn_soft_spi.c syntropic/drivers/syn_sd.c \
+	syntropic/drivers/syn_rtc.c syntropic/drivers/syn_soft_onewire.c \
+	syntropic/drivers/syn_dac.c \
+	syntropic/util/syn_ringbuf.c syntropic/util/syn_fsm.c \
+	syntropic/util/syn_crc.c syntropic/util/syn_fmt.c \
+	syntropic/util/syn_ramp.c syntropic/util/syn_scurve.c \
+	syntropic/util/syn_cbor_write.c syntropic/util/syn_cbor_read.c \
+	syntropic/util/syn_pubsub.c \
+	syntropic/sched/syn_sched.c syntropic/sched/syn_timer.c \
+	syntropic/sched/syn_watchdog.c syntropic/sched/syn_sequencer.c \
+	syntropic/sched/syn_workqueue.c \
+	syntropic/log/syn_log.c syntropic/log/syn_datalog.c syntropic/cli/syn_cli.c \
+	syntropic/input/syn_button.c syntropic/input/syn_encoder.c \
+	syntropic/output/syn_led.c syntropic/output/syn_soft_pwm.c \
+	syntropic/dsp/syn_filter.c syntropic/dsp/syn_signal.c \
+	syntropic/control/syn_pid.c \
+	syntropic/motor/syn_stepper.c syntropic/motor/syn_servo.c \
+	syntropic/motor/syn_dc_motor.c syntropic/motor/syn_motor_ctrl.c \
+	syntropic/motor/syn_actuator.c \
+	syntropic/proto/syn_cobs.c syntropic/proto/syn_modbus.c \
+	syntropic/sensor/syn_sensor.c syntropic/storage/syn_param.c \
+	syntropic/debug/syn_trace.c syntropic/debug/syn_profiler.c \
+	syntropic/system/syn_boot.c syntropic/system/syn_errlog.c \
+	syntropic/system/syn_power.c syntropic/system/syn_hwwdt.c \
+	syntropic/system/syn_fwupdate.c syntropic/system/syn_fwboot.c \
+	syntropic/display/syn_canvas.c syntropic/ui/syn_menu.c \
+	syntropic/ui/syn_imgui.c \
+	syntropic/net/syn_router.c syntropic/net/syn_heartbeat.c \
+	syntropic/net/syn_http.c syntropic/net/syn_httpd.c \
+	syntropic/net/syn_transport_tcp.c \
+	syntropic/net/syn_websocket.c \
+	syntropic/net/syn_dns.c \
+	syntropic/net/syn_mqtt.c \
+	syntropic/util/syn_json_write.c syntropic/util/syn_json_read.c \
+	syntropic/sched/syn_ao.c \
+	syntropic/storage/syn_vfs.c \
+	syntropic/storage/syn_lfs.c \
+	syntropic/net/syn_coap.c \
+	syntropic/dsp/syn_biquad.c \
+	syntropic/dsp/syn_fft.c \
+	syntropic/system/syn_fault.c
+
+# Unity framework
+UNITY_SRCS := tests/unity/unity.c
+
+# Mock port layer
+MOCK_SRCS := tests/mocks/mock_port.c
+
+# All per-module test files (everything except old monolith and .inc)
+TEST_SRCS := $(filter-out tests/test_multitask.c tests/test_new_modules.inc.c, \
+	$(wildcard tests/test_*.c))
+
+ALL_SRCS := $(SYN_SRCS) $(UNITY_SRCS) $(MOCK_SRCS) $(TEST_SRCS)
+TARGET   := test_unity
+
+.PHONY: test clean
+
+test: $(TARGET)
+	./$(TARGET)
+
+$(TARGET): $(ALL_SRCS)
+	$(CC) $(CFLAGS) $^ -o $@ -lm
+
+clean:
+	rm -f $(TARGET)

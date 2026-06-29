@@ -1,0 +1,7 @@
+# SyntropicOS test platform — extends stm32f4_discovery with a SPI flash on SPI1
+using "platforms/boards/stm32f4_discovery.repl"
+
+# Attach a Micron MT25Q SPI flash to SPI1 for loopback testing.
+# Firmware can read the JEDEC ID (0x20BA18) to verify the SPI bus works.
+spiFlash: SPI.Micron_MT25Q @ spi1
+    underlyingMemorySize: 0x200000
