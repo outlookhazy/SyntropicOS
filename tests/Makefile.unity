@@ -57,9 +57,8 @@ UNITY_SRCS := tests/unity/unity.c
 # Mock port layer
 MOCK_SRCS := tests/mocks/mock_port.c
 
-# All per-module test files (everything except old monolith and .inc)
-TEST_SRCS := $(filter-out tests/test_multitask.c tests/test_new_modules.inc.c, \
-	$(wildcard tests/test_*.c))
+# All per-module test files
+TEST_SRCS := $(wildcard tests/test_*.c)
 
 ALL_SRCS := $(SYN_SRCS) $(UNITY_SRCS) $(MOCK_SRCS) $(TEST_SRCS)
 TARGET   := test_unity

@@ -318,7 +318,7 @@ SYN_AutoTune_State syn_autotune_update(SYN_AutoTune *at)
                 /* Kp = 0.6*Ku, Ki = 1.2*Ku/Tu, Kd = 3*Ku*Tu/40 */
                 at->result.kp = (int32_t)((int64_t)Ku * 60 / 100);
                 at->result.ki = (int32_t)((int64_t)Ku * 120 / Tu_i);
-                at->result.kd = (int32_t)((int64_t)Ku * 3 * Tu_i / (40 * 1000));
+                at->result.kd = (int32_t)((int64_t)Ku * 3 * Tu_i / (40L * 1000L));
                 break;
             case SYN_ATUNE_ZN_NO_OVERSHOOT:
                 at->result.kp = (int32_t)((int64_t)Ku * 33 / 100);

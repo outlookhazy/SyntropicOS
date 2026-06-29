@@ -448,11 +448,11 @@ static void cli_builtin_version(const SYN_CLI *cli)
 
     cli_puts(cli, v->app_name);
     cli_puts(cli, " v");
-    syn_fmt_uint(num, sizeof(num), v->major);  cli_puts(cli, num);
+    syn_fmt_uint(num, sizeof(num), v->year);     cli_puts(cli, num);
     cli_puts(cli, ".");
-    syn_fmt_uint(num, sizeof(num), v->minor);  cli_puts(cli, num);
+    syn_fmt_uint(num, sizeof(num), v->month);    cli_puts(cli, num);
     cli_puts(cli, ".");
-    syn_fmt_uint(num, sizeof(num), v->patch);  cli_puts(cli, num);
+    syn_fmt_uint(num, sizeof(num), v->release);  cli_puts(cli, num);
     cli_puts(cli, " (");
     cli_puts(cli, v->date);
     cli_puts(cli, " ");

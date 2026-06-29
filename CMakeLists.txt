@@ -94,10 +94,11 @@ target_sources(syn_stubs INTERFACE ${SYN_STUB_SOURCES})
 target_link_libraries(syn_stubs INTERFACE syntropic)
 
 # ── Tests (only when built standalone, not as a submodule) ──────────────────
+# The primary test suite uses Unity (tests/Makefile.unity).
+# This CMake target provides CTest integration.
 if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
     enable_testing()
-    add_executable(test_multitask tests/test_multitask.c ${SYN_SOURCES})
-    target_include_directories(test_multitask PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
-    target_compile_options(test_multitask PRIVATE -Wall -Wextra -pedantic)
-    add_test(NAME syn_tests COMMAND test_multitask)
+    add_test(NAME syn_tests
+             COMMAND make -f tests/Makefile.unity test
+             WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 endif()
