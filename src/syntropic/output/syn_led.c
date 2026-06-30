@@ -44,6 +44,7 @@ void syn_led_init(SYN_LED *led, SYN_GPIO_Pin pin, SYN_LEDPolarity polarity)
     led->polarity = (uint8_t)polarity;
     led->mode     = (uint8_t)SYN_LED_MODE_OFF;
     led->lit      = false;
+    syn_port_gpio_init(pin, SYN_GPIO_OUTPUT);
     led_set_output(led, false);
 }
 

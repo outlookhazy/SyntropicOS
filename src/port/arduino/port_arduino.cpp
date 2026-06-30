@@ -18,6 +18,9 @@
 
 #if defined(ARDUINO_ARCH_AVR)
 #include <avr/wdt.h>
+#elif defined(ARDUINO_ARCH_RP2040)
+#include "hardware/sync.h"
+#include "hardware/watchdog.h"
 #endif
 
 /* ── System Port ────────────────────────────────────────────────────────── */
@@ -32,6 +35,9 @@ void syn_port_enter_critical(void)
         /* Save SREG (which contains the global interrupt enable bit I) */
         critical_saved_state = SREG;
         noInterrupts();
+#elif defined(ARDUINO_ARCH_RP2040)
+        /* Pico SDK: atomically saves interrupt state and disables interrupts */
+        critical_saved_state = save_and_disable_interrupts();
 #elif defined(ARDUINO_ARCH_SAMD) || defined(ARDUINO_ARCH_SAM) || defined(CORE_TEENSY)
         /* Save PRIMASK (bit 0 = 1 means interrupts already disabled) */
         critical_saved_state = __get_PRIMASK();
@@ -52,6 +58,9 @@ void syn_port_exit_critical(void)
 #if defined(ARDUINO_ARCH_AVR)
             /* Restore SREG — only re-enables interrupts if they were on before */
             SREG = (uint8_t)critical_saved_state;
+#elif defined(ARDUINO_ARCH_RP2040)
+            /* Pico SDK: restores the saved interrupt state */
+            restore_interrupts(critical_saved_state);
 #elif defined(ARDUINO_ARCH_SAMD) || defined(ARDUINO_ARCH_SAM) || defined(CORE_TEENSY)
             /* Only re-enable if PRIMASK showed interrupts were enabled on entry */
             if ((critical_saved_state & 1U) == 0) {
@@ -79,6 +88,10 @@ void syn_port_system_reset(void)
 #if defined(ARDUINO_ARCH_AVR)
     // Setup watchdog for a short reset timeout, then loop forever
     wdt_enable(WDTO_15MS);
+    for (;;);
+#elif defined(ARDUINO_ARCH_RP2040)
+    // RP2040: immediate reboot via hardware watchdog
+    watchdog_reboot(0, 0, 0);
     for (;;);
 #elif defined(ARDUINO_ARCH_SAMD)
     NVIC_SystemReset();
@@ -140,12 +153,15 @@ SYN_Status syn_port_gpio_toggle(SYN_GPIO_Pin pin)
 
 /* ── UART Port ──────────────────────────────────────────────────────────── */
 
-#if defined(ARDUINO_ARCH_AVR) || defined(ARDUINO_ARCH_SAMD) || defined(CORE_TEENSY)
+#if defined(ARDUINO_ARCH_AVR) || defined(ARDUINO_ARCH_SAMD) || defined(CORE_TEENSY) || defined(ARDUINO_ARCH_RP2040)
 static HardwareSerial* get_serial_instance(SYN_UARTInstance instance)
 {
     if (instance == 0) return &Serial;
-#if defined(UBRR1H) || defined(ARDUINO_ARCH_SAMD)
+#if defined(UBRR1H) || defined(ARDUINO_ARCH_SAMD) || defined(ARDUINO_ARCH_RP2040)
     else if (instance == 1) return &Serial1;
+#endif
+#if defined(ARDUINO_ARCH_RP2040)
+    else if (instance == 2) return &Serial2;
 #endif
     return NULL;
 }
@@ -153,7 +169,7 @@ static HardwareSerial* get_serial_instance(SYN_UARTInstance instance)
 
 SYN_Status syn_port_uart_init(SYN_UARTInstance instance, uint32_t baudrate)
 {
-#if defined(ARDUINO_ARCH_AVR) || defined(ARDUINO_ARCH_SAMD) || defined(CORE_TEENSY)
+#if defined(ARDUINO_ARCH_AVR) || defined(ARDUINO_ARCH_SAMD) || defined(CORE_TEENSY) || defined(ARDUINO_ARCH_RP2040)
     HardwareSerial* serial = get_serial_instance(instance);
     if (!serial) return SYN_INVALID_PARAM;
     serial->begin(baudrate);
@@ -169,7 +185,7 @@ SYN_Status syn_port_uart_init(SYN_UARTInstance instance, uint32_t baudrate)
 
 SYN_Status syn_port_uart_deinit(SYN_UARTInstance instance)
 {
-#if defined(ARDUINO_ARCH_AVR) || defined(ARDUINO_ARCH_SAMD) || defined(CORE_TEENSY)
+#if defined(ARDUINO_ARCH_AVR) || defined(ARDUINO_ARCH_SAMD) || defined(CORE_TEENSY) || defined(ARDUINO_ARCH_RP2040)
     HardwareSerial* serial = get_serial_instance(instance);
     if (!serial) return SYN_INVALID_PARAM;
     serial->end();
@@ -189,7 +205,7 @@ SYN_Status syn_port_uart_transmit(SYN_UARTInstance instance,
                                   uint32_t timeout_ms)
 {
     (void)timeout_ms; // Timeout handled synchronously by serial block write
-#if defined(ARDUINO_ARCH_AVR) || defined(ARDUINO_ARCH_SAMD) || defined(CORE_TEENSY)
+#if defined(ARDUINO_ARCH_AVR) || defined(ARDUINO_ARCH_SAMD) || defined(CORE_TEENSY) || defined(ARDUINO_ARCH_RP2040)
     HardwareSerial* serial = get_serial_instance(instance);
     if (!serial) return SYN_INVALID_PARAM;
     serial->write(data, len);
@@ -207,7 +223,7 @@ SYN_Status syn_port_uart_receive(SYN_UARTInstance instance,
                                  size_t *received,
                                  uint32_t timeout_ms)
 {
-#if defined(ARDUINO_ARCH_AVR) || defined(ARDUINO_ARCH_SAMD) || defined(CORE_TEENSY)
+#if defined(ARDUINO_ARCH_AVR) || defined(ARDUINO_ARCH_SAMD) || defined(CORE_TEENSY) || defined(ARDUINO_ARCH_RP2040)
     HardwareSerial* serial = get_serial_instance(instance);
     if (!serial) return SYN_INVALID_PARAM;
     
@@ -240,25 +256,55 @@ SYN_Status syn_port_uart_receive_byte(SYN_UARTInstance instance, uint8_t *byte, 
 
 SYN_Status syn_port_adc_init(uint8_t channel)
 {
+#if defined(ARDUINO_ARCH_RP2040)
+    /* RP2040 ADC channels 0–3 map to GP26–GP29; channel 4 is internal temp.
+     * analogRead() accepts the GPIO number directly on arduino-pico. */
+    if (channel <= 3) {
+        pinMode(26 + channel, INPUT);
+    }
+    /* channel 4 (temperature) needs no pin init */
+#else
     if (channel < 6) {
         pinMode(A0 + channel, INPUT);
     }
+#endif
     return SYN_OK;
 }
 
 uint16_t syn_port_adc_read(uint8_t channel)
 {
+#if defined(ARDUINO_ARCH_RP2040)
+    /* Map SyntropicOS ADC channel 0–3 to GP26–GP29 */
+    if (channel <= 3) {
+        return analogRead(26 + channel);
+    }
+    /* channel 4 = internal temperature sensor */
+    if (channel == 4) {
+        /* arduino-pico: read temp via analogReadTemp() helper */
+        return (uint16_t)analogReadTemp();
+    }
+    return 0;
+#else
     return analogRead(channel);
+#endif
 }
 
 uint8_t syn_port_adc_resolution(void)
 {
+#if defined(ARDUINO_ARCH_RP2040)
+    return 12;  /* RP2040 ADC is 12-bit (0–4095) */
+#else
     return 10;
+#endif
 }
 
 uint16_t syn_port_adc_reference_mv(void)
 {
+#if defined(ARDUINO_ARCH_RP2040)
+    return 3300;  /* RP2040 ADC reference is 3.3V */
+#else
     return 5000;
+#endif
 }
 
 /* ── PWM Port ───────────────────────────────────────────────────────────── */
@@ -485,6 +531,10 @@ SYN_Status syn_port_spi_cs_deassert(uint8_t bus, SYN_GPIO_Pin cs_pin)
 
 static SYN_GPIO_Pin exti_pins[SYN_ARDUINO_EXTI_SLOTS];
 static uint8_t      exti_modes[SYN_ARDUINO_EXTI_SLOTS];
+#if defined(ARDUINO_ARCH_RP2040)
+/* arduino-pico uses PinStatus enum instead of uint8_t for interrupt modes */
+static PinStatus exti_pin_status[SYN_ARDUINO_EXTI_SLOTS];
+#endif
 static uint8_t      exti_slot_count = 0;
 
 /* Generate trampoline ISRs — each calls syn_exti_irq_handler with its pin */
@@ -532,6 +582,9 @@ SYN_Status syn_port_exti_configure(SYN_GPIO_Pin pin, SYN_EXTI_Edge edge)
         case SYN_EXTI_BOTH:    exti_modes[slot] = CHANGE;  break;
         default:               exti_modes[slot] = CHANGE;  break;
     }
+#if defined(ARDUINO_ARCH_RP2040)
+    exti_pin_status[slot] = (PinStatus)exti_modes[slot];
+#endif
 
     /* Configure pin as input with pull-up */
     pinMode(pin, INPUT_PULLUP);
@@ -544,7 +597,11 @@ void syn_port_exti_enable(SYN_GPIO_Pin pin)
     if (slot < 0) return;
     attachInterrupt(digitalPinToInterrupt(pin),
                     exti_trampolines[slot],
+#if defined(ARDUINO_ARCH_RP2040)
+                    exti_pin_status[slot]);
+#else
                     exti_modes[slot]);
+#endif
 }
 
 void syn_port_exti_disable(SYN_GPIO_Pin pin)
@@ -630,6 +687,27 @@ SYN_Status syn_port_wdt_init(uint32_t timeout_ms)
 void syn_port_wdt_feed(void)
 {
     __asm__ __volatile__("wdr");
+}
+
+#elif defined(ARDUINO_ARCH_RP2040)
+
+/*
+ * RP2040 hardware watchdog — supports timeouts up to ~8.3 seconds.
+ * The Pico SDK watchdog_enable() starts the countdown; watchdog_update()
+ * (aliased to "feed") resets it.
+ */
+
+SYN_Status syn_port_wdt_init(uint32_t timeout_ms)
+{
+    /* Clamp to RP2040 max (~8300ms). Second arg: pause_on_debug. */
+    if (timeout_ms > 8300) timeout_ms = 8300;
+    watchdog_enable(timeout_ms, true);
+    return SYN_OK;
+}
+
+void syn_port_wdt_feed(void)
+{
+    watchdog_update();
 }
 
 #else

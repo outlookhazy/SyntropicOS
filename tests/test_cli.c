@@ -606,7 +606,7 @@ static void test_cli_help_padding(void)
     clear_output();
     syn_cli_process_line(&cli, "help");
     TEST_ASSERT_NOT_NULL(strstr(cli_output_buf, "go"));
-    TEST_ASSERT_NOT_NULL(strstr(cli_output_buf, "—"));
+    TEST_ASSERT_NOT_NULL(strstr(cli_output_buf, "--"));
 }
 
 /* ── Test: Command with NULL handler (no-crash) ───────────────────────── */

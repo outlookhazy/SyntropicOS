@@ -39,6 +39,8 @@ After installing, open **File → Examples → SyntropicOS**. You should see:
 - **SerialCLI** — Command-line interface over serial
 - **SensorLogger** — ADC reading with digital filtering
 - **MotorFSM** — State machine controlling a motor
+- **PicoBlink** — Raspberry Pi Pico bring-up blink and diagnostics (RP2040 only)
+- **PicoDualCore** — Raspberry Pi Pico AMP dual-core mailbox & CLI demo (RP2040 only)
 
 If you see these, you're ready to go.
 

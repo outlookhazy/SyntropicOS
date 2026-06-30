@@ -7,6 +7,7 @@ SyntropicOS separates hardware-specific code into a **port layer** — a set of 
 | Port Header | Functions | When Needed |
 |---|---|---|
 | `syn_port_system.h` | `get_tick_ms`, `delay_ms`, `enter_critical`, `exit_critical`, `system_reset` | Always |
+| `syn_port_spinlock.h` | `spinlock_acquire`, `spinlock_release`, `spinlock_try_acquire`, `core_id`, `ipc_notify` | If using multicore (AMP) |
 | `syn_port_gpio.h` | `init`, `deinit`, `write`, `read`, `toggle` | If using GPIO, buttons, LEDs, motors |
 | `syn_port_uart.h` | `init`, `deinit`, `transmit`, `receive`, byte variants | If using UART, CLI, logging |
 | `syn_port_spi.h` | `init`, `deinit`, `transfer`, `cs_assert`, `cs_deassert` | If using SPI devices |
@@ -77,6 +78,8 @@ SyntropicOS ships with complete port implementations for several platforms:
 | STM32 HAL | `src/port/stm32_hal/port_stm32_hal.c` | Uses STM32Cube HAL for portability across STM32 families |
 | ESP32 (ESP-IDF) | `src/port/esp32/port_esp32.c` | ESP-IDF based port |
 | RP2040/RP2350 | `src/port/rp2040/port_rp2040.c` | Raspberry Pi Pico SDK based port |
+| RP2040 Multicore | `src/port/rp2040/port_rp2040_multicore.c` | RP2040/RP2350 multicore hardware spinlock port |
 | Arduino | `src/port/arduino/port_arduino.cpp` | Arduino C++ SDK based port |
+| Arduino Multicore | `src/port/arduino/port_arduino_multicore.cpp` | Arduino RP2040 multicore hardware spinlock port |
 
 These can be used directly or as a reference when writing your own port.

@@ -125,18 +125,18 @@ static void cli_dispatch(SYN_CLI *cli, char *line)
         cli_puts(cli, "Available commands:\r\n");
 
         /* Built-in help entry */
-        cli_puts(cli, "  help           — Show this help\r\n");
+        cli_puts(cli, "  help           -- Show this help\r\n");
 #if SYN_CLI_CMD_VERSION
-        cli_puts(cli, "  version        — Show build info\r\n");
+        cli_puts(cli, "  version        -- Show build info\r\n");
 #endif
 #if SYN_CLI_CMD_UPTIME
-        cli_puts(cli, "  uptime         — Show system uptime\r\n");
+        cli_puts(cli, "  uptime         -- Show system uptime\r\n");
 #endif
 #if SYN_CLI_CMD_ERRORS
-        cli_puts(cli, "  errors         — Dump error log\r\n");
+        cli_puts(cli, "  errors         -- Dump error log\r\n");
 #endif
 #if SYN_CLI_CMD_TASKS
-        cli_puts(cli, "  tasks          — Show scheduler tasks\r\n");
+        cli_puts(cli, "  tasks          -- Show scheduler tasks\r\n");
 #endif
 
         for (size_t i = 0; i < cli->command_count; i++) {
@@ -148,7 +148,7 @@ static void cli_dispatch(SYN_CLI *cli, char *line)
                 for (size_t p = name_len; p < 15; p++) {
                     cli_putchar(cli, ' ');
                 }
-                cli_puts(cli, "— ");
+                cli_puts(cli, "-- ");
                 cli_puts(cli, cli->commands[i].help);
             }
             cli_puts(cli, "\r\n");
