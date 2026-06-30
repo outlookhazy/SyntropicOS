@@ -53,6 +53,24 @@ uint32_t syn_port_get_tick_ms(void);
  */
 void syn_port_delay_ms(uint32_t ms);
 
+#if defined(SYN_USE_TICKLESS) && SYN_USE_TICKLESS
+
+/**
+ * @brief Enter low-power sleep until the specified tick.
+ *
+ * Programs a hardware wake timer (e.g., RTC alarm or LPTIM) and enters
+ * a low-power mode. Returns when the alarm fires or any interrupt wakes
+ * the CPU.
+ *
+ * Used by the tickless scheduler to sleep between task deadlines.
+ * The default weak stub falls back to syn_port_sleep(SYN_SLEEP_LIGHT).
+ *
+ * @param wake_tick_ms  Tick value at which the CPU should wake.
+ */
+void syn_port_sleep_until(uint32_t wake_tick_ms);
+
+#endif /* SYN_USE_TICKLESS */
+
 /**
  * @brief Perform a system reset.
  *

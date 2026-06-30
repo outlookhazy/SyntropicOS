@@ -64,7 +64,9 @@ SYN_SRCS := \
 	$(SYN_DIR)/src/syntropic/storage/syn_settings.c \
 	$(SYN_DIR)/src/syntropic/log/syn_datalog.c \
 	$(SYN_DIR)/src/syntropic/util/syn_scurve.c \
-	$(SYN_DIR)/src/syntropic/util/syn_pubsub.c
+	$(SYN_DIR)/src/syntropic/util/syn_pubsub.c \
+	$(SYN_DIR)/src/syntropic/util/syn_sha256.c \
+	$(SYN_DIR)/src/syntropic/system/syn_coredump.c
 
 SYN_STUB_SRCS := \
 	$(SYN_DIR)/src/syntropic/port_stubs/syn_port_stubs.c

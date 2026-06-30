@@ -100,6 +100,10 @@ void run_fft_tests(void);
 void run_fault_tests(void);
 void run_gpio_tests(void);
 void run_uart_tests(void);
+void run_sha256_tests(void);
+void run_pool_tests(void);
+void run_coredump_tests(void);
+void run_tickless_tests(void);
 
 /* ── Main ───────────────────────────────────────────────────────────────── */
 
@@ -212,6 +216,12 @@ int main(void)
 
     /* OTA / Firmware Update */
     run_fwupdate_tests();
+
+    /* New modules */
+    run_sha256_tests();
+    run_pool_tests();
+    run_coredump_tests();
+    run_tickless_tests();
 
     return UNITY_END();
 }

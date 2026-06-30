@@ -58,6 +58,8 @@ extern bool    mock_flash_write_fail_next;
 /* ── Sleep ──────────────────────────────────────────────────────────────── */
 
 extern int mock_sleep_count;
+extern int mock_sleep_until_count;
+extern uint32_t mock_sleep_until_tick;
 
 /* ── UART ───────────────────────────────────────────────────────────────── */
 

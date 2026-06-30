@@ -308,6 +308,10 @@ extern "C" {
   #include "system/syn_hwwdt.h"
 #endif
 
+#if defined(SYN_USE_COREDUMP) && SYN_USE_COREDUMP
+  #include "system/syn_coredump.h"
+#endif
+
 #include "system/syn_version.h"
 #include "system/syn_sleep.h"
 
@@ -318,6 +322,15 @@ extern "C" {
 #endif
 
 #include "util/syn_pack.h"
+
+#if !defined(SYN_USE_SHA256) || SYN_USE_SHA256
+  #include "util/syn_sha256.h"
+  #include "util/syn_hmac.h"
+#endif
+
+#if !defined(SYN_USE_POOL) || SYN_USE_POOL
+  #include "util/syn_pool.h"
+#endif
 
 /* ── Power management (conditional) ─────────────────────────────────────── */
 

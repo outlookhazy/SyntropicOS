@@ -53,8 +53,56 @@ These modules are **always included** by the umbrella header `syntropic/syntropi
 | CBOR Reader | `util/syn_cbor_read.h` | `SYN_USE_CBOR` — Zero-allocation streaming CBOR binary reader |
 | CBOR Writer | `util/syn_cbor_write.h` | `SYN_USE_CBOR` — Zero-allocation streaming CBOR binary writer |
 
+## Cryptography
+
+| Module | Header | Config |
+|---|---|---|
+| SHA-256 | `util/syn_sha256.h` | `SYN_USE_SHA256` — FIPS 180-4 SHA-256 hash (streaming: init → update → final) |
+| HMAC-SHA256 | `util/syn_hmac.h` | `SYN_USE_SHA256` — HMAC-SHA256 keyed message authentication code |
+
+Both modules are pure C99 with no external dependencies. The SHA-256 context is ~112 bytes (caller-owned). HMAC is header-only and wraps two SHA-256 contexts.
+
+```c
+// One-shot hash
+uint8_t hash[32];
+syn_sha256("abc", 3, hash);
+
+// Streaming hash
+SYN_SHA256 ctx;
+syn_sha256_init(&ctx);
+syn_sha256_update(&ctx, chunk1, len1);
+syn_sha256_update(&ctx, chunk2, len2);
+syn_sha256_final(&ctx, hash);
+
+// HMAC-SHA256 (one-shot)
+uint8_t mac[32];
+syn_hmac_sha256(key, key_len, message, msg_len, mac);
+```
+
+## Memory
+
+| Module | Header | Config |
+|---|---|---|
+| Block Pool | `util/syn_pool.h` | `SYN_USE_POOL` — Fixed-size block memory pool with O(1) alloc/free |
+
+Header-only allocator backed by a caller-provided byte array. All blocks are the same size. Blocks are automatically 4-byte aligned. Tracks high watermark for diagnostics.
+
+```c
+static uint8_t backing[SYN_POOL_BUF_SIZE(64, 8)];  // 8 blocks × 64 bytes
+static SYN_Pool pool;
+
+syn_pool_init(&pool, backing, sizeof(backing), 64);
+
+void *blk = syn_pool_alloc(&pool);   // O(1) pop from freelist
+// ... use blk (64 bytes) ...
+syn_pool_free(&pool, blk);           // O(1) push to freelist
+
+printf("peak usage: %zu blocks\n", syn_pool_high_watermark(&pool));
+```
+
 ## Messaging
 
 | Module | Header | Config |
 |---|---|---|
 | Pub/Sub | `util/syn_pubsub.h` | `SYN_USE_PUBSUB` — Non-blocking publish-subscribe message bus |
+

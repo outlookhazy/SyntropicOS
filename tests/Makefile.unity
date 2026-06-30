@@ -2,7 +2,7 @@
 # Usage: make -f tests/Makefile.unity [test|clean]
 
 CC      := gcc
-CFLAGS  := -std=c99 -pedantic -Wall -Wextra -Werror -I. -Isrc -Itests -Itests/mocks -DSYN_LOG_COLOR=1
+CFLAGS  := -std=c99 -pedantic -Wall -Wextra -Werror -I. -Isrc -Itests -Itests/mocks -DSYN_LOG_COLOR=1 -DSYN_USE_COREDUMP=1 -DSYN_COREDUMP_FLASH_ADDR=0 -DSYN_USE_TICKLESS=1
 
 # All SyntropicOS source files
 SYN_SRCS := \
@@ -49,7 +49,9 @@ SYN_SRCS := \
 	src/syntropic/net/syn_coap.c \
 	src/syntropic/dsp/syn_biquad.c \
 	src/syntropic/dsp/syn_fft.c \
-	src/syntropic/system/syn_fault.c
+	src/syntropic/system/syn_fault.c \
+	src/syntropic/util/syn_sha256.c \
+	src/syntropic/system/syn_coredump.c
 
 # Unity framework
 UNITY_SRCS := tests/unity/unity.c

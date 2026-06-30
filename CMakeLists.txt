@@ -58,6 +58,8 @@ set(SYN_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/src/syntropic/log/syn_datalog.c
     ${CMAKE_CURRENT_SOURCE_DIR}/src/syntropic/util/syn_scurve.c
     ${CMAKE_CURRENT_SOURCE_DIR}/src/syntropic/util/syn_pubsub.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/syntropic/util/syn_sha256.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/syntropic/system/syn_coredump.c
 )
 
 # Optional: weak stubs (link these so unimplemented port functions assert

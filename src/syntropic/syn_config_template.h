@@ -37,6 +37,7 @@
 #define SYN_USE_WATCHDOG       1   /**< Task-level watchdog monitor         */
 #define SYN_USE_SEQUENCER      1   /**< Timed action sequencer              */
 #define SYN_USE_WORKQUEUE      1   /**< Deferred work queue (ISR→main)      */
+#define SYN_USE_TICKLESS       0   /**< Tickless idle scheduler (requires: SCHED, port sleep_until) */
 /* Mailbox is header-only — always available.                                */
 
 /* ── Services ───────────────────────────────────────────────────────────── */
@@ -130,6 +131,9 @@
 #define SYN_USE_FAULT          1   /**< Hard Fault diagnostics              */
 #define SYN_USE_HWWDT          1   /**< Hardware watchdog timer              */
 #define SYN_USE_POWER          1   /**< Power management (sleep/wake)       */
+#define SYN_USE_COREDUMP       0   /**< Persistent core dump to flash (requires: FAULT, CRC) */
+/* #define SYN_COREDUMP_FLASH_ADDR 0x0803F800 */ /**< Flash address for core dump sector */
+#define SYN_COREDUMP_STACK_SIZE  128 /**< Bytes of stack to capture           */
 /* Version and Sleep are header-only — always available.                     */
 
 /* ── Debug ──────────────────────────────────────────────────────────────── */
@@ -146,6 +150,8 @@
 #define SYN_USE_FMT            1   /**< Lightweight printf alternative      */
 #define SYN_USE_CBOR           1   /**< CBOR binary serializer              */
 #define SYN_USE_JSON           1   /**< JSON reader/writer                  */
+#define SYN_USE_SHA256         1   /**< SHA-256 hash + HMAC-SHA256          */
+#define SYN_USE_POOL           1   /**< Fixed-size block memory pool        */
 #define SYN_USE_PUBSUB         1   /**< Publish-subscribe message bus       */
 #define SYN_USE_RAMP           1   /**< Ramp / slew rate generator          */
 #define SYN_USE_SCURVE         1   /**< S-curve motion profile              */

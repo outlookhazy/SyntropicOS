@@ -28,6 +28,10 @@
 #include "../common/syn_compiler.h"
 #include <stdbool.h>
 
+#if defined(SYN_USE_TICKLESS) && SYN_USE_TICKLESS
+  #include "../system/syn_sleep.h"
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -97,6 +101,34 @@ bool syn_sched_run(SYN_Sched *sched);
  * @param sched  Scheduler to run.
  */
 SYN_NORETURN void syn_sched_run_forever(SYN_Sched *sched);
+
+#if defined(SYN_USE_TICKLESS) && SYN_USE_TICKLESS
+
+/**
+ * @brief Compute the earliest tick at which a task becomes ready.
+ *
+ * Scans all non-dead, non-suspended tasks and returns the minimum
+ * delay_until value that is in the future. If no tasks are delayed,
+ * returns UINT32_MAX.
+ *
+ * @param sched  Scheduler to query.
+ * @return Earliest wakeup tick, or UINT32_MAX if no tasks are waiting.
+ */
+uint32_t syn_sched_next_wakeup(const SYN_Sched *sched);
+
+/**
+ * @brief Run the scheduler with tickless idle support.
+ *
+ * Like syn_sched_run_forever(), but enters low-power sleep when no
+ * tasks are immediately ready. Uses syn_sched_next_wakeup() to compute
+ * sleep duration and syn_port_sleep_until() to program the wake timer.
+ *
+ * @param sched  Scheduler to run.
+ * @param sleep  Sleep coordinator (for wake-lock checking).
+ */
+SYN_NORETURN void syn_sched_run_tickless(SYN_Sched *sched, SYN_Sleep *sleep);
+
+#endif /* SYN_USE_TICKLESS */
 
 /* ── Task control ───────────────────────────────────────────────────────── */
 

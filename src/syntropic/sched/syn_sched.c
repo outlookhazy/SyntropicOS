@@ -13,6 +13,8 @@
 #include "../port/syn_port_system.h"
 #include "../util/syn_assert.h"
 
+#include <limits.h>
+
 /* ── Initialization ─────────────────────────────────────────────────────── */
 
 void syn_sched_init(SYN_Sched *sched, SYN_Task *tasks, size_t count)
@@ -130,6 +132,79 @@ SYN_NORETURN void syn_sched_run_forever(SYN_Sched *sched)
         syn_sched_run(sched);
     }
 }
+
+#if defined(SYN_USE_TICKLESS) && SYN_USE_TICKLESS
+
+uint32_t syn_sched_next_wakeup(const SYN_Sched *sched)
+{
+    SYN_ASSERT(sched != NULL);
+
+    uint32_t now = syn_port_get_tick_ms();
+    uint32_t earliest = UINT32_MAX;
+    bool any_ready_now = false;
+
+    for (size_t i = 0; i < sched->task_count; i++) {
+        const SYN_Task *task = &sched->tasks[i];
+
+        if (task->state == (uint8_t)SYN_TASK_DEAD ||
+            task->state == (uint8_t)SYN_TASK_SUSPENDED) {
+            continue;
+        }
+
+        if (task->delay_until == 0) {
+            /* Task is ready immediately (no delay) */
+            any_ready_now = true;
+            continue;
+        }
+
+        /* Check if delay has already passed */
+        if ((int32_t)(now - task->delay_until) >= 0) {
+            any_ready_now = true;
+            continue;
+        }
+
+        /* This task is in the future — track the earliest */
+        if ((int32_t)(task->delay_until - earliest) < 0 ||
+            earliest == UINT32_MAX) {
+            earliest = task->delay_until;
+        }
+    }
+
+    /* If any task is ready right now, return 'now' to indicate no sleep */
+    if (any_ready_now) {
+        return now;
+    }
+
+    return earliest;
+}
+
+SYN_NORETURN void syn_sched_run_tickless(SYN_Sched *sched, SYN_Sleep *sleep)
+{
+    SYN_ASSERT(sched != NULL);
+    SYN_ASSERT(sleep != NULL);
+
+    for (;;) {
+        /* Run the scheduler — returns true if any tasks alive */
+        syn_sched_run(sched);
+
+        /* Check if we can sleep */
+        uint32_t now = syn_port_get_tick_ms();
+        uint32_t wake = syn_sched_next_wakeup(sched);
+
+        /* Only sleep if no tasks are immediately ready */
+        if (wake != now && !syn_sleep_any_locked(sleep)) {
+            if (wake == UINT32_MAX) {
+                /* No deadlines — light sleep until interrupt */
+                syn_sleep_enter(sleep);
+            } else {
+                /* Sleep until the next deadline */
+                syn_port_sleep_until(wake);
+            }
+        }
+    }
+}
+
+#endif /* SYN_USE_TICKLESS */
 
 /* ── Task control ───────────────────────────────────────────────────────── */
 

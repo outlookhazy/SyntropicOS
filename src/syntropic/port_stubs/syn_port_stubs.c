@@ -340,6 +340,13 @@ SYN_WEAK void syn_port_sleep(SYN_SleepMode mode)
     /* Default: no-op (busy wait) */
 }
 
+SYN_WEAK void syn_port_sleep_until(uint32_t wake_tick_ms)
+{
+    (void)wake_tick_ms;
+    /* Default: fall back to light sleep */
+    syn_port_sleep(SYN_SLEEP_LIGHT);
+}
+
 /* ── EXTI stubs ─────────────────────────────────────────────────────────── */
 
 #include "../port/syn_port_exti.h"

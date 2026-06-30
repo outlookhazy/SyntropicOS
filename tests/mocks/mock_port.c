@@ -223,7 +223,17 @@ uint16_t syn_port_adc_reference_mv(void)    { return 3300; }
 
 #include "syntropic/system/syn_sleep.h"
 int mock_sleep_count = 0;
+int mock_sleep_until_count = 0;
+uint32_t mock_sleep_until_tick = 0;
 void syn_port_sleep(SYN_SleepMode m) { (void)m; mock_sleep_count++; }
+void syn_port_sleep_until(uint32_t wake_tick_ms) {
+    mock_sleep_until_count++;
+    mock_sleep_until_tick = wake_tick_ms;
+    /* Advance mock tick to the wake time */
+    if ((int32_t)(wake_tick_ms - mock_tick_ms) > 0) {
+        mock_tick_ms = wake_tick_ms;
+    }
+}
 
 /* ── EXTI ───────────────────────────────────────────────────────────────── */
 
@@ -615,6 +625,8 @@ void mock_port_reset(void)
     memset(mock_flash, 0xFF, sizeof(mock_flash));
     mock_flash_fail_at = -1;
     mock_sleep_count = 0;
+    mock_sleep_until_count = 0;
+    mock_sleep_until_tick = 0;
     memset(&mock_can_rx, 0, sizeof(mock_can_rx));
     mock_can_rx_avail = false;
     mock_can_tx_ok = true;

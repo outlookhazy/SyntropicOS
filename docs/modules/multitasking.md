@@ -200,3 +200,121 @@ syn_sched_run_forever(&sched);  // never returns
 | Work Queue | `sched/syn_workqueue.h` | `SYN_USE_WORKQUEUE` | Deferred work queue — safely post work from ISR to main thread |
 | Mailbox | `sched/syn_mailbox.h` | Always available | Typed single-producer/single-consumer (SPSC) message queue (header-only) |
 | Active Object | `sched/syn_ao.h` | `SYN_USE_AO` | Active Object execution context — combines FSM + event queue + scheduler task |
+
+## Tickless Idle
+
+| Module | Header | Config |
+|---|---|---|
+| Tickless Idle | `sched/syn_sched.h` | `SYN_USE_TICKLESS` — Low-power sleep between task deadlines (requires: SCHED) |
+
+Enabled via `SYN_USE_TICKLESS 1` in `syn_config.h`. Off by default — the scheduler is unchanged unless you opt in.
+
+### How It Works
+
+In a normal `syn_sched_run_forever()` loop, the CPU busy-loops when no tasks are ready. Tickless idle replaces that with low-power sleep:
+
+```
+┌────────────────────────────────────────────────────────┐
+│                  syn_sched_run_tickless()               │
+│                                                        │
+│  ┌──► Run all ready tasks (syn_sched_run)              │
+│  │                                                     │
+│  │    Any tasks ready NOW?                             │
+│  │    ├─ Yes → loop back, run them                     │
+│  │    └─ No  → compute next wakeup deadline            │
+│  │             │                                       │
+│  │             ├─ Deadline exists → sleep until it      │
+│  │             │   syn_port_sleep_until(wake_tick)      │
+│  │             │                                       │
+│  │             └─ No deadlines  → light sleep           │
+│  │                 syn_sleep_enter(sleep)               │
+│  │                                                     │
+│  │    ◄── CPU wakes (timer alarm OR any interrupt) ──► │
+│  └────────────────────────────────────────────────────  │
+└────────────────────────────────────────────────────────┘
+```
+
+### Interrupts and Wakeup
+
+The key insight: **`syn_port_sleep_until()` returns on *any* interrupt, not just the timer alarm.** This is how interrupts integrate naturally:
+
+| Wakeup Source | What Happens |
+|---|---|
+| **Timer alarm fires** | CPU wakes at the scheduled tick. The scheduler runs delayed tasks that are now due. |
+| **EXTI / GPIO interrupt** | CPU wakes early. The ISR runs (e.g., button press, sensor data-ready). If the ISR posts work via `syn_workqueue_post()` or sets an event via `syn_event_set()`, the scheduler picks it up on the next loop iteration. |
+| **UART / SPI / DMA interrupt** | Same — ISR runs, fills a ring buffer or signals a semaphore. The scheduler runs the task that was waiting on that data. |
+| **Any other IRQ** | CPU wakes, ISR runs, scheduler re-evaluates. If nothing is ready, it goes back to sleep. |
+
+The scheduler **doesn't need to know about your interrupts.** It simply re-checks task readiness every time it wakes up. The idle loop is:
+
+1. Run ready tasks
+2. No tasks ready? → Sleep until the next deadline (or forever)
+3. Wake up (timer *or* interrupt) → goto 1
+
+### Wakelocks
+
+If a peripheral needs the CPU to stay awake (e.g., mid-DMA transfer), use the sleep coordinator's wakelocks:
+
+```c
+syn_sleep_lock(&sleep);    // Prevent sleep
+// ... do time-critical work ...
+syn_sleep_unlock(&sleep);  // Allow sleep again
+```
+
+While any wakelock is held, `syn_sched_run_tickless()` busy-loops instead of sleeping — same as `syn_sched_run_forever()`.
+
+### Example: Button + Periodic Task
+
+```c
+#define SYN_USE_TICKLESS 1
+
+static SYN_Task tasks[2];
+static SYN_Sched sched;
+static SYN_Sleep sleep;
+
+// Task A: blink LED every 1 second
+static SYN_PT_Status blink_task(SYN_PT *pt, SYN_Task *task) {
+    PT_BEGIN(pt);
+    for (;;) {
+        syn_gpio_toggle(LED_PIN);
+        PT_TASK_DELAY_MS(pt, task, 1000);
+    }
+    PT_END(pt);
+}
+
+// Task B: respond to button press (EXTI wakes CPU)
+static SYN_PT_Status button_task(SYN_PT *pt, SYN_Task *task) {
+    PT_BEGIN(pt);
+    for (;;) {
+        PT_WAIT_UNTIL(pt, button_pressed);
+        handle_button();
+        button_pressed = false;
+    }
+    PT_END(pt);
+}
+
+int main(void) {
+    syn_task_create(&tasks[0], "blink",  blink_task,  1, NULL);
+    syn_task_create(&tasks[1], "button", button_task, 0, NULL);
+    syn_sched_init(&sched, tasks, 2);
+    syn_sleep_init(&sleep);
+
+    // CPU sleeps between 1-second blinks.
+    // Button EXTI wakes it early when pressed.
+    syn_sched_run_tickless(&sched, &sleep);
+}
+```
+
+Between blinks, the CPU enters low-power mode for ~1 second. If a button EXTI fires at 500 ms, the CPU wakes immediately, the ISR sets `button_pressed`, and the scheduler runs `button_task`. Then it goes back to sleep for the remaining ~500 ms until the next blink.
+
+### Port Requirement
+
+Implement `syn_port_sleep_until(uint32_t wake_tick_ms)` in your platform port. This function must:
+
+1. Program a hardware wake timer (RTC alarm, LPTIM compare, etc.) for `wake_tick_ms`
+2. Enter a low-power mode (e.g., `__WFI()` on Cortex-M)
+3. Return when the alarm fires **or** any interrupt wakes the CPU
+
+The default weak stub falls back to `syn_port_sleep(SYN_SLEEP_LIGHT)` (no timer programming — just WFI).
+
+

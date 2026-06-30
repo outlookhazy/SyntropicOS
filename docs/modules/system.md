@@ -11,6 +11,32 @@
 | Firmware Image | `system/syn_fwimage.h` | Always available | Firmware image header definitions |
 | Firmware Update | `system/syn_fwupdate.h` | Always available | Streaming, transport-agnostic firmware updater |
 | System Faults | `system/syn_fault.h` | `SYN_USE_FAULT` | Exception and hardware fault handler with diagnostic logging (e.g., HardFault on Cortex-M) |
+| Core Dump | `system/syn_coredump.h` | `SYN_USE_COREDUMP` | Persistent fault dump to flash — saves registers + partial stack snapshot on crash, readable at next boot |
+
+## Core Dump
+
+The core dump module captures CPU register state and a partial stack snapshot during a hard fault, persisting them to a reserved flash sector. On the next boot, the dump can be read back for post-mortem diagnostics.
+
+Requires `SYN_USE_FAULT`, CRC, and a flash port. Configure in `syn_config.h`:
+
+```c
+#define SYN_USE_COREDUMP        1
+#define SYN_COREDUMP_FLASH_ADDR 0x0803F800  // Reserved flash sector
+#define SYN_COREDUMP_STACK_SIZE 128         // Bytes of stack to capture
+```
+
+```c
+// In your HardFault handler:
+syn_coredump_save(&fault_context);
+
+// At boot — check for previous crash:
+SYN_CoreDump dump;
+if (syn_coredump_read(&dump)) {
+    printf("Previous crash at PC=0x%08x, uptime=%lu ms\n",
+           dump.regs.pc, dump.uptime_ms);
+    syn_coredump_clear();
+}
+```
 
 ## Version System
 
