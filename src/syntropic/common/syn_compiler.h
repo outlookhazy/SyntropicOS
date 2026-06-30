@@ -122,6 +122,22 @@ extern "C" {
   #define SYN_ALIGN(n)
 #endif
 
+/* ── SYN_COMPILER_BARRIER ──────────────────────────────────────────────── */
+/**
+ * Prevent the compiler from reordering loads/stores across this point.
+ * Zero runtime cost — does NOT emit a hardware fence instruction.
+ * Pair with syn_port_memory_barrier() when cross-core visibility is needed.
+ */
+#if defined(SYN_COMPILER_GCC_LIKE)
+  #define SYN_COMPILER_BARRIER()   __asm volatile("" ::: "memory")
+#elif defined(SYN_COMPILER_ARMCC)
+  #define SYN_COMPILER_BARRIER()   __asm volatile("" ::: "memory")
+#elif defined(SYN_COMPILER_IAR)
+  #define SYN_COMPILER_BARRIER()   __asm volatile("" ::: "memory")
+#else
+  #define SYN_COMPILER_BARRIER()   ((void)0)
+#endif
+
 /* ── SYN_FALLTHROUGH ───────────────────────────────────────────────────── */
 /** Suppress -Wimplicit-fallthrough warnings for intentional fallthrough. */
 #if defined(SYN_COMPILER_GCC_LIKE)

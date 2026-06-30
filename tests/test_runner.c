@@ -109,6 +109,7 @@ void run_i2c_async_tests(void);
 void run_spi_async_tests(void);
 void run_fwupdate_hmac_tests(void);
 void run_timer_expiry_tests(void);
+void run_multicore_tests(void);
 
 /* ── Main ───────────────────────────────────────────────────────────────── */
 
@@ -234,6 +235,9 @@ int main(void)
     run_spi_async_tests();
     run_fwupdate_hmac_tests();
     run_timer_expiry_tests();
+
+    /* Multicore (AMP) */
+    run_multicore_tests();
 
     return UNITY_END();
 }

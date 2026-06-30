@@ -5,6 +5,30 @@
  * Passes fixed-size messages between producer (ISR or task) and consumer
  * (task). Lock-free single-producer single-consumer design.
  *
+ * When SYN_USE_MULTICORE is enabled, acquire/release memory barriers
+ * are inserted at every index access, making the mailbox safe for
+ * cross-core communication (core A posts, core B receives). When
+ * multicore is disabled (the default), these compile to plain volatile
+ * reads and writes — zero overhead.
+ *
+ * @par Correctness model (multicore)
+ *
+ * The mailbox has exactly two indices:
+ * - `head` — written ONLY by the producer
+ * - `tail` — written ONLY by the consumer
+ *
+ * **Producer `syn_mailbox_post()`:**
+ * 1. Read `tail` (LOAD_ACQUIRE) — observe consumer's latest progress
+ * 2. If full, return false
+ * 3. memcpy message data into `buf[head * msg_size]`
+ * 4. Write `head = next` (STORE_RELEASE) — data committed before index
+ *
+ * **Consumer `syn_mailbox_receive()`:**
+ * 1. Read `head` (LOAD_ACQUIRE) — observe producer's latest index
+ * 2. If empty, return false
+ * 3. memcpy message from `buf[tail * msg_size]` — safe: data visible
+ * 4. Write `tail = next` (STORE_RELEASE) — slot freed for producer
+ *
  * @par Usage
  * @code
  *   typedef struct { uint16_t id; int32_t value; } SensorMsg;
@@ -12,11 +36,11 @@
  *   // Static allocation
  *   SYN_MAILBOX_DEFINE(sensor_mbox, SensorMsg, 8);
  *
- *   // Producer (ISR):
+ *   // Producer (ISR or other core):
  *   SensorMsg msg = { .id = 1, .value = 2345 };
  *   syn_mailbox_post(&sensor_mbox, &msg);
  *
- *   // Consumer (main loop):
+ *   // Consumer (main loop or other core):
  *   SensorMsg rx;
  *   while (syn_mailbox_receive(&sensor_mbox, &rx)) {
  *       process(rx.id, rx.value);
@@ -33,6 +57,8 @@
 #include <stdbool.h>
 #include <string.h>
 
+#include "../common/syn_barrier.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -47,6 +73,9 @@ typedef struct {
     volatile size_t head;         /**< Write index (producer)              */
     volatile size_t tail;         /**< Read index (consumer)               */
     uint32_t        overflow;     /**< Messages dropped (queue full)       */
+#if defined(SYN_USE_MULTICORE) && SYN_USE_MULTICORE
+    bool            notify;       /**< Auto-notify consumer core on post?  */
+#endif
 } SYN_Mailbox;
 
 /**
@@ -57,6 +86,19 @@ typedef struct {
  * @param type      Message struct type.
  * @param count     Max number of messages.
  */
+#if defined(SYN_USE_MULTICORE) && SYN_USE_MULTICORE
+#define SYN_MAILBOX_DEFINE(name, type, count)                      \
+    static uint8_t name##_buf[(count) * sizeof(type)];              \
+    static SYN_Mailbox name = {                                    \
+        .buf      = name##_buf,                                     \
+        .msg_size = sizeof(type),                                   \
+        .capacity = (count),                                        \
+        .head     = 0,                                              \
+        .tail     = 0,                                              \
+        .overflow = 0,                                              \
+        .notify   = false,                                          \
+    }
+#else
 #define SYN_MAILBOX_DEFINE(name, type, count)                      \
     static uint8_t name##_buf[(count) * sizeof(type)];              \
     static SYN_Mailbox name = {                                    \
@@ -67,6 +109,13 @@ typedef struct {
         .tail     = 0,                                              \
         .overflow = 0,                                              \
     }
+#endif
+
+/* ── Forward declaration for IPC notify ────────────────────────────────── */
+
+#if defined(SYN_USE_MULTICORE) && SYN_USE_MULTICORE
+void syn_port_ipc_notify(void);
+#endif
 
 /* ── API ────────────────────────────────────────────────────────────────── */
 
@@ -88,10 +137,32 @@ static inline void syn_mailbox_init(SYN_Mailbox *mb,
     mb->head     = 0;
     mb->tail     = 0;
     mb->overflow = 0;
+#if defined(SYN_USE_MULTICORE) && SYN_USE_MULTICORE
+    mb->notify   = false;
+#endif
 }
+
+#if defined(SYN_USE_MULTICORE) && SYN_USE_MULTICORE
+/**
+ * @brief Enable cross-core notification on post.
+ *
+ * When enabled, each successful post() calls syn_port_ipc_notify()
+ * to wake the consumer core from WFE / low-power idle.
+ *
+ * @param mb      Mailbox.
+ * @param enable  true to enable IPC notifications.
+ */
+static inline void syn_mailbox_set_notify(SYN_Mailbox *mb, bool enable)
+{
+    mb->notify = enable;
+}
+#endif
 
 /**
  * @brief Post a message. ISR-safe (single producer).
+ *
+ * Uses STORE_RELEASE on the head update to ensure message data
+ * is committed before the consumer can see the new index.
  *
  * @param mb   Mailbox.
  * @param msg  Pointer to message data (msg_size bytes copied).
@@ -99,21 +170,33 @@ static inline void syn_mailbox_init(SYN_Mailbox *mb,
  */
 static inline bool syn_mailbox_post(SYN_Mailbox *mb, const void *msg)
 {
-    size_t next = mb->head + 1;
+    size_t head = mb->head;
+    size_t next = head + 1;
     if (next >= mb->capacity) next = 0;
 
-    if (next == mb->tail) {
+    if (next == SYN_LOAD_ACQUIRE(&mb->tail)) {
         mb->overflow++;
         return false;
     }
 
-    memcpy(&mb->buf[mb->head * mb->msg_size], msg, mb->msg_size);
-    mb->head = next;
+    memcpy(&mb->buf[head * mb->msg_size], msg, mb->msg_size);
+    SYN_STORE_RELEASE(&mb->head, next);
+
+#if defined(SYN_USE_MULTICORE) && SYN_USE_MULTICORE
+    if (mb->notify) {
+        syn_port_ipc_notify();
+    }
+#endif
+
     return true;
 }
 
 /**
  * @brief Receive a message. Single consumer.
+ *
+ * Uses LOAD_ACQUIRE on the head read to ensure all message data
+ * written by the producer is visible. Uses STORE_RELEASE on the
+ * tail update to ensure the producer sees the freed slot.
  *
  * @param mb   Mailbox.
  * @param msg  Pointer to receive buffer (msg_size bytes copied out).
@@ -121,13 +204,16 @@ static inline bool syn_mailbox_post(SYN_Mailbox *mb, const void *msg)
  */
 static inline bool syn_mailbox_receive(SYN_Mailbox *mb, void *msg)
 {
-    if (mb->tail == mb->head) return false;
+    size_t head = SYN_LOAD_ACQUIRE(&mb->head);
+    size_t tail = mb->tail;
 
-    memcpy(msg, &mb->buf[mb->tail * mb->msg_size], mb->msg_size);
+    if (tail == head) return false;
 
-    size_t next = mb->tail + 1;
+    memcpy(msg, &mb->buf[tail * mb->msg_size], mb->msg_size);
+
+    size_t next = tail + 1;
     if (next >= mb->capacity) next = 0;
-    mb->tail = next;
+    SYN_STORE_RELEASE(&mb->tail, next);
 
     return true;
 }
@@ -141,7 +227,7 @@ static inline bool syn_mailbox_receive(SYN_Mailbox *mb, void *msg)
  */
 static inline const void *syn_mailbox_peek(const SYN_Mailbox *mb)
 {
-    if (mb->tail == mb->head) return NULL;
+    if (SYN_LOAD_ACQUIRE(&mb->head) == mb->tail) return NULL;
     return &mb->buf[mb->tail * mb->msg_size];
 }
 
@@ -152,7 +238,7 @@ static inline const void *syn_mailbox_peek(const SYN_Mailbox *mb)
  */
 static inline bool syn_mailbox_empty(const SYN_Mailbox *mb)
 {
-    return mb->head == mb->tail;
+    return SYN_LOAD_ACQUIRE(&mb->head) == mb->tail;
 }
 
 /**
@@ -164,7 +250,7 @@ static inline bool syn_mailbox_full(const SYN_Mailbox *mb)
 {
     size_t next = mb->head + 1;
     if (next >= mb->capacity) next = 0;
-    return next == mb->tail;
+    return next == SYN_LOAD_ACQUIRE(&mb->tail);
 }
 
 /**
@@ -174,9 +260,9 @@ static inline bool syn_mailbox_full(const SYN_Mailbox *mb)
  */
 static inline size_t syn_mailbox_pending(const SYN_Mailbox *mb)
 {
-    return (mb->head >= mb->tail)
-         ? mb->head - mb->tail
-         : mb->capacity - mb->tail + mb->head;
+    size_t h = SYN_LOAD_ACQUIRE(&mb->head);
+    size_t t = mb->tail;
+    return (h >= t) ? h - t : mb->capacity - t + h;
 }
 
 /**
@@ -206,7 +292,8 @@ static inline uint32_t syn_mailbox_overflows(const SYN_Mailbox *mb)
  */
 static inline void syn_mailbox_flush(SYN_Mailbox *mb)
 {
-    mb->tail = mb->head;
+    size_t head = SYN_LOAD_ACQUIRE(&mb->head);
+    SYN_STORE_RELEASE(&mb->tail, head);
 }
 
 #ifdef __cplusplus

@@ -149,6 +149,11 @@
 #define SYN_USE_I2C_ASYNC      0   /**< Async I2C transactions              */
 #define SYN_USE_SPI_ASYNC      0   /**< Async SPI transactions              */
 
+/* ── Multicore (AMP) ───────────────────────────────────────────────────── */
+
+#define SYN_USE_MULTICORE      0   /**< AMP multicore support               */
+#define SYN_SPINLOCK_COUNT     4   /**< Number of spinlock IDs              */
+
 /* ── Debug ──────────────────────────────────────────────────────────────── */
 
 #define SYN_USE_TRACE          1   /**< Event trace buffer                  */

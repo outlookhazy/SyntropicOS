@@ -359,3 +359,137 @@ syn_sched_run_tickless_ex(&sched, &sleep, timers, 2);
 uint32_t next = syn_timer_next_expiry(timers, timer_count);
 // UINT32_MAX if no active timers
 ```
+
+---
+
+## Multicore (AMP)
+
+Enable `SYN_USE_MULTICORE` to add Asymmetric Multiprocessing support. Each core runs its own independent cooperative scheduler; cores communicate via the existing mailbox (upgraded with memory barriers) and protect shared peripherals with spinlocks.
+
+**Key files:**
+
+| File | Purpose |
+|------|---------|
+| `syn_barrier.h` | Acquire/release memory ordering primitives |
+| `syn_port_spinlock.h` | Spinlock, core ID, and IPC notify port functions |
+| `syn_spinlock.h` | Scoped `SYN_SPINLOCK_GUARD()` helper |
+| `syn_mailbox.h` | SPSC mailbox (barrier-upgraded for cross-core safety) |
+
+### Architecture
+
+```
+         Core 0                         Core 1
+   ┌──────────────────┐          ┌──────────────────┐
+   │  SYN_Sched sched0│          │  SYN_Sched sched1│
+   │  tasks0[N]       │          │  tasks1[M]       │
+   │                  │          │                  │
+   │  run_forever()   │◄────────►│  run_forever()   │
+   │                  │ Mailbox  │                  │
+   └──────────────────┘          └──────────────────┘
+```
+
+Each core owns its own scheduler, task array, and timers. No changes to the cooperative protothread model. Cross-core coordination uses only two primitives:
+- **Mailbox** — typed message passing (SPSC, lock-free)
+- **Spinlock** — mutual exclusion for shared hardware (UART, flash, etc.)
+
+### Configuration
+
+```c
+// syn_config.h
+#define SYN_USE_MULTICORE   1
+#define SYN_SPINLOCK_COUNT  4  // number of spinlock IDs (default 4)
+```
+
+### Cross-Core Mailbox
+
+The existing `syn_mailbox` is automatically upgraded with acquire/release barriers when `SYN_USE_MULTICORE=1`. On single-core builds, these compile to zero-cost plain volatile access.
+
+```c
+typedef struct { uint8_t id; int32_t value; } SensorMsg;
+
+// Place in shared SRAM accessible to both cores
+static SYN_MAILBOX_DEFINE(ipc_mbox, SensorMsg, 16);
+
+// Optional: wake consumer core on post
+syn_mailbox_set_notify(&ipc_mbox, true);
+
+// Core 0 (producer):
+SensorMsg msg = { .id = 1, .value = 42 };
+syn_mailbox_post(&ipc_mbox, &msg);
+
+// Core 1 (consumer):
+SensorMsg rx;
+if (syn_mailbox_receive(&ipc_mbox, &rx)) {
+    handle(rx.id, rx.value);
+}
+```
+
+> **Warning:** The mailbox is strictly **single-producer, single-consumer**. If you need multiple producers, serialize access with a spinlock.
+
+### Spinlocks
+
+Spinlocks protect shared resources (peripherals, log buffers) across cores. They disable interrupts on the acquiring core to prevent priority inversion.
+
+```c
+#include "syntropic/util/syn_spinlock.h"
+
+// Scoped lock — guaranteed release on scope exit
+SYN_SPINLOCK_GUARD(SYN_SPINLOCK_UART) {
+    syn_port_uart_transmit(0, data, len, 10);
+}
+
+// Manual lock (for more control)
+syn_port_spinlock_acquire(SYN_SPINLOCK_FLASH);
+syn_port_flash_write(addr, buf, len);
+syn_port_spinlock_release(SYN_SPINLOCK_FLASH);
+```
+
+Well-known lock IDs:
+
+| ID | Macro | Purpose |
+|----|-------|---------|
+| 0 | `SYN_SPINLOCK_UART` | Shared UART |
+| 1 | `SYN_SPINLOCK_FLASH` | Shared flash |
+| 2 | `SYN_SPINLOCK_USER0` | Application use |
+| 3 | `SYN_SPINLOCK_USER1` | Application use |
+
+### Porting Guide
+
+Implement these functions for your platform:
+
+```c
+// Required:
+void     syn_port_spinlock_acquire(uint8_t id);   // disable IRQ + spin
+void     syn_port_spinlock_release(uint8_t id);   // release + restore IRQ
+bool     syn_port_spinlock_try_acquire(uint8_t id);
+uint8_t  syn_port_core_id(void);                  // return 0 or 1
+void     syn_port_memory_barrier(void);           // DMB on ARM, __sync_synchronize fallback
+
+// Optional (no-op stub provided):
+void     syn_port_ipc_notify(void);               // SEV on ARM, triggers WFE wakeup
+```
+
+**RP2040 example** — hardware spinlocks:
+
+```c
+#include "hardware/sync.h"
+
+static spin_lock_t *locks[SYN_SPINLOCK_COUNT];
+static uint32_t saved_irq[SYN_SPINLOCK_COUNT];
+
+void syn_port_spinlock_acquire(uint8_t id) {
+    saved_irq[id] = spin_lock_blocking(locks[id]);
+}
+
+void syn_port_spinlock_release(uint8_t id) {
+    spin_unlock(locks[id], saved_irq[id]);
+}
+
+void syn_port_memory_barrier(void) {
+    __dmb();  // Data Memory Barrier
+}
+
+void syn_port_ipc_notify(void) {
+    __sev();  // Send Event — wakes other core from WFE
+}
+```

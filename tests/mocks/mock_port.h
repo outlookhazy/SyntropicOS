@@ -211,6 +211,29 @@ void mock_spi_async_complete(void);
 
 #endif /* SYN_USE_SPI_ASYNC */
 
+/* ── Multicore mock ────────────────────────────────────────────────────── */
+
+#if defined(SYN_USE_MULTICORE) && SYN_USE_MULTICORE
+
+#include "syntropic/port/syn_port_spinlock.h"
+
+/** Spinlock held state (true = locked). */
+extern bool mock_spinlock_held[SYN_SPINLOCK_COUNT];
+
+/** Number of times each spinlock was acquired. */
+extern uint32_t mock_spinlock_acquire_count[SYN_SPINLOCK_COUNT];
+
+/** Simulated core ID (set by test). */
+extern uint8_t mock_core_id;
+
+/** Number of times syn_port_ipc_notify() was called. */
+extern uint32_t mock_ipc_notify_count;
+
+/** Number of times syn_port_memory_barrier() was called. */
+extern uint32_t mock_barrier_count;
+
+#endif /* SYN_USE_MULTICORE */
+
 /* ── Reset ────────────────────────────────────────────────────────────────── */
 
 /** Reset all mock state to defaults. Call from setUp(). */

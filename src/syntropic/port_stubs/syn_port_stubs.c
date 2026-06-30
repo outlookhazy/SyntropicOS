@@ -491,3 +491,59 @@ SYN_WEAK SYN_Status syn_port_spi_cancel(uint8_t bus)
 }
 
 #endif /* SYN_USE_SPI_ASYNC */
+
+/* ── Multicore stubs ───────────────────────────────────────────────────── */
+
+#include "../common/syn_barrier.h"
+
+#if defined(SYN_USE_MULTICORE) && SYN_USE_MULTICORE
+
+#include "../port/syn_port_spinlock.h"
+
+SYN_WEAK void syn_port_memory_barrier(void)
+{
+    /* Fallback: compiler barrier only. Safe on single-core, but a real
+     * multicore port MUST override this with a hardware fence. */
+    SYN_COMPILER_BARRIER();
+}
+
+SYN_WEAK void syn_port_spinlock_acquire(uint8_t id)
+{
+    (void)id;
+    syn_assert_failed(__FILE__, __LINE__);
+}
+
+SYN_WEAK void syn_port_spinlock_release(uint8_t id)
+{
+    (void)id;
+    syn_assert_failed(__FILE__, __LINE__);
+}
+
+SYN_WEAK bool syn_port_spinlock_try_acquire(uint8_t id)
+{
+    (void)id;
+    syn_assert_failed(__FILE__, __LINE__);
+    return false;
+}
+
+SYN_WEAK uint8_t syn_port_core_id(void)
+{
+    return 0;
+}
+
+SYN_WEAK void syn_port_ipc_notify(void)
+{
+    /* No-op: consumer core polls at next scheduler tick. */
+}
+
+#else /* !SYN_USE_MULTICORE */
+
+/* Memory barrier stub when multicore is off — never actually called
+ * because syn_barrier.h inlines plain volatile access, but some
+ * toolchains may still emit a reference. */
+SYN_WEAK void syn_port_memory_barrier(void)
+{
+    SYN_COMPILER_BARRIER();
+}
+
+#endif /* SYN_USE_MULTICORE */

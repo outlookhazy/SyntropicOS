@@ -708,6 +708,14 @@ void mock_port_reset(void)
     mock_spi_async_busy = false;
     mock_spi_async_result = SYN_OK;
 #endif
+
+#if defined(SYN_USE_MULTICORE) && SYN_USE_MULTICORE
+    memset(mock_spinlock_held, 0, sizeof(mock_spinlock_held));
+    memset(mock_spinlock_acquire_count, 0, sizeof(mock_spinlock_acquire_count));
+    mock_core_id = 0;
+    mock_ipc_notify_count = 0;
+    mock_barrier_count = 0;
+#endif
 }
 
 /* ── DMA mock implementation ───────────────────────────────────────────── */
@@ -859,3 +867,51 @@ void mock_spi_async_complete(void)
 
 #endif /* SYN_USE_SPI_ASYNC */
 
+/* ── Multicore mock implementation ─────────────────────────────────────── */
+
+#if defined(SYN_USE_MULTICORE) && SYN_USE_MULTICORE
+
+bool     mock_spinlock_held[SYN_SPINLOCK_COUNT];
+uint32_t mock_spinlock_acquire_count[SYN_SPINLOCK_COUNT];
+uint8_t  mock_core_id = 0;
+uint32_t mock_ipc_notify_count = 0;
+uint32_t mock_barrier_count = 0;
+
+void syn_port_spinlock_acquire(uint8_t id)
+{
+    if (id >= SYN_SPINLOCK_COUNT) return;
+    mock_spinlock_held[id] = true;
+    mock_spinlock_acquire_count[id]++;
+}
+
+void syn_port_spinlock_release(uint8_t id)
+{
+    if (id >= SYN_SPINLOCK_COUNT) return;
+    mock_spinlock_held[id] = false;
+}
+
+bool syn_port_spinlock_try_acquire(uint8_t id)
+{
+    if (id >= SYN_SPINLOCK_COUNT) return false;
+    if (mock_spinlock_held[id]) return false;
+    mock_spinlock_held[id] = true;
+    mock_spinlock_acquire_count[id]++;
+    return true;
+}
+
+uint8_t syn_port_core_id(void)
+{
+    return mock_core_id;
+}
+
+void syn_port_ipc_notify(void)
+{
+    mock_ipc_notify_count++;
+}
+
+void syn_port_memory_barrier(void)
+{
+    mock_barrier_count++;
+}
+
+#endif /* SYN_USE_MULTICORE */
