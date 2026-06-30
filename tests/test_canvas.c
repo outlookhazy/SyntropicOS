@@ -281,7 +281,7 @@ static void test_canvas_16bit_clear(void)
     static uint8_t fb16[64]; /* 32 pixels x 2 bytes each */
     SYN_Canvas c;
     /* bpp=16 for 16-bit display (buf_size must hold w*h*2 bytes) */
-    syn_canvas_init(&c, fb16, 32, 16, 16, cvs_flush, NULL);
+    syn_canvas_init(&c, fb16, 32, 1, 16, cvs_flush, NULL);
 
     /* Color > 0xFF triggers hi/lo byte path (lines 195-199) */
     syn_canvas_fill(&c, 0xF800u); /* Red in RGB565 */

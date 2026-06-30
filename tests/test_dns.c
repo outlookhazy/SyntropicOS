@@ -227,10 +227,106 @@ static void test_dns_resolve_timeout(void)
     SYN_Task task;
     task.user_data = &r;
     for (int i = 0; i < 200; i++) {
-        if (syn_dns_resolve_task(&pt, &task) != PT_WAITING) break;
+        if (syn_dns_resolve_task(&pt, &task) >= PT_EXITED) break;
         mock_tick_ms += 1; /* advance time */
     }
     TEST_ASSERT_EQUAL(SYN_TIMEOUT, r.status);
+}
+
+static void test_dns_resolve_cname(void)
+{
+    mock_port_reset();
+    uint8_t rx[] = {
+        0x00, 0x00, 0x81, 0x80, /* ID, flags */
+        0x00, 0x01, 0x00, 0x01, /* 1 question, 1 answer */
+        0x00, 0x00, 0x00, 0x00, /* 0 auth, 0 add */
+        /* Question: "example.com" */
+        7, 'e','x','a','m','p','l','e', 3, 'c','o','m', 0,
+        0x00, 0x01, 0x00, 0x01, /* QTYPE A, QCLASS IN */
+        /* Answer: CNAME (type 5), length 4, "abcd" */
+        0xC0, 0x0C, /* Pointer to question */
+        0x00, 0x05, /* TYPE CNAME */
+        0x00, 0x01, /* CLASS IN */
+        0x00, 0x00, 0x00, 0x3C, /* TTL */
+        0x00, 0x04, /* RDLEN = 4 */
+        'a', 'b', 'c', 'd'
+    };
+    mock_udp_set_response(rx, sizeof(rx), NULL);
+
+    SYN_SockAddr resolved;
+    SYN_DnsResolver r;
+    r.dns_server = NULL;
+    r.hostname = "example.com";
+    r.addr_out = &resolved;
+    r.timeout_ms = 1000;
+
+    SYN_PT pt;
+    PT_INIT(&pt);
+    SYN_Task task;
+    task.user_data = &r;
+    for (int i = 0; i < 2000; i++) {
+        if (syn_dns_resolve_task(&pt, &task) >= PT_EXITED) break;
+        mock_tick_ms += 1;
+    }
+    TEST_ASSERT_EQUAL(SYN_TIMEOUT, r.status);
+}
+
+static void test_mdns_join_fail(void)
+{
+    mock_port_reset();
+    mock_udp_multicast_join_ok = false;
+    SYN_Mdns mdns;
+    uint8_t ip[4] = {192, 168, 1, 100};
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_mdns_init(&mdns, "device", ip));
+    mock_udp_multicast_join_ok = true;
+}
+
+static void test_mdns_malformed_query(void)
+{
+    mock_port_reset();
+    SYN_Mdns mdns;
+    uint8_t ip[4] = {192, 168, 1, 100};
+    TEST_ASSERT_EQUAL(SYN_OK, syn_mdns_init(&mdns, "device", ip));
+
+    /* Malformed query: valid header, 1 question, but qname exceeds length */
+    uint8_t rx[] = {
+        0x00, 0x00, 0x00, 0x00,
+        0x00, 0x01, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00,
+        64, 'a' /* Label length 64, but buffer ends here */
+    };
+    mock_udp_set_response(rx, sizeof(rx), NULL);
+
+    SYN_PT pt;
+    PT_INIT(&pt);
+    SYN_Task task;
+    task.user_data = &mdns;
+    syn_mdns_task(&pt, &task);
+}
+
+static void test_mdns_no_match(void)
+{
+    mock_port_reset();
+    SYN_Mdns mdns;
+    uint8_t ip[4] = {192, 168, 1, 100};
+    TEST_ASSERT_EQUAL(SYN_OK, syn_mdns_init(&mdns, "device", ip));
+
+    /* Query for "other.local", 1 question */
+    uint8_t rx[] = {
+        0x00, 0x00, 0x00, 0x00,
+        0x00, 0x01, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00,
+        5, 'o', 't', 'h', 'e', 'r',
+        5, 'l', 'o', 'c', 'a', 'l', 0,
+        0x00, 0x01, 0x00, 0x01
+    };
+    mock_udp_set_response(rx, sizeof(rx), NULL);
+
+    SYN_PT pt;
+    PT_INIT(&pt);
+    SYN_Task task;
+    task.user_data = &mdns;
+    syn_mdns_task(&pt, &task);
 }
 
 void run_dns_tests(void)
@@ -241,4 +337,8 @@ void run_dns_tests(void)
     RUN_TEST(test_dns_resolve_udp_open_fail);
     RUN_TEST(test_dns_resolve_send_fail);
     RUN_TEST(test_dns_resolve_timeout);
+    RUN_TEST(test_dns_resolve_cname);
+    RUN_TEST(test_mdns_join_fail);
+    RUN_TEST(test_mdns_malformed_query);
+    RUN_TEST(test_mdns_no_match);
 }

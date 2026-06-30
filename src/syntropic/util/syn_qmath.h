@@ -41,7 +41,7 @@ typedef int32_t q16_t;
 #define Q16_FROM_INT(n)       ((q16_t)((int32_t)(n) * Q16_ONE))
 
 /** Fraction to Q16: Q16_FROM_FRAC(1, 3) ≈ 0.333. */
-#define Q16_FROM_FRAC(num, den) ((q16_t)(((int64_t)(num) << Q16_SHIFT) / (den)))
+#define Q16_FROM_FRAC(num, den) ((q16_t)(((int64_t)((uint64_t)(int64_t)(num) << Q16_SHIFT)) / (den)))
 
 /** Float literal to Q16 (compile-time only, avoid at runtime). */
 #define Q16_FROM_FLOAT(f)     ((q16_t)((f) * (1L << Q16_SHIFT)))
@@ -76,7 +76,7 @@ static inline q16_t q16_mul(q16_t a, q16_t b)
  */
 static inline q16_t q16_div(q16_t a, q16_t b)
 {
-    return (q16_t)(((int64_t)a << Q16_SHIFT) / b);
+    return (q16_t)(((int64_t)((uint64_t)(int64_t)a << Q16_SHIFT)) / b);
 }
 
 /**

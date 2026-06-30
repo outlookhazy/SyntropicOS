@@ -90,6 +90,8 @@ extern size_t  mock_spi_rx_pos;                     /**< Read cursor            
 extern uint8_t mock_spi_tx_buf[MOCK_SPI_BUF_SIZE]; /**< Captured bytes sent               */
 extern size_t  mock_spi_tx_len;                     /**< Bytes captured so far             */
 extern bool    mock_spi_init_ok;                    /**< Controls syn_port_spi_init result */
+extern bool mock_spi_infinite;
+extern uint8_t mock_spi_infinite_byte;                    /**< If true, returns 0x00 when buffer empty */
 
 /** Load canned response bytes into the mock SPI receive buffer. */
 void mock_spi_set_response(const void *data, size_t len);

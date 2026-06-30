@@ -344,6 +344,8 @@ size_t  mock_spi_rx_pos = 0;
 uint8_t mock_spi_tx_buf[MOCK_SPI_BUF_SIZE];
 size_t  mock_spi_tx_len = 0;
 bool    mock_spi_init_ok = true;
+bool mock_spi_infinite = false;
+uint8_t mock_spi_infinite_byte = 0xFF;
 
 void mock_spi_set_response(const void *data, size_t len)
 {
@@ -382,9 +384,11 @@ SYN_Status syn_port_spi_transfer(uint8_t bus,
          * matching the SD protocol where command bytes (tx only, rx=NULL)
          * do not consume canned receive slots. */
         if (rx_buf != NULL) {
-            rx_buf[i] = (mock_spi_rx_pos < mock_spi_rx_len)
-                      ? mock_spi_rx_buf[mock_spi_rx_pos++]
-                      : 0xFFu;
+            if (mock_spi_rx_pos < mock_spi_rx_len) {
+                rx_buf[i] = mock_spi_rx_buf[mock_spi_rx_pos++];
+            } else {
+                rx_buf[i] = mock_spi_infinite ? mock_spi_infinite_byte : 0xFFu;
+            }
         }
     }
     return SYN_OK;
@@ -624,6 +628,8 @@ void mock_port_reset(void)
     memset(mock_spi_tx_buf, 0, sizeof(mock_spi_tx_buf));
     mock_spi_tx_len = 0;
     mock_spi_init_ok = true;
+    mock_spi_infinite = false;
+    mock_spi_infinite_byte = 0xFF;
 
     /* RTC */
     memset(&mock_rtc_time, 0, sizeof(mock_rtc_time));

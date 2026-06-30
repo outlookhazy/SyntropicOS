@@ -225,7 +225,7 @@ static char *parse_object(SYN_JsonReader *r, char *p, const char *end,
             if (val_start[0] == 't' || val_start[0] == 'f') {
                 tok->type = SYN_JSON_BOOL;
                 tok->int_val = (val_start[0] == 't') ? 1 : 0;
-            } else if (memcmp(val_start, "null", 4) == 0) {
+            } else if ((p - val_start) == 4 && memcmp(val_start, "null", 4) == 0) {
                 tok->type = SYN_JSON_NULL;
                 tok->int_val = 0;
             } else {

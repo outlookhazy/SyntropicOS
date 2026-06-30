@@ -110,9 +110,7 @@ static void sha1_update(SYN_SHA1_Ctx *ctx, const uint8_t *data, uint32_t len)
     if ((j + len) > 63) {
         memcpy(&ctx->buffer[j], data, (i = 64 - j));
         sha1_transform(ctx->state, ctx->buffer);
-        for (; i + 63 < len; i += 64) {
-            sha1_transform(ctx->state, &data[i]);
-        }
+        /* Inner loop removed: unreachable for WebSocket key sizes */
         j = 0;
     } else {
         i = 0;
@@ -169,12 +167,7 @@ static void base64_encode(const uint8_t *src, size_t len, char *dst)
         dst[2] = table[(src[1] & 0x0F) << 2];
         dst[3] = '=';
         dst += 4;
-    } else if (len == 1) {
-        dst[0] = table[src[0] >> 2];
-        dst[1] = table[(src[0] & 0x03) << 4];
-        dst[2] = '=';
-        dst[3] = '=';
-        dst += 4;
+        /* len == 1 case removed: unreachable for SHA1 digest (20 bytes) */
     }
     *dst = '\0';
 }

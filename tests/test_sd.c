@@ -343,6 +343,123 @@ static void test_sd_write_data_rejected(void)
 
 /* ── Registration ────────────────────────────────────────────────────────── */
 
+static void test_sd_wait_ready_timeout(void)
+{
+    SYN_SD sd;
+    /* Do a normal init first */
+    mock_spi_set_response(sdhc_init_rx, sizeof(sdhc_init_rx));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_sd_init(&sd, 0, (SYN_GPIO_Pin)0));
+
+    /* Provide write responses */
+    uint8_t write_rx[] = {
+        0xFF, /* Poll for CMD24 */
+        0x00, /* CMD24 R1 */
+        0xFF, /* Token start dummy read */
+        0xFF, 0xFF, /* CRC dummy bytes */
+        0x05, /* Data response (accepted) */
+    };
+    mock_spi_set_response(write_rx, sizeof(write_rx));
+
+    /* Now try to write but wait_ready times out */
+    mock_spi_infinite = true;
+    mock_spi_infinite_byte = 0x00;
+    uint8_t buf[512] = {0};
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_sd_write(&sd, 0, buf));
+    mock_spi_infinite = false;
+}
+
+static void test_sd_read_csd_fails(void)
+{
+    SYN_SD sd;
+    uint8_t rx[] = {
+        0x01, /* CMD0 */
+        0x01, 0x00, 0x00, 0x01, 0xAA, /* CMD8 */
+        0x01, /* CMD55 */
+        0x00, /* ACMD41 */
+        0x00, 0xC0, 0xFF, 0x80, 0x00, /* CMD58 */
+        0x05  /* CMD9 error R1 */
+    };
+    mock_spi_set_response(rx, sizeof(rx));
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_sd_init(&sd, 0, (SYN_GPIO_Pin)0));
+}
+
+static void test_sd_read_csd_token_timeout(void)
+{
+    SYN_SD sd;
+    uint8_t rx[] = {
+        0x01, /* CMD0 */
+        0x01, 0x00, 0x00, 0x01, 0xAA, /* CMD8 */
+        0x01, /* CMD55 */
+        0x00, /* ACMD41 */
+        0x00, 0xC0, 0xFF, 0x80, 0x00, /* CMD58 */
+        0x00  /* CMD9 OK, but no 0xFE token follows (mock spi buffer exhausts, returns 0xFF) */
+    };
+    mock_spi_set_response(rx, sizeof(rx));
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_sd_init(&sd, 0, (SYN_GPIO_Pin)0));
+}
+
+static void test_sd_init_cmd8_invalid(void)
+{
+    SYN_SD sd;
+    uint8_t rx[] = {
+        0x01, /* CMD0 */
+        0x02, /* CMD8 returns weird error bit, not ILLCMD (0x04) */
+    };
+    mock_spi_set_response(rx, sizeof(rx));
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_sd_init(&sd, 0, (SYN_GPIO_Pin)0));
+}
+
+static void test_sd_init_acmd41_timeout(void)
+{
+    SYN_SD sd;
+    uint8_t rx[] = {
+        0x01, /* CMD0 */
+        0x01, 0x00, 0x00, 0x01, 0xAA, /* CMD8 */
+    };
+    mock_spi_set_response(rx, sizeof(rx));
+    mock_spi_infinite = true;
+    mock_spi_infinite_byte = 0x01; /* CMD55 / ACMD41 always return IDLE */
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_sd_init(&sd, 0, (SYN_GPIO_Pin)0));
+    mock_spi_infinite = false;
+}
+
+static void test_sd_init_cmd58_fail(void)
+{
+    SYN_SD sd;
+    uint8_t rx[] = {
+        0x01, /* CMD0 */
+        0x01, 0x00, 0x00, 0x01, 0xAA, /* CMD8 */
+        0x01, /* CMD55 */
+        0x00, /* ACMD41 */
+        0x01  /* CMD58 returns not ready */
+    };
+    mock_spi_set_response(rx, sizeof(rx));
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_sd_init(&sd, 0, (SYN_GPIO_Pin)0));
+}
+
+static void test_sd_init_cmd16_fail(void)
+{
+    SYN_SD sd;
+    uint8_t rx[] = {
+        0x01, /* CMD0 */
+        0x05, /* CMD8 returns ILLCMD (SDSC v1) */
+        0x01, /* CMD55 */
+        0x00, /* ACMD41 */
+        0x01  /* CMD16 returns error */
+    };
+    mock_spi_set_response(rx, sizeof(rx));
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_sd_init(&sd, 0, (SYN_GPIO_Pin)0));
+}
+
+
+static void test_sd_spi_init_fail(void)
+{
+    SYN_SD sd;
+    mock_spi_init_ok = false;
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_sd_init(&sd, 0, (SYN_GPIO_Pin)0));
+    mock_spi_init_ok = true;
+}
+
 void run_sd_tests(void)
 {
     RUN_TEST(test_sd_init_sdhc);
@@ -358,4 +475,12 @@ void run_sd_tests(void)
     RUN_TEST(test_sd_read_cmd17_fail);
     RUN_TEST(test_sd_write_cmd24_fail);
     RUN_TEST(test_sd_write_data_rejected);
+    RUN_TEST(test_sd_wait_ready_timeout);
+    RUN_TEST(test_sd_read_csd_fails);
+    RUN_TEST(test_sd_read_csd_token_timeout);
+    RUN_TEST(test_sd_init_cmd8_invalid);
+    RUN_TEST(test_sd_init_acmd41_timeout);
+    RUN_TEST(test_sd_init_cmd58_fail);
+    RUN_TEST(test_sd_init_cmd16_fail);
+    RUN_TEST(test_sd_spi_init_fail);
 }

@@ -169,6 +169,31 @@ static void test_sched_alive_count(void)
     TEST_ASSERT_TRUE(alive >= 1);
 }
 
+#include <setjmp.h>
+static jmp_buf g_sched_jmp;
+
+static SYN_PT_Status task_longjmp(SYN_PT *pt, SYN_Task *task)
+{
+    (void)pt; (void)task;
+    longjmp(g_sched_jmp, 1);
+    return PT_ENDED;
+}
+
+static void test_sched_run_forever(void)
+{
+    SYN_Sched sched;
+    SYN_Task tasks[1];
+    syn_task_create(&tasks[0], "jmp", task_longjmp, 0, NULL);
+    syn_sched_init(&sched, tasks, 1);
+
+    if (setjmp(g_sched_jmp) == 0) {
+        syn_sched_run_forever(&sched);
+        TEST_FAIL_MESSAGE("syn_sched_run_forever should not return normally");
+    } else {
+        TEST_ASSERT_TRUE(true);
+    }
+}
+
 void run_sched_tests(void)
 {
     RUN_TEST(test_scheduler);
@@ -176,4 +201,5 @@ void run_sched_tests(void)
     RUN_TEST(test_sched_empty);
     RUN_TEST(test_sched_delayed_task);
     RUN_TEST(test_sched_alive_count);
+    RUN_TEST(test_sched_run_forever);
 }

@@ -60,8 +60,16 @@ static void test_fault_null_log(void)
     TEST_ASSERT_FALSE(detected);
 }
 
+static void test_fault_capture_null(void)
+{
+    /* Capture NULL should bypass copy safely and not modify dump */
+    syn_fault_capture(NULL);
+}
+
 void run_fault_tests(void)
 {
     RUN_TEST(test_fault_check_and_log);
     RUN_TEST(test_fault_null_log);
+    RUN_TEST(test_fault_capture_null);
 }
+

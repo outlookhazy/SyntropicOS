@@ -253,9 +253,18 @@ size_t syn_cbor_read_text(SYN_CborReader *r, char *buf, size_t cap)
     if ((b >> 5u) != 3u) { r->ok = false; return 0u; }
     size_t n = (size_t)decode_arg(r, b & 0x1Fu);
 
+    size_t available = (r->pos < r->len) ? (r->len - r->pos) : 0u;
+    if (n > available) {
+        r->ok = false;
+    }
     size_t copy = (n < cap) ? n : (cap > 0u ? cap - 1u : 0u);
+    if (copy > available) {
+        copy = available;
+    }
     if (buf != NULL && cap > 0u) {
-        memcpy(buf, r->buf + r->pos, copy);
+        if (copy > 0u) {
+            memcpy(buf, r->buf + r->pos, copy);
+        }
         buf[copy] = '\0';
     }
     r->pos += n;
@@ -270,8 +279,15 @@ size_t syn_cbor_read_bytes(SYN_CborReader *r, uint8_t *buf, size_t cap)
     if ((b >> 5u) != 2u) { r->ok = false; return 0u; }
     size_t n = (size_t)decode_arg(r, b & 0x1Fu);
 
+    size_t available = (r->pos < r->len) ? (r->len - r->pos) : 0u;
+    if (n > available) {
+        r->ok = false;
+    }
     size_t copy = (n < cap) ? n : cap;
-    if (buf != NULL) {
+    if (copy > available) {
+        copy = available;
+    }
+    if (buf != NULL && copy > 0u) {
         memcpy(buf, r->buf + r->pos, copy);
     }
     r->pos += n;

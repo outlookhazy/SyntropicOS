@@ -27,7 +27,9 @@ size_t syn_coap_serialize(const SYN_CoapMsg *msg, const SYN_CoapOption *options,
     /* Copy and sort options in ascending order of option numbers (CoAP spec requirement) */
     SYN_CoapOption sorted[16];
     size_t count = option_count > 16 ? 16 : option_count;
-    memcpy(sorted, options, count * sizeof(SYN_CoapOption));
+    if (count > 0) {
+        memcpy(sorted, options, count * sizeof(SYN_CoapOption));
+    }
 
     for (size_t i = 0; i < count; i++) {
         for (size_t j = i + 1; j < count; j++) {

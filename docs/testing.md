@@ -65,3 +65,57 @@ gcc -std=c99 -pedantic -Wall -Wextra -Werror -I. -Itests \
 ./gen_gif
 ```
 
+## Advanced Diagnostics & Verification
+
+SyntropicOS supports several advanced compiler-level verification tools to guarantee code quality, memory safety, and portability.
+
+### 1. Code Coverage (Line & Branch Coverage)
+
+You can clean, rebuild, run the tests, and generate both console summaries and visual HTML reports with full branch coverage enabled:
+
+```bash
+make -f tests/Makefile.unity clean coverage
+```
+
+The output report will detail line, function, and branch coverage. The HTML report will be generated under `coverage_html/index.html`.
+
+### 2. Runtime Sanitizers (ASan & UBSan)
+
+AddressSanitizer (ASan) and UndefinedBehaviorSanitizer (UBSan) compile instrumentation checks into the binary to catch memory corruption, overflows, null pointer dereferences, and signed integer shifts at runtime:
+
+```bash
+make -f tests/Makefile.unity clean test CFLAGS="-std=gnu99 -g -fsanitize=address,undefined -I. -Isrc -Itests -Itests/mocks"
+```
+
+Any runtime violation will cause the test suite to abort and print a detailed stack trace of the violation.
+
+### 3. Protocol Fuzz Testing
+
+The communication protocols (COBS and Modbus) have LLVM `libFuzzer` targets compiled via Clang:
+
+```bash
+# Fuzz COBS decoder
+make -f tests/Makefile.fuzz fuzz-cobs
+
+# Fuzz Modbus frame parser
+make -f tests/Makefile.fuzz fuzz-modbus
+```
+
+This mutates packet data randomly at high speed to find inputs that cause memory corruptions or decoder hangs.
+
+### 4. Stack Usage Analysis
+
+Since stack overflow is a primary cause of micro-controller crashes, GCC can statically calculate the stack usage of every function:
+
+```bash
+# Compile and generate .su files
+make -f tests/Makefile.unity clean test CFLAGS="-std=gnu99 -fstack-usage -I. -Isrc -Itests -Itests/mocks"
+```
+
+This generates a `.su` text file for each compiled source file. You can find the heaviest stack frame allocations in production by sorting the outputs:
+
+```bash
+find . -name "*.su" -exec cat {} + | grep "src/syntropic/" | sort -n -k 2 -r | head -n 20
+```
+
+

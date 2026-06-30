@@ -386,6 +386,13 @@ static void test_websocket_recv_too_large(void)
     TEST_ASSERT_EQUAL(SYN_WS_STATE_CLOSED, ws.state);
 }
 
+static void test_websocket_send_too_large(void)
+{
+    SYN_WebsocketSession ws;
+    ws.state = SYN_WS_STATE_CONNECTED;
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_websocket_send(&ws, 0x01, NULL, 0x10000));
+}
+
 void run_websocket_tests(void)
 {
     RUN_TEST(test_websocket_upgrade);
@@ -401,4 +408,5 @@ void run_websocket_tests(void)
     RUN_TEST(test_websocket_recv_close);
     RUN_TEST(test_websocket_recv_peer_disconnect);
     RUN_TEST(test_websocket_recv_too_large);
+    RUN_TEST(test_websocket_send_too_large);
 }

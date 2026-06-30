@@ -986,7 +986,7 @@ void test_http_chunked_boundary_cases(void)
     syn_http_client_task(&pt, &task);
     mock_sock_set_response(headers, strlen(headers));
     syn_http_client_task(&pt, &task);
-    mock_sock_set_response("3\r\n", 5);
+    mock_sock_set_response("3\r\n", 3);
     syn_http_client_task(&pt, &task);
 
     mock_sock_eof_on_empty = true;
@@ -1009,7 +1009,7 @@ void test_http_chunked_boundary_cases(void)
     syn_http_client_task(&pt, &task);
     mock_sock_set_response(headers, strlen(headers));
     syn_http_client_task(&pt, &task);
-    mock_sock_set_response("3\r\n", 5);
+    mock_sock_set_response("3\r\n", 3);
     syn_http_client_task(&pt, &task);
 
     mock_tick_advance(11000);
@@ -1031,7 +1031,7 @@ void test_http_chunked_boundary_cases(void)
     syn_http_client_task(&pt, &task);
     mock_sock_set_response(headers, strlen(headers));
     syn_http_client_task(&pt, &task);
-    mock_sock_set_response("3\r\nabc", 8);
+    mock_sock_set_response("3\r\nabc", 6);
     syn_http_client_task(&pt, &task);
 
     mock_sock_eof_on_empty = true;
@@ -1054,7 +1054,7 @@ void test_http_chunked_boundary_cases(void)
     syn_http_client_task(&pt, &task);
     mock_sock_set_response(headers, strlen(headers));
     syn_http_client_task(&pt, &task);
-    mock_sock_set_response("3\r\nabc", 8);
+    mock_sock_set_response("3\r\nabc", 6);
     syn_http_client_task(&pt, &task);
 
     mock_tick_advance(11000);
@@ -1076,7 +1076,7 @@ void test_http_chunked_boundary_cases(void)
     syn_http_client_task(&pt, &task);
     mock_sock_set_response(headers, strlen(headers));
     syn_http_client_task(&pt, &task);
-    mock_sock_set_response("3\r\nabc\r\n0\r\n", 13);
+    mock_sock_set_response("3\r\nabc\r\n0\r\n", 11);
     syn_http_client_task(&pt, &task);
 
     mock_sock_eof_on_empty = true;
@@ -1099,7 +1099,7 @@ void test_http_chunked_boundary_cases(void)
     syn_http_client_task(&pt, &task);
     mock_sock_set_response(headers, strlen(headers));
     syn_http_client_task(&pt, &task);
-    mock_sock_set_response("3\r\nabc\r\n0\r\n", 13);
+    mock_sock_set_response("3\r\nabc\r\n0\r\n", 11);
     syn_http_client_task(&pt, &task);
 
     mock_tick_advance(11000);
