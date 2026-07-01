@@ -169,7 +169,7 @@ SYN_Status syn_motor_ctrl_init(SYN_MotorCtrl *ctrl,
          *   integral_max = output_max * scale * 1000 / ki
          * Use a generous cap to allow full I authority.           */
         .integral_max = (cfg->pid_ki > 0)
-            ? (cfg->output_max * ((int32_t)1 << cfg->pid_scale) * 1000) / cfg->pid_ki
+            ? (int32_t)(((int64_t)cfg->output_max * ((int32_t)1 << cfg->pid_scale) * 1000) / cfg->pid_ki)
             : 0,
         .d_filter_alpha = 200,
     };

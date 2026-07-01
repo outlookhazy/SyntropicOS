@@ -175,11 +175,98 @@ static void test_led_pattern(void)
     TEST_ASSERT_EQUAL(0, led.pattern_idx);
 }
 
+static void test_led_next_ms(void)
+{
+    mock_tick_ms = 0;
+    SYN_LED led;
+    syn_led_init(&led, 1, SYN_LED_ACTIVE_HIGH);
+
+    /* 1. OFF mode → UINT32_MAX (static, no transition) */
+    TEST_ASSERT_EQUAL_UINT32(UINT32_MAX, syn_led_next_ms(&led));
+
+    /* 2. ON mode → UINT32_MAX */
+    syn_led_on(&led);
+    TEST_ASSERT_EQUAL_UINT32(UINT32_MAX, syn_led_next_ms(&led));
+
+    /* 3. BLINK — lit, mid-phase */
+    syn_led_blink(&led, 100, 200);
+    TEST_ASSERT_TRUE(syn_led_is_on(&led));
+    mock_tick_advance(40);
+    TEST_ASSERT_EQUAL_UINT32(60, syn_led_next_ms(&led));  /* 100 - 40 */
+
+    /* 4. BLINK — lit, exactly on boundary → overdue */
+    mock_tick_advance(60);
+    TEST_ASSERT_EQUAL_UINT32(0, syn_led_next_ms(&led));
+
+    /* 5. BLINK — transition to off, then check off-phase timing */
+    syn_led_update(&led);  /* transitions to off */
+    TEST_ASSERT_FALSE(syn_led_is_on(&led));
+    mock_tick_advance(50);
+    TEST_ASSERT_EQUAL_UINT32(150, syn_led_next_ms(&led));  /* 200 - 50 */
+
+    /* 6. FLASH mode */
+    syn_led_flash(&led, 80, 120, 3);
+    TEST_ASSERT_TRUE(syn_led_is_on(&led));
+    mock_tick_advance(30);
+    TEST_ASSERT_EQUAL_UINT32(50, syn_led_next_ms(&led));  /* 80 - 30 */
+
+    /* Transition to off phase */
+    mock_tick_advance(50);
+    syn_led_update(&led);
+    TEST_ASSERT_FALSE(syn_led_is_on(&led));
+    mock_tick_advance(40);
+    TEST_ASSERT_EQUAL_UINT32(80, syn_led_next_ms(&led));  /* 120 - 40 */
+
+    /* 7. PATTERN mode — '.' (short on, 1 unit) */
+    syn_led_pattern(&led, ".- |?", 50);
+    TEST_ASSERT_EQUAL(SYN_LED_MODE_PATTERN, led.mode);
+    /* Not yet lit, first update turns on '.' */
+    syn_led_update(&led);
+    TEST_ASSERT_TRUE(syn_led_is_on(&led));
+    mock_tick_advance(20);
+    TEST_ASSERT_EQUAL_UINT32(30, syn_led_next_ms(&led));  /* 50 - 20 */
+
+    /* Advance past '.' and transition to '-' */
+    mock_tick_advance(30);
+    syn_led_update(&led);  /* turns off after '.' */
+    syn_led_update(&led);  /* starts '-' (long on, 3 units = 150ms) */
+    TEST_ASSERT_TRUE(syn_led_is_on(&led));
+    mock_tick_advance(100);
+    TEST_ASSERT_EQUAL_UINT32(50, syn_led_next_ms(&led));  /* 150 - 100 */
+
+    /* Advance past '-' into ' ' (short pause, 1 unit = 50ms) */
+    mock_tick_advance(50);
+    syn_led_update(&led);  /* turns off after '-' */
+    syn_led_update(&led);  /* enters ' ' pause */
+    TEST_ASSERT_EQUAL(2, led.pattern_idx);
+    mock_tick_advance(20);
+    TEST_ASSERT_EQUAL_UINT32(30, syn_led_next_ms(&led));  /* 50 - 20 */
+
+    /* Advance past ' ' into '|' (long pause, 3 units = 150ms) */
+    mock_tick_advance(30);
+    syn_led_update(&led);  /* exits ' ', enters '|' */
+    TEST_ASSERT_EQUAL(3, led.pattern_idx);
+    mock_tick_advance(60);
+    TEST_ASSERT_EQUAL_UINT32(90, syn_led_next_ms(&led));  /* 150 - 60 */
+
+    /* Advance past '|' into '?' (unknown char → 0) */
+    mock_tick_advance(90);
+    syn_led_update(&led);
+    TEST_ASSERT_EQUAL(4, led.pattern_idx);
+    TEST_ASSERT_EQUAL_UINT32(0, syn_led_next_ms(&led));
+
+    /* Skip '?' into '\0' (end of pattern → 0) */
+    syn_led_update(&led);
+    TEST_ASSERT_EQUAL(5, led.pattern_idx);
+    TEST_ASSERT_EQUAL_UINT32(0, syn_led_next_ms(&led));
+}
+
 void run_led_tests(void)
 {
     RUN_TEST(test_led_basic);
     RUN_TEST(test_led_active_low);
     RUN_TEST(test_led_service);
     RUN_TEST(test_led_pattern);
+    RUN_TEST(test_led_next_ms);
 }
 

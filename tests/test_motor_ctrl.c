@@ -318,12 +318,13 @@ static void test_motor_ctrl_saturation(void)
     cfg.update_hz     = 100;
     cfg.output_min    = -100;
     cfg.output_max    = 100;
-    /* kp = 0, ki = 300 so that integral builds up to 300 and freezes */
+    /* kp = 0, ki = 300 so that integral builds up and clamps.
+     * integral_max = (output_max * scale * 1000) / ki = (100 * 1 * 1000) / 300 = 333 */
     cfg.pid_kp        = 0;
     cfg.pid_ki        = 300; 
     cfg.pid_scale     = 0; // scale = 1
 
-    /* 1. Test positive saturation and anti-windup clamping */
+    /* 1. Test positive saturation via integral_max clamping */
     syn_motor_ctrl_init(&ctrl, &cfg);
     syn_motor_ctrl_set_position(&ctrl, 10); // target = 10, error = 10, step = 100
     mock_ctrl_position = 0;
@@ -332,11 +333,11 @@ static void test_motor_ctrl_saturation(void)
     mock_tick_advance(10); syn_motor_ctrl_update(&ctrl); // integral = 300
     TEST_ASSERT_EQUAL_INT(300, ctrl.pid.integral);
 
-    /* Update again: integral saturates (wants to go to 400, but output exceeds 100, so frozen/reduced to 300) */
+    /* Update again: integral wants 400, clamped to integral_max (333) */
     mock_tick_advance(10); syn_motor_ctrl_update(&ctrl);
-    TEST_ASSERT_EQUAL_INT(300, ctrl.pid.integral);
+    TEST_ASSERT_EQUAL_INT(333, ctrl.pid.integral);
 
-    /* 2. Test negative saturation and anti-windup clamping */
+    /* 2. Test negative saturation via integral_max clamping */
     syn_motor_ctrl_init(&ctrl, &cfg);
     syn_motor_ctrl_set_position(&ctrl, -10);
     mock_ctrl_position = 0;
@@ -345,8 +346,9 @@ static void test_motor_ctrl_saturation(void)
     mock_tick_advance(10); syn_motor_ctrl_update(&ctrl); // integral = -300
     TEST_ASSERT_EQUAL_INT(-300, ctrl.pid.integral);
 
+    /* Update again: integral wants -400, clamped to -integral_max (-333) */
     mock_tick_advance(10); syn_motor_ctrl_update(&ctrl);
-    TEST_ASSERT_EQUAL_INT(-300, ctrl.pid.integral);
+    TEST_ASSERT_EQUAL_INT(-333, ctrl.pid.integral);
 
     /* 3. Test combined output saturation and anti-windup clamping with non-zero feedforward */
     /* 3a. Positive feedforward saturation (ff > 0), triggers line 356 */
