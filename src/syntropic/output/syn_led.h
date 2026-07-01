@@ -164,6 +164,23 @@ static inline bool syn_led_is_on(const SYN_LED *led)
     return led->lit;
 }
 
+/**
+ * @brief Milliseconds until the next state transition.
+ *
+ * Returns 0 if a transition is overdue, UINT32_MAX if the LED is
+ * static (ON or OFF).  Useful for sleeping in a protothread:
+ *
+ * @code
+ *   uint32_t wait = syn_led_next_ms(&led);
+ *   if (wait > 0 && wait < UINT32_MAX)
+ *       PT_TASK_DELAY_MS(pt, task, wait);
+ * @endcode
+ *
+ * @param led  LED instance.
+ * @return Milliseconds until the next toggle.
+ */
+uint32_t syn_led_next_ms(const SYN_LED *led);
+
 #ifdef __cplusplus
 }
 #endif

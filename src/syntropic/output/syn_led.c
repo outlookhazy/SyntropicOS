@@ -217,4 +217,39 @@ void syn_led_service(SYN_LED *leds, size_t count)
     }
 }
 
+uint32_t syn_led_next_ms(const SYN_LED *led)
+{
+    SYN_ASSERT(led != NULL);
+
+    uint32_t now = syn_port_get_tick_ms();
+    uint32_t elapsed = now - led->tick;
+    uint32_t duration;
+
+    switch ((SYN_LEDMode)led->mode) {
+
+    case SYN_LED_MODE_OFF:
+    case SYN_LED_MODE_ON:
+        return UINT32_MAX; /* Static — no upcoming transition */
+
+    case SYN_LED_MODE_BLINK:
+    case SYN_LED_MODE_FLASH:
+        duration = led->lit ? led->on_ms : led->off_ms;
+        return (elapsed >= duration) ? 0 : (duration - elapsed);
+
+    case SYN_LED_MODE_PATTERN: {
+        char ch = led->pattern[led->pattern_idx];
+        switch (ch) {
+        case '.': duration = led->pattern_unit;      break;
+        case '-': duration = led->pattern_unit * 3u;  break;
+        case ' ': duration = led->pattern_unit;      break;
+        case '|': duration = led->pattern_unit * 3u;  break;
+        default:  return 0; /* '\0' or unknown — immediate */
+        }
+        return (elapsed >= duration) ? 0 : (duration - elapsed);
+    }
+    }
+
+    return 0;
+}
+
 #endif /* SYN_USE_LED */
