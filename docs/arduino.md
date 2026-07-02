@@ -1,30 +1,34 @@
-# Arduino Guide
+# Arduino Compatibility Guide
 
-This guide walks you through using SyntropicOS with the Arduino IDE.
-No prior RTOS experience required.
+**Professional-grade multitasking and modular drivers for the Arduino ecosystem**
 
-## What is SyntropicOS?
-
-SyntropicOS is a lightweight operating system for microcontrollers.
-It lets you run multiple tasks at the same time — blinking an LED, reading
-sensors, handling serial commands — without blocking each other.
-
-Think of it like running multiple `loop()` functions simultaneously.
+SyntropicOS is designed to scale from high-performance bare-metal targets (STM32, RP2040) down to accessible environments like Arduino, providing a professional upgrade path for complex projects without leaving the Arduino IDE.
 
 ## Installation
 
-### Option A: Git Clone (recommended)
+### Option A: Arduino Library Manager (Recommended)
 
-Open a terminal and run:
+SyntropicOS is listed in the official Arduino Library Manager. This is the easiest way to install and keep the library updated.
 
-```bash
-cd ~/Arduino/libraries
-git clone https://github.com/outlookhazy/SyntropicOS.git
-```
+1. In Arduino IDE: **Tools → Manage Libraries...** (or `Ctrl+Shift+I`)
+2. Search for **SyntropicOS**
+3. Click **Install**
 
-To update later: `cd ~/Arduino/libraries/SyntropicOS && git pull`
+No manual ZIP downloads or Git cloning required.
 
-### Option B: Download ZIP
+### Option B: Git Clone
+
+If you need a specific development branch or want to contribute to the code:
+
+1. Open a terminal and run:
+   ```bash
+   cd ~/Arduino/libraries
+   git clone https://github.com/outlookhazy/SyntropicOS.git
+   ```
+
+2. To update later: `cd ~/Arduino/libraries/SyntropicOS && git pull`
+
+### Option C: Download ZIP
 
 1. Go to [github.com/outlookhazy/SyntropicOS](https://github.com/outlookhazy/SyntropicOS)
 2. Click the green **Code** button → **Download ZIP**

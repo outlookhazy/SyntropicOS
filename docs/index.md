@@ -1,8 +1,8 @@
 # SyntropicOS
 
-**Modular Application Framework & Cooperative OS for Microcontrollers**
+**High-Performance Bare-Metal Application Framework & Cooperative OS**
 
-A standalone, zero-overhead C99 cooperative operating system and application micro-framework for microcontrollers. Add as a **git submodule**, configure in `syn_config.h`, and start building structured bare-metal software with cooperative multitasking, a command-line shell, diagnostic logging, parameter storage, control loops, and a lightweight immediate-mode GUI.
+SyntropicOS is a zero-overhead, production-grade C99 framework designed for deeply embedded systems. Built for professional toolchains (GCC, Clang, IAR, Keil), it provides a modular ecosystem for building structured bare-metal software on high-performance targets like STM32 and RP2040.
 
 ## Why SyntropicOS?
 
@@ -79,4 +79,5 @@ int main(void)
 ```
 
 [Getting Started →](getting-started.md){ .md-button .md-button--primary }
+[Arduino Guide →](arduino.md){ .md-button }
 [Browse Modules →](modules/core.md){ .md-button }

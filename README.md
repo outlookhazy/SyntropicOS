@@ -1,13 +1,13 @@
 # SyntropicOS
 
-**Modular Application Framework & Cooperative OS for Microcontrollers**
+**High-Performance Bare-Metal Application Framework & Cooperative OS**
 
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
 [![C99](https://img.shields.io/badge/C-C99-blue.svg)]()
 
-> **⚠️ Status:** This is a personal project in active development. The API is not yet stable and breaking changes may occur between versions. Feedback and bug reports are welcome, but use in production at your own risk.
+SyntropicOS is a zero-overhead, production-grade C99 framework designed for deeply embedded systems. Built for professional toolchains (GCC, Clang, IAR, Keil), it provides a modular ecosystem for building structured bare-metal software on high-performance targets like STM32 and RP2040.
 
-A standalone, zero-overhead C99 cooperative operating system and application micro-framework for microcontrollers. Add as a git submodule, configure what you need, and start building structured bare-metal software.
+> **🚀 Development Status:** SyntropicOS is in active development. While core modules are tested and verified, the API is evolving. Feedback and contributions from the embedded community are welcome.
 
 ## Features
 
@@ -31,18 +31,15 @@ add_subdirectory(lib/SyntropicOS)
 target_link_libraries(your_target PRIVATE syntropic)
 ```
 
-### Arduino
+### Arduino Compatibility
 
-Clone into your Arduino libraries folder:
+SyntropicOS is fully compatible with the Arduino ecosystem, providing a professional upgrade path for complex projects that require multitasking and structured drivers without leaving the Arduino IDE.
 
-```bash
-cd ~/Arduino/libraries
-git clone https://github.com/outlookhazy/SyntropicOS.git
-```
+**Installation:**
+- **Recommended:** Search for "SyntropicOS" in the **Arduino Library Manager** (`Ctrl+Shift+I`) and install it directly. No manual ZIP downloads or cloning required.
+- **Manual:** Add as a git submodule or download the ZIP from GitHub if you need a specific development branch.
 
-Or download the ZIP from GitHub and install via **Sketch → Include Library → Add .ZIP Library**.
-
-Then open **File → Examples → SyntropicOS** to explore the included examples.
+Then explore the included examples via **File → Examples → SyntropicOS**.
 
 ### Minimal Example
 
