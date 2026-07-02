@@ -1,0 +1,825 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__qmath_8h" kind="file" language="C++">
+    <compoundname>syn_qmath.h</compoundname>
+    <includes local="no">stdint.h</includes>
+    <includedby refid="syn__biquad_8h" local="yes">src/syntropic/dsp/syn_biquad.h</includedby>
+    <includedby refid="syn__fft_8h" local="yes">src/syntropic/dsp/syn_fft.h</includedby>
+    <includedby refid="syntropic_8h" local="yes">src/syntropic/syntropic.h</includedby>
+    <incdepgraph>
+      <node id="1">
+        <label>src/syntropic/util/syn_qmath.h</label>
+        <link refid="syn__qmath_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>stdint.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="3">
+        <label>src/syntropic/dsp/syn_biquad.c</label>
+        <link refid="syn__biquad_8c"/>
+      </node>
+      <node id="2">
+        <label>src/syntropic/dsp/syn_biquad.h</label>
+        <link refid="syn__biquad_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>src/syntropic/dsp/syn_fft.c</label>
+        <link refid="syn__fft_8c"/>
+      </node>
+      <node id="5">
+        <label>src/syntropic/dsp/syn_fft.h</label>
+        <link refid="syn__fft_8h"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>src/syntropic/syntropic.h</label>
+        <link refid="syntropic_8h"/>
+      </node>
+      <node id="1">
+        <label>src/syntropic/util/syn_qmath.h</label>
+        <link refid="syn__qmath_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <sectiondef kind="define">
+      <memberdef kind="define" id="syn__qmath_8h_1a0a06e0f48f9cc549761d6ab0ea368627" prot="public" static="no">
+        <name>Q16_SHIFT</name>
+        <initializer>16</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Fractional bit count <linebreak/>
+ </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_qmath.h" line="34" column="9" bodyfile="src/syntropic/util/syn_qmath.h" bodystart="34" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__qmath_8h_1a393bf569f282debd95081de04610eb4c" prot="public" static="no">
+        <name>Q16_ONE</name>
+        <initializer>((<ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref>)(1L &lt;&lt; <ref refid="syn__qmath_8h_1a0a06e0f48f9cc549761d6ab0ea368627" kindref="member">Q16_SHIFT</ref>))</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>1.0 in Q16.16 <linebreak/>
+ </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_qmath.h" line="35" column="9" bodyfile="src/syntropic/util/syn_qmath.h" bodystart="35" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__qmath_8h_1a5c76b91dcbb8c4ded9f8c88cd672d2e5" prot="public" static="no">
+        <name>Q16_HALF</name>
+        <initializer>((<ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref>)(1L &lt;&lt; (<ref refid="syn__qmath_8h_1a0a06e0f48f9cc549761d6ab0ea368627" kindref="member">Q16_SHIFT</ref> - 1)))</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>0.5 in Q16.16 <linebreak/>
+ </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_qmath.h" line="36" column="9" bodyfile="src/syntropic/util/syn_qmath.h" bodystart="36" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__qmath_8h_1a403814e6ece6021eaba034176496dbae" prot="public" static="no">
+        <name>Q16_FROM_INT</name>
+        <param><defname>n</defname></param>
+        <initializer>((<ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref>)((int32_t)(n) * <ref refid="syn__qmath_8h_1a393bf569f282debd95081de04610eb4c" kindref="member">Q16_ONE</ref>))</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Integer to Q16. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_qmath.h" line="41" column="9" bodyfile="src/syntropic/util/syn_qmath.h" bodystart="41" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__qmath_8h_1aa37bed636cdf9d76bb06c4022215e3ea" prot="public" static="no">
+        <name>Q16_FROM_FRAC</name>
+        <param><defname>num</defname></param>
+        <param><defname>den</defname></param>
+        <initializer>((<ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref>)(((int64_t)((uint64_t)(int64_t)(num) &lt;&lt; <ref refid="syn__qmath_8h_1a0a06e0f48f9cc549761d6ab0ea368627" kindref="member">Q16_SHIFT</ref>)) / (den)))</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Fraction to Q16: <ref refid="syn__qmath_8h_1aa37bed636cdf9d76bb06c4022215e3ea" kindref="member">Q16_FROM_FRAC(1, 3)</ref> ≈ 0.333. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_qmath.h" line="44" column="9" bodyfile="src/syntropic/util/syn_qmath.h" bodystart="44" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__qmath_8h_1a6fb4c3fddeda3a2e145765b2e69af7fc" prot="public" static="no">
+        <name>Q16_FROM_FLOAT</name>
+        <param><defname>f</defname></param>
+        <initializer>((<ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref>)((f) * (1L &lt;&lt; <ref refid="syn__qmath_8h_1a0a06e0f48f9cc549761d6ab0ea368627" kindref="member">Q16_SHIFT</ref>)))</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Float literal to Q16 (compile-time only, avoid at runtime). </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_qmath.h" line="47" column="9" bodyfile="src/syntropic/util/syn_qmath.h" bodystart="47" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__qmath_8h_1a09dafb9bfc7dd713403210ec6c444d9f" prot="public" static="no">
+        <name>Q16_TO_INT</name>
+        <param><defname>q</defname></param>
+        <initializer>((int32_t)((q) &gt;&gt; <ref refid="syn__qmath_8h_1a0a06e0f48f9cc549761d6ab0ea368627" kindref="member">Q16_SHIFT</ref>))</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Q16 to integer (truncates toward zero). </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_qmath.h" line="50" column="9" bodyfile="src/syntropic/util/syn_qmath.h" bodystart="50" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__qmath_8h_1a7002d672419654747a3734ff4a1fe1af" prot="public" static="no">
+        <name>Q16_TO_INT_ROUND</name>
+        <param><defname>q</defname></param>
+        <initializer>((int32_t)(((q) + <ref refid="syn__qmath_8h_1a5c76b91dcbb8c4ded9f8c88cd672d2e5" kindref="member">Q16_HALF</ref>) &gt;&gt; <ref refid="syn__qmath_8h_1a0a06e0f48f9cc549761d6ab0ea368627" kindref="member">Q16_SHIFT</ref>))</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Q16 to integer (rounded). </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_qmath.h" line="53" column="9" bodyfile="src/syntropic/util/syn_qmath.h" bodystart="53" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__qmath_8h_1ae36b74db81aea45dfe2442ceb1534a64" prot="public" static="no">
+        <name>Q16_FRAC_1000</name>
+        <param><defname>q</defname></param>
+        <initializer>((int32_t)((((q) &amp; 0xFFFF) * 1000L) &gt;&gt; <ref refid="syn__qmath_8h_1a0a06e0f48f9cc549761d6ab0ea368627" kindref="member">Q16_SHIFT</ref>))</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Fractional part as 0–999 (for printf: &quot;%d.%03d&quot;). </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_qmath.h" line="56" column="9" bodyfile="src/syntropic/util/syn_qmath.h" bodystart="56" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__qmath_8h_1aa5923af10b934044c54eb0360956c86f" prot="public" static="no">
+        <name>Q16_PI</name>
+        <initializer>205887</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>3.14159 in Q16.16 </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_qmath.h" line="168" column="9" bodyfile="src/syntropic/util/syn_qmath.h" bodystart="168" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__qmath_8h_1af41601365a72baee10ec70edc6f5509d" prot="public" static="no">
+        <name>Q16_PI_2</name>
+        <initializer>102944</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>1.57079 in Q16.16 </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_qmath.h" line="169" column="9" bodyfile="src/syntropic/util/syn_qmath.h" bodystart="169" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__qmath_8h_1a66565b2b7c53ef89a0d7afdd97cec206" prot="public" static="no">
+        <name>Q16_2_PI</name>
+        <initializer>411775</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>6.28318 in Q16.16 </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_qmath.h" line="170" column="9" bodyfile="src/syntropic/util/syn_qmath.h" bodystart="170" bodyend="-1"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="typedef">
+      <memberdef kind="typedef" id="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" prot="public" static="no">
+        <type>int32_t</type>
+        <definition>typedef int32_t q16_t</definition>
+        <argsstring></argsstring>
+        <name>q16_t</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Fixed-point Q16.16 type: 16 integer bits, 16 fractional bits. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_qmath.h" line="32" column="17" bodyfile="src/syntropic/util/syn_qmath.h" bodystart="32" bodyend="-1"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__qmath_8h_1a9c59677a95516b0b1f571520a670dfb0" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+        <definition>static q16_t q16_mul</definition>
+        <argsstring>(q16_t a, q16_t b)</argsstring>
+        <name>q16_mul</name>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+          <declname>a</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+          <declname>b</declname>
+        </param>
+        <briefdescription>
+<para>Multiply two Q16 values. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>a</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>First operand. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>b</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Second operand. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Product in Q16. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_qmath.h" line="66" column="21" bodyfile="src/syntropic/util/syn_qmath.h" bodystart="66" bodyend="69"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__qmath_8h_1a1103d3b63cffa202284e7a12eeada585" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+        <definition>static q16_t q16_div</definition>
+        <argsstring>(q16_t a, q16_t b)</argsstring>
+        <name>q16_div</name>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+          <declname>a</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+          <declname>b</declname>
+        </param>
+        <briefdescription>
+<para>Divide two Q16 values. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>a</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Dividend. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>b</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Divisor (must not be zero). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Quotient in Q16. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_qmath.h" line="77" column="21" bodyfile="src/syntropic/util/syn_qmath.h" bodystart="77" bodyend="80"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__qmath_8h_1ad45a7f1e81dbc21aaeb6ee4bfef11cac" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+        <definition>static q16_t q16_add</definition>
+        <argsstring>(q16_t a, q16_t b)</argsstring>
+        <name>q16_add</name>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+          <declname>a</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+          <declname>b</declname>
+        </param>
+        <briefdescription>
+<para>Add two Q16 values. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>a</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>First operand. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>b</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Second operand. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Sum in Q16. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_qmath.h" line="88" column="21" bodyfile="src/syntropic/util/syn_qmath.h" bodystart="88" bodyend="91"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__qmath_8h_1a178ea3bd2b2c0baa642d342d384bbde6" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+        <definition>static q16_t q16_sub</definition>
+        <argsstring>(q16_t a, q16_t b)</argsstring>
+        <name>q16_sub</name>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+          <declname>a</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+          <declname>b</declname>
+        </param>
+        <briefdescription>
+<para>Subtract two Q16 values. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>a</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Minuend. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>b</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Subtrahend. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Difference in Q16. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_qmath.h" line="99" column="21" bodyfile="src/syntropic/util/syn_qmath.h" bodystart="99" bodyend="102"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__qmath_8h_1ae53edb3da937164446f0cd1b3ba7e6e6" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+        <definition>static q16_t q16_abs</definition>
+        <argsstring>(q16_t a)</argsstring>
+        <name>q16_abs</name>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+          <declname>a</declname>
+        </param>
+        <briefdescription>
+<para>Absolute value of a Q16 number. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>a</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Input value. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>|a| in Q16. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_qmath.h" line="109" column="21" bodyfile="src/syntropic/util/syn_qmath.h" bodystart="109" bodyend="112"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__qmath_8h_1ad9f5741d8ab3dca0a5600dbfbbd6853f" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+        <definition>static q16_t q16_add_sat</definition>
+        <argsstring>(q16_t a, q16_t b)</argsstring>
+        <name>q16_add_sat</name>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+          <declname>a</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+          <declname>b</declname>
+        </param>
+        <briefdescription>
+<para>Saturating add (clamp to INT32 range). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>a</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>First operand. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>b</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Second operand. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Clamped sum in Q16. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_qmath.h" line="120" column="21" bodyfile="src/syntropic/util/syn_qmath.h" bodystart="120" bodyend="126"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__qmath_8h_1af542a1c8795e0903919f852f5f3778e7" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+        <definition>static q16_t q16_mul_sat</definition>
+        <argsstring>(q16_t a, q16_t b)</argsstring>
+        <name>q16_mul_sat</name>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+          <declname>a</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+          <declname>b</declname>
+        </param>
+        <briefdescription>
+<para>Saturating multiply. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>a</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>First operand. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>b</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Second operand. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Clamped product in Q16. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_qmath.h" line="134" column="21" bodyfile="src/syntropic/util/syn_qmath.h" bodystart="134" bodyend="140"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__qmath_8h_1a2f486f98fcfcaa019e17dc02a10c8e74" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+        <definition>static q16_t q16_lerp</definition>
+        <argsstring>(q16_t a, q16_t b, q16_t t)</argsstring>
+        <name>q16_lerp</name>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+          <declname>a</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+          <declname>b</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+          <declname>t</declname>
+        </param>
+        <briefdescription>
+<para>Linear interpolation: lerp(a, b, t) where t is Q16 in [0, 1.0]. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>a</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Start value. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>b</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>End value. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>t</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Interpolation factor (Q16, 0 to Q16_ONE). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Interpolated value in Q16. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_qmath.h" line="149" column="21" bodyfile="src/syntropic/util/syn_qmath.h" bodystart="149" bodyend="152"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__qmath_8h_1a00cbd4c0eaa2ed4aede02d1d5bab55b9" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+        <definition>static q16_t q16_clamp</definition>
+        <argsstring>(q16_t val, q16_t lo, q16_t hi)</argsstring>
+        <name>q16_clamp</name>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+          <declname>val</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+          <declname>lo</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+          <declname>hi</declname>
+        </param>
+        <briefdescription>
+<para>Clamp a Q16 value to [lo, hi]. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>val</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Input value. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>lo</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Lower bound. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>hi</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Upper bound. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Clamped value. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_qmath.h" line="161" column="21" bodyfile="src/syntropic/util/syn_qmath.h" bodystart="161" bodyend="166"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__qmath_8h_1ae2ae03e0eb8518bd553ac751c120657c" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+        <definition>static q16_t q16_sin</definition>
+        <argsstring>(q16_t x)</argsstring>
+        <name>q16_sin</name>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+<para>Sine approximation using 5th-order Taylor series. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>x</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Angle in Q16 radians. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>sin(x) in Q16. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_qmath.h" line="177" column="21" bodyfile="src/syntropic/util/syn_qmath.h" bodystart="177" bodyend="199"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__qmath_8h_1a0af63a65ee592f719a1154af3478ae60" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+        <definition>static q16_t q16_cos</definition>
+        <argsstring>(q16_t x)</argsstring>
+        <name>q16_cos</name>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+<para>Cosine approximation via sin(x + PI/2). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>x</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Angle in Q16 radians. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>cos(x) in Q16. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_qmath.h" line="206" column="21" bodyfile="src/syntropic/util/syn_qmath.h" bodystart="206" bodyend="209"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Fixed-point Q16.16 arithmetic — header-only, no floating point. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>All operations use signed 32-bit values with 16 integer bits and 16 fractional bits. Multiply/divide use 64-bit intermediates to avoid overflow.</para>
+<para><simplesect kind="par"><title>Usage</title><para><programlisting><codeline><highlight class="normal"><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>a<sp/>=<sp/><ref refid="syn__qmath_8h_1a403814e6ece6021eaba034176496dbae" kindref="member">Q16_FROM_INT</ref>(3);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>3.0</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>b<sp/>=<sp/><ref refid="syn__qmath_8h_1aa37bed636cdf9d76bb06c4022215e3ea" kindref="member">Q16_FROM_FRAC</ref>(1,<sp/>2);<sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>0.5</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>c<sp/>=<sp/><ref refid="syn__qmath_8h_1a9c59677a95516b0b1f571520a670dfb0" kindref="member">q16_mul</ref>(a,<sp/>b);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>1.5</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><sp/><sp/>i<sp/>=<sp/><ref refid="syn__qmath_8h_1a09dafb9bfc7dd713403210ec6c444d9f" kindref="member">Q16_TO_INT</ref>(c);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>1</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><sp/><sp/>f<sp/>=<sp/><ref refid="syn__qmath_8h_1ae36b74db81aea45dfe2442ceb1534a64" kindref="member">Q16_FRAC_1000</ref>(c);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>500<sp/>(fractional<sp/>part<sp/>×<sp/>1000)</highlight></codeline>
+</programlisting> </para>
+</simplesect>
+</para>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_QMATH_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_QMATH_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Q16.16<sp/>type<sp/>──────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight></codeline>
+<codeline lineno="32" refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>int32_t<sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref>;</highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight></codeline>
+<codeline lineno="34" refid="syn__qmath_8h_1a0a06e0f48f9cc549761d6ab0ea368627" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>Q16_SHIFT<sp/><sp/><sp/><sp/>16<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35" refid="syn__qmath_8h_1a393bf569f282debd95081de04610eb4c" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>Q16_ONE<sp/><sp/><sp/><sp/><sp/><sp/>((q16_t)(1L<sp/>&lt;&lt;<sp/>Q16_SHIFT))<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="36" refid="syn__qmath_8h_1a5c76b91dcbb8c4ded9f8c88cd672d2e5" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>Q16_HALF<sp/><sp/><sp/><sp/><sp/>((q16_t)(1L<sp/>&lt;&lt;<sp/>(Q16_SHIFT<sp/>-<sp/>1)))<sp/><sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Conversion<sp/>macros<sp/>────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight></codeline>
+<codeline lineno="41" refid="syn__qmath_8h_1a403814e6ece6021eaba034176496dbae" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>Q16_FROM_INT(n)<sp/><sp/><sp/><sp/><sp/><sp/><sp/>((q16_t)((int32_t)(n)<sp/>*<sp/>Q16_ONE))</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight></codeline>
+<codeline lineno="44" refid="syn__qmath_8h_1aa37bed636cdf9d76bb06c4022215e3ea" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>Q16_FROM_FRAC(num,<sp/>den)<sp/>((q16_t)(((int64_t)((uint64_t)(int64_t)(num)<sp/>&lt;&lt;<sp/>Q16_SHIFT))<sp/>/<sp/>(den)))</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight></codeline>
+<codeline lineno="47" refid="syn__qmath_8h_1a6fb4c3fddeda3a2e145765b2e69af7fc" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>Q16_FROM_FLOAT(f)<sp/><sp/><sp/><sp/><sp/>((q16_t)((f)<sp/>*<sp/>(1L<sp/>&lt;&lt;<sp/>Q16_SHIFT)))</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="48"><highlight class="normal"></highlight></codeline>
+<codeline lineno="50" refid="syn__qmath_8h_1a09dafb9bfc7dd713403210ec6c444d9f" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>Q16_TO_INT(q)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>((int32_t)((q)<sp/>&gt;&gt;<sp/>Q16_SHIFT))</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="51"><highlight class="normal"></highlight></codeline>
+<codeline lineno="53" refid="syn__qmath_8h_1a7002d672419654747a3734ff4a1fe1af" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>Q16_TO_INT_ROUND(q)<sp/><sp/><sp/>((int32_t)(((q)<sp/>+<sp/>Q16_HALF)<sp/>&gt;&gt;<sp/>Q16_SHIFT))</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="54"><highlight class="normal"></highlight></codeline>
+<codeline lineno="56" refid="syn__qmath_8h_1ae36b74db81aea45dfe2442ceb1534a64" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>Q16_FRAC_1000(q)<sp/><sp/><sp/><sp/><sp/><sp/>((int32_t)((((q)<sp/>&amp;<sp/>0xFFFF)<sp/>*<sp/>1000L)<sp/>&gt;&gt;<sp/>Q16_SHIFT))</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="57"><highlight class="normal"></highlight></codeline>
+<codeline lineno="58"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Arithmetic<sp/>───────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="59"><highlight class="normal"></highlight></codeline>
+<codeline lineno="66" refid="syn__qmath_8h_1a9c59677a95516b0b1f571520a670dfb0" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/><ref refid="syn__qmath_8h_1a9c59677a95516b0b1f571520a670dfb0" kindref="member">q16_mul</ref>(<ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>a,<sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>b)</highlight></codeline>
+<codeline lineno="67"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(<ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref>)(((int64_t)a<sp/>*<sp/>b)<sp/>&gt;&gt;<sp/><ref refid="syn__qmath_8h_1a0a06e0f48f9cc549761d6ab0ea368627" kindref="member">Q16_SHIFT</ref>);</highlight></codeline>
+<codeline lineno="69"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"></highlight></codeline>
+<codeline lineno="77" refid="syn__qmath_8h_1a1103d3b63cffa202284e7a12eeada585" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/><ref refid="syn__qmath_8h_1a1103d3b63cffa202284e7a12eeada585" kindref="member">q16_div</ref>(<ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>a,<sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>b)</highlight></codeline>
+<codeline lineno="78"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(<ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref>)(((int64_t)((uint64_t)(int64_t)a<sp/>&lt;&lt;<sp/><ref refid="syn__qmath_8h_1a0a06e0f48f9cc549761d6ab0ea368627" kindref="member">Q16_SHIFT</ref>))<sp/>/<sp/>b);</highlight></codeline>
+<codeline lineno="80"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"></highlight></codeline>
+<codeline lineno="88" refid="syn__qmath_8h_1ad45a7f1e81dbc21aaeb6ee4bfef11cac" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/><ref refid="syn__qmath_8h_1ad45a7f1e81dbc21aaeb6ee4bfef11cac" kindref="member">q16_add</ref>(<ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>a,<sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>b)</highlight></codeline>
+<codeline lineno="89"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>a<sp/>+<sp/>b;</highlight></codeline>
+<codeline lineno="91"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"></highlight></codeline>
+<codeline lineno="99" refid="syn__qmath_8h_1a178ea3bd2b2c0baa642d342d384bbde6" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/><ref refid="syn__qmath_8h_1a178ea3bd2b2c0baa642d342d384bbde6" kindref="member">q16_sub</ref>(<ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>a,<sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>b)</highlight></codeline>
+<codeline lineno="100"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>a<sp/>-<sp/>b;</highlight></codeline>
+<codeline lineno="102"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"></highlight></codeline>
+<codeline lineno="109" refid="syn__qmath_8h_1ae53edb3da937164446f0cd1b3ba7e6e6" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/><ref refid="syn__qmath_8h_1ae53edb3da937164446f0cd1b3ba7e6e6" kindref="member">q16_abs</ref>(<ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>a)</highlight></codeline>
+<codeline lineno="110"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(a<sp/>&lt;<sp/>0)<sp/>?<sp/>-a<sp/>:<sp/>a;</highlight></codeline>
+<codeline lineno="112"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="113"><highlight class="normal"></highlight></codeline>
+<codeline lineno="120" refid="syn__qmath_8h_1ad9f5741d8ab3dca0a5600dbfbbd6853f" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/><ref refid="syn__qmath_8h_1ad9f5741d8ab3dca0a5600dbfbbd6853f" kindref="member">q16_add_sat</ref>(<ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>a,<sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>b)</highlight></codeline>
+<codeline lineno="121"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="122"><highlight class="normal"><sp/><sp/><sp/><sp/>int64_t<sp/>r<sp/>=<sp/>(int64_t)a<sp/>+<sp/>b;</highlight></codeline>
+<codeline lineno="123"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(r<sp/>&gt;<sp/><ref refid="syn__signal_8c_1a181807730d4a375f848ba139813ce04f" kindref="member">INT32_MAX</ref>)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__signal_8c_1a181807730d4a375f848ba139813ce04f" kindref="member">INT32_MAX</ref>;</highlight></codeline>
+<codeline lineno="124"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(r<sp/>&lt;<sp/><ref refid="syn__signal_8c_1a688eb21a22db27c2b2bd5836943cdcbe" kindref="member">INT32_MIN</ref>)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__signal_8c_1a688eb21a22db27c2b2bd5836943cdcbe" kindref="member">INT32_MIN</ref>;</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(<ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref>)r;</highlight></codeline>
+<codeline lineno="126"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="127"><highlight class="normal"></highlight></codeline>
+<codeline lineno="134" refid="syn__qmath_8h_1af542a1c8795e0903919f852f5f3778e7" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/><ref refid="syn__qmath_8h_1af542a1c8795e0903919f852f5f3778e7" kindref="member">q16_mul_sat</ref>(<ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>a,<sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>b)</highlight></codeline>
+<codeline lineno="135"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"><sp/><sp/><sp/><sp/>int64_t<sp/>r<sp/>=<sp/>((int64_t)a<sp/>*<sp/>b)<sp/>&gt;&gt;<sp/><ref refid="syn__qmath_8h_1a0a06e0f48f9cc549761d6ab0ea368627" kindref="member">Q16_SHIFT</ref>;</highlight></codeline>
+<codeline lineno="137"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(r<sp/>&gt;<sp/><ref refid="syn__signal_8c_1a181807730d4a375f848ba139813ce04f" kindref="member">INT32_MAX</ref>)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__signal_8c_1a181807730d4a375f848ba139813ce04f" kindref="member">INT32_MAX</ref>;</highlight></codeline>
+<codeline lineno="138"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(r<sp/>&lt;<sp/><ref refid="syn__signal_8c_1a688eb21a22db27c2b2bd5836943cdcbe" kindref="member">INT32_MIN</ref>)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__signal_8c_1a688eb21a22db27c2b2bd5836943cdcbe" kindref="member">INT32_MIN</ref>;</highlight></codeline>
+<codeline lineno="139"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(<ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref>)r;</highlight></codeline>
+<codeline lineno="140"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="141"><highlight class="normal"></highlight></codeline>
+<codeline lineno="149" refid="syn__qmath_8h_1a2f486f98fcfcaa019e17dc02a10c8e74" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/><ref refid="syn__qmath_8h_1a2f486f98fcfcaa019e17dc02a10c8e74" kindref="member">q16_lerp</ref>(<ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>a,<sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>b,<sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>t)</highlight></codeline>
+<codeline lineno="150"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="151"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>a<sp/>+<sp/><ref refid="syn__qmath_8h_1a9c59677a95516b0b1f571520a670dfb0" kindref="member">q16_mul</ref>(b<sp/>-<sp/>a,<sp/>t);</highlight></codeline>
+<codeline lineno="152"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="153"><highlight class="normal"></highlight></codeline>
+<codeline lineno="161" refid="syn__qmath_8h_1a00cbd4c0eaa2ed4aede02d1d5bab55b9" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/><ref refid="syn__qmath_8h_1a00cbd4c0eaa2ed4aede02d1d5bab55b9" kindref="member">q16_clamp</ref>(<ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>val,<sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>lo,<sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>hi)</highlight></codeline>
+<codeline lineno="162"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="163"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(val<sp/>&lt;<sp/>lo)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>lo;</highlight></codeline>
+<codeline lineno="164"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(val<sp/>&gt;<sp/>hi)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>hi;</highlight></codeline>
+<codeline lineno="165"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>val;</highlight></codeline>
+<codeline lineno="166"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="167"><highlight class="normal"></highlight></codeline>
+<codeline lineno="168" refid="syn__qmath_8h_1aa5923af10b934044c54eb0360956c86f" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>Q16_PI<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>205887<sp/><sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="169" refid="syn__qmath_8h_1af41601365a72baee10ec70edc6f5509d" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>Q16_PI_2<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>102944<sp/><sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="170" refid="syn__qmath_8h_1a66565b2b7c53ef89a0d7afdd97cec206" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>Q16_2_PI<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>411775<sp/><sp/></highlight></codeline>
+<codeline lineno="177" refid="syn__qmath_8h_1ae2ae03e0eb8518bd553ac751c120657c" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/><ref refid="syn__qmath_8h_1ae2ae03e0eb8518bd553ac751c120657c" kindref="member">q16_sin</ref>(<ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>x)</highlight></codeline>
+<codeline lineno="178"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="179"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Normalize<sp/>x<sp/>to<sp/>[-PI,<sp/>PI]<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="180"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">while</highlight><highlight class="normal"><sp/>(x<sp/>&gt;<sp/><ref refid="syn__qmath_8h_1aa5923af10b934044c54eb0360956c86f" kindref="member">Q16_PI</ref>)<sp/><sp/>x<sp/>-=<sp/><ref refid="syn__qmath_8h_1a66565b2b7c53ef89a0d7afdd97cec206" kindref="member">Q16_2_PI</ref>;</highlight></codeline>
+<codeline lineno="181"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">while</highlight><highlight class="normal"><sp/>(x<sp/>&lt;<sp/>-<ref refid="syn__qmath_8h_1aa5923af10b934044c54eb0360956c86f" kindref="member">Q16_PI</ref>)<sp/>x<sp/>+=<sp/><ref refid="syn__qmath_8h_1a66565b2b7c53ef89a0d7afdd97cec206" kindref="member">Q16_2_PI</ref>;</highlight></codeline>
+<codeline lineno="182"><highlight class="normal"></highlight></codeline>
+<codeline lineno="183"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Map<sp/>to<sp/>[-PI/2,<sp/>PI/2]<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="184"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(x<sp/>&gt;<sp/><ref refid="syn__qmath_8h_1af41601365a72baee10ec70edc6f5509d" kindref="member">Q16_PI_2</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="185"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>x<sp/>=<sp/><ref refid="syn__qmath_8h_1aa5923af10b934044c54eb0360956c86f" kindref="member">Q16_PI</ref><sp/>-<sp/>x;</highlight></codeline>
+<codeline lineno="186"><highlight class="normal"><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(x<sp/>&lt;<sp/>-<ref refid="syn__qmath_8h_1af41601365a72baee10ec70edc6f5509d" kindref="member">Q16_PI_2</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="187"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>x<sp/>=<sp/>-<ref refid="syn__qmath_8h_1aa5923af10b934044c54eb0360956c86f" kindref="member">Q16_PI</ref><sp/>-<sp/>x;</highlight></codeline>
+<codeline lineno="188"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="189"><highlight class="normal"></highlight></codeline>
+<codeline lineno="190"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Taylor<sp/>series:<sp/>sin(x)<sp/>≈<sp/>x<sp/>-<sp/>x^3/6<sp/>+<sp/>x^5/120<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="191"><highlight class="normal"><sp/><sp/><sp/><sp/>int64_t<sp/>x_sq<sp/>=<sp/>((int64_t)x<sp/>*<sp/>x)<sp/>&gt;&gt;<sp/>16;</highlight></codeline>
+<codeline lineno="192"><highlight class="normal"><sp/><sp/><sp/><sp/>int64_t<sp/>x_cube<sp/>=<sp/>(x_sq<sp/>*<sp/>x)<sp/>&gt;&gt;<sp/>16;</highlight></codeline>
+<codeline lineno="193"><highlight class="normal"><sp/><sp/><sp/><sp/>int64_t<sp/>x_five<sp/>=<sp/>(((x_cube<sp/>*<sp/>x)<sp/>&gt;&gt;<sp/>16)<sp/>*<sp/>x)<sp/>&gt;&gt;<sp/>16;</highlight></codeline>
+<codeline lineno="194"><highlight class="normal"></highlight></codeline>
+<codeline lineno="195"><highlight class="normal"><sp/><sp/><sp/><sp/>int64_t<sp/>term3<sp/>=<sp/>x_cube<sp/>/<sp/>6;</highlight></codeline>
+<codeline lineno="196"><highlight class="normal"><sp/><sp/><sp/><sp/>int64_t<sp/>term5<sp/>=<sp/>x_five<sp/>/<sp/>120;</highlight></codeline>
+<codeline lineno="197"><highlight class="normal"></highlight></codeline>
+<codeline lineno="198"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(<ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref>)(x<sp/>-<sp/>term3<sp/>+<sp/>term5);</highlight></codeline>
+<codeline lineno="199"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="200"><highlight class="normal"></highlight></codeline>
+<codeline lineno="206" refid="syn__qmath_8h_1a0af63a65ee592f719a1154af3478ae60" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/><ref refid="syn__qmath_8h_1a0af63a65ee592f719a1154af3478ae60" kindref="member">q16_cos</ref>(<ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>x)</highlight></codeline>
+<codeline lineno="207"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="208"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__qmath_8h_1ae2ae03e0eb8518bd553ac751c120657c" kindref="member">q16_sin</ref>(x<sp/>+<sp/><ref refid="syn__qmath_8h_1af41601365a72baee10ec70edc6f5509d" kindref="member">Q16_PI_2</ref>);</highlight></codeline>
+<codeline lineno="209"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="210"><highlight class="normal"></highlight></codeline>
+<codeline lineno="211"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="212"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="213"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="214"><highlight class="normal"></highlight></codeline>
+<codeline lineno="215"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_QMATH_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/util/syn_qmath.h"/>
+  </compounddef>
+</doxygen>

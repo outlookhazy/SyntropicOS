@@ -1,0 +1,362 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__fwimage_8h" kind="file" language="C++">
+    <compoundname>syn_fwimage.h</compoundname>
+    <includes refid="syn__defs_8h" local="yes">../common/syn_defs.h</includes>
+    <includes refid="syn__crc_8h" local="yes">../util/syn_crc.h</includes>
+    <includes local="no">stdint.h</includes>
+    <includes local="no">stdbool.h</includes>
+    <includedby refid="syn__fwboot_8c" local="yes">src/syntropic/system/syn_fwboot.c</includedby>
+    <includedby refid="syn__fwboot_8h" local="yes">src/syntropic/system/syn_fwboot.h</includedby>
+    <includedby refid="syn__fwupdate_8c" local="yes">src/syntropic/system/syn_fwupdate.c</includedby>
+    <includedby refid="syn__fwupdate_8h" local="yes">src/syntropic/system/syn_fwupdate.h</includedby>
+    <incdepgraph>
+      <node id="2">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/system/syn_fwimage.h</label>
+        <link refid="syn__fwimage_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>../util/syn_crc.h</label>
+        <link refid="syn__crc_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>stdbool.h</label>
+      </node>
+      <node id="4">
+        <label>stddef.h</label>
+      </node>
+      <node id="3">
+        <label>stdint.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="2">
+        <label>src/syntropic/system/syn_fwboot.c</label>
+        <link refid="syn__fwboot_8c"/>
+      </node>
+      <node id="3">
+        <label>src/syntropic/system/syn_fwboot.h</label>
+        <link refid="syn__fwboot_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/system/syn_fwimage.h</label>
+        <link refid="syn__fwimage_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>src/syntropic/system/syn_fwupdate.c</label>
+        <link refid="syn__fwupdate_8c"/>
+      </node>
+      <node id="5">
+        <label>src/syntropic/system/syn_fwupdate.h</label>
+        <link refid="syn__fwupdate_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="structSYN__FwImageHeader" prot="public">SYN_FwImageHeader</innerclass>
+    <sectiondef kind="define">
+      <memberdef kind="define" id="syn__fwimage_8h_1a2415c9298f7668c18a2ced69400a2a3b" prot="public" static="no">
+        <name>SYN_FW_MAGIC</name>
+        <initializer>0x53594E46u  /* &quot;SYNF&quot; in little-endian */</initializer>
+        <briefdescription>
+<para>Magic number identifying a SyntropicOS firmware image header (&quot;SYNF&quot;). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/system/syn_fwimage.h" line="39" column="9" bodyfile="src/syntropic/system/syn_fwimage.h" bodystart="39" bodyend="-1"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="enum">
+      <memberdef kind="enum" id="syn__fwimage_8h_1ac7b9ccf9f3eb2ecbddcb78b87acdef9f" prot="public" static="no" strong="no">
+        <type></type>
+        <name>SYN_FwState</name>
+        <enumvalue id="syn__fwimage_8h_1ac7b9ccf9f3eb2ecbddcb78b87acdef9fad20b29432ff3576e3c3ffd5399f6bc05" prot="public">
+          <name>SYN_FW_STATE_EMPTY</name>
+          <initializer>= 0xFF</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Erased flash (no image) <linebreak/>
+ </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__fwimage_8h_1ac7b9ccf9f3eb2ecbddcb78b87acdef9fa0ba6ebd8dff5ede08f9bb55547b60bd1" prot="public">
+          <name>SYN_FW_STATE_WRITING</name>
+          <initializer>= 0x01</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Partially written (update in progress) </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__fwimage_8h_1ac7b9ccf9f3eb2ecbddcb78b87acdef9fa803c0a4cc0519e6b0ea15ee6e058e923" prot="public">
+          <name>SYN_FW_STATE_NEW</name>
+          <initializer>= 0x02</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Fully written + CRC valid <linebreak/>
+ </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__fwimage_8h_1ac7b9ccf9f3eb2ecbddcb78b87acdef9fa0d97ea88a25e0e0df425a8ccbeeb3ec4" prot="public">
+          <name>SYN_FW_STATE_TESTING</name>
+          <initializer>= 0x03</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Booted but not yet confirmed <linebreak/>
+ </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__fwimage_8h_1ac7b9ccf9f3eb2ecbddcb78b87acdef9faae41163782940a2545b63ccc86042996" prot="public">
+          <name>SYN_FW_STATE_CONFIRMED</name>
+          <initializer>= 0x04</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Confirmed good <linebreak/>
+ </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__fwimage_8h_1ac7b9ccf9f3eb2ecbddcb78b87acdef9faccc24d79cd3c7e9119f49c300a30bb49" prot="public">
+          <name>SYN_FW_STATE_INVALID</name>
+          <initializer>= 0x00</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Failed validation or rollback <linebreak/>
+ </para>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>Firmware image lifecycle state. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/system/syn_fwimage.h" line="44" column="1" bodyfile="src/syntropic/system/syn_fwimage.h" bodystart="44" bodyend="51"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__fwimage_8h_1a03059edc4ba73c992dedc1773015c413" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>static bool syn_fwimage_header_valid</definition>
+        <argsstring>(const SYN_FwImageHeader *hdr)</argsstring>
+        <name>syn_fwimage_header_valid</name>
+        <param>
+          <type>const <ref refid="structSYN__FwImageHeader" kindref="compound">SYN_FwImageHeader</ref> *</type>
+          <declname>hdr</declname>
+        </param>
+        <briefdescription>
+<para>Validate a firmware image header. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Checks magic number and header CRC. Does NOT verify the image data CRC (use syn_fwimage_verify_data for that).</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>hdr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Header to validate. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if header is valid. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/system/syn_fwimage.h" line="85" column="20" bodyfile="src/syntropic/system/syn_fwimage.h" bodystart="85" bodyend="92"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__fwimage_8h_1a5b14953c26ff467be092bd8ca7f2e25c" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void syn_fwimage_seal_header</definition>
+        <argsstring>(SYN_FwImageHeader *hdr)</argsstring>
+        <name>syn_fwimage_seal_header</name>
+        <param>
+          <type><ref refid="structSYN__FwImageHeader" kindref="compound">SYN_FwImageHeader</ref> *</type>
+          <declname>hdr</declname>
+        </param>
+        <briefdescription>
+<para>Compute the header CRC and write it into the header. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Call after setting all other fields.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>hdr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Header to seal. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/system/syn_fwimage.h" line="101" column="20" bodyfile="src/syntropic/system/syn_fwimage.h" bodystart="101" bodyend="104"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__fwimage_8h_1a3ce33fec33de13505d3dca6802f705fd" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>static bool syn_fwimage_is_bootable</definition>
+        <argsstring>(const SYN_FwImageHeader *hdr)</argsstring>
+        <name>syn_fwimage_is_bootable</name>
+        <param>
+          <type>const <ref refid="structSYN__FwImageHeader" kindref="compound">SYN_FwImageHeader</ref> *</type>
+          <declname>hdr</declname>
+        </param>
+        <briefdescription>
+<para>Check if a slot contains a bootable image. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>An image is bootable if the header is valid and state is NEW, TESTING, or CONFIRMED.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>hdr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Header to check. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if bootable. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/system/syn_fwimage.h" line="115" column="20" bodyfile="src/syntropic/system/syn_fwimage.h" bodystart="115" bodyend="121"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Firmware image header — standardized format for OTA slots. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Each firmware slot (A or B) has this header at a known flash offset. The bootloader and OTA updater use it to decide which image to boot, whether an update succeeded, and when to rollback.</para>
+<para>Layout in flash: <programlisting><codeline><highlight class="normal">[<ref refid="structSYN__FwImageHeader" kindref="compound">SYN_FwImageHeader</ref><sp/>(24<sp/>bytes)]<sp/>[firmware<sp/>binary<sp/>(image_size<sp/>bytes)]</highlight></codeline>
+</programlisting></para>
+<para><simplesect kind="par"><title>Lifecycle</title><para><orderedlist>
+<listitem><para>OTA begins: header.state = WRITING</para>
+</listitem><listitem><para>OTA complete: header.state = NEW (CRC verified)</para>
+</listitem><listitem><para>First boot: bootloader sets state = TESTING</para>
+</listitem><listitem><para>App healthy: app calls confirm → state = CONFIRMED</para>
+</listitem><listitem><para>App crashes: bootloader sees TESTING + unhealthy → state = INVALID, rollback </para>
+</listitem></orderedlist>
+</para>
+</simplesect>
+</para>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_FWIMAGE_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_FWIMAGE_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../common/syn_defs.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../util/syn_crc.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Magic<sp/>number<sp/>─────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight></codeline>
+<codeline lineno="39" refid="syn__fwimage_8h_1a2415c9298f7668c18a2ced69400a2a3b" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_FW_MAGIC<sp/><sp/>0x53594E46u<sp/><sp/></highlight><highlight class="comment">/*<sp/>&quot;SYNF&quot;<sp/>in<sp/>little-endian<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Image<sp/>state<sp/>──────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight></codeline>
+<codeline lineno="44" refid="syn__fwimage_8h_1ac7b9ccf9f3eb2ecbddcb78b87acdef9f" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="45" refid="syn__fwimage_8h_1ac7b9ccf9f3eb2ecbddcb78b87acdef9fad20b29432ff3576e3c3ffd5399f6bc05" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__fwimage_8h_1ac7b9ccf9f3eb2ecbddcb78b87acdef9fad20b29432ff3576e3c3ffd5399f6bc05" kindref="member">SYN_FW_STATE_EMPTY</ref><sp/><sp/><sp/><sp/><sp/>=<sp/>0xFF,<sp/><sp/></highlight></codeline>
+<codeline lineno="46" refid="syn__fwimage_8h_1ac7b9ccf9f3eb2ecbddcb78b87acdef9fa0ba6ebd8dff5ede08f9bb55547b60bd1" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__fwimage_8h_1ac7b9ccf9f3eb2ecbddcb78b87acdef9fa0ba6ebd8dff5ede08f9bb55547b60bd1" kindref="member">SYN_FW_STATE_WRITING</ref><sp/><sp/><sp/>=<sp/>0x01,<sp/><sp/></highlight></codeline>
+<codeline lineno="47" refid="syn__fwimage_8h_1ac7b9ccf9f3eb2ecbddcb78b87acdef9fa803c0a4cc0519e6b0ea15ee6e058e923" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__fwimage_8h_1ac7b9ccf9f3eb2ecbddcb78b87acdef9fa803c0a4cc0519e6b0ea15ee6e058e923" kindref="member">SYN_FW_STATE_NEW</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>0x02,<sp/><sp/></highlight></codeline>
+<codeline lineno="48" refid="syn__fwimage_8h_1ac7b9ccf9f3eb2ecbddcb78b87acdef9fa0d97ea88a25e0e0df425a8ccbeeb3ec4" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__fwimage_8h_1ac7b9ccf9f3eb2ecbddcb78b87acdef9fa0d97ea88a25e0e0df425a8ccbeeb3ec4" kindref="member">SYN_FW_STATE_TESTING</ref><sp/><sp/><sp/>=<sp/>0x03,<sp/><sp/></highlight></codeline>
+<codeline lineno="49" refid="syn__fwimage_8h_1ac7b9ccf9f3eb2ecbddcb78b87acdef9faae41163782940a2545b63ccc86042996" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__fwimage_8h_1ac7b9ccf9f3eb2ecbddcb78b87acdef9faae41163782940a2545b63ccc86042996" kindref="member">SYN_FW_STATE_CONFIRMED</ref><sp/>=<sp/>0x04,<sp/><sp/></highlight></codeline>
+<codeline lineno="50" refid="syn__fwimage_8h_1ac7b9ccf9f3eb2ecbddcb78b87acdef9faccc24d79cd3c7e9119f49c300a30bb49" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__fwimage_8h_1ac7b9ccf9f3eb2ecbddcb78b87acdef9faccc24d79cd3c7e9119f49c300a30bb49" kindref="member">SYN_FW_STATE_INVALID</ref><sp/><sp/><sp/>=<sp/>0x00,<sp/><sp/></highlight></codeline>
+<codeline lineno="51"><highlight class="normal">}<sp/><ref refid="syn__fwimage_8h_1ac7b9ccf9f3eb2ecbddcb78b87acdef9f" kindref="member">SYN_FwState</ref>;</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"></highlight></codeline>
+<codeline lineno="53"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Image<sp/>header<sp/>─────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="54"><highlight class="normal"></highlight></codeline>
+<codeline lineno="61" refid="structSYN__FwImageHeader" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="62" refid="structSYN__FwImageHeader_1a7ad16ae050775a32309dab3daed2c185" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><sp/><ref refid="structSYN__FwImageHeader_1a7ad16ae050775a32309dab3daed2c185" kindref="member">magic</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="63" refid="structSYN__FwImageHeader_1ad8b843701877dc2782bed2b82fb7117a" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><sp/><ref refid="structSYN__FwImageHeader_1ad8b843701877dc2782bed2b82fb7117a" kindref="member">version_code</ref>;<sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="64" refid="structSYN__FwImageHeader_1a3287dd11435f801f4f6cad2308f5f3ce" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><sp/><ref refid="structSYN__FwImageHeader_1a3287dd11435f801f4f6cad2308f5f3ce" kindref="member">image_size</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="65" refid="structSYN__FwImageHeader_1af8e728461002a6b73ec589753f31a8c3" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><sp/><ref refid="structSYN__FwImageHeader_1af8e728461002a6b73ec589753f31a8c3" kindref="member">image_crc</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="66" refid="structSYN__FwImageHeader_1a5370a279a613d369d15f866205639fdf" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/><sp/><ref refid="structSYN__FwImageHeader_1a5370a279a613d369d15f866205639fdf" kindref="member">state</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="67" refid="structSYN__FwImageHeader_1a99e95b405a7f210b5f5d125d1985ba71" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/><sp/>reserved[3];<sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="68"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(SYN_FW_USE_HMAC)<sp/>&amp;&amp;<sp/>SYN_FW_USE_HMAC</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/><sp/>image_hmac[32];<sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="70"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="71" refid="structSYN__FwImageHeader_1a23495a2af0038102ba3c754849b8835e" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><sp/><ref refid="structSYN__FwImageHeader_1a23495a2af0038102ba3c754849b8835e" kindref="member">header_crc</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="72"><highlight class="normal">}<sp/><ref refid="structSYN__FwImageHeader" kindref="compound">SYN_FwImageHeader</ref>;</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"></highlight></codeline>
+<codeline lineno="74"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Validation<sp/>───────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="75"><highlight class="normal"></highlight></codeline>
+<codeline lineno="85" refid="syn__fwimage_8h_1a03059edc4ba73c992dedc1773015c413" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__fwimage_8h_1a03059edc4ba73c992dedc1773015c413" kindref="member">syn_fwimage_header_valid</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__FwImageHeader" kindref="compound">SYN_FwImageHeader</ref><sp/>*hdr)</highlight></codeline>
+<codeline lineno="86"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(hdr-&gt;<ref refid="structSYN__FwImageHeader_1a7ad16ae050775a32309dab3daed2c185" kindref="member">magic</ref><sp/>!=<sp/><ref refid="syn__fwimage_8h_1a2415c9298f7668c18a2ced69400a2a3b" kindref="member">SYN_FW_MAGIC</ref>)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"></highlight></codeline>
+<codeline lineno="89"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>CRC-32<sp/>over<sp/>the<sp/>first<sp/>20<sp/>bytes<sp/>(everything<sp/>except<sp/>header_crc)<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="90"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/>crc<sp/>=<sp/><ref refid="syn__crc_8h_1a7bd1bde00ecfa8d1207257035708c39a" kindref="member">syn_crc32</ref>(hdr,<sp/>offsetof(<ref refid="structSYN__FwImageHeader" kindref="compound">SYN_FwImageHeader</ref>,<sp/>header_crc));</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(crc<sp/>==<sp/>hdr-&gt;<ref refid="structSYN__FwImageHeader_1a23495a2af0038102ba3c754849b8835e" kindref="member">header_crc</ref>);</highlight></codeline>
+<codeline lineno="92"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"></highlight></codeline>
+<codeline lineno="101" refid="syn__fwimage_8h_1a5b14953c26ff467be092bd8ca7f2e25c" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__fwimage_8h_1a5b14953c26ff467be092bd8ca7f2e25c" kindref="member">syn_fwimage_seal_header</ref>(<ref refid="structSYN__FwImageHeader" kindref="compound">SYN_FwImageHeader</ref><sp/>*hdr)</highlight></codeline>
+<codeline lineno="102"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"><sp/><sp/><sp/><sp/>hdr-&gt;<ref refid="structSYN__FwImageHeader_1a23495a2af0038102ba3c754849b8835e" kindref="member">header_crc</ref><sp/>=<sp/><ref refid="syn__crc_8h_1a7bd1bde00ecfa8d1207257035708c39a" kindref="member">syn_crc32</ref>(hdr,<sp/>offsetof(<ref refid="structSYN__FwImageHeader" kindref="compound">SYN_FwImageHeader</ref>,<sp/>header_crc));</highlight></codeline>
+<codeline lineno="104"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"></highlight></codeline>
+<codeline lineno="115" refid="syn__fwimage_8h_1a3ce33fec33de13505d3dca6802f705fd" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__fwimage_8h_1a3ce33fec33de13505d3dca6802f705fd" kindref="member">syn_fwimage_is_bootable</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__FwImageHeader" kindref="compound">SYN_FwImageHeader</ref><sp/>*hdr)</highlight></codeline>
+<codeline lineno="116"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="117"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!<ref refid="syn__fwimage_8h_1a03059edc4ba73c992dedc1773015c413" kindref="member">syn_fwimage_header_valid</ref>(hdr))<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(hdr-&gt;<ref refid="structSYN__FwImageHeader_1a5370a279a613d369d15f866205639fdf" kindref="member">state</ref><sp/>==<sp/><ref refid="syn__fwimage_8h_1ac7b9ccf9f3eb2ecbddcb78b87acdef9fa803c0a4cc0519e6b0ea15ee6e058e923" kindref="member">SYN_FW_STATE_NEW</ref><sp/>||</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>hdr-&gt;<ref refid="structSYN__FwImageHeader_1a5370a279a613d369d15f866205639fdf" kindref="member">state</ref><sp/>==<sp/><ref refid="syn__fwimage_8h_1ac7b9ccf9f3eb2ecbddcb78b87acdef9fa0d97ea88a25e0e0df425a8ccbeeb3ec4" kindref="member">SYN_FW_STATE_TESTING</ref><sp/>||</highlight></codeline>
+<codeline lineno="120"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>hdr-&gt;<ref refid="structSYN__FwImageHeader_1a5370a279a613d369d15f866205639fdf" kindref="member">state</ref><sp/>==<sp/><ref refid="syn__fwimage_8h_1ac7b9ccf9f3eb2ecbddcb78b87acdef9faae41163782940a2545b63ccc86042996" kindref="member">SYN_FW_STATE_CONFIRMED</ref>);</highlight></codeline>
+<codeline lineno="121"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="122"><highlight class="normal"></highlight></codeline>
+<codeline lineno="123"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="124"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="126"><highlight class="normal"></highlight></codeline>
+<codeline lineno="127"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_FWIMAGE_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/system/syn_fwimage.h"/>
+  </compounddef>
+</doxygen>

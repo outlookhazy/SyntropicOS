@@ -1,0 +1,213 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__fault_8h" kind="file" language="C++">
+    <compoundname>syn_fault.h</compoundname>
+    <includes refid="syn__defs_8h" local="yes">../common/syn_defs.h</includes>
+    <includes refid="syn__errlog_8h" local="yes">syn_errlog.h</includes>
+    <includes local="no">stdint.h</includes>
+    <includes local="no">stdbool.h</includes>
+    <includedby refid="syntropic_8h" local="yes">src/syntropic/syntropic.h</includedby>
+    <includedby refid="syn__coredump_8h" local="yes">src/syntropic/system/syn_coredump.h</includedby>
+    <includedby refid="syn__fault_8c" local="yes">src/syntropic/system/syn_fault.c</includedby>
+    <incdepgraph>
+      <node id="2">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>syn_errlog.h</label>
+        <link refid="syn__errlog_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/system/syn_fault.h</label>
+        <link refid="syn__fault_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>stdbool.h</label>
+      </node>
+      <node id="4">
+        <label>stddef.h</label>
+      </node>
+      <node id="3">
+        <label>stdint.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="2">
+        <label>src/syntropic/syntropic.h</label>
+        <link refid="syntropic_8h"/>
+      </node>
+      <node id="4">
+        <label>src/syntropic/system/syn_coredump.c</label>
+        <link refid="syn__coredump_8c"/>
+      </node>
+      <node id="3">
+        <label>src/syntropic/system/syn_coredump.h</label>
+        <link refid="syn__coredump_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>src/syntropic/system/syn_fault.c</label>
+        <link refid="syn__fault_8c"/>
+      </node>
+      <node id="1">
+        <label>src/syntropic/system/syn_fault.h</label>
+        <link refid="syn__fault_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="structSYN__FaultContext" prot="public">SYN_FaultContext</innerclass>
+    <innerclass refid="structSYN__FaultDump" prot="public">SYN_FaultDump</innerclass>
+    <sectiondef kind="define">
+      <memberdef kind="define" id="syn__fault_8h_1a5b53ed747963be9670feb2a36ccc8bad" prot="public" static="no">
+        <name>SYN_FAULT_SIGNATURE</name>
+        <initializer>0xFA17C0DE</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Magic value indicating a valid fault dump </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/system/syn_fault.h" line="19" column="9" bodyfile="src/syntropic/system/syn_fault.h" bodystart="19" bodyend="-1"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__fault_8h_1a0b926d8cda71ba66bd5ead1c7b64b96b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_fault_capture</definition>
+        <argsstring>(const SYN_FaultContext *ctx)</argsstring>
+        <name>syn_fault_capture</name>
+        <param>
+          <type>const <ref refid="structSYN__FaultContext" kindref="compound">SYN_FaultContext</ref> *</type>
+          <declname>ctx</declname>
+        </param>
+        <briefdescription>
+<para>Capture a CPU fault register state. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Saves register dump to uninitialized RAM and sets the signature. Safe to call from a hard fault handler (no heap, no locks).</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ctx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to the register context to save (NULL is ignored). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/system/syn_fault.h" line="52" column="6" bodyfile="src/syntropic/system/syn_fault.c" bodystart="28" bodyend="34" declfile="src/syntropic/system/syn_fault.h" declline="52" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__fault_8h_1af8df622b25493cfee95e1e57fa094472" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_fault_check_and_log</definition>
+        <argsstring>(SYN_ErrLog *errlog)</argsstring>
+        <name>syn_fault_check_and_log</name>
+        <param>
+          <type><ref refid="structSYN__ErrLog" kindref="compound">SYN_ErrLog</ref> *</type>
+          <declname>errlog</declname>
+        </param>
+        <briefdescription>
+<para>Checks if a crash occurred in a previous boot, logs it, and clears the signature. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>errlog</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to the active error log. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if a fault was checked, logged, and cleared. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/system/syn_fault.h" line="60" column="6" bodyfile="src/syntropic/system/syn_fault.c" bodystart="36" bodyend="48" declfile="src/syntropic/system/syn_fault.h" declline="60" declcolumn="6"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>CPU Hard Fault / Post-Mortem Diagnostic log collector. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_FAULT_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_FAULT_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../common/syn_defs.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__errlog_8h" kindref="compound">syn_errlog.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight></codeline>
+<codeline lineno="19" refid="syn__fault_8h_1a5b53ed747963be9670feb2a36ccc8bad" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_FAULT_SIGNATURE<sp/><sp/>0xFA17C0DE<sp/><sp/></highlight></codeline>
+<codeline lineno="24" refid="structSYN__FaultContext" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="25" refid="structSYN__FaultContext_1a8ab1fbd2b66b0c20c521c01a24de9b53" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structSYN__FaultContext_1a8ab1fbd2b66b0c20c521c01a24de9b53" kindref="member">pc</ref>;<sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="26" refid="structSYN__FaultContext_1abafc18db6698c5b0e13d1b5502e69fd2" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structSYN__FaultContext_1abafc18db6698c5b0e13d1b5502e69fd2" kindref="member">lr</ref>;<sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="27" refid="structSYN__FaultContext_1ad8fd453db2a29c2a2115f34900760487" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structSYN__FaultContext_1ad8fd453db2a29c2a2115f34900760487" kindref="member">sp</ref>;<sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="28" refid="structSYN__FaultContext_1a2207b3b464e5f794306b97032e8528ec" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structSYN__FaultContext_1a2207b3b464e5f794306b97032e8528ec" kindref="member">r0</ref>;<sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="29" refid="structSYN__FaultContext_1a834f3807ba3b69aedf38c4337195f526" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structSYN__FaultContext_1a834f3807ba3b69aedf38c4337195f526" kindref="member">r1</ref>;<sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="30" refid="structSYN__FaultContext_1a938f60a2f286d93b60a3f3e83a850bb1" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structSYN__FaultContext_1a938f60a2f286d93b60a3f3e83a850bb1" kindref="member">r2</ref>;<sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="31" refid="structSYN__FaultContext_1a8adea2849c780d07055ae0dad90ba27f" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structSYN__FaultContext_1a8adea2849c780d07055ae0dad90ba27f" kindref="member">r3</ref>;<sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="32" refid="structSYN__FaultContext_1a35fbc724e3bac291644e6cc6f7a3736f" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structSYN__FaultContext_1a35fbc724e3bac291644e6cc6f7a3736f" kindref="member">r12</ref>;<sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="33" refid="structSYN__FaultContext_1aa36efd4a1990f879efaf6d0f332786be" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structSYN__FaultContext_1aa36efd4a1990f879efaf6d0f332786be" kindref="member">xpsr</ref>;<sp/><sp/></highlight></codeline>
+<codeline lineno="34"><highlight class="normal">}<sp/><ref refid="structSYN__FaultContext" kindref="compound">SYN_FaultContext</ref>;</highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight></codeline>
+<codeline lineno="39" refid="structSYN__FaultDump" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="40" refid="structSYN__FaultDump_1a7eaaffa01b29cf0a2354e5322d921f98" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__FaultDump_1a7eaaffa01b29cf0a2354e5322d921f98" kindref="member">signature</ref>;<sp/><sp/></highlight></codeline>
+<codeline lineno="41" refid="structSYN__FaultDump_1a55a21d7897f0e7f8502a256b9f6acc97" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structSYN__FaultContext" kindref="compound">SYN_FaultContext</ref><sp/><ref refid="structSYN__FaultDump_1a55a21d7897f0e7f8502a256b9f6acc97" kindref="member">context</ref>;<sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="42"><highlight class="normal">}<sp/><ref refid="structSYN__FaultDump" kindref="compound">SYN_FaultDump</ref>;</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight></codeline>
+<codeline lineno="52"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__fault_8h_1a0b926d8cda71ba66bd5ead1c7b64b96b" kindref="member">syn_fault_capture</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__FaultContext" kindref="compound">SYN_FaultContext</ref><sp/>*ctx);</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"></highlight></codeline>
+<codeline lineno="60"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__fault_8h_1af8df622b25493cfee95e1e57fa094472" kindref="member">syn_fault_check_and_log</ref>(<ref refid="structSYN__ErrLog" kindref="compound">SYN_ErrLog</ref><sp/>*errlog);</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"></highlight></codeline>
+<codeline lineno="62"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="63"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="65"><highlight class="normal"></highlight></codeline>
+<codeline lineno="66"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_FAULT_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/system/syn_fault.h"/>
+  </compounddef>
+</doxygen>

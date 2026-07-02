@@ -1,0 +1,483 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__exti_8c" kind="file" language="C++">
+    <compoundname>syn_exti.c</compoundname>
+    <includes refid="syn__exti_8h" local="yes">syn_exti.h</includes>
+    <includes refid="syn__assert_8h" local="yes">../util/syn_assert.h</includes>
+    <includes local="no">string.h</includes>
+    <incdepgraph>
+      <node id="10">
+        <label>../common/syn_compiler.h</label>
+        <link refid="syn__compiler_8h"/>
+      </node>
+      <node id="3">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/drivers/syn_exti.c</label>
+        <link refid="syn__exti_8c"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>syn_exti.h</label>
+        <link refid="syn__exti_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>../port/syn_port_exti.h</label>
+        <link refid="syn__port__exti_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>../port/syn_port_gpio.h</label>
+        <link refid="syn__port__gpio_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="9">
+        <label>../util/syn_assert.h</label>
+        <link refid="syn__assert_8h"/>
+        <childnode refid="10" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>stdbool.h</label>
+      </node>
+      <node id="5">
+        <label>stddef.h</label>
+      </node>
+      <node id="4">
+        <label>stdint.h</label>
+      </node>
+      <node id="11">
+        <label>string.h</label>
+      </node>
+    </incdepgraph>
+    <innerclass refid="structEXTI__Entry" prot="public">EXTI_Entry</innerclass>
+    <sectiondef kind="var">
+      <memberdef kind="variable" id="syn__exti_8c_1a63761068bd3b1bf544d493d2ee0de646" prot="public" static="yes" mutable="no">
+        <type><ref refid="structEXTI__Entry" kindref="compound">EXTI_Entry</ref></type>
+        <definition>EXTI_Entry exti_table[SYN_EXTI_MAX_PINS]</definition>
+        <argsstring>[SYN_EXTI_MAX_PINS]</argsstring>
+        <name>exti_table</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Registered callbacks. <linebreak/>
+ </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_exti.c" line="27" column="19" bodyfile="src/syntropic/drivers/syn_exti.c" bodystart="27" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="syn__exti_8c_1a1e32517fcc78a5c935838f161a7fa6cd" prot="public" static="yes" mutable="no">
+        <type>size_t</type>
+        <definition>size_t exti_count</definition>
+        <argsstring></argsstring>
+        <name>exti_count</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Number of registered. <linebreak/>
+ </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_exti.c" line="28" column="19" bodyfile="src/syntropic/drivers/syn_exti.c" bodystart="28" bodyend="-1"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__exti_8c_1a3ba682cfa9f63114927b4a3bb2a3245c" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="structEXTI__Entry" kindref="compound">EXTI_Entry</ref> *</type>
+        <definition>static EXTI_Entry * find_entry</definition>
+        <argsstring>(SYN_GPIO_Pin pin)</argsstring>
+        <name>find_entry</name>
+        <param>
+          <type><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref></type>
+          <declname>pin</declname>
+        </param>
+        <briefdescription>
+<para>Find the table entry for a given pin. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>pin</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>GPIO pin. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Pointer to entry, or NULL if not found. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_exti.c" line="37" column="19" bodyfile="src/syntropic/drivers/syn_exti.c" bodystart="37" bodyend="46"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__exti_8c_1aae2a1c193265d91cbb1fba5ce9069f9d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_exti_init</definition>
+        <argsstring>(void)</argsstring>
+        <name>syn_exti_init</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Initialize the EXTI dispatcher. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_exti.c" line="50" column="6" bodyfile="src/syntropic/drivers/syn_exti.c" bodystart="50" bodyend="54"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__exti_8c_1a346653c4ded661aa6dd34abe016e12de" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_exti_register</definition>
+        <argsstring>(SYN_GPIO_Pin pin, SYN_EXTI_Edge edge, SYN_EXTI_Callback cb, void *ctx)</argsstring>
+        <name>syn_exti_register</name>
+        <param>
+          <type><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref></type>
+          <declname>pin</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__port__exti_8h_1a13a7b36d42ad1cac04f2b9599d94de1c" kindref="member">SYN_EXTI_Edge</ref></type>
+          <declname>edge</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__exti_8h_1ac42ee4e38a5d79cb8dacbe685b3549a9" kindref="member">SYN_EXTI_Callback</ref></type>
+          <declname>cb</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>ctx</declname>
+        </param>
+        <briefdescription>
+<para>Register a callback for a pin interrupt. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>pin</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>GPIO pin. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>edge</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Trigger edge. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>cb</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Callback (runs in ISR context). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>ctx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>User context passed to callback. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK, or SYN_ERROR if table full. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_exti.c" line="56" column="12" bodyfile="src/syntropic/drivers/syn_exti.c" bodystart="56" bodyend="84"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__exti_8c_1a015dd4455cf9c9a97db2aa7c8a1c5e98" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_exti_unregister</definition>
+        <argsstring>(SYN_GPIO_Pin pin)</argsstring>
+        <name>syn_exti_unregister</name>
+        <param>
+          <type><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref></type>
+          <declname>pin</declname>
+        </param>
+        <briefdescription>
+<para>Unregister a pin callback. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>pin</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>GPIO pin. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_exti.c" line="86" column="6" bodyfile="src/syntropic/drivers/syn_exti.c" bodystart="86" bodyend="94"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__exti_8c_1a8664951cf4b05ebb9ec69790ef009f66" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_exti_enable</definition>
+        <argsstring>(SYN_GPIO_Pin pin)</argsstring>
+        <name>syn_exti_enable</name>
+        <param>
+          <type><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref></type>
+          <declname>pin</declname>
+        </param>
+        <briefdescription>
+<para>Enable interrupt for a registered pin. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>pin</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>GPIO pin. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_exti.c" line="96" column="6" bodyfile="src/syntropic/drivers/syn_exti.c" bodystart="96" bodyend="102"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__exti_8c_1aa882199349e89ac0f292b94abc327d30" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_exti_disable</definition>
+        <argsstring>(SYN_GPIO_Pin pin)</argsstring>
+        <name>syn_exti_disable</name>
+        <param>
+          <type><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref></type>
+          <declname>pin</declname>
+        </param>
+        <briefdescription>
+<para>Disable interrupt for a pin. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>pin</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>GPIO pin. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_exti.c" line="104" column="6" bodyfile="src/syntropic/drivers/syn_exti.c" bodystart="104" bodyend="110"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__exti_8c_1abeeab19f9e3b036895e684e88026e721" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_exti_irq_handler</definition>
+        <argsstring>(SYN_GPIO_Pin pin)</argsstring>
+        <name>syn_exti_irq_handler</name>
+        <param>
+          <type><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref></type>
+          <declname>pin</declname>
+        </param>
+        <briefdescription>
+<para>IRQ handler — call from platform ISR. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Looks up the registered callback for <computeroutput>pin</computeroutput> and invokes it. This is the glue between hardware ISR and the dispatcher.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>pin</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>GPIO pin that triggered the interrupt. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_exti.c" line="112" column="6" bodyfile="src/syntropic/drivers/syn_exti.c" bodystart="112" bodyend="118"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__exti_8c_1a4b7d80f111c4beeff0932dc020831d27" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>size_t</type>
+        <definition>size_t syn_exti_count</definition>
+        <argsstring>(void)</argsstring>
+        <name>syn_exti_count</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Get the number of registered callbacks. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>Registration count. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_exti.c" line="120" column="8" bodyfile="src/syntropic/drivers/syn_exti.c" bodystart="120" bodyend="123"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>GPIO interrupt dispatcher implementation. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#if<sp/>__has_include(&quot;syn_config.h&quot;)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/>#include<sp/>&quot;syn_config.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="4"><highlight class="normal"></highlight></codeline>
+<codeline lineno="5"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>!defined(SYN_USE_EXTI)<sp/>||<sp/>SYN_USE_EXTI</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__exti_8h" kindref="compound">syn_exti.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../util/syn_assert.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;string.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Callback<sp/>table<sp/>───────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight></codeline>
+<codeline lineno="20" refid="structEXTI__Entry" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="21"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/>pin;<sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__exti_8h_1ac42ee4e38a5d79cb8dacbe685b3549a9" kindref="member">SYN_EXTI_Callback</ref><sp/><sp/>cb;<sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*ctx;<sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>active;<sp/></highlight></codeline>
+<codeline lineno="25"><highlight class="normal">}<sp/><ref refid="structEXTI__Entry" kindref="compound">EXTI_Entry</ref>;</highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/><ref refid="structEXTI__Entry" kindref="compound">EXTI_Entry</ref><sp/><ref refid="syn__exti_8c_1a63761068bd3b1bf544d493d2ee0de646" kindref="member">exti_table</ref>[<ref refid="syn__exti_8h_1a51833919fc72b51bc549568d1e207bd6" kindref="member">SYN_EXTI_MAX_PINS</ref>];<sp/><sp/></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><ref refid="syn__exti_8c_1a1e32517fcc78a5c935838f161a7fa6cd" kindref="member">exti_count</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Helpers<sp/>──────────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/><ref refid="structEXTI__Entry" kindref="compound">EXTI_Entry</ref><sp/>*<ref refid="syn__exti_8c_1a3ba682cfa9f63114927b4a3bb2a3245c" kindref="member">find_entry</ref>(<ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref><sp/>pin)</highlight></codeline>
+<codeline lineno="38"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>i;</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/><ref refid="syn__exti_8c_1a1e32517fcc78a5c935838f161a7fa6cd" kindref="member">exti_count</ref>;<sp/>i++)<sp/>{</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="syn__exti_8c_1a63761068bd3b1bf544d493d2ee0de646" kindref="member">exti_table</ref>[i].pin<sp/>==<sp/>pin)<sp/>{</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>&amp;<ref refid="syn__exti_8c_1a63761068bd3b1bf544d493d2ee0de646" kindref="member">exti_table</ref>[i];</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>NULL;</highlight></codeline>
+<codeline lineno="46"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"></highlight></codeline>
+<codeline lineno="48"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>API<sp/>──────────────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="49"><highlight class="normal"></highlight></codeline>
+<codeline lineno="50"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__exti_8c_1aae2a1c193265d91cbb1fba5ce9069f9d" kindref="member">syn_exti_init</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="51"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/><sp/><sp/>memset(<ref refid="syn__exti_8c_1a63761068bd3b1bf544d493d2ee0de646" kindref="member">exti_table</ref>,<sp/>0,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(<ref refid="syn__exti_8c_1a63761068bd3b1bf544d493d2ee0de646" kindref="member">exti_table</ref>));</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__exti_8c_1a1e32517fcc78a5c935838f161a7fa6cd" kindref="member">exti_count</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="54"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"></highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__exti_8c_1a346653c4ded661aa6dd34abe016e12de" kindref="member">syn_exti_register</ref>(<ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref><sp/>pin,<sp/><ref refid="syn__port__exti_8h_1a13a7b36d42ad1cac04f2b9599d94de1c" kindref="member">SYN_EXTI_Edge</ref><sp/>edge,</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__exti_8h_1ac42ee4e38a5d79cb8dacbe685b3549a9" kindref="member">SYN_EXTI_Callback</ref><sp/>cb,<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*ctx)</highlight></codeline>
+<codeline lineno="58"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(cb<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"></highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Check<sp/>if<sp/>already<sp/>registered<sp/>—<sp/>update<sp/>in<sp/>place<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="62"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structEXTI__Entry" kindref="compound">EXTI_Entry</ref><sp/>*e<sp/>=<sp/><ref refid="syn__exti_8c_1a3ba682cfa9f63114927b4a3bb2a3245c" kindref="member">find_entry</ref>(pin);</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(e<sp/>!=<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>e-&gt;<ref refid="structEXTI__Entry_1add19af47840cfec21aff3475b3efd97c" kindref="member">cb</ref><sp/><sp/><sp/><sp/><sp/>=<sp/>cb;</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>e-&gt;<ref refid="structEXTI__Entry_1a4f6e98078b25bd38a942f7052d66e2f1" kindref="member">ctx</ref><sp/><sp/><sp/><sp/>=<sp/>ctx;</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>e-&gt;<ref refid="structEXTI__Entry_1a007f48164d8f162c3726f784c91cfd2b" kindref="member">active</ref><sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__port__exti_8h_1ae42d7bed67bbe0a8a456366a22d647cb" kindref="member">syn_port_exti_configure</ref>(pin,<sp/>edge);</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"></highlight></codeline>
+<codeline lineno="71"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>New<sp/>registration<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="72"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="syn__exti_8c_1a1e32517fcc78a5c935838f161a7fa6cd" kindref="member">exti_count</ref><sp/>&gt;=<sp/><ref refid="syn__exti_8h_1a51833919fc72b51bc549568d1e207bd6" kindref="member">SYN_EXTI_MAX_PINS</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00acd5d2701b7cfa9fb446640ecbeb19fc9" kindref="member">SYN_ERROR</ref>;</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"></highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/><sp/><sp/>e<sp/>=<sp/>&amp;<ref refid="syn__exti_8c_1a63761068bd3b1bf544d493d2ee0de646" kindref="member">exti_table</ref>[<ref refid="syn__exti_8c_1a1e32517fcc78a5c935838f161a7fa6cd" kindref="member">exti_count</ref>++];</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/><sp/><sp/>e-&gt;<ref refid="structEXTI__Entry_1ab94a94adb19e9ca421c817f666c1f589" kindref="member">pin</ref><sp/><sp/><sp/><sp/>=<sp/>pin;</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/><sp/><sp/>e-&gt;<ref refid="structEXTI__Entry_1add19af47840cfec21aff3475b3efd97c" kindref="member">cb</ref><sp/><sp/><sp/><sp/><sp/>=<sp/>cb;</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/><sp/><sp/>e-&gt;<ref refid="structEXTI__Entry_1a4f6e98078b25bd38a942f7052d66e2f1" kindref="member">ctx</ref><sp/><sp/><sp/><sp/>=<sp/>ctx;</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/><sp/><sp/>e-&gt;<ref refid="structEXTI__Entry_1a007f48164d8f162c3726f784c91cfd2b" kindref="member">active</ref><sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"></highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__port__exti_8h_1ae42d7bed67bbe0a8a456366a22d647cb" kindref="member">syn_port_exti_configure</ref>(pin,<sp/>edge);</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="84"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"></highlight></codeline>
+<codeline lineno="86"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__exti_8c_1a015dd4455cf9c9a97db2aa7c8a1c5e98" kindref="member">syn_exti_unregister</ref>(<ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref><sp/>pin)</highlight></codeline>
+<codeline lineno="87"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structEXTI__Entry" kindref="compound">EXTI_Entry</ref><sp/>*e<sp/>=<sp/><ref refid="syn__exti_8c_1a3ba682cfa9f63114927b4a3bb2a3245c" kindref="member">find_entry</ref>(pin);</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(e<sp/>!=<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__port__exti_8h_1aaf36ff0526030cf7454706a6d429f45b" kindref="member">syn_port_exti_disable</ref>(pin);</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>e-&gt;<ref refid="structEXTI__Entry_1a007f48164d8f162c3726f784c91cfd2b" kindref="member">active</ref><sp/>=<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>e-&gt;<ref refid="structEXTI__Entry_1add19af47840cfec21aff3475b3efd97c" kindref="member">cb</ref><sp/><sp/><sp/><sp/><sp/>=<sp/>NULL;</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="94"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"></highlight></codeline>
+<codeline lineno="96"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__exti_8c_1a8664951cf4b05ebb9ec69790ef009f66" kindref="member">syn_exti_enable</ref>(<ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref><sp/>pin)</highlight></codeline>
+<codeline lineno="97"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structEXTI__Entry" kindref="compound">EXTI_Entry</ref><sp/>*e<sp/>=<sp/><ref refid="syn__exti_8c_1a3ba682cfa9f63114927b4a3bb2a3245c" kindref="member">find_entry</ref>(pin);</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(e<sp/>!=<sp/>NULL<sp/>&amp;&amp;<sp/>e-&gt;<ref refid="structEXTI__Entry_1a007f48164d8f162c3726f784c91cfd2b" kindref="member">active</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__port__exti_8h_1a857ae01386523fc2e90ecddbdbe6e4b5" kindref="member">syn_port_exti_enable</ref>(pin);</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="102"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"></highlight></codeline>
+<codeline lineno="104"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__exti_8c_1aa882199349e89ac0f292b94abc327d30" kindref="member">syn_exti_disable</ref>(<ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref><sp/>pin)</highlight></codeline>
+<codeline lineno="105"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structEXTI__Entry" kindref="compound">EXTI_Entry</ref><sp/>*e<sp/>=<sp/><ref refid="syn__exti_8c_1a3ba682cfa9f63114927b4a3bb2a3245c" kindref="member">find_entry</ref>(pin);</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(e<sp/>!=<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__port__exti_8h_1aaf36ff0526030cf7454706a6d429f45b" kindref="member">syn_port_exti_disable</ref>(pin);</highlight></codeline>
+<codeline lineno="109"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="110"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"></highlight></codeline>
+<codeline lineno="112"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__exti_8c_1abeeab19f9e3b036895e684e88026e721" kindref="member">syn_exti_irq_handler</ref>(<ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref><sp/>pin)</highlight></codeline>
+<codeline lineno="113"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structEXTI__Entry" kindref="compound">EXTI_Entry</ref><sp/>*e<sp/>=<sp/><ref refid="syn__exti_8c_1a3ba682cfa9f63114927b4a3bb2a3245c" kindref="member">find_entry</ref>(pin);</highlight></codeline>
+<codeline lineno="115"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(e<sp/>!=<sp/>NULL<sp/>&amp;&amp;<sp/>e-&gt;<ref refid="structEXTI__Entry_1a007f48164d8f162c3726f784c91cfd2b" kindref="member">active</ref><sp/>&amp;&amp;<sp/>e-&gt;<ref refid="structEXTI__Entry_1add19af47840cfec21aff3475b3efd97c" kindref="member">cb</ref><sp/>!=<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="116"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>e-&gt;<ref refid="structEXTI__Entry_1add19af47840cfec21aff3475b3efd97c" kindref="member">cb</ref>(e-&gt;<ref refid="structEXTI__Entry_1ab94a94adb19e9ca421c817f666c1f589" kindref="member">pin</ref>,<sp/>e-&gt;<ref refid="structEXTI__Entry_1a4f6e98078b25bd38a942f7052d66e2f1" kindref="member">ctx</ref>);</highlight></codeline>
+<codeline lineno="117"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="118"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"></highlight></codeline>
+<codeline lineno="120"><highlight class="normal"></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="syn__exti_8c_1a4b7d80f111c4beeff0932dc020831d27" kindref="member">syn_exti_count</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="121"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="122"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__exti_8c_1a1e32517fcc78a5c935838f161a7fa6cd" kindref="member">exti_count</ref>;</highlight></codeline>
+<codeline lineno="123"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="124"><highlight class="normal"></highlight></codeline>
+<codeline lineno="125"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_USE_EXTI<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/drivers/syn_exti.c"/>
+  </compounddef>
+</doxygen>

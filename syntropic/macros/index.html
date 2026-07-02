@@ -1,0 +1,1873 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Modular cooperative OS & application framework for microcontrollers">
+      
+      
+      
+        <link rel="canonical" href="https://outlookhazy.github.io/SyntropicOS/syntropic/macros/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Macros - SyntropicOS</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="cyan">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#macros" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="SyntropicOS" class="md-header__button md-logo" aria-label="SyntropicOS" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SyntropicOS
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Macros
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="cyan"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="cyan"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/outlookhazy/SyntropicOS" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    outlookhazy/SyntropicOS
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="SyntropicOS" class="md-nav__button md-logo" aria-label="SyntropicOS" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SyntropicOS
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/outlookhazy/SyntropicOS" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    outlookhazy/SyntropicOS
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../arduino/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Arduino Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Modules
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Modules
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../modules/core/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Core & Utilities
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../modules/drivers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Drivers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../modules/multitasking/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Multitasking
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../modules/services/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../modules/io/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Input / Output
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../modules/display/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Display & UI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../modules/control/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Control & Motor
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../modules/dsp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DSP & Filters
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../modules/communication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Communication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../modules/storage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Storage
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../modules/system/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    System
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../modules/debug/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Debug
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../modules/integration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Cross-Module Integration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../group__syn__core/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Core & Utilities
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../group__syn__sched/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scheduling
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../group__syn__drivers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Drivers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../group__syn__io/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Input / Output
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../group__syn__motor/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Motor & Control
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../group__syn__display/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Display & UI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../group__syn__net/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Networking
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../group__syn__protocol/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Protocols
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../group__syn__storage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Storage
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../group__syn__system/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    System
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../group__syn__dsp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DSP & Filters
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../group__syn__debug/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Debug & Diagnostics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../files/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    All Files
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../annotated/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    All Structs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../porting-guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Porting Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../testing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../directory-structure/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Directory Structure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#c" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        c
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#h" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        h
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#i" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        i
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#l" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        l
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#m" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        m
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#p" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        p
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#q" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        q
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#s" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        s
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#t" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        t
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="macros">Macros<a class="headerlink" href="#macros" title="Permanent link">&para;</a></h1>
+<h2 id="c">c<a class="headerlink" href="#c" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>COAP_VERSION</strong> (<a href="../syn__coap_8h/"><strong>syn_coap.h</strong></a>)</li>
+</ul>
+<h2 id="h">h<a class="headerlink" href="#h" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>HTTP_RECV_TIMEOUT_MS</strong> (<a href="../syn__http_8c/"><strong>syn_http.c</strong></a>)</li>
+<li><strong>HTTPD_ACCEPT_TIMEOUT_MS</strong> (<a href="../syn__httpd_8c/"><strong>syn_httpd.c</strong></a>)</li>
+<li><strong>HTTPD_RECV_TIMEOUT_MS</strong> (<a href="../syn__httpd_8c/"><strong>syn_httpd.c</strong></a>)</li>
+</ul>
+<h2 id="i">i<a class="headerlink" href="#i" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>INT32_MAX</strong> (<a href="../syn__signal_8c/"><strong>syn_signal.c</strong></a>)</li>
+<li><strong>INT32_MIN</strong> (<a href="../syn__signal_8c/"><strong>syn_signal.c</strong></a>)</li>
+</ul>
+<h2 id="l">l<a class="headerlink" href="#l" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>LOG_COLOR_RESET</strong> (<a href="../syn__log_8c/"><strong>syn_log.c</strong></a>)</li>
+</ul>
+<h2 id="m">m<a class="headerlink" href="#m" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>MQTT_ACK_TIMEOUT_MS</strong> (<a href="../syn__mqtt_8c/"><strong>syn_mqtt.c</strong></a>)</li>
+<li><strong>MQTT_RECV_TIMEOUT_MS</strong> (<a href="../syn__mqtt_8c/"><strong>syn_mqtt.c</strong></a>)</li>
+<li><strong>MB_MAX_PDU_DATA</strong> (<a href="../syn__modbus_8c/"><strong>syn_modbus.c</strong></a>)</li>
+<li><strong>MB_MIN_FRAME_LEN</strong> (<a href="../syn__modbus_8c/"><strong>syn_modbus.c</strong></a>)</li>
+<li><strong>MB_SILENCE_MS</strong> (<a href="../syn__modbus_8c/"><strong>syn_modbus.c</strong></a>)</li>
+</ul>
+<h2 id="p">p<a class="headerlink" href="#p" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>PT_WAIT_BUTTON_PRESS</strong> (<a href="../syn__button_8h/"><strong>syn_button.h</strong></a>)</li>
+<li><strong>PT_WAIT_BUTTON_RELEASE</strong> (<a href="../syn__button_8h/"><strong>syn_button.h</strong></a>)</li>
+<li><strong>PT_BEGIN</strong> (<a href="../syn__pt_8h/"><strong>syn_pt.h</strong></a>)</li>
+<li><strong>PT_DELAY_MS</strong> (<a href="../syn__pt_8h/"><strong>syn_pt.h</strong></a>)</li>
+<li><strong>PT_END</strong> (<a href="../syn__pt_8h/"><strong>syn_pt.h</strong></a>)</li>
+<li><strong>PT_EXIT</strong> (<a href="../syn__pt_8h/"><strong>syn_pt.h</strong></a>)</li>
+<li><strong>PT_INIT</strong> (<a href="../syn__pt_8h/"><strong>syn_pt.h</strong></a>)</li>
+<li><strong>PT_IS_IDLE</strong> (<a href="../syn__pt_8h/"><strong>syn_pt.h</strong></a>)</li>
+<li><strong>PT_IS_RUNNING</strong> (<a href="../syn__pt_8h/"><strong>syn_pt.h</strong></a>)</li>
+<li><strong>PT_RESTART</strong> (<a href="../syn__pt_8h/"><strong>syn_pt.h</strong></a>)</li>
+<li><strong>PT_SPAWN</strong> (<a href="../syn__pt_8h/"><strong>syn_pt.h</strong></a>)</li>
+<li><strong>PT_TASK_DELAY_MS</strong> (<a href="../syn__pt_8h/"><strong>syn_pt.h</strong></a>)</li>
+<li><strong>PT_WAIT_UNTIL</strong> (<a href="../syn__pt_8h/"><strong>syn_pt.h</strong></a>)</li>
+<li><strong>PT_WAIT_WHILE</strong> (<a href="../syn__pt_8h/"><strong>syn_pt.h</strong></a>)</li>
+<li><strong>PT_YIELD</strong> (<a href="../syn__pt_8h/"><strong>syn_pt.h</strong></a>)</li>
+<li><strong>PT_YIELD_UNTIL</strong> (<a href="../syn__pt_8h/"><strong>syn_pt.h</strong></a>)</li>
+<li><strong>PT_SEM_COUNT</strong> (<a href="../syn__pt__sem_8h/"><strong>syn_pt_sem.h</strong></a>)</li>
+<li><strong>PT_SEM_INIT</strong> (<a href="../syn__pt__sem_8h/"><strong>syn_pt_sem.h</strong></a>)</li>
+<li><strong>PT_SEM_SIGNAL</strong> (<a href="../syn__pt__sem_8h/"><strong>syn_pt_sem.h</strong></a>)</li>
+<li><strong>PT_SEM_TRYWAIT</strong> (<a href="../syn__pt__sem_8h/"><strong>syn_pt_sem.h</strong></a>)</li>
+<li><strong>PT_SEM_WAIT</strong> (<a href="../syn__pt__sem_8h/"><strong>syn_pt_sem.h</strong></a>)</li>
+<li><strong>PT_WAIT_EVENT</strong> (<a href="../syn__event_8h/"><strong>syn_event.h</strong></a>)</li>
+<li><strong>PT_WAIT_EVENT_ANY</strong> (<a href="../syn__event_8h/"><strong>syn_event.h</strong></a>)</li>
+<li><strong>PT_WAIT_TIMEOUT</strong> (<a href="../syn__timeout_8h/"><strong>syn_timeout.h</strong></a>)</li>
+</ul>
+<h2 id="q">q<a class="headerlink" href="#q" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Q16_2_PI</strong> (<a href="../syn__qmath_8h/"><strong>syn_qmath.h</strong></a>)</li>
+<li><strong>Q16_FRAC_1000</strong> (<a href="../syn__qmath_8h/"><strong>syn_qmath.h</strong></a>)</li>
+<li><strong>Q16_FROM_FLOAT</strong> (<a href="../syn__qmath_8h/"><strong>syn_qmath.h</strong></a>)</li>
+<li><strong>Q16_FROM_FRAC</strong> (<a href="../syn__qmath_8h/"><strong>syn_qmath.h</strong></a>)</li>
+<li><strong>Q16_FROM_INT</strong> (<a href="../syn__qmath_8h/"><strong>syn_qmath.h</strong></a>)</li>
+<li><strong>Q16_HALF</strong> (<a href="../syn__qmath_8h/"><strong>syn_qmath.h</strong></a>)</li>
+<li><strong>Q16_ONE</strong> (<a href="../syn__qmath_8h/"><strong>syn_qmath.h</strong></a>)</li>
+<li><strong>Q16_PI</strong> (<a href="../syn__qmath_8h/"><strong>syn_qmath.h</strong></a>)</li>
+<li><strong>Q16_PI_2</strong> (<a href="../syn__qmath_8h/"><strong>syn_qmath.h</strong></a>)</li>
+<li><strong>Q16_SHIFT</strong> (<a href="../syn__qmath_8h/"><strong>syn_qmath.h</strong></a>)</li>
+<li><strong>Q16_TO_INT</strong> (<a href="../syn__qmath_8h/"><strong>syn_qmath.h</strong></a>)</li>
+<li><strong>Q16_TO_INT_ROUND</strong> (<a href="../syn__qmath_8h/"><strong>syn_qmath.h</strong></a>)</li>
+</ul>
+<h2 id="s">s<a class="headerlink" href="#s" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>SYN_CLI_CMD_ERRORS</strong> (<a href="../syn__cli_8h/"><strong>syn_cli.h</strong></a>)</li>
+<li><strong>SYN_CLI_CMD_TASKS</strong> (<a href="../syn__cli_8h/"><strong>syn_cli.h</strong></a>)</li>
+<li><strong>SYN_CLI_CMD_UPTIME</strong> (<a href="../syn__cli_8h/"><strong>syn_cli.h</strong></a>)</li>
+<li><strong>SYN_CLI_CMD_VERSION</strong> (<a href="../syn__cli_8h/"><strong>syn_cli.h</strong></a>)</li>
+<li><strong>SYN_CLI_HISTORY_DEPTH</strong> (<a href="../syn__cli_8h/"><strong>syn_cli.h</strong></a>, <a href="../syn__config__template_8h/"><strong>syn_config_template.h</strong></a>)</li>
+<li><strong>SYN_CLI_LINE_BUF_SIZE</strong> (<a href="../syn__cli_8h/"><strong>syn_cli.h</strong></a>, <a href="../syn__config__template_8h/"><strong>syn_config_template.h</strong></a>)</li>
+<li><strong>SYN_CLI_MAX_ARGS</strong> (<a href="../syn__cli_8h/"><strong>syn_cli.h</strong></a>, <a href="../syn__config__template_8h/"><strong>syn_config_template.h</strong></a>)</li>
+<li><strong>SYN_LOAD_ACQUIRE</strong> (<a href="../syn__barrier_8h/"><strong>syn_barrier.h</strong></a>)</li>
+<li><strong>SYN_STORE_RELEASE</strong> (<a href="../syn__barrier_8h/"><strong>syn_barrier.h</strong></a>)</li>
+<li><strong>SYN_ALIGN</strong> (<a href="../syn__compiler_8h/"><strong>syn_compiler.h</strong></a>)</li>
+<li><strong>SYN_COMPILER_BARRIER</strong> (<a href="../syn__compiler_8h/"><strong>syn_compiler.h</strong></a>)</li>
+<li><strong>SYN_COMPILER_UNKNOWN</strong> (<a href="../syn__compiler_8h/"><strong>syn_compiler.h</strong></a>)</li>
+<li><strong>SYN_FALLTHROUGH</strong> (<a href="../syn__compiler_8h/"><strong>syn_compiler.h</strong></a>)</li>
+<li><strong>SYN_INLINE</strong> (<a href="../syn__compiler_8h/"><strong>syn_compiler.h</strong></a>)</li>
+<li><strong>SYN_NORETURN</strong> (<a href="../syn__compiler_8h/"><strong>syn_compiler.h</strong></a>)</li>
+<li><strong>SYN_PACKED</strong> (<a href="../syn__compiler_8h/"><strong>syn_compiler.h</strong></a>)</li>
+<li><strong>SYN_SECTION</strong> (<a href="../syn__compiler_8h/"><strong>syn_compiler.h</strong></a>)</li>
+<li><strong>SYN_STATIC_ASSERT</strong> (<a href="../syn__compiler_8h/"><strong>syn_compiler.h</strong></a>)</li>
+<li><strong>SYN_STATIC_ASSERT_JOIN</strong> (<a href="../syn__compiler_8h/"><strong>syn_compiler.h</strong></a>)</li>
+<li><strong>SYN_STATIC_ASSERT_JOIN2</strong> (<a href="../syn__compiler_8h/"><strong>syn_compiler.h</strong></a>)</li>
+<li><strong>SYN_UNUSED</strong> (<a href="../syn__compiler_8h/"><strong>syn_compiler.h</strong></a>)</li>
+<li><strong>SYN_WEAK</strong> (<a href="../syn__compiler_8h/"><strong>syn_compiler.h</strong></a>)</li>
+<li><strong>SYN_ABS</strong> (<a href="../syn__defs_8h/"><strong>syn_defs.h</strong></a>)</li>
+<li><strong>SYN_ARRAY_SIZE</strong> (<a href="../syn__defs_8h/"><strong>syn_defs.h</strong></a>)</li>
+<li><strong>SYN_CLAMP</strong> (<a href="../syn__defs_8h/"><strong>syn_defs.h</strong></a>)</li>
+<li><strong>SYN_MAX</strong> (<a href="../syn__defs_8h/"><strong>syn_defs.h</strong></a>)</li>
+<li><strong>SYN_MIN</strong> (<a href="../syn__defs_8h/"><strong>syn_defs.h</strong></a>)</li>
+<li><strong>SYN_SIGN</strong> (<a href="../syn__defs_8h/"><strong>syn_defs.h</strong></a>)</li>
+<li><strong>SYN_UNUSED_VAR</strong> (<a href="../syn__defs_8h/"><strong>syn_defs.h</strong></a>)</li>
+<li><strong>SYN_ATUNE_LOG_ID</strong> (<a href="../syn__autotune_8h/"><strong>syn_autotune.h</strong></a>)</li>
+<li><strong>SYN_PID_GAINS</strong> (<a href="../syn__pid_8h/"><strong>syn_pid.h</strong></a>)</li>
+<li><strong>SYN_TRACE</strong> (<a href="../syn__trace_8h/"><strong>syn_trace.h</strong></a>)</li>
+<li><strong>SYN_COLOR_BLACK</strong> (<a href="../syn__canvas_8h/"><strong>syn_canvas.h</strong></a>)</li>
+<li><strong>SYN_COLOR_BLUE</strong> (<a href="../syn__canvas_8h/"><strong>syn_canvas.h</strong></a>)</li>
+<li><strong>SYN_COLOR_GREEN</strong> (<a href="../syn__canvas_8h/"><strong>syn_canvas.h</strong></a>)</li>
+<li><strong>SYN_COLOR_RED</strong> (<a href="../syn__canvas_8h/"><strong>syn_canvas.h</strong></a>)</li>
+<li><strong>SYN_COLOR_WHITE</strong> (<a href="../syn__canvas_8h/"><strong>syn_canvas.h</strong></a>)</li>
+<li><strong>SYN_GFX_BACKEND</strong> (<a href="../syn__gfx_8h/"><strong>syn_gfx.h</strong></a>, <a href="../syn__config__template_8h/"><strong>syn_config_template.h</strong></a>)</li>
+<li><strong>SYN_GFX_BACKEND_CANVAS</strong> (<a href="../syn__gfx_8h/"><strong>syn_gfx.h</strong></a>, <a href="../syn__config__template_8h/"><strong>syn_config_template.h</strong></a>)</li>
+<li><strong>SYN_GFX_BACKEND_DIRECT</strong> (<a href="../syn__gfx_8h/"><strong>syn_gfx.h</strong></a>, <a href="../syn__config__template_8h/"><strong>syn_config_template.h</strong></a>)</li>
+<li><strong>syn_gfx_bitmap</strong> (<a href="../syn__gfx_8h/"><strong>syn_gfx.h</strong></a>)</li>
+<li><strong>syn_gfx_char</strong> (<a href="../syn__gfx_8h/"><strong>syn_gfx.h</strong></a>)</li>
+<li><strong>syn_gfx_circle</strong> (<a href="../syn__gfx_8h/"><strong>syn_gfx.h</strong></a>)</li>
+<li><strong>syn_gfx_circle_fill</strong> (<a href="../syn__gfx_8h/"><strong>syn_gfx.h</strong></a>)</li>
+<li><strong>syn_gfx_clear</strong> (<a href="../syn__gfx_8h/"><strong>syn_gfx.h</strong></a>)</li>
+<li><strong>syn_gfx_fill</strong> (<a href="../syn__gfx_8h/"><strong>syn_gfx.h</strong></a>)</li>
+<li><strong>syn_gfx_flush</strong> (<a href="../syn__gfx_8h/"><strong>syn_gfx.h</strong></a>)</li>
+<li><strong>syn_gfx_flush_partial</strong> (<a href="../syn__gfx_8h/"><strong>syn_gfx.h</strong></a>)</li>
+<li><strong>syn_gfx_font_width</strong> (<a href="../syn__gfx_8h/"><strong>syn_gfx.h</strong></a>)</li>
+<li><strong>syn_gfx_hline</strong> (<a href="../syn__gfx_8h/"><strong>syn_gfx.h</strong></a>)</li>
+<li><strong>syn_gfx_line</strong> (<a href="../syn__gfx_8h/"><strong>syn_gfx.h</strong></a>)</li>
+<li><strong>syn_gfx_pixel</strong> (<a href="../syn__gfx_8h/"><strong>syn_gfx.h</strong></a>)</li>
+<li><strong>syn_gfx_rect</strong> (<a href="../syn__gfx_8h/"><strong>syn_gfx.h</strong></a>)</li>
+<li><strong>syn_gfx_rect_fill</strong> (<a href="../syn__gfx_8h/"><strong>syn_gfx.h</strong></a>)</li>
+<li><strong>syn_gfx_rect_round</strong> (<a href="../syn__gfx_8h/"><strong>syn_gfx.h</strong></a>)</li>
+<li><strong>syn_gfx_rect_round_fill</strong> (<a href="../syn__gfx_8h/"><strong>syn_gfx.h</strong></a>)</li>
+<li><strong>syn_gfx_reset_clip</strong> (<a href="../syn__gfx_8h/"><strong>syn_gfx.h</strong></a>)</li>
+<li><strong>syn_gfx_set_clip</strong> (<a href="../syn__gfx_8h/"><strong>syn_gfx.h</strong></a>)</li>
+<li><strong>syn_gfx_text</strong> (<a href="../syn__gfx_8h/"><strong>syn_gfx.h</strong></a>)</li>
+<li><strong>syn_gfx_text_height</strong> (<a href="../syn__gfx_8h/"><strong>syn_gfx.h</strong></a>)</li>
+<li><strong>syn_gfx_text_width</strong> (<a href="../syn__gfx_8h/"><strong>syn_gfx.h</strong></a>)</li>
+<li><strong>syn_gfx_vline</strong> (<a href="../syn__gfx_8h/"><strong>syn_gfx.h</strong></a>)</li>
+<li><strong>SYN_EXTI_MAX_PINS</strong> (<a href="../syn__exti_8h/"><strong>syn_exti.h</strong></a>)</li>
+<li><strong>SD_ACMD41</strong> (<a href="../syn__sd_8c/"><strong>syn_sd.c</strong></a>)</li>
+<li><strong>SD_ACMD41_RETRIES</strong> (<a href="../syn__sd_8c/"><strong>syn_sd.c</strong></a>)</li>
+<li><strong>SD_BUSY_RETRIES</strong> (<a href="../syn__sd_8c/"><strong>syn_sd.c</strong></a>)</li>
+<li><strong>SD_CMD0</strong> (<a href="../syn__sd_8c/"><strong>syn_sd.c</strong></a>)</li>
+<li><strong>SD_CMD13</strong> (<a href="../syn__sd_8c/"><strong>syn_sd.c</strong></a>)</li>
+<li><strong>SD_CMD16</strong> (<a href="../syn__sd_8c/"><strong>syn_sd.c</strong></a>)</li>
+<li><strong>SD_CMD17</strong> (<a href="../syn__sd_8c/"><strong>syn_sd.c</strong></a>)</li>
+<li><strong>SD_CMD24</strong> (<a href="../syn__sd_8c/"><strong>syn_sd.c</strong></a>)</li>
+<li><strong>SD_CMD55</strong> (<a href="../syn__sd_8c/"><strong>syn_sd.c</strong></a>)</li>
+<li><strong>SD_CMD58</strong> (<a href="../syn__sd_8c/"><strong>syn_sd.c</strong></a>)</li>
+<li><strong>SD_CMD8</strong> (<a href="../syn__sd_8c/"><strong>syn_sd.c</strong></a>)</li>
+<li><strong>SD_CMD9</strong> (<a href="../syn__sd_8c/"><strong>syn_sd.c</strong></a>)</li>
+<li><strong>SD_R1_ERR_MSK</strong> (<a href="../syn__sd_8c/"><strong>syn_sd.c</strong></a>)</li>
+<li><strong>SD_R1_IDLE</strong> (<a href="../syn__sd_8c/"><strong>syn_sd.c</strong></a>)</li>
+<li><strong>SD_R1_ILLCMD</strong> (<a href="../syn__sd_8c/"><strong>syn_sd.c</strong></a>)</li>
+<li><strong>SD_R1_POLL_RETRIES</strong> (<a href="../syn__sd_8c/"><strong>syn_sd.c</strong></a>)</li>
+<li><strong>SD_R1_READY</strong> (<a href="../syn__sd_8c/"><strong>syn_sd.c</strong></a>)</li>
+<li><strong>SD_R1_TIMEOUT</strong> (<a href="../syn__sd_8c/"><strong>syn_sd.c</strong></a>)</li>
+<li><strong>SD_TOKEN_ACCEPTED</strong> (<a href="../syn__sd_8c/"><strong>syn_sd.c</strong></a>)</li>
+<li><strong>SD_TOKEN_RETRIES</strong> (<a href="../syn__sd_8c/"><strong>syn_sd.c</strong></a>)</li>
+<li><strong>SD_TOKEN_START</strong> (<a href="../syn__sd_8c/"><strong>syn_sd.c</strong></a>)</li>
+<li><strong>SYN_SD_SECTOR_SIZE</strong> (<a href="../syn__sd_8h/"><strong>syn_sd.h</strong></a>)</li>
+<li><strong>SYN_SOFT_ONEWIRE_LOOPS_PER_US</strong> (<a href="../syn__soft__onewire_8h/"><strong>syn_soft_onewire.h</strong></a>)</li>
+<li><strong>SYN_UART_MAX_INSTANCES</strong> (<a href="../syn__uart_8h/"><strong>syn_uart.h</strong></a>, <a href="../syn__config__template_8h/"><strong>syn_config_template.h</strong></a>)</li>
+<li><strong>SYN_UART_RX_BUF_SIZE</strong> (<a href="../syn__uart_8h/"><strong>syn_uart.h</strong></a>, <a href="../syn__config__template_8h/"><strong>syn_config_template.h</strong></a>)</li>
+<li><strong>SYN_UART_TX_BUF_SIZE</strong> (<a href="../syn__uart_8h/"><strong>syn_uart.h</strong></a>, <a href="../syn__config__template_8h/"><strong>syn_config_template.h</strong></a>)</li>
+<li><strong>SYN_FILTER_MAX_WINDOW</strong> (<a href="../syn__filter_8h/"><strong>syn_filter.h</strong></a>, <a href="../syn__config__template_8h/"><strong>syn_config_template.h</strong></a>)</li>
+<li><strong>SYN_BUTTON_EVT_LONG_PRESS</strong> (<a href="../syn__button_8h/"><strong>syn_button.h</strong></a>)</li>
+<li><strong>SYN_BUTTON_EVT_PRESS</strong> (<a href="../syn__button_8h/"><strong>syn_button.h</strong></a>)</li>
+<li><strong>SYN_BUTTON_EVT_RELEASE</strong> (<a href="../syn__button_8h/"><strong>syn_button.h</strong></a>)</li>
+<li><strong>SYN_BUTTON_EVT_REPEAT</strong> (<a href="../syn__button_8h/"><strong>syn_button.h</strong></a>)</li>
+<li><strong>SYN_LOG_BUF_SIZE</strong> (<a href="../syn__log_8h/"><strong>syn_log.h</strong></a>, <a href="../syn__config__template_8h/"><strong>syn_config_template.h</strong></a>)</li>
+<li><strong>SYN_LOG_D</strong> (<a href="../syn__log_8h/"><strong>syn_log.h</strong></a>)</li>
+<li><strong>SYN_LOG_E</strong> (<a href="../syn__log_8h/"><strong>syn_log.h</strong></a>)</li>
+<li><strong>SYN_LOG_F</strong> (<a href="../syn__log_8h/"><strong>syn_log.h</strong></a>)</li>
+<li><strong>SYN_LOG_I</strong> (<a href="../syn__log_8h/"><strong>syn_log.h</strong></a>)</li>
+<li><strong>SYN_LOG_LEVEL</strong> (<a href="../syn__log_8h/"><strong>syn_log.h</strong></a>, <a href="../syn__config__template_8h/"><strong>syn_config_template.h</strong></a>)</li>
+<li><strong>SYN_LOG_T</strong> (<a href="../syn__log_8h/"><strong>syn_log.h</strong></a>)</li>
+<li><strong>SYN_LOG_TIMESTAMP</strong> (<a href="../syn__log_8h/"><strong>syn_log.h</strong></a>, <a href="../syn__config__template_8h/"><strong>syn_config_template.h</strong></a>)</li>
+<li><strong>SYN_LOG_W</strong> (<a href="../syn__log_8h/"><strong>syn_log.h</strong></a>)</li>
+<li><strong>SYN_DC_MOTOR_DUTY_MAX_DEFAULT</strong> (<a href="../syn__dc__motor_8h/"><strong>syn_dc_motor.h</strong></a>)</li>
+<li><strong>SYN_MCTRL_ERR_LIMIT</strong> (<a href="../syn__motor__ctrl_8c/"><strong>syn_motor_ctrl.c</strong></a>)</li>
+<li><strong>SYN_MCTRL_ERR_STALL</strong> (<a href="../syn__motor__ctrl_8c/"><strong>syn_motor_ctrl.c</strong></a>)</li>
+<li><strong>SYN_MCTRL_DATALOG_ID</strong> (<a href="../syn__motor__ctrl_8h/"><strong>syn_motor_ctrl.h</strong></a>)</li>
+<li><strong>SYN_MOTOR_CTRL_DEFAULTS</strong> (<a href="../syn__motor__ctrl_8h/"><strong>syn_motor_ctrl.h</strong></a>)</li>
+<li><strong>SYN_HB_ERR_PEER_FOUND</strong> (<a href="../syn__heartbeat_8h/"><strong>syn_heartbeat.h</strong></a>)</li>
+<li><strong>SYN_HB_ERR_PEER_LOST</strong> (<a href="../syn__heartbeat_8h/"><strong>syn_heartbeat.h</strong></a>)</li>
+<li><strong>SYN_MSG_ACK</strong> (<a href="../syn__router_8h/"><strong>syn_router.h</strong></a>)</li>
+<li><strong>SYN_MSG_DISCOVER</strong> (<a href="../syn__router_8h/"><strong>syn_router.h</strong></a>)</li>
+<li><strong>SYN_MSG_HEARTBEAT</strong> (<a href="../syn__router_8h/"><strong>syn_router.h</strong></a>)</li>
+<li><strong>SYN_PKT_FLAG_ACK_REQ</strong> (<a href="../syn__router_8h/"><strong>syn_router.h</strong></a>)</li>
+<li><strong>SYN_PKT_FLAG_IS_ACK</strong> (<a href="../syn__router_8h/"><strong>syn_router.h</strong></a>)</li>
+<li><strong>SYN_ROUTER_HEADER_SIZE</strong> (<a href="../syn__router_8h/"><strong>syn_router.h</strong></a>)</li>
+<li><strong>SYN_ROUTER_MAX_PAYLOAD</strong> (<a href="../syn__router_8h/"><strong>syn_router.h</strong></a>)</li>
+<li><strong>SYN_ROUTER_MAX_PENDING</strong> (<a href="../syn__router_8h/"><strong>syn_router.h</strong></a>)</li>
+<li><strong>SHA1_ROL</strong> (<a href="../syn__websocket_8c/"><strong>syn_websocket.c</strong></a>)</li>
+<li><strong>SYN_SOCKET_INVALID</strong> (<a href="../syn__port__socket_8h/"><strong>syn_port_socket.h</strong></a>)</li>
+<li><strong>SYN_MB_EX_DEVICE_FAILURE</strong> (<a href="../syn__modbus_8h/"><strong>syn_modbus.h</strong></a>)</li>
+<li><strong>SYN_MB_EX_ILLEGAL_ADDR</strong> (<a href="../syn__modbus_8h/"><strong>syn_modbus.h</strong></a>)</li>
+<li><strong>SYN_MB_EX_ILLEGAL_FUNC</strong> (<a href="../syn__modbus_8h/"><strong>syn_modbus.h</strong></a>)</li>
+<li><strong>SYN_MB_EX_ILLEGAL_VALUE</strong> (<a href="../syn__modbus_8h/"><strong>syn_modbus.h</strong></a>)</li>
+<li><strong>SYN_MB_FC_READ_HOLDING</strong> (<a href="../syn__modbus_8h/"><strong>syn_modbus.h</strong></a>)</li>
+<li><strong>SYN_MB_FC_READ_INPUT</strong> (<a href="../syn__modbus_8h/"><strong>syn_modbus.h</strong></a>)</li>
+<li><strong>SYN_MB_FC_WRITE_MULTIPLE</strong> (<a href="../syn__modbus_8h/"><strong>syn_modbus.h</strong></a>)</li>
+<li><strong>SYN_MB_FC_WRITE_SINGLE</strong> (<a href="../syn__modbus_8h/"><strong>syn_modbus.h</strong></a>)</li>
+<li><strong>SYN_MAILBOX_DEFINE</strong> (<a href="../syn__mailbox_8h/"><strong>syn_mailbox.h</strong></a>)</li>
+<li><strong>SYN_WDT_ERR_TIMEOUT</strong> (<a href="../syn__watchdog_8c/"><strong>syn_watchdog.c</strong></a>)</li>
+<li><strong>SYN_PARAM_MAGIC</strong> (<a href="../syn__param_8h/"><strong>syn_param.h</strong></a>)</li>
+<li><strong>SYN_BOOT_ERR_CRASH_LOOP</strong> (<a href="../syn__boot_8c/"><strong>syn_boot.c</strong></a>)</li>
+<li><strong>SYN_BOOT_ERR_SAFE_MODE</strong> (<a href="../syn__boot_8c/"><strong>syn_boot.c</strong></a>)</li>
+<li><strong>SYN_COREDUMP_MAGIC</strong> (<a href="../syn__coredump_8h/"><strong>syn_coredump.h</strong></a>)</li>
+<li><strong>SYN_COREDUMP_STACK_SIZE</strong> (<a href="../syn__coredump_8h/"><strong>syn_coredump.h</strong></a>, <a href="../syn__config__template_8h/"><strong>syn_config_template.h</strong></a>)</li>
+<li><strong>SYN_NOINIT</strong> (<a href="../syn__fault_8c/"><strong>syn_fault.c</strong></a>)</li>
+<li><strong>SYN_FAULT_SIGNATURE</strong> (<a href="../syn__fault_8h/"><strong>syn_fault.h</strong></a>)</li>
+<li><strong>SYN_FW_SLOT_A</strong> (<a href="../syn__fwboot_8h/"><strong>syn_fwboot.h</strong></a>)</li>
+<li><strong>SYN_FW_SLOT_B</strong> (<a href="../syn__fwboot_8h/"><strong>syn_fwboot.h</strong></a>)</li>
+<li><strong>SYN_FW_SLOT_NONE</strong> (<a href="../syn__fwboot_8h/"><strong>syn_fwboot.h</strong></a>)</li>
+<li><strong>SYN_FW_MAGIC</strong> (<a href="../syn__fwimage_8h/"><strong>syn_fwimage.h</strong></a>)</li>
+<li><strong>SYN_POWER_ERR_BROWNOUT</strong> (<a href="../syn__power_8h/"><strong>syn_power.h</strong></a>)</li>
+<li><strong>SYN_SLEEP_LOCK_ADC</strong> (<a href="../syn__sleep_8h/"><strong>syn_sleep.h</strong></a>)</li>
+<li><strong>SYN_SLEEP_LOCK_APP0</strong> (<a href="../syn__sleep_8h/"><strong>syn_sleep.h</strong></a>)</li>
+<li><strong>SYN_SLEEP_LOCK_APP1</strong> (<a href="../syn__sleep_8h/"><strong>syn_sleep.h</strong></a>)</li>
+<li><strong>SYN_SLEEP_LOCK_APP2</strong> (<a href="../syn__sleep_8h/"><strong>syn_sleep.h</strong></a>)</li>
+<li><strong>SYN_SLEEP_LOCK_APP3</strong> (<a href="../syn__sleep_8h/"><strong>syn_sleep.h</strong></a>)</li>
+<li><strong>SYN_SLEEP_LOCK_DMA</strong> (<a href="../syn__sleep_8h/"><strong>syn_sleep.h</strong></a>)</li>
+<li><strong>SYN_SLEEP_LOCK_I2C</strong> (<a href="../syn__sleep_8h/"><strong>syn_sleep.h</strong></a>)</li>
+<li><strong>SYN_SLEEP_LOCK_SPI</strong> (<a href="../syn__sleep_8h/"><strong>syn_sleep.h</strong></a>)</li>
+<li><strong>SYN_SLEEP_LOCK_TIMER</strong> (<a href="../syn__sleep_8h/"><strong>syn_sleep.h</strong></a>)</li>
+<li><strong>SYN_SLEEP_LOCK_UART</strong> (<a href="../syn__sleep_8h/"><strong>syn_sleep.h</strong></a>)</li>
+<li><strong>SYN_APP_NAME</strong> (<a href="../syn__version_8h/"><strong>syn_version.h</strong></a>)</li>
+<li><strong>SYN_BUILD_DATE</strong> (<a href="../syn__version_8h/"><strong>syn_version.h</strong></a>)</li>
+<li><strong>SYN_BUILD_TIME</strong> (<a href="../syn__version_8h/"><strong>syn_version.h</strong></a>)</li>
+<li><strong>SYN_GIT_HASH</strong> (<a href="../syn__version_8h/"><strong>syn_version.h</strong></a>)</li>
+<li><strong>SYN_VERSION_CODE</strong> (<a href="../syn__version_8h/"><strong>syn_version.h</strong></a>)</li>
+<li><strong>SYN_VERSION_MONTH</strong> (<a href="../syn__version_8h/"><strong>syn_version.h</strong></a>)</li>
+<li><strong>SYN_VERSION_RELEASE</strong> (<a href="../syn__version_8h/"><strong>syn_version.h</strong></a>)</li>
+<li><strong>SYN_VERSION_YEAR</strong> (<a href="../syn__version_8h/"><strong>syn_version.h</strong></a>)</li>
+<li><strong>SYN_IMGUI_MAX_ROW_COLS</strong> (<a href="../syn__imgui_8h/"><strong>syn_imgui.h</strong></a>)</li>
+<li><strong>SYN_MENU_CALLBACK</strong> (<a href="../syn__menu_8h/"><strong>syn_menu.h</strong></a>)</li>
+<li><strong>SYN_MENU_MAX_DEPTH</strong> (<a href="../syn__menu_8h/"><strong>syn_menu.h</strong></a>)</li>
+<li><strong>SYN_MENU_ROOT</strong> (<a href="../syn__menu_8h/"><strong>syn_menu.h</strong></a>)</li>
+<li><strong>SYN_MENU_SUBMENU</strong> (<a href="../syn__menu_8h/"><strong>syn_menu.h</strong></a>)</li>
+<li><strong>SYN_MENU_TOGGLE</strong> (<a href="../syn__menu_8h/"><strong>syn_menu.h</strong></a>)</li>
+<li><strong>SYN_MENU_VALUE</strong> (<a href="../syn__menu_8h/"><strong>syn_menu.h</strong></a>)</li>
+<li><strong>SYN_ASSERT</strong> (<a href="../syn__assert_8h/"><strong>syn_assert.h</strong></a>)</li>
+<li><strong>SYN_BIT</strong> (<a href="../syn__bits_8h/"><strong>syn_bits.h</strong></a>)</li>
+<li><strong>SYN_BITMASK</strong> (<a href="../syn__bits_8h/"><strong>syn_bits.h</strong></a>)</li>
+<li><strong>SYN_BITS_GET</strong> (<a href="../syn__bits_8h/"><strong>syn_bits.h</strong></a>)</li>
+<li><strong>SYN_BITS_SET</strong> (<a href="../syn__bits_8h/"><strong>syn_bits.h</strong></a>)</li>
+<li><strong>SYN_BITS_TO_BYTES</strong> (<a href="../syn__bits_8h/"><strong>syn_bits.h</strong></a>)</li>
+<li><strong>SYN_BIT_CHECK</strong> (<a href="../syn__bits_8h/"><strong>syn_bits.h</strong></a>)</li>
+<li><strong>SYN_BIT_CLEAR</strong> (<a href="../syn__bits_8h/"><strong>syn_bits.h</strong></a>)</li>
+<li><strong>SYN_BIT_SET</strong> (<a href="../syn__bits_8h/"><strong>syn_bits.h</strong></a>)</li>
+<li><strong>SYN_BIT_TOGGLE</strong> (<a href="../syn__bits_8h/"><strong>syn_bits.h</strong></a>)</li>
+<li><strong>SKIP_MAX_DEPTH</strong> (<a href="../syn__cbor__read_8c/"><strong>syn_cbor_read.c</strong></a>)</li>
+<li><strong>SYN_CRC16_CCITT_INIT</strong> (<a href="../syn__crc_8h/"><strong>syn_crc.h</strong></a>)</li>
+<li><strong>SYN_CRC16_MODBUS_INIT</strong> (<a href="../syn__crc_8h/"><strong>syn_crc.h</strong></a>)</li>
+<li><strong>SYN_CRC32_INIT</strong> (<a href="../syn__crc_8h/"><strong>syn_crc.h</strong></a>)</li>
+<li><strong>SYN_CRC8_INIT</strong> (<a href="../syn__crc_8h/"><strong>syn_crc.h</strong></a>)</li>
+<li><strong>SYN_CRC_USE_TABLE</strong> (<a href="../syn__crc_8h/"><strong>syn_crc.h</strong></a>, <a href="../syn__config__template_8h/"><strong>syn_config_template.h</strong></a>)</li>
+<li><strong>SYN_FSM_END</strong> (<a href="../syn__fsm_8h/"><strong>syn_fsm.h</strong></a>)</li>
+<li><strong>SYN_FSM_STATE_END</strong> (<a href="../syn__fsm_8h/"><strong>syn_fsm.h</strong></a>)</li>
+<li><strong>SYN_FSM_STATE_NONE</strong> (<a href="../syn__fsm_8h/"><strong>syn_fsm.h</strong></a>)</li>
+<li><strong>SYN_HMAC_SHA256_SIZE</strong> (<a href="../syn__hmac_8h/"><strong>syn_hmac.h</strong></a>)</li>
+<li><strong>SYN_JSON_MAX_TOKENS</strong> (<a href="../syn__json__read_8h/"><strong>syn_json_read.h</strong></a>)</li>
+<li><strong>SYN_JSON_MAX_DEPTH</strong> (<a href="../syn__json__write_8h/"><strong>syn_json_write.h</strong></a>)</li>
+<li><strong>SYN_POOL_ALIGN4</strong> (<a href="../syn__pool_8h/"><strong>syn_pool.h</strong></a>)</li>
+<li><strong>SYN_POOL_BUF_SIZE</strong> (<a href="../syn__pool_8h/"><strong>syn_pool.h</strong></a>)</li>
+<li><strong>SYN_PUBSUB_TOPIC_ALL</strong> (<a href="../syn__pubsub_8h/"><strong>syn_pubsub.h</strong></a>)</li>
+<li><strong>SYN_SHA256_BLOCK_SIZE</strong> (<a href="../syn__sha256_8h/"><strong>syn_sha256.h</strong></a>)</li>
+<li><strong>SYN_SHA256_DIGEST_SIZE</strong> (<a href="../syn__sha256_8h/"><strong>syn_sha256.h</strong></a>)</li>
+<li><strong>SYN_FW_USE_HMAC</strong> (<a href="../syn__config__template_8h/"><strong>syn_config_template.h</strong></a>)</li>
+<li><strong>SYN_LOG_COLOR</strong> (<a href="../syn__config__template_8h/"><strong>syn_config_template.h</strong></a>)</li>
+<li><strong>SYN_SPINLOCK_COUNT</strong> (<a href="../syn__config__template_8h/"><strong>syn_config_template.h</strong></a>)</li>
+<li><strong>SYN_USE_ACTUATOR</strong> (<a href="../syn__config__template_8h/"><strong>syn_config_template.h</strong></a>)</li>
+<li><strong>SYN_USE_ADC</strong> (<a href="../syn__config__template_8h/"><strong>syn_config_template.h</strong></a>)</li>
+<li><strong>SYN_USE_AO</strong> (<a href="../syn__config__template_8h/"><strong>syn_config_template.h</strong></a>)</li>
+<li><strong>SYN_USE_AUTOTUNE</strong> (<a href="../syn__config__template_8h/"><strong>syn_config_template.h</strong></a>)</li>
+<li><strong>SYN_USE_BIQUAD</strong> (<a href="../syn__config__template_8h/"><strong>syn_config_template.h</strong></a>)</li>
+<li><strong>SYN_USE_BOOT</strong> (<a href="../syn__config__template_8h/"><strong>syn_config_template.h</strong></a>)</li>
+<li><strong>SYN_USE_BUTTON</strong> (<a href="../syn__config__template_8h/"><strong>syn_config_template.h</strong></a>)</li>
+<li><strong>SYN_USE_CANVAS</strong> (<a href="../syn__config__template_8h/"><strong>syn_config_template.h</strong></a>)</li>
+<li><strong>SYN_USE_CBOR</strong> (<a href="../syn__config__template_8h/"><strong>syn_config_template.h</strong></a>)</li>
+<li><strong>SYN_USE_CLI</strong> (<a href="../syn__config__template_8h/"><strong>syn_config_template.h</strong></a>)</li>
+<li><strong>SYN_USE_COAP</strong> (<a href="../syn__config__template_8h/"><strong>syn_config_template.h</strong></a>)</li>
+<li><strong>SYN_USE_COBS</strong> (<a href="../syn__config__template_8h/"><strong>syn_config_template.h</strong></a>)</li>
+<li><strong>SYN_USE_COREDUMP</strong> (<a href="../syn__config__template_8h/"><strong>syn_config_template.h</strong></a>)</li>
+<li><strong>SYN_USE_DATALOG</strong> (<a href="../syn__config__template_8h/"><strong>syn_config_template.h</strong></a>)</li>
+<li><strong>SYN_USE_DC_MOTOR</strong> (<a href="../syn__config__template_8h/"><strong>syn_config_template.h</strong></a>)</li>
+<li><strong>SYN_USE_DMA</strong> (<a href="../syn__config__template_8h/"><strong>syn_config_template.h</strong></a>)</li>
+<li><strong>SYN_USE_DNS</strong> (<a href="../syn__config__template_8h/"><strong>syn_config_template.h</strong></a>)</li>
+<li><strong>SYN_USE_ENCODER</strong> (<a href="../syn__config__template_8h/"><strong>syn_config_template.h</strong></a>)</li>
+<li><strong>SYN_USE_ERRLOG</strong> (<a href="../syn__config__template_8h/"><strong>syn_config_template.h</strong></a>)</li>
+<li><strong>SYN_USE_EVENT</strong> (<a href="../syn__config__template_8h/"><strong>syn_config_template.h</strong></a>)</li>
+<li><strong>SYN_USE_EXTI</strong> (<a href="../syn__config__template_8h/"><strong>syn_config_template.h</strong></a>)</li>
+<li><strong>SYN_USE_FAT</strong> (<a href="../syn__config__template_8h/"><strong>syn_config_template.h</strong></a>)</li>
+<li><strong>SYN_USE_FAULT</strong> (<a href="../syn__config__template_8h/"><strong>syn_config_template.h</strong></a>)</li>
+<li><strong>SYN_USE_FFT</strong> (<a href="../syn__config__template_8h/"><strong>syn_config_template.h</strong></a>)</li>
+<li><strong>SYN_USE_FILTER</strong> (<a href="../syn__config__template_8h/"><strong>syn_config_template.h</strong></a>)</li>
+<li><strong>SYN_USE_FMT</strong> (<a href="../syn__config__template_8h/"><strong>syn_config_template.h</strong></a>)</li>
+<li><strong>SYN_USE_FSM</strong> (<a href="../syn__config__template_8h/"><strong>syn_config_template.h</strong></a>)</li>
+<li><strong>SYN_USE_GPIO</strong> (<a href="../syn__config__template_8h/"><strong>syn_config_template.h</strong></a>)</li>
+<li><strong>SYN_USE_HEARTBEAT</strong> (<a href="../syn__config__template_8h/"><strong>syn_config_template.h</strong></a>)</li>
+<li><strong>SYN_USE_HTTP</strong> (<a href="../syn__config__template_8h/"><strong>syn_config_template.h</strong></a>)</li>
+<li><strong>SYN_USE_HTTPD</strong> (<a href="../syn__config__template_8h/"><strong>syn_config_template.h</strong></a>)</li>
+<li><strong>SYN_USE_HWWDT</strong> (<a href="../syn__config__template_8h/"><strong>syn_config_template.h</strong></a>)</li>
+<li><strong>SYN_USE_I2C_ASYNC</strong> (<a href="../syn__config__template_8h/"><strong>syn_config_template.h</strong></a>)</li>
+<li><strong>SYN_USE_IMGUI</strong> (<a href="../syn__config__template_8h/"><strong>syn_config_template.h</strong></a>)</li>
+<li><strong>SYN_USE_JSON</strong> (<a href="../syn__config__template_8h/"><strong>syn_config_template.h</strong></a>)</li>
+<li><strong>SYN_USE_LED</strong> (<a href="../syn__config__template_8h/"><strong>syn_config_template.h</strong></a>)</li>
+<li><strong>SYN_USE_LFS</strong> (<a href="../syn__config__template_8h/"><strong>syn_config_template.h</strong></a>)</li>
+<li><strong>SYN_USE_LOG</strong> (<a href="../syn__config__template_8h/"><strong>syn_config_template.h</strong></a>)</li>
+<li><strong>SYN_USE_MENU</strong> (<a href="../syn__config__template_8h/"><strong>syn_config_template.h</strong></a>)</li>
+<li><strong>SYN_USE_MODBUS</strong> (<a href="../syn__config__template_8h/"><strong>syn_config_template.h</strong></a>)</li>
+<li><strong>SYN_USE_MOTOR_CTRL</strong> (<a href="../syn__config__template_8h/"><strong>syn_config_template.h</strong></a>)</li>
+<li><strong>SYN_USE_MQTT</strong> (<a href="../syn__config__template_8h/"><strong>syn_config_template.h</strong></a>)</li>
+<li><strong>SYN_USE_MULTICORE</strong> (<a href="../syn__config__template_8h/"><strong>syn_config_template.h</strong></a>)</li>
+<li><strong>SYN_USE_PARAM</strong> (<a href="../syn__config__template_8h/"><strong>syn_config_template.h</strong></a>)</li>
+<li><strong>SYN_USE_PID</strong> (<a href="../syn__config__template_8h/"><strong>syn_config_template.h</strong></a>)</li>
+<li><strong>SYN_USE_POOL</strong> (<a href="../syn__config__template_8h/"><strong>syn_config_template.h</strong></a>)</li>
+<li><strong>SYN_USE_POWER</strong> (<a href="../syn__config__template_8h/"><strong>syn_config_template.h</strong></a>)</li>
+<li><strong>SYN_USE_PROFILER</strong> (<a href="../syn__config__template_8h/"><strong>syn_config_template.h</strong></a>)</li>
+<li><strong>SYN_USE_PT</strong> (<a href="../syn__config__template_8h/"><strong>syn_config_template.h</strong></a>)</li>
+<li><strong>SYN_USE_PUBSUB</strong> (<a href="../syn__config__template_8h/"><strong>syn_config_template.h</strong></a>)</li>
+<li><strong>SYN_USE_RAMP</strong> (<a href="../syn__config__template_8h/"><strong>syn_config_template.h</strong></a>)</li>
+<li><strong>SYN_USE_ROUTER</strong> (<a href="../syn__config__template_8h/"><strong>syn_config_template.h</strong></a>)</li>
+<li><strong>SYN_USE_SCHED</strong> (<a href="../syn__config__template_8h/"><strong>syn_config_template.h</strong></a>)</li>
+<li><strong>SYN_USE_SCURVE</strong> (<a href="../syn__config__template_8h/"><strong>syn_config_template.h</strong></a>)</li>
+<li><strong>SYN_USE_SENSOR</strong> (<a href="../syn__config__template_8h/"><strong>syn_config_template.h</strong></a>)</li>
+<li><strong>SYN_USE_SEQUENCER</strong> (<a href="../syn__config__template_8h/"><strong>syn_config_template.h</strong></a>)</li>
+<li><strong>SYN_USE_SERVO</strong> (<a href="../syn__config__template_8h/"><strong>syn_config_template.h</strong></a>)</li>
+<li><strong>SYN_USE_SETTINGS</strong> (<a href="../syn__config__template_8h/"><strong>syn_config_template.h</strong></a>)</li>
+<li><strong>SYN_USE_SHA256</strong> (<a href="../syn__config__template_8h/"><strong>syn_config_template.h</strong></a>)</li>
+<li><strong>SYN_USE_SIGNAL</strong> (<a href="../syn__config__template_8h/"><strong>syn_config_template.h</strong></a>)</li>
+<li><strong>SYN_USE_SOFT_PWM</strong> (<a href="../syn__config__template_8h/"><strong>syn_config_template.h</strong></a>)</li>
+<li><strong>SYN_USE_SPI_ASYNC</strong> (<a href="../syn__config__template_8h/"><strong>syn_config_template.h</strong></a>)</li>
+<li><strong>SYN_USE_STEPPER</strong> (<a href="../syn__config__template_8h/"><strong>syn_config_template.h</strong></a>)</li>
+<li><strong>SYN_USE_TICKLESS</strong> (<a href="../syn__config__template_8h/"><strong>syn_config_template.h</strong></a>)</li>
+<li><strong>SYN_USE_TIMER</strong> (<a href="../syn__config__template_8h/"><strong>syn_config_template.h</strong></a>)</li>
+<li><strong>SYN_USE_TRACE</strong> (<a href="../syn__config__template_8h/"><strong>syn_config_template.h</strong></a>)</li>
+<li><strong>SYN_USE_TRANSPORT_TCP</strong> (<a href="../syn__config__template_8h/"><strong>syn_config_template.h</strong></a>)</li>
+<li><strong>SYN_USE_UART</strong> (<a href="../syn__config__template_8h/"><strong>syn_config_template.h</strong></a>)</li>
+<li><strong>SYN_USE_VFS</strong> (<a href="../syn__config__template_8h/"><strong>syn_config_template.h</strong></a>)</li>
+<li><strong>SYN_USE_WATCHDOG</strong> (<a href="../syn__config__template_8h/"><strong>syn_config_template.h</strong></a>)</li>
+<li><strong>SYN_USE_WEBSOCKET</strong> (<a href="../syn__config__template_8h/"><strong>syn_config_template.h</strong></a>)</li>
+<li><strong>SYN_USE_WORKQUEUE</strong> (<a href="../syn__config__template_8h/"><strong>syn_config_template.h</strong></a>)</li>
+</ul>
+<h2 id="t">t<a class="headerlink" href="#t" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>TAG</strong> (<a href="../syn__fat_8c/"><strong>syn_fat.c</strong></a>)</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.expand", "navigation.top", "search.highlight", "content.code.copy", "content.code.annotate"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

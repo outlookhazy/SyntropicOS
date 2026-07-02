@@ -1,0 +1,501 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__settings_8h" kind="file" language="C++">
+    <compoundname>syn_settings.h</compoundname>
+    <includes refid="syn__defs_8h" local="yes">../common/syn_defs.h</includes>
+    <includes refid="syn__param_8h" local="yes">../storage/syn_param.h</includes>
+    <includes local="no">stdint.h</includes>
+    <includes local="no">stdbool.h</includes>
+    <includedby refid="syn__settings_8c" local="yes">src/syntropic/storage/syn_settings.c</includedby>
+    <incdepgraph>
+      <node id="2">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>../port/syn_port_flash.h</label>
+        <link refid="syn__port__flash_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>../storage/syn_param.h</label>
+        <link refid="syn__param_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/storage/syn_settings.h</label>
+        <link refid="syn__settings_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>stdbool.h</label>
+      </node>
+      <node id="4">
+        <label>stddef.h</label>
+      </node>
+      <node id="3">
+        <label>stdint.h</label>
+      </node>
+    </incdepgraph>
+    <innerclass refid="structSYN__Settings" prot="public">SYN_Settings</innerclass>
+    <sectiondef kind="typedef">
+      <memberdef kind="typedef" id="syn__settings_8h_1a44fe3d103cb33a3a4143831d4c2e46ec" prot="public" static="no">
+        <type>void(*</type>
+        <definition>typedef void(* SYN_SettingsChangeCallback) (void *data, void *ctx)</definition>
+        <argsstring>)(void *data, void *ctx)</argsstring>
+        <name>SYN_SettingsChangeCallback</name>
+        <briefdescription>
+<para>Called when <ref refid="syn__settings_8h_1ab7ed4c55f6baa8959c891e77d6e8273d" kindref="member">syn_settings_save()</ref> detects the data has changed. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>data</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to the settings struct. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>ctx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>User context. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/storage/syn_settings.h" line="64" column="9" bodyfile="src/syntropic/storage/syn_settings.h" bodystart="64" bodyend="-1"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__settings_8h_1aac9bb69f3d36b7a3614fd6d13b1bb9b5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_settings_init</definition>
+        <argsstring>(SYN_Settings *s, uint32_t flash_base, uint8_t sector_count, void *data, uint16_t data_size, const void *defaults)</argsstring>
+        <name>syn_settings_init</name>
+        <param>
+          <type><ref refid="structSYN__Settings" kindref="compound">SYN_Settings</ref> *</type>
+          <declname>s</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>flash_base</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>sector_count</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>data_size</declname>
+        </param>
+        <param>
+          <type>const void *</type>
+          <declname>defaults</declname>
+        </param>
+        <briefdescription>
+<para>Initialize the settings manager. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Attempts to load settings from flash. If flash contains valid data (matching size + CRC), it&apos;s loaded into *data. Otherwise, *defaults are copied into *data and saved to flash.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>s</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Settings instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>flash_base</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Base address of the flash region for this setting. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>sector_count</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of flash sectors to use (more = longer wear life). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>data</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to the user&apos;s settings struct (RAM). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>data_size</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Size of the settings struct in bytes. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>defaults</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to default values (const, typically in ROM). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/storage/syn_settings.h" line="97" column="12" bodyfile="src/syntropic/storage/syn_settings.c" bodystart="22" bodyend="56" declfile="src/syntropic/storage/syn_settings.h" declline="97" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__settings_8h_1ab7ed4c55f6baa8959c891e77d6e8273d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_settings_save</definition>
+        <argsstring>(SYN_Settings *s)</argsstring>
+        <name>syn_settings_save</name>
+        <param>
+          <type><ref refid="structSYN__Settings" kindref="compound">SYN_Settings</ref> *</type>
+          <declname>s</declname>
+        </param>
+        <briefdescription>
+<para>Save current settings to flash. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Computes CRC-16 of the current data. If it differs from the last known checksum, writes to flash and calls the change callback. If unchanged, this is a no-op (no flash write).</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>s</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Settings instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, or flash write error. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/storage/syn_settings.h" line="112" column="12" bodyfile="src/syntropic/storage/syn_settings.c" bodystart="58" bodyend="79" declfile="src/syntropic/storage/syn_settings.h" declline="112" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__settings_8h_1aae742ceae88eab4be109687f680a6589" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_settings_changed</definition>
+        <argsstring>(const SYN_Settings *s)</argsstring>
+        <name>syn_settings_changed</name>
+        <param>
+          <type>const <ref refid="structSYN__Settings" kindref="compound">SYN_Settings</ref> *</type>
+          <declname>s</declname>
+        </param>
+        <briefdescription>
+<para>Check if settings have changed since last save/load. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Recomputes CRC-16 and compares to stored checksum. Does NOT save — use this for polling change detection.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>s</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Settings instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if data has changed. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/storage/syn_settings.h" line="123" column="6" bodyfile="src/syntropic/storage/syn_settings.c" bodystart="81" bodyend="86" declfile="src/syntropic/storage/syn_settings.h" declline="123" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__settings_8h_1aa5b2945d90a985ab6561b325d18b595a" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>uint16_t</type>
+        <definition>static uint16_t syn_settings_checksum</definition>
+        <argsstring>(const SYN_Settings *s)</argsstring>
+        <name>syn_settings_checksum</name>
+        <param>
+          <type>const <ref refid="structSYN__Settings" kindref="compound">SYN_Settings</ref> *</type>
+          <declname>s</declname>
+        </param>
+        <briefdescription>
+<para>Get the current CRC-16 checksum of the settings data. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Useful for comparing against a remote copy to detect staleness. This returns the checksum computed at the last save/load, NOT a live recomputation. Call <ref refid="syn__settings_8h_1ab7ed4c55f6baa8959c891e77d6e8273d" kindref="member">syn_settings_save()</ref> first to update.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>s</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Settings instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>CRC-16 checksum. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/storage/syn_settings.h" line="135" column="24" bodyfile="src/syntropic/storage/syn_settings.h" bodystart="135" bodyend="138"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__settings_8h_1a19963fa823e75f890c5b43734c21778c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_settings_reset</definition>
+        <argsstring>(SYN_Settings *s)</argsstring>
+        <name>syn_settings_reset</name>
+        <param>
+          <type><ref refid="structSYN__Settings" kindref="compound">SYN_Settings</ref> *</type>
+          <declname>s</declname>
+        </param>
+        <briefdescription>
+<para>Reset settings to defaults and save. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Copies defaults into the data struct, saves to flash.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>s</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Settings instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/storage/syn_settings.h" line="148" column="12" bodyfile="src/syntropic/storage/syn_settings.c" bodystart="88" bodyend="93" declfile="src/syntropic/storage/syn_settings.h" declline="148" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__settings_8h_1a0b99ca1404578272fdd92aceb873308d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_settings_on_change</definition>
+        <argsstring>(SYN_Settings *s, SYN_SettingsChangeCallback cb, void *ctx)</argsstring>
+        <name>syn_settings_on_change</name>
+        <param>
+          <type><ref refid="structSYN__Settings" kindref="compound">SYN_Settings</ref> *</type>
+          <declname>s</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__settings_8h_1a44fe3d103cb33a3a4143831d4c2e46ec" kindref="member">SYN_SettingsChangeCallback</ref></type>
+          <declname>cb</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>ctx</declname>
+        </param>
+        <briefdescription>
+<para>Register a change callback. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Called when <ref refid="syn__settings_8h_1ab7ed4c55f6baa8959c891e77d6e8273d" kindref="member">syn_settings_save()</ref> detects that data has changed.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>s</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Settings instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>cb</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Callback function. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>ctx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>User context. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/storage/syn_settings.h" line="159" column="6" bodyfile="src/syntropic/storage/syn_settings.c" bodystart="95" bodyend="101" declfile="src/syntropic/storage/syn_settings.h" declline="159" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__settings_8h_1aefba6efb00c142da3814106e8cf6b419" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_settings_reload</definition>
+        <argsstring>(SYN_Settings *s)</argsstring>
+        <name>syn_settings_reload</name>
+        <param>
+          <type><ref refid="structSYN__Settings" kindref="compound">SYN_Settings</ref> *</type>
+          <declname>s</declname>
+        </param>
+        <briefdescription>
+<para>Reload settings from flash, discarding any unsaved changes. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>s</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Settings instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK if loaded, SYN_ERR_NOT_FOUND if flash has no valid data. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/storage/syn_settings.h" line="168" column="12" bodyfile="src/syntropic/storage/syn_settings.c" bodystart="103" bodyend="111" declfile="src/syntropic/storage/syn_settings.h" declline="168" declcolumn="12"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Persistent settings manager with change detection. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Wraps syn_param (wear-leveled flash storage) with:<itemizedlist>
+<listitem><para>Automatic CRC-16 checksum for change detection</para>
+</listitem><listitem><para>Default values initialization</para>
+</listitem><listitem><para>Load-or-default on init</para>
+</listitem><listitem><para>Dirty tracking (has data changed since last save?)</para>
+</listitem><listitem><para>Optional change callback</para>
+</listitem></itemizedlist>
+</para>
+<para>Eliminates the repetitive InitSettings / LoadSettings / SaveSettings / update_checksum boilerplate seen in every firmware module.</para>
+<para><simplesect kind="par"><title>Usage</title><para><programlisting><codeline><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>int32_t<sp/>velocity_max;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>int32_t<sp/>acceleration;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>int32_t<sp/>power_max;</highlight></codeline>
+<codeline><highlight class="normal">}<sp/>MoverSettings;</highlight></codeline>
+<codeline><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>MoverSettings<sp/>defaults<sp/>=<sp/>{<sp/>500,<sp/>200,<sp/>80<sp/>};</highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/>MoverSettings<sp/>settings;</highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/><ref refid="structSYN__Settings" kindref="compound">SYN_Settings</ref><sp/>store;</highlight></codeline>
+<codeline><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="comment">//<sp/>Init<sp/>—<sp/>loads<sp/>from<sp/>flash<sp/>or<sp/>applies<sp/>defaults:</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal">syn_settings_init(&amp;store,<sp/>FLASH_MOVER_BASE,<sp/>2,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>&amp;settings,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(settings),<sp/>&amp;defaults);</highlight></codeline>
+<codeline><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="comment">//<sp/>Modify<sp/>and<sp/>save:</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal">settings.velocity_max<sp/>=<sp/>600;</highlight></codeline>
+<codeline><highlight class="normal">syn_settings_save(&amp;store);<sp/><sp/></highlight><highlight class="comment">//<sp/>CRC<sp/>updated,<sp/>writes<sp/>flash</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="comment">//<sp/>Remote<sp/>sync<sp/>—<sp/>check<sp/>if<sp/>remote<sp/>copy<sp/>is<sp/>stale:</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(remote_checksum<sp/>!=<sp/><ref refid="syn__settings_8h_1aa5b2945d90a985ab6561b325d18b595a" kindref="member">syn_settings_checksum</ref>(&amp;store))<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>send_settings_to_remote(&amp;settings);</highlight></codeline>
+<codeline><highlight class="normal">}</highlight></codeline>
+</programlisting> </para>
+</simplesect>
+</para>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_SETTINGS_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_SETTINGS_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight></codeline>
+<codeline lineno="46"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../common/syn_defs.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="47"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../storage/syn_param.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="48"><highlight class="normal"></highlight></codeline>
+<codeline lineno="49"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="50"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="51"><highlight class="normal"></highlight></codeline>
+<codeline lineno="52"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="53"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="55"><highlight class="normal"></highlight></codeline>
+<codeline lineno="56"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Callback<sp/>────────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="57"><highlight class="normal"></highlight></codeline>
+<codeline lineno="64" refid="syn__settings_8h_1a44fe3d103cb33a3a4143831d4c2e46ec" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>void<sp/>(*<ref refid="syn__settings_8h_1a44fe3d103cb33a3a4143831d4c2e46ec" kindref="member">SYN_SettingsChangeCallback</ref>)(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*data,<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*ctx);</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"></highlight></codeline>
+<codeline lineno="66"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Settings<sp/>instance<sp/>───────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="67"><highlight class="normal"></highlight></codeline>
+<codeline lineno="69" refid="structSYN__Settings" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="70" refid="structSYN__Settings_1a4529ed91841f4b4fa6fdc56fb37bbfc0" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structSYN__ParamStore" kindref="compound">SYN_ParamStore</ref><sp/><sp/><sp/><sp/><ref refid="structSYN__Settings_1a4529ed91841f4b4fa6fdc56fb37bbfc0" kindref="member">store</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="71" refid="structSYN__Settings_1a1b57e244a02278c539e3bdf71da0d662" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<ref refid="structSYN__Settings_1a1b57e244a02278c539e3bdf71da0d662" kindref="member">data</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="72" refid="structSYN__Settings_1adfec19c44b3e635940cc9647029f578a" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__Settings_1adfec19c44b3e635940cc9647029f578a" kindref="member">data_size</ref>;<sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="73" refid="structSYN__Settings_1ad14499260d293ae0e67a09263146e1a3" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<ref refid="structSYN__Settings_1ad14499260d293ae0e67a09263146e1a3" kindref="member">defaults</ref>;<sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="74" refid="structSYN__Settings_1a35042ec3aefdc9964940a50685f9b295" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__Settings_1a35042ec3aefdc9964940a50685f9b295" kindref="member">checksum</ref>;<sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="76" refid="structSYN__Settings_1a419f3ceda209b42fc5077bdb72f675c1" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__settings_8h_1a44fe3d103cb33a3a4143831d4c2e46ec" kindref="member">SYN_SettingsChangeCallback</ref><sp/><ref refid="structSYN__Settings_1a419f3ceda209b42fc5077bdb72f675c1" kindref="member">on_change</ref>;<sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="77" refid="structSYN__Settings_1a5718e135e8e83f22c4982c1ad160cd0d" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<ref refid="structSYN__Settings_1a5718e135e8e83f22c4982c1ad160cd0d" kindref="member">on_change_ctx</ref>;<sp/></highlight></codeline>
+<codeline lineno="78"><highlight class="normal">}<sp/><ref refid="structSYN__Settings" kindref="compound">SYN_Settings</ref>;</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"></highlight></codeline>
+<codeline lineno="80"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>API<sp/>──────────────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="81"><highlight class="normal"></highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__settings_8h_1aac9bb69f3d36b7a3614fd6d13b1bb9b5" kindref="member">syn_settings_init</ref>(<ref refid="structSYN__Settings" kindref="compound">SYN_Settings</ref><sp/>*s,</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>flash_base,<sp/>uint8_t<sp/>sector_count,</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*data,<sp/>uint16_t<sp/>data_size,</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*defaults);</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"></highlight></codeline>
+<codeline lineno="112"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__settings_8h_1ab7ed4c55f6baa8959c891e77d6e8273d" kindref="member">syn_settings_save</ref>(<ref refid="structSYN__Settings" kindref="compound">SYN_Settings</ref><sp/>*s);</highlight></codeline>
+<codeline lineno="113"><highlight class="normal"></highlight></codeline>
+<codeline lineno="123"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__settings_8h_1aae742ceae88eab4be109687f680a6589" kindref="member">syn_settings_changed</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__Settings" kindref="compound">SYN_Settings</ref><sp/>*s);</highlight></codeline>
+<codeline lineno="124"><highlight class="normal"></highlight></codeline>
+<codeline lineno="135" refid="syn__settings_8h_1aa5b2945d90a985ab6561b325d18b595a" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>uint16_t<sp/><ref refid="syn__settings_8h_1aa5b2945d90a985ab6561b325d18b595a" kindref="member">syn_settings_checksum</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__Settings" kindref="compound">SYN_Settings</ref><sp/>*s)</highlight></codeline>
+<codeline lineno="136"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="137"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>s-&gt;<ref refid="structSYN__Settings_1a35042ec3aefdc9964940a50685f9b295" kindref="member">checksum</ref>;</highlight></codeline>
+<codeline lineno="138"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="139"><highlight class="normal"></highlight></codeline>
+<codeline lineno="148"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__settings_8h_1a19963fa823e75f890c5b43734c21778c" kindref="member">syn_settings_reset</ref>(<ref refid="structSYN__Settings" kindref="compound">SYN_Settings</ref><sp/>*s);</highlight></codeline>
+<codeline lineno="149"><highlight class="normal"></highlight></codeline>
+<codeline lineno="159"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__settings_8h_1a0b99ca1404578272fdd92aceb873308d" kindref="member">syn_settings_on_change</ref>(<ref refid="structSYN__Settings" kindref="compound">SYN_Settings</ref><sp/>*s,</highlight></codeline>
+<codeline lineno="160"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__settings_8h_1a44fe3d103cb33a3a4143831d4c2e46ec" kindref="member">SYN_SettingsChangeCallback</ref><sp/>cb,<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*ctx);</highlight></codeline>
+<codeline lineno="161"><highlight class="normal"></highlight></codeline>
+<codeline lineno="168"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__settings_8h_1aefba6efb00c142da3814106e8cf6b419" kindref="member">syn_settings_reload</ref>(<ref refid="structSYN__Settings" kindref="compound">SYN_Settings</ref><sp/>*s);</highlight></codeline>
+<codeline lineno="169"><highlight class="normal"></highlight></codeline>
+<codeline lineno="170"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="171"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="172"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="173"><highlight class="normal"></highlight></codeline>
+<codeline lineno="174"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_SETTINGS_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/storage/syn_settings.h"/>
+  </compounddef>
+</doxygen>

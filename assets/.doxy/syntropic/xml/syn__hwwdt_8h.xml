@@ -1,0 +1,137 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__hwwdt_8h" kind="file" language="C++">
+    <compoundname>syn_hwwdt.h</compoundname>
+    <includes local="no">stdint.h</includes>
+    <includes refid="syn__defs_8h" local="yes">../common/syn_defs.h</includes>
+    <includedby refid="syntropic_8h" local="yes">src/syntropic/syntropic.h</includedby>
+    <includedby refid="syn__hwwdt_8c" local="yes">src/syntropic/system/syn_hwwdt.c</includedby>
+    <incdepgraph>
+      <node id="3">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/system/syn_hwwdt.h</label>
+        <link refid="syn__hwwdt_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>stddef.h</label>
+      </node>
+      <node id="2">
+        <label>stdint.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="2">
+        <label>src/syntropic/syntropic.h</label>
+        <link refid="syntropic_8h"/>
+      </node>
+      <node id="3">
+        <label>src/syntropic/system/syn_hwwdt.c</label>
+        <link refid="syn__hwwdt_8c"/>
+      </node>
+      <node id="1">
+        <label>src/syntropic/system/syn_hwwdt.h</label>
+        <link refid="syn__hwwdt_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__hwwdt_8h_1ae7f42a67abd53be88298d70d418a692e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_hwwdt_init</definition>
+        <argsstring>(uint32_t timeout_ms)</argsstring>
+        <name>syn_hwwdt_init</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>timeout_ms</declname>
+        </param>
+        <briefdescription>
+<para>Start the hardware watchdog with the given timeout. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>On most MCUs the watchdog cannot be disabled once started. <ref refid="syn__hwwdt_8h_1a36dbe9dfb81705909e354290b542fe8e" kindref="member">syn_hwwdt_feed()</ref> must be called more frequently than <computeroutput>timeout_ms</computeroutput>.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>timeout_ms</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Desired timeout in milliseconds. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_ERROR if the hardware WDT cannot be started. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/system/syn_hwwdt.h" line="40" column="12" bodyfile="src/syntropic/system/syn_hwwdt.c" bodystart="16" bodyend="20" declfile="src/syntropic/system/syn_hwwdt.h" declline="40" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__hwwdt_8h_1a36dbe9dfb81705909e354290b542fe8e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_hwwdt_feed</definition>
+        <argsstring>(void)</argsstring>
+        <name>syn_hwwdt_feed</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Feed (reload) the hardware watchdog counter. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Call this function from your main loop or scheduler idle hook to prevent the hardware from resetting the system. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/system/syn_hwwdt.h" line="48" column="6" bodyfile="src/syntropic/system/syn_hwwdt.c" bodystart="22" bodyend="25" declfile="src/syntropic/system/syn_hwwdt.h" declline="48" declcolumn="6"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Hardware Watchdog Timer driver. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Wraps <ref refid="syn__port__wdt_8h" kindref="compound">syn_port_wdt.h</ref> with a minimal driver interface. The hardware watchdog runs independently of the CPU and will reset the system if <ref refid="syn__hwwdt_8h_1a36dbe9dfb81705909e354290b542fe8e" kindref="member">syn_hwwdt_feed()</ref> is not called within the configured timeout — even if the CPU is hard-locked.</para>
+<para>Complementary to <ref refid="syn__watchdog_8h" kindref="compound">syn_watchdog.h</ref> (software task-stall detector).</para>
+<para>Usage: <programlisting><codeline><highlight class="normal"><ref refid="syn__hwwdt_8c_1ae7f42a67abd53be88298d70d418a692e" kindref="member">syn_hwwdt_init</ref>(2000);<sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>2-second<sp/>hardware<sp/>timeout</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="comment">//<sp/>In<sp/>main<sp/>loop<sp/>or<sp/>scheduler<sp/>tick:</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__hwwdt_8c_1a36dbe9dfb81705909e354290b542fe8e" kindref="member">syn_hwwdt_feed</ref>();</highlight></codeline>
+</programlisting> </para>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_HWWDT_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_HWWDT_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../common/syn_defs.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__hwwdt_8h_1ae7f42a67abd53be88298d70d418a692e" kindref="member">syn_hwwdt_init</ref>(uint32_t<sp/>timeout_ms);</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight></codeline>
+<codeline lineno="48"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__hwwdt_8h_1a36dbe9dfb81705909e354290b542fe8e" kindref="member">syn_hwwdt_feed</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"></highlight></codeline>
+<codeline lineno="50"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="51"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="53"><highlight class="normal"></highlight></codeline>
+<codeline lineno="54"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_HWWDT_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/system/syn_hwwdt.h"/>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,463 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__pubsub_8h" kind="file" language="C++">
+    <compoundname>syn_pubsub.h</compoundname>
+    <includes refid="syn__defs_8h" local="yes">../common/syn_defs.h</includes>
+    <includes local="no">stdint.h</includes>
+    <includes local="no">stddef.h</includes>
+    <includes local="no">stdbool.h</includes>
+    <includedby refid="syn__pubsub_8c" local="yes">src/syntropic/util/syn_pubsub.c</includedby>
+    <incdepgraph>
+      <node id="2">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/util/syn_pubsub.h</label>
+        <link refid="syn__pubsub_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>stdbool.h</label>
+      </node>
+      <node id="4">
+        <label>stddef.h</label>
+      </node>
+      <node id="3">
+        <label>stdint.h</label>
+      </node>
+    </incdepgraph>
+    <innerclass refid="structSYN__PubSubSub" prot="public">SYN_PubSubSub</innerclass>
+    <innerclass refid="structSYN__PubSubBroker" prot="public">SYN_PubSubBroker</innerclass>
+    <sectiondef kind="define">
+      <memberdef kind="define" id="syn__pubsub_8h_1ab8cd36cd4c0e478693a0912a904b2f92" prot="public" static="no">
+        <name>SYN_PUBSUB_TOPIC_ALL</name>
+        <initializer>0xFFFF</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Special topic ID used to subscribe to ALL events. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_pubsub.h" line="25" column="9" bodyfile="src/syntropic/util/syn_pubsub.h" bodystart="25" bodyend="-1"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="typedef">
+      <memberdef kind="typedef" id="syn__pubsub_8h_1a1b8471d53cde35490ee59b2af5dedf25" prot="public" static="no">
+        <type>void(*</type>
+        <definition>typedef void(* SYN_PubSubHandler) (uint16_t topic, const void *payload, size_t len, void *ctx)</definition>
+        <argsstring>)(uint16_t topic, const void *payload, size_t len, void *ctx)</argsstring>
+        <name>SYN_PubSubHandler</name>
+        <briefdescription>
+<para>Event callback function signature. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>topic</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The topic ID that triggered this callback. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>payload</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to the event data (can be NULL). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Size of the event data in bytes (can be 0). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>ctx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>User context pointer provided at subscription. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_pubsub.h" line="35" column="9" bodyfile="src/syntropic/util/syn_pubsub.h" bodystart="35" bodyend="-1"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__pubsub_8h_1ab545ffd9ed09fd6aa0c1683cadadbc0a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_pubsub_init</definition>
+        <argsstring>(SYN_PubSubBroker *broker, SYN_PubSubSub *sub_array, size_t capacity)</argsstring>
+        <name>syn_pubsub_init</name>
+        <param>
+          <type><ref refid="structSYN__PubSubBroker" kindref="compound">SYN_PubSubBroker</ref> *</type>
+          <declname>broker</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__PubSubSub" kindref="compound">SYN_PubSubSub</ref> *</type>
+          <declname>sub_array</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>capacity</declname>
+        </param>
+        <briefdescription>
+<para>Initialize a pubsub broker. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>broker</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to broker instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>sub_array</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to an array of <ref refid="structSYN__PubSubSub" kindref="compound">SYN_PubSubSub</ref> structures. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>capacity</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of elements in sub_array. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_pubsub.h" line="60" column="6" bodyfile="src/syntropic/util/syn_pubsub.c" bodystart="10" bodyend="16" declfile="src/syntropic/util/syn_pubsub.h" declline="60" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__pubsub_8h_1a8c2172d9d09164235e3c5e06aa22daf4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_pubsub_subscribe</definition>
+        <argsstring>(SYN_PubSubBroker *broker, uint16_t topic, SYN_PubSubHandler handler, void *ctx)</argsstring>
+        <name>syn_pubsub_subscribe</name>
+        <param>
+          <type><ref refid="structSYN__PubSubBroker" kindref="compound">SYN_PubSubBroker</ref> *</type>
+          <declname>broker</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>topic</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__pubsub_8h_1a1b8471d53cde35490ee59b2af5dedf25" kindref="member">SYN_PubSubHandler</ref></type>
+          <declname>handler</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>ctx</declname>
+        </param>
+        <briefdescription>
+<para>Subscribe to a topic. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>broker</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to broker instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>topic</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Topic ID to listen for, or SYN_PUBSUB_TOPIC_ALL. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>handler</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Callback function to invoke. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>ctx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Optional user context pointer. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if subscribed successfully, false if broker is full. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_pubsub.h" line="70" column="6" bodyfile="src/syntropic/util/syn_pubsub.c" bodystart="18" bodyend="40" declfile="src/syntropic/util/syn_pubsub.h" declline="70" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__pubsub_8h_1af35173a766578fe4afd0996f969fdd6a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_pubsub_unsubscribe</definition>
+        <argsstring>(SYN_PubSubBroker *broker, uint16_t topic, SYN_PubSubHandler handler)</argsstring>
+        <name>syn_pubsub_unsubscribe</name>
+        <param>
+          <type><ref refid="structSYN__PubSubBroker" kindref="compound">SYN_PubSubBroker</ref> *</type>
+          <declname>broker</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>topic</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__pubsub_8h_1a1b8471d53cde35490ee59b2af5dedf25" kindref="member">SYN_PubSubHandler</ref></type>
+          <declname>handler</declname>
+        </param>
+        <briefdescription>
+<para>Unsubscribe from a topic. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>broker</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to broker instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>topic</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Topic ID to unsubscribe from. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>handler</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The specific callback function to remove. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if removed, false if not found. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_pubsub.h" line="79" column="6" bodyfile="src/syntropic/util/syn_pubsub.c" bodystart="42" bodyend="57" declfile="src/syntropic/util/syn_pubsub.h" declline="79" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__pubsub_8h_1adea9a1ff40cbf9e9d400a17fbc16e183" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_pubsub_publish</definition>
+        <argsstring>(SYN_PubSubBroker *broker, uint16_t topic, const void *payload, size_t len)</argsstring>
+        <name>syn_pubsub_publish</name>
+        <param>
+          <type><ref refid="structSYN__PubSubBroker" kindref="compound">SYN_PubSubBroker</ref> *</type>
+          <declname>broker</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>topic</declname>
+        </param>
+        <param>
+          <type>const void *</type>
+          <declname>payload</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>len</declname>
+        </param>
+        <briefdescription>
+<para>Publish an event to all subscribers of a topic. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>broker</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to broker instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>topic</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Topic ID of the event. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>payload</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to event data. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Size of event data in bytes. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_pubsub.h" line="88" column="6" bodyfile="src/syntropic/util/syn_pubsub.c" bodystart="59" bodyend="67" declfile="src/syntropic/util/syn_pubsub.h" declline="88" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__pubsub_8h_1a4963c7d52db5055788269edb7218d581" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>size_t</type>
+        <definition>static size_t syn_pubsub_count</definition>
+        <argsstring>(const SYN_PubSubBroker *broker)</argsstring>
+        <name>syn_pubsub_count</name>
+        <param>
+          <type>const <ref refid="structSYN__PubSubBroker" kindref="compound">SYN_PubSubBroker</ref> *</type>
+          <declname>broker</declname>
+        </param>
+        <briefdescription>
+<para>Get current number of active subscriptions. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>broker</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Broker. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Subscription count. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_pubsub.h" line="95" column="22" bodyfile="src/syntropic/util/syn_pubsub.h" bodystart="95" bodyend="97"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__pubsub_8h_1ac51bdaa854c718f55ba0d380d405d959" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void syn_pubsub_reset</definition>
+        <argsstring>(SYN_PubSubBroker *broker)</argsstring>
+        <name>syn_pubsub_reset</name>
+        <param>
+          <type><ref refid="structSYN__PubSubBroker" kindref="compound">SYN_PubSubBroker</ref> *</type>
+          <declname>broker</declname>
+        </param>
+        <briefdescription>
+<para>Reset the broker, removing all subscriptions. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>broker</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Broker. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_pubsub.h" line="103" column="20" bodyfile="src/syntropic/util/syn_pubsub.h" bodystart="103" bodyend="105"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Synchronous publish/subscribe event broker. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Provides a decoupled event system. Modules can subscribe to specific topics and receive callbacks when events are published.</para>
+<para>Uses a static caller-provided array for storing subscriptions (zero allocation). </para>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_PUBSUB_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_PUBSUB_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../common/syn_defs.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stddef.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight></codeline>
+<codeline lineno="25" refid="syn__pubsub_8h_1ab8cd36cd4c0e478693a0912a904b2f92" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_PUBSUB_TOPIC_ALL<sp/>0xFFFF</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight></codeline>
+<codeline lineno="35" refid="syn__pubsub_8h_1a1b8471d53cde35490ee59b2af5dedf25" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>void<sp/>(*<ref refid="syn__pubsub_8h_1a1b8471d53cde35490ee59b2af5dedf25" kindref="member">SYN_PubSubHandler</ref>)(uint16_t<sp/>topic,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*payload,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>len,<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*ctx);</highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight></codeline>
+<codeline lineno="41" refid="structSYN__PubSubSub" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="42" refid="structSYN__PubSubSub_1aac7198c686f2202b40de442c4ca94cbe" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/><ref refid="structSYN__PubSubSub_1aac7198c686f2202b40de442c4ca94cbe" kindref="member">topic</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="43" refid="structSYN__PubSubSub_1a7d7a859e56298a9767f99bf5c7d3bc1c" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__pubsub_8h_1a1b8471d53cde35490ee59b2af5dedf25" kindref="member">SYN_PubSubHandler</ref><sp/><ref refid="structSYN__PubSubSub_1a7d7a859e56298a9767f99bf5c7d3bc1c" kindref="member">handler</ref>;<sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="44" refid="structSYN__PubSubSub_1a0f2d5d9647d9d80f61414ea1fa6abd09" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*<ref refid="structSYN__PubSubSub_1a0f2d5d9647d9d80f61414ea1fa6abd09" kindref="member">ctx</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="45"><highlight class="normal">}<sp/><ref refid="structSYN__PubSubSub" kindref="compound">SYN_PubSubSub</ref>;</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"></highlight></codeline>
+<codeline lineno="48" refid="structSYN__PubSubBroker" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="49" refid="structSYN__PubSubBroker_1aae620cb6fe5e69b331d1673fc51f4ae7" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structSYN__PubSubSub" kindref="compound">SYN_PubSubSub</ref><sp/>*<ref refid="structSYN__PubSubBroker_1aae620cb6fe5e69b331d1673fc51f4ae7" kindref="member">subs</ref>;<sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="50" refid="structSYN__PubSubBroker_1a596f253d98b2ca062ca247d2852fe62e" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="structSYN__PubSubBroker_1a596f253d98b2ca062ca247d2852fe62e" kindref="member">capacity</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="51" refid="structSYN__PubSubBroker_1a24084e016a61c438a598046173df76fa" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="structSYN__PubSubBroker_1a24084e016a61c438a598046173df76fa" kindref="member">count</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="52"><highlight class="normal">}<sp/><ref refid="structSYN__PubSubBroker" kindref="compound">SYN_PubSubBroker</ref>;</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"></highlight></codeline>
+<codeline lineno="60"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__pubsub_8h_1ab545ffd9ed09fd6aa0c1683cadadbc0a" kindref="member">syn_pubsub_init</ref>(<ref refid="structSYN__PubSubBroker" kindref="compound">SYN_PubSubBroker</ref><sp/>*broker,<sp/><ref refid="structSYN__PubSubSub" kindref="compound">SYN_PubSubSub</ref><sp/>*sub_array,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>capacity);</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"></highlight></codeline>
+<codeline lineno="70"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__pubsub_8h_1a8c2172d9d09164235e3c5e06aa22daf4" kindref="member">syn_pubsub_subscribe</ref>(<ref refid="structSYN__PubSubBroker" kindref="compound">SYN_PubSubBroker</ref><sp/>*broker,<sp/>uint16_t<sp/>topic,<sp/><ref refid="syn__pubsub_8h_1a1b8471d53cde35490ee59b2af5dedf25" kindref="member">SYN_PubSubHandler</ref><sp/>handler,<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*ctx);</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"></highlight></codeline>
+<codeline lineno="79"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__pubsub_8h_1af35173a766578fe4afd0996f969fdd6a" kindref="member">syn_pubsub_unsubscribe</ref>(<ref refid="structSYN__PubSubBroker" kindref="compound">SYN_PubSubBroker</ref><sp/>*broker,<sp/>uint16_t<sp/>topic,<sp/><ref refid="syn__pubsub_8h_1a1b8471d53cde35490ee59b2af5dedf25" kindref="member">SYN_PubSubHandler</ref><sp/>handler);</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"></highlight></codeline>
+<codeline lineno="88"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__pubsub_8h_1adea9a1ff40cbf9e9d400a17fbc16e183" kindref="member">syn_pubsub_publish</ref>(<ref refid="structSYN__PubSubBroker" kindref="compound">SYN_PubSubBroker</ref><sp/>*broker,<sp/>uint16_t<sp/>topic,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*payload,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>len);</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"></highlight></codeline>
+<codeline lineno="95" refid="syn__pubsub_8h_1a4963c7d52db5055788269edb7218d581" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="syn__pubsub_8h_1a4963c7d52db5055788269edb7218d581" kindref="member">syn_pubsub_count</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__PubSubBroker" kindref="compound">SYN_PubSubBroker</ref><sp/>*broker)<sp/>{</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>broker-&gt;<ref refid="structSYN__PubSubBroker_1a24084e016a61c438a598046173df76fa" kindref="member">count</ref>;</highlight></codeline>
+<codeline lineno="97"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"></highlight></codeline>
+<codeline lineno="103" refid="syn__pubsub_8h_1ac51bdaa854c718f55ba0d380d405d959" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__pubsub_8h_1ac51bdaa854c718f55ba0d380d405d959" kindref="member">syn_pubsub_reset</ref>(<ref refid="structSYN__PubSubBroker" kindref="compound">SYN_PubSubBroker</ref><sp/>*broker)<sp/>{</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/><sp/><sp/><sp/>broker-&gt;<ref refid="structSYN__PubSubBroker_1a24084e016a61c438a598046173df76fa" kindref="member">count</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="105"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"></highlight></codeline>
+<codeline lineno="107"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="108"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="109"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="110"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">//<sp/>SYN_PUBSUB_H</highlight><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/util/syn_pubsub.h"/>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,458 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__watchdog_8h" kind="file" language="C++">
+    <compoundname>syn_watchdog.h</compoundname>
+    <includes refid="syn__defs_8h" local="yes">../common/syn_defs.h</includes>
+    <includes refid="syn__port__system_8h" local="yes">../port/syn_port_system.h</includes>
+    <includes refid="syn__errlog_8h" local="yes">../system/syn_errlog.h</includes>
+    <includes local="no">stdbool.h</includes>
+    <includedby refid="syn__watchdog_8c" local="yes">src/syntropic/sched/syn_watchdog.c</includedby>
+    <includedby refid="syntropic_8h" local="yes">src/syntropic/syntropic.h</includedby>
+    <incdepgraph>
+      <node id="6">
+        <label>../common/syn_compiler.h</label>
+        <link refid="syn__compiler_8h"/>
+      </node>
+      <node id="2">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>../port/syn_port_system.h</label>
+        <link refid="syn__port__system_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/sched/syn_watchdog.h</label>
+        <link refid="syn__watchdog_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>../system/syn_errlog.h</label>
+        <link refid="syn__errlog_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>stdbool.h</label>
+      </node>
+      <node id="4">
+        <label>stddef.h</label>
+      </node>
+      <node id="3">
+        <label>stdint.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="2">
+        <label>src/syntropic/sched/syn_watchdog.c</label>
+        <link refid="syn__watchdog_8c"/>
+      </node>
+      <node id="1">
+        <label>src/syntropic/sched/syn_watchdog.h</label>
+        <link refid="syn__watchdog_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>src/syntropic/syntropic.h</label>
+        <link refid="syntropic_8h"/>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="structSYN__WDT__Entry" prot="public">SYN_WDT_Entry</innerclass>
+    <innerclass refid="structSYN__Watchdog" prot="public">SYN_Watchdog</innerclass>
+    <sectiondef kind="typedef">
+      <memberdef kind="typedef" id="syn__watchdog_8h_1adf0200388d5327c4dc00457eb2c384a5" prot="public" static="no">
+        <type>void(*</type>
+        <definition>typedef void(* SYN_WDT_TimeoutCallback) (struct SYN_Watchdog *wdt, const SYN_WDT_Entry *entry, void *ctx)</definition>
+        <argsstring>)(struct SYN_Watchdog *wdt, const SYN_WDT_Entry *entry, void *ctx)</argsstring>
+        <name>SYN_WDT_TimeoutCallback</name>
+        <briefdescription>
+<para>Called when a task misses its check-in deadline. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>wdt</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Watchdog instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>entry</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The entry that timed out. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>ctx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>User context. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/sched/syn_watchdog.h" line="64" column="9" bodyfile="src/syntropic/sched/syn_watchdog.h" bodystart="64" bodyend="-1"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__watchdog_8h_1a3ac9a3ed9c1aaa8ae7c9e33c60d7a55e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_watchdog_init</definition>
+        <argsstring>(SYN_Watchdog *wdt, SYN_WDT_Entry *entries, uint8_t capacity, SYN_WDT_TimeoutCallback callback, void *ctx)</argsstring>
+        <name>syn_watchdog_init</name>
+        <param>
+          <type><ref refid="structSYN__Watchdog" kindref="compound">SYN_Watchdog</ref> *</type>
+          <declname>wdt</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__WDT__Entry" kindref="compound">SYN_WDT_Entry</ref> *</type>
+          <declname>entries</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>capacity</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__watchdog_8h_1adf0200388d5327c4dc00457eb2c384a5" kindref="member">SYN_WDT_TimeoutCallback</ref></type>
+          <declname>callback</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>ctx</declname>
+        </param>
+        <briefdescription>
+<para>Initialize the watchdog monitor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>wdt</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Watchdog instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>entries</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Array of entries (caller-owned). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>capacity</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Maximum number of monitored tasks. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>callback</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Timeout handler. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>ctx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Context for callback. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/sched/syn_watchdog.h" line="91" column="6" bodyfile="src/syntropic/sched/syn_watchdog.c" bodystart="20" bodyend="35" declfile="src/syntropic/sched/syn_watchdog.h" declline="91" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__watchdog_8h_1ad3f59b704a8bbfe504f174a88a72eb1c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int8_t</type>
+        <definition>int8_t syn_watchdog_register</definition>
+        <argsstring>(SYN_Watchdog *wdt, const char *name, uint32_t timeout_ms)</argsstring>
+        <name>syn_watchdog_register</name>
+        <param>
+          <type><ref refid="structSYN__Watchdog" kindref="compound">SYN_Watchdog</ref> *</type>
+          <declname>wdt</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>name</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>timeout_ms</declname>
+        </param>
+        <briefdescription>
+<para>Register a task for monitoring. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>wdt</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Watchdog. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>name</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Task name. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>timeout_ms</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Maximum allowed time between check-ins. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Task ID (index) for use with <ref refid="syn__watchdog_8h_1ad3b542ef13965b328e41be4db3ced7d4" kindref="member">syn_watchdog_checkin()</ref>, or -1 if full. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/sched/syn_watchdog.h" line="103" column="8" bodyfile="src/syntropic/sched/syn_watchdog.c" bodystart="37" bodyend="56" declfile="src/syntropic/sched/syn_watchdog.h" declline="103" declcolumn="8"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__watchdog_8h_1ad3b542ef13965b328e41be4db3ced7d4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_watchdog_checkin</definition>
+        <argsstring>(SYN_Watchdog *wdt, int8_t id)</argsstring>
+        <name>syn_watchdog_checkin</name>
+        <param>
+          <type><ref refid="structSYN__Watchdog" kindref="compound">SYN_Watchdog</ref> *</type>
+          <declname>wdt</declname>
+        </param>
+        <param>
+          <type>int8_t</type>
+          <declname>id</declname>
+        </param>
+        <briefdescription>
+<para>Check in a task (reset its timeout). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>wdt</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Watchdog. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>id</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Task ID returned by <ref refid="syn__watchdog_8h_1ad3f59b704a8bbfe504f174a88a72eb1c" kindref="member">syn_watchdog_register()</ref>. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/sched/syn_watchdog.h" line="112" column="6" bodyfile="src/syntropic/sched/syn_watchdog.c" bodystart="58" bodyend="65" declfile="src/syntropic/sched/syn_watchdog.h" declline="112" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__watchdog_8h_1aada245dc5b84b8be3db4998d3869937e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_watchdog_unregister</definition>
+        <argsstring>(SYN_Watchdog *wdt, int8_t id)</argsstring>
+        <name>syn_watchdog_unregister</name>
+        <param>
+          <type><ref refid="structSYN__Watchdog" kindref="compound">SYN_Watchdog</ref> *</type>
+          <declname>wdt</declname>
+        </param>
+        <param>
+          <type>int8_t</type>
+          <declname>id</declname>
+        </param>
+        <briefdescription>
+<para>Unregister a task. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>wdt</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Watchdog. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>id</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Task ID returned by <ref refid="syn__watchdog_8h_1ad3f59b704a8bbfe504f174a88a72eb1c" kindref="member">syn_watchdog_register()</ref>. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/sched/syn_watchdog.h" line="120" column="6" bodyfile="src/syntropic/sched/syn_watchdog.c" bodystart="67" bodyend="74" declfile="src/syntropic/sched/syn_watchdog.h" declline="120" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__watchdog_8h_1a6ca86cbf2e436742ec051300cf296471" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_watchdog_update</definition>
+        <argsstring>(SYN_Watchdog *wdt)</argsstring>
+        <name>syn_watchdog_update</name>
+        <param>
+          <type><ref refid="structSYN__Watchdog" kindref="compound">SYN_Watchdog</ref> *</type>
+          <declname>wdt</declname>
+        </param>
+        <briefdescription>
+<para>Check all tasks for timeouts. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Call from your main loop or a periodic timer. If any task has exceeded its timeout, the callback is invoked.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>wdt</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Watchdog instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/sched/syn_watchdog.h" line="130" column="6" bodyfile="src/syntropic/sched/syn_watchdog.c" bodystart="76" bodyend="98" declfile="src/syntropic/sched/syn_watchdog.h" declline="130" declcolumn="6"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Task-level watchdog monitor. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Each registered task must &quot;check in&quot; periodically. If any task misses its deadline, the watchdog fires a callback (typically system reset).</para>
+<para>This is distinct from a hardware watchdog — it monitors individual software tasks, not just the main loop.</para>
+<para><simplesect kind="par"><title>Usage</title><para><programlisting><codeline><highlight class="keyword">static</highlight><highlight class="normal"><sp/><ref refid="structSYN__Watchdog" kindref="compound">SYN_Watchdog</ref><sp/>wdt;</highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/><ref refid="structSYN__WDT__Entry" kindref="compound">SYN_WDT_Entry</ref><sp/>entries[3];</highlight></codeline>
+<codeline><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__watchdog_8c_1a3ac9a3ed9c1aaa8ae7c9e33c60d7a55e" kindref="member">syn_watchdog_init</ref>(&amp;wdt,<sp/>entries,<sp/>3,<sp/>on_timeout,<sp/>NULL);</highlight></codeline>
+<codeline><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>id0<sp/>=<sp/><ref refid="syn__watchdog_8c_1ad3f59b704a8bbfe504f174a88a72eb1c" kindref="member">syn_watchdog_register</ref>(&amp;wdt,<sp/></highlight><highlight class="stringliteral">&quot;sensor&quot;</highlight><highlight class="normal">,<sp/>5000);<sp/><sp/></highlight><highlight class="comment">//<sp/>5s<sp/>timeout</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>id1<sp/>=<sp/><ref refid="syn__watchdog_8c_1ad3f59b704a8bbfe504f174a88a72eb1c" kindref="member">syn_watchdog_register</ref>(&amp;wdt,<sp/></highlight><highlight class="stringliteral">&quot;comms&quot;</highlight><highlight class="normal">,<sp/><sp/>2000);</highlight></codeline>
+<codeline><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="comment">//<sp/>In<sp/>each<sp/>task:</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__watchdog_8c_1ad3b542ef13965b328e41be4db3ced7d4" kindref="member">syn_watchdog_checkin</ref>(&amp;wdt,<sp/>id0);</highlight></codeline>
+<codeline><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="comment">//<sp/>In<sp/>main<sp/>loop:</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__watchdog_8c_1a6ca86cbf2e436742ec051300cf296471" kindref="member">syn_watchdog_update</ref>(&amp;wdt);</highlight></codeline>
+</programlisting> </para>
+</simplesect>
+</para>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_WATCHDOG_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_WATCHDOG_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../common/syn_defs.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../port/syn_port_system.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../system/syn_errlog.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Watchdog<sp/>entry<sp/>───────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight></codeline>
+<codeline lineno="46" refid="structSYN__WDT__Entry" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="47" refid="structSYN__WDT__Entry_1a69fdd1ba16e6fd531fbe88a47b0815c4" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/><sp/>*<ref refid="structSYN__WDT__Entry_1a69fdd1ba16e6fd531fbe88a47b0815c4" kindref="member">name</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="48" refid="structSYN__WDT__Entry_1a5b30524c83b1228ec867313fd5186a03" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__WDT__Entry_1a5b30524c83b1228ec867313fd5186a03" kindref="member">timeout_ms</ref>;<sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="49" refid="structSYN__WDT__Entry_1af2f7bd0b534ba2e273046158b931f1d7" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__WDT__Entry_1af2f7bd0b534ba2e273046158b931f1d7" kindref="member">last_checkin</ref>;<sp/><sp/></highlight></codeline>
+<codeline lineno="50" refid="structSYN__WDT__Entry_1a8f5d737b3cdf15cf6992e4a3b5f84b0b" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__WDT__Entry_1a8f5d737b3cdf15cf6992e4a3b5f84b0b" kindref="member">active</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="51"><highlight class="normal">}<sp/><ref refid="structSYN__WDT__Entry" kindref="compound">SYN_WDT_Entry</ref>;</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"></highlight></codeline>
+<codeline lineno="53"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Callback<sp/>─────────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="54"><highlight class="normal"></highlight></codeline>
+<codeline lineno="55"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structSYN__Watchdog" kindref="compound">SYN_Watchdog</ref>;</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"></highlight></codeline>
+<codeline lineno="64" refid="syn__watchdog_8h_1adf0200388d5327c4dc00457eb2c384a5" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>void<sp/>(*<ref refid="syn__watchdog_8h_1adf0200388d5327c4dc00457eb2c384a5" kindref="member">SYN_WDT_TimeoutCallback</ref>)(</highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structSYN__Watchdog" kindref="compound">SYN_Watchdog</ref><sp/>*wdt,</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__WDT__Entry" kindref="compound">SYN_WDT_Entry</ref><sp/>*entry,</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*<ref refid="structSYN__Watchdog_1af70baaf334cb8dfa2d2ee1ea5a8750a2" kindref="member">ctx</ref>);</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"></highlight></codeline>
+<codeline lineno="68"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Watchdog<sp/>instance<sp/>────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="69"><highlight class="normal"></highlight></codeline>
+<codeline lineno="71" refid="structSYN__Watchdog" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structSYN__Watchdog" kindref="compound">SYN_Watchdog</ref><sp/>{</highlight></codeline>
+<codeline lineno="72" refid="structSYN__Watchdog_1a7dc367cf478c93bc8e2229eb189b1cd8" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structSYN__WDT__Entry" kindref="compound">SYN_WDT_Entry</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<ref refid="structSYN__Watchdog_1a7dc367cf478c93bc8e2229eb189b1cd8" kindref="member">entries</ref>;<sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="73" refid="structSYN__Watchdog_1acfa26d9eeae4bebd3a09e1e99e15d10a" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__Watchdog_1acfa26d9eeae4bebd3a09e1e99e15d10a" kindref="member">capacity</ref>;<sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="74" refid="structSYN__Watchdog_1a36b165497b448dfdfcba6cbe245871fe" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__Watchdog_1a36b165497b448dfdfcba6cbe245871fe" kindref="member">count</ref>;<sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="75" refid="structSYN__Watchdog_1a458108eda68e494c2b8a46b3195a0aba" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__watchdog_8h_1adf0200388d5327c4dc00457eb2c384a5" kindref="member">SYN_WDT_TimeoutCallback</ref><sp/><ref refid="structSYN__Watchdog_1a458108eda68e494c2b8a46b3195a0aba" kindref="member">callback</ref>;<sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="76" refid="structSYN__Watchdog_1af70baaf334cb8dfa2d2ee1ea5a8750a2" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<ref refid="structSYN__Watchdog_1af70baaf334cb8dfa2d2ee1ea5a8750a2" kindref="member">ctx</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="77" refid="structSYN__Watchdog_1a0ff1c0f4f7579f8aa10e165918813e25" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structSYN__ErrLog" kindref="compound">SYN_ErrLog</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<ref refid="structSYN__Watchdog_1a0ff1c0f4f7579f8aa10e165918813e25" kindref="member">errlog</ref>;<sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="78"><highlight class="normal">}<sp/><ref refid="structSYN__Watchdog" kindref="compound">SYN_Watchdog</ref>;</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"></highlight></codeline>
+<codeline lineno="80"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>API<sp/>──────────────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="81"><highlight class="normal"></highlight></codeline>
+<codeline lineno="91"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__watchdog_8h_1a3ac9a3ed9c1aaa8ae7c9e33c60d7a55e" kindref="member">syn_watchdog_init</ref>(<ref refid="structSYN__Watchdog" kindref="compound">SYN_Watchdog</ref><sp/>*wdt,</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__WDT__Entry" kindref="compound">SYN_WDT_Entry</ref><sp/>*entries,<sp/>uint8_t<sp/>capacity,</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__watchdog_8h_1adf0200388d5327c4dc00457eb2c384a5" kindref="member">SYN_WDT_TimeoutCallback</ref><sp/>callback,<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*ctx);</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"></highlight></codeline>
+<codeline lineno="103"><highlight class="normal">int8_t<sp/><ref refid="syn__watchdog_8h_1ad3f59b704a8bbfe504f174a88a72eb1c" kindref="member">syn_watchdog_register</ref>(<ref refid="structSYN__Watchdog" kindref="compound">SYN_Watchdog</ref><sp/>*wdt,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*name,</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>timeout_ms);</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"></highlight></codeline>
+<codeline lineno="112"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__watchdog_8h_1ad3b542ef13965b328e41be4db3ced7d4" kindref="member">syn_watchdog_checkin</ref>(<ref refid="structSYN__Watchdog" kindref="compound">SYN_Watchdog</ref><sp/>*wdt,<sp/>int8_t<sp/></highlight><highlight class="keywordtype">id</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="113"><highlight class="normal"></highlight></codeline>
+<codeline lineno="120"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__watchdog_8h_1aada245dc5b84b8be3db4998d3869937e" kindref="member">syn_watchdog_unregister</ref>(<ref refid="structSYN__Watchdog" kindref="compound">SYN_Watchdog</ref><sp/>*wdt,<sp/>int8_t<sp/></highlight><highlight class="keywordtype">id</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="121"><highlight class="normal"></highlight></codeline>
+<codeline lineno="130"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__watchdog_8h_1a6ca86cbf2e436742ec051300cf296471" kindref="member">syn_watchdog_update</ref>(<ref refid="structSYN__Watchdog" kindref="compound">SYN_Watchdog</ref><sp/>*wdt);</highlight></codeline>
+<codeline lineno="131"><highlight class="normal"></highlight></codeline>
+<codeline lineno="132"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="133"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="134"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="135"><highlight class="normal"></highlight></codeline>
+<codeline lineno="136"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_WATCHDOG_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/sched/syn_watchdog.h"/>
+  </compounddef>
+</doxygen>

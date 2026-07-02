@@ -1,0 +1,1019 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__router_8c" kind="file" language="C++">
+    <compoundname>syn_router.c</compoundname>
+    <includes refid="syn__router_8h" local="yes">syn_router.h</includes>
+    <includes refid="syn__assert_8h" local="yes">../util/syn_assert.h</includes>
+    <includes local="no">string.h</includes>
+    <incdepgraph>
+      <node id="9">
+        <label>../common/syn_compiler.h</label>
+        <link refid="syn__compiler_8h"/>
+      </node>
+      <node id="3">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/net/syn_router.c</label>
+        <link refid="syn__router_8c"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>syn_router.h</label>
+        <link refid="syn__router_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>syn_transport.h</label>
+        <link refid="syn__transport_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>../port/syn_port_system.h</label>
+        <link refid="syn__port__system_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="10">
+        <label>../util/syn_assert.h</label>
+        <link refid="syn__assert_8h"/>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>stdbool.h</label>
+      </node>
+      <node id="5">
+        <label>stddef.h</label>
+      </node>
+      <node id="4">
+        <label>stdint.h</label>
+      </node>
+      <node id="11">
+        <label>string.h</label>
+      </node>
+    </incdepgraph>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__router_8c_1aee6ac3b70a48ec93fc85bf94dfa37ac0" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>size_t</type>
+        <definition>static size_t serialize_packet</definition>
+        <argsstring>(const SYN_Packet *pkt, uint8_t *buf)</argsstring>
+        <name>serialize_packet</name>
+        <param>
+          <type>const <ref refid="structSYN__Packet" kindref="compound">SYN_Packet</ref> *</type>
+          <declname>pkt</declname>
+        </param>
+        <param>
+          <type>uint8_t *</type>
+          <declname>buf</declname>
+        </param>
+        <briefdescription>
+<para>Serialize a packet into a wire-format buffer. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>pkt</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Packet to serialize. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>[out] Output buffer (header + payload). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Total bytes written. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/net/syn_router.c" line="25" column="15" bodyfile="src/syntropic/net/syn_router.c" bodystart="25" bodyend="37"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__router_8c_1ab56758626d705339c097a5d05fadccb6" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>static bool deserialize_packet</definition>
+        <argsstring>(const uint8_t *buf, size_t len, SYN_Packet *pkt)</argsstring>
+        <name>deserialize_packet</name>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>len</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__Packet" kindref="compound">SYN_Packet</ref> *</type>
+          <declname>pkt</declname>
+        </param>
+        <briefdescription>
+<para>Deserialize a wire-format buffer into a packet. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Input buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Buffer length. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>pkt</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>[out] Parsed packet. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/net/syn_router.c" line="46" column="13" bodyfile="src/syntropic/net/syn_router.c" bodystart="46" bodyend="64"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__router_8c_1a2bfbb1c7c2f38edc3ba34f7d065e2cb6" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void send_ack</definition>
+        <argsstring>(SYN_Router *r, uint8_t dst, uint8_t seq)</argsstring>
+        <name>send_ack</name>
+        <param>
+          <type><ref refid="structSYN__Router" kindref="compound">SYN_Router</ref> *</type>
+          <declname>r</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>dst</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>seq</declname>
+        </param>
+        <briefdescription>
+<para>Send an ACK packet to the source. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>r</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Router instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dst</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Destination node to acknowledge. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>seq</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Sequence number being acknowledged. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/net/syn_router.c" line="74" column="13" bodyfile="src/syntropic/net/syn_router.c" bodystart="74" bodyend="88"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__router_8c_1a0747dd6df417b7595572f4e5b3f7add0" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void handle_ack</definition>
+        <argsstring>(SYN_Router *r, uint8_t src, uint8_t seq)</argsstring>
+        <name>handle_ack</name>
+        <param>
+          <type><ref refid="structSYN__Router" kindref="compound">SYN_Router</ref> *</type>
+          <declname>r</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>src</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>seq</declname>
+        </param>
+        <briefdescription>
+<para>Handle an incoming ACK by clearing the pending entry. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>r</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Router instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>src</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Source node ID. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>seq</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Sequence number. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/net/syn_router.c" line="96" column="13" bodyfile="src/syntropic/net/syn_router.c" bodystart="96" bodyend="107"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__router_8c_1abb930d4fdf0d1d9366e36583bd10b0b6" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>static bool queue_pending</definition>
+        <argsstring>(SYN_Router *r, uint8_t dst, uint8_t type, uint8_t seq, const uint8_t *data, uint8_t len)</argsstring>
+        <name>queue_pending</name>
+        <param>
+          <type><ref refid="structSYN__Router" kindref="compound">SYN_Router</ref> *</type>
+          <declname>r</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>dst</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>type</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>seq</declname>
+        </param>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>len</declname>
+        </param>
+        <briefdescription>
+<para>Queue a pending ACK entry for reliable delivery. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>r</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Router instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dst</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Destination node ID. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>type</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Message type. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>seq</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Sequence number. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>data</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Payload data. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Payload length. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if queued successfully. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/net/syn_router.c" line="119" column="13" bodyfile="src/syntropic/net/syn_router.c" bodystart="119" bodyend="139"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__router_8c_1a8efa7ba7afd3fae894508d102ca77a76" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void check_retries</definition>
+        <argsstring>(SYN_Router *r)</argsstring>
+        <name>check_retries</name>
+        <param>
+          <type><ref refid="structSYN__Router" kindref="compound">SYN_Router</ref> *</type>
+          <declname>r</declname>
+        </param>
+        <briefdescription>
+<para>Retry pending packets that have timed out. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>r</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Router instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/net/syn_router.c" line="145" column="13" bodyfile="src/syntropic/net/syn_router.c" bodystart="145" bodyend="182"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__router_8c_1a2b616bdc4b19a34276701588adc9ae27" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_router_init</definition>
+        <argsstring>(SYN_Router *r, uint8_t node_id, SYN_Transport *transport, SYN_RouterHandler *handlers, uint8_t handler_cap)</argsstring>
+        <name>syn_router_init</name>
+        <param>
+          <type><ref refid="structSYN__Router" kindref="compound">SYN_Router</ref> *</type>
+          <declname>r</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>node_id</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__Transport" kindref="compound">SYN_Transport</ref> *</type>
+          <declname>transport</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__RouterHandler" kindref="compound">SYN_RouterHandler</ref> *</type>
+          <declname>handlers</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>handler_cap</declname>
+        </param>
+        <briefdescription>
+<para>Initialize packet router. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>r</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Router instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>node_id</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>This node&apos;s ID (0-254). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>transport</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Transport to send/receive over. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>handlers</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Caller-owned handler array. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>handler_cap</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Array capacity. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/net/syn_router.c" line="186" column="6" bodyfile="src/syntropic/net/syn_router.c" bodystart="186" bodyend="201"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__router_8c_1abc43a5752d269323a7e808641a9c1353" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_router_enable_ack</definition>
+        <argsstring>(SYN_Router *r, SYN_PendingAck *pending, uint8_t cap, uint16_t timeout_ms, uint8_t max_retries)</argsstring>
+        <name>syn_router_enable_ack</name>
+        <param>
+          <type><ref refid="structSYN__Router" kindref="compound">SYN_Router</ref> *</type>
+          <declname>r</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__PendingAck" kindref="compound">SYN_PendingAck</ref> *</type>
+          <declname>pending</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>cap</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>timeout_ms</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>max_retries</declname>
+        </param>
+        <briefdescription>
+<para>Enable reliable delivery (ACK/retry). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>r</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Router. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>pending</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Caller-owned pending ACK array. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>cap</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Array capacity. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>timeout_ms</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>ACK timeout per attempt. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>max_retries</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Max retransmissions before giving up. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/net/syn_router.c" line="203" column="6" bodyfile="src/syntropic/net/syn_router.c" bodystart="203" bodyend="216"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__router_8c_1aa74e4aa05980c16cc9f567808331c452" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_router_register</definition>
+        <argsstring>(SYN_Router *r, uint8_t type, SYN_RouterHandlerFn handler, void *ctx)</argsstring>
+        <name>syn_router_register</name>
+        <param>
+          <type><ref refid="structSYN__Router" kindref="compound">SYN_Router</ref> *</type>
+          <declname>r</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>type</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__router_8h_1aecc5727eb618d707279a135793b49bfa" kindref="member">SYN_RouterHandlerFn</ref></type>
+          <declname>handler</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>ctx</declname>
+        </param>
+        <briefdescription>
+<para>Register a handler for a message type. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>r</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Router. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>type</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Message type to handle. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>handler</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Handler function. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>ctx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>User context. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if registered, false if handler table is full. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/net/syn_router.c" line="218" column="6" bodyfile="src/syntropic/net/syn_router.c" bodystart="218" bodyend="230"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__router_8c_1a3af1249db4c838daed8853e6ccebb456" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_router_send</definition>
+        <argsstring>(SYN_Router *r, uint8_t dst, uint8_t type, const uint8_t *data, uint8_t len, bool reliable)</argsstring>
+        <name>syn_router_send</name>
+        <param>
+          <type><ref refid="structSYN__Router" kindref="compound">SYN_Router</ref> *</type>
+          <declname>r</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>dst</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>type</declname>
+        </param>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>len</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+          <declname>reliable</declname>
+        </param>
+        <briefdescription>
+<para>Send a message. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>r</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Router. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dst</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Destination node ID (0xFF = broadcast). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>type</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Message type. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>data</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Payload. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Payload length. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>reliable</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>If true and ACK is enabled, wait for ACK with retry. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if sent (or queued for retry). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/net/syn_router.c" line="232" column="6" bodyfile="src/syntropic/net/syn_router.c" bodystart="232" bodyend="261"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__router_8c_1a50f1c99c01398a98c21ae031f431052f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_router_poll</definition>
+        <argsstring>(SYN_Router *r)</argsstring>
+        <name>syn_router_poll</name>
+        <param>
+          <type><ref refid="structSYN__Router" kindref="compound">SYN_Router</ref> *</type>
+          <declname>r</declname>
+        </param>
+        <briefdescription>
+<para>Poll for incoming packets and dispatch handlers. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Also checks for ACK timeouts and retransmits if needed. Call from your main loop.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>r</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Router. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/net/syn_router.c" line="263" column="6" bodyfile="src/syntropic/net/syn_router.c" bodystart="263" bodyend="313"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Packet router implementation. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#if<sp/>__has_include(&quot;syn_config.h&quot;)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/>#include<sp/>&quot;syn_config.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="4"><highlight class="normal"></highlight></codeline>
+<codeline lineno="5"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>!defined(SYN_USE_ROUTER)<sp/>||<sp/>SYN_USE_ROUTER</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__router_8h" kindref="compound">syn_router.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../util/syn_assert.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;string.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Serialization<sp/>────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="syn__router_8c_1aee6ac3b70a48ec93fc85bf94dfa37ac0" kindref="member">serialize_packet</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__Packet" kindref="compound">SYN_Packet</ref><sp/>*pkt,<sp/>uint8_t<sp/>*buf)</highlight></codeline>
+<codeline lineno="26"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="27"><highlight class="normal"><sp/><sp/><sp/><sp/>buf[0]<sp/>=<sp/>pkt-&gt;<ref refid="structSYN__Packet_1a02aff18e99836e84deb66b1e6d22ed99" kindref="member">src</ref>;</highlight></codeline>
+<codeline lineno="28"><highlight class="normal"><sp/><sp/><sp/><sp/>buf[1]<sp/>=<sp/>pkt-&gt;<ref refid="structSYN__Packet_1a5b76f363f7c1271195f59728713661ab" kindref="member">dst</ref>;</highlight></codeline>
+<codeline lineno="29"><highlight class="normal"><sp/><sp/><sp/><sp/>buf[2]<sp/>=<sp/>pkt-&gt;<ref refid="structSYN__Packet_1a85d917313f0cf951804abafe465f3172" kindref="member">type</ref>;</highlight></codeline>
+<codeline lineno="30"><highlight class="normal"><sp/><sp/><sp/><sp/>buf[3]<sp/>=<sp/>pkt-&gt;<ref refid="structSYN__Packet_1a2294847300f31e258b77c7046a052256" kindref="member">seq</ref>;</highlight></codeline>
+<codeline lineno="31"><highlight class="normal"><sp/><sp/><sp/><sp/>buf[4]<sp/>=<sp/>pkt-&gt;<ref refid="structSYN__Packet_1a67a012f26f81118cf535c1bf619c29c2" kindref="member">flags</ref>;</highlight></codeline>
+<codeline lineno="32"><highlight class="normal"><sp/><sp/><sp/><sp/>buf[5]<sp/>=<sp/>pkt-&gt;<ref refid="structSYN__Packet_1a94d07c2349fe8a896aaceeb0e0910aee" kindref="member">len</ref>;</highlight></codeline>
+<codeline lineno="33"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(pkt-&gt;<ref refid="structSYN__Packet_1a94d07c2349fe8a896aaceeb0e0910aee" kindref="member">len</ref><sp/>&gt;<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="34"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>memcpy(&amp;buf[<ref refid="syn__router_8h_1a62d14d2cc3456d1df9190ac03e8c111e" kindref="member">SYN_ROUTER_HEADER_SIZE</ref>],<sp/>pkt-&gt;<ref refid="structSYN__Packet_1ae030a39206027d81117342ac357b6706" kindref="member">payload</ref>,<sp/>pkt-&gt;<ref refid="structSYN__Packet_1a94d07c2349fe8a896aaceeb0e0910aee" kindref="member">len</ref>);</highlight></codeline>
+<codeline lineno="35"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="36"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__router_8h_1a62d14d2cc3456d1df9190ac03e8c111e" kindref="member">SYN_ROUTER_HEADER_SIZE</ref><sp/>+<sp/>pkt-&gt;<ref refid="structSYN__Packet_1a94d07c2349fe8a896aaceeb0e0910aee" kindref="member">len</ref>;</highlight></codeline>
+<codeline lineno="37"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight></codeline>
+<codeline lineno="46"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__router_8c_1ab56758626d705339c097a5d05fadccb6" kindref="member">deserialize_packet</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*buf,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>len,<sp/><ref refid="structSYN__Packet" kindref="compound">SYN_Packet</ref><sp/>*pkt)</highlight></codeline>
+<codeline lineno="47"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(len<sp/>&lt;<sp/><ref refid="syn__router_8h_1a62d14d2cc3456d1df9190ac03e8c111e" kindref="member">SYN_ROUTER_HEADER_SIZE</ref>)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"></highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/><sp/><sp/>pkt-&gt;<ref refid="structSYN__Packet_1a02aff18e99836e84deb66b1e6d22ed99" kindref="member">src</ref><sp/><sp/><sp/>=<sp/>buf[0];</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><sp/><sp/><sp/><sp/>pkt-&gt;<ref refid="structSYN__Packet_1a5b76f363f7c1271195f59728713661ab" kindref="member">dst</ref><sp/><sp/><sp/>=<sp/>buf[1];</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/><sp/><sp/>pkt-&gt;<ref refid="structSYN__Packet_1a85d917313f0cf951804abafe465f3172" kindref="member">type</ref><sp/><sp/>=<sp/>buf[2];</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/><sp/><sp/>pkt-&gt;<ref refid="structSYN__Packet_1a2294847300f31e258b77c7046a052256" kindref="member">seq</ref><sp/><sp/><sp/>=<sp/>buf[3];</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/><sp/><sp/>pkt-&gt;<ref refid="structSYN__Packet_1a67a012f26f81118cf535c1bf619c29c2" kindref="member">flags</ref><sp/>=<sp/>buf[4];</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/><sp/><sp/>pkt-&gt;<ref refid="structSYN__Packet_1a94d07c2349fe8a896aaceeb0e0910aee" kindref="member">len</ref><sp/><sp/><sp/>=<sp/>buf[5];</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"></highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(pkt-&gt;<ref refid="structSYN__Packet_1a94d07c2349fe8a896aaceeb0e0910aee" kindref="member">len</ref><sp/>&gt;<sp/><ref refid="syn__router_8h_1a1a09ae5fd2be350cb00437d23e97042b" kindref="member">SYN_ROUTER_MAX_PAYLOAD</ref>)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(len<sp/>&lt;<sp/>(</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal">)<ref refid="syn__router_8h_1a62d14d2cc3456d1df9190ac03e8c111e" kindref="member">SYN_ROUTER_HEADER_SIZE</ref><sp/>+<sp/>pkt-&gt;<ref refid="structSYN__Packet_1a94d07c2349fe8a896aaceeb0e0910aee" kindref="member">len</ref>)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"></highlight></codeline>
+<codeline lineno="60"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(pkt-&gt;<ref refid="structSYN__Packet_1a94d07c2349fe8a896aaceeb0e0910aee" kindref="member">len</ref><sp/>&gt;<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>memcpy(pkt-&gt;<ref refid="structSYN__Packet_1ae030a39206027d81117342ac357b6706" kindref="member">payload</ref>,<sp/>&amp;buf[<ref refid="syn__router_8h_1a62d14d2cc3456d1df9190ac03e8c111e" kindref="member">SYN_ROUTER_HEADER_SIZE</ref>],<sp/>pkt-&gt;<ref refid="structSYN__Packet_1a94d07c2349fe8a896aaceeb0e0910aee" kindref="member">len</ref>);</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="64"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"></highlight></codeline>
+<codeline lineno="66"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>ACK<sp/>helpers<sp/>──────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="67"><highlight class="normal"></highlight></codeline>
+<codeline lineno="74"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__router_8c_1a2bfbb1c7c2f38edc3ba34f7d065e2cb6" kindref="member">send_ack</ref>(<ref refid="structSYN__Router" kindref="compound">SYN_Router</ref><sp/>*r,<sp/>uint8_t<sp/>dst,<sp/>uint8_t<sp/>seq)</highlight></codeline>
+<codeline lineno="75"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structSYN__Packet" kindref="compound">SYN_Packet</ref><sp/>ack;</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/><sp/><sp/>memset(&amp;ack,<sp/>0,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(ack));</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/><sp/><sp/>ack.<ref refid="structSYN__Packet_1a02aff18e99836e84deb66b1e6d22ed99" kindref="member">src</ref><sp/><sp/><sp/>=<sp/>r-&gt;<ref refid="structSYN__Router_1a267a2cb88fa4dc9cb3c7a7ec7d3e1d13" kindref="member">node_id</ref>;</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/><sp/><sp/>ack.<ref refid="structSYN__Packet_1a5b76f363f7c1271195f59728713661ab" kindref="member">dst</ref><sp/><sp/><sp/>=<sp/>dst;</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/><sp/><sp/>ack.<ref refid="structSYN__Packet_1a85d917313f0cf951804abafe465f3172" kindref="member">type</ref><sp/><sp/>=<sp/><ref refid="syn__router_8h_1a0f16fcb0c401f45eb9cc646a7d371e1d" kindref="member">SYN_MSG_ACK</ref>;</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/><sp/><sp/>ack.<ref refid="structSYN__Packet_1a2294847300f31e258b77c7046a052256" kindref="member">seq</ref><sp/><sp/><sp/>=<sp/>seq;</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/>ack.<ref refid="structSYN__Packet_1a67a012f26f81118cf535c1bf619c29c2" kindref="member">flags</ref><sp/>=<sp/><ref refid="syn__router_8h_1a40eb28cab1cbb6e2024b24f33838dade" kindref="member">SYN_PKT_FLAG_IS_ACK</ref>;</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/>ack.<ref refid="structSYN__Packet_1a94d07c2349fe8a896aaceeb0e0910aee" kindref="member">len</ref><sp/><sp/><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"></highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>buf[<ref refid="syn__router_8h_1a62d14d2cc3456d1df9190ac03e8c111e" kindref="member">SYN_ROUTER_HEADER_SIZE</ref>];</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>n<sp/>=<sp/><ref refid="syn__router_8c_1aee6ac3b70a48ec93fc85bf94dfa37ac0" kindref="member">serialize_packet</ref>(&amp;ack,<sp/>buf);</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__transport_8h_1a52679f9a0d69fdc254843656b5ae51d3" kindref="member">syn_transport_send</ref>(r-&gt;<ref refid="structSYN__Router_1ab304a02fdd4bd3b037b753f400f42b02" kindref="member">transport</ref>,<sp/>buf,<sp/>n);</highlight></codeline>
+<codeline lineno="88"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"></highlight></codeline>
+<codeline lineno="96"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__router_8c_1a0747dd6df417b7595572f4e5b3f7add0" kindref="member">handle_ack</ref>(<ref refid="structSYN__Router" kindref="compound">SYN_Router</ref><sp/>*r,<sp/>uint8_t<sp/>src,<sp/>uint8_t<sp/>seq)</highlight></codeline>
+<codeline lineno="97"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(r-&gt;<ref refid="structSYN__Router_1ad5b33ffac95c6153835839e874929e57" kindref="member">pending</ref><sp/>==<sp/>NULL)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"></highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(uint8_t<sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>r-&gt;<ref refid="structSYN__Router_1a6b04e9ad20e76ee86318078b5047b4f8" kindref="member">pending_cap</ref>;<sp/>i++)<sp/>{</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__PendingAck" kindref="compound">SYN_PendingAck</ref><sp/>*p<sp/>=<sp/>&amp;r-&gt;<ref refid="structSYN__Router_1ad5b33ffac95c6153835839e874929e57" kindref="member">pending</ref>[i];</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(p-&gt;<ref refid="structSYN__PendingAck_1aa34ad15d879475913c323d2765d703ed" kindref="member">active</ref><sp/>&amp;&amp;<sp/>p-&gt;<ref refid="structSYN__PendingAck_1a3e8647385d8eafe7e135c9c2a18659d4" kindref="member">dst</ref><sp/>==<sp/>src<sp/>&amp;&amp;<sp/>p-&gt;<ref refid="structSYN__PendingAck_1a8beacacd829a5d2fcd168664e4acbd51" kindref="member">seq</ref><sp/>==<sp/>seq)<sp/>{</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>p-&gt;<ref refid="structSYN__PendingAck_1aa34ad15d879475913c323d2765d703ed" kindref="member">active</ref><sp/>=<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="107"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"></highlight></codeline>
+<codeline lineno="119"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__router_8c_1abb930d4fdf0d1d9366e36583bd10b0b6" kindref="member">queue_pending</ref>(<ref refid="structSYN__Router" kindref="compound">SYN_Router</ref><sp/>*r,<sp/>uint8_t<sp/>dst,<sp/>uint8_t<sp/>type,</highlight></codeline>
+<codeline lineno="120"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>seq,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*data,<sp/>uint8_t<sp/>len)</highlight></codeline>
+<codeline lineno="121"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="122"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(r-&gt;<ref refid="structSYN__Router_1ad5b33ffac95c6153835839e874929e57" kindref="member">pending</ref><sp/>==<sp/>NULL)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="123"><highlight class="normal"></highlight></codeline>
+<codeline lineno="124"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(uint8_t<sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>r-&gt;<ref refid="structSYN__Router_1a6b04e9ad20e76ee86318078b5047b4f8" kindref="member">pending_cap</ref>;<sp/>i++)<sp/>{</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__PendingAck" kindref="compound">SYN_PendingAck</ref><sp/>*p<sp/>=<sp/>&amp;r-&gt;<ref refid="structSYN__Router_1ad5b33ffac95c6153835839e874929e57" kindref="member">pending</ref>[i];</highlight></codeline>
+<codeline lineno="126"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!p-&gt;<ref refid="structSYN__PendingAck_1aa34ad15d879475913c323d2765d703ed" kindref="member">active</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="127"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>p-&gt;<ref refid="structSYN__PendingAck_1a3e8647385d8eafe7e135c9c2a18659d4" kindref="member">dst</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>dst;</highlight></codeline>
+<codeline lineno="128"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>p-&gt;<ref refid="structSYN__PendingAck_1a8beacacd829a5d2fcd168664e4acbd51" kindref="member">seq</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>seq;</highlight></codeline>
+<codeline lineno="129"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>p-&gt;<ref refid="structSYN__PendingAck_1a073c3d4cd36472d54560bfe15e9fddc2" kindref="member">type</ref><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>type;</highlight></codeline>
+<codeline lineno="130"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>p-&gt;<ref refid="structSYN__PendingAck_1a979f7b5128303689d88961eb9b180ca2" kindref="member">retries</ref><sp/><sp/><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="131"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>p-&gt;<ref refid="structSYN__PendingAck_1a118930c919054a8ff0c8b56d7c9f178b" kindref="member">sent_tick</ref><sp/>=<sp/><ref refid="syn__port__system_8h_1a6c7d98587814b2c0d9c09da02d318873" kindref="member">syn_port_get_tick_ms</ref>();</highlight></codeline>
+<codeline lineno="132"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>p-&gt;<ref refid="structSYN__PendingAck_1a81a46e0517ca17c056a0061ba8b24343" kindref="member">len</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>len;</highlight></codeline>
+<codeline lineno="133"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(len<sp/>&gt;<sp/>0)<sp/>memcpy(p-&gt;<ref refid="structSYN__PendingAck_1a5059183f19ad5381c237039afdeda3a0" kindref="member">payload</ref>,<sp/>data,<sp/>len);</highlight></codeline>
+<codeline lineno="134"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>p-&gt;<ref refid="structSYN__PendingAck_1aa34ad15d879475913c323d2765d703ed" kindref="member">active</ref><sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="135"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="137"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="138"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;<sp/><sp/></highlight><highlight class="comment">/*<sp/>pending<sp/>table<sp/>full<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="139"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="140"><highlight class="normal"></highlight></codeline>
+<codeline lineno="145"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__router_8c_1a8efa7ba7afd3fae894508d102ca77a76" kindref="member">check_retries</ref>(<ref refid="structSYN__Router" kindref="compound">SYN_Router</ref><sp/>*r)</highlight></codeline>
+<codeline lineno="146"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="147"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(r-&gt;<ref refid="structSYN__Router_1ad5b33ffac95c6153835839e874929e57" kindref="member">pending</ref><sp/>==<sp/>NULL)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="148"><highlight class="normal"></highlight></codeline>
+<codeline lineno="149"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/>now<sp/>=<sp/><ref refid="syn__port__system_8h_1a6c7d98587814b2c0d9c09da02d318873" kindref="member">syn_port_get_tick_ms</ref>();</highlight></codeline>
+<codeline lineno="150"><highlight class="normal"></highlight></codeline>
+<codeline lineno="151"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(uint8_t<sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>r-&gt;<ref refid="structSYN__Router_1a6b04e9ad20e76ee86318078b5047b4f8" kindref="member">pending_cap</ref>;<sp/>i++)<sp/>{</highlight></codeline>
+<codeline lineno="152"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__PendingAck" kindref="compound">SYN_PendingAck</ref><sp/>*p<sp/>=<sp/>&amp;r-&gt;<ref refid="structSYN__Router_1ad5b33ffac95c6153835839e874929e57" kindref="member">pending</ref>[i];</highlight></codeline>
+<codeline lineno="153"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!p-&gt;<ref refid="structSYN__PendingAck_1aa34ad15d879475913c323d2765d703ed" kindref="member">active</ref>)<sp/></highlight><highlight class="keywordflow">continue</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="154"><highlight class="normal"></highlight></codeline>
+<codeline lineno="155"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>elapsed<sp/>=<sp/>now<sp/>-<sp/>p-&gt;<ref refid="structSYN__PendingAck_1a118930c919054a8ff0c8b56d7c9f178b" kindref="member">sent_tick</ref>;</highlight></codeline>
+<codeline lineno="156"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(elapsed<sp/>&lt;<sp/>r-&gt;ack_timeout_ms)<sp/></highlight><highlight class="keywordflow">continue</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="157"><highlight class="normal"></highlight></codeline>
+<codeline lineno="158"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(p-&gt;<ref refid="structSYN__PendingAck_1a979f7b5128303689d88961eb9b180ca2" kindref="member">retries</ref><sp/>&gt;=<sp/>r-&gt;<ref refid="structSYN__Router_1ae99aa14d530e5bc9160c2d9b9623476d" kindref="member">max_retries</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="159"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>p-&gt;<ref refid="structSYN__PendingAck_1aa34ad15d879475913c323d2765d703ed" kindref="member">active</ref><sp/>=<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="160"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>r-&gt;<ref refid="structSYN__Router_1aa9c5a19ce74dbc6698b0d674392e60cc" kindref="member">drop_count</ref>++;</highlight></codeline>
+<codeline lineno="161"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">continue</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="162"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="163"><highlight class="normal"></highlight></codeline>
+<codeline lineno="164"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Retransmit<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="165"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__Packet" kindref="compound">SYN_Packet</ref><sp/>pkt;</highlight></codeline>
+<codeline lineno="166"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>memset(&amp;pkt,<sp/>0,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(pkt));</highlight></codeline>
+<codeline lineno="167"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>pkt.<ref refid="structSYN__Packet_1a02aff18e99836e84deb66b1e6d22ed99" kindref="member">src</ref><sp/><sp/><sp/>=<sp/>r-&gt;<ref refid="structSYN__Router_1a267a2cb88fa4dc9cb3c7a7ec7d3e1d13" kindref="member">node_id</ref>;</highlight></codeline>
+<codeline lineno="168"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>pkt.<ref refid="structSYN__Packet_1a5b76f363f7c1271195f59728713661ab" kindref="member">dst</ref><sp/><sp/><sp/>=<sp/>p-&gt;<ref refid="structSYN__PendingAck_1a3e8647385d8eafe7e135c9c2a18659d4" kindref="member">dst</ref>;</highlight></codeline>
+<codeline lineno="169"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>pkt.<ref refid="structSYN__Packet_1a85d917313f0cf951804abafe465f3172" kindref="member">type</ref><sp/><sp/>=<sp/>p-&gt;<ref refid="structSYN__PendingAck_1a073c3d4cd36472d54560bfe15e9fddc2" kindref="member">type</ref>;</highlight></codeline>
+<codeline lineno="170"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>pkt.<ref refid="structSYN__Packet_1a2294847300f31e258b77c7046a052256" kindref="member">seq</ref><sp/><sp/><sp/>=<sp/>p-&gt;<ref refid="structSYN__PendingAck_1a8beacacd829a5d2fcd168664e4acbd51" kindref="member">seq</ref>;</highlight></codeline>
+<codeline lineno="171"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>pkt.<ref refid="structSYN__Packet_1a67a012f26f81118cf535c1bf619c29c2" kindref="member">flags</ref><sp/>=<sp/><ref refid="syn__router_8h_1abc7eab4ecc9e2b6285575ad913b55e52" kindref="member">SYN_PKT_FLAG_ACK_REQ</ref>;</highlight></codeline>
+<codeline lineno="172"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>pkt.<ref refid="structSYN__Packet_1a94d07c2349fe8a896aaceeb0e0910aee" kindref="member">len</ref><sp/><sp/><sp/>=<sp/>p-&gt;<ref refid="structSYN__PendingAck_1a81a46e0517ca17c056a0061ba8b24343" kindref="member">len</ref>;</highlight></codeline>
+<codeline lineno="173"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(p-&gt;<ref refid="structSYN__PendingAck_1a81a46e0517ca17c056a0061ba8b24343" kindref="member">len</ref><sp/>&gt;<sp/>0)<sp/>memcpy(pkt.<ref refid="structSYN__Packet_1ae030a39206027d81117342ac357b6706" kindref="member">payload</ref>,<sp/>p-&gt;<ref refid="structSYN__PendingAck_1a5059183f19ad5381c237039afdeda3a0" kindref="member">payload</ref>,<sp/>p-&gt;<ref refid="structSYN__PendingAck_1a81a46e0517ca17c056a0061ba8b24343" kindref="member">len</ref>);</highlight></codeline>
+<codeline lineno="174"><highlight class="normal"></highlight></codeline>
+<codeline lineno="175"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>buf[<ref refid="syn__router_8h_1a62d14d2cc3456d1df9190ac03e8c111e" kindref="member">SYN_ROUTER_HEADER_SIZE</ref><sp/>+<sp/><ref refid="syn__router_8h_1a1a09ae5fd2be350cb00437d23e97042b" kindref="member">SYN_ROUTER_MAX_PAYLOAD</ref>];</highlight></codeline>
+<codeline lineno="176"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>n<sp/>=<sp/><ref refid="syn__router_8c_1aee6ac3b70a48ec93fc85bf94dfa37ac0" kindref="member">serialize_packet</ref>(&amp;pkt,<sp/>buf);</highlight></codeline>
+<codeline lineno="177"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__transport_8h_1a52679f9a0d69fdc254843656b5ae51d3" kindref="member">syn_transport_send</ref>(r-&gt;<ref refid="structSYN__Router_1ab304a02fdd4bd3b037b753f400f42b02" kindref="member">transport</ref>,<sp/>buf,<sp/>n);</highlight></codeline>
+<codeline lineno="178"><highlight class="normal"></highlight></codeline>
+<codeline lineno="179"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>p-&gt;<ref refid="structSYN__PendingAck_1a979f7b5128303689d88961eb9b180ca2" kindref="member">retries</ref>++;</highlight></codeline>
+<codeline lineno="180"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>p-&gt;<ref refid="structSYN__PendingAck_1a118930c919054a8ff0c8b56d7c9f178b" kindref="member">sent_tick</ref><sp/>=<sp/>now;</highlight></codeline>
+<codeline lineno="181"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="182"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="183"><highlight class="normal"></highlight></codeline>
+<codeline lineno="184"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Public<sp/>API<sp/>───────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="185"><highlight class="normal"></highlight></codeline>
+<codeline lineno="186"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__router_8c_1a2b616bdc4b19a34276701588adc9ae27" kindref="member">syn_router_init</ref>(<ref refid="structSYN__Router" kindref="compound">SYN_Router</ref><sp/>*r,<sp/>uint8_t<sp/>node_id,</highlight></codeline>
+<codeline lineno="187"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__Transport" kindref="compound">SYN_Transport</ref><sp/>*transport,</highlight></codeline>
+<codeline lineno="188"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__RouterHandler" kindref="compound">SYN_RouterHandler</ref><sp/>*handlers,<sp/>uint8_t<sp/>handler_cap)</highlight></codeline>
+<codeline lineno="189"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="190"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(r<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="191"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(transport<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="192"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(handlers<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="193"><highlight class="normal"></highlight></codeline>
+<codeline lineno="194"><highlight class="normal"><sp/><sp/><sp/><sp/>memset(r,<sp/>0,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(*r));</highlight></codeline>
+<codeline lineno="195"><highlight class="normal"><sp/><sp/><sp/><sp/>r-&gt;<ref refid="structSYN__Router_1a267a2cb88fa4dc9cb3c7a7ec7d3e1d13" kindref="member">node_id</ref><sp/><sp/><sp/><sp/><sp/>=<sp/>node_id;</highlight></codeline>
+<codeline lineno="196"><highlight class="normal"><sp/><sp/><sp/><sp/>r-&gt;<ref refid="structSYN__Router_1ab304a02fdd4bd3b037b753f400f42b02" kindref="member">transport</ref><sp/><sp/><sp/>=<sp/>transport;</highlight></codeline>
+<codeline lineno="197"><highlight class="normal"><sp/><sp/><sp/><sp/>r-&gt;<ref refid="structSYN__Router_1a2437e7bf5aa50281ee6db321d8b9e265" kindref="member">handlers</ref><sp/><sp/><sp/><sp/>=<sp/>handlers;</highlight></codeline>
+<codeline lineno="198"><highlight class="normal"><sp/><sp/><sp/><sp/>r-&gt;<ref refid="structSYN__Router_1ac08df230d5a6c3b801a3e948a1480ca6" kindref="member">handler_cap</ref><sp/>=<sp/>handler_cap;</highlight></codeline>
+<codeline lineno="199"><highlight class="normal"></highlight></codeline>
+<codeline lineno="200"><highlight class="normal"><sp/><sp/><sp/><sp/>memset(handlers,<sp/>0,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(<ref refid="structSYN__RouterHandler" kindref="compound">SYN_RouterHandler</ref>)<sp/>*<sp/>handler_cap);</highlight></codeline>
+<codeline lineno="201"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="202"><highlight class="normal"></highlight></codeline>
+<codeline lineno="203"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__router_8c_1abc43a5752d269323a7e808641a9c1353" kindref="member">syn_router_enable_ack</ref>(<ref refid="structSYN__Router" kindref="compound">SYN_Router</ref><sp/>*r,<sp/><ref refid="structSYN__PendingAck" kindref="compound">SYN_PendingAck</ref><sp/>*pending,</highlight></codeline>
+<codeline lineno="204"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>cap,<sp/>uint16_t<sp/>timeout_ms,</highlight></codeline>
+<codeline lineno="205"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>max_retries)</highlight></codeline>
+<codeline lineno="206"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="207"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(r<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="208"><highlight class="normal"><sp/><sp/><sp/><sp/>r-&gt;<ref refid="structSYN__Router_1ad5b33ffac95c6153835839e874929e57" kindref="member">pending</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>pending;</highlight></codeline>
+<codeline lineno="209"><highlight class="normal"><sp/><sp/><sp/><sp/>r-&gt;<ref refid="structSYN__Router_1a6b04e9ad20e76ee86318078b5047b4f8" kindref="member">pending_cap</ref><sp/><sp/><sp/><sp/>=<sp/>cap;</highlight></codeline>
+<codeline lineno="210"><highlight class="normal"><sp/><sp/><sp/><sp/>r-&gt;<ref refid="structSYN__Router_1a6986f723a4ac13906bf801e6a8651296" kindref="member">ack_timeout_ms</ref><sp/>=<sp/>timeout_ms;</highlight></codeline>
+<codeline lineno="211"><highlight class="normal"><sp/><sp/><sp/><sp/>r-&gt;<ref refid="structSYN__Router_1ae99aa14d530e5bc9160c2d9b9623476d" kindref="member">max_retries</ref><sp/><sp/><sp/><sp/>=<sp/>max_retries;</highlight></codeline>
+<codeline lineno="212"><highlight class="normal"></highlight></codeline>
+<codeline lineno="213"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(pending<sp/>!=<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="214"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>memset(pending,<sp/>0,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(<ref refid="structSYN__PendingAck" kindref="compound">SYN_PendingAck</ref>)<sp/>*<sp/>cap);</highlight></codeline>
+<codeline lineno="215"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="216"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="217"><highlight class="normal"></highlight></codeline>
+<codeline lineno="218"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__router_8c_1aa74e4aa05980c16cc9f567808331c452" kindref="member">syn_router_register</ref>(<ref refid="structSYN__Router" kindref="compound">SYN_Router</ref><sp/>*r,<sp/>uint8_t<sp/>type,</highlight></codeline>
+<codeline lineno="219"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__router_8h_1aecc5727eb618d707279a135793b49bfa" kindref="member">SYN_RouterHandlerFn</ref><sp/>handler,<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*ctx)</highlight></codeline>
+<codeline lineno="220"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="221"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(r<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="222"><highlight class="normal"></highlight></codeline>
+<codeline lineno="223"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(r-&gt;<ref refid="structSYN__Router_1acbfcbd797a709b893a7e82ac889aa4aa" kindref="member">handler_count</ref><sp/>&gt;=<sp/>r-&gt;<ref refid="structSYN__Router_1ac08df230d5a6c3b801a3e948a1480ca6" kindref="member">handler_cap</ref>)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="224"><highlight class="normal"></highlight></codeline>
+<codeline lineno="225"><highlight class="normal"><sp/><sp/><sp/><sp/>r-&gt;<ref refid="structSYN__Router_1a2437e7bf5aa50281ee6db321d8b9e265" kindref="member">handlers</ref>[r-&gt;<ref refid="structSYN__Router_1acbfcbd797a709b893a7e82ac889aa4aa" kindref="member">handler_count</ref>].<ref refid="structSYN__RouterHandler_1a3b2bc20f840bfcc03d415267452317e8" kindref="member">type</ref><sp/><sp/><sp/><sp/>=<sp/>type;</highlight></codeline>
+<codeline lineno="226"><highlight class="normal"><sp/><sp/><sp/><sp/>r-&gt;<ref refid="structSYN__Router_1a2437e7bf5aa50281ee6db321d8b9e265" kindref="member">handlers</ref>[r-&gt;<ref refid="structSYN__Router_1acbfcbd797a709b893a7e82ac889aa4aa" kindref="member">handler_count</ref>].<ref refid="structSYN__RouterHandler_1a7ee3c93afc4fbd0374da74d16ed88ae6" kindref="member">handler</ref><sp/>=<sp/>handler;</highlight></codeline>
+<codeline lineno="227"><highlight class="normal"><sp/><sp/><sp/><sp/>r-&gt;<ref refid="structSYN__Router_1a2437e7bf5aa50281ee6db321d8b9e265" kindref="member">handlers</ref>[r-&gt;<ref refid="structSYN__Router_1acbfcbd797a709b893a7e82ac889aa4aa" kindref="member">handler_count</ref>].<ref refid="structSYN__RouterHandler_1a5138c04ab5b1f2d0f86e5fac34a7a0c3" kindref="member">ctx</ref><sp/><sp/><sp/><sp/><sp/>=<sp/>ctx;</highlight></codeline>
+<codeline lineno="228"><highlight class="normal"><sp/><sp/><sp/><sp/>r-&gt;<ref refid="structSYN__Router_1acbfcbd797a709b893a7e82ac889aa4aa" kindref="member">handler_count</ref>++;</highlight></codeline>
+<codeline lineno="229"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="230"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="231"><highlight class="normal"></highlight></codeline>
+<codeline lineno="232"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__router_8c_1a3af1249db4c838daed8853e6ccebb456" kindref="member">syn_router_send</ref>(<ref refid="structSYN__Router" kindref="compound">SYN_Router</ref><sp/>*r,<sp/>uint8_t<sp/>dst,<sp/>uint8_t<sp/>type,</highlight></codeline>
+<codeline lineno="233"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*data,<sp/>uint8_t<sp/>len,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>reliable)</highlight></codeline>
+<codeline lineno="234"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="235"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(r<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="236"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(len<sp/>&lt;=<sp/><ref refid="syn__router_8h_1a1a09ae5fd2be350cb00437d23e97042b" kindref="member">SYN_ROUTER_MAX_PAYLOAD</ref>);</highlight></codeline>
+<codeline lineno="237"><highlight class="normal"></highlight></codeline>
+<codeline lineno="238"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structSYN__Packet" kindref="compound">SYN_Packet</ref><sp/>pkt;</highlight></codeline>
+<codeline lineno="239"><highlight class="normal"><sp/><sp/><sp/><sp/>memset(&amp;pkt,<sp/>0,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(pkt));</highlight></codeline>
+<codeline lineno="240"><highlight class="normal"><sp/><sp/><sp/><sp/>pkt.<ref refid="structSYN__Packet_1a02aff18e99836e84deb66b1e6d22ed99" kindref="member">src</ref><sp/><sp/><sp/>=<sp/>r-&gt;<ref refid="structSYN__Router_1a267a2cb88fa4dc9cb3c7a7ec7d3e1d13" kindref="member">node_id</ref>;</highlight></codeline>
+<codeline lineno="241"><highlight class="normal"><sp/><sp/><sp/><sp/>pkt.<ref refid="structSYN__Packet_1a5b76f363f7c1271195f59728713661ab" kindref="member">dst</ref><sp/><sp/><sp/>=<sp/>dst;</highlight></codeline>
+<codeline lineno="242"><highlight class="normal"><sp/><sp/><sp/><sp/>pkt.<ref refid="structSYN__Packet_1a85d917313f0cf951804abafe465f3172" kindref="member">type</ref><sp/><sp/>=<sp/>type;</highlight></codeline>
+<codeline lineno="243"><highlight class="normal"><sp/><sp/><sp/><sp/>pkt.<ref refid="structSYN__Packet_1a2294847300f31e258b77c7046a052256" kindref="member">seq</ref><sp/><sp/><sp/>=<sp/>r-&gt;<ref refid="structSYN__Router_1a7c0d97095de5ce29615d542325c9a4b8" kindref="member">tx_seq</ref>++;</highlight></codeline>
+<codeline lineno="244"><highlight class="normal"><sp/><sp/><sp/><sp/>pkt.<ref refid="structSYN__Packet_1a67a012f26f81118cf535c1bf619c29c2" kindref="member">flags</ref><sp/>=<sp/>reliable<sp/>?<sp/><ref refid="syn__router_8h_1abc7eab4ecc9e2b6285575ad913b55e52" kindref="member">SYN_PKT_FLAG_ACK_REQ</ref><sp/>:<sp/>0;</highlight></codeline>
+<codeline lineno="245"><highlight class="normal"><sp/><sp/><sp/><sp/>pkt.<ref refid="structSYN__Packet_1a94d07c2349fe8a896aaceeb0e0910aee" kindref="member">len</ref><sp/><sp/><sp/>=<sp/>len;</highlight></codeline>
+<codeline lineno="246"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(len<sp/>&gt;<sp/>0<sp/>&amp;&amp;<sp/>data<sp/>!=<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="247"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>memcpy(pkt.<ref refid="structSYN__Packet_1ae030a39206027d81117342ac357b6706" kindref="member">payload</ref>,<sp/>data,<sp/>len);</highlight></codeline>
+<codeline lineno="248"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="249"><highlight class="normal"></highlight></codeline>
+<codeline lineno="250"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>buf[<ref refid="syn__router_8h_1a62d14d2cc3456d1df9190ac03e8c111e" kindref="member">SYN_ROUTER_HEADER_SIZE</ref><sp/>+<sp/><ref refid="syn__router_8h_1a1a09ae5fd2be350cb00437d23e97042b" kindref="member">SYN_ROUTER_MAX_PAYLOAD</ref>];</highlight></codeline>
+<codeline lineno="251"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>n<sp/>=<sp/><ref refid="syn__router_8c_1aee6ac3b70a48ec93fc85bf94dfa37ac0" kindref="member">serialize_packet</ref>(&amp;pkt,<sp/>buf);</highlight></codeline>
+<codeline lineno="252"><highlight class="normal"></highlight></codeline>
+<codeline lineno="253"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>ok<sp/>=<sp/><ref refid="syn__transport_8h_1a52679f9a0d69fdc254843656b5ae51d3" kindref="member">syn_transport_send</ref>(r-&gt;<ref refid="structSYN__Router_1ab304a02fdd4bd3b037b753f400f42b02" kindref="member">transport</ref>,<sp/>buf,<sp/>n);</highlight></codeline>
+<codeline lineno="254"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(ok)<sp/>{</highlight></codeline>
+<codeline lineno="255"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>r-&gt;<ref refid="structSYN__Router_1add14d2e37ce12fc9cce4cf5633cbd40c" kindref="member">tx_count</ref>++;</highlight></codeline>
+<codeline lineno="256"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(reliable<sp/>&amp;&amp;<sp/>r-&gt;<ref refid="structSYN__Router_1ad5b33ffac95c6153835839e874929e57" kindref="member">pending</ref><sp/>!=<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="257"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__router_8c_1abb930d4fdf0d1d9366e36583bd10b0b6" kindref="member">queue_pending</ref>(r,<sp/>dst,<sp/>type,<sp/>pkt.<ref refid="structSYN__Packet_1a2294847300f31e258b77c7046a052256" kindref="member">seq</ref>,<sp/>data,<sp/>len);</highlight></codeline>
+<codeline lineno="258"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="259"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="260"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>ok;</highlight></codeline>
+<codeline lineno="261"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="262"><highlight class="normal"></highlight></codeline>
+<codeline lineno="263"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__router_8c_1a50f1c99c01398a98c21ae031f431052f" kindref="member">syn_router_poll</ref>(<ref refid="structSYN__Router" kindref="compound">SYN_Router</ref><sp/>*r)</highlight></codeline>
+<codeline lineno="264"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="265"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(r<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="266"><highlight class="normal"></highlight></codeline>
+<codeline lineno="267"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Check<sp/>for<sp/>ACK<sp/>timeouts<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="268"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__router_8c_1a8efa7ba7afd3fae894508d102ca77a76" kindref="member">check_retries</ref>(r);</highlight></codeline>
+<codeline lineno="269"><highlight class="normal"></highlight></codeline>
+<codeline lineno="270"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Receive<sp/>packets<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="271"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>buf[<ref refid="syn__router_8h_1a62d14d2cc3456d1df9190ac03e8c111e" kindref="member">SYN_ROUTER_HEADER_SIZE</ref><sp/>+<sp/><ref refid="syn__router_8h_1a1a09ae5fd2be350cb00437d23e97042b" kindref="member">SYN_ROUTER_MAX_PAYLOAD</ref>];</highlight></codeline>
+<codeline lineno="272"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><sp/>len<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="273"><highlight class="normal"></highlight></codeline>
+<codeline lineno="274"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">while</highlight><highlight class="normal"><sp/>(<ref refid="syn__transport_8h_1acb0dfb2b94f35576c974d7d2636986bf" kindref="member">syn_transport_recv</ref>(r-&gt;<ref refid="structSYN__Router_1ab304a02fdd4bd3b037b753f400f42b02" kindref="member">transport</ref>,<sp/>buf,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(buf),<sp/>&amp;len))<sp/>{</highlight></codeline>
+<codeline lineno="275"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__Packet" kindref="compound">SYN_Packet</ref><sp/>pkt;</highlight></codeline>
+<codeline lineno="276"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!<ref refid="syn__router_8c_1ab56758626d705339c097a5d05fadccb6" kindref="member">deserialize_packet</ref>(buf,<sp/>len,<sp/>&amp;pkt))<sp/>{</highlight></codeline>
+<codeline lineno="277"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>r-&gt;<ref refid="structSYN__Router_1aa9c5a19ce74dbc6698b0d674392e60cc" kindref="member">drop_count</ref>++;</highlight></codeline>
+<codeline lineno="278"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">continue</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="279"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="280"><highlight class="normal"></highlight></codeline>
+<codeline lineno="281"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Not<sp/>for<sp/>us?<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="282"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(pkt.<ref refid="structSYN__Packet_1a5b76f363f7c1271195f59728713661ab" kindref="member">dst</ref><sp/>!=<sp/>r-&gt;<ref refid="structSYN__Router_1a267a2cb88fa4dc9cb3c7a7ec7d3e1d13" kindref="member">node_id</ref><sp/>&amp;&amp;<sp/>pkt.<ref refid="structSYN__Packet_1a5b76f363f7c1271195f59728713661ab" kindref="member">dst</ref><sp/>!=<sp/>0xFF)<sp/>{</highlight></codeline>
+<codeline lineno="283"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">continue</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="284"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="285"><highlight class="normal"></highlight></codeline>
+<codeline lineno="286"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>r-&gt;<ref refid="structSYN__Router_1a502ced74c4a347a39f242ebe5b80378b" kindref="member">rx_count</ref>++;</highlight></codeline>
+<codeline lineno="287"><highlight class="normal"></highlight></codeline>
+<codeline lineno="288"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Handle<sp/>ACK<sp/>response<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="289"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(pkt.<ref refid="structSYN__Packet_1a67a012f26f81118cf535c1bf619c29c2" kindref="member">flags</ref><sp/>&amp;<sp/><ref refid="syn__router_8h_1a40eb28cab1cbb6e2024b24f33838dade" kindref="member">SYN_PKT_FLAG_IS_ACK</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="290"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__router_8c_1a0747dd6df417b7595572f4e5b3f7add0" kindref="member">handle_ack</ref>(r,<sp/>pkt.<ref refid="structSYN__Packet_1a02aff18e99836e84deb66b1e6d22ed99" kindref="member">src</ref>,<sp/>pkt.<ref refid="structSYN__Packet_1a2294847300f31e258b77c7046a052256" kindref="member">seq</ref>);</highlight></codeline>
+<codeline lineno="291"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">continue</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="292"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="293"><highlight class="normal"></highlight></codeline>
+<codeline lineno="294"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Send<sp/>ACK<sp/>if<sp/>requested<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="295"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(pkt.<ref refid="structSYN__Packet_1a67a012f26f81118cf535c1bf619c29c2" kindref="member">flags</ref><sp/>&amp;<sp/><ref refid="syn__router_8h_1abc7eab4ecc9e2b6285575ad913b55e52" kindref="member">SYN_PKT_FLAG_ACK_REQ</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="296"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__router_8c_1a2bfbb1c7c2f38edc3ba34f7d065e2cb6" kindref="member">send_ack</ref>(r,<sp/>pkt.<ref refid="structSYN__Packet_1a02aff18e99836e84deb66b1e6d22ed99" kindref="member">src</ref>,<sp/>pkt.<ref refid="structSYN__Packet_1a2294847300f31e258b77c7046a052256" kindref="member">seq</ref>);</highlight></codeline>
+<codeline lineno="297"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="298"><highlight class="normal"></highlight></codeline>
+<codeline lineno="299"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Dispatch<sp/>to<sp/>handler<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="300"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>handled<sp/>=<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="301"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(uint8_t<sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>r-&gt;<ref refid="structSYN__Router_1acbfcbd797a709b893a7e82ac889aa4aa" kindref="member">handler_count</ref>;<sp/>i++)<sp/>{</highlight></codeline>
+<codeline lineno="302"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(r-&gt;<ref refid="structSYN__Router_1a2437e7bf5aa50281ee6db321d8b9e265" kindref="member">handlers</ref>[i].<ref refid="structSYN__RouterHandler_1a3b2bc20f840bfcc03d415267452317e8" kindref="member">type</ref><sp/>==<sp/>pkt.<ref refid="structSYN__Packet_1a85d917313f0cf951804abafe465f3172" kindref="member">type</ref><sp/>&amp;&amp;<sp/>r-&gt;<ref refid="structSYN__Router_1a2437e7bf5aa50281ee6db321d8b9e265" kindref="member">handlers</ref>[i].<ref refid="structSYN__RouterHandler_1a7ee3c93afc4fbd0374da74d16ed88ae6" kindref="member">handler</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="303"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>r-&gt;<ref refid="structSYN__Router_1a2437e7bf5aa50281ee6db321d8b9e265" kindref="member">handlers</ref>[i].<ref refid="structSYN__RouterHandler_1a7ee3c93afc4fbd0374da74d16ed88ae6" kindref="member">handler</ref>(&amp;pkt,<sp/>r-&gt;<ref refid="structSYN__Router_1a2437e7bf5aa50281ee6db321d8b9e265" kindref="member">handlers</ref>[i].<ref refid="structSYN__RouterHandler_1a5138c04ab5b1f2d0f86e5fac34a7a0c3" kindref="member">ctx</ref>);</highlight></codeline>
+<codeline lineno="304"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>handled<sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="305"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="306"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="307"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="308"><highlight class="normal"></highlight></codeline>
+<codeline lineno="309"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!handled)<sp/>{</highlight></codeline>
+<codeline lineno="310"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>r-&gt;<ref refid="structSYN__Router_1aa9c5a19ce74dbc6698b0d674392e60cc" kindref="member">drop_count</ref>++;</highlight></codeline>
+<codeline lineno="311"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="312"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="313"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="314"><highlight class="normal"></highlight></codeline>
+<codeline lineno="315"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_USE_ROUTER<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/net/syn_router.c"/>
+  </compounddef>
+</doxygen>

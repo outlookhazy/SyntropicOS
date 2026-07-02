@@ -1,0 +1,420 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__cobs_8h" kind="file" language="C++">
+    <compoundname>syn_cobs.h</compoundname>
+    <includes local="no">stdint.h</includes>
+    <includes local="no">stddef.h</includes>
+    <includes local="no">stdbool.h</includes>
+    <includedby refid="syn__cobs_8c" local="yes">src/syntropic/proto/syn_cobs.c</includedby>
+    <includedby refid="syntropic_8h" local="yes">src/syntropic/syntropic.h</includedby>
+    <incdepgraph>
+      <node id="1">
+        <label>src/syntropic/proto/syn_cobs.h</label>
+        <link refid="syn__cobs_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>stdbool.h</label>
+      </node>
+      <node id="3">
+        <label>stddef.h</label>
+      </node>
+      <node id="2">
+        <label>stdint.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="2">
+        <label>src/syntropic/proto/syn_cobs.c</label>
+        <link refid="syn__cobs_8c"/>
+      </node>
+      <node id="1">
+        <label>src/syntropic/proto/syn_cobs.h</label>
+        <link refid="syn__cobs_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>src/syntropic/syntropic.h</label>
+        <link refid="syntropic_8h"/>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="structSYN__COBS__Decoder" prot="public">SYN_COBS_Decoder</innerclass>
+    <sectiondef kind="typedef">
+      <memberdef kind="typedef" id="syn__cobs_8h_1a3b9e854c069c2198310675fb833a11b6" prot="public" static="no">
+        <type>void(*</type>
+        <definition>typedef void(* SYN_COBS_PacketCallback) (const uint8_t *data, size_t len, void *ctx)</definition>
+        <argsstring>)(const uint8_t *data, size_t len, void *ctx)</argsstring>
+        <name>SYN_COBS_PacketCallback</name>
+        <briefdescription>
+<para>Callback invoked when a complete packet is decoded. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>data</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Decoded packet data. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Decoded packet length. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>ctx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>User context. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_cobs.h" line="74" column="9" bodyfile="src/syntropic/proto/syn_cobs.h" bodystart="74" bodyend="-1"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__cobs_8h_1a52973b409b6315cacb236a61d063dc59" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>size_t</type>
+        <definition>size_t syn_cobs_encode</definition>
+        <argsstring>(const void *src, size_t src_len, void *dst)</argsstring>
+        <name>syn_cobs_encode</name>
+        <param>
+          <type>const void *</type>
+          <declname>src</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>src_len</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>dst</declname>
+        </param>
+        <briefdescription>
+<para>Encode data using COBS. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>src</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Input data. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>src_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Input length. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dst</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output buffer (must be at least src_len + src_len/254 + 1). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Number of bytes written to dst (excluding the trailing 0x00 delimiter). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_cobs.h" line="51" column="8" bodyfile="src/syntropic/proto/syn_cobs.c" bodystart="19" bodyend="49" declfile="src/syntropic/proto/syn_cobs.h" declline="51" declcolumn="8"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__cobs_8h_1aeb04558d3368a13b0fa48edeb96442c3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>size_t</type>
+        <definition>size_t syn_cobs_decode</definition>
+        <argsstring>(const void *src, size_t src_len, void *dst)</argsstring>
+        <name>syn_cobs_decode</name>
+        <param>
+          <type>const void *</type>
+          <declname>src</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>src_len</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>dst</declname>
+        </param>
+        <briefdescription>
+<para>Decode a COBS-encoded packet. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>src</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>COBS-encoded data (without the 0x00 delimiter). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>src_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Encoded length. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dst</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output buffer (must be at least src_len). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Number of decoded bytes, or 0 on error. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_cobs.h" line="61" column="8" bodyfile="src/syntropic/proto/syn_cobs.c" bodystart="53" bodyend="86" declfile="src/syntropic/proto/syn_cobs.h" declline="61" declcolumn="8"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__cobs_8h_1ace5dc29efe8fcc80ac82d78aee104c5a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_cobs_decoder_init</definition>
+        <argsstring>(SYN_COBS_Decoder *dec, uint8_t *buf, size_t buf_size, SYN_COBS_PacketCallback callback, void *ctx)</argsstring>
+        <name>syn_cobs_decoder_init</name>
+        <param>
+          <type><ref refid="structSYN__COBS__Decoder" kindref="compound">SYN_COBS_Decoder</ref> *</type>
+          <declname>dec</declname>
+        </param>
+        <param>
+          <type>uint8_t *</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>buf_size</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__cobs_8h_1a3b9e854c069c2198310675fb833a11b6" kindref="member">SYN_COBS_PacketCallback</ref></type>
+          <declname>callback</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>ctx</declname>
+        </param>
+        <briefdescription>
+<para>Initialize streaming COBS decoder. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>dec</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Decoder instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Receive buffer for accumulating encoded bytes. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>buf_size</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Buffer capacity. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>callback</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Called when a complete packet is decoded. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>ctx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>User context for callback. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_cobs.h" line="95" column="6" bodyfile="src/syntropic/proto/syn_cobs.c" bodystart="90" bodyend="104" declfile="src/syntropic/proto/syn_cobs.h" declline="95" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__cobs_8h_1af8ac471af643908114ce6b518c518290" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_cobs_decoder_feed</definition>
+        <argsstring>(SYN_COBS_Decoder *dec, uint8_t byte)</argsstring>
+        <name>syn_cobs_decoder_feed</name>
+        <param>
+          <type><ref refid="structSYN__COBS__Decoder" kindref="compound">SYN_COBS_Decoder</ref> *</type>
+          <declname>dec</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>byte</declname>
+        </param>
+        <briefdescription>
+<para>Feed a byte to the streaming decoder. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>When a 0x00 delimiter is received, the accumulated bytes are decoded and the callback is invoked with the decoded packet.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>dec</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Decoder. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>byte</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Received byte. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_cobs.h" line="109" column="6" bodyfile="src/syntropic/proto/syn_cobs.c" bodystart="106" bodyend="129" declfile="src/syntropic/proto/syn_cobs.h" declline="109" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__cobs_8h_1af6459fc17bff6e76b9e9d7ab3b22173e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_cobs_decoder_reset</definition>
+        <argsstring>(SYN_COBS_Decoder *dec)</argsstring>
+        <name>syn_cobs_decoder_reset</name>
+        <param>
+          <type><ref refid="structSYN__COBS__Decoder" kindref="compound">SYN_COBS_Decoder</ref> *</type>
+          <declname>dec</declname>
+        </param>
+        <briefdescription>
+<para>Reset the streaming decoder state. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>dec</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Decoder. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_cobs.h" line="115" column="6" bodyfile="src/syntropic/proto/syn_cobs.c" bodystart="131" bodyend="135" declfile="src/syntropic/proto/syn_cobs.h" declline="115" declcolumn="6"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>COBS (Consistent Overhead Byte Stuffing) packet framing. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Turns an arbitrary byte stream into framed packets separated by 0x00 delimiters, with zero bytes inside replaced by run-length codes. Overhead is exactly 1 byte per 254 data bytes.</para>
+<para>Use this over UART, RS-485, or any byte-oriented link where you need reliable packet boundaries.</para>
+<para><simplesect kind="par"><title>Usage</title><para><programlisting><codeline><highlight class="comment">//<sp/>Encode<sp/>a<sp/>packet</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal">uint8_t<sp/>encoded[256];</highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>enc_len<sp/>=<sp/><ref refid="syn__cobs_8c_1a52973b409b6315cacb236a61d063dc59" kindref="member">syn_cobs_encode</ref>(data,<sp/>data_len,<sp/>encoded);</highlight></codeline>
+<codeline><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="comment">//<sp/>Decode<sp/>a<sp/>packet</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal">uint8_t<sp/>decoded[256];</highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>dec_len<sp/>=<sp/><ref refid="syn__cobs_8c_1aeb04558d3368a13b0fa48edeb96442c3" kindref="member">syn_cobs_decode</ref>(encoded,<sp/>enc_len,<sp/>decoded);</highlight></codeline>
+<codeline><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="comment">//<sp/>Streaming<sp/>decoder<sp/>(byte-at-a-time<sp/>from<sp/>UART<sp/>RX)</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"><ref refid="structSYN__COBS__Decoder" kindref="compound">SYN_COBS_Decoder</ref><sp/>dec;</highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__cobs_8c_1ace5dc29efe8fcc80ac82d78aee104c5a" kindref="member">syn_cobs_decoder_init</ref>(&amp;dec,<sp/>rx_buf,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(rx_buf),<sp/>on_packet,<sp/>NULL);</highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__cobs_8c_1af8ac471af643908114ce6b518c518290" kindref="member">syn_cobs_decoder_feed</ref>(&amp;dec,<sp/></highlight><highlight class="keywordtype">byte</highlight><highlight class="normal">);</highlight></codeline>
+</programlisting> </para>
+</simplesect>
+</para>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_COBS_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_COBS_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stddef.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>One-shot<sp/>encode<sp/>/<sp/>decode<sp/>─────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight></codeline>
+<codeline lineno="51"><highlight class="normal"></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="syn__cobs_8h_1a52973b409b6315cacb236a61d063dc59" kindref="member">syn_cobs_encode</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*src,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>src_len,<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*dst);</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"></highlight></codeline>
+<codeline lineno="61"><highlight class="normal"></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="syn__cobs_8h_1aeb04558d3368a13b0fa48edeb96442c3" kindref="member">syn_cobs_decode</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*src,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>src_len,<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*dst);</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"></highlight></codeline>
+<codeline lineno="63"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Streaming<sp/>decoder<sp/>────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="64"><highlight class="normal"></highlight></codeline>
+<codeline lineno="65"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structSYN__COBS__Decoder" kindref="compound">SYN_COBS_Decoder</ref>;</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"></highlight></codeline>
+<codeline lineno="74" refid="syn__cobs_8h_1a3b9e854c069c2198310675fb833a11b6" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>void<sp/>(*<ref refid="syn__cobs_8h_1a3b9e854c069c2198310675fb833a11b6" kindref="member">SYN_COBS_PacketCallback</ref>)(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*data,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>len,</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*<ref refid="structSYN__COBS__Decoder_1a4fa807839ed6f69fbff3fb574bcb8c88" kindref="member">ctx</ref>);</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"></highlight></codeline>
+<codeline lineno="78" refid="structSYN__COBS__Decoder" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structSYN__COBS__Decoder" kindref="compound">SYN_COBS_Decoder</ref><sp/>{</highlight></codeline>
+<codeline lineno="79" refid="structSYN__COBS__Decoder_1abbbe2e6cb06dc1af3ea4618f0c5c6ccb" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<ref refid="structSYN__COBS__Decoder_1abbbe2e6cb06dc1af3ea4618f0c5c6ccb" kindref="member">buf</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="80" refid="structSYN__COBS__Decoder_1a8ddc30292db1f4d5c8743cf27c9600e3" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__COBS__Decoder_1a8ddc30292db1f4d5c8743cf27c9600e3" kindref="member">buf_size</ref>;<sp/><sp/></highlight></codeline>
+<codeline lineno="81" refid="structSYN__COBS__Decoder_1a0b37dae49d038c291fa866480e2e6710" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__COBS__Decoder_1a0b37dae49d038c291fa866480e2e6710" kindref="member">idx</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="82" refid="structSYN__COBS__Decoder_1a4668cc9b6aeb31c95200770006110175" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__cobs_8h_1a3b9e854c069c2198310675fb833a11b6" kindref="member">SYN_COBS_PacketCallback</ref><sp/><ref refid="structSYN__COBS__Decoder_1a4668cc9b6aeb31c95200770006110175" kindref="member">callback</ref>;<sp/><sp/></highlight></codeline>
+<codeline lineno="83" refid="structSYN__COBS__Decoder_1a4fa807839ed6f69fbff3fb574bcb8c88" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<ref refid="structSYN__COBS__Decoder_1a4fa807839ed6f69fbff3fb574bcb8c88" kindref="member">ctx</ref>;<sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="84"><highlight class="normal">}<sp/><ref refid="structSYN__COBS__Decoder" kindref="compound">SYN_COBS_Decoder</ref>;</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"></highlight></codeline>
+<codeline lineno="95"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__cobs_8h_1ace5dc29efe8fcc80ac82d78aee104c5a" kindref="member">syn_cobs_decoder_init</ref>(<ref refid="structSYN__COBS__Decoder" kindref="compound">SYN_COBS_Decoder</ref><sp/>*dec,</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>*buf,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>buf_size,</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__cobs_8h_1a3b9e854c069c2198310675fb833a11b6" kindref="member">SYN_COBS_PacketCallback</ref><sp/>callback,</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*ctx);</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"></highlight></codeline>
+<codeline lineno="109"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__cobs_8h_1af8ac471af643908114ce6b518c518290" kindref="member">syn_cobs_decoder_feed</ref>(<ref refid="structSYN__COBS__Decoder" kindref="compound">SYN_COBS_Decoder</ref><sp/>*dec,<sp/>uint8_t<sp/></highlight><highlight class="keywordtype">byte</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="110"><highlight class="normal"></highlight></codeline>
+<codeline lineno="115"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__cobs_8h_1af6459fc17bff6e76b9e9d7ab3b22173e" kindref="member">syn_cobs_decoder_reset</ref>(<ref refid="structSYN__COBS__Decoder" kindref="compound">SYN_COBS_Decoder</ref><sp/>*dec);</highlight></codeline>
+<codeline lineno="116"><highlight class="normal"></highlight></codeline>
+<codeline lineno="117"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="118"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="120"><highlight class="normal"></highlight></codeline>
+<codeline lineno="121"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_COBS_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/proto/syn_cobs.h"/>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,456 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__sd_8h" kind="file" language="C++">
+    <compoundname>syn_sd.h</compoundname>
+    <includes refid="syn__defs_8h" local="yes">../common/syn_defs.h</includes>
+    <includes refid="syn__port__spi_8h" local="yes">../port/syn_port_spi.h</includes>
+    <includes local="no">stdint.h</includes>
+    <includes local="no">stdbool.h</includes>
+    <includedby refid="syn__sd_8c" local="yes">src/syntropic/drivers/syn_sd.c</includedby>
+    <includedby refid="syn__fat_8h" local="yes">src/syntropic/storage/syn_fat.h</includedby>
+    <includedby refid="syntropic_8h" local="yes">src/syntropic/syntropic.h</includedby>
+    <incdepgraph>
+      <node id="2">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/drivers/syn_sd.h</label>
+        <link refid="syn__sd_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>../port/syn_port_spi.h</label>
+        <link refid="syn__port__spi_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>stdbool.h</label>
+      </node>
+      <node id="4">
+        <label>stddef.h</label>
+      </node>
+      <node id="3">
+        <label>stdint.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="2">
+        <label>src/syntropic/drivers/syn_sd.c</label>
+        <link refid="syn__sd_8c"/>
+      </node>
+      <node id="1">
+        <label>src/syntropic/drivers/syn_sd.h</label>
+        <link refid="syn__sd_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>src/syntropic/storage/syn_fat.h</label>
+        <link refid="syn__fat_8h"/>
+      </node>
+      <node id="4">
+        <label>src/syntropic/syntropic.h</label>
+        <link refid="syntropic_8h"/>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="structSYN__SD" prot="public">SYN_SD</innerclass>
+    <sectiondef kind="define">
+      <memberdef kind="define" id="syn__sd_8h_1a28f709009ce419f385049706b93a9414" prot="public" static="no">
+        <name>SYN_SD_SECTOR_SIZE</name>
+        <initializer>512u</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Fixed sector size in bytes. All SD cards expose 512-byte sectors in SPI mode. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_sd.h" line="39" column="9" bodyfile="src/syntropic/drivers/syn_sd.h" bodystart="39" bodyend="-1"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="enum">
+      <memberdef kind="enum" id="syn__sd_8h_1a0da46ecbfefeab1a13c6980a1b0e3923" prot="public" static="no" strong="no">
+        <type></type>
+        <name>SYN_SD_Type</name>
+        <enumvalue id="syn__sd_8h_1a0da46ecbfefeab1a13c6980a1b0e3923a5c473d3738ce57a7f8db94f74ebc963e" prot="public">
+          <name>SYN_SD_UNKNOWN</name>
+          <initializer>= 0</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Not yet initialized or unrecognized card <linebreak/>
+ </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__sd_8h_1a0da46ecbfefeab1a13c6980a1b0e3923a2c5276c712c13e0497df2633ceb832e3" prot="public">
+          <name>SYN_SD_SDSC</name>
+          <initializer>= 1</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Standard Capacity (&lt;=2 GB, byte-addressed) <linebreak/>
+ </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__sd_8h_1a0da46ecbfefeab1a13c6980a1b0e3923ac9b02144ee8c65223c49cacdba6ad39d" prot="public">
+          <name>SYN_SD_SDHC</name>
+          <initializer>= 2</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>High or Extended Capacity (&gt;2 GB, sector-addressed) </para>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>SD card type, detected automatically during <ref refid="syn__sd_8h_1a8e64aa2b41db10293dd3344228c07680" kindref="member">syn_sd_init()</ref>. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_sd.h" line="44" column="1" bodyfile="src/syntropic/drivers/syn_sd.h" bodystart="44" bodyend="48"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__sd_8h_1a8e64aa2b41db10293dd3344228c07680" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_sd_init</definition>
+        <argsstring>(SYN_SD *sd, uint8_t spi_bus, SYN_GPIO_Pin cs)</argsstring>
+        <name>syn_sd_init</name>
+        <param>
+          <type><ref refid="structSYN__SD" kindref="compound">SYN_SD</ref> *</type>
+          <declname>sd</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>spi_bus</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref></type>
+          <declname>cs</declname>
+        </param>
+        <briefdescription>
+<para>Initialize the SD card over SPI. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Performs power-up clocking, CMD0/CMD8/ACMD41 init, type detection via CMD58, and CSD parsing for capacity.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>sd</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to a caller-owned <ref refid="structSYN__SD" kindref="compound">SYN_SD</ref> struct. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>spi_bus</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>SPI bus index passed to syn_port_spi_*. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>cs</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Chip-select GPIO pin (active-low). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_ERROR if no card or init failed. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_sd.h" line="74" column="12" bodyfile="src/syntropic/drivers/syn_sd.c" bodystart="189" bodyend="303" declfile="src/syntropic/drivers/syn_sd.h" declline="74" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__sd_8h_1a26908d8bdfe21c1ea9d787b466ac4511" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_sd_read</definition>
+        <argsstring>(const SYN_SD *sd, uint32_t sector, uint8_t *buf)</argsstring>
+        <name>syn_sd_read</name>
+        <param>
+          <type>const <ref refid="structSYN__SD" kindref="compound">SYN_SD</ref> *</type>
+          <declname>sd</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>sector</declname>
+        </param>
+        <param>
+          <type>uint8_t *</type>
+          <declname>buf</declname>
+        </param>
+        <briefdescription>
+<para>Read one 512-byte sector from the SD card (CMD17). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>sd</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Initialized SD handle. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>sector</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Zero-based sector index. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output buffer — caller must provide at least 512 bytes. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_ERROR on timeout or card error. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_sd.h" line="84" column="12" bodyfile="src/syntropic/drivers/syn_sd.c" bodystart="305" bodyend="346" declfile="src/syntropic/drivers/syn_sd.h" declline="84" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__sd_8h_1a24e73fbd09bdb5c235c90265e330ae4a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_sd_write</definition>
+        <argsstring>(const SYN_SD *sd, uint32_t sector, const uint8_t *buf)</argsstring>
+        <name>syn_sd_write</name>
+        <param>
+          <type>const <ref refid="structSYN__SD" kindref="compound">SYN_SD</ref> *</type>
+          <declname>sd</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>sector</declname>
+        </param>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>buf</declname>
+        </param>
+        <briefdescription>
+<para>Write one 512-byte sector to the SD card (CMD24). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>sd</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Initialized SD handle. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>sector</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Zero-based sector index. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Data to write — must be exactly 512 bytes. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_ERROR on card rejection or timeout. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_sd.h" line="94" column="12" bodyfile="src/syntropic/drivers/syn_sd.c" bodystart="348" bodyend="391" declfile="src/syntropic/drivers/syn_sd.h" declline="94" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__sd_8h_1a4353c4f01769a0e8da9c480e9c30ff3d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_sd_sync</definition>
+        <argsstring>(const SYN_SD *sd)</argsstring>
+        <name>syn_sd_sync</name>
+        <param>
+          <type>const <ref refid="structSYN__SD" kindref="compound">SYN_SD</ref> *</type>
+          <declname>sd</declname>
+        </param>
+        <briefdescription>
+<para>Flush the write pipeline — wait until card is idle (CMD13). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>sd</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Initialized SD handle. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK if card is idle and error-free, SYN_ERROR otherwise. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_sd.h" line="102" column="12" bodyfile="src/syntropic/drivers/syn_sd.c" bodystart="393" bodyend="407" declfile="src/syntropic/drivers/syn_sd.h" declline="102" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__sd_8h_1ad8f35208c9aa70d566e404aae0973ebb" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>uint32_t syn_sd_sectors</definition>
+        <argsstring>(const SYN_SD *sd)</argsstring>
+        <name>syn_sd_sectors</name>
+        <param>
+          <type>const <ref refid="structSYN__SD" kindref="compound">SYN_SD</ref> *</type>
+          <declname>sd</declname>
+        </param>
+        <briefdescription>
+<para>Return total sector count parsed from the CSD register. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>sd</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Initialized SD handle. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Number of 512-byte sectors on the card. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_sd.h" line="110" column="10" bodyfile="src/syntropic/drivers/syn_sd.c" bodystart="411" bodyend="415" declfile="src/syntropic/drivers/syn_sd.h" declline="110" declcolumn="10"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__sd_8h_1a6d67efb527ae927e8069ea075321d03d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__sd_8h_1a0da46ecbfefeab1a13c6980a1b0e3923" kindref="member">SYN_SD_Type</ref></type>
+        <definition>SYN_SD_Type syn_sd_type</definition>
+        <argsstring>(const SYN_SD *sd)</argsstring>
+        <name>syn_sd_type</name>
+        <param>
+          <type>const <ref refid="structSYN__SD" kindref="compound">SYN_SD</ref> *</type>
+          <declname>sd</declname>
+        </param>
+        <briefdescription>
+<para>Return the detected card type. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>sd</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Initialized SD handle. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_SD_SDSC or SYN_SD_SDHC. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_sd.h" line="118" column="13" bodyfile="src/syntropic/drivers/syn_sd.c" bodystart="417" bodyend="421" declfile="src/syntropic/drivers/syn_sd.h" declline="118" declcolumn="13"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>SD card SPI block driver. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Zero-allocation driver for SD/SDHC/SDXC cards over hardware SPI. Implements the SD simplified SPI spec: raw 512-byte sector read/write. Uses <ref refid="syn__port__spi_8h" kindref="compound">syn_port_spi.h</ref> for all bus transfers; CS is managed by the driver.</para>
+<para><programlisting><codeline><highlight class="keyword">static</highlight><highlight class="normal"><sp/><ref refid="structSYN__SD" kindref="compound">SYN_SD</ref><sp/>sd;</highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="syn__sd_8c_1a8e64aa2b41db10293dd3344228c07680" kindref="member">syn_sd_init</ref>(&amp;sd,<sp/>0,<sp/>MY_SD_CS_PIN)<sp/>==<sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>buf[512];</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__sd_8c_1a26908d8bdfe21c1ea9d787b466ac4511" kindref="member">syn_sd_read</ref>(&amp;sd,<sp/>0,<sp/>buf);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__sd_8c_1a24e73fbd09bdb5c235c90265e330ae4a" kindref="member">syn_sd_write</ref>(&amp;sd,<sp/>1,<sp/>buf);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__sd_8c_1a4353c4f01769a0e8da9c480e9c30ff3d" kindref="member">syn_sd_sync</ref>(&amp;sd);</highlight></codeline>
+<codeline><highlight class="normal">}</highlight></codeline>
+</programlisting></para>
+<para>The SPI bus must support Mode 0 (CPOL=0, CPHA=0). When tx_buf is NULL, <ref refid="syn__port__spi_8h_1a3c68a06f09f74bab0feedf7eb648d88d" kindref="member">syn_port_spi_transfer()</ref> must drive MOSI HIGH (0xFF), as required by the SD simplified spec during receive phases. </para>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_SD_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_SD_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../common/syn_defs.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../port/syn_port_spi.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight></codeline>
+<codeline lineno="39" refid="syn__sd_8h_1a28f709009ce419f385049706b93a9414" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_SD_SECTOR_SIZE<sp/><sp/>512u</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight></codeline>
+<codeline lineno="44" refid="syn__sd_8h_1a0da46ecbfefeab1a13c6980a1b0e3923" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="45" refid="syn__sd_8h_1a0da46ecbfefeab1a13c6980a1b0e3923a5c473d3738ce57a7f8db94f74ebc963e" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__sd_8h_1a0da46ecbfefeab1a13c6980a1b0e3923a5c473d3738ce57a7f8db94f74ebc963e" kindref="member">SYN_SD_UNKNOWN</ref><sp/>=<sp/>0,<sp/></highlight></codeline>
+<codeline lineno="46" refid="syn__sd_8h_1a0da46ecbfefeab1a13c6980a1b0e3923a2c5276c712c13e0497df2633ceb832e3" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__sd_8h_1a0da46ecbfefeab1a13c6980a1b0e3923a2c5276c712c13e0497df2633ceb832e3" kindref="member">SYN_SD_SDSC</ref><sp/><sp/><sp/><sp/>=<sp/>1,<sp/></highlight></codeline>
+<codeline lineno="47" refid="syn__sd_8h_1a0da46ecbfefeab1a13c6980a1b0e3923ac9b02144ee8c65223c49cacdba6ad39d" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__sd_8h_1a0da46ecbfefeab1a13c6980a1b0e3923ac9b02144ee8c65223c49cacdba6ad39d" kindref="member">SYN_SD_SDHC</ref><sp/><sp/><sp/><sp/>=<sp/>2,<sp/></highlight></codeline>
+<codeline lineno="48"><highlight class="normal">}<sp/><ref refid="syn__sd_8h_1a0da46ecbfefeab1a13c6980a1b0e3923" kindref="member">SYN_SD_Type</ref>;</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"></highlight></codeline>
+<codeline lineno="55" refid="structSYN__SD" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="56" refid="structSYN__SD_1a0b39215bf170efc3829ba5fbd7501217" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__SD_1a0b39215bf170efc3829ba5fbd7501217" kindref="member">spi_bus</ref>;<sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="57" refid="structSYN__SD_1accb953714ce98c2b9bc83d383fb42a54" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref><sp/><sp/><ref refid="structSYN__SD_1accb953714ce98c2b9bc83d383fb42a54" kindref="member">cs_pin</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="58" refid="structSYN__SD_1adf2062237d8b6074e26ae9fcf356ac44" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__sd_8h_1a0da46ecbfefeab1a13c6980a1b0e3923" kindref="member">SYN_SD_Type</ref><sp/><sp/><sp/><ref refid="structSYN__SD_1adf2062237d8b6074e26ae9fcf356ac44" kindref="member">type</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="59" refid="structSYN__SD_1acd7576d68ce82a8f8c17802e2ecd0a2e" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__SD_1acd7576d68ce82a8f8c17802e2ecd0a2e" kindref="member">sector_count</ref>;<sp/></highlight></codeline>
+<codeline lineno="60" refid="structSYN__SD_1a7bcab185b527265e423fbae76290bd5e" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__SD_1a7bcab185b527265e423fbae76290bd5e" kindref="member">initialized</ref>;<sp/><sp/></highlight></codeline>
+<codeline lineno="61"><highlight class="normal">}<sp/><ref refid="structSYN__SD" kindref="compound">SYN_SD</ref>;</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"></highlight></codeline>
+<codeline lineno="74"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__sd_8h_1a8e64aa2b41db10293dd3344228c07680" kindref="member">syn_sd_init</ref>(<ref refid="structSYN__SD" kindref="compound">SYN_SD</ref><sp/>*sd,<sp/>uint8_t<sp/>spi_bus,<sp/><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref><sp/>cs);</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"></highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__sd_8h_1a26908d8bdfe21c1ea9d787b466ac4511" kindref="member">syn_sd_read</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__SD" kindref="compound">SYN_SD</ref><sp/>*sd,<sp/>uint32_t<sp/>sector,<sp/>uint8_t<sp/>*buf);</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"></highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__sd_8h_1a24e73fbd09bdb5c235c90265e330ae4a" kindref="member">syn_sd_write</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__SD" kindref="compound">SYN_SD</ref><sp/>*sd,<sp/>uint32_t<sp/>sector,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*buf);</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"></highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__sd_8h_1a4353c4f01769a0e8da9c480e9c30ff3d" kindref="member">syn_sd_sync</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__SD" kindref="compound">SYN_SD</ref><sp/>*sd);</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"></highlight></codeline>
+<codeline lineno="110"><highlight class="normal">uint32_t<sp/><ref refid="syn__sd_8h_1ad8f35208c9aa70d566e404aae0973ebb" kindref="member">syn_sd_sectors</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__SD" kindref="compound">SYN_SD</ref><sp/>*sd);</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"></highlight></codeline>
+<codeline lineno="118"><highlight class="normal"><ref refid="syn__sd_8h_1a0da46ecbfefeab1a13c6980a1b0e3923" kindref="member">SYN_SD_Type</ref><sp/><ref refid="syn__sd_8h_1a6d67efb527ae927e8069ea075321d03d" kindref="member">syn_sd_type</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__SD" kindref="compound">SYN_SD</ref><sp/>*sd);</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"></highlight></codeline>
+<codeline lineno="120"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="121"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="122"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="123"><highlight class="normal"></highlight></codeline>
+<codeline lineno="124"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_SD_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/drivers/syn_sd.h"/>
+  </compounddef>
+</doxygen>

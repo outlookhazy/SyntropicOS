@@ -1,0 +1,296 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__rate__limit_8h" kind="file" language="C++">
+    <compoundname>syn_rate_limit.h</compoundname>
+    <includes refid="syn__port__system_8h" local="yes">../port/syn_port_system.h</includes>
+    <includes local="no">stdint.h</includes>
+    <includes local="no">stdbool.h</includes>
+    <includedby refid="syntropic_8h" local="yes">src/syntropic/syntropic.h</includedby>
+    <incdepgraph>
+      <node id="6">
+        <label>../common/syn_compiler.h</label>
+        <link refid="syn__compiler_8h"/>
+      </node>
+      <node id="3">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>../port/syn_port_system.h</label>
+        <link refid="syn__port__system_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/util/syn_rate_limit.h</label>
+        <link refid="syn__rate__limit_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>stdbool.h</label>
+      </node>
+      <node id="5">
+        <label>stddef.h</label>
+      </node>
+      <node id="4">
+        <label>stdint.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="2">
+        <label>src/syntropic/syntropic.h</label>
+        <link refid="syntropic_8h"/>
+      </node>
+      <node id="1">
+        <label>src/syntropic/util/syn_rate_limit.h</label>
+        <link refid="syn__rate__limit_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="structSYN__RateLimit" prot="public">SYN_RateLimit</innerclass>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__rate__limit_8h_1a61aad9a1f2d87e82f9b4ca286da87ab2" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void syn_rate_limit_init</definition>
+        <argsstring>(SYN_RateLimit *rl, uint32_t max_tokens, uint32_t interval_ms)</argsstring>
+        <name>syn_rate_limit_init</name>
+        <param>
+          <type><ref refid="structSYN__RateLimit" kindref="compound">SYN_RateLimit</ref> *</type>
+          <declname>rl</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>max_tokens</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>interval_ms</declname>
+        </param>
+        <briefdescription>
+<para>Initialize a rate limiter. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>rl</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Rate limiter instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>max_tokens</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Maximum tokens (burst capacity). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>interval_ms</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Interval over which tokens refill to max. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_rate_limit.h" line="46" column="20" bodyfile="src/syntropic/util/syn_rate_limit.h" bodystart="46" bodyend="54"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__rate__limit_8h_1a1d75a2c41fdd44ececcfab11fae94f0a" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>static bool syn_rate_limit_allow</definition>
+        <argsstring>(SYN_RateLimit *rl)</argsstring>
+        <name>syn_rate_limit_allow</name>
+        <param>
+          <type><ref refid="structSYN__RateLimit" kindref="compound">SYN_RateLimit</ref> *</type>
+          <declname>rl</declname>
+        </param>
+        <briefdescription>
+<para>Try to consume one token. Returns true if allowed. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>rl</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Rate limiter. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if a token was consumed, false if exhausted. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_rate_limit.h" line="61" column="20" bodyfile="src/syntropic/util/syn_rate_limit.h" bodystart="61" bodyend="86"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__rate__limit_8h_1a53dc3a32f1cbb03d223768e1420b2fe2" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>static uint32_t syn_rate_limit_remaining</definition>
+        <argsstring>(const SYN_RateLimit *rl)</argsstring>
+        <name>syn_rate_limit_remaining</name>
+        <param>
+          <type>const <ref refid="structSYN__RateLimit" kindref="compound">SYN_RateLimit</ref> *</type>
+          <declname>rl</declname>
+        </param>
+        <briefdescription>
+<para>Check remaining tokens without consuming. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>rl</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Rate limiter. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Remaining tokens. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_rate_limit.h" line="93" column="24" bodyfile="src/syntropic/util/syn_rate_limit.h" bodystart="93" bodyend="96"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__rate__limit_8h_1abbe89a0cd352874831c15e4b8775532d" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void syn_rate_limit_reset</definition>
+        <argsstring>(SYN_RateLimit *rl)</argsstring>
+        <name>syn_rate_limit_reset</name>
+        <param>
+          <type><ref refid="structSYN__RateLimit" kindref="compound">SYN_RateLimit</ref> *</type>
+          <declname>rl</declname>
+        </param>
+        <briefdescription>
+<para>Reset the rate limiter to full capacity. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>rl</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Rate limiter. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_rate_limit.h" line="102" column="20" bodyfile="src/syntropic/util/syn_rate_limit.h" bodystart="102" bodyend="106"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Token bucket rate limiter — header-only. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Throttle operations to N-per-second. Classic use cases: limit log output, throttle retransmissions, cap sensor poll rate.</para>
+<para><simplesect kind="par"><title>Usage</title><para><programlisting><codeline><highlight class="normal"><ref refid="structSYN__RateLimit" kindref="compound">SYN_RateLimit</ref><sp/>rl;</highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__rate__limit_8h_1a61aad9a1f2d87e82f9b4ca286da87ab2" kindref="member">syn_rate_limit_init</ref>(&amp;rl,<sp/>10,<sp/>1000);<sp/><sp/></highlight><highlight class="comment">//<sp/>10<sp/>events<sp/>per<sp/>1000ms</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="syn__rate__limit_8h_1a1d75a2c41fdd44ececcfab11fae94f0a" kindref="member">syn_rate_limit_allow</ref>(&amp;rl))<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>send_packet();</highlight></codeline>
+<codeline><highlight class="normal">}</highlight></codeline>
+</programlisting> </para>
+</simplesect>
+</para>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_RATE_LIMIT_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_RATE_LIMIT_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../port/syn_port_system.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight></codeline>
+<codeline lineno="32" refid="structSYN__RateLimit" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="33" refid="structSYN__RateLimit_1ae44c7aeb5073c435624318a8cfebdf6d" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><sp/><ref refid="structSYN__RateLimit_1ae44c7aeb5073c435624318a8cfebdf6d" kindref="member">tokens</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="34" refid="structSYN__RateLimit_1aa41272b83695c04094af3d04d0eb4fd8" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><sp/><ref refid="structSYN__RateLimit_1aa41272b83695c04094af3d04d0eb4fd8" kindref="member">max_tokens</ref>;<sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="35" refid="structSYN__RateLimit_1a3e6be05a2f30bae0fc57ec103cdba4b3" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><sp/><ref refid="structSYN__RateLimit_1a3e6be05a2f30bae0fc57ec103cdba4b3" kindref="member">interval_ms</ref>;<sp/><sp/></highlight></codeline>
+<codeline lineno="36" refid="structSYN__RateLimit_1a583649ec272e7779dfaa5ed8916b4b12" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><sp/><ref refid="structSYN__RateLimit_1a583649ec272e7779dfaa5ed8916b4b12" kindref="member">last_refill</ref>;<sp/><sp/></highlight></codeline>
+<codeline lineno="37"><highlight class="normal">}<sp/><ref refid="structSYN__RateLimit" kindref="compound">SYN_RateLimit</ref>;</highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight></codeline>
+<codeline lineno="46" refid="syn__rate__limit_8h_1a61aad9a1f2d87e82f9b4ca286da87ab2" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__rate__limit_8h_1a61aad9a1f2d87e82f9b4ca286da87ab2" kindref="member">syn_rate_limit_init</ref>(<ref refid="structSYN__RateLimit" kindref="compound">SYN_RateLimit</ref><sp/>*rl,</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>max_tokens,</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>interval_ms)</highlight></codeline>
+<codeline lineno="49"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/><sp/><sp/>rl-&gt;<ref refid="structSYN__RateLimit_1ae44c7aeb5073c435624318a8cfebdf6d" kindref="member">tokens</ref><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>max_tokens;</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><sp/><sp/><sp/><sp/>rl-&gt;<ref refid="structSYN__RateLimit_1aa41272b83695c04094af3d04d0eb4fd8" kindref="member">max_tokens</ref><sp/><sp/>=<sp/>max_tokens;</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/><sp/><sp/>rl-&gt;<ref refid="structSYN__RateLimit_1a3e6be05a2f30bae0fc57ec103cdba4b3" kindref="member">interval_ms</ref><sp/>=<sp/>interval_ms;</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/><sp/><sp/>rl-&gt;<ref refid="structSYN__RateLimit_1a583649ec272e7779dfaa5ed8916b4b12" kindref="member">last_refill</ref><sp/>=<sp/><ref refid="syn__port__system_8h_1a6c7d98587814b2c0d9c09da02d318873" kindref="member">syn_port_get_tick_ms</ref>();</highlight></codeline>
+<codeline lineno="54"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"></highlight></codeline>
+<codeline lineno="61" refid="syn__rate__limit_8h_1a1d75a2c41fdd44ececcfab11fae94f0a" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__rate__limit_8h_1a1d75a2c41fdd44ececcfab11fae94f0a" kindref="member">syn_rate_limit_allow</ref>(<ref refid="structSYN__RateLimit" kindref="compound">SYN_RateLimit</ref><sp/>*rl)</highlight></codeline>
+<codeline lineno="62"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/>now<sp/>=<sp/><ref refid="syn__port__system_8h_1a6c7d98587814b2c0d9c09da02d318873" kindref="member">syn_port_get_tick_ms</ref>();</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/>elapsed<sp/>=<sp/>now<sp/>-<sp/>rl-&gt;<ref refid="structSYN__RateLimit_1a583649ec272e7779dfaa5ed8916b4b12" kindref="member">last_refill</ref>;</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"></highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Refill<sp/>tokens<sp/>based<sp/>on<sp/>elapsed<sp/>time<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(elapsed<sp/>&gt;=<sp/>rl-&gt;<ref refid="structSYN__RateLimit_1a3e6be05a2f30bae0fc57ec103cdba4b3" kindref="member">interval_ms</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>refills<sp/>=<sp/>elapsed<sp/>/<sp/>rl-&gt;<ref refid="structSYN__RateLimit_1a3e6be05a2f30bae0fc57ec103cdba4b3" kindref="member">interval_ms</ref>;</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rl-&gt;<ref refid="structSYN__RateLimit_1ae44c7aeb5073c435624318a8cfebdf6d" kindref="member">tokens</ref><sp/>=<sp/>rl-&gt;<ref refid="structSYN__RateLimit_1aa41272b83695c04094af3d04d0eb4fd8" kindref="member">max_tokens</ref>;<sp/></highlight><highlight class="comment">/*<sp/>full<sp/>refill<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rl-&gt;<ref refid="structSYN__RateLimit_1a583649ec272e7779dfaa5ed8916b4b12" kindref="member">last_refill</ref><sp/>+=<sp/>refills<sp/>*<sp/>rl-&gt;<ref refid="structSYN__RateLimit_1a3e6be05a2f30bae0fc57ec103cdba4b3" kindref="member">interval_ms</ref>;</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(rl-&gt;<ref refid="structSYN__RateLimit_1a3e6be05a2f30bae0fc57ec103cdba4b3" kindref="member">interval_ms</ref><sp/>&gt;<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Partial<sp/>refill:<sp/>proportional<sp/>token<sp/>recovery<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>new_tokens<sp/>=<sp/>(rl-&gt;<ref refid="structSYN__RateLimit_1aa41272b83695c04094af3d04d0eb4fd8" kindref="member">max_tokens</ref><sp/>*<sp/>elapsed)<sp/>/<sp/>rl-&gt;<ref refid="structSYN__RateLimit_1a3e6be05a2f30bae0fc57ec103cdba4b3" kindref="member">interval_ms</ref>;</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(new_tokens<sp/>&gt;<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rl-&gt;<ref refid="structSYN__RateLimit_1ae44c7aeb5073c435624318a8cfebdf6d" kindref="member">tokens</ref><sp/>+=<sp/>new_tokens;</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(rl-&gt;<ref refid="structSYN__RateLimit_1ae44c7aeb5073c435624318a8cfebdf6d" kindref="member">tokens</ref><sp/>&gt;<sp/>rl-&gt;<ref refid="structSYN__RateLimit_1aa41272b83695c04094af3d04d0eb4fd8" kindref="member">max_tokens</ref>)<sp/>rl-&gt;<ref refid="structSYN__RateLimit_1ae44c7aeb5073c435624318a8cfebdf6d" kindref="member">tokens</ref><sp/>=<sp/>rl-&gt;<ref refid="structSYN__RateLimit_1aa41272b83695c04094af3d04d0eb4fd8" kindref="member">max_tokens</ref>;</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rl-&gt;<ref refid="structSYN__RateLimit_1a583649ec272e7779dfaa5ed8916b4b12" kindref="member">last_refill</ref><sp/>=<sp/>now;</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"></highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(rl-&gt;<ref refid="structSYN__RateLimit_1ae44c7aeb5073c435624318a8cfebdf6d" kindref="member">tokens</ref><sp/>&gt;<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rl-&gt;<ref refid="structSYN__RateLimit_1ae44c7aeb5073c435624318a8cfebdf6d" kindref="member">tokens</ref>--;</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="86"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"></highlight></codeline>
+<codeline lineno="93" refid="syn__rate__limit_8h_1a53dc3a32f1cbb03d223768e1420b2fe2" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>uint32_t<sp/><ref refid="syn__rate__limit_8h_1a53dc3a32f1cbb03d223768e1420b2fe2" kindref="member">syn_rate_limit_remaining</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__RateLimit" kindref="compound">SYN_RateLimit</ref><sp/>*rl)</highlight></codeline>
+<codeline lineno="94"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>rl-&gt;<ref refid="structSYN__RateLimit_1ae44c7aeb5073c435624318a8cfebdf6d" kindref="member">tokens</ref>;</highlight></codeline>
+<codeline lineno="96"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"></highlight></codeline>
+<codeline lineno="102" refid="syn__rate__limit_8h_1abbe89a0cd352874831c15e4b8775532d" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__rate__limit_8h_1abbe89a0cd352874831c15e4b8775532d" kindref="member">syn_rate_limit_reset</ref>(<ref refid="structSYN__RateLimit" kindref="compound">SYN_RateLimit</ref><sp/>*rl)</highlight></codeline>
+<codeline lineno="103"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/><sp/><sp/><sp/>rl-&gt;<ref refid="structSYN__RateLimit_1ae44c7aeb5073c435624318a8cfebdf6d" kindref="member">tokens</ref><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>rl-&gt;<ref refid="structSYN__RateLimit_1aa41272b83695c04094af3d04d0eb4fd8" kindref="member">max_tokens</ref>;</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><sp/><sp/><sp/><sp/>rl-&gt;<ref refid="structSYN__RateLimit_1a583649ec272e7779dfaa5ed8916b4b12" kindref="member">last_refill</ref><sp/>=<sp/><ref refid="syn__port__system_8h_1a6c7d98587814b2c0d9c09da02d318873" kindref="member">syn_port_get_tick_ms</ref>();</highlight></codeline>
+<codeline lineno="106"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"></highlight></codeline>
+<codeline lineno="108"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="109"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="110"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="111"><highlight class="normal"></highlight></codeline>
+<codeline lineno="112"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_RATE_LIMIT_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/util/syn_rate_limit.h"/>
+  </compounddef>
+</doxygen>

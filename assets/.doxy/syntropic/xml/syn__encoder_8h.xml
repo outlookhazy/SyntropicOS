@@ -1,0 +1,527 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__encoder_8h" kind="file" language="C++">
+    <compoundname>syn_encoder.h</compoundname>
+    <includes refid="syn__defs_8h" local="yes">../common/syn_defs.h</includes>
+    <includes refid="syn__gpio_8h" local="yes">../drivers/syn_gpio.h</includes>
+    <includes refid="syn__signal_8h" local="yes">../dsp/syn_signal.h</includes>
+    <includes local="no">stdbool.h</includes>
+    <includedby refid="syn__encoder_8c" local="yes">src/syntropic/input/syn_encoder.c</includedby>
+    <includedby refid="syntropic_8h" local="yes">src/syntropic/syntropic.h</includedby>
+    <incdepgraph>
+      <node id="2">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>../drivers/syn_gpio.h</label>
+        <link refid="syn__gpio_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>../dsp/syn_signal.h</label>
+        <link refid="syn__signal_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/input/syn_encoder.h</label>
+        <link refid="syn__encoder_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>../port/syn_port_gpio.h</label>
+        <link refid="syn__port__gpio_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>stdbool.h</label>
+      </node>
+      <node id="4">
+        <label>stddef.h</label>
+      </node>
+      <node id="3">
+        <label>stdint.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="2">
+        <label>src/syntropic/input/syn_encoder.c</label>
+        <link refid="syn__encoder_8c"/>
+      </node>
+      <node id="1">
+        <label>src/syntropic/input/syn_encoder.h</label>
+        <link refid="syn__encoder_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>src/syntropic/syntropic.h</label>
+        <link refid="syntropic_8h"/>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="structSYN__Encoder" prot="public">SYN_Encoder</innerclass>
+    <sectiondef kind="enum">
+      <memberdef kind="enum" id="syn__encoder_8h_1a50b25d2f1528d23990d9c641cae2d748" prot="public" static="no" strong="no">
+        <type></type>
+        <name>SYN_EncoderDir</name>
+        <enumvalue id="syn__encoder_8h_1a50b25d2f1528d23990d9c641cae2d748aa979b9f7bcbabc38084759b429cc8fe9" prot="public">
+          <name>SYN_ENCODER_NONE</name>
+          <initializer>= 0</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>No rotation detected <linebreak/>
+ </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__encoder_8h_1a50b25d2f1528d23990d9c641cae2d748a27c8501b276555cd96e98f1c2ac9fd1f" prot="public">
+          <name>SYN_ENCODER_CW</name>
+          <initializer>= 1</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Clockwise <linebreak/>
+ </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__encoder_8h_1a50b25d2f1528d23990d9c641cae2d748a20dca37551b66e551160fe034897d5d4" prot="public">
+          <name>SYN_ENCODER_CCW</name>
+          <initializer>= -1</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Counter-clockwise <linebreak/>
+ </para>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>Encoder rotation direction. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/input/syn_encoder.h" line="47" column="1" bodyfile="src/syntropic/input/syn_encoder.h" bodystart="47" bodyend="51"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__encoder_8h_1ab24fd68d301bcf0207df1d691b3310d1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_encoder_init</definition>
+        <argsstring>(SYN_Encoder *enc, SYN_GPIO_Pin pin_a, SYN_GPIO_Pin pin_b)</argsstring>
+        <name>syn_encoder_init</name>
+        <param>
+          <type><ref refid="structSYN__Encoder" kindref="compound">SYN_Encoder</ref> *</type>
+          <declname>enc</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref></type>
+          <declname>pin_a</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref></type>
+          <declname>pin_b</declname>
+        </param>
+        <briefdescription>
+<para>Initialize encoder. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>enc</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Encoder instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>pin_a</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Channel A GPIO. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>pin_b</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Channel B GPIO. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/input/syn_encoder.h" line="82" column="6" bodyfile="src/syntropic/input/syn_encoder.c" bodystart="34" bodyend="49" declfile="src/syntropic/input/syn_encoder.h" declline="82" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__encoder_8h_1ada2f62e72b7e66e4bd683da24cc5210e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_encoder_set_steps_per_detent</definition>
+        <argsstring>(SYN_Encoder *enc, uint8_t spd)</argsstring>
+        <name>syn_encoder_set_steps_per_detent</name>
+        <param>
+          <type><ref refid="structSYN__Encoder" kindref="compound">SYN_Encoder</ref> *</type>
+          <declname>enc</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>spd</declname>
+        </param>
+        <briefdescription>
+<para>Set steps-per-detent (default = 1). </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Many mechanical encoders generate 2 or 4 state changes per physical detent. Setting this to 4 means <computeroutput>position</computeroutput> and <computeroutput>delta</computeroutput> only increment once per detent rather than once per state change.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>enc</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Encoder instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>spd</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Steps per detent (1, 2, or 4). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/input/syn_encoder.h" line="96" column="6" bodyfile="src/syntropic/input/syn_encoder.c" bodystart="51" bodyend="57" declfile="src/syntropic/input/syn_encoder.h" declline="96" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__encoder_8h_1a2ed32a2d936345e14e401c3a7beecdc9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_encoder_update</definition>
+        <argsstring>(SYN_Encoder *enc)</argsstring>
+        <name>syn_encoder_update</name>
+        <param>
+          <type><ref refid="structSYN__Encoder" kindref="compound">SYN_Encoder</ref> *</type>
+          <declname>enc</declname>
+        </param>
+        <briefdescription>
+<para>Sample pins and update position. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Call from a timer ISR or fast polling loop. Must be called at ≥4× the encoder&apos;s maximum rotation speed.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>enc</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Encoder instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/input/syn_encoder.h" line="106" column="6" bodyfile="src/syntropic/input/syn_encoder.c" bodystart="59" bodyend="93" declfile="src/syntropic/input/syn_encoder.h" declline="106" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__encoder_8h_1ab208077cc08235df9b7d98e43f1414ab" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int32_t</type>
+        <definition>int32_t syn_encoder_get_delta</definition>
+        <argsstring>(SYN_Encoder *enc)</argsstring>
+        <name>syn_encoder_get_delta</name>
+        <param>
+          <type><ref refid="structSYN__Encoder" kindref="compound">SYN_Encoder</ref> *</type>
+          <declname>enc</declname>
+        </param>
+        <briefdescription>
+<para>Get accumulated delta since last call and reset it. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>enc</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Encoder instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Number of steps (positive = CW, negative = CCW). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/input/syn_encoder.h" line="114" column="9" bodyfile="src/syntropic/input/syn_encoder.c" bodystart="95" bodyend="107" declfile="src/syntropic/input/syn_encoder.h" declline="114" declcolumn="9"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__encoder_8h_1a9266ca122a003a03f6db9485f1979607" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>int32_t</type>
+        <definition>static int32_t syn_encoder_position</definition>
+        <argsstring>(const SYN_Encoder *enc)</argsstring>
+        <name>syn_encoder_position</name>
+        <param>
+          <type>const <ref refid="structSYN__Encoder" kindref="compound">SYN_Encoder</ref> *</type>
+          <declname>enc</declname>
+        </param>
+        <briefdescription>
+<para>Get absolute position. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>enc</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Encoder. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Accumulated position. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/input/syn_encoder.h" line="121" column="23" bodyfile="src/syntropic/input/syn_encoder.h" bodystart="121" bodyend="124"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__encoder_8h_1a93145335ec4fb296998f8dba26d2777c" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void syn_encoder_set_position</definition>
+        <argsstring>(SYN_Encoder *enc, int32_t pos)</argsstring>
+        <name>syn_encoder_set_position</name>
+        <param>
+          <type><ref refid="structSYN__Encoder" kindref="compound">SYN_Encoder</ref> *</type>
+          <declname>enc</declname>
+        </param>
+        <param>
+          <type>int32_t</type>
+          <declname>pos</declname>
+        </param>
+        <briefdescription>
+<para>Set absolute position. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>enc</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Encoder. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>pos</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>New position value. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/input/syn_encoder.h" line="131" column="20" bodyfile="src/syntropic/input/syn_encoder.h" bodystart="131" bodyend="134"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__encoder_8h_1a5b868e254579a2f6ebedde0378e275d2" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type><ref refid="syn__encoder_8h_1a50b25d2f1528d23990d9c641cae2d748" kindref="member">SYN_EncoderDir</ref></type>
+        <definition>static SYN_EncoderDir syn_encoder_direction</definition>
+        <argsstring>(const SYN_Encoder *enc)</argsstring>
+        <name>syn_encoder_direction</name>
+        <param>
+          <type>const <ref refid="structSYN__Encoder" kindref="compound">SYN_Encoder</ref> *</type>
+          <declname>enc</declname>
+        </param>
+        <briefdescription>
+<para>Get last direction. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>enc</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Encoder. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Last detected direction. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/input/syn_encoder.h" line="141" column="30" bodyfile="src/syntropic/input/syn_encoder.h" bodystart="141" bodyend="144"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__encoder_8h_1a255b5c9af0d2603e169ac75b66389c6b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_encoder_set_stats</definition>
+        <argsstring>(SYN_Encoder *enc, SYN_Signal *stats)</argsstring>
+        <name>syn_encoder_set_stats</name>
+        <param>
+          <type><ref refid="structSYN__Encoder" kindref="compound">SYN_Encoder</ref> *</type>
+          <declname>enc</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__Signal" kindref="compound">SYN_Signal</ref> *</type>
+          <declname>stats</declname>
+        </param>
+        <briefdescription>
+<para>Attach a signal statistics window for velocity tracking. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Each call to <ref refid="syn__encoder_8h_1ab208077cc08235df9b7d98e43f1414ab" kindref="member">syn_encoder_get_delta()</ref> pushes the delta value into the signal window, giving you velocity min/max/mean/variance.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>enc</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Encoder. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>stats</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Initialized <ref refid="structSYN__Signal" kindref="compound">SYN_Signal</ref>, or NULL to detach. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/input/syn_encoder.h" line="155" column="6" bodyfile="src/syntropic/input/syn_encoder.c" bodystart="109" bodyend="113" declfile="src/syntropic/input/syn_encoder.h" declline="155" declcolumn="6"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Quadrature rotary encoder decoder. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Decodes A/B quadrature signals from rotary encoders. Supports:<itemizedlist>
+<listitem><para>Direction detection (CW/CCW)</para>
+</listitem><listitem><para>Accumulated position</para>
+</listitem><listitem><para>Delta since last read</para>
+</listitem><listitem><para>Optional push-button (use syn_button for debouncing)</para>
+</listitem></itemizedlist>
+</para>
+<para>Call <computeroutput><ref refid="syn__encoder_8h_1a2ed32a2d936345e14e401c3a7beecdc9" kindref="member">syn_encoder_update()</ref></computeroutput> from a timer ISR or fast loop (≥4× the maximum encoder frequency).</para>
+<para><simplesect kind="par"><title>Usage</title><para><programlisting><codeline><highlight class="normal"><ref refid="structSYN__Encoder" kindref="compound">SYN_Encoder</ref><sp/>enc;</highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__encoder_8c_1ab24fd68d301bcf0207df1d691b3310d1" kindref="member">syn_encoder_init</ref>(&amp;enc,<sp/>PIN_A,<sp/>PIN_B);</highlight></codeline>
+<codeline><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="comment">//<sp/>In<sp/>timer<sp/>ISR<sp/>or<sp/>fast<sp/>loop:</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__encoder_8c_1a2ed32a2d936345e14e401c3a7beecdc9" kindref="member">syn_encoder_update</ref>(&amp;enc);</highlight></codeline>
+<codeline><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="comment">//<sp/>In<sp/>main<sp/>loop:</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal">int32_t<sp/>delta<sp/>=<sp/><ref refid="syn__encoder_8c_1ab208077cc08235df9b7d98e43f1414ab" kindref="member">syn_encoder_get_delta</ref>(&amp;enc);</highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(delta<sp/>!=<sp/>0)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>volume<sp/>+=<sp/>delta;</highlight></codeline>
+<codeline><highlight class="normal">}</highlight></codeline>
+</programlisting> </para>
+</simplesect>
+</para>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_ENCODER_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_ENCODER_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../common/syn_defs.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../drivers/syn_gpio.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../dsp/syn_signal.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Encoder<sp/>direction<sp/>────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight></codeline>
+<codeline lineno="47" refid="syn__encoder_8h_1a50b25d2f1528d23990d9c641cae2d748" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="48" refid="syn__encoder_8h_1a50b25d2f1528d23990d9c641cae2d748aa979b9f7bcbabc38084759b429cc8fe9" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__encoder_8h_1a50b25d2f1528d23990d9c641cae2d748aa979b9f7bcbabc38084759b429cc8fe9" kindref="member">SYN_ENCODER_NONE</ref><sp/>=<sp/>0,<sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="49" refid="syn__encoder_8h_1a50b25d2f1528d23990d9c641cae2d748a27c8501b276555cd96e98f1c2ac9fd1f" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__encoder_8h_1a50b25d2f1528d23990d9c641cae2d748a27c8501b276555cd96e98f1c2ac9fd1f" kindref="member">SYN_ENCODER_CW</ref><sp/><sp/><sp/>=<sp/>1,<sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="50" refid="syn__encoder_8h_1a50b25d2f1528d23990d9c641cae2d748a20dca37551b66e551160fe034897d5d4" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__encoder_8h_1a50b25d2f1528d23990d9c641cae2d748a20dca37551b66e551160fe034897d5d4" kindref="member">SYN_ENCODER_CCW</ref><sp/><sp/><sp/>=<sp/>-1,<sp/></highlight></codeline>
+<codeline lineno="51"><highlight class="normal">}<sp/><ref refid="syn__encoder_8h_1a50b25d2f1528d23990d9c641cae2d748" kindref="member">SYN_EncoderDir</ref>;</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"></highlight></codeline>
+<codeline lineno="53"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Encoder<sp/>descriptor<sp/>───────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="54"><highlight class="normal"></highlight></codeline>
+<codeline lineno="56" refid="structSYN__Encoder" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="57" refid="structSYN__Encoder_1abbbd8bdfcb98a5b0ea88bcc1e8bccb3e" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref><sp/><sp/><ref refid="structSYN__Encoder_1abbbd8bdfcb98a5b0ea88bcc1e8bccb3e" kindref="member">pin_a</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="58" refid="structSYN__Encoder_1ac260637cfd36c7c4ac6afb43d15b1de4" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref><sp/><sp/><ref refid="structSYN__Encoder_1ac260637cfd36c7c4ac6afb43d15b1de4" kindref="member">pin_b</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="60" refid="structSYN__Encoder_1a8b9ff1251ad65267a740cc7914565657" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>int32_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__Encoder_1a8b9ff1251ad65267a740cc7914565657" kindref="member">position</ref>;<sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="61" refid="structSYN__Encoder_1a778cb326b38ce3c249144a38b6feb400" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>int32_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__Encoder_1a778cb326b38ce3c249144a38b6feb400" kindref="member">delta</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="62" refid="structSYN__Encoder_1a2d30dceb25d8f2379e914eca32e3c1b1" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__Encoder_1a2d30dceb25d8f2379e914eca32e3c1b1" kindref="member">last_state</ref>;<sp/><sp/></highlight></codeline>
+<codeline lineno="63" refid="structSYN__Encoder_1abb44b2442147d2809830a892095630b8" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>int8_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__Encoder_1abb44b2442147d2809830a892095630b8" kindref="member">last_dir</ref>;<sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Optional:<sp/>step<sp/>multiplier<sp/>(for<sp/>encoders<sp/>with<sp/>detents<sp/>every<sp/>N<sp/>states)<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="66" refid="structSYN__Encoder_1aaec6201d56bb847fe53f8c4539c347c9" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__Encoder_1aaec6201d56bb847fe53f8c4539c347c9" kindref="member">steps_per_detent</ref>;<sp/></highlight></codeline>
+<codeline lineno="67" refid="structSYN__Encoder_1a1ee9b444c0600db6bc1ccf7839f390d0" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>int8_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__Encoder_1a1ee9b444c0600db6bc1ccf7839f390d0" kindref="member">sub_count</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Statistics<sp/>(optional)<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="70" refid="structSYN__Encoder_1adafef3a20927850a29dc76c6e3dd3f7c" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structSYN__Signal" kindref="compound">SYN_Signal</ref><sp/><sp/><sp/>*<ref refid="structSYN__Encoder_1adafef3a20927850a29dc76c6e3dd3f7c" kindref="member">stats</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="71"><highlight class="normal">}<sp/><ref refid="structSYN__Encoder" kindref="compound">SYN_Encoder</ref>;</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"></highlight></codeline>
+<codeline lineno="73"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>API<sp/>──────────────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="74"><highlight class="normal"></highlight></codeline>
+<codeline lineno="82"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__encoder_8h_1ab24fd68d301bcf0207df1d691b3310d1" kindref="member">syn_encoder_init</ref>(<ref refid="structSYN__Encoder" kindref="compound">SYN_Encoder</ref><sp/>*enc,</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref><sp/>pin_a,</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref><sp/>pin_b);</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"></highlight></codeline>
+<codeline lineno="96"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__encoder_8h_1ada2f62e72b7e66e4bd683da24cc5210e" kindref="member">syn_encoder_set_steps_per_detent</ref>(<ref refid="structSYN__Encoder" kindref="compound">SYN_Encoder</ref><sp/>*enc,<sp/>uint8_t<sp/>spd);</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"></highlight></codeline>
+<codeline lineno="106"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__encoder_8h_1a2ed32a2d936345e14e401c3a7beecdc9" kindref="member">syn_encoder_update</ref>(<ref refid="structSYN__Encoder" kindref="compound">SYN_Encoder</ref><sp/>*enc);</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"></highlight></codeline>
+<codeline lineno="114"><highlight class="normal">int32_t<sp/><ref refid="syn__encoder_8h_1ab208077cc08235df9b7d98e43f1414ab" kindref="member">syn_encoder_get_delta</ref>(<ref refid="structSYN__Encoder" kindref="compound">SYN_Encoder</ref><sp/>*enc);</highlight></codeline>
+<codeline lineno="115"><highlight class="normal"></highlight></codeline>
+<codeline lineno="121" refid="syn__encoder_8h_1a9266ca122a003a03f6db9485f1979607" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>int32_t<sp/><ref refid="syn__encoder_8h_1a9266ca122a003a03f6db9485f1979607" kindref="member">syn_encoder_position</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__Encoder" kindref="compound">SYN_Encoder</ref><sp/>*enc)</highlight></codeline>
+<codeline lineno="122"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="123"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>enc-&gt;<ref refid="structSYN__Encoder_1a8b9ff1251ad65267a740cc7914565657" kindref="member">position</ref>;</highlight></codeline>
+<codeline lineno="124"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"></highlight></codeline>
+<codeline lineno="131" refid="syn__encoder_8h_1a93145335ec4fb296998f8dba26d2777c" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__encoder_8h_1a93145335ec4fb296998f8dba26d2777c" kindref="member">syn_encoder_set_position</ref>(<ref refid="structSYN__Encoder" kindref="compound">SYN_Encoder</ref><sp/>*enc,<sp/>int32_t<sp/>pos)</highlight></codeline>
+<codeline lineno="132"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="133"><highlight class="normal"><sp/><sp/><sp/><sp/>enc-&gt;<ref refid="structSYN__Encoder_1a8b9ff1251ad65267a740cc7914565657" kindref="member">position</ref><sp/>=<sp/>pos;</highlight></codeline>
+<codeline lineno="134"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="135"><highlight class="normal"></highlight></codeline>
+<codeline lineno="141" refid="syn__encoder_8h_1a5b868e254579a2f6ebedde0378e275d2" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/><ref refid="syn__encoder_8h_1a50b25d2f1528d23990d9c641cae2d748" kindref="member">SYN_EncoderDir</ref><sp/><ref refid="syn__encoder_8h_1a5b868e254579a2f6ebedde0378e275d2" kindref="member">syn_encoder_direction</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__Encoder" kindref="compound">SYN_Encoder</ref><sp/>*enc)</highlight></codeline>
+<codeline lineno="142"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="143"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(<ref refid="syn__encoder_8h_1a50b25d2f1528d23990d9c641cae2d748" kindref="member">SYN_EncoderDir</ref>)enc-&gt;<ref refid="structSYN__Encoder_1abb44b2442147d2809830a892095630b8" kindref="member">last_dir</ref>;</highlight></codeline>
+<codeline lineno="144"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="145"><highlight class="normal"></highlight></codeline>
+<codeline lineno="155"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__encoder_8h_1a255b5c9af0d2603e169ac75b66389c6b" kindref="member">syn_encoder_set_stats</ref>(<ref refid="structSYN__Encoder" kindref="compound">SYN_Encoder</ref><sp/>*enc,<sp/><ref refid="structSYN__Signal" kindref="compound">SYN_Signal</ref><sp/>*stats);</highlight></codeline>
+<codeline lineno="156"><highlight class="normal"></highlight></codeline>
+<codeline lineno="157"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="158"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="159"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="160"><highlight class="normal"></highlight></codeline>
+<codeline lineno="161"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_ENCODER_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/input/syn_encoder.h"/>
+  </compounddef>
+</doxygen>

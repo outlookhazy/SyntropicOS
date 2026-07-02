@@ -1,0 +1,999 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__modbus_8c" kind="file" language="C++">
+    <compoundname>syn_modbus.c</compoundname>
+    <includes refid="syn__modbus_8h" local="yes">syn_modbus.h</includes>
+    <includes refid="syn__assert_8h" local="yes">../util/syn_assert.h</includes>
+    <includes local="no">string.h</includes>
+    <incdepgraph>
+      <node id="12">
+        <label>../common/syn_compiler.h</label>
+        <link refid="syn__compiler_8h"/>
+      </node>
+      <node id="3">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>../drivers/syn_uart.h</label>
+        <link refid="syn__uart_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="11">
+        <label>../port/syn_port_system.h</label>
+        <link refid="syn__port__system_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+      </node>
+      <node id="9">
+        <label>../port/syn_port_uart.h</label>
+        <link refid="syn__port__uart_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/proto/syn_modbus.c</label>
+        <link refid="syn__modbus_8c"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>syn_modbus.h</label>
+        <link refid="syn__modbus_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="13">
+        <label>../util/syn_assert.h</label>
+        <link refid="syn__assert_8h"/>
+        <childnode refid="12" relation="include">
+        </childnode>
+      </node>
+      <node id="10">
+        <label>../util/syn_crc.h</label>
+        <link refid="syn__crc_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>../util/syn_ringbuf.h</label>
+        <link refid="syn__ringbuf_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>stdbool.h</label>
+      </node>
+      <node id="5">
+        <label>stddef.h</label>
+      </node>
+      <node id="4">
+        <label>stdint.h</label>
+      </node>
+      <node id="14">
+        <label>string.h</label>
+      </node>
+    </incdepgraph>
+    <sectiondef kind="define">
+      <memberdef kind="define" id="syn__modbus_8c_1a4c863f4ac742dd5797106d5af6750f1d" prot="public" static="no">
+        <name>MB_SILENCE_MS</name>
+        <initializer>5</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Inter-frame silence (ms). <linebreak/>
+ </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_modbus.c" line="24" column="9" bodyfile="src/syntropic/proto/syn_modbus.c" bodystart="24" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__modbus_8c_1a3bf9a428847746aedda1315b73685577" prot="public" static="no">
+        <name>MB_MIN_FRAME_LEN</name>
+        <initializer>4</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Minimum: addr + func + CRC16. <linebreak/>
+ </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_modbus.c" line="25" column="9" bodyfile="src/syntropic/proto/syn_modbus.c" bodystart="25" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__modbus_8c_1a3a3e52cd22e68bcef1f89ace20872e81" prot="public" static="no">
+        <name>MB_MAX_PDU_DATA</name>
+        <initializer>252</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Max PDU data bytes. <linebreak/>
+ </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_modbus.c" line="26" column="9" bodyfile="src/syntropic/proto/syn_modbus.c" bodystart="26" bodyend="-1"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__modbus_8c_1ab2869921ff66238bc6e136475fa9fab3" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint16_t</type>
+        <definition>static uint16_t read_u16</definition>
+        <argsstring>(const uint8_t *buf)</argsstring>
+        <name>read_u16</name>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>buf</declname>
+        </param>
+        <briefdescription>
+<para>Read big-endian uint16 from a byte buffer. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Source buffer. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Decoded value. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_modbus.c" line="35" column="17" bodyfile="src/syntropic/proto/syn_modbus.c" bodystart="35" bodyend="38"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__modbus_8c_1aa26bc4027d76830444a29ace48162b69" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void write_u16</definition>
+        <argsstring>(uint8_t *buf, uint16_t val)</argsstring>
+        <name>write_u16</name>
+        <param>
+          <type>uint8_t *</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>val</declname>
+        </param>
+        <briefdescription>
+<para>Write big-endian uint16 to a byte buffer. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Destination buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>val</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Value to encode. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_modbus.c" line="45" column="13" bodyfile="src/syntropic/proto/syn_modbus.c" bodystart="45" bodyend="49"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__modbus_8c_1a311e0547781facdc4c7b522c4f9aee56" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>static bool check_crc</definition>
+        <argsstring>(const uint8_t *buf, uint16_t len)</argsstring>
+        <name>check_crc</name>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>len</declname>
+        </param>
+        <briefdescription>
+<para>Verify the CRC-16 Modbus trailer. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Frame buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Total frame length (including CRC). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if CRC matches. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_modbus.c" line="57" column="13" bodyfile="src/syntropic/proto/syn_modbus.c" bodystart="57" bodyend="63"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__modbus_8c_1a9edc57f00a2a87facba97f3264942bd3" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void append_crc</definition>
+        <argsstring>(uint8_t *buf, uint16_t len)</argsstring>
+        <name>append_crc</name>
+        <param>
+          <type>uint8_t *</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>len</declname>
+        </param>
+        <briefdescription>
+<para>Append CRC-16 Modbus to a frame buffer. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Frame buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Frame length (excluding CRC). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_modbus.c" line="70" column="13" bodyfile="src/syntropic/proto/syn_modbus.c" bodystart="70" bodyend="75"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__modbus_8c_1abe33cdc8e6505113971263e0c89c28bd" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void send_response</definition>
+        <argsstring>(SYN_Modbus *mb, uint16_t len)</argsstring>
+        <name>send_response</name>
+        <param>
+          <type><ref refid="structSYN__Modbus" kindref="compound">SYN_Modbus</ref> *</type>
+          <declname>mb</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>len</declname>
+        </param>
+        <briefdescription>
+<para>Append CRC and transmit a response frame. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>mb</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Modbus instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>PDU length (excluding CRC). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_modbus.c" line="84" column="13" bodyfile="src/syntropic/proto/syn_modbus.c" bodystart="84" bodyend="92"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__modbus_8c_1aa83203e9509a7f86c74af051143df7d1" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void send_exception</definition>
+        <argsstring>(SYN_Modbus *mb, uint8_t func, uint8_t ex_code)</argsstring>
+        <name>send_exception</name>
+        <param>
+          <type><ref refid="structSYN__Modbus" kindref="compound">SYN_Modbus</ref> *</type>
+          <declname>mb</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>func</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>ex_code</declname>
+        </param>
+        <briefdescription>
+<para>Send a Modbus exception response. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>mb</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Modbus instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>func</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function code that caused the exception. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>ex_code</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Exception code. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_modbus.c" line="100" column="13" bodyfile="src/syntropic/proto/syn_modbus.c" bodystart="100" bodyend="111"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__modbus_8c_1a7c3778dd733c0a158a0288fedcd2305f" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void handle_read_regs</definition>
+        <argsstring>(SYN_Modbus *mb, const uint16_t *regs, uint16_t reg_count)</argsstring>
+        <name>handle_read_regs</name>
+        <param>
+          <type><ref refid="structSYN__Modbus" kindref="compound">SYN_Modbus</ref> *</type>
+          <declname>mb</declname>
+        </param>
+        <param>
+          <type>const uint16_t *</type>
+          <declname>regs</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>reg_count</declname>
+        </param>
+        <briefdescription>
+<para>Handle Modbus read holding/input register request. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>mb</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Modbus instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>regs</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Register array. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>reg_count</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Total register count. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_modbus.c" line="121" column="13" bodyfile="src/syntropic/proto/syn_modbus.c" bodystart="121" bodyend="143"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__modbus_8c_1a88e17ddb3b313f2cfbfd16e852ef0fee" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void handle_write_single</definition>
+        <argsstring>(SYN_Modbus *mb)</argsstring>
+        <name>handle_write_single</name>
+        <param>
+          <type><ref refid="structSYN__Modbus" kindref="compound">SYN_Modbus</ref> *</type>
+          <declname>mb</declname>
+        </param>
+        <briefdescription>
+<para>Handle Modbus write single register request. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>mb</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Modbus instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_modbus.c" line="149" column="13" bodyfile="src/syntropic/proto/syn_modbus.c" bodystart="149" bodyend="172"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__modbus_8c_1ae6ff270737cfe590bd9e7d7e65496f05" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void handle_write_multiple</definition>
+        <argsstring>(SYN_Modbus *mb)</argsstring>
+        <name>handle_write_multiple</name>
+        <param>
+          <type><ref refid="structSYN__Modbus" kindref="compound">SYN_Modbus</ref> *</type>
+          <declname>mb</declname>
+        </param>
+        <briefdescription>
+<para>Handle Modbus write multiple registers request. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>mb</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Modbus instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_modbus.c" line="178" column="13" bodyfile="src/syntropic/proto/syn_modbus.c" bodystart="178" bodyend="212"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__modbus_8c_1a6cd5b6d6172dc58ae27b6a2f3436abb1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_modbus_init</definition>
+        <argsstring>(SYN_Modbus *mb, const SYN_Modbus_Config *cfg, uint8_t *buf, uint16_t buf_size)</argsstring>
+        <name>syn_modbus_init</name>
+        <param>
+          <type><ref refid="structSYN__Modbus" kindref="compound">SYN_Modbus</ref> *</type>
+          <declname>mb</declname>
+        </param>
+        <param>
+          <type>const <ref refid="structSYN__Modbus__Config" kindref="compound">SYN_Modbus_Config</ref> *</type>
+          <declname>cfg</declname>
+        </param>
+        <param>
+          <type>uint8_t *</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>buf_size</declname>
+        </param>
+        <briefdescription>
+<para>Initialize the Modbus RTU slave. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>mb</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Modbus instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>cfg</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Configuration. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Frame buffer (must be at least 256 bytes). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>buf_size</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Buffer capacity. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_modbus.c" line="216" column="6" bodyfile="src/syntropic/proto/syn_modbus.c" bodystart="216" bodyend="228"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__modbus_8c_1aa833c5b28c793f97a62fea7aae8c95fb" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_modbus_feed</definition>
+        <argsstring>(SYN_Modbus *mb, uint8_t byte)</argsstring>
+        <name>syn_modbus_feed</name>
+        <param>
+          <type><ref refid="structSYN__Modbus" kindref="compound">SYN_Modbus</ref> *</type>
+          <declname>mb</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>byte</declname>
+        </param>
+        <briefdescription>
+<para>Feed a byte to the Modbus receiver. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Alternative to poll() — call from UART ISR if you want interrupt-driven reception.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>mb</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Modbus instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>byte</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Received byte. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_modbus.c" line="230" column="6" bodyfile="src/syntropic/proto/syn_modbus.c" bodystart="230" bodyend="251"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__modbus_8c_1afeccc6e587393c47feedda49b79e086e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_modbus_process</definition>
+        <argsstring>(SYN_Modbus *mb)</argsstring>
+        <name>syn_modbus_process</name>
+        <param>
+          <type><ref refid="structSYN__Modbus" kindref="compound">SYN_Modbus</ref> *</type>
+          <declname>mb</declname>
+        </param>
+        <briefdescription>
+<para>Process a complete frame (call after feed + silence detection). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>mb</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Modbus instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if a response was sent. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_modbus.c" line="253" column="6" bodyfile="src/syntropic/proto/syn_modbus.c" bodystart="253" bodyend="310"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__modbus_8c_1a55acc728fce64c5ab651cbb5dd087a2e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_modbus_poll</definition>
+        <argsstring>(SYN_Modbus *mb)</argsstring>
+        <name>syn_modbus_poll</name>
+        <param>
+          <type><ref refid="structSYN__Modbus" kindref="compound">SYN_Modbus</ref> *</type>
+          <declname>mb</declname>
+        </param>
+        <briefdescription>
+<para>Poll for incoming Modbus requests and process them. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Call from your main loop. This reads bytes from UART, detects frame boundaries (3.5 character times silence), validates CRC, and processes the request.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>mb</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Modbus instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if a request was processed. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_modbus.c" line="312" column="6" bodyfile="src/syntropic/proto/syn_modbus.c" bodystart="312" bodyend="334"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__modbus_8c_1adeacca4c5cab85afeaa838726ffe4fa2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_modbus_reset</definition>
+        <argsstring>(SYN_Modbus *mb)</argsstring>
+        <name>syn_modbus_reset</name>
+        <param>
+          <type><ref refid="structSYN__Modbus" kindref="compound">SYN_Modbus</ref> *</type>
+          <declname>mb</declname>
+        </param>
+        <briefdescription>
+<para>Reset the receiver state. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>mb</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Modbus instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_modbus.c" line="336" column="6" bodyfile="src/syntropic/proto/syn_modbus.c" bodystart="336" bodyend="341"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Modbus RTU slave implementation. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#if<sp/>__has_include(&quot;syn_config.h&quot;)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/>#include<sp/>&quot;syn_config.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="4"><highlight class="normal"></highlight></codeline>
+<codeline lineno="5"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>!defined(SYN_USE_MODBUS)<sp/>||<sp/>SYN_USE_MODBUS</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__modbus_8h" kindref="compound">syn_modbus.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../util/syn_assert.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;string.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Constants<sp/>────────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="20"><highlight class="comment"><sp/>*<sp/>Inter-frame<sp/>silence:<sp/>3.5<sp/>character<sp/>times.</highlight></codeline>
+<codeline lineno="21"><highlight class="comment"><sp/>*<sp/>At<sp/>9600<sp/>baud:<sp/>~4ms.<sp/>We<sp/>use<sp/>a<sp/>conservative<sp/>5ms<sp/>minimum.</highlight></codeline>
+<codeline lineno="22"><highlight class="comment"><sp/>*<sp/>At<sp/>higher<sp/>baud<sp/>rates<sp/>it&apos;s<sp/>shorter,<sp/>but<sp/>we<sp/>still<sp/>need<sp/>a<sp/>minimum.</highlight></codeline>
+<codeline lineno="23"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>MB_SILENCE_MS<sp/><sp/><sp/><sp/><sp/><sp/>5<sp/><sp/><sp/><sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>MB_MIN_FRAME_LEN<sp/><sp/><sp/>4<sp/><sp/><sp/><sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>MB_MAX_PDU_DATA<sp/><sp/><sp/><sp/>252<sp/><sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Helpers<sp/>──────────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/>uint16_t<sp/><ref refid="syn__modbus_8c_1ab2869921ff66238bc6e136475fa9fab3" kindref="member">read_u16</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*buf)</highlight></codeline>
+<codeline lineno="36"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="37"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(uint16_t)((buf[0]<sp/>&lt;&lt;<sp/>8)<sp/>|<sp/>buf[1]);</highlight></codeline>
+<codeline lineno="38"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__modbus_8c_1aa26bc4027d76830444a29ace48162b69" kindref="member">write_u16</ref>(uint8_t<sp/>*buf,<sp/>uint16_t<sp/>val)</highlight></codeline>
+<codeline lineno="46"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/><sp/><sp/>buf[0]<sp/>=<sp/>(uint8_t)(val<sp/>&gt;&gt;<sp/>8);</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/><sp/><sp/>buf[1]<sp/>=<sp/>(uint8_t)(val<sp/>&amp;<sp/>0xFF);</highlight></codeline>
+<codeline lineno="49"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"></highlight></codeline>
+<codeline lineno="57"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__modbus_8c_1a311e0547781facdc4c7b522c4f9aee56" kindref="member">check_crc</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*buf,<sp/>uint16_t<sp/>len)</highlight></codeline>
+<codeline lineno="58"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(len<sp/>&lt;<sp/>2)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/>received<sp/>=<sp/>(uint16_t)(buf[len<sp/>-<sp/>1]<sp/>&lt;&lt;<sp/>8<sp/>|<sp/>buf[len<sp/>-<sp/>2]);</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/>computed<sp/>=<sp/><ref refid="syn__crc_8h_1aaca1b84c65ac5075a33e906be74dbc3c" kindref="member">syn_crc16_modbus</ref>(buf,<sp/>len<sp/>-<sp/>2);</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>received<sp/>==<sp/>computed;</highlight></codeline>
+<codeline lineno="63"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"></highlight></codeline>
+<codeline lineno="70"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__modbus_8c_1a9edc57f00a2a87facba97f3264942bd3" kindref="member">append_crc</ref>(uint8_t<sp/>*buf,<sp/>uint16_t<sp/>len)</highlight></codeline>
+<codeline lineno="71"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/>crc<sp/>=<sp/><ref refid="syn__crc_8h_1aaca1b84c65ac5075a33e906be74dbc3c" kindref="member">syn_crc16_modbus</ref>(buf,<sp/>len);</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><sp/><sp/><sp/><sp/>buf[len]<sp/><sp/><sp/><sp/><sp/>=<sp/>(uint8_t)(crc<sp/>&amp;<sp/>0xFF);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>CRC<sp/>low<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="74"><highlight class="normal"><sp/><sp/><sp/><sp/>buf[len<sp/>+<sp/>1]<sp/>=<sp/>(uint8_t)((crc<sp/>&gt;&gt;<sp/>8)<sp/>&amp;<sp/>0xFF);<sp/><sp/></highlight><highlight class="comment">/*<sp/>CRC<sp/>high<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="75"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"></highlight></codeline>
+<codeline lineno="77"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Send<sp/>helpers<sp/>─────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="78"><highlight class="normal"></highlight></codeline>
+<codeline lineno="84"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__modbus_8c_1abe33cdc8e6505113971263e0c89c28bd" kindref="member">send_response</ref>(<ref refid="structSYN__Modbus" kindref="compound">SYN_Modbus</ref><sp/>*mb,<sp/>uint16_t<sp/>len)</highlight></codeline>
+<codeline lineno="85"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(mb-&gt;<ref refid="structSYN__Modbus_1a5d0454ec16f1860e4bc862660e7b386e" kindref="member">buf</ref>[0]<sp/>==<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal">;<sp/></highlight><highlight class="comment">/*<sp/>Do<sp/>not<sp/>respond<sp/>to<sp/>broadcast<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__modbus_8c_1a9edc57f00a2a87facba97f3264942bd3" kindref="member">append_crc</ref>(mb-&gt;<ref refid="structSYN__Modbus_1a5d0454ec16f1860e4bc862660e7b386e" kindref="member">buf</ref>,<sp/>len);</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__port__uart_8h_1af75eff5e3b3ab26f27c2fbb0bad81aa7" kindref="member">syn_port_uart_transmit</ref>(mb-&gt;<ref refid="structSYN__Modbus_1ae2cc8db5a1f45e8cdbb2cf73177c3d07" kindref="member">cfg</ref>.<ref refid="structSYN__Modbus__Config_1a56a396019a86709134591cca58aab7fd" kindref="member">uart</ref>,<sp/>mb-&gt;<ref refid="structSYN__Modbus_1a5d0454ec16f1860e4bc862660e7b386e" kindref="member">buf</ref>,<sp/>len<sp/>+<sp/>2,<sp/>100);</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"><sp/><sp/><sp/><sp/>mb-&gt;<ref refid="structSYN__Modbus_1a4e87f4bf3a7440e734e0ff6186098a32" kindref="member">frames_tx</ref>++;</highlight></codeline>
+<codeline lineno="92"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"></highlight></codeline>
+<codeline lineno="100"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__modbus_8c_1aa83203e9509a7f86c74af051143df7d1" kindref="member">send_exception</ref>(<ref refid="structSYN__Modbus" kindref="compound">SYN_Modbus</ref><sp/>*mb,<sp/>uint8_t<sp/>func,<sp/>uint8_t<sp/>ex_code)</highlight></codeline>
+<codeline lineno="101"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(mb-&gt;<ref refid="structSYN__Modbus_1a5d0454ec16f1860e4bc862660e7b386e" kindref="member">buf</ref>[0]<sp/>==<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>mb-&gt;<ref refid="structSYN__Modbus_1ab41b2162266f98ebcd753579fd194ad0" kindref="member">errors</ref>++;</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal">;<sp/></highlight><highlight class="comment">/*<sp/>Do<sp/>not<sp/>respond<sp/>to<sp/>broadcast<sp/>exceptions<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"><sp/><sp/><sp/><sp/>mb-&gt;<ref refid="structSYN__Modbus_1a5d0454ec16f1860e4bc862660e7b386e" kindref="member">buf</ref>[0]<sp/>=<sp/>mb-&gt;<ref refid="structSYN__Modbus_1ae2cc8db5a1f45e8cdbb2cf73177c3d07" kindref="member">cfg</ref>.<ref refid="structSYN__Modbus__Config_1a7d2394814354182b824edabf70e6cfc8" kindref="member">slave_addr</ref>;</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"><sp/><sp/><sp/><sp/>mb-&gt;<ref refid="structSYN__Modbus_1a5d0454ec16f1860e4bc862660e7b386e" kindref="member">buf</ref>[1]<sp/>=<sp/>(uint8_t)(func<sp/>|<sp/>0x80);</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"><sp/><sp/><sp/><sp/>mb-&gt;<ref refid="structSYN__Modbus_1a5d0454ec16f1860e4bc862660e7b386e" kindref="member">buf</ref>[2]<sp/>=<sp/>ex_code;</highlight></codeline>
+<codeline lineno="109"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__modbus_8c_1abe33cdc8e6505113971263e0c89c28bd" kindref="member">send_response</ref>(mb,<sp/>3);</highlight></codeline>
+<codeline lineno="110"><highlight class="normal"><sp/><sp/><sp/><sp/>mb-&gt;<ref refid="structSYN__Modbus_1ab41b2162266f98ebcd753579fd194ad0" kindref="member">errors</ref>++;</highlight></codeline>
+<codeline lineno="111"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="112"><highlight class="normal"></highlight></codeline>
+<codeline lineno="113"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Function<sp/>code<sp/>handlers<sp/>───────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="114"><highlight class="normal"></highlight></codeline>
+<codeline lineno="121"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__modbus_8c_1a7c3778dd733c0a158a0288fedcd2305f" kindref="member">handle_read_regs</ref>(<ref refid="structSYN__Modbus" kindref="compound">SYN_Modbus</ref><sp/>*mb,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint16_t<sp/>*regs,</highlight></codeline>
+<codeline lineno="122"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint16_t<sp/>reg_count)</highlight></codeline>
+<codeline lineno="123"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="124"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/>addr<sp/><sp/>=<sp/><ref refid="syn__modbus_8c_1ab2869921ff66238bc6e136475fa9fab3" kindref="member">read_u16</ref>(&amp;mb-&gt;<ref refid="structSYN__Modbus_1a5d0454ec16f1860e4bc862660e7b386e" kindref="member">buf</ref>[2]);</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/>count<sp/>=<sp/><ref refid="syn__modbus_8c_1ab2869921ff66238bc6e136475fa9fab3" kindref="member">read_u16</ref>(&amp;mb-&gt;<ref refid="structSYN__Modbus_1a5d0454ec16f1860e4bc862660e7b386e" kindref="member">buf</ref>[4]);</highlight></codeline>
+<codeline lineno="126"><highlight class="normal"></highlight></codeline>
+<codeline lineno="127"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(count<sp/>==<sp/>0<sp/>||<sp/>count<sp/>&gt;<sp/>125)<sp/>{</highlight></codeline>
+<codeline lineno="128"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__modbus_8c_1aa83203e9509a7f86c74af051143df7d1" kindref="member">send_exception</ref>(mb,<sp/>mb-&gt;<ref refid="structSYN__Modbus_1a5d0454ec16f1860e4bc862660e7b386e" kindref="member">buf</ref>[1],<sp/><ref refid="syn__modbus_8h_1a649b31b62cc2136a3be0522729383a3a" kindref="member">SYN_MB_EX_ILLEGAL_VALUE</ref>);</highlight></codeline>
+<codeline lineno="129"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="130"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="131"><highlight class="normal"></highlight></codeline>
+<codeline lineno="132"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>((uint32_t)addr<sp/>+<sp/>count<sp/>&gt;<sp/>reg_count)<sp/>{</highlight></codeline>
+<codeline lineno="133"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__modbus_8c_1aa83203e9509a7f86c74af051143df7d1" kindref="member">send_exception</ref>(mb,<sp/>mb-&gt;<ref refid="structSYN__Modbus_1a5d0454ec16f1860e4bc862660e7b386e" kindref="member">buf</ref>[1],<sp/><ref refid="syn__modbus_8h_1a3ef95d7b2efd03c0b9571df66493d565" kindref="member">SYN_MB_EX_ILLEGAL_ADDR</ref>);</highlight></codeline>
+<codeline lineno="134"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="135"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"></highlight></codeline>
+<codeline lineno="137"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Build<sp/>response<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="138"><highlight class="normal"><sp/><sp/><sp/><sp/>mb-&gt;<ref refid="structSYN__Modbus_1a5d0454ec16f1860e4bc862660e7b386e" kindref="member">buf</ref>[2]<sp/>=<sp/>(uint8_t)(count<sp/>*<sp/>2);<sp/></highlight><highlight class="comment">/*<sp/>byte<sp/>count<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="139"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(uint16_t<sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>count;<sp/>i++)<sp/>{</highlight></codeline>
+<codeline lineno="140"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__modbus_8c_1aa26bc4027d76830444a29ace48162b69" kindref="member">write_u16</ref>(&amp;mb-&gt;<ref refid="structSYN__Modbus_1a5d0454ec16f1860e4bc862660e7b386e" kindref="member">buf</ref>[3<sp/>+<sp/>i<sp/>*<sp/>2],<sp/>regs[addr<sp/>+<sp/>i]);</highlight></codeline>
+<codeline lineno="141"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="142"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__modbus_8c_1abe33cdc8e6505113971263e0c89c28bd" kindref="member">send_response</ref>(mb,<sp/>(uint16_t)(3<sp/>+<sp/>count<sp/>*<sp/>2));</highlight></codeline>
+<codeline lineno="143"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="144"><highlight class="normal"></highlight></codeline>
+<codeline lineno="149"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__modbus_8c_1a88e17ddb3b313f2cfbfd16e852ef0fee" kindref="member">handle_write_single</ref>(<ref refid="structSYN__Modbus" kindref="compound">SYN_Modbus</ref><sp/>*mb)</highlight></codeline>
+<codeline lineno="150"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="151"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/>addr<sp/><sp/>=<sp/><ref refid="syn__modbus_8c_1ab2869921ff66238bc6e136475fa9fab3" kindref="member">read_u16</ref>(&amp;mb-&gt;<ref refid="structSYN__Modbus_1a5d0454ec16f1860e4bc862660e7b386e" kindref="member">buf</ref>[2]);</highlight></codeline>
+<codeline lineno="152"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/>value<sp/>=<sp/><ref refid="syn__modbus_8c_1ab2869921ff66238bc6e136475fa9fab3" kindref="member">read_u16</ref>(&amp;mb-&gt;<ref refid="structSYN__Modbus_1a5d0454ec16f1860e4bc862660e7b386e" kindref="member">buf</ref>[4]);</highlight></codeline>
+<codeline lineno="153"><highlight class="normal"></highlight></codeline>
+<codeline lineno="154"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(addr<sp/>&gt;=<sp/>mb-&gt;<ref refid="structSYN__Modbus_1ae2cc8db5a1f45e8cdbb2cf73177c3d07" kindref="member">cfg</ref>.<ref refid="structSYN__Modbus__Config_1af7d56267ad151fa0ef5b6ce1682bdd04" kindref="member">holding_count</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="155"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__modbus_8c_1aa83203e9509a7f86c74af051143df7d1" kindref="member">send_exception</ref>(mb,<sp/><ref refid="syn__modbus_8h_1a96db561a7df6ecf8a911d9d8950c3b11" kindref="member">SYN_MB_FC_WRITE_SINGLE</ref>,<sp/><ref refid="syn__modbus_8h_1a3ef95d7b2efd03c0b9571df66493d565" kindref="member">SYN_MB_EX_ILLEGAL_ADDR</ref>);</highlight></codeline>
+<codeline lineno="156"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="157"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="158"><highlight class="normal"></highlight></codeline>
+<codeline lineno="159"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Check<sp/>write<sp/>callback<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="160"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(mb-&gt;<ref refid="structSYN__Modbus_1ae2cc8db5a1f45e8cdbb2cf73177c3d07" kindref="member">cfg</ref>.<ref refid="structSYN__Modbus__Config_1a64443c8edc6a7157944b3031e8af8517" kindref="member">on_write</ref><sp/>!=<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="161"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!mb-&gt;<ref refid="structSYN__Modbus_1ae2cc8db5a1f45e8cdbb2cf73177c3d07" kindref="member">cfg</ref>.<ref refid="structSYN__Modbus__Config_1a64443c8edc6a7157944b3031e8af8517" kindref="member">on_write</ref>(mb,<sp/>addr,<sp/>1,<sp/>mb-&gt;<ref refid="structSYN__Modbus_1ae2cc8db5a1f45e8cdbb2cf73177c3d07" kindref="member">cfg</ref>.<ref refid="structSYN__Modbus__Config_1a8ae156ac28830cda96ce0bdca555f818" kindref="member">on_write_ctx</ref>))<sp/>{</highlight></codeline>
+<codeline lineno="162"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__modbus_8c_1aa83203e9509a7f86c74af051143df7d1" kindref="member">send_exception</ref>(mb,<sp/><ref refid="syn__modbus_8h_1a96db561a7df6ecf8a911d9d8950c3b11" kindref="member">SYN_MB_FC_WRITE_SINGLE</ref>,</highlight></codeline>
+<codeline lineno="163"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__modbus_8h_1a649b31b62cc2136a3be0522729383a3a" kindref="member">SYN_MB_EX_ILLEGAL_VALUE</ref>);</highlight></codeline>
+<codeline lineno="164"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="165"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="166"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="167"><highlight class="normal"></highlight></codeline>
+<codeline lineno="168"><highlight class="normal"><sp/><sp/><sp/><sp/>mb-&gt;<ref refid="structSYN__Modbus_1ae2cc8db5a1f45e8cdbb2cf73177c3d07" kindref="member">cfg</ref>.<ref refid="structSYN__Modbus__Config_1ae764bece74e7a8abd38577899a5b9e0f" kindref="member">holding_regs</ref>[addr]<sp/>=<sp/>value;</highlight></codeline>
+<codeline lineno="169"><highlight class="normal"></highlight></codeline>
+<codeline lineno="170"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Echo<sp/>request<sp/>as<sp/>response<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="171"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__modbus_8c_1abe33cdc8e6505113971263e0c89c28bd" kindref="member">send_response</ref>(mb,<sp/>6);</highlight></codeline>
+<codeline lineno="172"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="173"><highlight class="normal"></highlight></codeline>
+<codeline lineno="178"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__modbus_8c_1ae6ff270737cfe590bd9e7d7e65496f05" kindref="member">handle_write_multiple</ref>(<ref refid="structSYN__Modbus" kindref="compound">SYN_Modbus</ref><sp/>*mb)</highlight></codeline>
+<codeline lineno="179"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="180"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/>addr<sp/><sp/>=<sp/><ref refid="syn__modbus_8c_1ab2869921ff66238bc6e136475fa9fab3" kindref="member">read_u16</ref>(&amp;mb-&gt;<ref refid="structSYN__Modbus_1a5d0454ec16f1860e4bc862660e7b386e" kindref="member">buf</ref>[2]);</highlight></codeline>
+<codeline lineno="181"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/>count<sp/>=<sp/><ref refid="syn__modbus_8c_1ab2869921ff66238bc6e136475fa9fab3" kindref="member">read_u16</ref>(&amp;mb-&gt;<ref refid="structSYN__Modbus_1a5d0454ec16f1860e4bc862660e7b386e" kindref="member">buf</ref>[4]);</highlight></codeline>
+<codeline lineno="182"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/>bytes<sp/>=<sp/>mb-&gt;<ref refid="structSYN__Modbus_1a5d0454ec16f1860e4bc862660e7b386e" kindref="member">buf</ref>[6];</highlight></codeline>
+<codeline lineno="183"><highlight class="normal"></highlight></codeline>
+<codeline lineno="184"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(count<sp/>==<sp/>0<sp/>||<sp/>count<sp/>&gt;<sp/>123<sp/>||<sp/>bytes<sp/>!=<sp/>count<sp/>*<sp/>2)<sp/>{</highlight></codeline>
+<codeline lineno="185"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__modbus_8c_1aa83203e9509a7f86c74af051143df7d1" kindref="member">send_exception</ref>(mb,<sp/><ref refid="syn__modbus_8h_1a30e175c0ac841f41d6d135ced62f2607" kindref="member">SYN_MB_FC_WRITE_MULTIPLE</ref>,</highlight></codeline>
+<codeline lineno="186"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__modbus_8h_1a649b31b62cc2136a3be0522729383a3a" kindref="member">SYN_MB_EX_ILLEGAL_VALUE</ref>);</highlight></codeline>
+<codeline lineno="187"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="188"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="189"><highlight class="normal"></highlight></codeline>
+<codeline lineno="190"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>((uint32_t)addr<sp/>+<sp/>count<sp/>&gt;<sp/>mb-&gt;<ref refid="structSYN__Modbus_1ae2cc8db5a1f45e8cdbb2cf73177c3d07" kindref="member">cfg</ref>.<ref refid="structSYN__Modbus__Config_1af7d56267ad151fa0ef5b6ce1682bdd04" kindref="member">holding_count</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="191"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__modbus_8c_1aa83203e9509a7f86c74af051143df7d1" kindref="member">send_exception</ref>(mb,<sp/><ref refid="syn__modbus_8h_1a30e175c0ac841f41d6d135ced62f2607" kindref="member">SYN_MB_FC_WRITE_MULTIPLE</ref>,</highlight></codeline>
+<codeline lineno="192"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__modbus_8h_1a3ef95d7b2efd03c0b9571df66493d565" kindref="member">SYN_MB_EX_ILLEGAL_ADDR</ref>);</highlight></codeline>
+<codeline lineno="193"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="194"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="195"><highlight class="normal"></highlight></codeline>
+<codeline lineno="196"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Check<sp/>write<sp/>callback<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="197"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(mb-&gt;<ref refid="structSYN__Modbus_1ae2cc8db5a1f45e8cdbb2cf73177c3d07" kindref="member">cfg</ref>.<ref refid="structSYN__Modbus__Config_1a64443c8edc6a7157944b3031e8af8517" kindref="member">on_write</ref><sp/>!=<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="198"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!mb-&gt;<ref refid="structSYN__Modbus_1ae2cc8db5a1f45e8cdbb2cf73177c3d07" kindref="member">cfg</ref>.<ref refid="structSYN__Modbus__Config_1a64443c8edc6a7157944b3031e8af8517" kindref="member">on_write</ref>(mb,<sp/>addr,<sp/>count,<sp/>mb-&gt;<ref refid="structSYN__Modbus_1ae2cc8db5a1f45e8cdbb2cf73177c3d07" kindref="member">cfg</ref>.<ref refid="structSYN__Modbus__Config_1a8ae156ac28830cda96ce0bdca555f818" kindref="member">on_write_ctx</ref>))<sp/>{</highlight></codeline>
+<codeline lineno="199"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__modbus_8c_1aa83203e9509a7f86c74af051143df7d1" kindref="member">send_exception</ref>(mb,<sp/><ref refid="syn__modbus_8h_1a30e175c0ac841f41d6d135ced62f2607" kindref="member">SYN_MB_FC_WRITE_MULTIPLE</ref>,</highlight></codeline>
+<codeline lineno="200"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__modbus_8h_1a649b31b62cc2136a3be0522729383a3a" kindref="member">SYN_MB_EX_ILLEGAL_VALUE</ref>);</highlight></codeline>
+<codeline lineno="201"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="202"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="203"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="204"><highlight class="normal"></highlight></codeline>
+<codeline lineno="205"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Apply<sp/>writes<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="206"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(uint16_t<sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>count;<sp/>i++)<sp/>{</highlight></codeline>
+<codeline lineno="207"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>mb-&gt;<ref refid="structSYN__Modbus_1ae2cc8db5a1f45e8cdbb2cf73177c3d07" kindref="member">cfg</ref>.<ref refid="structSYN__Modbus__Config_1ae764bece74e7a8abd38577899a5b9e0f" kindref="member">holding_regs</ref>[addr<sp/>+<sp/>i]<sp/>=<sp/><ref refid="syn__modbus_8c_1ab2869921ff66238bc6e136475fa9fab3" kindref="member">read_u16</ref>(&amp;mb-&gt;<ref refid="structSYN__Modbus_1a5d0454ec16f1860e4bc862660e7b386e" kindref="member">buf</ref>[7<sp/>+<sp/>i<sp/>*<sp/>2]);</highlight></codeline>
+<codeline lineno="208"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="209"><highlight class="normal"></highlight></codeline>
+<codeline lineno="210"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Response:<sp/>addr,<sp/>func,<sp/>start<sp/>addr,<sp/>quantity<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="211"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__modbus_8c_1abe33cdc8e6505113971263e0c89c28bd" kindref="member">send_response</ref>(mb,<sp/>6);</highlight></codeline>
+<codeline lineno="212"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="213"><highlight class="normal"></highlight></codeline>
+<codeline lineno="214"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>API<sp/>──────────────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="215"><highlight class="normal"></highlight></codeline>
+<codeline lineno="216"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__modbus_8c_1a6cd5b6d6172dc58ae27b6a2f3436abb1" kindref="member">syn_modbus_init</ref>(<ref refid="structSYN__Modbus" kindref="compound">SYN_Modbus</ref><sp/>*mb,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__Modbus__Config" kindref="compound">SYN_Modbus_Config</ref><sp/>*cfg,</highlight></codeline>
+<codeline lineno="217"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>*buf,<sp/>uint16_t<sp/>buf_size)</highlight></codeline>
+<codeline lineno="218"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="219"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(mb<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="220"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(cfg<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="221"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(buf<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="222"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(buf_size<sp/>&gt;=<sp/><ref refid="syn__modbus_8c_1a3bf9a428847746aedda1315b73685577" kindref="member">MB_MIN_FRAME_LEN</ref>);</highlight></codeline>
+<codeline lineno="223"><highlight class="normal"></highlight></codeline>
+<codeline lineno="224"><highlight class="normal"><sp/><sp/><sp/><sp/>memset(mb,<sp/>0,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(*mb));</highlight></codeline>
+<codeline lineno="225"><highlight class="normal"><sp/><sp/><sp/><sp/>mb-&gt;<ref refid="structSYN__Modbus_1ae2cc8db5a1f45e8cdbb2cf73177c3d07" kindref="member">cfg</ref><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>*cfg;</highlight></codeline>
+<codeline lineno="226"><highlight class="normal"><sp/><sp/><sp/><sp/>mb-&gt;<ref refid="structSYN__Modbus_1a5d0454ec16f1860e4bc862660e7b386e" kindref="member">buf</ref><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>buf;</highlight></codeline>
+<codeline lineno="227"><highlight class="normal"><sp/><sp/><sp/><sp/>mb-&gt;<ref refid="structSYN__Modbus_1a08166f2dffa3902420c6e482c8c8c225" kindref="member">buf_size</ref><sp/>=<sp/>buf_size;</highlight></codeline>
+<codeline lineno="228"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="229"><highlight class="normal"></highlight></codeline>
+<codeline lineno="230"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__modbus_8c_1aa833c5b28c793f97a62fea7aae8c95fb" kindref="member">syn_modbus_feed</ref>(<ref refid="structSYN__Modbus" kindref="compound">SYN_Modbus</ref><sp/>*mb,<sp/>uint8_t<sp/></highlight><highlight class="keywordtype">byte</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="231"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="232"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(mb<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="233"><highlight class="normal"></highlight></codeline>
+<codeline lineno="234"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/>now<sp/>=<sp/><ref refid="syn__port__system_8h_1a6c7d98587814b2c0d9c09da02d318873" kindref="member">syn_port_get_tick_ms</ref>();</highlight></codeline>
+<codeline lineno="235"><highlight class="normal"></highlight></codeline>
+<codeline lineno="236"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Detect<sp/>inter-frame<sp/>gap<sp/>(3.5<sp/>char<sp/>times)<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="237"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(mb-&gt;<ref refid="structSYN__Modbus_1acf0bc24e1298938b2f94d134b8794433" kindref="member">rx_len</ref><sp/>&gt;<sp/>0<sp/>&amp;&amp;<sp/>(now<sp/>-<sp/>mb-&gt;<ref refid="structSYN__Modbus_1a7e147014a563406fdbdfa620c4bbf7fa" kindref="member">last_byte_tick</ref>)<sp/>&gt;=<sp/><ref refid="syn__modbus_8c_1a4c863f4ac742dd5797106d5af6750f1d" kindref="member">MB_SILENCE_MS</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="238"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Previous<sp/>frame<sp/>timed<sp/>out<sp/>—<sp/>start<sp/>fresh<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="239"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>mb-&gt;<ref refid="structSYN__Modbus_1a87e28b116e920236b7cfba91157750fe" kindref="member">frame_ready</ref><sp/>=<sp/>(mb-&gt;<ref refid="structSYN__Modbus_1acf0bc24e1298938b2f94d134b8794433" kindref="member">rx_len</ref><sp/>&gt;=<sp/><ref refid="syn__modbus_8c_1a3bf9a428847746aedda1315b73685577" kindref="member">MB_MIN_FRAME_LEN</ref>);</highlight></codeline>
+<codeline lineno="240"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!mb-&gt;<ref refid="structSYN__Modbus_1a87e28b116e920236b7cfba91157750fe" kindref="member">frame_ready</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="241"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>mb-&gt;<ref refid="structSYN__Modbus_1acf0bc24e1298938b2f94d134b8794433" kindref="member">rx_len</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="242"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="243"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Don&apos;t<sp/>accumulate<sp/>into<sp/>old<sp/>frame<sp/>—<sp/>process<sp/>first<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="244"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="245"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="246"><highlight class="normal"></highlight></codeline>
+<codeline lineno="247"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(mb-&gt;<ref refid="structSYN__Modbus_1acf0bc24e1298938b2f94d134b8794433" kindref="member">rx_len</ref><sp/>&lt;<sp/>mb-&gt;<ref refid="structSYN__Modbus_1a08166f2dffa3902420c6e482c8c8c225" kindref="member">buf_size</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="248"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>mb-&gt;<ref refid="structSYN__Modbus_1a5d0454ec16f1860e4bc862660e7b386e" kindref="member">buf</ref>[mb-&gt;<ref refid="structSYN__Modbus_1acf0bc24e1298938b2f94d134b8794433" kindref="member">rx_len</ref>++]<sp/>=<sp/>byte;</highlight></codeline>
+<codeline lineno="249"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="250"><highlight class="normal"><sp/><sp/><sp/><sp/>mb-&gt;<ref refid="structSYN__Modbus_1a7e147014a563406fdbdfa620c4bbf7fa" kindref="member">last_byte_tick</ref><sp/>=<sp/>now;</highlight></codeline>
+<codeline lineno="251"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="252"><highlight class="normal"></highlight></codeline>
+<codeline lineno="253"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__modbus_8c_1afeccc6e587393c47feedda49b79e086e" kindref="member">syn_modbus_process</ref>(<ref refid="structSYN__Modbus" kindref="compound">SYN_Modbus</ref><sp/>*mb)</highlight></codeline>
+<codeline lineno="254"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="255"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(mb<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="256"><highlight class="normal"></highlight></codeline>
+<codeline lineno="257"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(mb-&gt;<ref refid="structSYN__Modbus_1acf0bc24e1298938b2f94d134b8794433" kindref="member">rx_len</ref><sp/>&lt;<sp/><ref refid="syn__modbus_8c_1a3bf9a428847746aedda1315b73685577" kindref="member">MB_MIN_FRAME_LEN</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="258"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>mb-&gt;<ref refid="structSYN__Modbus_1acf0bc24e1298938b2f94d134b8794433" kindref="member">rx_len</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="259"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="260"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="261"><highlight class="normal"></highlight></codeline>
+<codeline lineno="262"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/>len<sp/>=<sp/>mb-&gt;<ref refid="structSYN__Modbus_1acf0bc24e1298938b2f94d134b8794433" kindref="member">rx_len</ref>;</highlight></codeline>
+<codeline lineno="263"><highlight class="normal"><sp/><sp/><sp/><sp/>mb-&gt;<ref refid="structSYN__Modbus_1acf0bc24e1298938b2f94d134b8794433" kindref="member">rx_len</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="264"><highlight class="normal"><sp/><sp/><sp/><sp/>mb-&gt;<ref refid="structSYN__Modbus_1a87e28b116e920236b7cfba91157750fe" kindref="member">frame_ready</ref><sp/>=<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="265"><highlight class="normal"></highlight></codeline>
+<codeline lineno="266"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Check<sp/>CRC<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="267"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!<ref refid="syn__modbus_8c_1a311e0547781facdc4c7b522c4f9aee56" kindref="member">check_crc</ref>(mb-&gt;<ref refid="structSYN__Modbus_1a5d0454ec16f1860e4bc862660e7b386e" kindref="member">buf</ref>,<sp/>len))<sp/>{</highlight></codeline>
+<codeline lineno="268"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>mb-&gt;<ref refid="structSYN__Modbus_1ab41b2162266f98ebcd753579fd194ad0" kindref="member">errors</ref>++;</highlight></codeline>
+<codeline lineno="269"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="270"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="271"><highlight class="normal"></highlight></codeline>
+<codeline lineno="272"><highlight class="normal"><sp/><sp/><sp/><sp/>mb-&gt;<ref refid="structSYN__Modbus_1a21db920301c0b203f45e40120dc66abc" kindref="member">frames_rx</ref>++;</highlight></codeline>
+<codeline lineno="273"><highlight class="normal"></highlight></codeline>
+<codeline lineno="274"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Check<sp/>slave<sp/>address<sp/>(0<sp/>=<sp/>broadcast,<sp/>we<sp/>process<sp/>but<sp/>don&apos;t<sp/>respond)<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="275"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>addr<sp/>=<sp/>mb-&gt;<ref refid="structSYN__Modbus_1a5d0454ec16f1860e4bc862660e7b386e" kindref="member">buf</ref>[0];</highlight></codeline>
+<codeline lineno="276"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>is_broadcast<sp/>=<sp/>(addr<sp/>==<sp/>0);</highlight></codeline>
+<codeline lineno="277"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!is_broadcast<sp/>&amp;&amp;<sp/>addr<sp/>!=<sp/>mb-&gt;<ref refid="structSYN__Modbus_1ae2cc8db5a1f45e8cdbb2cf73177c3d07" kindref="member">cfg</ref>.<ref refid="structSYN__Modbus__Config_1a7d2394814354182b824edabf70e6cfc8" kindref="member">slave_addr</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="278"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;<sp/></highlight><highlight class="comment">/*<sp/>not<sp/>for<sp/>us<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="279"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="280"><highlight class="normal"></highlight></codeline>
+<codeline lineno="281"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>func<sp/>=<sp/>mb-&gt;<ref refid="structSYN__Modbus_1a5d0454ec16f1860e4bc862660e7b386e" kindref="member">buf</ref>[1];</highlight></codeline>
+<codeline lineno="282"><highlight class="normal"></highlight></codeline>
+<codeline lineno="283"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">switch</highlight><highlight class="normal"><sp/>(func)<sp/>{</highlight></codeline>
+<codeline lineno="284"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__modbus_8h_1aaf2727467ff1f8c42965d845e95c054d" kindref="member">SYN_MB_FC_READ_HOLDING</ref>:</highlight></codeline>
+<codeline lineno="285"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(is_broadcast)<sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="286"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__modbus_8c_1a7c3778dd733c0a158a0288fedcd2305f" kindref="member">handle_read_regs</ref>(mb,<sp/>mb-&gt;<ref refid="structSYN__Modbus_1ae2cc8db5a1f45e8cdbb2cf73177c3d07" kindref="member">cfg</ref>.<ref refid="structSYN__Modbus__Config_1ae764bece74e7a8abd38577899a5b9e0f" kindref="member">holding_regs</ref>,<sp/>mb-&gt;<ref refid="structSYN__Modbus_1ae2cc8db5a1f45e8cdbb2cf73177c3d07" kindref="member">cfg</ref>.<ref refid="structSYN__Modbus__Config_1af7d56267ad151fa0ef5b6ce1682bdd04" kindref="member">holding_count</ref>);</highlight></codeline>
+<codeline lineno="287"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="288"><highlight class="normal"></highlight></codeline>
+<codeline lineno="289"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__modbus_8h_1a6209843d8b3151181000c443e618ebd7" kindref="member">SYN_MB_FC_READ_INPUT</ref>:</highlight></codeline>
+<codeline lineno="290"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(is_broadcast)<sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="291"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__modbus_8c_1a7c3778dd733c0a158a0288fedcd2305f" kindref="member">handle_read_regs</ref>(mb,<sp/>mb-&gt;<ref refid="structSYN__Modbus_1ae2cc8db5a1f45e8cdbb2cf73177c3d07" kindref="member">cfg</ref>.<ref refid="structSYN__Modbus__Config_1ab6ec87a993686440cf8b825294e04689" kindref="member">input_regs</ref>,<sp/>mb-&gt;<ref refid="structSYN__Modbus_1ae2cc8db5a1f45e8cdbb2cf73177c3d07" kindref="member">cfg</ref>.<ref refid="structSYN__Modbus__Config_1a1a8c89558b0bd46a71115ce3c8e18eac" kindref="member">input_count</ref>);</highlight></codeline>
+<codeline lineno="292"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="293"><highlight class="normal"></highlight></codeline>
+<codeline lineno="294"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__modbus_8h_1a96db561a7df6ecf8a911d9d8950c3b11" kindref="member">SYN_MB_FC_WRITE_SINGLE</ref>:</highlight></codeline>
+<codeline lineno="295"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__modbus_8c_1a88e17ddb3b313f2cfbfd16e852ef0fee" kindref="member">handle_write_single</ref>(mb);</highlight></codeline>
+<codeline lineno="296"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>!is_broadcast;</highlight></codeline>
+<codeline lineno="297"><highlight class="normal"></highlight></codeline>
+<codeline lineno="298"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__modbus_8h_1a30e175c0ac841f41d6d135ced62f2607" kindref="member">SYN_MB_FC_WRITE_MULTIPLE</ref>:</highlight></codeline>
+<codeline lineno="299"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__modbus_8c_1ae6ff270737cfe590bd9e7d7e65496f05" kindref="member">handle_write_multiple</ref>(mb);</highlight></codeline>
+<codeline lineno="300"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>!is_broadcast;</highlight></codeline>
+<codeline lineno="301"><highlight class="normal"></highlight></codeline>
+<codeline lineno="302"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">default</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="303"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!is_broadcast)<sp/>{</highlight></codeline>
+<codeline lineno="304"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__modbus_8c_1aa83203e9509a7f86c74af051143df7d1" kindref="member">send_exception</ref>(mb,<sp/>func,<sp/><ref refid="syn__modbus_8h_1a30ea49a2943eb29b47c4b51e2f974143" kindref="member">SYN_MB_EX_ILLEGAL_FUNC</ref>);</highlight></codeline>
+<codeline lineno="305"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="306"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="307"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="308"><highlight class="normal"></highlight></codeline>
+<codeline lineno="309"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="310"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="311"><highlight class="normal"></highlight></codeline>
+<codeline lineno="312"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__modbus_8c_1a55acc728fce64c5ab651cbb5dd087a2e" kindref="member">syn_modbus_poll</ref>(<ref refid="structSYN__Modbus" kindref="compound">SYN_Modbus</ref><sp/>*mb)</highlight></codeline>
+<codeline lineno="313"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="314"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(mb<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="315"><highlight class="normal"></highlight></codeline>
+<codeline lineno="316"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Read<sp/>available<sp/>bytes<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="317"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>byte;</highlight></codeline>
+<codeline lineno="318"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">while</highlight><highlight class="normal"><sp/>(<ref refid="syn__port__uart_8h_1a12111af3ab36b4611e871c3fc75f7d70" kindref="member">syn_port_uart_receive_byte</ref>(mb-&gt;<ref refid="structSYN__Modbus_1ae2cc8db5a1f45e8cdbb2cf73177c3d07" kindref="member">cfg</ref>.<ref refid="structSYN__Modbus__Config_1a56a396019a86709134591cca58aab7fd" kindref="member">uart</ref>,<sp/>&amp;</highlight><highlight class="keywordtype">byte</highlight><highlight class="normal">,<sp/>0)<sp/>==<sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="319"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(mb-&gt;<ref refid="structSYN__Modbus_1acf0bc24e1298938b2f94d134b8794433" kindref="member">rx_len</ref><sp/>&lt;<sp/>mb-&gt;<ref refid="structSYN__Modbus_1a08166f2dffa3902420c6e482c8c8c225" kindref="member">buf_size</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="320"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>mb-&gt;<ref refid="structSYN__Modbus_1a5d0454ec16f1860e4bc862660e7b386e" kindref="member">buf</ref>[mb-&gt;<ref refid="structSYN__Modbus_1acf0bc24e1298938b2f94d134b8794433" kindref="member">rx_len</ref>++]<sp/>=<sp/>byte;</highlight></codeline>
+<codeline lineno="321"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="322"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>mb-&gt;<ref refid="structSYN__Modbus_1a7e147014a563406fdbdfa620c4bbf7fa" kindref="member">last_byte_tick</ref><sp/>=<sp/><ref refid="syn__port__system_8h_1a6c7d98587814b2c0d9c09da02d318873" kindref="member">syn_port_get_tick_ms</ref>();</highlight></codeline>
+<codeline lineno="323"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="324"><highlight class="normal"></highlight></codeline>
+<codeline lineno="325"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Check<sp/>for<sp/>inter-frame<sp/>silence<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="326"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(mb-&gt;<ref refid="structSYN__Modbus_1acf0bc24e1298938b2f94d134b8794433" kindref="member">rx_len</ref><sp/>&gt;<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="327"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>silence<sp/>=<sp/><ref refid="syn__port__system_8h_1a6c7d98587814b2c0d9c09da02d318873" kindref="member">syn_port_get_tick_ms</ref>()<sp/>-<sp/>mb-&gt;<ref refid="structSYN__Modbus_1a7e147014a563406fdbdfa620c4bbf7fa" kindref="member">last_byte_tick</ref>;</highlight></codeline>
+<codeline lineno="328"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(silence<sp/>&gt;=<sp/><ref refid="syn__modbus_8c_1a4c863f4ac742dd5797106d5af6750f1d" kindref="member">MB_SILENCE_MS</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="329"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__modbus_8c_1afeccc6e587393c47feedda49b79e086e" kindref="member">syn_modbus_process</ref>(mb);</highlight></codeline>
+<codeline lineno="330"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="331"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="332"><highlight class="normal"></highlight></codeline>
+<codeline lineno="333"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="334"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="335"><highlight class="normal"></highlight></codeline>
+<codeline lineno="336"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__modbus_8c_1adeacca4c5cab85afeaa838726ffe4fa2" kindref="member">syn_modbus_reset</ref>(<ref refid="structSYN__Modbus" kindref="compound">SYN_Modbus</ref><sp/>*mb)</highlight></codeline>
+<codeline lineno="337"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="338"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(mb<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="339"><highlight class="normal"><sp/><sp/><sp/><sp/>mb-&gt;<ref refid="structSYN__Modbus_1acf0bc24e1298938b2f94d134b8794433" kindref="member">rx_len</ref><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="340"><highlight class="normal"><sp/><sp/><sp/><sp/>mb-&gt;<ref refid="structSYN__Modbus_1a87e28b116e920236b7cfba91157750fe" kindref="member">frame_ready</ref><sp/>=<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="341"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="342"><highlight class="normal"></highlight></codeline>
+<codeline lineno="343"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_USE_MODBUS<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/proto/syn_modbus.c"/>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,212 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__port__adc_8h" kind="file" language="C++">
+    <compoundname>syn_port_adc.h</compoundname>
+    <includes refid="syn__defs_8h" local="yes">../common/syn_defs.h</includes>
+    <includes local="no">stdint.h</includes>
+    <includedby refid="syn__adc_8h" local="yes">src/syntropic/drivers/syn_adc.h</includedby>
+    <includedby refid="syn__port__stubs_8c" local="yes">src/syntropic/port_stubs/syn_port_stubs.c</includedby>
+    <incdepgraph>
+      <node id="2">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/port/syn_port_adc.h</label>
+        <link refid="syn__port__adc_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>stddef.h</label>
+      </node>
+      <node id="3">
+        <label>stdint.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="3">
+        <label>src/syntropic/drivers/syn_adc.c</label>
+        <link refid="syn__adc_8c"/>
+      </node>
+      <node id="2">
+        <label>src/syntropic/drivers/syn_adc.h</label>
+        <link refid="syn__adc_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/port/syn_port_adc.h</label>
+        <link refid="syn__port__adc_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>src/syntropic/port_stubs/syn_port_stubs.c</label>
+        <link refid="syn__port__stubs_8c"/>
+      </node>
+      <node id="4">
+        <label>src/syntropic/syntropic.h</label>
+        <link refid="syntropic_8h"/>
+      </node>
+      <node id="6">
+        <label>src/syntropic/system/syn_power.c</label>
+        <link refid="syn__power_8c"/>
+      </node>
+      <node id="5">
+        <label>src/syntropic/system/syn_power.h</label>
+        <link refid="syn__power_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__port__adc_8h_1a91cc1e59804cb6845d8cd581ca36606a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_port_adc_init</definition>
+        <argsstring>(uint8_t channel)</argsstring>
+        <name>syn_port_adc_init</name>
+        <param>
+          <type>uint8_t</type>
+          <declname>channel</declname>
+        </param>
+        <briefdescription>
+<para>Initialize an ADC channel. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>channel</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>ADC channel number. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/port/syn_port_adc.h" line="23" column="12" bodyfile="src/syntropic/port_stubs/syn_port_stubs.c" bodystart="272" bodyend="277" declfile="src/syntropic/port/syn_port_adc.h" declline="23" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__port__adc_8h_1aa585b9b180350f13a5dcc66549af1f40" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint16_t</type>
+        <definition>uint16_t syn_port_adc_read</definition>
+        <argsstring>(uint8_t channel)</argsstring>
+        <name>syn_port_adc_read</name>
+        <param>
+          <type>uint8_t</type>
+          <declname>channel</declname>
+        </param>
+        <briefdescription>
+<para>Read a single ADC sample. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>channel</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>ADC channel number. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Raw ADC value (resolution depends on platform). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/port/syn_port_adc.h" line="31" column="10" bodyfile="src/syntropic/port_stubs/syn_port_stubs.c" bodystart="279" bodyend="284" declfile="src/syntropic/port/syn_port_adc.h" declline="31" declcolumn="10"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__port__adc_8h_1a57f718b9a2fa537efa62585188d3e25e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint8_t</type>
+        <definition>uint8_t syn_port_adc_resolution</definition>
+        <argsstring>(void)</argsstring>
+        <name>syn_port_adc_resolution</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Get the ADC resolution in bits. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>Resolution (e.g., 10, 12, 16). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/port/syn_port_adc.h" line="38" column="9" bodyfile="src/syntropic/port_stubs/syn_port_stubs.c" bodystart="286" bodyend="290" declfile="src/syntropic/port/syn_port_adc.h" declline="38" declcolumn="9"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__port__adc_8h_1a5c494b90d047bba67d4bb481b9940742" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint16_t</type>
+        <definition>uint16_t syn_port_adc_reference_mv</definition>
+        <argsstring>(void)</argsstring>
+        <name>syn_port_adc_reference_mv</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Get the ADC reference voltage in millivolts. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>Reference voltage (e.g., 3300 for 3.3V). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/port/syn_port_adc.h" line="45" column="10" bodyfile="src/syntropic/port_stubs/syn_port_stubs.c" bodystart="292" bodyend="296" declfile="src/syntropic/port/syn_port_adc.h" declline="45" declcolumn="10"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>ADC port interface — implement these for your platform. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_PORT_ADC_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_PORT_ADC_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../common/syn_defs.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__port__adc_8h_1a91cc1e59804cb6845d8cd581ca36606a" kindref="member">syn_port_adc_init</ref>(uint8_t<sp/>channel);</highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight></codeline>
+<codeline lineno="31"><highlight class="normal">uint16_t<sp/><ref refid="syn__port__adc_8h_1aa585b9b180350f13a5dcc66549af1f40" kindref="member">syn_port_adc_read</ref>(uint8_t<sp/>channel);</highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal">uint8_t<sp/><ref refid="syn__port__adc_8h_1a57f718b9a2fa537efa62585188d3e25e" kindref="member">syn_port_adc_resolution</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="normal">uint16_t<sp/><ref refid="syn__port__adc_8h_1a5c494b90d047bba67d4bb481b9940742" kindref="member">syn_port_adc_reference_mv</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"></highlight></codeline>
+<codeline lineno="47"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="48"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="50"><highlight class="normal"></highlight></codeline>
+<codeline lineno="51"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_PORT_ADC_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/port/syn_port_adc.h"/>
+  </compounddef>
+</doxygen>

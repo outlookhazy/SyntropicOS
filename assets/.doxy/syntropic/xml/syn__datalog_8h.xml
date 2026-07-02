@@ -1,0 +1,433 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__datalog_8h" kind="file" language="C++">
+    <compoundname>syn_datalog.h</compoundname>
+    <includes refid="syn__defs_8h" local="yes">../common/syn_defs.h</includes>
+    <includes refid="syn__ringbuf_8h" local="yes">../util/syn_ringbuf.h</includes>
+    <includes local="no">stdint.h</includes>
+    <includes local="no">stddef.h</includes>
+    <includes local="no">stdbool.h</includes>
+    <includedby refid="syn__datalog_8c" local="yes">src/syntropic/log/syn_datalog.c</includedby>
+    <includedby refid="syn__motor__ctrl_8h" local="yes">src/syntropic/motor/syn_motor_ctrl.h</includedby>
+    <incdepgraph>
+      <node id="2">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/log/syn_datalog.h</label>
+        <link refid="syn__datalog_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>../util/syn_ringbuf.h</label>
+        <link refid="syn__ringbuf_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>stdbool.h</label>
+      </node>
+      <node id="4">
+        <label>stddef.h</label>
+      </node>
+      <node id="3">
+        <label>stdint.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="3">
+        <label>src/syntropic/control/syn_autotune.h</label>
+        <link refid="syn__autotune_8h"/>
+      </node>
+      <node id="1">
+        <label>src/syntropic/log/syn_datalog.h</label>
+        <link refid="syn__datalog_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>src/syntropic/motor/syn_actuator.c</label>
+        <link refid="syn__actuator_8c"/>
+      </node>
+      <node id="4">
+        <label>src/syntropic/motor/syn_actuator.h</label>
+        <link refid="syn__actuator_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>src/syntropic/motor/syn_motor_ctrl.c</label>
+        <link refid="syn__motor__ctrl_8c"/>
+      </node>
+      <node id="2">
+        <label>src/syntropic/motor/syn_motor_ctrl.h</label>
+        <link refid="syn__motor__ctrl_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>src/syntropic/syntropic.h</label>
+        <link refid="syntropic_8h"/>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="structSYN__DataLogHeader" prot="public">SYN_DataLogHeader</innerclass>
+    <innerclass refid="structSYN__DataLog" prot="public">SYN_DataLog</innerclass>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__datalog_8h_1ad8e2ba4a5969001408e6ef5e132e722c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_datalog_init</definition>
+        <argsstring>(SYN_DataLog *log, uint8_t *buf, size_t size)</argsstring>
+        <name>syn_datalog_init</name>
+        <param>
+          <type><ref refid="structSYN__DataLog" kindref="compound">SYN_DataLog</ref> *</type>
+          <declname>log</declname>
+        </param>
+        <param>
+          <type>uint8_t *</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>size</declname>
+        </param>
+        <briefdescription>
+<para>Initialize a datalogger. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>log</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to logger instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Caller-provided backing array. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>size</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Size of backing array in bytes. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/log/syn_datalog.h" line="46" column="6" bodyfile="src/syntropic/log/syn_datalog.c" bodystart="10" bodyend="17" declfile="src/syntropic/log/syn_datalog.h" declline="46" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__datalog_8h_1a58c56b894d8f2d2853195b5cad407bb3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_datalog_write</definition>
+        <argsstring>(SYN_DataLog *log, uint16_t id, const void *data, uint16_t len)</argsstring>
+        <name>syn_datalog_write</name>
+        <param>
+          <type><ref refid="structSYN__DataLog" kindref="compound">SYN_DataLog</ref> *</type>
+          <declname>log</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>id</declname>
+        </param>
+        <param>
+          <type>const void *</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>len</declname>
+        </param>
+        <briefdescription>
+<para>Write a telemetry frame to the logger. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>log</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to logger instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>id</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Stream ID. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>data</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Payload to write. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Payload size in bytes. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if written, false if buffer is full (frame dropped). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/log/syn_datalog.h" line="56" column="6" bodyfile="src/syntropic/log/syn_datalog.c" bodystart="19" bodyend="41" declfile="src/syntropic/log/syn_datalog.h" declline="56" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__datalog_8h_1aa8f7d63b673001923b6ce875d73e6b7d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>size_t</type>
+        <definition>size_t syn_datalog_read</definition>
+        <argsstring>(SYN_DataLog *log, uint16_t *out_id, void *out_data, size_t max_len)</argsstring>
+        <name>syn_datalog_read</name>
+        <param>
+          <type><ref refid="structSYN__DataLog" kindref="compound">SYN_DataLog</ref> *</type>
+          <declname>log</declname>
+        </param>
+        <param>
+          <type>uint16_t *</type>
+          <declname>out_id</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>out_data</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>max_len</declname>
+        </param>
+        <briefdescription>
+<para>Read the next telemetry frame from the logger. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>log</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to logger instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out_id</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>[out] Stream ID of read frame. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out_data</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>[out] Buffer to store payload. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>max_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Maximum size of out_data. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Number of payload bytes read, or 0 if empty or buffer too small. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/log/syn_datalog.h" line="66" column="8" bodyfile="src/syntropic/log/syn_datalog.c" bodystart="43" bodyend="83" declfile="src/syntropic/log/syn_datalog.h" declline="66" declcolumn="8"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__datalog_8h_1a12f0ce1dff0dfb7c0eac95381de69386" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>static uint32_t syn_datalog_get_dropped</definition>
+        <argsstring>(const SYN_DataLog *log)</argsstring>
+        <name>syn_datalog_get_dropped</name>
+        <param>
+          <type>const <ref refid="structSYN__DataLog" kindref="compound">SYN_DataLog</ref> *</type>
+          <declname>log</declname>
+        </param>
+        <briefdescription>
+<para>Get number of dropped frames. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>log</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Logger instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Drop count. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/log/syn_datalog.h" line="73" column="24" bodyfile="src/syntropic/log/syn_datalog.h" bodystart="73" bodyend="75"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__datalog_8h_1af431c6b299eb230631fb9357b44e8e6d" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void syn_datalog_reset</definition>
+        <argsstring>(SYN_DataLog *log)</argsstring>
+        <name>syn_datalog_reset</name>
+        <param>
+          <type><ref refid="structSYN__DataLog" kindref="compound">SYN_DataLog</ref> *</type>
+          <declname>log</declname>
+        </param>
+        <briefdescription>
+<para>Reset the datalog, discarding all frames. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>log</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Logger instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/log/syn_datalog.h" line="81" column="20" bodyfile="src/syntropic/log/syn_datalog.h" bodystart="81" bodyend="84"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__datalog_8h_1ade35d1fbb0c8c9f6490e5fd3d6403791" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>size_t</type>
+        <definition>static size_t syn_datalog_available</definition>
+        <argsstring>(const SYN_DataLog *log)</argsstring>
+        <name>syn_datalog_available</name>
+        <param>
+          <type>const <ref refid="structSYN__DataLog" kindref="compound">SYN_DataLog</ref> *</type>
+          <declname>log</declname>
+        </param>
+        <briefdescription>
+<para>Get number of bytes available for reading. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>log</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Logger instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Bytes available. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/log/syn_datalog.h" line="91" column="22" bodyfile="src/syntropic/log/syn_datalog.h" bodystart="91" bodyend="93"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>High-speed binary telemetry logger. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Captures arbitrary structs or data frames into a static ringbuffer. Useful for high-speed PID tuning, state recording, or telemetry streams.</para>
+<para>Uses a zero-allocation, lock-free ringbuffer backend. Data is prefixed with a 16-bit ID and 16-bit length to allow demultiplexing on the host. </para>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_DATALOG_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_DATALOG_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../common/syn_defs.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../util/syn_ringbuf.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stddef.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight></codeline>
+<codeline lineno="29" refid="structSYN__DataLogHeader" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="30" refid="structSYN__DataLogHeader_1a226ceeee64a6fc22e7a2953cf4f40ff9" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/><ref refid="structSYN__DataLogHeader_1a226ceeee64a6fc22e7a2953cf4f40ff9" kindref="member">id</ref>;<sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="31" refid="structSYN__DataLogHeader_1ab089560cb44965b4cfb79cfa82b541ab" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/><ref refid="structSYN__DataLogHeader_1ab089560cb44965b4cfb79cfa82b541ab" kindref="member">len</ref>;<sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="32"><highlight class="normal">}<sp/><ref refid="structSYN__DataLogHeader" kindref="compound">SYN_DataLogHeader</ref>;</highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight></codeline>
+<codeline lineno="35" refid="structSYN__DataLog" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="36" refid="structSYN__DataLog_1ab63b5b765d1c5426f61f8213297e7a16" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structSYN__RingBuf" kindref="compound">SYN_RingBuf</ref><sp/><ref refid="structSYN__DataLog_1ab63b5b765d1c5426f61f8213297e7a16" kindref="member">rb</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="37" refid="structSYN__DataLog_1a3aabec7a5b01d3d8afcc16a9cee3094e" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structSYN__DataLog_1a3aabec7a5b01d3d8afcc16a9cee3094e" kindref="member">dropped_frames</ref>;<sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="38"><highlight class="normal">}<sp/><ref refid="structSYN__DataLog" kindref="compound">SYN_DataLog</ref>;</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight></codeline>
+<codeline lineno="46"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__datalog_8h_1ad8e2ba4a5969001408e6ef5e132e722c" kindref="member">syn_datalog_init</ref>(<ref refid="structSYN__DataLog" kindref="compound">SYN_DataLog</ref><sp/>*log,<sp/>uint8_t<sp/>*buf,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>size);</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"></highlight></codeline>
+<codeline lineno="56"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__datalog_8h_1a58c56b894d8f2d2853195b5cad407bb3" kindref="member">syn_datalog_write</ref>(<ref refid="structSYN__DataLog" kindref="compound">SYN_DataLog</ref><sp/>*log,<sp/>uint16_t<sp/></highlight><highlight class="keywordtype">id</highlight><highlight class="normal">,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*data,<sp/>uint16_t<sp/>len);</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"></highlight></codeline>
+<codeline lineno="66"><highlight class="normal"></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="syn__datalog_8h_1aa8f7d63b673001923b6ce875d73e6b7d" kindref="member">syn_datalog_read</ref>(<ref refid="structSYN__DataLog" kindref="compound">SYN_DataLog</ref><sp/>*log,<sp/>uint16_t<sp/>*out_id,<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*out_data,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>max_len);</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"></highlight></codeline>
+<codeline lineno="73" refid="syn__datalog_8h_1a12f0ce1dff0dfb7c0eac95381de69386" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>uint32_t<sp/><ref refid="syn__datalog_8h_1a12f0ce1dff0dfb7c0eac95381de69386" kindref="member">syn_datalog_get_dropped</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__DataLog" kindref="compound">SYN_DataLog</ref><sp/>*log)<sp/>{</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>log-&gt;<ref refid="structSYN__DataLog_1a3aabec7a5b01d3d8afcc16a9cee3094e" kindref="member">dropped_frames</ref>;</highlight></codeline>
+<codeline lineno="75"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"></highlight></codeline>
+<codeline lineno="81" refid="syn__datalog_8h_1af431c6b299eb230631fb9357b44e8e6d" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__datalog_8h_1af431c6b299eb230631fb9357b44e8e6d" kindref="member">syn_datalog_reset</ref>(<ref refid="structSYN__DataLog" kindref="compound">SYN_DataLog</ref><sp/>*log)<sp/>{</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__ringbuf_8c_1a67704e92917d22a143eb1878fd10df6a" kindref="member">syn_ringbuf_reset</ref>(&amp;log-&gt;<ref refid="structSYN__DataLog_1ab63b5b765d1c5426f61f8213297e7a16" kindref="member">rb</ref>);</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/>log-&gt;<ref refid="structSYN__DataLog_1a3aabec7a5b01d3d8afcc16a9cee3094e" kindref="member">dropped_frames</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="84"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"></highlight></codeline>
+<codeline lineno="91" refid="syn__datalog_8h_1ade35d1fbb0c8c9f6490e5fd3d6403791" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="syn__datalog_8h_1ade35d1fbb0c8c9f6490e5fd3d6403791" kindref="member">syn_datalog_available</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__DataLog" kindref="compound">SYN_DataLog</ref><sp/>*log)<sp/>{</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__ringbuf_8c_1a9fd254d962f847f53f80086f211f699e" kindref="member">syn_ringbuf_count</ref>(&amp;log-&gt;<ref refid="structSYN__DataLog_1ab63b5b765d1c5426f61f8213297e7a16" kindref="member">rb</ref>);</highlight></codeline>
+<codeline lineno="93"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"></highlight></codeline>
+<codeline lineno="95"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="96"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="98"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">//<sp/>SYN_DATALOG_H</highlight><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/log/syn_datalog.h"/>
+  </compounddef>
+</doxygen>

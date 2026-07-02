@@ -1,0 +1,774 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__httpd_8h" kind="file" language="C++">
+    <compoundname>syn_httpd.h</compoundname>
+    <includes refid="syn__defs_8h" local="yes">../common/syn_defs.h</includes>
+    <includes refid="syn__port__socket_8h" local="yes">../port/syn_port_socket.h</includes>
+    <includes refid="syn__pt_8h" local="yes">../pt/syn_pt.h</includes>
+    <includes refid="syn__task_8h" local="yes">../sched/syn_task.h</includes>
+    <includes local="no">stdint.h</includes>
+    <includes local="no">stddef.h</includes>
+    <includes local="no">stdbool.h</includes>
+    <includedby refid="syn__httpd_8c" local="yes">src/syntropic/net/syn_httpd.c</includedby>
+    <includedby refid="syn__websocket_8h" local="yes">src/syntropic/net/syn_websocket.h</includedby>
+    <incdepgraph>
+      <node id="7">
+        <label>../common/syn_compiler.h</label>
+        <link refid="syn__compiler_8h"/>
+      </node>
+      <node id="2">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/net/syn_httpd.h</label>
+        <link refid="syn__httpd_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>../port/syn_port_socket.h</label>
+        <link refid="syn__port__socket_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>../pt/syn_pt.h</label>
+        <link refid="syn__pt_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>../sched/syn_task.h</label>
+        <link refid="syn__task_8h"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="9">
+        <label>stdbool.h</label>
+      </node>
+      <node id="4">
+        <label>stddef.h</label>
+      </node>
+      <node id="3">
+        <label>stdint.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="2">
+        <label>src/syntropic/net/syn_httpd.c</label>
+        <link refid="syn__httpd_8c"/>
+      </node>
+      <node id="1">
+        <label>src/syntropic/net/syn_httpd.h</label>
+        <link refid="syn__httpd_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>src/syntropic/net/syn_websocket.c</label>
+        <link refid="syn__websocket_8c"/>
+      </node>
+      <node id="3">
+        <label>src/syntropic/net/syn_websocket.h</label>
+        <link refid="syn__websocket_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="structSYN__HttpdRequest" prot="public">SYN_HttpdRequest</innerclass>
+    <innerclass refid="structSYN__HttpdResponse" prot="public">SYN_HttpdResponse</innerclass>
+    <innerclass refid="structSYN__HttpdRoute" prot="public">SYN_HttpdRoute</innerclass>
+    <innerclass refid="structSYN__Httpd" prot="public">SYN_Httpd</innerclass>
+    <sectiondef kind="enum">
+      <memberdef kind="enum" id="syn__httpd_8h_1ae2a5b18d4f7fdefe54eb67110365a02c" prot="public" static="no" strong="no">
+        <type></type>
+        <name>SYN_HttpMethod</name>
+        <enumvalue id="syn__httpd_8h_1ae2a5b18d4f7fdefe54eb67110365a02cafacb115b5d923447213311b47bc87ed2" prot="public">
+          <name>SYN_HTTP_GET</name>
+          <initializer>= 0</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Retrieve a resource </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__httpd_8h_1ae2a5b18d4f7fdefe54eb67110365a02ca8982f20a6efc75259d7e2ede1da87a68" prot="public">
+          <name>SYN_HTTP_POST</name>
+          <initializer>= 1</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Submit data to be processed </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__httpd_8h_1ae2a5b18d4f7fdefe54eb67110365a02ca911e25ea41249bc81dc8b8a9998e4c6a" prot="public">
+          <name>SYN_HTTP_PUT</name>
+          <initializer>= 2</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Upload or replace a resource </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__httpd_8h_1ae2a5b18d4f7fdefe54eb67110365a02ca7e0644cadb252532ff103df4e3ad8c05" prot="public">
+          <name>SYN_HTTP_DELETE</name>
+          <initializer>= 3</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Delete a resource </para>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>Supported HTTP request methods. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/net/syn_httpd.h" line="52" column="1" bodyfile="src/syntropic/net/syn_httpd.h" bodystart="52" bodyend="57"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="typedef">
+      <memberdef kind="typedef" id="syn__httpd_8h_1ada6d6471c37137fd7ce67c6a035a86fb" prot="public" static="no">
+        <type>void(*</type>
+        <definition>typedef void(* SYN_HttpdHandler) (const SYN_HttpdRequest *req, SYN_HttpdResponse *resp, void *ctx)</definition>
+        <argsstring>)(const SYN_HttpdRequest *req, SYN_HttpdResponse *resp, void *ctx)</argsstring>
+        <name>SYN_HttpdHandler</name>
+        <briefdescription>
+<para>Route handler function. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Called when a request matches the route. The handler sends the response using <ref refid="syn__httpd_8h_1aefaf74839a4515dd9aca9ca47cd6cdec" kindref="member">syn_httpd_status()</ref>, <ref refid="syn__httpd_8h_1a8a309ceead8ee0bfad87cba67d3297ef" kindref="member">syn_httpd_header()</ref>, <ref refid="syn__httpd_8h_1a0595585c7e0ee92f920e4198948ca839" kindref="member">syn_httpd_body()</ref>. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/net/syn_httpd.h" line="98" column="9" bodyfile="src/syntropic/net/syn_httpd.h" bodystart="98" bodyend="-1"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__httpd_8h_1a52f29d7515016094b07a95b531b55561" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_httpd_init</definition>
+        <argsstring>(SYN_Httpd *srv, uint16_t port, const SYN_HttpdRoute *routes, size_t route_count, uint8_t *work_buf, size_t work_buf_size)</argsstring>
+        <name>syn_httpd_init</name>
+        <param>
+          <type><ref refid="structSYN__Httpd" kindref="compound">SYN_Httpd</ref> *</type>
+          <declname>srv</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>port</declname>
+        </param>
+        <param>
+          <type>const <ref refid="structSYN__HttpdRoute" kindref="compound">SYN_HttpdRoute</ref> *</type>
+          <declname>routes</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>route_count</declname>
+        </param>
+        <param>
+          <type>uint8_t *</type>
+          <declname>work_buf</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>work_buf_size</declname>
+        </param>
+        <briefdescription>
+<para>Initialize and start the HTTP server. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Creates a listening socket on the given port.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>srv</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Server instance to initialize. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>port</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Port to listen on (typically 80). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>routes</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Route table (must outlive the server). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>route_count</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of routes. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>work_buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Shared work buffer for request parsing + responses. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>work_buf_size</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Buffer size (512+ recommended). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_ERROR if bind/listen fails. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/net/syn_httpd.h" line="144" column="12" bodyfile="src/syntropic/net/syn_httpd.c" bodystart="231" bodyend="254" declfile="src/syntropic/net/syn_httpd.h" declline="144" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__httpd_8h_1a419de75323bfef7b163148d9e490f7d4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__pt_8h_1a837fcf03fa24b6b73d66bb133b95d79e" kindref="member">SYN_PT_Status</ref></type>
+        <definition>SYN_PT_Status syn_httpd_task</definition>
+        <argsstring>(SYN_PT *pt, SYN_Task *task)</argsstring>
+        <name>syn_httpd_task</name>
+        <param>
+          <type><ref refid="structSYN__PT" kindref="compound">SYN_PT</ref> *</type>
+          <declname>pt</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__Task" kindref="compound">SYN_Task</ref> *</type>
+          <declname>task</declname>
+        </param>
+        <briefdescription>
+<para>Protothread task function for the HTTP server. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Register this as a SYN_TaskFunc with user_data pointing to a <ref refid="structSYN__Httpd" kindref="compound">SYN_Httpd</ref> instance. The task accepts a connection, handles one request, then yields back to the scheduler.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>pt</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to the cooperative protothread context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>task</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to the scheduler task structure. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>PT_WAITING or PT_EXITED status. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/net/syn_httpd.h" line="159" column="15" bodyfile="src/syntropic/net/syn_httpd.c" bodystart="424" bodyend="446" declfile="src/syntropic/net/syn_httpd.h" declline="159" declcolumn="15"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__httpd_8h_1abf625006b505e067652020db9232d712" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_httpd_step</definition>
+        <argsstring>(SYN_Httpd *srv)</argsstring>
+        <name>syn_httpd_step</name>
+        <param>
+          <type><ref refid="structSYN__Httpd" kindref="compound">SYN_Httpd</ref> *</type>
+          <declname>srv</declname>
+        </param>
+        <briefdescription>
+<para>Handle one incoming request (non-protothread version). </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Accepts one connection, parses the request, dispatches to the matching route handler, and closes the connection. Use this if you prefer manual control over the server loop.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>srv</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Server instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK if a request was handled, SYN_TIMEOUT if no client connected, SYN_ERROR on parse failure. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/net/syn_httpd.h" line="172" column="12" bodyfile="src/syntropic/net/syn_httpd.c" bodystart="300" bodyend="313" declfile="src/syntropic/net/syn_httpd.h" declline="172" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__httpd_8h_1a16b4f1381e6812b80227ac34a6b06d13" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_httpd_stop</definition>
+        <argsstring>(SYN_Httpd *srv)</argsstring>
+        <name>syn_httpd_stop</name>
+        <param>
+          <type><ref refid="structSYN__Httpd" kindref="compound">SYN_Httpd</ref> *</type>
+          <declname>srv</declname>
+        </param>
+        <briefdescription>
+<para>Stop the server and close the listener socket. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>srv</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Server instance to stop. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/net/syn_httpd.h" line="179" column="6" bodyfile="src/syntropic/net/syn_httpd.c" bodystart="315" bodyend="323" declfile="src/syntropic/net/syn_httpd.h" declline="179" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__httpd_8h_1aefaf74839a4515dd9aca9ca47cd6cdec" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_httpd_status</definition>
+        <argsstring>(const SYN_HttpdResponse *resp, int code, const char *reason)</argsstring>
+        <name>syn_httpd_status</name>
+        <param>
+          <type>const <ref refid="structSYN__HttpdResponse" kindref="compound">SYN_HttpdResponse</ref> *</type>
+          <declname>resp</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>code</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>reason</declname>
+        </param>
+        <briefdescription>
+<para>Begin the response with a status line. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Must be called first. E.g., syn_httpd_status(resp, 200, &quot;OK&quot;).</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>resp</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>HTTP response state to write to. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>code</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>HTTP numeric status code (e.g. 200). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>reason</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Human readable status message (e.g. &quot;OK&quot;). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/net/syn_httpd.h" line="192" column="6" bodyfile="src/syntropic/net/syn_httpd.c" bodystart="327" bodyend="344" declfile="src/syntropic/net/syn_httpd.h" declline="192" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__httpd_8h_1a8a309ceead8ee0bfad87cba67d3297ef" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_httpd_header</definition>
+        <argsstring>(const SYN_HttpdResponse *resp, const char *name, const char *value)</argsstring>
+        <name>syn_httpd_header</name>
+        <param>
+          <type>const <ref refid="structSYN__HttpdResponse" kindref="compound">SYN_HttpdResponse</ref> *</type>
+          <declname>resp</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>name</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>value</declname>
+        </param>
+        <briefdescription>
+<para>Add a response header. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Must be called after <ref refid="syn__httpd_8h_1aefaf74839a4515dd9aca9ca47cd6cdec" kindref="member">syn_httpd_status()</ref> and before <ref refid="syn__httpd_8h_1a0595585c7e0ee92f920e4198948ca839" kindref="member">syn_httpd_body()</ref>.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>resp</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>HTTP response state to write to. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>name</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Header key string (e.g. &quot;Content-Type&quot;). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>value</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Header value string (e.g. &quot;text/plain&quot;). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/net/syn_httpd.h" line="203" column="6" bodyfile="src/syntropic/net/syn_httpd.c" bodystart="346" bodyend="356" declfile="src/syntropic/net/syn_httpd.h" declline="203" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__httpd_8h_1a0595585c7e0ee92f920e4198948ca839" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_httpd_body</definition>
+        <argsstring>(SYN_HttpdResponse *resp, const void *data, size_t len)</argsstring>
+        <name>syn_httpd_body</name>
+        <param>
+          <type><ref refid="structSYN__HttpdResponse" kindref="compound">SYN_HttpdResponse</ref> *</type>
+          <declname>resp</declname>
+        </param>
+        <param>
+          <type>const void *</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>len</declname>
+        </param>
+        <briefdescription>
+<para>Send response body data. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Automatically finalizes headers on first call. Can be called multiple times for streaming responses.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>resp</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>HTTP response state to write to. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>data</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to binary data to transmit. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Length of data in bytes. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/net/syn_httpd.h" line="216" column="6" bodyfile="src/syntropic/net/syn_httpd.c" bodystart="371" bodyend="378" declfile="src/syntropic/net/syn_httpd.h" declline="216" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__httpd_8h_1a5a1c1397e9064ef0e7b63e9791f31801" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_httpd_body_str</definition>
+        <argsstring>(SYN_HttpdResponse *resp, const char *str)</argsstring>
+        <name>syn_httpd_body_str</name>
+        <param>
+          <type><ref refid="structSYN__HttpdResponse" kindref="compound">SYN_HttpdResponse</ref> *</type>
+          <declname>resp</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>str</declname>
+        </param>
+        <briefdescription>
+<para>Send a string as the response body. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Convenience wrapper for <ref refid="syn__httpd_8h_1a0595585c7e0ee92f920e4198948ca839" kindref="member">syn_httpd_body()</ref>.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>resp</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>HTTP response state to write to. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>str</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Null-terminated string to send. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/net/syn_httpd.h" line="226" column="6" bodyfile="src/syntropic/net/syn_httpd.c" bodystart="380" bodyend="385" declfile="src/syntropic/net/syn_httpd.h" declline="226" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__httpd_8h_1a9b46c5b5edd196230f851bb1879e8b8b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int syn_httpd_read_body</definition>
+        <argsstring>(const SYN_HttpdRequest *req, const SYN_HttpdResponse *resp, void *buf, size_t max_len)</argsstring>
+        <name>syn_httpd_read_body</name>
+        <param>
+          <type>const <ref refid="structSYN__HttpdRequest" kindref="compound">SYN_HttpdRequest</ref> *</type>
+          <declname>req</declname>
+        </param>
+        <param>
+          <type>const <ref refid="structSYN__HttpdResponse" kindref="compound">SYN_HttpdResponse</ref> *</type>
+          <declname>resp</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>max_len</declname>
+        </param>
+        <briefdescription>
+<para>Read request body data (for POST/PUT). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>req</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Request info. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>resp</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Response writer context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Buffer to read into. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>max_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Buffer capacity in bytes. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Bytes read, 0 at end of body, -1 on error. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/net/syn_httpd.h" line="237" column="5" bodyfile="src/syntropic/net/syn_httpd.c" bodystart="387" bodyend="420" declfile="src/syntropic/net/syn_httpd.h" declline="237" declcolumn="5"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Minimal HTTP/1.1 server — route-based, zero-alloc. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Designed to run as a cooperative protothread task within the SyntropicOS scheduler. Yields between accepts so other tasks can run. Handles one request per scheduler tick.</para>
+<para><simplesect kind="par"><title>Usage</title><para><programlisting><codeline><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>handle_status(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__HttpdRequest" kindref="compound">SYN_HttpdRequest</ref><sp/>*req,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__HttpdResponse" kindref="compound">SYN_HttpdResponse</ref><sp/>*resp,<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*ctx)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__httpd_8c_1aefaf74839a4515dd9aca9ca47cd6cdec" kindref="member">syn_httpd_status</ref>(resp,<sp/>200,<sp/></highlight><highlight class="stringliteral">&quot;OK&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__httpd_8c_1a8a309ceead8ee0bfad87cba67d3297ef" kindref="member">syn_httpd_header</ref>(resp,<sp/></highlight><highlight class="stringliteral">&quot;Content-Type&quot;</highlight><highlight class="normal">,<sp/></highlight><highlight class="stringliteral">&quot;application/json&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__httpd_8c_1a5a1c1397e9064ef0e7b63e9791f31801" kindref="member">syn_httpd_body_str</ref>(resp,<sp/></highlight><highlight class="stringliteral">&quot;{\&quot;status\&quot;:\&quot;ok\&quot;}&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline><highlight class="normal">}</highlight></codeline>
+<codeline><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__HttpdRoute" kindref="compound">SYN_HttpdRoute</ref><sp/>routes[]<sp/>=<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>{<sp/><ref refid="syn__httpd_8h_1ae2a5b18d4f7fdefe54eb67110365a02cafacb115b5d923447213311b47bc87ed2" kindref="member">SYN_HTTP_GET</ref>,<sp/></highlight><highlight class="stringliteral">&quot;/api/status&quot;</highlight><highlight class="normal">,<sp/>handle_status,<sp/>NULL<sp/>},</highlight></codeline>
+<codeline><highlight class="normal">};</highlight></codeline>
+<codeline><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="comment">//<sp/>In<sp/>your<sp/>task<sp/>array:</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/>uint8_t<sp/>httpd_buf[1024];</highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/><ref refid="structSYN__Httpd" kindref="compound">SYN_Httpd</ref><sp/>httpd;</highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__httpd_8c_1a52f29d7515016094b07a95b531b55561" kindref="member">syn_httpd_init</ref>(&amp;httpd,<sp/>80,<sp/>routes,<sp/>1,<sp/>httpd_buf,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(httpd_buf));</highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__sched_8c_1a240a64b7dba2fe25491ba9512c3b6056" kindref="member">syn_task_create</ref>(&amp;tasks[N],<sp/></highlight><highlight class="stringliteral">&quot;httpd&quot;</highlight><highlight class="normal">,<sp/><ref refid="syn__httpd_8c_1a419de75323bfef7b163148d9e490f7d4" kindref="member">syn_httpd_task</ref>,<sp/>2,<sp/>&amp;httpd);</highlight></codeline>
+</programlisting> </para>
+</simplesect>
+</para>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_HTTPD_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_HTTPD_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../common/syn_defs.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../port/syn_port_socket.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../pt/syn_pt.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../sched/syn_task.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stddef.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="46"><highlight class="normal"></highlight></codeline>
+<codeline lineno="47"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>HTTP<sp/>methods<sp/>────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="48"><highlight class="normal"></highlight></codeline>
+<codeline lineno="52" refid="syn__httpd_8h_1ae2a5b18d4f7fdefe54eb67110365a02c" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="53" refid="syn__httpd_8h_1ae2a5b18d4f7fdefe54eb67110365a02cafacb115b5d923447213311b47bc87ed2" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__httpd_8h_1ae2a5b18d4f7fdefe54eb67110365a02cafacb115b5d923447213311b47bc87ed2" kindref="member">SYN_HTTP_GET</ref><sp/><sp/><sp/><sp/>=<sp/>0,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="54" refid="syn__httpd_8h_1ae2a5b18d4f7fdefe54eb67110365a02ca8982f20a6efc75259d7e2ede1da87a68" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__httpd_8h_1ae2a5b18d4f7fdefe54eb67110365a02ca8982f20a6efc75259d7e2ede1da87a68" kindref="member">SYN_HTTP_POST</ref><sp/><sp/><sp/>=<sp/>1,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="55" refid="syn__httpd_8h_1ae2a5b18d4f7fdefe54eb67110365a02ca911e25ea41249bc81dc8b8a9998e4c6a" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__httpd_8h_1ae2a5b18d4f7fdefe54eb67110365a02ca911e25ea41249bc81dc8b8a9998e4c6a" kindref="member">SYN_HTTP_PUT</ref><sp/><sp/><sp/><sp/>=<sp/>2,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="56" refid="syn__httpd_8h_1ae2a5b18d4f7fdefe54eb67110365a02ca7e0644cadb252532ff103df4e3ad8c05" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__httpd_8h_1ae2a5b18d4f7fdefe54eb67110365a02ca7e0644cadb252532ff103df4e3ad8c05" kindref="member">SYN_HTTP_DELETE</ref><sp/>=<sp/>3,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="57"><highlight class="normal">}<sp/><ref refid="syn__httpd_8h_1ae2a5b18d4f7fdefe54eb67110365a02c" kindref="member">SYN_HttpMethod</ref>;</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"></highlight></codeline>
+<codeline lineno="59"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Request<sp/>(parsed,<sp/>presented<sp/>to<sp/>handler)<sp/>──────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="60"><highlight class="normal"></highlight></codeline>
+<codeline lineno="64" refid="structSYN__HttpdRequest" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="65" refid="structSYN__HttpdRequest_1a6fc4a2a55e088086ee183234e0a6021a" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__httpd_8h_1ae2a5b18d4f7fdefe54eb67110365a02c" kindref="member">SYN_HttpMethod</ref><sp/><sp/><ref refid="structSYN__HttpdRequest_1a6fc4a2a55e088086ee183234e0a6021a" kindref="member">method</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="66" refid="structSYN__HttpdRequest_1a8da0d7af5fcec239d740909d32703872" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/>*<ref refid="structSYN__HttpdRequest_1a8da0d7af5fcec239d740909d32703872" kindref="member">path</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="67" refid="structSYN__HttpdRequest_1a5a1c79237a7f482a74a96fbe4e6bb993" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/>*<ref refid="structSYN__HttpdRequest_1a5a1c79237a7f482a74a96fbe4e6bb993" kindref="member">query</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="68" refid="structSYN__HttpdRequest_1a0904bd194382798f5cbb597cf5c5326c" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__HttpdRequest_1a0904bd194382798f5cbb597cf5c5326c" kindref="member">content_length</ref>;<sp/><sp/></highlight></codeline>
+<codeline lineno="69" refid="structSYN__HttpdRequest_1ab727e3065f80c97c1fc8fdc278960e67" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/>*<ref refid="structSYN__HttpdRequest_1ab727e3065f80c97c1fc8fdc278960e67" kindref="member">content_type</ref>;<sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="70" refid="structSYN__HttpdRequest_1ab962772d795fc3ba0b67978b81de5d77" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/>*<ref refid="structSYN__HttpdRequest_1ab962772d795fc3ba0b67978b81de5d77" kindref="member">headers</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="71" refid="structSYN__HttpdRequest_1a095f31703235e5e6724c8aff9196e728" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__port__socket_8h_1ae94da9613781abe2f50b7c00dcaf103f" kindref="member">SYN_Socket</ref><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__HttpdRequest_1a095f31703235e5e6724c8aff9196e728" kindref="member">client_sock</ref>;<sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="72" refid="structSYN__HttpdRequest_1ac2853f3bac9674db1c9946aa4dc29127" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__HttpdRequest_1ac2853f3bac9674db1c9946aa4dc29127" kindref="member">body_consumed</ref>;<sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="73" refid="structSYN__HttpdRequest_1ad139b59879f73b6440201fac595fdcb1" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__HttpdRequest_1ad139b59879f73b6440201fac595fdcb1" kindref="member">body_buffered_offset</ref>;<sp/></highlight></codeline>
+<codeline lineno="74" refid="structSYN__HttpdRequest_1ab499d35c463d22e4ab21a35a6959c841" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__HttpdRequest_1ab499d35c463d22e4ab21a35a6959c841" kindref="member">body_buffered_len</ref>;<sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="75"><highlight class="normal">}<sp/><ref refid="structSYN__HttpdRequest" kindref="compound">SYN_HttpdRequest</ref>;</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"></highlight></codeline>
+<codeline lineno="77"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Response<sp/>writer<sp/>─────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="78"><highlight class="normal"></highlight></codeline>
+<codeline lineno="82" refid="structSYN__HttpdResponse" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="83" refid="structSYN__HttpdResponse_1a265b665f1f937cd27289782e7e4bae00" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__port__socket_8h_1ae94da9613781abe2f50b7c00dcaf103f" kindref="member">SYN_Socket</ref><sp/><sp/><ref refid="structSYN__HttpdResponse_1a265b665f1f937cd27289782e7e4bae00" kindref="member">sock</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="84" refid="structSYN__HttpdResponse_1a404f51f8ac6730861f59e668845397d4" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/><sp/><sp/>*<ref refid="structSYN__HttpdResponse_1a404f51f8ac6730861f59e668845397d4" kindref="member">buf</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="85" refid="structSYN__HttpdResponse_1a432f5b17737f4a36f00850170849a1a0" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__HttpdResponse_1a432f5b17737f4a36f00850170849a1a0" kindref="member">buf_size</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="86" refid="structSYN__HttpdResponse_1acb3da48de9bc914898932a156ec71dc4" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__HttpdResponse_1acb3da48de9bc914898932a156ec71dc4" kindref="member">headers_sent</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="87" refid="structSYN__HttpdResponse_1ad56ca0dab90cf8c9aed508ae51dcd97f" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__HttpdResponse_1ad56ca0dab90cf8c9aed508ae51dcd97f" kindref="member">upgraded</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="88"><highlight class="normal">}<sp/><ref refid="structSYN__HttpdResponse" kindref="compound">SYN_HttpdResponse</ref>;</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"></highlight></codeline>
+<codeline lineno="90"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Route<sp/>handler<sp/>───────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="91"><highlight class="normal"></highlight></codeline>
+<codeline lineno="98" refid="syn__httpd_8h_1ada6d6471c37137fd7ce67c6a035a86fb" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>void<sp/>(*<ref refid="syn__httpd_8h_1ada6d6471c37137fd7ce67c6a035a86fb" kindref="member">SYN_HttpdHandler</ref>)(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__HttpdRequest" kindref="compound">SYN_HttpdRequest</ref><sp/>*req,</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__HttpdResponse" kindref="compound">SYN_HttpdResponse</ref><sp/>*resp,</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*ctx);</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"></highlight></codeline>
+<codeline lineno="102"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Route<sp/>entry<sp/>─────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="103"><highlight class="normal"></highlight></codeline>
+<codeline lineno="107" refid="structSYN__HttpdRoute" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="108" refid="structSYN__HttpdRoute_1ac35164aaa27cc51d0bbf5b08c0ed53de" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__httpd_8h_1ae2a5b18d4f7fdefe54eb67110365a02c" kindref="member">SYN_HttpMethod</ref><sp/><sp/><sp/><sp/><ref refid="structSYN__HttpdRoute_1ac35164aaa27cc51d0bbf5b08c0ed53de" kindref="member">method</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="109" refid="structSYN__HttpdRoute_1a4fe0d4a06b9a01a40bfb82df12194644" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<ref refid="structSYN__HttpdRoute_1a4fe0d4a06b9a01a40bfb82df12194644" kindref="member">path</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="110" refid="structSYN__HttpdRoute_1a40f309e1c277eb9dd0b070bf600f65d5" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__httpd_8h_1ada6d6471c37137fd7ce67c6a035a86fb" kindref="member">SYN_HttpdHandler</ref><sp/><sp/><ref refid="structSYN__HttpdRoute_1a40f309e1c277eb9dd0b070bf600f65d5" kindref="member">handler</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="111" refid="structSYN__HttpdRoute_1a4b692889eb9991c600b085bc02a06a2b" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<ref refid="structSYN__HttpdRoute_1a4b692889eb9991c600b085bc02a06a2b" kindref="member">ctx</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="112"><highlight class="normal">}<sp/><ref refid="structSYN__HttpdRoute" kindref="compound">SYN_HttpdRoute</ref>;</highlight></codeline>
+<codeline lineno="113"><highlight class="normal"></highlight></codeline>
+<codeline lineno="114"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Server<sp/>instance<sp/>─────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="115"><highlight class="normal"></highlight></codeline>
+<codeline lineno="119" refid="structSYN__Httpd" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="120" refid="structSYN__Httpd_1af87af862701add3d499e2277a769d84e" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__HttpdRoute" kindref="compound">SYN_HttpdRoute</ref><sp/>*<ref refid="structSYN__Httpd_1af87af862701add3d499e2277a769d84e" kindref="member">routes</ref>;<sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="121" refid="structSYN__Httpd_1ab607f13877eb904ebd146382ad01f151" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__Httpd_1ab607f13877eb904ebd146382ad01f151" kindref="member">route_count</ref>;<sp/></highlight></codeline>
+<codeline lineno="122" refid="structSYN__Httpd_1ac39ce518d78801e1fcd20232d628a41a" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<ref refid="structSYN__Httpd_1ac39ce518d78801e1fcd20232d628a41a" kindref="member">work_buf</ref>;<sp/><sp/></highlight></codeline>
+<codeline lineno="123" refid="structSYN__Httpd_1a923b9dd467ae37275c854ec14fe48278" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__Httpd_1a923b9dd467ae37275c854ec14fe48278" kindref="member">work_buf_size</ref>;<sp/></highlight></codeline>
+<codeline lineno="124" refid="structSYN__Httpd_1a4362103b974d9ab522b7137877ba02d3" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__Httpd_1a4362103b974d9ab522b7137877ba02d3" kindref="member">port</ref>;<sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="125" refid="structSYN__Httpd_1adbce90d12e912f15b87f3603140d8d67" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__port__socket_8h_1ae94da9613781abe2f50b7c00dcaf103f" kindref="member">SYN_Socket</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__Httpd_1adbce90d12e912f15b87f3603140d8d67" kindref="member">listener</ref>;<sp/><sp/></highlight></codeline>
+<codeline lineno="126" refid="structSYN__Httpd_1a946858db776bda0b6b448f4464abb6a4" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__Httpd_1a946858db776bda0b6b448f4464abb6a4" kindref="member">running</ref>;<sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="127"><highlight class="normal">}<sp/><ref refid="structSYN__Httpd" kindref="compound">SYN_Httpd</ref>;</highlight></codeline>
+<codeline lineno="128"><highlight class="normal"></highlight></codeline>
+<codeline lineno="129"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Server<sp/>API<sp/>──────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="130"><highlight class="normal"></highlight></codeline>
+<codeline lineno="144"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__httpd_8h_1a52f29d7515016094b07a95b531b55561" kindref="member">syn_httpd_init</ref>(<ref refid="structSYN__Httpd" kindref="compound">SYN_Httpd</ref><sp/>*srv,<sp/>uint16_t<sp/>port,</highlight></codeline>
+<codeline lineno="145"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__HttpdRoute" kindref="compound">SYN_HttpdRoute</ref><sp/>*routes,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>route_count,</highlight></codeline>
+<codeline lineno="146"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>*work_buf,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>work_buf_size);</highlight></codeline>
+<codeline lineno="147"><highlight class="normal"></highlight></codeline>
+<codeline lineno="159"><highlight class="normal"><ref refid="syn__pt_8h_1a837fcf03fa24b6b73d66bb133b95d79e" kindref="member">SYN_PT_Status</ref><sp/><ref refid="syn__httpd_8h_1a419de75323bfef7b163148d9e490f7d4" kindref="member">syn_httpd_task</ref>(<ref refid="structSYN__PT" kindref="compound">SYN_PT</ref><sp/>*pt,<sp/><ref refid="structSYN__Task" kindref="compound">SYN_Task</ref><sp/>*task);</highlight></codeline>
+<codeline lineno="160"><highlight class="normal"></highlight></codeline>
+<codeline lineno="172"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__httpd_8h_1abf625006b505e067652020db9232d712" kindref="member">syn_httpd_step</ref>(<ref refid="structSYN__Httpd" kindref="compound">SYN_Httpd</ref><sp/>*srv);</highlight></codeline>
+<codeline lineno="173"><highlight class="normal"></highlight></codeline>
+<codeline lineno="179"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__httpd_8h_1a16b4f1381e6812b80227ac34a6b06d13" kindref="member">syn_httpd_stop</ref>(<ref refid="structSYN__Httpd" kindref="compound">SYN_Httpd</ref><sp/>*srv);</highlight></codeline>
+<codeline lineno="180"><highlight class="normal"></highlight></codeline>
+<codeline lineno="181"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Response<sp/>helpers<sp/>(used<sp/>from<sp/>handlers)<sp/>───────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="182"><highlight class="normal"></highlight></codeline>
+<codeline lineno="192"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__httpd_8h_1aefaf74839a4515dd9aca9ca47cd6cdec" kindref="member">syn_httpd_status</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__HttpdResponse" kindref="compound">SYN_HttpdResponse</ref><sp/>*resp,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>code,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*reason);</highlight></codeline>
+<codeline lineno="193"><highlight class="normal"></highlight></codeline>
+<codeline lineno="203"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__httpd_8h_1a8a309ceead8ee0bfad87cba67d3297ef" kindref="member">syn_httpd_header</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__HttpdResponse" kindref="compound">SYN_HttpdResponse</ref><sp/>*resp,</highlight></codeline>
+<codeline lineno="204"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*name,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*value);</highlight></codeline>
+<codeline lineno="205"><highlight class="normal"></highlight></codeline>
+<codeline lineno="216"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__httpd_8h_1a0595585c7e0ee92f920e4198948ca839" kindref="member">syn_httpd_body</ref>(<ref refid="structSYN__HttpdResponse" kindref="compound">SYN_HttpdResponse</ref><sp/>*resp,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*data,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>len);</highlight></codeline>
+<codeline lineno="217"><highlight class="normal"></highlight></codeline>
+<codeline lineno="226"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__httpd_8h_1a5a1c1397e9064ef0e7b63e9791f31801" kindref="member">syn_httpd_body_str</ref>(<ref refid="structSYN__HttpdResponse" kindref="compound">SYN_HttpdResponse</ref><sp/>*resp,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*str);</highlight></codeline>
+<codeline lineno="227"><highlight class="normal"></highlight></codeline>
+<codeline lineno="237"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="syn__httpd_8h_1a9b46c5b5edd196230f851bb1879e8b8b" kindref="member">syn_httpd_read_body</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__HttpdRequest" kindref="compound">SYN_HttpdRequest</ref><sp/>*req,</highlight></codeline>
+<codeline lineno="238"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__HttpdResponse" kindref="compound">SYN_HttpdResponse</ref><sp/>*resp,</highlight></codeline>
+<codeline lineno="239"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*buf,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>max_len);</highlight></codeline>
+<codeline lineno="240"><highlight class="normal"></highlight></codeline>
+<codeline lineno="241"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="242"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="243"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="244"><highlight class="normal"></highlight></codeline>
+<codeline lineno="245"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_HTTPD_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/net/syn_httpd.h"/>
+  </compounddef>
+</doxygen>

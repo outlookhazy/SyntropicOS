@@ -1,0 +1,363 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__timeout_8h" kind="file" language="C++">
+    <compoundname>syn_timeout.h</compoundname>
+    <includes refid="syn__defs_8h" local="yes">../common/syn_defs.h</includes>
+    <includes refid="syn__port__system_8h" local="yes">../port/syn_port_system.h</includes>
+    <includes local="no">stdbool.h</includes>
+    <includedby refid="syntropic_8h" local="yes">src/syntropic/syntropic.h</includedby>
+    <incdepgraph>
+      <node id="6">
+        <label>../common/syn_compiler.h</label>
+        <link refid="syn__compiler_8h"/>
+      </node>
+      <node id="2">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>../port/syn_port_system.h</label>
+        <link refid="syn__port__system_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/util/syn_timeout.h</label>
+        <link refid="syn__timeout_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>stdbool.h</label>
+      </node>
+      <node id="4">
+        <label>stddef.h</label>
+      </node>
+      <node id="3">
+        <label>stdint.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="2">
+        <label>src/syntropic/syntropic.h</label>
+        <link refid="syntropic_8h"/>
+      </node>
+      <node id="1">
+        <label>src/syntropic/util/syn_timeout.h</label>
+        <link refid="syn__timeout_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="structSYN__Timeout" prot="public">SYN_Timeout</innerclass>
+    <sectiondef kind="define">
+      <memberdef kind="define" id="syn__timeout_8h_1a9ed97b329bb52c6a9bd57fbf3e8fc391" prot="public" static="no">
+        <name>PT_WAIT_TIMEOUT</name>
+        <param><defname>pt</defname></param>
+        <param><defname>to</defname></param>
+        <initializer>    <ref refid="syn__pt_8h_1a0a7f29e2a1e2caaf5bcc343412eef273" kindref="member">PT_WAIT_UNTIL</ref>(pt, <ref refid="syn__timeout_8h_1a997579b47f7748c4bcef11d6f26b6efb" kindref="member">syn_timeout_expired</ref>(to))</initializer>
+        <briefdescription>
+<para>Block a protothread until the timeout expires. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_timeout.h" line="128" column="9" bodyfile="src/syntropic/util/syn_timeout.h" bodystart="128" bodyend="129"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__timeout_8h_1af7e58bb583a436987c870653cff26c8d" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void syn_timeout_start</definition>
+        <argsstring>(SYN_Timeout *to, uint32_t duration)</argsstring>
+        <name>syn_timeout_start</name>
+        <param>
+          <type><ref refid="structSYN__Timeout" kindref="compound">SYN_Timeout</ref> *</type>
+          <declname>to</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>duration</declname>
+        </param>
+        <briefdescription>
+<para>Start (or restart) a timeout. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>to</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Timeout to start. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>duration</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Duration in milliseconds. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_timeout.h" line="54" column="20" bodyfile="src/syntropic/util/syn_timeout.h" bodystart="54" bodyend="58"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__timeout_8h_1a997579b47f7748c4bcef11d6f26b6efb" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>static bool syn_timeout_expired</definition>
+        <argsstring>(const SYN_Timeout *to)</argsstring>
+        <name>syn_timeout_expired</name>
+        <param>
+          <type>const <ref refid="structSYN__Timeout" kindref="compound">SYN_Timeout</ref> *</type>
+          <declname>to</declname>
+        </param>
+        <briefdescription>
+<para>Check if the timeout has expired. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Uses unsigned subtraction, which is wrap-around safe for a single wrap of the 32-bit tick counter (~49 days at 1 kHz).</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>to</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Timeout to check. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if the timeout has expired. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_timeout.h" line="69" column="20" bodyfile="src/syntropic/util/syn_timeout.h" bodystart="69" bodyend="72"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__timeout_8h_1a6f5df42f4c5e76783cf3676aa5a68614" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>static uint32_t syn_timeout_remaining</definition>
+        <argsstring>(const SYN_Timeout *to)</argsstring>
+        <name>syn_timeout_remaining</name>
+        <param>
+          <type>const <ref refid="structSYN__Timeout" kindref="compound">SYN_Timeout</ref> *</type>
+          <declname>to</declname>
+        </param>
+        <briefdescription>
+<para>Get the remaining time until expiry. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>to</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Timeout. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Remaining milliseconds, or 0 if already expired. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_timeout.h" line="80" column="24" bodyfile="src/syntropic/util/syn_timeout.h" bodystart="80" bodyend="84"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__timeout_8h_1a152f493e9bf764de58c8e6ee645ef538" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>static uint32_t syn_timeout_elapsed</definition>
+        <argsstring>(const SYN_Timeout *to)</argsstring>
+        <name>syn_timeout_elapsed</name>
+        <param>
+          <type>const <ref refid="structSYN__Timeout" kindref="compound">SYN_Timeout</ref> *</type>
+          <declname>to</declname>
+        </param>
+        <briefdescription>
+<para>Get the elapsed time since the timeout was started. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>to</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Timeout. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Elapsed milliseconds. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_timeout.h" line="91" column="24" bodyfile="src/syntropic/util/syn_timeout.h" bodystart="91" bodyend="94"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__timeout_8h_1ac073132eed0ea5c3e57f1c3b1791031a" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void syn_timeout_restart</definition>
+        <argsstring>(SYN_Timeout *to)</argsstring>
+        <name>syn_timeout_restart</name>
+        <param>
+          <type><ref refid="structSYN__Timeout" kindref="compound">SYN_Timeout</ref> *</type>
+          <declname>to</declname>
+        </param>
+        <briefdescription>
+<para>Restart the timeout from <emphasis>now</emphasis> with the same duration. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>to</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Timeout. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_timeout.h" line="100" column="20" bodyfile="src/syntropic/util/syn_timeout.h" bodystart="100" bodyend="103"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__timeout_8h_1a1aadf7f1b505ab0888058324f32c6d4f" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>static bool syn_timeout_periodic</definition>
+        <argsstring>(SYN_Timeout *to)</argsstring>
+        <name>syn_timeout_periodic</name>
+        <param>
+          <type><ref refid="structSYN__Timeout" kindref="compound">SYN_Timeout</ref> *</type>
+          <declname>to</declname>
+        </param>
+        <briefdescription>
+<para>Check expiry and auto-restart if expired (periodic use). </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Useful in main loops: &quot;every N ms, do X&quot;.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>to</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Timeout. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if the timeout expired (and was restarted). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_timeout.h" line="113" column="20" bodyfile="src/syntropic/util/syn_timeout.h" bodystart="113" bodyend="121"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Non-blocking timeout helper — tick wrap-around safe. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>The &quot;has N ms elapsed?&quot; pattern is used everywhere in embedded code and is easy to get wrong with tick counter wrap-around. This header provides a tiny inline API that handles it correctly.</para>
+<para>Header-only — zero code size if unused.</para>
+<para><simplesect kind="par"><title>Usage</title><para><programlisting><codeline><highlight class="normal"><ref refid="structSYN__Timeout" kindref="compound">SYN_Timeout</ref><sp/>to;</highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__timeout_8h_1af7e58bb583a436987c870653cff26c8d" kindref="member">syn_timeout_start</ref>(&amp;to,<sp/>1000);</highlight></codeline>
+<codeline><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="keywordflow">while</highlight><highlight class="normal"><sp/>(!<ref refid="syn__timeout_8h_1a997579b47f7748c4bcef11d6f26b6efb" kindref="member">syn_timeout_expired</ref>(&amp;to))<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>try<sp/>something...</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal">}</highlight></codeline>
+<codeline><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="comment">//<sp/>In<sp/>a<sp/>protothread:</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__timeout_8h_1a9ed97b329bb52c6a9bd57fbf3e8fc391" kindref="member">PT_WAIT_TIMEOUT</ref>(pt,<sp/>&amp;to);</highlight></codeline>
+</programlisting> </para>
+</simplesect>
+</para>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_TIMEOUT_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_TIMEOUT_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../common/syn_defs.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../port/syn_port_system.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Timeout<sp/>struct<sp/>───────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight></codeline>
+<codeline lineno="41" refid="structSYN__Timeout" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="42" refid="structSYN__Timeout_1ab5b9e654e088d2177c8ec5f37ad2d19d" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structSYN__Timeout_1ab5b9e654e088d2177c8ec5f37ad2d19d" kindref="member">start</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="43" refid="structSYN__Timeout_1a1932da845696b9b055f1c083de86158f" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structSYN__Timeout_1a1932da845696b9b055f1c083de86158f" kindref="member">duration</ref>;<sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="44"><highlight class="normal">}<sp/><ref refid="structSYN__Timeout" kindref="compound">SYN_Timeout</ref>;</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight></codeline>
+<codeline lineno="46"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>API<sp/>(all<sp/>inline)<sp/>─────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="47"><highlight class="normal"></highlight></codeline>
+<codeline lineno="54" refid="syn__timeout_8h_1af7e58bb583a436987c870653cff26c8d" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__timeout_8h_1af7e58bb583a436987c870653cff26c8d" kindref="member">syn_timeout_start</ref>(<ref refid="structSYN__Timeout" kindref="compound">SYN_Timeout</ref><sp/>*to,<sp/>uint32_t<sp/>duration)</highlight></codeline>
+<codeline lineno="55"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/><sp/><sp/>to-&gt;<ref refid="structSYN__Timeout_1ab5b9e654e088d2177c8ec5f37ad2d19d" kindref="member">start</ref><sp/><sp/><sp/><sp/>=<sp/><ref refid="syn__port__system_8h_1a6c7d98587814b2c0d9c09da02d318873" kindref="member">syn_port_get_tick_ms</ref>();</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/><sp/><sp/>to-&gt;<ref refid="structSYN__Timeout_1a1932da845696b9b055f1c083de86158f" kindref="member">duration</ref><sp/>=<sp/>duration;</highlight></codeline>
+<codeline lineno="58"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"></highlight></codeline>
+<codeline lineno="69" refid="syn__timeout_8h_1a997579b47f7748c4bcef11d6f26b6efb" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__timeout_8h_1a997579b47f7748c4bcef11d6f26b6efb" kindref="member">syn_timeout_expired</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__Timeout" kindref="compound">SYN_Timeout</ref><sp/>*to)</highlight></codeline>
+<codeline lineno="70"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(<ref refid="syn__port__system_8h_1a6c7d98587814b2c0d9c09da02d318873" kindref="member">syn_port_get_tick_ms</ref>()<sp/>-<sp/>to-&gt;<ref refid="structSYN__Timeout_1ab5b9e654e088d2177c8ec5f37ad2d19d" kindref="member">start</ref>)<sp/>&gt;=<sp/>to-&gt;<ref refid="structSYN__Timeout_1a1932da845696b9b055f1c083de86158f" kindref="member">duration</ref>;</highlight></codeline>
+<codeline lineno="72"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"></highlight></codeline>
+<codeline lineno="80" refid="syn__timeout_8h_1a6f5df42f4c5e76783cf3676aa5a68614" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>uint32_t<sp/><ref refid="syn__timeout_8h_1a6f5df42f4c5e76783cf3676aa5a68614" kindref="member">syn_timeout_remaining</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__Timeout" kindref="compound">SYN_Timeout</ref><sp/>*to)</highlight></codeline>
+<codeline lineno="81"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/>elapsed<sp/>=<sp/><ref refid="syn__port__system_8h_1a6c7d98587814b2c0d9c09da02d318873" kindref="member">syn_port_get_tick_ms</ref>()<sp/>-<sp/>to-&gt;<ref refid="structSYN__Timeout_1ab5b9e654e088d2177c8ec5f37ad2d19d" kindref="member">start</ref>;</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(elapsed<sp/>&lt;<sp/>to-&gt;duration)<sp/>?<sp/>(to-&gt;<ref refid="structSYN__Timeout_1a1932da845696b9b055f1c083de86158f" kindref="member">duration</ref><sp/>-<sp/>elapsed)<sp/>:<sp/>0;</highlight></codeline>
+<codeline lineno="84"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"></highlight></codeline>
+<codeline lineno="91" refid="syn__timeout_8h_1a152f493e9bf764de58c8e6ee645ef538" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>uint32_t<sp/><ref refid="syn__timeout_8h_1a152f493e9bf764de58c8e6ee645ef538" kindref="member">syn_timeout_elapsed</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__Timeout" kindref="compound">SYN_Timeout</ref><sp/>*to)</highlight></codeline>
+<codeline lineno="92"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__port__system_8h_1a6c7d98587814b2c0d9c09da02d318873" kindref="member">syn_port_get_tick_ms</ref>()<sp/>-<sp/>to-&gt;<ref refid="structSYN__Timeout_1ab5b9e654e088d2177c8ec5f37ad2d19d" kindref="member">start</ref>;</highlight></codeline>
+<codeline lineno="94"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"></highlight></codeline>
+<codeline lineno="100" refid="syn__timeout_8h_1ac073132eed0ea5c3e57f1c3b1791031a" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__timeout_8h_1ac073132eed0ea5c3e57f1c3b1791031a" kindref="member">syn_timeout_restart</ref>(<ref refid="structSYN__Timeout" kindref="compound">SYN_Timeout</ref><sp/>*to)</highlight></codeline>
+<codeline lineno="101"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><sp/><sp/><sp/><sp/>to-&gt;<ref refid="structSYN__Timeout_1ab5b9e654e088d2177c8ec5f37ad2d19d" kindref="member">start</ref><sp/>=<sp/><ref refid="syn__port__system_8h_1a6c7d98587814b2c0d9c09da02d318873" kindref="member">syn_port_get_tick_ms</ref>();</highlight></codeline>
+<codeline lineno="103"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"></highlight></codeline>
+<codeline lineno="113" refid="syn__timeout_8h_1a1aadf7f1b505ab0888058324f32c6d4f" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__timeout_8h_1a1aadf7f1b505ab0888058324f32c6d4f" kindref="member">syn_timeout_periodic</ref>(<ref refid="structSYN__Timeout" kindref="compound">SYN_Timeout</ref><sp/>*to)</highlight></codeline>
+<codeline lineno="114"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="115"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="syn__timeout_8h_1a997579b47f7748c4bcef11d6f26b6efb" kindref="member">syn_timeout_expired</ref>(to))<sp/>{</highlight></codeline>
+<codeline lineno="116"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Re-arm<sp/>relative<sp/>to<sp/>the<sp/>old<sp/>start<sp/>to<sp/>avoid<sp/>drift<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="117"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>to-&gt;<ref refid="structSYN__Timeout_1ab5b9e654e088d2177c8ec5f37ad2d19d" kindref="member">start</ref><sp/>+=<sp/>to-&gt;<ref refid="structSYN__Timeout_1a1932da845696b9b055f1c083de86158f" kindref="member">duration</ref>;</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="120"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="121"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="122"><highlight class="normal"></highlight></codeline>
+<codeline lineno="123"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Protothread<sp/>integration<sp/>──────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="124"><highlight class="normal"></highlight></codeline>
+<codeline lineno="128" refid="syn__timeout_8h_1a9ed97b329bb52c6a9bd57fbf3e8fc391" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>PT_WAIT_TIMEOUT(pt,<sp/>to)<sp/>\</highlight></codeline>
+<codeline lineno="129"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>PT_WAIT_UNTIL(pt,<sp/>syn_timeout_expired(to))</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="130"><highlight class="normal"></highlight></codeline>
+<codeline lineno="131"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="132"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="133"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="134"><highlight class="normal"></highlight></codeline>
+<codeline lineno="135"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_TIMEOUT_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/util/syn_timeout.h"/>
+  </compounddef>
+</doxygen>

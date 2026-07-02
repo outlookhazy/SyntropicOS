@@ -1,0 +1,613 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__sequencer_8h" kind="file" language="C++">
+    <compoundname>syn_sequencer.h</compoundname>
+    <includes refid="syn__port__system_8h" local="yes">../port/syn_port_system.h</includes>
+    <includes local="no">stdint.h</includes>
+    <includes local="no">stdbool.h</includes>
+    <includes local="no">stddef.h</includes>
+    <includedby refid="syn__sequencer_8c" local="yes">src/syntropic/sched/syn_sequencer.c</includedby>
+    <includedby refid="syntropic_8h" local="yes">src/syntropic/syntropic.h</includedby>
+    <incdepgraph>
+      <node id="6">
+        <label>../common/syn_compiler.h</label>
+        <link refid="syn__compiler_8h"/>
+      </node>
+      <node id="3">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>../port/syn_port_system.h</label>
+        <link refid="syn__port__system_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/sched/syn_sequencer.h</label>
+        <link refid="syn__sequencer_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>stdbool.h</label>
+      </node>
+      <node id="5">
+        <label>stddef.h</label>
+      </node>
+      <node id="4">
+        <label>stdint.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="2">
+        <label>src/syntropic/sched/syn_sequencer.c</label>
+        <link refid="syn__sequencer_8c"/>
+      </node>
+      <node id="1">
+        <label>src/syntropic/sched/syn_sequencer.h</label>
+        <link refid="syn__sequencer_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>src/syntropic/syntropic.h</label>
+        <link refid="syntropic_8h"/>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="structSYN__SeqStep" prot="public">SYN_SeqStep</innerclass>
+    <innerclass refid="structSYN__Sequencer" prot="public">SYN_Sequencer</innerclass>
+    <sectiondef kind="enum">
+      <memberdef kind="enum" id="syn__sequencer_8h_1a8fb8041e1fce8558710875d48133f915" prot="public" static="no" strong="no">
+        <type></type>
+        <name>SYN_SeqState</name>
+        <enumvalue id="syn__sequencer_8h_1a8fb8041e1fce8558710875d48133f915a32279965f9fc2fd8a72be8474aceeafe" prot="public">
+          <name>SYN_SEQ_IDLE</name>
+          <initializer>= 0</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Sequence is inactive or stopped </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__sequencer_8h_1a8fb8041e1fce8558710875d48133f915a2aaf34676f5fa4854f491302f79b295d" prot="public">
+          <name>SYN_SEQ_RUNNING</name>
+          <initializer>= 1</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Actively executing actions </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__sequencer_8h_1a8fb8041e1fce8558710875d48133f915a0481ff314b8bd0fff773b3eefa749651" prot="public">
+          <name>SYN_SEQ_WAITING</name>
+          <initializer>= 2</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Waiting on step delay timer </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__sequencer_8h_1a8fb8041e1fce8558710875d48133f915a88a94339ba96f2227ed2ad4b88314a1f" prot="public">
+          <name>SYN_SEQ_DONE</name>
+          <initializer>= 3</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Sequence completed all steps </para>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>Action sequencer execution states. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/sched/syn_sequencer.h" line="61" column="1" bodyfile="src/syntropic/sched/syn_sequencer.h" bodystart="61" bodyend="66"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="typedef">
+      <memberdef kind="typedef" id="syn__sequencer_8h_1a4710b8aa58ae63b1193100eff44456cd" prot="public" static="no">
+        <type>void(*</type>
+        <definition>typedef void(* SYN_SeqAction) (void *ctx)</definition>
+        <argsstring>)(void *ctx)</argsstring>
+        <name>SYN_SeqAction</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Action function called for each step. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/sched/syn_sequencer.h" line="47" column="9" bodyfile="src/syntropic/sched/syn_sequencer.h" bodystart="47" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="syn__sequencer_8h_1a1bfb5c153d861ee242257e07205ca155" prot="public" static="no">
+        <type>void(*</type>
+        <definition>typedef void(* SYN_SeqCompleteCallback) (struct SYN_Sequencer *seq, void *ctx)</definition>
+        <argsstring>)(struct SYN_Sequencer *seq, void *ctx)</argsstring>
+        <name>SYN_SeqCompleteCallback</name>
+        <briefdescription>
+<para>Completion callback function signature. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>seq</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to the completed sequencer context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>ctx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>User context associated with the completion handler. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/sched/syn_sequencer.h" line="78" column="9" bodyfile="src/syntropic/sched/syn_sequencer.h" bodystart="78" bodyend="-1"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__sequencer_8h_1acccb34b9fcd8113e5dd1adc6bed2bdad" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_seq_init</definition>
+        <argsstring>(SYN_Sequencer *seq, const SYN_SeqStep *steps, uint16_t count)</argsstring>
+        <name>syn_seq_init</name>
+        <param>
+          <type><ref refid="structSYN__Sequencer" kindref="compound">SYN_Sequencer</ref> *</type>
+          <declname>seq</declname>
+        </param>
+        <param>
+          <type>const <ref refid="structSYN__SeqStep" kindref="compound">SYN_SeqStep</ref> *</type>
+          <declname>steps</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>count</declname>
+        </param>
+        <briefdescription>
+<para>Initialize a sequencer. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>seq</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Sequencer instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>steps</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Array of step descriptors (must persist). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>count</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of steps. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/sched/syn_sequencer.h" line="106" column="6" bodyfile="src/syntropic/sched/syn_sequencer.c" bodystart="17" bodyend="28" declfile="src/syntropic/sched/syn_sequencer.h" declline="106" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__sequencer_8h_1a0e84c81321666d02711ace3488025e13" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_seq_on_complete</definition>
+        <argsstring>(SYN_Sequencer *seq, SYN_SeqCompleteCallback cb, void *ctx)</argsstring>
+        <name>syn_seq_on_complete</name>
+        <param>
+          <type><ref refid="structSYN__Sequencer" kindref="compound">SYN_Sequencer</ref> *</type>
+          <declname>seq</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__sequencer_8h_1a1bfb5c153d861ee242257e07205ca155" kindref="member">SYN_SeqCompleteCallback</ref></type>
+          <declname>cb</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>ctx</declname>
+        </param>
+        <briefdescription>
+<para>Set completion callback. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>seq</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Sequencer instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>cb</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Callback function invoked on sequence end. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>ctx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Callback context data pointer. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/sched/syn_sequencer.h" line="116" column="6" bodyfile="src/syntropic/sched/syn_sequencer.c" bodystart="30" bodyend="36" declfile="src/syntropic/sched/syn_sequencer.h" declline="116" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__sequencer_8h_1a6f02a36e8c0c5f4f9ae81aefb02dbc59" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_seq_set_loop</definition>
+        <argsstring>(SYN_Sequencer *seq, bool loop)</argsstring>
+        <name>syn_seq_set_loop</name>
+        <param>
+          <type><ref refid="structSYN__Sequencer" kindref="compound">SYN_Sequencer</ref> *</type>
+          <declname>seq</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+          <declname>loop</declname>
+        </param>
+        <briefdescription>
+<para>Enable looping (auto-restart on completion). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>seq</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Sequencer instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>loop</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>True to loop sequence indefinitely, false for single run. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/sched/syn_sequencer.h" line="125" column="6" bodyfile="src/syntropic/sched/syn_sequencer.c" bodystart="38" bodyend="42" declfile="src/syntropic/sched/syn_sequencer.h" declline="125" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__sequencer_8h_1aeab235baec3e5ded5414fc3ec226a768" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_seq_start</definition>
+        <argsstring>(SYN_Sequencer *seq)</argsstring>
+        <name>syn_seq_start</name>
+        <param>
+          <type><ref refid="structSYN__Sequencer" kindref="compound">SYN_Sequencer</ref> *</type>
+          <declname>seq</declname>
+        </param>
+        <briefdescription>
+<para>Start the sequence from the beginning. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>seq</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Sequencer instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/sched/syn_sequencer.h" line="132" column="6" bodyfile="src/syntropic/sched/syn_sequencer.c" bodystart="44" bodyend="49" declfile="src/syntropic/sched/syn_sequencer.h" declline="132" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__sequencer_8h_1adb757b3b29a45ae02beb0e3406fa0ec4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_seq_stop</definition>
+        <argsstring>(SYN_Sequencer *seq)</argsstring>
+        <name>syn_seq_stop</name>
+        <param>
+          <type><ref refid="structSYN__Sequencer" kindref="compound">SYN_Sequencer</ref> *</type>
+          <declname>seq</declname>
+        </param>
+        <briefdescription>
+<para>Stop the sequence. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>seq</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Sequencer instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/sched/syn_sequencer.h" line="139" column="6" bodyfile="src/syntropic/sched/syn_sequencer.c" bodystart="51" bodyend="55" declfile="src/syntropic/sched/syn_sequencer.h" declline="139" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__sequencer_8h_1a60e528c6ba74df7969ff39c6f4fe1999" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_seq_update</definition>
+        <argsstring>(SYN_Sequencer *seq)</argsstring>
+        <name>syn_seq_update</name>
+        <param>
+          <type><ref refid="structSYN__Sequencer" kindref="compound">SYN_Sequencer</ref> *</type>
+          <declname>seq</declname>
+        </param>
+        <briefdescription>
+<para>Update the sequencer — call from main loop. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Executes actions and manages delays non-blockingly.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>seq</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Sequencer instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if the sequence completed this call. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/sched/syn_sequencer.h" line="149" column="6" bodyfile="src/syntropic/sched/syn_sequencer.c" bodystart="80" bodyend="121" declfile="src/syntropic/sched/syn_sequencer.h" declline="149" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__sequencer_8h_1aeb7ab3f82b3892c3e94866e3fec71b31" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>static bool syn_seq_is_done</definition>
+        <argsstring>(const SYN_Sequencer *seq)</argsstring>
+        <name>syn_seq_is_done</name>
+        <param>
+          <type>const <ref refid="structSYN__Sequencer" kindref="compound">SYN_Sequencer</ref> *</type>
+          <declname>seq</declname>
+        </param>
+        <briefdescription>
+<para>Check if done. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>seq</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Sequencer instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>True if in IDLE or DONE state. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/sched/syn_sequencer.h" line="157" column="20" bodyfile="src/syntropic/sched/syn_sequencer.h" bodystart="157" bodyend="160"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__sequencer_8h_1a177d4f0c05814e7a3d60ea5e6c45ffd9" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>uint16_t</type>
+        <definition>static uint16_t syn_seq_current_step</definition>
+        <argsstring>(const SYN_Sequencer *seq)</argsstring>
+        <name>syn_seq_current_step</name>
+        <param>
+          <type>const <ref refid="structSYN__Sequencer" kindref="compound">SYN_Sequencer</ref> *</type>
+          <declname>seq</declname>
+        </param>
+        <briefdescription>
+<para>Get current step index. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>seq</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Sequencer instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Index of the currently executing/waiting step. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/sched/syn_sequencer.h" line="168" column="24" bodyfile="src/syntropic/sched/syn_sequencer.h" bodystart="168" bodyend="171"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__sequencer_8h_1a8a309076e5325990952d3db4265e7958" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>uint16_t</type>
+        <definition>static uint16_t syn_seq_loops</definition>
+        <argsstring>(const SYN_Sequencer *seq)</argsstring>
+        <name>syn_seq_loops</name>
+        <param>
+          <type>const <ref refid="structSYN__Sequencer" kindref="compound">SYN_Sequencer</ref> *</type>
+          <declname>seq</declname>
+        </param>
+        <briefdescription>
+<para>Get loop iteration count. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>seq</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Sequencer instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Number of times the sequence has finished (if looping is enabled). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/sched/syn_sequencer.h" line="179" column="24" bodyfile="src/syntropic/sched/syn_sequencer.h" bodystart="179" bodyend="182"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Timed action sequencer — choreograph steps with delays. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Execute a sequence of actions with configurable delays between them. Non-blocking — call <computeroutput>update()</computeroutput> from your main loop.</para>
+<para><simplesect kind="par"><title>Usage</title><para><programlisting><codeline><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>relay_on(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*ctx)<sp/>{<sp/><ref refid="syn__gpio_8h_1a1df83ba3f60dd521135c2885b89622df" kindref="member">syn_gpio_write</ref>(RELAY_PIN,<sp/>SYN_GPIO_HIGH);<sp/>}</highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>relay_off(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*ctx)<sp/>{<sp/><ref refid="syn__gpio_8h_1a1df83ba3f60dd521135c2885b89622df" kindref="member">syn_gpio_write</ref>(RELAY_PIN,<sp/>SYN_GPIO_LOW);<sp/>}</highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>read_sensor(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*ctx)<sp/>{<sp/>*(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal">*)ctx<sp/>=<sp/>adc_read();<sp/>}</highlight></codeline>
+<codeline><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__SeqStep" kindref="compound">SYN_SeqStep</ref><sp/>steps[]<sp/>=<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>{<sp/>relay_on,<sp/><sp/><sp/><sp/><sp/>NULL,<sp/><sp/>0<sp/>},<sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>step<sp/>0:<sp/>relay<sp/>on,<sp/>no<sp/>delay</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>{<sp/>NULL,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>NULL,<sp/><sp/>200<sp/>},<sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>step<sp/>1:<sp/>wait<sp/>200ms</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>{<sp/>read_sensor,<sp/><sp/>&amp;val,<sp/><sp/>0<sp/>},<sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>step<sp/>2:<sp/>read<sp/>sensor</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>{<sp/>relay_off,<sp/><sp/><sp/><sp/>NULL,<sp/><sp/>100<sp/>},<sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>step<sp/>3:<sp/>relay<sp/>off,<sp/>then<sp/>wait<sp/>100ms</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal">};</highlight></codeline>
+<codeline><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"><ref refid="structSYN__Sequencer" kindref="compound">SYN_Sequencer</ref><sp/>seq;</highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__sequencer_8c_1acccb34b9fcd8113e5dd1adc6bed2bdad" kindref="member">syn_seq_init</ref>(&amp;seq,<sp/>steps,<sp/>4);</highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__sequencer_8c_1aeab235baec3e5ded5414fc3ec226a768" kindref="member">syn_seq_start</ref>(&amp;seq);</highlight></codeline>
+<codeline><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="keywordflow">while</highlight><highlight class="normal"><sp/>(!<ref refid="syn__sequencer_8h_1aeb7ab3f82b3892c3e94866e3fec71b31" kindref="member">syn_seq_is_done</ref>(&amp;seq))<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__sequencer_8c_1a60e528c6ba74df7969ff39c6f4fe1999" kindref="member">syn_seq_update</ref>(&amp;seq);</highlight></codeline>
+<codeline><highlight class="normal">}</highlight></codeline>
+</programlisting> </para>
+</simplesect>
+</para>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_SEQUENCER_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_SEQUENCER_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../port/syn_port_system.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stddef.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Step<sp/>action<sp/>──────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight></codeline>
+<codeline lineno="47" refid="syn__sequencer_8h_1a4710b8aa58ae63b1193100eff44456cd" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>void<sp/>(*<ref refid="syn__sequencer_8h_1a4710b8aa58ae63b1193100eff44456cd" kindref="member">SYN_SeqAction</ref>)(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*ctx);</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"></highlight></codeline>
+<codeline lineno="50" refid="structSYN__SeqStep" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="51" refid="structSYN__SeqStep_1a56b352b5586de416245bb3812da30769" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__sequencer_8h_1a4710b8aa58ae63b1193100eff44456cd" kindref="member">SYN_SeqAction</ref><sp/><sp/><ref refid="structSYN__SeqStep_1a56b352b5586de416245bb3812da30769" kindref="member">action</ref>;<sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="52" refid="structSYN__SeqStep_1a9355417c9d84036b826c41da49b10c77" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<ref refid="structSYN__SeqStep_1a9355417c9d84036b826c41da49b10c77" kindref="member">ctx</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="53" refid="structSYN__SeqStep_1ab2119ba2204c8cf96657eacdf5f64024" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__SeqStep_1ab2119ba2204c8cf96657eacdf5f64024" kindref="member">delay_ms</ref>;<sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="54"><highlight class="normal">}<sp/><ref refid="structSYN__SeqStep" kindref="compound">SYN_SeqStep</ref>;</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"></highlight></codeline>
+<codeline lineno="56"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Sequencer<sp/>state<sp/>──────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="57"><highlight class="normal"></highlight></codeline>
+<codeline lineno="61" refid="syn__sequencer_8h_1a8fb8041e1fce8558710875d48133f915" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="62" refid="syn__sequencer_8h_1a8fb8041e1fce8558710875d48133f915a32279965f9fc2fd8a72be8474aceeafe" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__sequencer_8h_1a8fb8041e1fce8558710875d48133f915a32279965f9fc2fd8a72be8474aceeafe" kindref="member">SYN_SEQ_IDLE</ref><sp/><sp/><sp/><sp/><sp/>=<sp/>0,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="63" refid="syn__sequencer_8h_1a8fb8041e1fce8558710875d48133f915a2aaf34676f5fa4854f491302f79b295d" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__sequencer_8h_1a8fb8041e1fce8558710875d48133f915a2aaf34676f5fa4854f491302f79b295d" kindref="member">SYN_SEQ_RUNNING</ref><sp/><sp/>=<sp/>1,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="64" refid="syn__sequencer_8h_1a8fb8041e1fce8558710875d48133f915a0481ff314b8bd0fff773b3eefa749651" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__sequencer_8h_1a8fb8041e1fce8558710875d48133f915a0481ff314b8bd0fff773b3eefa749651" kindref="member">SYN_SEQ_WAITING</ref><sp/><sp/>=<sp/>2,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="65" refid="syn__sequencer_8h_1a8fb8041e1fce8558710875d48133f915a88a94339ba96f2227ed2ad4b88314a1f" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__sequencer_8h_1a8fb8041e1fce8558710875d48133f915a88a94339ba96f2227ed2ad4b88314a1f" kindref="member">SYN_SEQ_DONE</ref><sp/><sp/><sp/><sp/><sp/>=<sp/>3,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="66"><highlight class="normal">}<sp/><ref refid="syn__sequencer_8h_1a8fb8041e1fce8558710875d48133f915" kindref="member">SYN_SeqState</ref>;</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"></highlight></codeline>
+<codeline lineno="68"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Completion<sp/>callback<sp/>──────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="69"><highlight class="normal"></highlight></codeline>
+<codeline lineno="70"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structSYN__Sequencer" kindref="compound">SYN_Sequencer</ref>;</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"></highlight></codeline>
+<codeline lineno="78" refid="syn__sequencer_8h_1a1bfb5c153d861ee242257e07205ca155" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>void<sp/>(*<ref refid="syn__sequencer_8h_1a1bfb5c153d861ee242257e07205ca155" kindref="member">SYN_SeqCompleteCallback</ref>)(</highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structSYN__Sequencer" kindref="compound">SYN_Sequencer</ref><sp/>*seq,</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*ctx);</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"></highlight></codeline>
+<codeline lineno="84" refid="structSYN__Sequencer" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structSYN__Sequencer" kindref="compound">SYN_Sequencer</ref><sp/>{</highlight></codeline>
+<codeline lineno="85" refid="structSYN__Sequencer_1aa96b7d66367acfb5acb41ace9bb12d77" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__SeqStep" kindref="compound">SYN_SeqStep</ref><sp/><sp/>*<ref refid="structSYN__Sequencer_1aa96b7d66367acfb5acb41ace9bb12d77" kindref="member">steps</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="86" refid="structSYN__Sequencer_1a0cd67f536fdceb5d4f0d940adaf6b811" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__Sequencer_1a0cd67f536fdceb5d4f0d940adaf6b811" kindref="member">step_count</ref>;<sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="87" refid="structSYN__Sequencer_1a6552eae906c8fbc890d3ef1768df959a" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__Sequencer_1a6552eae906c8fbc890d3ef1768df959a" kindref="member">current</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="88" refid="structSYN__Sequencer_1a5116bed98ff7796807501566373efed1" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__sequencer_8h_1a8fb8041e1fce8558710875d48133f915" kindref="member">SYN_SeqState</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__Sequencer_1a5116bed98ff7796807501566373efed1" kindref="member">state</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="89" refid="structSYN__Sequencer_1aecc6744cb7c245eacaa1057b525ee3cb" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__Sequencer_1aecc6744cb7c245eacaa1057b525ee3cb" kindref="member">wait_start</ref>;<sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="90" refid="structSYN__Sequencer_1a478da4a7dddcdc4b523e98063b875e05" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__Sequencer_1a478da4a7dddcdc4b523e98063b875e05" kindref="member">loop</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="91" refid="structSYN__Sequencer_1a02c20e165977551531e8d2bded5e80da" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__Sequencer_1a02c20e165977551531e8d2bded5e80da" kindref="member">loop_count</ref>;<sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="93" refid="structSYN__Sequencer_1a3a0e9e7ce1b20f07625c1bc09292bd3b" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__sequencer_8h_1a1bfb5c153d861ee242257e07205ca155" kindref="member">SYN_SeqCompleteCallback</ref><sp/><ref refid="structSYN__Sequencer_1a3a0e9e7ce1b20f07625c1bc09292bd3b" kindref="member">on_complete</ref>;<sp/></highlight></codeline>
+<codeline lineno="94" refid="structSYN__Sequencer_1aed94dcb8652008a067f075372b19b4da" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<ref refid="structSYN__Sequencer_1aed94dcb8652008a067f075372b19b4da" kindref="member">on_complete_ctx</ref>;<sp/></highlight></codeline>
+<codeline lineno="95"><highlight class="normal">}<sp/><ref refid="structSYN__Sequencer" kindref="compound">SYN_Sequencer</ref>;</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"></highlight></codeline>
+<codeline lineno="97"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>API<sp/>──────────────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="98"><highlight class="normal"></highlight></codeline>
+<codeline lineno="106"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__sequencer_8h_1acccb34b9fcd8113e5dd1adc6bed2bdad" kindref="member">syn_seq_init</ref>(<ref refid="structSYN__Sequencer" kindref="compound">SYN_Sequencer</ref><sp/>*seq,</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__SeqStep" kindref="compound">SYN_SeqStep</ref><sp/>*steps,<sp/>uint16_t<sp/>count);</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"></highlight></codeline>
+<codeline lineno="116"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__sequencer_8h_1a0e84c81321666d02711ace3488025e13" kindref="member">syn_seq_on_complete</ref>(<ref refid="structSYN__Sequencer" kindref="compound">SYN_Sequencer</ref><sp/>*seq,</highlight></codeline>
+<codeline lineno="117"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__sequencer_8h_1a1bfb5c153d861ee242257e07205ca155" kindref="member">SYN_SeqCompleteCallback</ref><sp/>cb,<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*ctx);</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"></highlight></codeline>
+<codeline lineno="125"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__sequencer_8h_1a6f02a36e8c0c5f4f9ae81aefb02dbc59" kindref="member">syn_seq_set_loop</ref>(<ref refid="structSYN__Sequencer" kindref="compound">SYN_Sequencer</ref><sp/>*seq,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>loop);</highlight></codeline>
+<codeline lineno="126"><highlight class="normal"></highlight></codeline>
+<codeline lineno="132"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__sequencer_8h_1aeab235baec3e5ded5414fc3ec226a768" kindref="member">syn_seq_start</ref>(<ref refid="structSYN__Sequencer" kindref="compound">SYN_Sequencer</ref><sp/>*seq);</highlight></codeline>
+<codeline lineno="133"><highlight class="normal"></highlight></codeline>
+<codeline lineno="139"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__sequencer_8h_1adb757b3b29a45ae02beb0e3406fa0ec4" kindref="member">syn_seq_stop</ref>(<ref refid="structSYN__Sequencer" kindref="compound">SYN_Sequencer</ref><sp/>*seq);</highlight></codeline>
+<codeline lineno="140"><highlight class="normal"></highlight></codeline>
+<codeline lineno="149"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__sequencer_8h_1a60e528c6ba74df7969ff39c6f4fe1999" kindref="member">syn_seq_update</ref>(<ref refid="structSYN__Sequencer" kindref="compound">SYN_Sequencer</ref><sp/>*seq);</highlight></codeline>
+<codeline lineno="150"><highlight class="normal"></highlight></codeline>
+<codeline lineno="157" refid="syn__sequencer_8h_1aeb7ab3f82b3892c3e94866e3fec71b31" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__sequencer_8h_1aeb7ab3f82b3892c3e94866e3fec71b31" kindref="member">syn_seq_is_done</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__Sequencer" kindref="compound">SYN_Sequencer</ref><sp/>*seq)</highlight></codeline>
+<codeline lineno="158"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="159"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>seq-&gt;<ref refid="structSYN__Sequencer_1a5116bed98ff7796807501566373efed1" kindref="member">state</ref><sp/>==<sp/><ref refid="syn__sequencer_8h_1a8fb8041e1fce8558710875d48133f915a88a94339ba96f2227ed2ad4b88314a1f" kindref="member">SYN_SEQ_DONE</ref><sp/>||<sp/>seq-&gt;<ref refid="structSYN__Sequencer_1a5116bed98ff7796807501566373efed1" kindref="member">state</ref><sp/>==<sp/><ref refid="syn__sequencer_8h_1a8fb8041e1fce8558710875d48133f915a32279965f9fc2fd8a72be8474aceeafe" kindref="member">SYN_SEQ_IDLE</ref>;</highlight></codeline>
+<codeline lineno="160"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="161"><highlight class="normal"></highlight></codeline>
+<codeline lineno="168" refid="syn__sequencer_8h_1a177d4f0c05814e7a3d60ea5e6c45ffd9" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>uint16_t<sp/><ref refid="syn__sequencer_8h_1a177d4f0c05814e7a3d60ea5e6c45ffd9" kindref="member">syn_seq_current_step</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__Sequencer" kindref="compound">SYN_Sequencer</ref><sp/>*seq)</highlight></codeline>
+<codeline lineno="169"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="170"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>seq-&gt;<ref refid="structSYN__Sequencer_1a6552eae906c8fbc890d3ef1768df959a" kindref="member">current</ref>;</highlight></codeline>
+<codeline lineno="171"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="172"><highlight class="normal"></highlight></codeline>
+<codeline lineno="179" refid="syn__sequencer_8h_1a8a309076e5325990952d3db4265e7958" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>uint16_t<sp/><ref refid="syn__sequencer_8h_1a8a309076e5325990952d3db4265e7958" kindref="member">syn_seq_loops</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__Sequencer" kindref="compound">SYN_Sequencer</ref><sp/>*seq)</highlight></codeline>
+<codeline lineno="180"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="181"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>seq-&gt;<ref refid="structSYN__Sequencer_1a02c20e165977551531e8d2bded5e80da" kindref="member">loop_count</ref>;</highlight></codeline>
+<codeline lineno="182"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="183"><highlight class="normal"></highlight></codeline>
+<codeline lineno="184"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="185"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="186"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="187"><highlight class="normal"></highlight></codeline>
+<codeline lineno="188"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_SEQUENCER_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/sched/syn_sequencer.h"/>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,675 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__cbor__write_8h" kind="file" language="C++">
+    <compoundname>syn_cbor_write.h</compoundname>
+    <includes local="no">stdint.h</includes>
+    <includes local="no">stddef.h</includes>
+    <includes local="no">stdbool.h</includes>
+    <includedby refid="syntropic_8h" local="yes">src/syntropic/syntropic.h</includedby>
+    <includedby refid="syn__cbor__write_8c" local="yes">src/syntropic/util/syn_cbor_write.c</includedby>
+    <incdepgraph>
+      <node id="1">
+        <label>src/syntropic/util/syn_cbor_write.h</label>
+        <link refid="syn__cbor__write_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>stdbool.h</label>
+      </node>
+      <node id="3">
+        <label>stddef.h</label>
+      </node>
+      <node id="2">
+        <label>stdint.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="2">
+        <label>src/syntropic/syntropic.h</label>
+        <link refid="syntropic_8h"/>
+      </node>
+      <node id="3">
+        <label>src/syntropic/util/syn_cbor_write.c</label>
+        <link refid="syn__cbor__write_8c"/>
+      </node>
+      <node id="1">
+        <label>src/syntropic/util/syn_cbor_write.h</label>
+        <link refid="syn__cbor__write_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="structSYN__CborWriter" prot="public">SYN_CborWriter</innerclass>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__cbor__write_8h_1a1c35592dd098f96e709f0403a42504e2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_cbor_writer_init</definition>
+        <argsstring>(SYN_CborWriter *w, uint8_t *buf, size_t cap)</argsstring>
+        <name>syn_cbor_writer_init</name>
+        <param>
+          <type><ref refid="structSYN__CborWriter" kindref="compound">SYN_CborWriter</ref> *</type>
+          <declname>w</declname>
+        </param>
+        <param>
+          <type>uint8_t *</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>cap</declname>
+        </param>
+        <briefdescription>
+<para>Initialize a CBOR writer. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>w</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Writer to initialize. Must not be NULL. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output buffer. Must not be NULL. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>cap</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Buffer capacity in bytes. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_cbor_write.h" line="64" column="6" bodyfile="src/syntropic/util/syn_cbor_write.c" bodystart="86" bodyend="92" declfile="src/syntropic/util/syn_cbor_write.h" declline="64" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__cbor__write_8h_1a565e554dd110fe18d7756ac0f9eeb156" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_cbor_write_map_begin</definition>
+        <argsstring>(SYN_CborWriter *w, size_t count)</argsstring>
+        <name>syn_cbor_write_map_begin</name>
+        <param>
+          <type><ref refid="structSYN__CborWriter" kindref="compound">SYN_CborWriter</ref> *</type>
+          <declname>w</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>count</declname>
+        </param>
+        <briefdescription>
+<para>Open a CBOR map with <computeroutput>count</computeroutput> key-value pairs. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Caller must write exactly <computeroutput>count</computeroutput> pairs (key item + value item each) after this call.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>w</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Writer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>count</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of key-value pairs that follow. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_cbor_write.h" line="77" column="6" bodyfile="src/syntropic/util/syn_cbor_write.c" bodystart="96" bodyend="99" declfile="src/syntropic/util/syn_cbor_write.h" declline="77" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__cbor__write_8h_1af23197c46c74cf2bdf0229c5aa30327b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_cbor_write_array_begin</definition>
+        <argsstring>(SYN_CborWriter *w, size_t count)</argsstring>
+        <name>syn_cbor_write_array_begin</name>
+        <param>
+          <type><ref refid="structSYN__CborWriter" kindref="compound">SYN_CborWriter</ref> *</type>
+          <declname>w</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>count</declname>
+        </param>
+        <briefdescription>
+<para>Open a CBOR array with <computeroutput>count</computeroutput> items. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Caller must write exactly <computeroutput>count</computeroutput> items after this call.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>w</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Writer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>count</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of items that follow. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_cbor_write.h" line="87" column="6" bodyfile="src/syntropic/util/syn_cbor_write.c" bodystart="101" bodyend="104" declfile="src/syntropic/util/syn_cbor_write.h" declline="87" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__cbor__write_8h_1a026b9c5d6e0b3e5b69cf0af7f11e3aa3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_cbor_write_uint</definition>
+        <argsstring>(SYN_CborWriter *w, uint64_t v)</argsstring>
+        <name>syn_cbor_write_uint</name>
+        <param>
+          <type><ref refid="structSYN__CborWriter" kindref="compound">SYN_CborWriter</ref> *</type>
+          <declname>w</declname>
+        </param>
+        <param>
+          <type>uint64_t</type>
+          <declname>v</declname>
+        </param>
+        <briefdescription>
+<para>Write an unsigned integer. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>w</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Writer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>v</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Value to encode (CBOR major type 0). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_cbor_write.h" line="96" column="6" bodyfile="src/syntropic/util/syn_cbor_write.c" bodystart="108" bodyend="111" declfile="src/syntropic/util/syn_cbor_write.h" declline="96" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__cbor__write_8h_1a53bfc042d904be9300dfc19845a165fa" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_cbor_write_int</definition>
+        <argsstring>(SYN_CborWriter *w, int64_t v)</argsstring>
+        <name>syn_cbor_write_int</name>
+        <param>
+          <type><ref refid="structSYN__CborWriter" kindref="compound">SYN_CborWriter</ref> *</type>
+          <declname>w</declname>
+        </param>
+        <param>
+          <type>int64_t</type>
+          <declname>v</declname>
+        </param>
+        <briefdescription>
+<para>Write a signed integer. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Positive values are encoded as major type 0 (uint). Negative values are encoded as major type 1.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>w</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Writer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>v</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Signed value to encode. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_cbor_write.h" line="107" column="6" bodyfile="src/syntropic/util/syn_cbor_write.c" bodystart="113" bodyend="121" declfile="src/syntropic/util/syn_cbor_write.h" declline="107" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__cbor__write_8h_1adef065ed241a7c35791f2a6a9d95c755" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_cbor_write_float</definition>
+        <argsstring>(SYN_CborWriter *w, float v)</argsstring>
+        <name>syn_cbor_write_float</name>
+        <param>
+          <type><ref refid="structSYN__CborWriter" kindref="compound">SYN_CborWriter</ref> *</type>
+          <declname>w</declname>
+        </param>
+        <param>
+          <type>float</type>
+          <declname>v</declname>
+        </param>
+        <briefdescription>
+<para>Write an IEEE 754 single-precision float (major type 7, info=26). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>w</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Writer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>v</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Float value. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_cbor_write.h" line="114" column="6" bodyfile="src/syntropic/util/syn_cbor_write.c" bodystart="123" bodyend="135" declfile="src/syntropic/util/syn_cbor_write.h" declline="114" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__cbor__write_8h_1a21fbbb3bd03704822701c48ba4c20b83" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_cbor_write_bool</definition>
+        <argsstring>(SYN_CborWriter *w, bool v)</argsstring>
+        <name>syn_cbor_write_bool</name>
+        <param>
+          <type><ref refid="structSYN__CborWriter" kindref="compound">SYN_CborWriter</ref> *</type>
+          <declname>w</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+          <declname>v</declname>
+        </param>
+        <briefdescription>
+<para>Write a boolean (0xF4 = false, 0xF5 = true). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>w</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Writer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>v</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Value. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_cbor_write.h" line="121" column="6" bodyfile="src/syntropic/util/syn_cbor_write.c" bodystart="137" bodyend="140" declfile="src/syntropic/util/syn_cbor_write.h" declline="121" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__cbor__write_8h_1aaa6a7908d22e55c1ac09ee358aa3569c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_cbor_write_null</definition>
+        <argsstring>(SYN_CborWriter *w)</argsstring>
+        <name>syn_cbor_write_null</name>
+        <param>
+          <type><ref refid="structSYN__CborWriter" kindref="compound">SYN_CborWriter</ref> *</type>
+          <declname>w</declname>
+        </param>
+        <briefdescription>
+<para>Write a null (0xF6). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>w</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Writer. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_cbor_write.h" line="127" column="6" bodyfile="src/syntropic/util/syn_cbor_write.c" bodystart="142" bodyend="145" declfile="src/syntropic/util/syn_cbor_write.h" declline="127" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__cbor__write_8h_1a6a9aa1ab497a7c334230b22b61152158" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_cbor_write_text</definition>
+        <argsstring>(SYN_CborWriter *w, const char *str, size_t len)</argsstring>
+        <name>syn_cbor_write_text</name>
+        <param>
+          <type><ref refid="structSYN__CborWriter" kindref="compound">SYN_CborWriter</ref> *</type>
+          <declname>w</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>str</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>len</declname>
+        </param>
+        <briefdescription>
+<para>Write a UTF-8 text string (major type 3). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>w</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Writer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>str</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to string data. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Byte length (not counting any null terminator). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_cbor_write.h" line="137" column="6" bodyfile="src/syntropic/util/syn_cbor_write.c" bodystart="149" bodyend="153" declfile="src/syntropic/util/syn_cbor_write.h" declline="137" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__cbor__write_8h_1addb0008431b27899eff7b529500dc452" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_cbor_write_text_cstr</definition>
+        <argsstring>(SYN_CborWriter *w, const char *str)</argsstring>
+        <name>syn_cbor_write_text_cstr</name>
+        <param>
+          <type><ref refid="structSYN__CborWriter" kindref="compound">SYN_CborWriter</ref> *</type>
+          <declname>w</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>str</declname>
+        </param>
+        <briefdescription>
+<para>Write a null-terminated UTF-8 text string. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>w</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Writer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>str</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Null-terminated string. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_cbor_write.h" line="144" column="6" bodyfile="src/syntropic/util/syn_cbor_write.c" bodystart="155" bodyend="159" declfile="src/syntropic/util/syn_cbor_write.h" declline="144" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__cbor__write_8h_1a9df45b9cfbf093020f6b43c23c692bb8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_cbor_write_bytes</definition>
+        <argsstring>(SYN_CborWriter *w, const uint8_t *data, size_t len)</argsstring>
+        <name>syn_cbor_write_bytes</name>
+        <param>
+          <type><ref refid="structSYN__CborWriter" kindref="compound">SYN_CborWriter</ref> *</type>
+          <declname>w</declname>
+        </param>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>len</declname>
+        </param>
+        <briefdescription>
+<para>Write a byte string (major type 2). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>w</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Writer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>data</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to raw bytes. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Byte count. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_cbor_write.h" line="152" column="6" bodyfile="src/syntropic/util/syn_cbor_write.c" bodystart="161" bodyend="165" declfile="src/syntropic/util/syn_cbor_write.h" declline="152" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__cbor__write_8h_1ae53c374afe7623d2eaa9844701cdcd86" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>size_t</type>
+        <definition>static size_t syn_cbor_writer_len</definition>
+        <argsstring>(const SYN_CborWriter *w)</argsstring>
+        <name>syn_cbor_writer_len</name>
+        <param>
+          <type>const <ref refid="structSYN__CborWriter" kindref="compound">SYN_CborWriter</ref> *</type>
+          <declname>w</declname>
+        </param>
+        <briefdescription>
+<para>Return bytes encoded so far. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>w</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Writer. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Byte count. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_cbor_write.h" line="161" column="22" bodyfile="src/syntropic/util/syn_cbor_write.h" bodystart="161" bodyend="164"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__cbor__write_8h_1a9257a8c8fe7f65e8259cd38aecb9b902" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>static bool syn_cbor_writer_ok</definition>
+        <argsstring>(const SYN_CborWriter *w)</argsstring>
+        <name>syn_cbor_writer_ok</name>
+        <param>
+          <type>const <ref refid="structSYN__CborWriter" kindref="compound">SYN_CborWriter</ref> *</type>
+          <declname>w</declname>
+        </param>
+        <briefdescription>
+<para>Return true if no overflow has occurred. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>w</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Writer. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if OK. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_cbor_write.h" line="171" column="20" bodyfile="src/syntropic/util/syn_cbor_write.h" bodystart="171" bodyend="174"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Streaming CBOR encoder — zero-alloc, caller-provided buffer. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Encodes CBOR (RFC 8949) items into a fixed buffer. No heap, no recursion, no indefinite-length items. Map and array sizes must be known before writing begins.</para>
+<para>Supported types: unsigned int, signed int, float32, bool, null, text string, byte string, array, map.</para>
+<para><simplesect kind="par"><title>Usage — sensor telemetry with integer keys</title><para><programlisting><codeline><highlight class="normal">uint8_t<sp/>buf[32];</highlight></codeline>
+<codeline><highlight class="normal"><ref refid="structSYN__CborWriter" kindref="compound">SYN_CborWriter</ref><sp/>w;</highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__cbor__write_8c_1a1c35592dd098f96e709f0403a42504e2" kindref="member">syn_cbor_writer_init</ref>(&amp;w,<sp/>buf,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(buf));</highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__cbor__write_8c_1a565e554dd110fe18d7756ac0f9eeb156" kindref="member">syn_cbor_write_map_begin</ref>(&amp;w,<sp/>2);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>A2</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><ref refid="syn__cbor__write_8c_1a026b9c5d6e0b3e5b69cf0af7f11e3aa3" kindref="member">syn_cbor_write_uint</ref>(&amp;w,<sp/>1);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>key<sp/>1<sp/>=<sp/>temperature</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><ref refid="syn__cbor__write_8c_1adef065ed241a7c35791f2a6a9d95c755" kindref="member">syn_cbor_write_float</ref>(&amp;w,<sp/>23.5f);<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>23.5</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><ref refid="syn__cbor__write_8c_1a026b9c5d6e0b3e5b69cf0af7f11e3aa3" kindref="member">syn_cbor_write_uint</ref>(&amp;w,<sp/>2);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>key<sp/>2<sp/>=<sp/>humidity</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><ref refid="syn__cbor__write_8c_1a026b9c5d6e0b3e5b69cf0af7f11e3aa3" kindref="member">syn_cbor_write_uint</ref>(&amp;w,<sp/>60);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>60</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="comment">//<sp/>result:<sp/>A2<sp/>01<sp/>FA41BC0000<sp/>02<sp/>183C<sp/><sp/>(10<sp/>bytes)</highlight></codeline>
+</programlisting></para>
+</simplesect>
+<simplesect kind="par"><title>Usage — named string keys</title><para><programlisting><codeline><highlight class="normal"><ref refid="syn__cbor__write_8c_1a565e554dd110fe18d7756ac0f9eeb156" kindref="member">syn_cbor_write_map_begin</ref>(&amp;w,<sp/>1);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><ref refid="syn__cbor__write_8c_1addb0008431b27899eff7b529500dc452" kindref="member">syn_cbor_write_text_cstr</ref>(&amp;w,<sp/></highlight><highlight class="stringliteral">&quot;temp&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><ref refid="syn__cbor__write_8c_1adef065ed241a7c35791f2a6a9d95c755" kindref="member">syn_cbor_write_float</ref>(&amp;w,<sp/>23.5f);</highlight></codeline>
+</programlisting> </para>
+</simplesect>
+</para>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_CBOR_WRITE_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_CBOR_WRITE_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stddef.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight></codeline>
+<codeline lineno="46"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Writer<sp/>state<sp/>──────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="47"><highlight class="normal"></highlight></codeline>
+<codeline lineno="49" refid="structSYN__CborWriter" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="50" refid="structSYN__CborWriter_1af88cd57b72f87fded4e580176ff5a0f2" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>*<ref refid="structSYN__CborWriter_1af88cd57b72f87fded4e580176ff5a0f2" kindref="member">buf</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="51" refid="structSYN__CborWriter_1a2c4fbc1a94153c1dcb96c12c48d09c80" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><sp/><sp/><ref refid="structSYN__CborWriter_1a2c4fbc1a94153c1dcb96c12c48d09c80" kindref="member">cap</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="52" refid="structSYN__CborWriter_1ac5cc3dcc02a11082fbf221a005db62c9" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><sp/><sp/><ref refid="structSYN__CborWriter_1ac5cc3dcc02a11082fbf221a005db62c9" kindref="member">len</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="53" refid="structSYN__CborWriter_1afe419e9d869c238f5fd4ed4b2505f064" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__CborWriter_1afe419e9d869c238f5fd4ed4b2505f064" kindref="member">overflow</ref>;<sp/><sp/></highlight></codeline>
+<codeline lineno="54"><highlight class="normal">}<sp/><ref refid="structSYN__CborWriter" kindref="compound">SYN_CborWriter</ref>;</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"></highlight></codeline>
+<codeline lineno="56"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Init<sp/>──────────────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="57"><highlight class="normal"></highlight></codeline>
+<codeline lineno="64"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__cbor__write_8h_1a1c35592dd098f96e709f0403a42504e2" kindref="member">syn_cbor_writer_init</ref>(<ref refid="structSYN__CborWriter" kindref="compound">SYN_CborWriter</ref><sp/>*w,<sp/>uint8_t<sp/>*buf,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>cap);</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"></highlight></codeline>
+<codeline lineno="66"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Collections<sp/>───────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="67"><highlight class="normal"></highlight></codeline>
+<codeline lineno="77"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__cbor__write_8h_1a565e554dd110fe18d7756ac0f9eeb156" kindref="member">syn_cbor_write_map_begin</ref>(<ref refid="structSYN__CborWriter" kindref="compound">SYN_CborWriter</ref><sp/>*w,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>count);</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"></highlight></codeline>
+<codeline lineno="87"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__cbor__write_8h_1af23197c46c74cf2bdf0229c5aa30327b" kindref="member">syn_cbor_write_array_begin</ref>(<ref refid="structSYN__CborWriter" kindref="compound">SYN_CborWriter</ref><sp/>*w,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>count);</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"></highlight></codeline>
+<codeline lineno="89"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Scalars<sp/>───────────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="90"><highlight class="normal"></highlight></codeline>
+<codeline lineno="96"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__cbor__write_8h_1a026b9c5d6e0b3e5b69cf0af7f11e3aa3" kindref="member">syn_cbor_write_uint</ref>(<ref refid="structSYN__CborWriter" kindref="compound">SYN_CborWriter</ref><sp/>*w,<sp/>uint64_t<sp/>v);</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"></highlight></codeline>
+<codeline lineno="107"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__cbor__write_8h_1a53bfc042d904be9300dfc19845a165fa" kindref="member">syn_cbor_write_int</ref>(<ref refid="structSYN__CborWriter" kindref="compound">SYN_CborWriter</ref><sp/>*w,<sp/>int64_t<sp/>v);</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"></highlight></codeline>
+<codeline lineno="114"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__cbor__write_8h_1adef065ed241a7c35791f2a6a9d95c755" kindref="member">syn_cbor_write_float</ref>(<ref refid="structSYN__CborWriter" kindref="compound">SYN_CborWriter</ref><sp/>*w,<sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>v);</highlight></codeline>
+<codeline lineno="115"><highlight class="normal"></highlight></codeline>
+<codeline lineno="121"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__cbor__write_8h_1a21fbbb3bd03704822701c48ba4c20b83" kindref="member">syn_cbor_write_bool</ref>(<ref refid="structSYN__CborWriter" kindref="compound">SYN_CborWriter</ref><sp/>*w,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>v);</highlight></codeline>
+<codeline lineno="122"><highlight class="normal"></highlight></codeline>
+<codeline lineno="127"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__cbor__write_8h_1aaa6a7908d22e55c1ac09ee358aa3569c" kindref="member">syn_cbor_write_null</ref>(<ref refid="structSYN__CborWriter" kindref="compound">SYN_CborWriter</ref><sp/>*w);</highlight></codeline>
+<codeline lineno="128"><highlight class="normal"></highlight></codeline>
+<codeline lineno="129"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Strings<sp/>───────────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="130"><highlight class="normal"></highlight></codeline>
+<codeline lineno="137"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__cbor__write_8h_1a6a9aa1ab497a7c334230b22b61152158" kindref="member">syn_cbor_write_text</ref>(<ref refid="structSYN__CborWriter" kindref="compound">SYN_CborWriter</ref><sp/>*w,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*str,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>len);</highlight></codeline>
+<codeline lineno="138"><highlight class="normal"></highlight></codeline>
+<codeline lineno="144"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__cbor__write_8h_1addb0008431b27899eff7b529500dc452" kindref="member">syn_cbor_write_text_cstr</ref>(<ref refid="structSYN__CborWriter" kindref="compound">SYN_CborWriter</ref><sp/>*w,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*str);</highlight></codeline>
+<codeline lineno="145"><highlight class="normal"></highlight></codeline>
+<codeline lineno="152"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__cbor__write_8h_1a9df45b9cfbf093020f6b43c23c692bb8" kindref="member">syn_cbor_write_bytes</ref>(<ref refid="structSYN__CborWriter" kindref="compound">SYN_CborWriter</ref><sp/>*w,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*data,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>len);</highlight></codeline>
+<codeline lineno="153"><highlight class="normal"></highlight></codeline>
+<codeline lineno="154"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Status<sp/>────────────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="155"><highlight class="normal"></highlight></codeline>
+<codeline lineno="161" refid="syn__cbor__write_8h_1ae53c374afe7623d2eaa9844701cdcd86" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="syn__cbor__write_8h_1ae53c374afe7623d2eaa9844701cdcd86" kindref="member">syn_cbor_writer_len</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__CborWriter" kindref="compound">SYN_CborWriter</ref><sp/>*w)</highlight></codeline>
+<codeline lineno="162"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="163"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>w-&gt;<ref refid="structSYN__CborWriter_1ac5cc3dcc02a11082fbf221a005db62c9" kindref="member">len</ref>;</highlight></codeline>
+<codeline lineno="164"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="165"><highlight class="normal"></highlight></codeline>
+<codeline lineno="171" refid="syn__cbor__write_8h_1a9257a8c8fe7f65e8259cd38aecb9b902" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__cbor__write_8h_1a9257a8c8fe7f65e8259cd38aecb9b902" kindref="member">syn_cbor_writer_ok</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__CborWriter" kindref="compound">SYN_CborWriter</ref><sp/>*w)</highlight></codeline>
+<codeline lineno="172"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="173"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>!w-&gt;<ref refid="structSYN__CborWriter_1afe419e9d869c238f5fd4ed4b2505f064" kindref="member">overflow</ref>;</highlight></codeline>
+<codeline lineno="174"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="175"><highlight class="normal"></highlight></codeline>
+<codeline lineno="176"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="177"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="178"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="179"><highlight class="normal"></highlight></codeline>
+<codeline lineno="180"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_CBOR_WRITE_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/util/syn_cbor_write.h"/>
+  </compounddef>
+</doxygen>

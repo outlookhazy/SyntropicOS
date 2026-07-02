@@ -1,0 +1,665 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__menu_8h" kind="file" language="C++">
+    <compoundname>syn_menu.h</compoundname>
+    <includes refid="syn__defs_8h" local="yes">../common/syn_defs.h</includes>
+    <includes local="no">stdint.h</includes>
+    <includes local="no">stdbool.h</includes>
+    <includedby refid="syntropic_8h" local="yes">src/syntropic/syntropic.h</includedby>
+    <includedby refid="syn__menu_8c" local="yes">src/syntropic/ui/syn_menu.c</includedby>
+    <incdepgraph>
+      <node id="2">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/ui/syn_menu.h</label>
+        <link refid="syn__menu_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>stdbool.h</label>
+      </node>
+      <node id="4">
+        <label>stddef.h</label>
+      </node>
+      <node id="3">
+        <label>stdint.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="2">
+        <label>src/syntropic/syntropic.h</label>
+        <link refid="syntropic_8h"/>
+      </node>
+      <node id="3">
+        <label>src/syntropic/ui/syn_menu.c</label>
+        <link refid="syn__menu_8c"/>
+      </node>
+      <node id="1">
+        <label>src/syntropic/ui/syn_menu.h</label>
+        <link refid="syn__menu_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="structSYN__MenuValueCfg" prot="public">SYN_MenuValueCfg</innerclass>
+    <innerclass refid="structSYN__MenuItem" prot="public">SYN_MenuItem</innerclass>
+    <innerclass refid="structSYN__Menu" prot="public">SYN_Menu</innerclass>
+    <sectiondef kind="user-defined">
+      <header>Convenience macros for static menu definition</header>
+      <memberdef kind="define" id="syn__menu_8h_1acf3da52bb2e5e81f5cf524f9df47a2d0" prot="public" static="no">
+        <name>SYN_MENU_SUBMENU</name>
+        <param><defname>lbl</defname></param>
+        <param><defname>items</defname></param>
+        <initializer>    { .label = (lbl), .action = <ref refid="syn__menu_8h_1af3b481216b6199e7a6ec658f31d9af2bae5c3a22228aff24f31f58a88da561dc6" kindref="member">SYN_MENU_ACTION_SUBMENU</ref>, \
+      .u = { .submenu = { .children = (items), .count = sizeof(items)/sizeof((items)[0]) } } }</initializer>
+        <briefdescription>
+<para>Define a submenu item. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/ui/syn_menu.h" line="90" column="9" bodyfile="src/syntropic/ui/syn_menu.h" bodystart="90" bodyend="92"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__menu_8h_1a7ee216cb0cf2c9af795a215e8a09f9d2" prot="public" static="no">
+        <name>SYN_MENU_CALLBACK</name>
+        <param><defname>lbl</defname></param>
+        <param><defname>fn</defname></param>
+        <param><defname>c</defname></param>
+        <initializer>    { .label = (lbl), .action = <ref refid="syn__menu_8h_1af3b481216b6199e7a6ec658f31d9af2bae55da2337aa0ec94d90e5d7d01e35a70" kindref="member">SYN_MENU_ACTION_CALLBACK</ref>, \
+      .u = { .callback = { .func = (fn), .ctx = (c) } } }</initializer>
+        <briefdescription>
+<para>Define a callback action item. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/ui/syn_menu.h" line="95" column="9" bodyfile="src/syntropic/ui/syn_menu.h" bodystart="95" bodyend="97"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__menu_8h_1adc1185ce577a98d3684600d8e745d74f" prot="public" static="no">
+        <name>SYN_MENU_TOGGLE</name>
+        <param><defname>lbl</defname></param>
+        <param><defname>ptr</defname></param>
+        <initializer>    { .label = (lbl), .action = <ref refid="syn__menu_8h_1af3b481216b6199e7a6ec658f31d9af2ba65ad847af71d104f7a34c96a35d380db" kindref="member">SYN_MENU_ACTION_TOGGLE</ref>, \
+      .u = { .toggle = (ptr) } }</initializer>
+        <briefdescription>
+<para>Define a boolean toggle item. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/ui/syn_menu.h" line="100" column="9" bodyfile="src/syntropic/ui/syn_menu.h" bodystart="100" bodyend="102"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__menu_8h_1a214e85f7323114f1ab3792726ccdc3b4" prot="public" static="no">
+        <name>SYN_MENU_VALUE</name>
+        <param><defname>lbl</defname></param>
+        <param><defname>ptr</defname></param>
+        <param><defname>mn</defname></param>
+        <param><defname>mx</defname></param>
+        <param><defname>st</defname></param>
+        <initializer>    { .label = (lbl), .action = <ref refid="syn__menu_8h_1af3b481216b6199e7a6ec658f31d9af2bae300243fea0f824b34922ca89f1313c2" kindref="member">SYN_MENU_ACTION_VALUE</ref>, \
+      .u = { .value_cfg = { .value = (ptr), .min = (mn), .max = (mx), .step = (st) } } }</initializer>
+        <briefdescription>
+<para>Define a numeric value editor item. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/ui/syn_menu.h" line="105" column="9" bodyfile="src/syntropic/ui/syn_menu.h" bodystart="105" bodyend="107"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__menu_8h_1a906f1cc5cb93663cbb4cecfbb81c4d1d" prot="public" static="no">
+        <name>SYN_MENU_ROOT</name>
+        <param><defname>name</defname></param>
+        <param><defname>items</defname></param>
+        <initializer>    static const <ref refid="structSYN__MenuItem" kindref="compound">SYN_MenuItem</ref> name = <ref refid="syn__menu_8h_1acf3da52bb2e5e81f5cf524f9df47a2d0" kindref="member">SYN_MENU_SUBMENU</ref>(#name, items)</initializer>
+        <briefdescription>
+<para>Define the root menu. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/ui/syn_menu.h" line="110" column="9" bodyfile="src/syntropic/ui/syn_menu.h" bodystart="110" bodyend="111"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="define">
+      <memberdef kind="define" id="syn__menu_8h_1a0300cbac2c418ea0575b5d78f910fbb6" prot="public" static="no">
+        <name>SYN_MENU_MAX_DEPTH</name>
+        <initializer>8</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Max nesting depth (stack size) <linebreak/>
+ </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/ui/syn_menu.h" line="129" column="9" bodyfile="src/syntropic/ui/syn_menu.h" bodystart="129" bodyend="-1"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="enum">
+      <memberdef kind="enum" id="syn__menu_8h_1af3b481216b6199e7a6ec658f31d9af2b" prot="public" static="no" strong="no">
+        <type></type>
+        <name>SYN_MenuAction</name>
+        <enumvalue id="syn__menu_8h_1af3b481216b6199e7a6ec658f31d9af2bae5c3a22228aff24f31f58a88da561dc6" prot="public">
+          <name>SYN_MENU_ACTION_SUBMENU</name>
+          <initializer>= 0</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Navigate into child menu <linebreak/>
+ </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__menu_8h_1af3b481216b6199e7a6ec658f31d9af2bae55da2337aa0ec94d90e5d7d01e35a70" prot="public">
+          <name>SYN_MENU_ACTION_CALLBACK</name>
+          <initializer>= 1</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Call a function <linebreak/>
+ </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__menu_8h_1af3b481216b6199e7a6ec658f31d9af2ba65ad847af71d104f7a34c96a35d380db" prot="public">
+          <name>SYN_MENU_ACTION_TOGGLE</name>
+          <initializer>= 2</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Toggle a bool <linebreak/>
+ </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__menu_8h_1af3b481216b6199e7a6ec658f31d9af2bae300243fea0f824b34922ca89f1313c2" prot="public">
+          <name>SYN_MENU_ACTION_VALUE</name>
+          <initializer>= 3</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Adjust an int32_t value <linebreak/>
+ </para>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>Menu item action types. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/ui/syn_menu.h" line="48" column="1" bodyfile="src/syntropic/ui/syn_menu.h" bodystart="48" bodyend="53"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="typedef">
+      <memberdef kind="typedef" id="syn__menu_8h_1a4196c12be8784cf959616aa8e29ce98b" prot="public" static="no">
+        <type>void(*</type>
+        <definition>typedef void(* SYN_MenuRenderFn) (const struct SYN_Menu *menu, void *ctx)</definition>
+        <argsstring>)(const struct SYN_Menu *menu, void *ctx)</argsstring>
+        <name>SYN_MenuRenderFn</name>
+        <briefdescription>
+<para>Menu render callback — called after each navigation change. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>menu</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Menu state. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>ctx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>User context. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/ui/syn_menu.h" line="124" column="9" bodyfile="src/syntropic/ui/syn_menu.h" bodystart="124" bodyend="-1"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__menu_8h_1a9c5fdedb62f3d94eec83fac20bd8cd52" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_menu_init</definition>
+        <argsstring>(SYN_Menu *menu, const SYN_MenuItem *root, SYN_MenuRenderFn render, void *ctx)</argsstring>
+        <name>syn_menu_init</name>
+        <param>
+          <type><ref refid="structSYN__Menu" kindref="compound">SYN_Menu</ref> *</type>
+          <declname>menu</declname>
+        </param>
+        <param>
+          <type>const <ref refid="structSYN__MenuItem" kindref="compound">SYN_MenuItem</ref> *</type>
+          <declname>root</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__menu_8h_1a4196c12be8784cf959616aa8e29ce98b" kindref="member">SYN_MenuRenderFn</ref></type>
+          <declname>render</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>ctx</declname>
+        </param>
+        <briefdescription>
+<para>Initialize menu system. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>menu</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Menu state. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>root</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Root menu item (should be a SUBMENU). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>render</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Render callback (called after each navigation action). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>ctx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Context for render callback. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/ui/syn_menu.h" line="161" column="6" bodyfile="src/syntropic/ui/syn_menu.c" bodystart="17" bodyend="31" declfile="src/syntropic/ui/syn_menu.h" declline="161" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__menu_8h_1ad86fdcce102aa23425ff1b025632bbeb" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_menu_up</definition>
+        <argsstring>(SYN_Menu *menu)</argsstring>
+        <name>syn_menu_up</name>
+        <param>
+          <type><ref refid="structSYN__Menu" kindref="compound">SYN_Menu</ref> *</type>
+          <declname>menu</declname>
+        </param>
+        <briefdescription>
+<para>Move selection up. In edit mode: increment value. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>menu</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Menu state. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/ui/syn_menu.h" line="168" column="6" bodyfile="src/syntropic/ui/syn_menu.c" bodystart="33" bodyend="55" declfile="src/syntropic/ui/syn_menu.h" declline="168" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__menu_8h_1aa7127bc0fdcf6d45bdb968022df296d2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_menu_down</definition>
+        <argsstring>(SYN_Menu *menu)</argsstring>
+        <name>syn_menu_down</name>
+        <param>
+          <type><ref refid="structSYN__Menu" kindref="compound">SYN_Menu</ref> *</type>
+          <declname>menu</declname>
+        </param>
+        <briefdescription>
+<para>Move selection down. In edit mode: decrement value. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>menu</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Menu state. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/ui/syn_menu.h" line="174" column="6" bodyfile="src/syntropic/ui/syn_menu.c" bodystart="57" bodyend="78" declfile="src/syntropic/ui/syn_menu.h" declline="174" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__menu_8h_1a2210c7258f5dc27eeec2c5db4f02789f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_menu_enter</definition>
+        <argsstring>(SYN_Menu *menu)</argsstring>
+        <name>syn_menu_enter</name>
+        <param>
+          <type><ref refid="structSYN__Menu" kindref="compound">SYN_Menu</ref> *</type>
+          <declname>menu</declname>
+        </param>
+        <briefdescription>
+<para>Enter: navigate into submenu, toggle, start editing, or fire callback. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>menu</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Menu state. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/ui/syn_menu.h" line="180" column="6" bodyfile="src/syntropic/ui/syn_menu.c" bodystart="80" bodyend="123" declfile="src/syntropic/ui/syn_menu.h" declline="180" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__menu_8h_1aa7207c7626254461775876816be99ed1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_menu_back</definition>
+        <argsstring>(SYN_Menu *menu)</argsstring>
+        <name>syn_menu_back</name>
+        <param>
+          <type><ref refid="structSYN__Menu" kindref="compound">SYN_Menu</ref> *</type>
+          <declname>menu</declname>
+        </param>
+        <briefdescription>
+<para>Back: leave submenu or exit edit mode. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>menu</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Menu state. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/ui/syn_menu.h" line="186" column="6" bodyfile="src/syntropic/ui/syn_menu.c" bodystart="125" bodyend="142" declfile="src/syntropic/ui/syn_menu.h" declline="186" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__menu_8h_1a837c5a562f0264fcacd26d8aa10c97c9" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>uint8_t</type>
+        <definition>static uint8_t syn_menu_item_count</definition>
+        <argsstring>(const SYN_Menu *menu)</argsstring>
+        <name>syn_menu_item_count</name>
+        <param>
+          <type>const <ref refid="structSYN__Menu" kindref="compound">SYN_Menu</ref> *</type>
+          <declname>menu</declname>
+        </param>
+        <briefdescription>
+<para>Get the number of items in the current menu level. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>menu</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Menu state. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Item count. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/ui/syn_menu.h" line="193" column="23" bodyfile="src/syntropic/ui/syn_menu.h" bodystart="193" bodyend="196"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__menu_8h_1a3f90a093dc7d26b31692cd61a4b76588" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>const <ref refid="structSYN__MenuItem" kindref="compound">SYN_MenuItem</ref> *</type>
+        <definition>static const SYN_MenuItem * syn_menu_selected_item</definition>
+        <argsstring>(const SYN_Menu *menu)</argsstring>
+        <name>syn_menu_selected_item</name>
+        <param>
+          <type>const <ref refid="structSYN__Menu" kindref="compound">SYN_Menu</ref> *</type>
+          <declname>menu</declname>
+        </param>
+        <briefdescription>
+<para>Get the currently selected item. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>menu</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Menu state. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Pointer to the selected menu item. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/ui/syn_menu.h" line="203" column="34" bodyfile="src/syntropic/ui/syn_menu.h" bodystart="203" bodyend="206"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__menu_8h_1aad7dcb8ed34ef50837bc15f8f2e018e8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_menu_render</definition>
+        <argsstring>(const SYN_Menu *menu)</argsstring>
+        <name>syn_menu_render</name>
+        <param>
+          <type>const <ref refid="structSYN__Menu" kindref="compound">SYN_Menu</ref> *</type>
+          <declname>menu</declname>
+        </param>
+        <briefdescription>
+<para>Force a render (e.g. after external state change). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>menu</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Menu state. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/ui/syn_menu.h" line="212" column="6" bodyfile="src/syntropic/ui/syn_menu.c" bodystart="144" bodyend="149" declfile="src/syntropic/ui/syn_menu.h" declline="212" declcolumn="6"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Tree-structured menu system. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Static, data-driven menus for CLI or display. No dynamic allocation. Navigation via up/down/enter/back. Supports submenus, callbacks, toggles, and integer values with min/max/step.</para>
+<para>Usage: <programlisting><codeline><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>led_on<sp/>=<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/>int32_t<sp/>brightness<sp/>=<sp/>50;</highlight></codeline>
+<codeline><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__MenuItem" kindref="compound">SYN_MenuItem</ref><sp/>settings_items[]<sp/>=<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__menu_8h_1adc1185ce577a98d3684600d8e745d74f" kindref="member">SYN_MENU_TOGGLE</ref>(</highlight><highlight class="stringliteral">&quot;LED&quot;</highlight><highlight class="normal">,<sp/>&amp;led_on),</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__menu_8h_1a214e85f7323114f1ab3792726ccdc3b4" kindref="member">SYN_MENU_VALUE</ref>(</highlight><highlight class="stringliteral">&quot;Brightness&quot;</highlight><highlight class="normal">,<sp/>&amp;brightness,<sp/>0,<sp/>100,<sp/>5),</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__menu_8h_1a7ee216cb0cf2c9af795a215e8a09f9d2" kindref="member">SYN_MENU_CALLBACK</ref>(</highlight><highlight class="stringliteral">&quot;Save&quot;</highlight><highlight class="normal">,<sp/>save_settings,<sp/>NULL),</highlight></codeline>
+<codeline><highlight class="normal">};</highlight></codeline>
+<codeline><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__MenuItem" kindref="compound">SYN_MenuItem</ref><sp/>root_items[]<sp/>=<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__menu_8h_1acf3da52bb2e5e81f5cf524f9df47a2d0" kindref="member">SYN_MENU_SUBMENU</ref>(</highlight><highlight class="stringliteral">&quot;Settings&quot;</highlight><highlight class="normal">,<sp/>settings_items),</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__menu_8h_1a7ee216cb0cf2c9af795a215e8a09f9d2" kindref="member">SYN_MENU_CALLBACK</ref>(</highlight><highlight class="stringliteral">&quot;Reboot&quot;</highlight><highlight class="normal">,<sp/>do_reboot,<sp/>NULL),</highlight></codeline>
+<codeline><highlight class="normal">};</highlight></codeline>
+<codeline><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__menu_8h_1a906f1cc5cb93663cbb4cecfbb81c4d1d" kindref="member">SYN_MENU_ROOT</ref>(root,<sp/>root_items);</highlight></codeline>
+<codeline><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/><ref refid="structSYN__Menu" kindref="compound">SYN_Menu</ref><sp/>menu;</highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__menu_8c_1a9c5fdedb62f3d94eec83fac20bd8cd52" kindref="member">syn_menu_init</ref>(&amp;menu,<sp/>&amp;root,<sp/>my_render,<sp/>NULL);</highlight></codeline>
+</programlisting> </para>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_MENU_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_MENU_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../common/syn_defs.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Menu<sp/>item<sp/>types<sp/>──────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="46"><highlight class="normal"></highlight></codeline>
+<codeline lineno="48" refid="syn__menu_8h_1af3b481216b6199e7a6ec658f31d9af2b" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="49" refid="syn__menu_8h_1af3b481216b6199e7a6ec658f31d9af2bae5c3a22228aff24f31f58a88da561dc6" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__menu_8h_1af3b481216b6199e7a6ec658f31d9af2bae5c3a22228aff24f31f58a88da561dc6" kindref="member">SYN_MENU_ACTION_SUBMENU</ref><sp/><sp/>=<sp/>0,<sp/><sp/></highlight></codeline>
+<codeline lineno="50" refid="syn__menu_8h_1af3b481216b6199e7a6ec658f31d9af2bae55da2337aa0ec94d90e5d7d01e35a70" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__menu_8h_1af3b481216b6199e7a6ec658f31d9af2bae55da2337aa0ec94d90e5d7d01e35a70" kindref="member">SYN_MENU_ACTION_CALLBACK</ref><sp/>=<sp/>1,<sp/><sp/></highlight></codeline>
+<codeline lineno="51" refid="syn__menu_8h_1af3b481216b6199e7a6ec658f31d9af2ba65ad847af71d104f7a34c96a35d380db" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__menu_8h_1af3b481216b6199e7a6ec658f31d9af2ba65ad847af71d104f7a34c96a35d380db" kindref="member">SYN_MENU_ACTION_TOGGLE</ref><sp/><sp/><sp/>=<sp/>2,<sp/><sp/></highlight></codeline>
+<codeline lineno="52" refid="syn__menu_8h_1af3b481216b6199e7a6ec658f31d9af2bae300243fea0f824b34922ca89f1313c2" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__menu_8h_1af3b481216b6199e7a6ec658f31d9af2bae300243fea0f824b34922ca89f1313c2" kindref="member">SYN_MENU_ACTION_VALUE</ref><sp/><sp/><sp/><sp/>=<sp/>3,<sp/><sp/></highlight></codeline>
+<codeline lineno="53"><highlight class="normal">}<sp/><ref refid="syn__menu_8h_1af3b481216b6199e7a6ec658f31d9af2b" kindref="member">SYN_MenuAction</ref>;</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"></highlight></codeline>
+<codeline lineno="55"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Value<sp/>config<sp/>(for<sp/>ACTION_VALUE<sp/>items)<sp/>────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="56"><highlight class="normal"></highlight></codeline>
+<codeline lineno="58" refid="structSYN__MenuValueCfg" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="59" refid="structSYN__MenuValueCfg_1a6d044de341350514fc8eddc3040cf3db" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>int32_t<sp/>*<ref refid="structSYN__MenuValueCfg_1a6d044de341350514fc8eddc3040cf3db" kindref="member">value</ref>;<sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="60" refid="structSYN__MenuValueCfg_1afe3b204be42d0388603c35eb44aa6444" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>int32_t<sp/><sp/><ref refid="structSYN__MenuValueCfg_1afe3b204be42d0388603c35eb44aa6444" kindref="member">min</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="61" refid="structSYN__MenuValueCfg_1af9ef527a21dd59e1fc1a59fd9a8ad83f" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>int32_t<sp/><sp/><ref refid="structSYN__MenuValueCfg_1af9ef527a21dd59e1fc1a59fd9a8ad83f" kindref="member">max</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="62" refid="structSYN__MenuValueCfg_1a86a481e6cd94e0b7eaa6326e7f4e401f" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>int32_t<sp/><sp/><ref refid="structSYN__MenuValueCfg_1a86a481e6cd94e0b7eaa6326e7f4e401f" kindref="member">step</ref>;<sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="63"><highlight class="normal">}<sp/><ref refid="structSYN__MenuValueCfg" kindref="compound">SYN_MenuValueCfg</ref>;</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"></highlight></codeline>
+<codeline lineno="65"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Menu<sp/>item<sp/>────────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="66"><highlight class="normal"></highlight></codeline>
+<codeline lineno="68" refid="structSYN__MenuItem" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structSYN__MenuItem" kindref="compound">SYN_MenuItem</ref><sp/>{</highlight></codeline>
+<codeline lineno="69" refid="structSYN__MenuItem_1ab5437c7f0535cdcf8d14a52dd6ed26db" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<ref refid="structSYN__MenuItem_1ab5437c7f0535cdcf8d14a52dd6ed26db" kindref="member">label</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="70" refid="structSYN__MenuItem_1a52aee838768f131a53f534319afa33df" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__MenuItem_1a52aee838768f131a53f534319afa33df" kindref="member">action</ref>;<sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="71"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">union<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="73" refid="structSYN__MenuItem_1a5069fc24216994ff49a59d1199aaa55e" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structSYN__MenuItem" kindref="compound">SYN_MenuItem</ref><sp/>*<ref refid="structSYN__MenuItem_1a5069fc24216994ff49a59d1199aaa55e" kindref="member">children</ref>;<sp/></highlight></codeline>
+<codeline lineno="74" refid="structSYN__MenuItem_1a0742ac688bf36624f314b015d8ab2462" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__MenuItem_1a0742ac688bf36624f314b015d8ab2462" kindref="member">count</ref>;<sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="75" refid="structSYN__MenuItem_1ab235ae54afb964f76b58378cd3aa71e1" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/><ref refid="structSYN__MenuItem_1ab235ae54afb964f76b58378cd3aa71e1" kindref="member">submenu</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="77" refid="structSYN__MenuItem_1aa8302c481d7a902d2a2e43a62e0207d8" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>void<sp/>(*<ref refid="structSYN__MenuItem_1aa8302c481d7a902d2a2e43a62e0207d8" kindref="member">func</ref>)(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*<ref refid="structSYN__MenuItem_1a1d5881fc61202e950b35e5528f9cb2e2" kindref="member">ctx</ref>);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="78" refid="structSYN__MenuItem_1a1d5881fc61202e950b35e5528f9cb2e2" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><sp/>*<ref refid="structSYN__MenuItem_1a1d5881fc61202e950b35e5528f9cb2e2" kindref="member">ctx</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="79" refid="structSYN__MenuItem_1a3f5b79e8a35f9bda380927ee691c139d" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/><ref refid="structSYN__MenuItem_1a3f5b79e8a35f9bda380927ee691c139d" kindref="member">callback</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="80" refid="structSYN__MenuItem_1a8ba8ee69480f70bfb27866f76de64fb6" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<ref refid="structSYN__MenuItem_1a8ba8ee69480f70bfb27866f76de64fb6" kindref="member">toggle</ref>;<sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="81" refid="structSYN__MenuItem_1a4f708eb28c82d859066cdbb517238188" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__MenuValueCfg" kindref="compound">SYN_MenuValueCfg</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__MenuItem_1a4f708eb28c82d859066cdbb517238188" kindref="member">value_cfg</ref>;<sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="82" refid="structSYN__MenuItem_1a6b3c7b5ce6dad4f8611793f461b2e21d" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>}<sp/><ref refid="structSYN__MenuItem_1a6b3c7b5ce6dad4f8611793f461b2e21d" kindref="member">u</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="83"><highlight class="normal">}<sp/><ref refid="structSYN__MenuItem" kindref="compound">SYN_MenuItem</ref>;</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"></highlight></codeline>
+<codeline lineno="90" refid="syn__menu_8h_1acf3da52bb2e5e81f5cf524f9df47a2d0" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_MENU_SUBMENU(lbl,<sp/>items)<sp/>\</highlight></codeline>
+<codeline lineno="91"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>{<sp/>.label<sp/>=<sp/>(lbl),<sp/>.action<sp/>=<sp/>SYN_MENU_ACTION_SUBMENU,<sp/>\</highlight></codeline>
+<codeline lineno="92"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/>.u<sp/>=<sp/>{<sp/>.submenu<sp/>=<sp/>{<sp/>.children<sp/>=<sp/>(items),<sp/>.count<sp/>=<sp/>sizeof(items)/sizeof((items)[0])<sp/>}<sp/>}<sp/>}</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="93"><highlight class="normal"></highlight></codeline>
+<codeline lineno="95" refid="syn__menu_8h_1a7ee216cb0cf2c9af795a215e8a09f9d2" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_MENU_CALLBACK(lbl,<sp/>fn,<sp/>c)<sp/>\</highlight></codeline>
+<codeline lineno="96"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>{<sp/>.label<sp/>=<sp/>(lbl),<sp/>.action<sp/>=<sp/>SYN_MENU_ACTION_CALLBACK,<sp/>\</highlight></codeline>
+<codeline lineno="97"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/>.u<sp/>=<sp/>{<sp/>.callback<sp/>=<sp/>{<sp/>.func<sp/>=<sp/>(fn),<sp/>.ctx<sp/>=<sp/>(c)<sp/>}<sp/>}<sp/>}</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="98"><highlight class="normal"></highlight></codeline>
+<codeline lineno="100" refid="syn__menu_8h_1adc1185ce577a98d3684600d8e745d74f" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_MENU_TOGGLE(lbl,<sp/>ptr)<sp/>\</highlight></codeline>
+<codeline lineno="101"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>{<sp/>.label<sp/>=<sp/>(lbl),<sp/>.action<sp/>=<sp/>SYN_MENU_ACTION_TOGGLE,<sp/>\</highlight></codeline>
+<codeline lineno="102"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/>.u<sp/>=<sp/>{<sp/>.toggle<sp/>=<sp/>(ptr)<sp/>}<sp/>}</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="103"><highlight class="normal"></highlight></codeline>
+<codeline lineno="105" refid="syn__menu_8h_1a214e85f7323114f1ab3792726ccdc3b4" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_MENU_VALUE(lbl,<sp/>ptr,<sp/>mn,<sp/>mx,<sp/>st)<sp/>\</highlight></codeline>
+<codeline lineno="106"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>{<sp/>.label<sp/>=<sp/>(lbl),<sp/>.action<sp/>=<sp/>SYN_MENU_ACTION_VALUE,<sp/>\</highlight></codeline>
+<codeline lineno="107"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/>.u<sp/>=<sp/>{<sp/>.value_cfg<sp/>=<sp/>{<sp/>.value<sp/>=<sp/>(ptr),<sp/>.min<sp/>=<sp/>(mn),<sp/>.max<sp/>=<sp/>(mx),<sp/>.step<sp/>=<sp/>(st)<sp/>}<sp/>}<sp/>}</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="108"><highlight class="normal"></highlight></codeline>
+<codeline lineno="110" refid="syn__menu_8h_1a906f1cc5cb93663cbb4cecfbb81c4d1d" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_MENU_ROOT(name,<sp/>items)<sp/>\</highlight></codeline>
+<codeline lineno="111"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>static<sp/>const<sp/>SYN_MenuItem<sp/>name<sp/>=<sp/>SYN_MENU_SUBMENU(#name,<sp/>items)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="112"><highlight class="normal"></highlight></codeline>
+<codeline lineno="115"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Render<sp/>callback<sp/>──────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="116"><highlight class="normal"></highlight></codeline>
+<codeline lineno="117"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structSYN__Menu" kindref="compound">SYN_Menu</ref>;</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"></highlight></codeline>
+<codeline lineno="124" refid="syn__menu_8h_1a4196c12be8784cf959616aa8e29ce98b" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>void<sp/>(*<ref refid="syn__menu_8h_1a4196c12be8784cf959616aa8e29ce98b" kindref="member">SYN_MenuRenderFn</ref>)(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structSYN__Menu" kindref="compound">SYN_Menu</ref><sp/>*menu,<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*ctx);</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"></highlight></codeline>
+<codeline lineno="126"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Menu<sp/>state<sp/>───────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="127"><highlight class="normal"></highlight></codeline>
+<codeline lineno="128"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_MENU_MAX_DEPTH</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="129" refid="syn__menu_8h_1a0300cbac2c418ea0575b5d78f910fbb6" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_MENU_MAX_DEPTH<sp/><sp/>8<sp/><sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="130"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="131"><highlight class="normal"></highlight></codeline>
+<codeline lineno="133" refid="structSYN__Menu" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structSYN__Menu" kindref="compound">SYN_Menu</ref><sp/>{</highlight></codeline>
+<codeline lineno="134" refid="structSYN__Menu_1aee715b9c0466631c7ead8b369e9e01bf" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__MenuItem" kindref="compound">SYN_MenuItem</ref><sp/>*<ref refid="structSYN__Menu_1aee715b9c0466631c7ead8b369e9e01bf" kindref="member">root</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="136"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Navigation<sp/>stack<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="137" refid="structSYN__Menu_1a1f2292490453d60d47141503092e9940" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__MenuItem" kindref="compound">SYN_MenuItem</ref><sp/>*<ref refid="structSYN__Menu_1a1f2292490453d60d47141503092e9940" kindref="member">stack</ref>[<ref refid="syn__menu_8h_1a0300cbac2c418ea0575b5d78f910fbb6" kindref="member">SYN_MENU_MAX_DEPTH</ref>];<sp/></highlight></codeline>
+<codeline lineno="138" refid="structSYN__Menu_1a27afafc078b8d3da6e2ec30cde86e3c6" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__Menu_1a27afafc078b8d3da6e2ec30cde86e3c6" kindref="member">stack_sel</ref>[<ref refid="syn__menu_8h_1a0300cbac2c418ea0575b5d78f910fbb6" kindref="member">SYN_MENU_MAX_DEPTH</ref>];<sp/></highlight></codeline>
+<codeline lineno="139" refid="structSYN__Menu_1a871e1343037b93ba9c888124ecb7ef20" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__Menu_1a871e1343037b93ba9c888124ecb7ef20" kindref="member">depth</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="141"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Current<sp/>view<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="142" refid="structSYN__Menu_1a3a6559e26b030aa24f4cbc7105018442" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__MenuItem" kindref="compound">SYN_MenuItem</ref><sp/>*<ref refid="structSYN__Menu_1a3a6559e26b030aa24f4cbc7105018442" kindref="member">current</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="143" refid="structSYN__Menu_1a092a24d3b662252a041bc316e0d61aee" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__Menu_1a092a24d3b662252a041bc316e0d61aee" kindref="member">selected</ref>;<sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="144" refid="structSYN__Menu_1a945e4a4bb7d5b4da0ecc65bbf2bc8161" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__Menu_1a945e4a4bb7d5b4da0ecc65bbf2bc8161" kindref="member">editing</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="146"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Render<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="147" refid="structSYN__Menu_1aa9215806435c373aff9379135ccc9390" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__menu_8h_1a4196c12be8784cf959616aa8e29ce98b" kindref="member">SYN_MenuRenderFn</ref><sp/><sp/><sp/><sp/><ref refid="structSYN__Menu_1aa9215806435c373aff9379135ccc9390" kindref="member">render</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="148" refid="structSYN__Menu_1a32fd263d0f1ed3de192ad4b411f7ceb6" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<ref refid="structSYN__Menu_1a32fd263d0f1ed3de192ad4b411f7ceb6" kindref="member">render_ctx</ref>;<sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="149"><highlight class="normal">}<sp/><ref refid="structSYN__Menu" kindref="compound">SYN_Menu</ref>;</highlight></codeline>
+<codeline lineno="150"><highlight class="normal"></highlight></codeline>
+<codeline lineno="151"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>API<sp/>──────────────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="152"><highlight class="normal"></highlight></codeline>
+<codeline lineno="161"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__menu_8h_1a9c5fdedb62f3d94eec83fac20bd8cd52" kindref="member">syn_menu_init</ref>(<ref refid="structSYN__Menu" kindref="compound">SYN_Menu</ref><sp/>*menu,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__MenuItem" kindref="compound">SYN_MenuItem</ref><sp/>*root,</highlight></codeline>
+<codeline lineno="162"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__menu_8h_1a4196c12be8784cf959616aa8e29ce98b" kindref="member">SYN_MenuRenderFn</ref><sp/>render,<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*ctx);</highlight></codeline>
+<codeline lineno="163"><highlight class="normal"></highlight></codeline>
+<codeline lineno="168"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__menu_8h_1ad86fdcce102aa23425ff1b025632bbeb" kindref="member">syn_menu_up</ref>(<ref refid="structSYN__Menu" kindref="compound">SYN_Menu</ref><sp/>*menu);</highlight></codeline>
+<codeline lineno="169"><highlight class="normal"></highlight></codeline>
+<codeline lineno="174"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__menu_8h_1aa7127bc0fdcf6d45bdb968022df296d2" kindref="member">syn_menu_down</ref>(<ref refid="structSYN__Menu" kindref="compound">SYN_Menu</ref><sp/>*menu);</highlight></codeline>
+<codeline lineno="175"><highlight class="normal"></highlight></codeline>
+<codeline lineno="180"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__menu_8h_1a2210c7258f5dc27eeec2c5db4f02789f" kindref="member">syn_menu_enter</ref>(<ref refid="structSYN__Menu" kindref="compound">SYN_Menu</ref><sp/>*menu);</highlight></codeline>
+<codeline lineno="181"><highlight class="normal"></highlight></codeline>
+<codeline lineno="186"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__menu_8h_1aa7207c7626254461775876816be99ed1" kindref="member">syn_menu_back</ref>(<ref refid="structSYN__Menu" kindref="compound">SYN_Menu</ref><sp/>*menu);</highlight></codeline>
+<codeline lineno="187"><highlight class="normal"></highlight></codeline>
+<codeline lineno="193" refid="syn__menu_8h_1a837c5a562f0264fcacd26d8aa10c97c9" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>uint8_t<sp/><ref refid="syn__menu_8h_1a837c5a562f0264fcacd26d8aa10c97c9" kindref="member">syn_menu_item_count</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__Menu" kindref="compound">SYN_Menu</ref><sp/>*menu)</highlight></codeline>
+<codeline lineno="194"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="195"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>menu-&gt;<ref refid="structSYN__Menu_1a3a6559e26b030aa24f4cbc7105018442" kindref="member">current</ref>-&gt;<ref refid="structSYN__MenuItem_1a6b3c7b5ce6dad4f8611793f461b2e21d" kindref="member">u</ref>.<ref refid="structSYN__MenuItem_1ab235ae54afb964f76b58378cd3aa71e1" kindref="member">submenu</ref>.<ref refid="structSYN__MenuItem_1a0742ac688bf36624f314b015d8ab2462" kindref="member">count</ref>;</highlight></codeline>
+<codeline lineno="196"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="197"><highlight class="normal"></highlight></codeline>
+<codeline lineno="203" refid="syn__menu_8h_1a3f90a093dc7d26b31692cd61a4b76588" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__MenuItem" kindref="compound">SYN_MenuItem</ref><sp/>*<ref refid="syn__menu_8h_1a3f90a093dc7d26b31692cd61a4b76588" kindref="member">syn_menu_selected_item</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__Menu" kindref="compound">SYN_Menu</ref><sp/>*menu)</highlight></codeline>
+<codeline lineno="204"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="205"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>&amp;menu-&gt;<ref refid="structSYN__Menu_1a3a6559e26b030aa24f4cbc7105018442" kindref="member">current</ref>-&gt;<ref refid="structSYN__MenuItem_1a6b3c7b5ce6dad4f8611793f461b2e21d" kindref="member">u</ref>.<ref refid="structSYN__MenuItem_1ab235ae54afb964f76b58378cd3aa71e1" kindref="member">submenu</ref>.<ref refid="structSYN__MenuItem_1a5069fc24216994ff49a59d1199aaa55e" kindref="member">children</ref>[menu-&gt;<ref refid="structSYN__Menu_1a092a24d3b662252a041bc316e0d61aee" kindref="member">selected</ref>];</highlight></codeline>
+<codeline lineno="206"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="207"><highlight class="normal"></highlight></codeline>
+<codeline lineno="212"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__menu_8h_1aad7dcb8ed34ef50837bc15f8f2e018e8" kindref="member">syn_menu_render</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__Menu" kindref="compound">SYN_Menu</ref><sp/>*menu);</highlight></codeline>
+<codeline lineno="213"><highlight class="normal"></highlight></codeline>
+<codeline lineno="214"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="215"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="216"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="217"><highlight class="normal"></highlight></codeline>
+<codeline lineno="218"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_MENU_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/ui/syn_menu.h"/>
+  </compounddef>
+</doxygen>

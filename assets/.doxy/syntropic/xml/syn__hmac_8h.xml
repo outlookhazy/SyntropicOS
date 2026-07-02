@@ -1,0 +1,414 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__hmac_8h" kind="file" language="C++">
+    <compoundname>syn_hmac.h</compoundname>
+    <includes refid="syn__sha256_8h" local="yes">syn_sha256.h</includes>
+    <includes local="no">stdint.h</includes>
+    <includes local="no">stddef.h</includes>
+    <includes local="no">string.h</includes>
+    <includedby refid="syntropic_8h" local="yes">src/syntropic/syntropic.h</includedby>
+    <incdepgraph>
+      <node id="1">
+        <label>src/syntropic/util/syn_hmac.h</label>
+        <link refid="syn__hmac_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>syn_sha256.h</label>
+        <link refid="syn__sha256_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>stddef.h</label>
+      </node>
+      <node id="3">
+        <label>stdint.h</label>
+      </node>
+      <node id="5">
+        <label>string.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="2">
+        <label>src/syntropic/syntropic.h</label>
+        <link refid="syntropic_8h"/>
+      </node>
+      <node id="1">
+        <label>src/syntropic/util/syn_hmac.h</label>
+        <link refid="syn__hmac_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="structSYN__HMAC__SHA256" prot="public">SYN_HMAC_SHA256</innerclass>
+    <sectiondef kind="define">
+      <memberdef kind="define" id="syn__hmac_8h_1af699fa2d8fe70032fc9be4933082bbe6" prot="public" static="no">
+        <name>SYN_HMAC_SHA256_SIZE</name>
+        <initializer><ref refid="syn__sha256_8h_1a1bc25b6c24baf84a400cc8e51842a3bb" kindref="member">SYN_SHA256_DIGEST_SIZE</ref></initializer>
+        <briefdescription>
+<para>HMAC-SHA256 output size in bytes. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_hmac.h" line="47" column="9" bodyfile="src/syntropic/util/syn_hmac.h" bodystart="47" bodyend="-1"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__hmac_8h_1a6067f8ebcdec74b2b877caad3380df56" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void syn_hmac_sha256_init</definition>
+        <argsstring>(SYN_HMAC_SHA256 *ctx, const void *key, size_t key_len)</argsstring>
+        <name>syn_hmac_sha256_init</name>
+        <param>
+          <type><ref refid="structSYN__HMAC__SHA256" kindref="compound">SYN_HMAC_SHA256</ref> *</type>
+          <declname>ctx</declname>
+        </param>
+        <param>
+          <type>const void *</type>
+          <declname>key</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>key_len</declname>
+        </param>
+        <briefdescription>
+<para>Initialize HMAC-SHA256 with a key. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>If key_len &gt; 64, the key is first hashed with SHA-256.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ctx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>HMAC context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>key</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Secret key. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>key_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Key length in bytes. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_hmac.h" line="73" column="20" bodyfile="src/syntropic/util/syn_hmac.h" bodystart="73" bodyend="98"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__hmac_8h_1a9071c35fe8ffef2e89762b2090594255" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void syn_hmac_sha256_update</definition>
+        <argsstring>(SYN_HMAC_SHA256 *ctx, const void *data, size_t len)</argsstring>
+        <name>syn_hmac_sha256_update</name>
+        <param>
+          <type><ref refid="structSYN__HMAC__SHA256" kindref="compound">SYN_HMAC_SHA256</ref> *</type>
+          <declname>ctx</declname>
+        </param>
+        <param>
+          <type>const void *</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>len</declname>
+        </param>
+        <briefdescription>
+<para>Feed message data into the HMAC. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ctx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>HMAC context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>data</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Message data. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Length in bytes. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_hmac.h" line="106" column="20" bodyfile="src/syntropic/util/syn_hmac.h" bodystart="106" bodyend="110"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__hmac_8h_1a79f9790e1355ed0efeaf1ca745729d6e" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void syn_hmac_sha256_final</definition>
+        <argsstring>(SYN_HMAC_SHA256 *ctx, uint8_t mac[SYN_HMAC_SHA256_SIZE])</argsstring>
+        <name>syn_hmac_sha256_final</name>
+        <param>
+          <type><ref refid="structSYN__HMAC__SHA256" kindref="compound">SYN_HMAC_SHA256</ref> *</type>
+          <declname>ctx</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>mac</declname>
+          <array>[SYN_HMAC_SHA256_SIZE]</array>
+        </param>
+        <briefdescription>
+<para>Finalize and produce the 32-byte HMAC. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ctx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>HMAC context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>mac</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output buffer (must be at least 32 bytes). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_hmac.h" line="117" column="20" bodyfile="src/syntropic/util/syn_hmac.h" bodystart="117" bodyend="131"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__hmac_8h_1a8756a6bdfa948349ef3aff050ce40ca3" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void syn_hmac_sha256</definition>
+        <argsstring>(const void *key, size_t key_len, const void *data, size_t data_len, uint8_t mac[SYN_HMAC_SHA256_SIZE])</argsstring>
+        <name>syn_hmac_sha256</name>
+        <param>
+          <type>const void *</type>
+          <declname>key</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>key_len</declname>
+        </param>
+        <param>
+          <type>const void *</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>data_len</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>mac</declname>
+          <array>[SYN_HMAC_SHA256_SIZE]</array>
+        </param>
+        <briefdescription>
+<para>Compute HMAC-SHA256 in one shot. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>key</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Secret key. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>key_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Key length in bytes. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>data</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Message data. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>data_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Message length in bytes. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>mac</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output buffer (must be at least 32 bytes). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_hmac.h" line="141" column="20" bodyfile="src/syntropic/util/syn_hmac.h" bodystart="141" bodyend="149"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>HMAC-SHA256 — keyed-hash message authentication code. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Built on top of syn_sha256. Provides the same streaming pattern: init (with key) → update → final</para>
+<para>The context wraps two SHA-256 contexts (~224 bytes caller-owned). No heap, no external dependencies.</para>
+<para><simplesect kind="par"><title>Usage</title><para><programlisting><codeline><highlight class="comment">//<sp/>One-shot:</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal">uint8_t<sp/>mac[32];</highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__hmac_8h_1a8756a6bdfa948349ef3aff050ce40ca3" kindref="member">syn_hmac_sha256</ref>(key,<sp/>key_len,<sp/>message,<sp/>msg_len,<sp/>mac);</highlight></codeline>
+<codeline><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="comment">//<sp/>Streaming:</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"><ref refid="structSYN__HMAC__SHA256" kindref="compound">SYN_HMAC_SHA256</ref><sp/>ctx;</highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__hmac_8h_1a6067f8ebcdec74b2b877caad3380df56" kindref="member">syn_hmac_sha256_init</ref>(&amp;ctx,<sp/>key,<sp/>key_len);</highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__hmac_8h_1a9071c35fe8ffef2e89762b2090594255" kindref="member">syn_hmac_sha256_update</ref>(&amp;ctx,<sp/>chunk1,<sp/>len1);</highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__hmac_8h_1a9071c35fe8ffef2e89762b2090594255" kindref="member">syn_hmac_sha256_update</ref>(&amp;ctx,<sp/>chunk2,<sp/>len2);</highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__hmac_8h_1a79f9790e1355ed0efeaf1ca745729d6e" kindref="member">syn_hmac_sha256_final</ref>(&amp;ctx,<sp/>mac);</highlight></codeline>
+</programlisting> </para>
+</simplesect>
+</para>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_HMAC_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_HMAC_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>__has_include(&quot;syn_config.h&quot;)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/>#include<sp/>&quot;syn_config.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>!defined(SYN_USE_SHA256)<sp/>||<sp/>SYN_USE_SHA256</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__sha256_8h" kindref="compound">syn_sha256.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stddef.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;string.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight></codeline>
+<codeline lineno="47" refid="syn__hmac_8h_1af699fa2d8fe70032fc9be4933082bbe6" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_HMAC_SHA256_SIZE<sp/><sp/>SYN_SHA256_DIGEST_SIZE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="48"><highlight class="normal"></highlight></codeline>
+<codeline lineno="49"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Context<sp/>──────────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="50"><highlight class="normal"></highlight></codeline>
+<codeline lineno="57" refid="structSYN__HMAC__SHA256" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="58" refid="structSYN__HMAC__SHA256_1aed97a05339fbda1107421fd481bec5eb" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structSYN__SHA256" kindref="compound">SYN_SHA256</ref><sp/><sp/><ref refid="structSYN__HMAC__SHA256_1aed97a05339fbda1107421fd481bec5eb" kindref="member">inner</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="59" refid="structSYN__HMAC__SHA256_1aa17b330d525fd3ba02301c473e5d32cb" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/><sp/><sp/><sp/>o_key_pad[<ref refid="syn__sha256_8h_1a6145475e29a5444c1e71f34b60a6819d" kindref="member">SYN_SHA256_BLOCK_SIZE</ref>];<sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="60"><highlight class="normal">}<sp/><ref refid="structSYN__HMAC__SHA256" kindref="compound">SYN_HMAC_SHA256</ref>;</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"></highlight></codeline>
+<codeline lineno="62"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>API<sp/>──────────────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="63"><highlight class="normal"></highlight></codeline>
+<codeline lineno="73" refid="syn__hmac_8h_1a6067f8ebcdec74b2b877caad3380df56" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__hmac_8h_1a6067f8ebcdec74b2b877caad3380df56" kindref="member">syn_hmac_sha256_init</ref>(<ref refid="structSYN__HMAC__SHA256" kindref="compound">SYN_HMAC_SHA256</ref><sp/>*ctx,</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*key,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>key_len)</highlight></codeline>
+<codeline lineno="75"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>k_buf[<ref refid="syn__sha256_8h_1a6145475e29a5444c1e71f34b60a6819d" kindref="member">SYN_SHA256_BLOCK_SIZE</ref>];</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/>i;</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"></highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/><sp/><sp/>memset(k_buf,<sp/>0,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(k_buf));</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"></highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(key_len<sp/>&gt;<sp/><ref refid="syn__sha256_8h_1a6145475e29a5444c1e71f34b60a6819d" kindref="member">SYN_SHA256_BLOCK_SIZE</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Keys<sp/>longer<sp/>than<sp/>block<sp/>size<sp/>are<sp/>hashed<sp/>first<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__sha256_8h_1a26ebdfb51601b7ce315872c4131ca23b" kindref="member">syn_sha256</ref>(key,<sp/>key_len,<sp/>k_buf);</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>memcpy(k_buf,<sp/>key,<sp/>key_len);</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"></highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Compute<sp/>i_key_pad<sp/>=<sp/>K<sp/>⊕<sp/>0x36<sp/><sp/>and<sp/><sp/>o_key_pad<sp/>=<sp/>K<sp/>⊕<sp/>0x5C<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="89"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>i_key_pad[<ref refid="syn__sha256_8h_1a6145475e29a5444c1e71f34b60a6819d" kindref="member">SYN_SHA256_BLOCK_SIZE</ref>];</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/><ref refid="syn__sha256_8h_1a6145475e29a5444c1e71f34b60a6819d" kindref="member">SYN_SHA256_BLOCK_SIZE</ref>;<sp/>i++)<sp/>{</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>i_key_pad[i]<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>k_buf[i]<sp/>^<sp/>0x36u;</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ctx-&gt;<ref refid="structSYN__HMAC__SHA256_1aa17b330d525fd3ba02301c473e5d32cb" kindref="member">o_key_pad</ref>[i]<sp/><sp/><sp/>=<sp/>k_buf[i]<sp/>^<sp/>0x5Cu;</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"></highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Inner<sp/>hash:<sp/>SHA-256(i_key_pad<sp/>||<sp/>message...)<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__sha256_8c_1ac64650c12d9cdd0e278e09086ddae7b6" kindref="member">syn_sha256_init</ref>(&amp;ctx-&gt;<ref refid="structSYN__HMAC__SHA256_1aed97a05339fbda1107421fd481bec5eb" kindref="member">inner</ref>);</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__sha256_8c_1ae5d5f928109f942592d41ca545158f02" kindref="member">syn_sha256_update</ref>(&amp;ctx-&gt;<ref refid="structSYN__HMAC__SHA256_1aed97a05339fbda1107421fd481bec5eb" kindref="member">inner</ref>,<sp/>i_key_pad,<sp/><ref refid="syn__sha256_8h_1a6145475e29a5444c1e71f34b60a6819d" kindref="member">SYN_SHA256_BLOCK_SIZE</ref>);</highlight></codeline>
+<codeline lineno="98"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"></highlight></codeline>
+<codeline lineno="106" refid="syn__hmac_8h_1a9071c35fe8ffef2e89762b2090594255" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__hmac_8h_1a9071c35fe8ffef2e89762b2090594255" kindref="member">syn_hmac_sha256_update</ref>(<ref refid="structSYN__HMAC__SHA256" kindref="compound">SYN_HMAC_SHA256</ref><sp/>*ctx,</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*data,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>len)</highlight></codeline>
+<codeline lineno="108"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="109"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__sha256_8c_1ae5d5f928109f942592d41ca545158f02" kindref="member">syn_sha256_update</ref>(&amp;ctx-&gt;<ref refid="structSYN__HMAC__SHA256_1aed97a05339fbda1107421fd481bec5eb" kindref="member">inner</ref>,<sp/>data,<sp/>len);</highlight></codeline>
+<codeline lineno="110"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"></highlight></codeline>
+<codeline lineno="117" refid="syn__hmac_8h_1a79f9790e1355ed0efeaf1ca745729d6e" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__hmac_8h_1a79f9790e1355ed0efeaf1ca745729d6e" kindref="member">syn_hmac_sha256_final</ref>(<ref refid="structSYN__HMAC__SHA256" kindref="compound">SYN_HMAC_SHA256</ref><sp/>*ctx,</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>mac[<ref refid="syn__hmac_8h_1af699fa2d8fe70032fc9be4933082bbe6" kindref="member">SYN_HMAC_SHA256_SIZE</ref>])</highlight></codeline>
+<codeline lineno="119"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="120"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>inner_hash[<ref refid="syn__sha256_8h_1a1bc25b6c24baf84a400cc8e51842a3bb" kindref="member">SYN_SHA256_DIGEST_SIZE</ref>];</highlight></codeline>
+<codeline lineno="121"><highlight class="normal"></highlight></codeline>
+<codeline lineno="122"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Finalize<sp/>inner<sp/>hash<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="123"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__sha256_8c_1a03f691b9ec17b2fcbd6224252b7b1ff6" kindref="member">syn_sha256_final</ref>(&amp;ctx-&gt;<ref refid="structSYN__HMAC__SHA256_1aed97a05339fbda1107421fd481bec5eb" kindref="member">inner</ref>,<sp/>inner_hash);</highlight></codeline>
+<codeline lineno="124"><highlight class="normal"></highlight></codeline>
+<codeline lineno="125"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Outer<sp/>hash:<sp/>SHA-256(o_key_pad<sp/>||<sp/>inner_hash)<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="126"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structSYN__SHA256" kindref="compound">SYN_SHA256</ref><sp/>outer;</highlight></codeline>
+<codeline lineno="127"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__sha256_8c_1ac64650c12d9cdd0e278e09086ddae7b6" kindref="member">syn_sha256_init</ref>(&amp;outer);</highlight></codeline>
+<codeline lineno="128"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__sha256_8c_1ae5d5f928109f942592d41ca545158f02" kindref="member">syn_sha256_update</ref>(&amp;outer,<sp/>ctx-&gt;<ref refid="structSYN__HMAC__SHA256_1aa17b330d525fd3ba02301c473e5d32cb" kindref="member">o_key_pad</ref>,<sp/><ref refid="syn__sha256_8h_1a6145475e29a5444c1e71f34b60a6819d" kindref="member">SYN_SHA256_BLOCK_SIZE</ref>);</highlight></codeline>
+<codeline lineno="129"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__sha256_8c_1ae5d5f928109f942592d41ca545158f02" kindref="member">syn_sha256_update</ref>(&amp;outer,<sp/>inner_hash,<sp/><ref refid="syn__sha256_8h_1a1bc25b6c24baf84a400cc8e51842a3bb" kindref="member">SYN_SHA256_DIGEST_SIZE</ref>);</highlight></codeline>
+<codeline lineno="130"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__sha256_8c_1a03f691b9ec17b2fcbd6224252b7b1ff6" kindref="member">syn_sha256_final</ref>(&amp;outer,<sp/>mac);</highlight></codeline>
+<codeline lineno="131"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="132"><highlight class="normal"></highlight></codeline>
+<codeline lineno="141" refid="syn__hmac_8h_1a8756a6bdfa948349ef3aff050ce40ca3" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__hmac_8h_1a8756a6bdfa948349ef3aff050ce40ca3" kindref="member">syn_hmac_sha256</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*key,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>key_len,</highlight></codeline>
+<codeline lineno="142"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*data,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>data_len,</highlight></codeline>
+<codeline lineno="143"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>mac[<ref refid="syn__hmac_8h_1af699fa2d8fe70032fc9be4933082bbe6" kindref="member">SYN_HMAC_SHA256_SIZE</ref>])</highlight></codeline>
+<codeline lineno="144"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="145"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structSYN__HMAC__SHA256" kindref="compound">SYN_HMAC_SHA256</ref><sp/>ctx;</highlight></codeline>
+<codeline lineno="146"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__hmac_8h_1a6067f8ebcdec74b2b877caad3380df56" kindref="member">syn_hmac_sha256_init</ref>(&amp;ctx,<sp/>key,<sp/>key_len);</highlight></codeline>
+<codeline lineno="147"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__hmac_8h_1a9071c35fe8ffef2e89762b2090594255" kindref="member">syn_hmac_sha256_update</ref>(&amp;ctx,<sp/>data,<sp/>data_len);</highlight></codeline>
+<codeline lineno="148"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__hmac_8h_1a79f9790e1355ed0efeaf1ca745729d6e" kindref="member">syn_hmac_sha256_final</ref>(&amp;ctx,<sp/>mac);</highlight></codeline>
+<codeline lineno="149"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="150"><highlight class="normal"></highlight></codeline>
+<codeline lineno="151"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="152"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="153"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="154"><highlight class="normal"></highlight></codeline>
+<codeline lineno="155"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_USE_SHA256<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="156"><highlight class="normal"></highlight></codeline>
+<codeline lineno="157"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_HMAC_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/util/syn_hmac.h"/>
+  </compounddef>
+</doxygen>

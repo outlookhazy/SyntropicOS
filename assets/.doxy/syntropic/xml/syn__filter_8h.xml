@@ -1,0 +1,528 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__filter_8h" kind="file" language="C++">
+    <compoundname>syn_filter.h</compoundname>
+    <includes local="no">stdint.h</includes>
+    <includes local="no">stddef.h</includes>
+    <includes local="no">stdbool.h</includes>
+    <includedby refid="syn__adc_8h" local="yes">src/syntropic/drivers/syn_adc.h</includedby>
+    <includedby refid="syn__filter_8c" local="yes">src/syntropic/dsp/syn_filter.c</includedby>
+    <includedby refid="syn__sensor_8h" local="yes">src/syntropic/sensor/syn_sensor.h</includedby>
+    <includedby refid="syntropic_8h" local="yes">src/syntropic/syntropic.h</includedby>
+    <incdepgraph>
+      <node id="1">
+        <label>src/syntropic/dsp/syn_filter.h</label>
+        <link refid="syn__filter_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>stdbool.h</label>
+      </node>
+      <node id="3">
+        <label>stddef.h</label>
+      </node>
+      <node id="2">
+        <label>stdint.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="3">
+        <label>src/syntropic/drivers/syn_adc.c</label>
+        <link refid="syn__adc_8c"/>
+      </node>
+      <node id="2">
+        <label>src/syntropic/drivers/syn_adc.h</label>
+        <link refid="syn__adc_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>src/syntropic/dsp/syn_filter.c</label>
+        <link refid="syn__filter_8c"/>
+      </node>
+      <node id="1">
+        <label>src/syntropic/dsp/syn_filter.h</label>
+        <link refid="syn__filter_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="9">
+        <label>src/syntropic/sensor/syn_sensor.c</label>
+        <link refid="syn__sensor_8c"/>
+      </node>
+      <node id="8">
+        <label>src/syntropic/sensor/syn_sensor.h</label>
+        <link refid="syn__sensor_8h"/>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>src/syntropic/syntropic.h</label>
+        <link refid="syntropic_8h"/>
+      </node>
+      <node id="6">
+        <label>src/syntropic/system/syn_power.c</label>
+        <link refid="syn__power_8c"/>
+      </node>
+      <node id="5">
+        <label>src/syntropic/system/syn_power.h</label>
+        <link refid="syn__power_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="structSYN__FilterMA" prot="public">SYN_FilterMA</innerclass>
+    <innerclass refid="structSYN__FilterEMA" prot="public">SYN_FilterEMA</innerclass>
+    <innerclass refid="structSYN__FilterMedian" prot="public">SYN_FilterMedian</innerclass>
+    <sectiondef kind="define">
+      <memberdef kind="define" id="syn__filter_8h_1aa226b3938fce52134e402f3c27026114" prot="public" static="no">
+        <name>SYN_FILTER_MAX_WINDOW</name>
+        <initializer>32</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Maximum window size for moving average and median filters. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/dsp/syn_filter.h" line="30" column="11" bodyfile="src/syntropic/dsp/syn_filter.h" bodystart="30" bodyend="-1"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__filter_8h_1aab1ab80c9f63b7aa6bb2df09f66d8a35" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_filter_ma_init</definition>
+        <argsstring>(SYN_FilterMA *f, uint8_t window)</argsstring>
+        <name>syn_filter_ma_init</name>
+        <param>
+          <type><ref refid="structSYN__FilterMA" kindref="compound">SYN_FilterMA</ref> *</type>
+          <declname>f</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>window</declname>
+        </param>
+        <briefdescription>
+<para>Initialize a moving average filter. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>f</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Filter instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>window</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Window size (must be &lt;= SYN_FILTER_MAX_WINDOW). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/dsp/syn_filter.h" line="50" column="6" bodyfile="src/syntropic/dsp/syn_filter.c" bodystart="21" bodyend="28" declfile="src/syntropic/dsp/syn_filter.h" declline="50" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__filter_8h_1a113b772235aaf6cb4445ab65d32273f2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int16_t</type>
+        <definition>int16_t syn_filter_ma_update</definition>
+        <argsstring>(SYN_FilterMA *f, int16_t sample)</argsstring>
+        <name>syn_filter_ma_update</name>
+        <param>
+          <type><ref refid="structSYN__FilterMA" kindref="compound">SYN_FilterMA</ref> *</type>
+          <declname>f</declname>
+        </param>
+        <param>
+          <type>int16_t</type>
+          <declname>sample</declname>
+        </param>
+        <briefdescription>
+<para>Feed a new sample and get the filtered output. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>f</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Filter instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>sample</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>New raw sample. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Filtered value (average of the last <computeroutput>window</computeroutput> samples). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/dsp/syn_filter.h" line="59" column="9" bodyfile="src/syntropic/dsp/syn_filter.c" bodystart="30" bodyend="47" declfile="src/syntropic/dsp/syn_filter.h" declline="59" declcolumn="9"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__filter_8h_1adf8ebe30c9640777c553c7d6f4aa8496" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_filter_ma_reset</definition>
+        <argsstring>(SYN_FilterMA *f)</argsstring>
+        <name>syn_filter_ma_reset</name>
+        <param>
+          <type><ref refid="structSYN__FilterMA" kindref="compound">SYN_FilterMA</ref> *</type>
+          <declname>f</declname>
+        </param>
+        <briefdescription>
+<para>Reset the filter to its initial state. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>f</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Filter instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/dsp/syn_filter.h" line="65" column="6" bodyfile="src/syntropic/dsp/syn_filter.c" bodystart="49" bodyend="55" declfile="src/syntropic/dsp/syn_filter.h" declline="65" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__filter_8h_1ab99eb743ba11ff4821430daa40081aae" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_filter_ema_init</definition>
+        <argsstring>(SYN_FilterEMA *f, uint8_t alpha)</argsstring>
+        <name>syn_filter_ema_init</name>
+        <param>
+          <type><ref refid="structSYN__FilterEMA" kindref="compound">SYN_FilterEMA</ref> *</type>
+          <declname>f</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>alpha</declname>
+        </param>
+        <briefdescription>
+<para>Initialize an EMA filter. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>f</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Filter instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>alpha</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Smoothing factor (0–255). Higher = more responsive. Equivalent to alpha = value/256. Example: 64 ≈ 0.25 (slow), 192 ≈ 0.75 (fast). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/dsp/syn_filter.h" line="84" column="6" bodyfile="src/syntropic/dsp/syn_filter.c" bodystart="61" bodyend="68" declfile="src/syntropic/dsp/syn_filter.h" declline="84" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__filter_8h_1ac5478e8bd9aeebd7f9d61300911cbf69" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int16_t</type>
+        <definition>int16_t syn_filter_ema_update</definition>
+        <argsstring>(SYN_FilterEMA *f, int16_t sample)</argsstring>
+        <name>syn_filter_ema_update</name>
+        <param>
+          <type><ref refid="structSYN__FilterEMA" kindref="compound">SYN_FilterEMA</ref> *</type>
+          <declname>f</declname>
+        </param>
+        <param>
+          <type>int16_t</type>
+          <declname>sample</declname>
+        </param>
+        <briefdescription>
+<para>Feed a new sample and get the filtered output. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>f</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Filter instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>sample</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>New raw sample. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Filtered value. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/dsp/syn_filter.h" line="92" column="9" bodyfile="src/syntropic/dsp/syn_filter.c" bodystart="70" bodyend="86" declfile="src/syntropic/dsp/syn_filter.h" declline="92" declcolumn="9"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__filter_8h_1ae8c5f4ed5cfa58626917ed32dcca925b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_filter_ema_reset</definition>
+        <argsstring>(SYN_FilterEMA *f)</argsstring>
+        <name>syn_filter_ema_reset</name>
+        <param>
+          <type><ref refid="structSYN__FilterEMA" kindref="compound">SYN_FilterEMA</ref> *</type>
+          <declname>f</declname>
+        </param>
+        <briefdescription>
+<para>Reset the filter to its initial state. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>f</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Filter instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/dsp/syn_filter.h" line="98" column="6" bodyfile="src/syntropic/dsp/syn_filter.c" bodystart="88" bodyend="95" declfile="src/syntropic/dsp/syn_filter.h" declline="98" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__filter_8h_1a743e4cd5e9b40fae2a90aaa9fa39635d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_filter_median_init</definition>
+        <argsstring>(SYN_FilterMedian *f, uint8_t window)</argsstring>
+        <name>syn_filter_median_init</name>
+        <param>
+          <type><ref refid="structSYN__FilterMedian" kindref="compound">SYN_FilterMedian</ref> *</type>
+          <declname>f</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>window</declname>
+        </param>
+        <briefdescription>
+<para>Initialize a median filter. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>f</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Filter instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>window</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Window size (should be odd for a true median; must be &lt;= SYN_FILTER_MAX_WINDOW). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/dsp/syn_filter.h" line="117" column="6" bodyfile="src/syntropic/dsp/syn_filter.c" bodystart="101" bodyend="108" declfile="src/syntropic/dsp/syn_filter.h" declline="117" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__filter_8h_1ae02615db318478c2671286bea3fa0a0d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int16_t</type>
+        <definition>int16_t syn_filter_median_update</definition>
+        <argsstring>(SYN_FilterMedian *f, int16_t sample)</argsstring>
+        <name>syn_filter_median_update</name>
+        <param>
+          <type><ref refid="structSYN__FilterMedian" kindref="compound">SYN_FilterMedian</ref> *</type>
+          <declname>f</declname>
+        </param>
+        <param>
+          <type>int16_t</type>
+          <declname>sample</declname>
+        </param>
+        <briefdescription>
+<para>Feed a new sample and get the filtered output. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>f</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Filter instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>sample</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>New raw sample. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Median of the last <computeroutput>window</computeroutput> samples. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/dsp/syn_filter.h" line="126" column="9" bodyfile="src/syntropic/dsp/syn_filter.c" bodystart="110" bodyend="138" declfile="src/syntropic/dsp/syn_filter.h" declline="126" declcolumn="9"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__filter_8h_1ab989e112c13b30838f9e05d107f0683a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_filter_median_reset</definition>
+        <argsstring>(SYN_FilterMedian *f)</argsstring>
+        <name>syn_filter_median_reset</name>
+        <param>
+          <type><ref refid="structSYN__FilterMedian" kindref="compound">SYN_FilterMedian</ref> *</type>
+          <declname>f</declname>
+        </param>
+        <briefdescription>
+<para>Reset the filter to its initial state. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>f</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Filter instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/dsp/syn_filter.h" line="132" column="6" bodyfile="src/syntropic/dsp/syn_filter.c" bodystart="140" bodyend="146" declfile="src/syntropic/dsp/syn_filter.h" declline="132" declcolumn="6"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Integer-only digital filters for sensor signal conditioning. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>All filters operate on int16_t values and use no floating-point math. Window backing buffers are caller-provided (no malloc).</para>
+<para><simplesect kind="par"><title>Available filters</title><para><itemizedlist>
+<listitem><para><bold>Moving Average (MA)</bold>: Smooth noise, configurable window</para>
+</listitem><listitem><para><bold>Exponential Moving Average (EMA)</bold>: Low-pass, single coefficient</para>
+</listitem><listitem><para><bold>Median</bold>: Impulse noise rejection, small windows only </para>
+</listitem></itemizedlist>
+</para>
+</simplesect>
+</para>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_FILTER_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_FILTER_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stddef.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Configuration<sp/>────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_FILTER_MAX_WINDOW</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="30" refid="syn__filter_8h_1aa226b3938fce52134e402f3c27026114" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/>#define<sp/>SYN_FILTER_MAX_WINDOW<sp/><sp/>32</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Moving<sp/>Average<sp/>───────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight></codeline>
+<codeline lineno="36" refid="structSYN__FilterMA" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="37" refid="structSYN__FilterMA_1ab0e67a377ee900c7b8e16785374455ab" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>int16_t<sp/><sp/><sp/>buf[<ref refid="syn__filter_8h_1aa226b3938fce52134e402f3c27026114" kindref="member">SYN_FILTER_MAX_WINDOW</ref>];<sp/></highlight></codeline>
+<codeline lineno="38" refid="structSYN__FilterMA_1a08a3f82aa72c9f2e55ddeb6318fff1dd" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>int32_t<sp/><sp/><sp/><ref refid="structSYN__FilterMA_1a08a3f82aa72c9f2e55ddeb6318fff1dd" kindref="member">sum</ref>;<sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="39" refid="structSYN__FilterMA_1a585caa2f6c113d9be7bd2fceee55e44c" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/><sp/><ref refid="structSYN__FilterMA_1a585caa2f6c113d9be7bd2fceee55e44c" kindref="member">window</ref>;<sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="40" refid="structSYN__FilterMA_1a44f81c1a3ff44cccbd0b50b92e77f4fb" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/><sp/><ref refid="structSYN__FilterMA_1a44f81c1a3ff44cccbd0b50b92e77f4fb" kindref="member">count</ref>;<sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="41" refid="structSYN__FilterMA_1a11e91f88bbcaa371140c8ac691e0fd1b" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/><sp/><ref refid="structSYN__FilterMA_1a11e91f88bbcaa371140c8ac691e0fd1b" kindref="member">idx</ref>;<sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="42"><highlight class="normal">}<sp/><ref refid="structSYN__FilterMA" kindref="compound">SYN_FilterMA</ref>;</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight></codeline>
+<codeline lineno="50"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__filter_8h_1aab1ab80c9f63b7aa6bb2df09f66d8a35" kindref="member">syn_filter_ma_init</ref>(<ref refid="structSYN__FilterMA" kindref="compound">SYN_FilterMA</ref><sp/>*f,<sp/>uint8_t<sp/>window);</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"></highlight></codeline>
+<codeline lineno="59"><highlight class="normal">int16_t<sp/><ref refid="syn__filter_8h_1a113b772235aaf6cb4445ab65d32273f2" kindref="member">syn_filter_ma_update</ref>(<ref refid="structSYN__FilterMA" kindref="compound">SYN_FilterMA</ref><sp/>*f,<sp/>int16_t<sp/>sample);</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"></highlight></codeline>
+<codeline lineno="65"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__filter_8h_1adf8ebe30c9640777c553c7d6f4aa8496" kindref="member">syn_filter_ma_reset</ref>(<ref refid="structSYN__FilterMA" kindref="compound">SYN_FilterMA</ref><sp/>*f);</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"></highlight></codeline>
+<codeline lineno="67"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Exponential<sp/>Moving<sp/>Average<sp/>───────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="68"><highlight class="normal"></highlight></codeline>
+<codeline lineno="70" refid="structSYN__FilterEMA" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="71" refid="structSYN__FilterEMA_1aa5a09b5d45125dc32bcdd0e3e00befba" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>int32_t<sp/><sp/><sp/><ref refid="structSYN__FilterEMA_1aa5a09b5d45125dc32bcdd0e3e00befba" kindref="member">value</ref>;<sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="72" refid="structSYN__FilterEMA_1afc6b39b89cfcf6e6900c48eb78f3eb64" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/><sp/><ref refid="structSYN__FilterEMA_1afc6b39b89cfcf6e6900c48eb78f3eb64" kindref="member">alpha</ref>;<sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="73" refid="structSYN__FilterEMA_1aecdec350fe5378be846c24787413efd8" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__FilterEMA_1aecdec350fe5378be846c24787413efd8" kindref="member">primed</ref>;<sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="74"><highlight class="normal">}<sp/><ref refid="structSYN__FilterEMA" kindref="compound">SYN_FilterEMA</ref>;</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"></highlight></codeline>
+<codeline lineno="84"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__filter_8h_1ab99eb743ba11ff4821430daa40081aae" kindref="member">syn_filter_ema_init</ref>(<ref refid="structSYN__FilterEMA" kindref="compound">SYN_FilterEMA</ref><sp/>*f,<sp/>uint8_t<sp/>alpha);</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"></highlight></codeline>
+<codeline lineno="92"><highlight class="normal">int16_t<sp/><ref refid="syn__filter_8h_1ac5478e8bd9aeebd7f9d61300911cbf69" kindref="member">syn_filter_ema_update</ref>(<ref refid="structSYN__FilterEMA" kindref="compound">SYN_FilterEMA</ref><sp/>*f,<sp/>int16_t<sp/>sample);</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"></highlight></codeline>
+<codeline lineno="98"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__filter_8h_1ae8c5f4ed5cfa58626917ed32dcca925b" kindref="member">syn_filter_ema_reset</ref>(<ref refid="structSYN__FilterEMA" kindref="compound">SYN_FilterEMA</ref><sp/>*f);</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"></highlight></codeline>
+<codeline lineno="100"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Median<sp/>Filter<sp/>────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="101"><highlight class="normal"></highlight></codeline>
+<codeline lineno="103" refid="structSYN__FilterMedian" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="104" refid="structSYN__FilterMedian_1a016cbe9e63cecdb446d515849a4b1b24" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>int16_t<sp/><sp/><sp/>buf[<ref refid="syn__filter_8h_1aa226b3938fce52134e402f3c27026114" kindref="member">SYN_FILTER_MAX_WINDOW</ref>];<sp/></highlight></codeline>
+<codeline lineno="105" refid="structSYN__FilterMedian_1a9a3996d7d990fba0a2509af4933d6f6c" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/><sp/><ref refid="structSYN__FilterMedian_1a9a3996d7d990fba0a2509af4933d6f6c" kindref="member">window</ref>;<sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="106" refid="structSYN__FilterMedian_1a5f0a86d6f7bd9e8577293e0d4503d032" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/><sp/><ref refid="structSYN__FilterMedian_1a5f0a86d6f7bd9e8577293e0d4503d032" kindref="member">count</ref>;<sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="107" refid="structSYN__FilterMedian_1acac7357b7d75e48ea0f603e33aada838" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/><sp/><ref refid="structSYN__FilterMedian_1acac7357b7d75e48ea0f603e33aada838" kindref="member">idx</ref>;<sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="108"><highlight class="normal">}<sp/><ref refid="structSYN__FilterMedian" kindref="compound">SYN_FilterMedian</ref>;</highlight></codeline>
+<codeline lineno="109"><highlight class="normal"></highlight></codeline>
+<codeline lineno="117"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__filter_8h_1a743e4cd5e9b40fae2a90aaa9fa39635d" kindref="member">syn_filter_median_init</ref>(<ref refid="structSYN__FilterMedian" kindref="compound">SYN_FilterMedian</ref><sp/>*f,<sp/>uint8_t<sp/>window);</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"></highlight></codeline>
+<codeline lineno="126"><highlight class="normal">int16_t<sp/><ref refid="syn__filter_8h_1ae02615db318478c2671286bea3fa0a0d" kindref="member">syn_filter_median_update</ref>(<ref refid="structSYN__FilterMedian" kindref="compound">SYN_FilterMedian</ref><sp/>*f,<sp/>int16_t<sp/>sample);</highlight></codeline>
+<codeline lineno="127"><highlight class="normal"></highlight></codeline>
+<codeline lineno="132"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__filter_8h_1ab989e112c13b30838f9e05d107f0683a" kindref="member">syn_filter_median_reset</ref>(<ref refid="structSYN__FilterMedian" kindref="compound">SYN_FilterMedian</ref><sp/>*f);</highlight></codeline>
+<codeline lineno="133"><highlight class="normal"></highlight></codeline>
+<codeline lineno="134"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="135"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="137"><highlight class="normal"></highlight></codeline>
+<codeline lineno="138"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_FILTER_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/dsp/syn_filter.h"/>
+  </compounddef>
+</doxygen>

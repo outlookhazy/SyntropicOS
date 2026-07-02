@@ -1,0 +1,528 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__mqtt_8h" kind="file" language="C++">
+    <compoundname>syn_mqtt.h</compoundname>
+    <includes refid="syn__defs_8h" local="yes">../common/syn_defs.h</includes>
+    <includes refid="syn__port__socket_8h" local="yes">../port/syn_port_socket.h</includes>
+    <includes refid="syn__pt_8h" local="yes">../pt/syn_pt.h</includes>
+    <includes refid="syn__task_8h" local="yes">../sched/syn_task.h</includes>
+    <includedby refid="syn__mqtt_8c" local="yes">src/syntropic/net/syn_mqtt.c</includedby>
+    <incdepgraph>
+      <node id="7">
+        <label>../common/syn_compiler.h</label>
+        <link refid="syn__compiler_8h"/>
+      </node>
+      <node id="2">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/net/syn_mqtt.h</label>
+        <link refid="syn__mqtt_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>../port/syn_port_socket.h</label>
+        <link refid="syn__port__socket_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>../pt/syn_pt.h</label>
+        <link refid="syn__pt_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>../sched/syn_task.h</label>
+        <link refid="syn__task_8h"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>stddef.h</label>
+      </node>
+      <node id="3">
+        <label>stdint.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="2">
+        <label>src/syntropic/net/syn_mqtt.c</label>
+        <link refid="syn__mqtt_8c"/>
+      </node>
+      <node id="1">
+        <label>src/syntropic/net/syn_mqtt.h</label>
+        <link refid="syn__mqtt_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="structSYN__MqttClient" prot="public">SYN_MqttClient</innerclass>
+    <sectiondef kind="enum">
+      <memberdef kind="enum" id="syn__mqtt_8h_1a65db2fc535d72a4c16d3f876a3f62c41" prot="public" static="no" strong="no">
+        <type></type>
+        <name>SYN_MqttState</name>
+        <enumvalue id="syn__mqtt_8h_1a65db2fc535d72a4c16d3f876a3f62c41a9f9abb54f4074dbe4c1937a217051fb1" prot="public">
+          <name>SYN_MQTT_DISCONNECTED</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Connection is down, client inactive </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__mqtt_8h_1a65db2fc535d72a4c16d3f876a3f62c41acfdec3c438e7f5febfa92400ba96a255" prot="public">
+          <name>SYN_MQTT_CONNECTING</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Actively opening TCP socket and sending MQTT CONNECT </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__mqtt_8h_1a65db2fc535d72a4c16d3f876a3f62c41a031ba4b3c3e5fb0b6c2a0cf77c5aae02" prot="public">
+          <name>SYN_MQTT_CONNECTED</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Connected and authenticated, ready to sub/pub </para>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>MQTT client connection states. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/net/syn_mqtt.h" line="22" column="1" bodyfile="src/syntropic/net/syn_mqtt.h" bodystart="22" bodyend="26"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__mqtt_8h_1ae03e82c207d8558e9c6ddccc2d368138" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_mqtt_init</definition>
+        <argsstring>(SYN_MqttClient *client, const char *host, uint16_t port, const char *client_id, const char *username, const char *password, uint16_t keep_alive_s, uint8_t *rx_buf, size_t rx_buf_size, uint8_t *tx_buf, size_t tx_buf_size)</argsstring>
+        <name>syn_mqtt_init</name>
+        <param>
+          <type><ref refid="structSYN__MqttClient" kindref="compound">SYN_MqttClient</ref> *</type>
+          <declname>client</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>host</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>port</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>client_id</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>username</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>password</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>keep_alive_s</declname>
+        </param>
+        <param>
+          <type>uint8_t *</type>
+          <declname>rx_buf</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>rx_buf_size</declname>
+        </param>
+        <param>
+          <type>uint8_t *</type>
+          <declname>tx_buf</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>tx_buf_size</declname>
+        </param>
+        <briefdescription>
+<para>Initialize the MQTT client. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Configures broker destination, client ID, authentication credentials, keep-alive timing parameters, and network packet buffers.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>client</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to client context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>host</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Broker network address string. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>port</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Broker port number. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>client_id</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>MQTT client identity string. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>username</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Authentication username (or NULL). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>password</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Authentication password (or NULL). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>keep_alive_s</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Keep-alive timeout parameter in seconds. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>rx_buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Receive buffer storage. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>rx_buf_size</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Receive buffer capacity. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>tx_buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Transmit buffer storage. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>tx_buf_size</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Transmit buffer capacity. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on successful configuration, or error parameter code. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/net/syn_mqtt.h" line="84" column="12" bodyfile="src/syntropic/net/syn_mqtt.c" bodystart="190" bodyend="217" declfile="src/syntropic/net/syn_mqtt.h" declline="84" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__mqtt_8h_1a3e1df8390c7a688954aa6ecdc3cae3fd" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_mqtt_publish</definition>
+        <argsstring>(SYN_MqttClient *client, const char *topic, const void *payload, size_t len, uint8_t qos, bool retain)</argsstring>
+        <name>syn_mqtt_publish</name>
+        <param>
+          <type><ref refid="structSYN__MqttClient" kindref="compound">SYN_MqttClient</ref> *</type>
+          <declname>client</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>topic</declname>
+        </param>
+        <param>
+          <type>const void *</type>
+          <declname>payload</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>len</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>qos</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+          <declname>retain</declname>
+        </param>
+        <briefdescription>
+<para>Publish a message to a topic. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Non-blocking publish command. For QoS 0, queued directly. For QoS 1, tracks acknowledgement state.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>client</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to client context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>topic</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Topic name to target. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>payload</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Data payload to send. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Payload size in bytes. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>qos</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Quality of service level (0 or 1). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>retain</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Retain flag on broker. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on queued, or error status if payload bounds exceeded. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/net/syn_mqtt.h" line="104" column="12" bodyfile="src/syntropic/net/syn_mqtt.c" bodystart="219" bodyend="263" declfile="src/syntropic/net/syn_mqtt.h" declline="104" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__mqtt_8h_1a73e1215bbb05b634b0ccd67848bf838d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_mqtt_subscribe</definition>
+        <argsstring>(SYN_MqttClient *client, const char *topic, uint8_t qos)</argsstring>
+        <name>syn_mqtt_subscribe</name>
+        <param>
+          <type><ref refid="structSYN__MqttClient" kindref="compound">SYN_MqttClient</ref> *</type>
+          <declname>client</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>topic</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>qos</declname>
+        </param>
+        <briefdescription>
+<para>Subscribe to a topic. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Formats and queues a subscription request for transmission.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>client</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to client context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>topic</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Topic filter string. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>qos</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Requested quality of service. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/net/syn_mqtt.h" line="117" column="12" bodyfile="src/syntropic/net/syn_mqtt.c" bodystart="265" bodyend="300" declfile="src/syntropic/net/syn_mqtt.h" declline="117" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__mqtt_8h_1a9d2823d4c33a537c839dcca1757cd3c7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__pt_8h_1a837fcf03fa24b6b73d66bb133b95d79e" kindref="member">SYN_PT_Status</ref></type>
+        <definition>SYN_PT_Status syn_mqtt_task</definition>
+        <argsstring>(SYN_PT *pt, SYN_Task *task)</argsstring>
+        <name>syn_mqtt_task</name>
+        <param>
+          <type><ref refid="structSYN__PT" kindref="compound">SYN_PT</ref> *</type>
+          <declname>pt</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__Task" kindref="compound">SYN_Task</ref> *</type>
+          <declname>task</declname>
+        </param>
+        <briefdescription>
+<para>Cooperative task for driving the MQTT client. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Yields during connection, socket polling, keep-alive pinging, and packet parsing loops. Runs within the cooperative scheduler context.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>pt</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Cooperative protothread handle. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>task</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Corresponding task control block. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>PT_WAITING or PT_EXITED status. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/net/syn_mqtt.h" line="129" column="15" bodyfile="src/syntropic/net/syn_mqtt.c" bodystart="302" bodyend="424" declfile="src/syntropic/net/syn_mqtt.h" declline="129" declcolumn="15"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Lightweight MQTT 3.1.1 client. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_MQTT_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_MQTT_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../common/syn_defs.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../port/syn_port_socket.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../pt/syn_pt.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../sched/syn_task.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight></codeline>
+<codeline lineno="22" refid="syn__mqtt_8h_1a65db2fc535d72a4c16d3f876a3f62c41" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="23" refid="syn__mqtt_8h_1a65db2fc535d72a4c16d3f876a3f62c41a9f9abb54f4074dbe4c1937a217051fb1" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__mqtt_8h_1a65db2fc535d72a4c16d3f876a3f62c41a9f9abb54f4074dbe4c1937a217051fb1" kindref="member">SYN_MQTT_DISCONNECTED</ref>,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="24" refid="syn__mqtt_8h_1a65db2fc535d72a4c16d3f876a3f62c41acfdec3c438e7f5febfa92400ba96a255" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__mqtt_8h_1a65db2fc535d72a4c16d3f876a3f62c41acfdec3c438e7f5febfa92400ba96a255" kindref="member">SYN_MQTT_CONNECTING</ref>,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="25" refid="syn__mqtt_8h_1a65db2fc535d72a4c16d3f876a3f62c41a031ba4b3c3e5fb0b6c2a0cf77c5aae02" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__mqtt_8h_1a65db2fc535d72a4c16d3f876a3f62c41a031ba4b3c3e5fb0b6c2a0cf77c5aae02" kindref="member">SYN_MQTT_CONNECTED</ref>,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="26"><highlight class="normal">}<sp/><ref refid="syn__mqtt_8h_1a65db2fc535d72a4c16d3f876a3f62c41" kindref="member">SYN_MqttState</ref>;</highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight></codeline>
+<codeline lineno="31" refid="structSYN__MqttClient" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="32" refid="structSYN__MqttClient_1a217820912bb88422af73da2b01525891" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__port__socket_8h_1ae94da9613781abe2f50b7c00dcaf103f" kindref="member">SYN_Socket</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__MqttClient_1a217820912bb88422af73da2b01525891" kindref="member">sock</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="33" refid="structSYN__MqttClient_1a17b8c53f77883e262412d037e3b1d90e" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__mqtt_8h_1a65db2fc535d72a4c16d3f876a3f62c41" kindref="member">SYN_MqttState</ref><sp/><sp/><sp/><sp/><ref refid="structSYN__MqttClient_1a17b8c53f77883e262412d037e3b1d90e" kindref="member">state</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="34" refid="structSYN__MqttClient_1adb1a8b36d013eb195d369982a651a024" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>*<ref refid="structSYN__MqttClient_1adb1a8b36d013eb195d369982a651a024" kindref="member">host</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="35" refid="structSYN__MqttClient_1ad9444dcca71c90c8a7e1a99678267933" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__MqttClient_1ad9444dcca71c90c8a7e1a99678267933" kindref="member">port</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="36" refid="structSYN__MqttClient_1a247c980fef1fd8ef2e434f9f720367ea" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>*<ref refid="structSYN__MqttClient_1a247c980fef1fd8ef2e434f9f720367ea" kindref="member">client_id</ref>;<sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="37" refid="structSYN__MqttClient_1abc90d8056f59e160498df171cddc99e4" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>*<ref refid="structSYN__MqttClient_1abc90d8056f59e160498df171cddc99e4" kindref="member">username</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="38" refid="structSYN__MqttClient_1a6077c50909809572f99ee4530207e300" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>*<ref refid="structSYN__MqttClient_1a6077c50909809572f99ee4530207e300" kindref="member">password</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="39" refid="structSYN__MqttClient_1a181a8374f1acde2b0c0acb00676dffb9" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__MqttClient_1a181a8374f1acde2b0c0acb00676dffb9" kindref="member">keep_alive_s</ref>;<sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="48" refid="structSYN__MqttClient_1a6949ea51249f328e403078f7190ad568" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>void<sp/>(*on_message)(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*topic,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*payload,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>len,<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*ctx);</highlight></codeline>
+<codeline lineno="49" refid="structSYN__MqttClient_1aa10284cf58a5db010910a33734a19f2e" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<ref refid="structSYN__MqttClient_1aa10284cf58a5db010910a33734a19f2e" kindref="member">ctx</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="51" refid="structSYN__MqttClient_1a2fb6707a4b2ce40d4b6f4187cc5927e3" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<ref refid="structSYN__MqttClient_1a2fb6707a4b2ce40d4b6f4187cc5927e3" kindref="member">rx_buf</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="52" refid="structSYN__MqttClient_1a5297ffca189dcacb47e806fd9743814c" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__MqttClient_1a5297ffca189dcacb47e806fd9743814c" kindref="member">rx_buf_size</ref>;<sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="53" refid="structSYN__MqttClient_1a934abea1068224f57f223240d7607081" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<ref refid="structSYN__MqttClient_1a934abea1068224f57f223240d7607081" kindref="member">tx_buf</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="54" refid="structSYN__MqttClient_1a1dfe4f1de5fd19c52a9d84d883c65dfe" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__MqttClient_1a1dfe4f1de5fd19c52a9d84d883c65dfe" kindref="member">tx_buf_size</ref>;<sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="56" refid="structSYN__MqttClient_1ac250041e37e82d5ae48ea2b100edde31" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__MqttClient_1ac250041e37e82d5ae48ea2b100edde31" kindref="member">last_activity_ms</ref>;<sp/></highlight></codeline>
+<codeline lineno="57" refid="structSYN__MqttClient_1afb521dfe052f5f97cab5beb4bd9abc8c" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__MqttClient_1afb521dfe052f5f97cab5beb4bd9abc8c" kindref="member">next_packet_id</ref>;<sp/><sp/></highlight></codeline>
+<codeline lineno="59" refid="structSYN__MqttClient_1ab092135a46f3b8a3b03cb866ad8c4ebd" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__MqttClient_1ab092135a46f3b8a3b03cb866ad8c4ebd" kindref="member">pending_puback_id</ref>;<sp/></highlight></codeline>
+<codeline lineno="60" refid="structSYN__MqttClient_1a1f282ee3f332ad13b611e219c17df9bb" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__MqttClient_1a1f282ee3f332ad13b611e219c17df9bb" kindref="member">pending_puback_ms</ref>;<sp/></highlight></codeline>
+<codeline lineno="61" refid="structSYN__MqttClient_1afc98d1484e577991757c0e079f841b88" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>retransmit_buf[128];<sp/></highlight></codeline>
+<codeline lineno="62" refid="structSYN__MqttClient_1aa1033d9df6e7f64f1d093e02960209ce" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__MqttClient_1aa1033d9df6e7f64f1d093e02960209ce" kindref="member">retransmit_len</ref>;<sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="63"><highlight class="normal">}<sp/><ref refid="structSYN__MqttClient" kindref="compound">SYN_MqttClient</ref>;</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"></highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__mqtt_8h_1ae03e82c207d8558e9c6ddccc2d368138" kindref="member">syn_mqtt_init</ref>(<ref refid="structSYN__MqttClient" kindref="compound">SYN_MqttClient</ref><sp/>*client,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*host,<sp/>uint16_t<sp/>port,</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*client_id,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*username,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*password,</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint16_t<sp/>keep_alive_s,</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>*rx_buf,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>rx_buf_size,</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>*tx_buf,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>tx_buf_size);</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"></highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__mqtt_8h_1a3e1df8390c7a688954aa6ecdc3cae3fd" kindref="member">syn_mqtt_publish</ref>(<ref refid="structSYN__MqttClient" kindref="compound">SYN_MqttClient</ref><sp/>*client,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*topic,</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*payload,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>len,<sp/>uint8_t<sp/>qos,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>retain);</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"></highlight></codeline>
+<codeline lineno="117"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__mqtt_8h_1a73e1215bbb05b634b0ccd67848bf838d" kindref="member">syn_mqtt_subscribe</ref>(<ref refid="structSYN__MqttClient" kindref="compound">SYN_MqttClient</ref><sp/>*client,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*topic,<sp/>uint8_t<sp/>qos);</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"></highlight></codeline>
+<codeline lineno="129"><highlight class="normal"><ref refid="syn__pt_8h_1a837fcf03fa24b6b73d66bb133b95d79e" kindref="member">SYN_PT_Status</ref><sp/><ref refid="syn__mqtt_8h_1a9d2823d4c33a537c839dcca1757cd3c7" kindref="member">syn_mqtt_task</ref>(<ref refid="structSYN__PT" kindref="compound">SYN_PT</ref><sp/>*pt,<sp/><ref refid="structSYN__Task" kindref="compound">SYN_Task</ref><sp/>*task);</highlight></codeline>
+<codeline lineno="130"><highlight class="normal"></highlight></codeline>
+<codeline lineno="131"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="132"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="133"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="134"><highlight class="normal"></highlight></codeline>
+<codeline lineno="135"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_MQTT_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/net/syn_mqtt.h"/>
+  </compounddef>
+</doxygen>

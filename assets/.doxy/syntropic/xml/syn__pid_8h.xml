@@ -1,0 +1,577 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__pid_8h" kind="file" language="C++">
+    <compoundname>syn_pid.h</compoundname>
+    <includes local="no">stdint.h</includes>
+    <includes local="no">stdbool.h</includes>
+    <includedby refid="syn__pid_8c" local="yes">src/syntropic/control/syn_pid.c</includedby>
+    <includedby refid="syn__motor__ctrl_8h" local="yes">src/syntropic/motor/syn_motor_ctrl.h</includedby>
+    <includedby refid="syntropic_8h" local="yes">src/syntropic/syntropic.h</includedby>
+    <incdepgraph>
+      <node id="1">
+        <label>src/syntropic/control/syn_pid.h</label>
+        <link refid="syn__pid_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>stdbool.h</label>
+      </node>
+      <node id="2">
+        <label>stdint.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="4">
+        <label>src/syntropic/control/syn_autotune.h</label>
+        <link refid="syn__autotune_8h"/>
+      </node>
+      <node id="2">
+        <label>src/syntropic/control/syn_pid.c</label>
+        <link refid="syn__pid_8c"/>
+      </node>
+      <node id="1">
+        <label>src/syntropic/control/syn_pid.h</label>
+        <link refid="syn__pid_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>src/syntropic/motor/syn_actuator.c</label>
+        <link refid="syn__actuator_8c"/>
+      </node>
+      <node id="5">
+        <label>src/syntropic/motor/syn_actuator.h</label>
+        <link refid="syn__actuator_8h"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>src/syntropic/motor/syn_motor_ctrl.c</label>
+        <link refid="syn__motor__ctrl_8c"/>
+      </node>
+      <node id="3">
+        <label>src/syntropic/motor/syn_motor_ctrl.h</label>
+        <link refid="syn__motor__ctrl_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>src/syntropic/syntropic.h</label>
+        <link refid="syntropic_8h"/>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="structSYN__PID__Config" prot="public">SYN_PID_Config</innerclass>
+    <innerclass refid="structSYN__PID" prot="public">SYN_PID</innerclass>
+    <sectiondef kind="define">
+      <memberdef kind="define" id="syn__pid_8h_1a5c2df664219d291524a8a8dc4ecad0e5" prot="public" static="no">
+        <name>SYN_PID_GAINS</name>
+        <param><defname>kp_f</defname></param>
+        <param><defname>ki_f</defname></param>
+        <param><defname>kd_f</defname></param>
+        <param><defname>scale_val</defname></param>
+        <param><defname>omin</defname></param>
+        <param><defname>omax</defname></param>
+        <initializer>    ((<ref refid="structSYN__PID__Config" kindref="compound">SYN_PID_Config</ref>){                                          \
+        .kp    = (int32_t)((kp_f) * (scale_val)),               \
+        .ki    = (int32_t)((ki_f) * (scale_val) * 1000),        \
+        .kd    = (int32_t)((kd_f) * (scale_val)),               \
+        .scale = (scale_val),                                   \
+        .out_min = (omin),                                      \
+        .out_max = (omax),                                      \
+    })</initializer>
+        <briefdescription>
+<para>Convenience macro to create a PID config from human-readable gains. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Accepts floating-point gain values and a scale factor. Computes the integer ki with the ×1000 factor built in, so you specify ki as a normal per-second integral gain.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>kp_f</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Proportional gain (float). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>ki_f</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Integral gain per second (float). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>kd_f</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Derivative gain (float). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>scale_val</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Integer scale divisor (e.g., 256). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>omin</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Minimum output. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>omax</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Maximum output. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para><ref refid="structSYN__PID__Config" kindref="compound">SYN_PID_Config</ref> struct initializer.</para>
+</simplesect>
+<simplesect kind="par"><title>Example</title><para><programlisting><codeline><highlight class="normal">SYN_PID_Config<sp/>cfg<sp/>=<sp/>SYN_PID_GAINS(1.5,<sp/>0.5,<sp/>0.1,<sp/>256,<sp/>-1000,<sp/>1000);</highlight></codeline>
+<codeline><highlight class="normal">//<sp/>kp<sp/>=<sp/>(int)(1.5<sp/>*<sp/>256)<sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>384</highlight></codeline>
+<codeline><highlight class="normal">//<sp/>ki<sp/>=<sp/>(int)(0.5<sp/>*<sp/>256<sp/>*<sp/>1000)<sp/>=<sp/>128000</highlight></codeline>
+<codeline><highlight class="normal">//<sp/>kd<sp/>=<sp/>(int)(0.1<sp/>*<sp/>256)<sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>25</highlight></codeline>
+</programlisting> </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/control/syn_pid.h" line="103" column="9" bodyfile="src/syntropic/control/syn_pid.h" bodystart="103" bodyend="111"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__pid_8h_1a5bc56c333e2a9570ac7e9d4b0a45f013" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_pid_init</definition>
+        <argsstring>(SYN_PID *pid, const SYN_PID_Config *cfg)</argsstring>
+        <name>syn_pid_init</name>
+        <param>
+          <type><ref refid="structSYN__PID" kindref="compound">SYN_PID</ref> *</type>
+          <declname>pid</declname>
+        </param>
+        <param>
+          <type>const <ref refid="structSYN__PID__Config" kindref="compound">SYN_PID_Config</ref> *</type>
+          <declname>cfg</declname>
+        </param>
+        <briefdescription>
+<para>Initialize PID controller. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>If integral_max is 0, it is auto-computed from ki, scale, and out_max to allow full integral authority without windup.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>pid</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>PID instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>cfg</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Configuration (copied internally). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/control/syn_pid.h" line="137" column="6" bodyfile="src/syntropic/control/syn_pid.c" bodystart="21" bodyend="45" declfile="src/syntropic/control/syn_pid.h" declline="137" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__pid_8h_1a990a5ab14c6776c0ad1ae2d91d443519" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int32_t</type>
+        <definition>int32_t syn_pid_update</definition>
+        <argsstring>(SYN_PID *pid, int32_t setpoint, int32_t measured, uint32_t dt_ms)</argsstring>
+        <name>syn_pid_update</name>
+        <param>
+          <type><ref refid="structSYN__PID" kindref="compound">SYN_PID</ref> *</type>
+          <declname>pid</declname>
+        </param>
+        <param>
+          <type>int32_t</type>
+          <declname>setpoint</declname>
+        </param>
+        <param>
+          <type>int32_t</type>
+          <declname>measured</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>dt_ms</declname>
+        </param>
+        <briefdescription>
+<para>Compute one PID update step. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>pid</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>PID instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>setpoint</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Desired value. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>measured</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Actual measured value. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dt_ms</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Time since last update in milliseconds. (0 is treated as 1 to avoid division by zero.) </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Clamped output value. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/control/syn_pid.h" line="149" column="9" bodyfile="src/syntropic/control/syn_pid.c" bodystart="47" bodyend="103" declfile="src/syntropic/control/syn_pid.h" declline="149" declcolumn="9"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__pid_8h_1a74204000ba5e98bb49b6680d28f8219e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_pid_reset</definition>
+        <argsstring>(SYN_PID *pid)</argsstring>
+        <name>syn_pid_reset</name>
+        <param>
+          <type><ref refid="structSYN__PID" kindref="compound">SYN_PID</ref> *</type>
+          <declname>pid</declname>
+        </param>
+        <briefdescription>
+<para>Reset integral and derivative state. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>pid</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>PID instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/control/syn_pid.h" line="156" column="6" bodyfile="src/syntropic/control/syn_pid.c" bodystart="105" bodyend="113" declfile="src/syntropic/control/syn_pid.h" declline="156" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__pid_8h_1af79ce8589184a0286ec25cf69d07889a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_pid_set_gains</definition>
+        <argsstring>(SYN_PID *pid, int32_t kp, int32_t ki, int32_t kd)</argsstring>
+        <name>syn_pid_set_gains</name>
+        <param>
+          <type><ref refid="structSYN__PID" kindref="compound">SYN_PID</ref> *</type>
+          <declname>pid</declname>
+        </param>
+        <param>
+          <type>int32_t</type>
+          <declname>kp</declname>
+        </param>
+        <param>
+          <type>int32_t</type>
+          <declname>ki</declname>
+        </param>
+        <param>
+          <type>int32_t</type>
+          <declname>kd</declname>
+        </param>
+        <briefdescription>
+<para>Update gains at runtime. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>pid</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>PID instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>kp</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Proportional gain. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>ki</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Integral gain. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>kd</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Derivative gain. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/control/syn_pid.h" line="165" column="6" bodyfile="src/syntropic/control/syn_pid.c" bodystart="115" bodyend="121" declfile="src/syntropic/control/syn_pid.h" declline="165" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__pid_8h_1a90f3d75f8d9781b2a2338ee996be2b0c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_pid_set_limits</definition>
+        <argsstring>(SYN_PID *pid, int32_t out_min, int32_t out_max)</argsstring>
+        <name>syn_pid_set_limits</name>
+        <param>
+          <type><ref refid="structSYN__PID" kindref="compound">SYN_PID</ref> *</type>
+          <declname>pid</declname>
+        </param>
+        <param>
+          <type>int32_t</type>
+          <declname>out_min</declname>
+        </param>
+        <param>
+          <type>int32_t</type>
+          <declname>out_max</declname>
+        </param>
+        <briefdescription>
+<para>Set output clamping limits. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>pid</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>PID instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out_min</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Minimum output. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out_max</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Maximum output. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/control/syn_pid.h" line="173" column="6" bodyfile="src/syntropic/control/syn_pid.c" bodystart="123" bodyend="128" declfile="src/syntropic/control/syn_pid.h" declline="173" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__pid_8h_1afa8be8abe8302565457ee760b339edd1" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>int32_t</type>
+        <definition>static int32_t syn_pid_output</definition>
+        <argsstring>(const SYN_PID *pid)</argsstring>
+        <name>syn_pid_output</name>
+        <param>
+          <type>const <ref refid="structSYN__PID" kindref="compound">SYN_PID</ref> *</type>
+          <declname>pid</declname>
+        </param>
+        <briefdescription>
+<para>Get the last computed output. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>pid</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>PID instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Last output value. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/control/syn_pid.h" line="180" column="23" bodyfile="src/syntropic/control/syn_pid.h" bodystart="180" bodyend="183"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>General-purpose PID controller — integer arithmetic. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>A discrete-time PID with anti-windup, output clamping, derivative filtering, and configurable gain scaling. Works for motor speed, temperature, position, or any closed-loop control.</para>
+<para><simplesect kind="par"><title>Gain Scaling</title><para>All gains are integers divided by <computeroutput>scale</computeroutput>. This allows fractional control without floating-point:</para>
+</simplesect>
+<table rows="4" cols="3"><row>
+<entry thead="yes"><para>Parameter   </para>
+</entry><entry thead="yes"><para>Effective value   </para>
+</entry><entry thead="yes"><para>Notes    </para>
+</entry></row>
+<row>
+<entry thead="no"><para>kp   </para>
+</entry><entry thead="no"><para>kp / scale   </para>
+</entry><entry thead="no"><para>Proportional    </para>
+</entry></row>
+<row>
+<entry thead="no"><para>ki   </para>
+</entry><entry thead="no"><para>ki / (scale × 1000)   </para>
+</entry><entry thead="no"><para><bold>Note the ×1000 for time normalization</bold>    </para>
+</entry></row>
+<row>
+<entry thead="no"><para>kd   </para>
+</entry><entry thead="no"><para>kd / scale   </para>
+</entry><entry thead="no"><para>Derivative (with dt normalization)   </para>
+</entry></row>
+</table>
+</para>
+<para>The I-term accumulates error×dt_ms, so the division by 1000 converts millisecond-accumulation into seconds. This means <computeroutput>ki</computeroutput> must be ~1000× larger than you&apos;d expect compared to kp/kd for equivalent effect.</para>
+<para><simplesect kind="par"><title>Convenience Macro</title><para>Use <ref refid="syn__pid_8h_1a5c2df664219d291524a8a8dc4ecad0e5" kindref="member">SYN_PID_GAINS()</ref> to set gains from intuitive values: <programlisting><codeline><highlight class="comment">//<sp/>Instead<sp/>of<sp/>manually<sp/>computing<sp/>scaled<sp/>values:</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"><ref refid="structSYN__PID__Config" kindref="compound">SYN_PID_Config</ref><sp/>cfg<sp/>=<sp/><ref refid="syn__pid_8h_1a5c2df664219d291524a8a8dc4ecad0e5" kindref="member">SYN_PID_GAINS</ref>(</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>1.5,<sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>kp<sp/>(proportional)</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>0.5,<sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>ki<sp/>(integral,<sp/>per-second<sp/>—<sp/>NOT<sp/>per-millisecond)</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>0.1,<sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>kd<sp/>(derivative)</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>256,<sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>scale</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>-1000,<sp/>1000<sp/><sp/></highlight><highlight class="comment">//<sp/>output<sp/>range</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal">);</highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="comment">//<sp/>Produces:<sp/>kp=384,<sp/>ki=128000,<sp/>kd=25,<sp/>scale=256</highlight></codeline>
+</programlisting></para>
+</simplesect>
+<simplesect kind="par"><title>Usage (manual)</title><para><programlisting><codeline><highlight class="normal"><ref refid="structSYN__PID" kindref="compound">SYN_PID</ref><sp/>pid;</highlight></codeline>
+<codeline><highlight class="normal"><ref refid="structSYN__PID__Config" kindref="compound">SYN_PID_Config</ref><sp/>cfg<sp/>=<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>.<ref refid="structSYN__PID__Config_1a4510b7fbfe669bf74961bdb9c0aa81ad" kindref="member">kp</ref><sp/>=<sp/>100,<sp/>.ki<sp/>=<sp/>10000,<sp/>.kd<sp/>=<sp/>50,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>.scale<sp/>=<sp/>100,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>gains<sp/>are<sp/>/100</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>.out_min<sp/>=<sp/>-1000,<sp/>.out_max<sp/>=<sp/>1000,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>.d_filter_alpha<sp/>=<sp/>128,</highlight></codeline>
+<codeline><highlight class="normal">};</highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__pid_8c_1a5bc56c333e2a9570ac7e9d4b0a45f013" kindref="member">syn_pid_init</ref>(&amp;pid,<sp/>&amp;cfg);</highlight></codeline>
+<codeline><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="comment">//<sp/>In<sp/>control<sp/>loop<sp/>(e.g.,<sp/>every<sp/>10ms):</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal">int32_t<sp/>output<sp/>=<sp/><ref refid="syn__pid_8c_1a990a5ab14c6776c0ad1ae2d91d443519" kindref="member">syn_pid_update</ref>(&amp;pid,<sp/>setpoint,<sp/>measured,<sp/>dt_ms);</highlight></codeline>
+</programlisting> </para>
+</simplesect>
+</para>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="54"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_PID_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="55"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_PID_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="56"><highlight class="normal"></highlight></codeline>
+<codeline lineno="57"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="58"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="59"><highlight class="normal"></highlight></codeline>
+<codeline lineno="60"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="61"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="63"><highlight class="normal"></highlight></codeline>
+<codeline lineno="64"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Configuration<sp/>────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="65"><highlight class="normal"></highlight></codeline>
+<codeline lineno="67" refid="structSYN__PID__Config" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="68" refid="structSYN__PID__Config_1a4510b7fbfe669bf74961bdb9c0aa81ad" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>int32_t<sp/><sp/><ref refid="structSYN__PID__Config_1a4510b7fbfe669bf74961bdb9c0aa81ad" kindref="member">kp</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="69" refid="structSYN__PID__Config_1af609928a7b513a2b22588c65f0484552" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>int32_t<sp/><sp/><ref refid="structSYN__PID__Config_1af609928a7b513a2b22588c65f0484552" kindref="member">ki</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="70" refid="structSYN__PID__Config_1a73f996bcf56b35d7819b0004b18e9838" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>int32_t<sp/><sp/><ref refid="structSYN__PID__Config_1a73f996bcf56b35d7819b0004b18e9838" kindref="member">kd</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="71" refid="structSYN__PID__Config_1a923d2f07382f53b305719e6b4b48ec0f" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>int32_t<sp/><sp/><ref refid="structSYN__PID__Config_1a923d2f07382f53b305719e6b4b48ec0f" kindref="member">scale</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="73" refid="structSYN__PID__Config_1acba6e0fffbeddc61b4efee18571c1df2" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>int32_t<sp/><sp/><ref refid="structSYN__PID__Config_1acba6e0fffbeddc61b4efee18571c1df2" kindref="member">out_min</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="74" refid="structSYN__PID__Config_1a8e8e2ef94a5c9fdbfd6a17983f621dbc" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>int32_t<sp/><sp/><ref refid="structSYN__PID__Config_1a8e8e2ef94a5c9fdbfd6a17983f621dbc" kindref="member">out_max</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="75" refid="structSYN__PID__Config_1ad169071e53d8aeef8eea935a4b505027" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>int32_t<sp/><sp/><ref refid="structSYN__PID__Config_1ad169071e53d8aeef8eea935a4b505027" kindref="member">integral_max</ref>;<sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="77" refid="structSYN__PID__Config_1a4ad7612f960ddc171492fd300d844e3b" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/><ref refid="structSYN__PID__Config_1a4ad7612f960ddc171492fd300d844e3b" kindref="member">d_filter_alpha</ref>;<sp/><sp/></highlight></codeline>
+<codeline lineno="78"><highlight class="normal">}<sp/><ref refid="structSYN__PID__Config" kindref="compound">SYN_PID_Config</ref>;</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"></highlight></codeline>
+<codeline lineno="103" refid="syn__pid_8h_1a5c2df664219d291524a8a8dc4ecad0e5" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_PID_GAINS(kp_f,<sp/>ki_f,<sp/>kd_f,<sp/>scale_val,<sp/>omin,<sp/>omax)<sp/>\</highlight></codeline>
+<codeline lineno="104"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>((SYN_PID_Config){<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="105"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>.kp<sp/><sp/><sp/><sp/>=<sp/>(int32_t)((kp_f)<sp/>*<sp/>(scale_val)),<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="106"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>.ki<sp/><sp/><sp/><sp/>=<sp/>(int32_t)((ki_f)<sp/>*<sp/>(scale_val)<sp/>*<sp/>1000),<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="107"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>.kd<sp/><sp/><sp/><sp/>=<sp/>(int32_t)((kd_f)<sp/>*<sp/>(scale_val)),<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="108"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>.scale<sp/>=<sp/>(scale_val),<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="109"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>.out_min<sp/>=<sp/>(omin),<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="110"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>.out_max<sp/>=<sp/>(omax),<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="111"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>})</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="112"><highlight class="normal"></highlight></codeline>
+<codeline lineno="113"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>PID<sp/>instance<sp/>─────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="114"><highlight class="normal"></highlight></codeline>
+<codeline lineno="116" refid="structSYN__PID" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="117" refid="structSYN__PID_1a1a16a6a19b6452bbeb489624fbf0face" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structSYN__PID__Config" kindref="compound">SYN_PID_Config</ref><sp/><ref refid="structSYN__PID_1a1a16a6a19b6452bbeb489624fbf0face" kindref="member">cfg</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="119" refid="structSYN__PID_1a663a29ac577d0552127a4798d0d2a8f5" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>int32_t<sp/><sp/><ref refid="structSYN__PID_1a663a29ac577d0552127a4798d0d2a8f5" kindref="member">integral</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="120" refid="structSYN__PID_1ab172d7d941fa0dfad7d105b75ee640c7" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>int32_t<sp/><sp/><ref refid="structSYN__PID_1ab172d7d941fa0dfad7d105b75ee640c7" kindref="member">prev_error</ref>;<sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="121" refid="structSYN__PID_1ac06d565c449f9b68e2a49c42b207b534" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>int32_t<sp/><sp/><ref refid="structSYN__PID_1ac06d565c449f9b68e2a49c42b207b534" kindref="member">prev_d_filtered</ref>;<sp/></highlight></codeline>
+<codeline lineno="122" refid="structSYN__PID_1acbd74bf7fa6cde20dde62c1055a842ce" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>int32_t<sp/><sp/><ref refid="structSYN__PID_1acbd74bf7fa6cde20dde62c1055a842ce" kindref="member">output</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="123" refid="structSYN__PID_1ae3328c90325914f84cb3d56eb53f170f" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__PID_1ae3328c90325914f84cb3d56eb53f170f" kindref="member">first</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="124"><highlight class="normal">}<sp/><ref refid="structSYN__PID" kindref="compound">SYN_PID</ref>;</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"></highlight></codeline>
+<codeline lineno="126"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>API<sp/>──────────────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="127"><highlight class="normal"></highlight></codeline>
+<codeline lineno="137"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__pid_8h_1a5bc56c333e2a9570ac7e9d4b0a45f013" kindref="member">syn_pid_init</ref>(<ref refid="structSYN__PID" kindref="compound">SYN_PID</ref><sp/>*pid,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__PID__Config" kindref="compound">SYN_PID_Config</ref><sp/>*cfg);</highlight></codeline>
+<codeline lineno="138"><highlight class="normal"></highlight></codeline>
+<codeline lineno="149"><highlight class="normal">int32_t<sp/><ref refid="syn__pid_8h_1a990a5ab14c6776c0ad1ae2d91d443519" kindref="member">syn_pid_update</ref>(<ref refid="structSYN__PID" kindref="compound">SYN_PID</ref><sp/>*pid,<sp/>int32_t<sp/>setpoint,</highlight></codeline>
+<codeline lineno="150"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int32_t<sp/>measured,<sp/>uint32_t<sp/>dt_ms);</highlight></codeline>
+<codeline lineno="151"><highlight class="normal"></highlight></codeline>
+<codeline lineno="156"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__pid_8h_1a74204000ba5e98bb49b6680d28f8219e" kindref="member">syn_pid_reset</ref>(<ref refid="structSYN__PID" kindref="compound">SYN_PID</ref><sp/>*pid);</highlight></codeline>
+<codeline lineno="157"><highlight class="normal"></highlight></codeline>
+<codeline lineno="165"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__pid_8h_1af79ce8589184a0286ec25cf69d07889a" kindref="member">syn_pid_set_gains</ref>(<ref refid="structSYN__PID" kindref="compound">SYN_PID</ref><sp/>*pid,<sp/>int32_t<sp/>kp,<sp/>int32_t<sp/>ki,<sp/>int32_t<sp/>kd);</highlight></codeline>
+<codeline lineno="166"><highlight class="normal"></highlight></codeline>
+<codeline lineno="173"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__pid_8h_1a90f3d75f8d9781b2a2338ee996be2b0c" kindref="member">syn_pid_set_limits</ref>(<ref refid="structSYN__PID" kindref="compound">SYN_PID</ref><sp/>*pid,<sp/>int32_t<sp/>out_min,<sp/>int32_t<sp/>out_max);</highlight></codeline>
+<codeline lineno="174"><highlight class="normal"></highlight></codeline>
+<codeline lineno="180" refid="syn__pid_8h_1afa8be8abe8302565457ee760b339edd1" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>int32_t<sp/><ref refid="syn__pid_8h_1afa8be8abe8302565457ee760b339edd1" kindref="member">syn_pid_output</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__PID" kindref="compound">SYN_PID</ref><sp/>*pid)</highlight></codeline>
+<codeline lineno="181"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="182"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>pid-&gt;<ref refid="structSYN__PID_1acbd74bf7fa6cde20dde62c1055a842ce" kindref="member">output</ref>;</highlight></codeline>
+<codeline lineno="183"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="184"><highlight class="normal"></highlight></codeline>
+<codeline lineno="185"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="186"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="187"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="188"><highlight class="normal"></highlight></codeline>
+<codeline lineno="189"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_PID_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/control/syn_pid.h"/>
+  </compounddef>
+</doxygen>

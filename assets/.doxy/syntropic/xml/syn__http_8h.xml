@@ -1,0 +1,557 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__http_8h" kind="file" language="C++">
+    <compoundname>syn_http.h</compoundname>
+    <includes refid="syn__defs_8h" local="yes">../common/syn_defs.h</includes>
+    <includes refid="syn__port__socket_8h" local="yes">../port/syn_port_socket.h</includes>
+    <includes refid="syn__pt_8h" local="yes">../pt/syn_pt.h</includes>
+    <includes refid="syn__task_8h" local="yes">../sched/syn_task.h</includes>
+    <includes local="no">stdint.h</includes>
+    <includes local="no">stddef.h</includes>
+    <includes local="no">stdbool.h</includes>
+    <includedby refid="syn__http_8c" local="yes">src/syntropic/net/syn_http.c</includedby>
+    <incdepgraph>
+      <node id="7">
+        <label>../common/syn_compiler.h</label>
+        <link refid="syn__compiler_8h"/>
+      </node>
+      <node id="2">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/net/syn_http.h</label>
+        <link refid="syn__http_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>../port/syn_port_socket.h</label>
+        <link refid="syn__port__socket_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>../pt/syn_pt.h</label>
+        <link refid="syn__pt_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>../sched/syn_task.h</label>
+        <link refid="syn__task_8h"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="9">
+        <label>stdbool.h</label>
+      </node>
+      <node id="4">
+        <label>stddef.h</label>
+      </node>
+      <node id="3">
+        <label>stdint.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="2">
+        <label>src/syntropic/net/syn_http.c</label>
+        <link refid="syn__http_8c"/>
+      </node>
+      <node id="1">
+        <label>src/syntropic/net/syn_http.h</label>
+        <link refid="syn__http_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="structSYN__HttpResponse" prot="public">SYN_HttpResponse</innerclass>
+    <innerclass refid="structSYN__HttpHeader" prot="public">SYN_HttpHeader</innerclass>
+    <innerclass refid="structSYN__HttpClient" prot="public">SYN_HttpClient</innerclass>
+    <sectiondef kind="enum">
+      <memberdef kind="enum" id="syn__http_8h_1ade2806666f57efffac1a6cb92925e417" prot="public" static="no" strong="no">
+        <type></type>
+        <name>SYN_HttpState</name>
+        <enumvalue id="syn__http_8h_1ade2806666f57efffac1a6cb92925e417a4ac835ada29912b3b6ee3680de02635b" prot="public">
+          <name>SYN_HTTP_STATE_IDLE</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Client is idle, waiting for initialization </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__http_8h_1ade2806666f57efffac1a6cb92925e417ab35b84914b3619aafc9d8e00afcbeb29" prot="public">
+          <name>SYN_HTTP_STATE_CONNECTING</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Actively opening TCP socket connection to host </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__http_8h_1ade2806666f57efffac1a6cb92925e417a40de8f1b78df9507e2e5ba38a76012b5" prot="public">
+          <name>SYN_HTTP_STATE_SENDING_REQUEST</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Formatting and transmitting HTTP request lines </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__http_8h_1ade2806666f57efffac1a6cb92925e417a234d150af77751fd1a2675f8f00480fb" prot="public">
+          <name>SYN_HTTP_STATE_READING_HEADERS</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Receiving and parsing HTTP response header blocks </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__http_8h_1ade2806666f57efffac1a6cb92925e417aa85739a7b731b93c2365a1196e321e49" prot="public">
+          <name>SYN_HTTP_STATE_READING_BODY</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Streaming response body content back via callback </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__http_8h_1ade2806666f57efffac1a6cb92925e417aab1fe54c1deb1f95109a537883a96fb8" prot="public">
+          <name>SYN_HTTP_STATE_DONE</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Request succeeded, connection finalized cleanly </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__http_8h_1ade2806666f57efffac1a6cb92925e417ac0c1abca53492ccb7286006a830e5c85" prot="public">
+          <name>SYN_HTTP_STATE_ERROR</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Connection failed, timed out, or parse error occurred </para>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>States for the HTTP client cooperative state machine. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/net/syn_http.h" line="67" column="1" bodyfile="src/syntropic/net/syn_http.h" bodystart="67" bodyend="75"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="typedef">
+      <memberdef kind="typedef" id="syn__http_8h_1aee2f2d1fce04e03ff25e27f0a5c5d7a7" prot="public" static="no">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref>(*</type>
+        <definition>typedef bool(* SYN_HttpBodyCallback) (const uint8_t *data, size_t len, void *ctx)</definition>
+        <argsstring>)(const uint8_t *data, size_t len, void *ctx)</argsstring>
+        <name>SYN_HttpBodyCallback</name>
+        <briefdescription>
+<para>Callback invoked to stream chunks of the HTTP response body. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>data</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to the received chunk of body data. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Length of the data chunk in bytes. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>ctx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>User-defined context pointer passed to <ref refid="syn__http_8h_1ad3a602af4189476012bbe9723298eec7" kindref="member">syn_http_client_init()</ref>. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true to continue reading body, false to abort. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/net/syn_http.h" line="59" column="9" bodyfile="src/syntropic/net/syn_http.h" bodystart="59" bodyend="-1"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__http_8h_1ad3a602af4189476012bbe9723298eec7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_http_client_init</definition>
+        <argsstring>(SYN_HttpClient *client, const char *method, const char *host, uint16_t port, const char *path, const char *content_type, const uint8_t *body, size_t body_len, const SYN_HttpHeader *headers, uint8_t header_count, SYN_HttpBodyCallback body_cb, void *cb_ctx, uint8_t *work_buf, size_t work_buf_size)</argsstring>
+        <name>syn_http_client_init</name>
+        <param>
+          <type><ref refid="structSYN__HttpClient" kindref="compound">SYN_HttpClient</ref> *</type>
+          <declname>client</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>method</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>host</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>port</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>path</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>content_type</declname>
+        </param>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>body</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>body_len</declname>
+        </param>
+        <param>
+          <type>const <ref refid="structSYN__HttpHeader" kindref="compound">SYN_HttpHeader</ref> *</type>
+          <declname>headers</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>header_count</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__http_8h_1aee2f2d1fce04e03ff25e27f0a5c5d7a7" kindref="member">SYN_HttpBodyCallback</ref></type>
+          <declname>body_cb</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>cb_ctx</declname>
+        </param>
+        <param>
+          <type>uint8_t *</type>
+          <declname>work_buf</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>work_buf_size</declname>
+        </param>
+        <briefdescription>
+<para>Initialize the HTTP client struct. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Configures the request metadata, target destination, custom headers, streaming callback, and temporary work buffer.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>client</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to the client context to initialize. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>method</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>HTTP method to perform (e.g. &quot;GET&quot; or &quot;POST&quot;). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>host</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Destination hostname or IP address string. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>port</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Destination TCP port (e.g. 80). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>path</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Resource URL path (e.g. &quot;/api/v1/update&quot;). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>content_type</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Type of content if body is present (e.g. &quot;application/json&quot;). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>body</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to binary data to transmit as request body (or NULL). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>body_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Length of the request body in bytes. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>headers</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Optional array of custom HTTP headers to append. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>header_count</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of custom headers in the array. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>body_cb</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Callback function for streaming response chunks. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>cb_ctx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>User context passed through to the body callback. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>work_buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Working buffer for socket buffering and parsing. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>work_buf_size</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Size of the working buffer in bytes. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, or an error code on invalid parameters. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/net/syn_http.h" line="150" column="12" bodyfile="src/syntropic/net/syn_http.c" bodystart="193" bodyend="235" declfile="src/syntropic/net/syn_http.h" declline="150" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__http_8h_1a7d21ff96419adca434cb0c74535426c0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__pt_8h_1a837fcf03fa24b6b73d66bb133b95d79e" kindref="member">SYN_PT_Status</ref></type>
+        <definition>SYN_PT_Status syn_http_client_task</definition>
+        <argsstring>(SYN_PT *pt, SYN_Task *task)</argsstring>
+        <name>syn_http_client_task</name>
+        <param>
+          <type><ref refid="structSYN__PT" kindref="compound">SYN_PT</ref> *</type>
+          <declname>pt</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__Task" kindref="compound">SYN_Task</ref> *</type>
+          <declname>task</declname>
+        </param>
+        <briefdescription>
+<para>Cooperative task to drive the HTTP client. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Yields while resolving, connecting, transmitting requests, and streaming the response body chunks. Must be run inside the cooperative scheduler.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>pt</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to the cooperative protothread structure. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>task</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to the corresponding task control block. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>PT_WAITING, PT_EXITED, or another protothread status code. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/net/syn_http.h" line="170" column="15" bodyfile="src/syntropic/net/syn_http.c" bodystart="237" bodyend="627" declfile="src/syntropic/net/syn_http.h" declline="170" declcolumn="15"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Cooperative HTTP/1.1 client — streaming, zero-alloc, non-blocking. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Performs HTTP GET and POST requests over a TCP socket as a cooperative protothread task. Response bodies are delivered via streaming callback. </para>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_HTTP_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_HTTP_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../common/syn_defs.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../port/syn_port_socket.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../pt/syn_pt.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../sched/syn_task.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stddef.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Response<sp/>info<sp/>────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight></codeline>
+<codeline lineno="31" refid="structSYN__HttpResponse" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="32" refid="structSYN__HttpResponse_1abd57555fe225925263ce1d6d92fecfe5" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__HttpResponse_1abd57555fe225925263ce1d6d92fecfe5" kindref="member">status_code</ref>;<sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="33" refid="structSYN__HttpResponse_1a803b8d5c256a62206ae552825f8bd9dc" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__HttpResponse_1a803b8d5c256a62206ae552825f8bd9dc" kindref="member">content_length</ref>;<sp/><sp/></highlight></codeline>
+<codeline lineno="34" refid="structSYN__HttpResponse_1a0e36aa6cade11dd54b3e1700057d5f2b" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__HttpResponse_1a0e36aa6cade11dd54b3e1700057d5f2b" kindref="member">chunked</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="35" refid="structSYN__HttpResponse_1a613bcd3427815efaaabaf7072694ad5e" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__HttpResponse_1a613bcd3427815efaaabaf7072694ad5e" kindref="member">connection_close</ref>;<sp/></highlight></codeline>
+<codeline lineno="36" refid="structSYN__HttpResponse_1a781dd00520746fd6a08508f7047310fa" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>location[128];<sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="37"><highlight class="normal">}<sp/><ref refid="structSYN__HttpResponse" kindref="compound">SYN_HttpResponse</ref>;</highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Request<sp/>headers<sp/>(optional)<sp/>───────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight></codeline>
+<codeline lineno="44" refid="structSYN__HttpHeader" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="45" refid="structSYN__HttpHeader_1a4fa085ea00b56a98fd34c1d8a4457dcf" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*<ref refid="structSYN__HttpHeader_1a4fa085ea00b56a98fd34c1d8a4457dcf" kindref="member">name</ref>;<sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="46" refid="structSYN__HttpHeader_1ab837ef5a2465cf4a536244a52cfc39c7" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*<ref refid="structSYN__HttpHeader_1ab837ef5a2465cf4a536244a52cfc39c7" kindref="member">value</ref>;<sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="47"><highlight class="normal">}<sp/><ref refid="structSYN__HttpHeader" kindref="compound">SYN_HttpHeader</ref>;</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"></highlight></codeline>
+<codeline lineno="49"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Body<sp/>callback<sp/>────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="50"><highlight class="normal"></highlight></codeline>
+<codeline lineno="59" refid="syn__http_8h_1aee2f2d1fce04e03ff25e27f0a5c5d7a7" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref><sp/>(*<ref refid="syn__http_8h_1aee2f2d1fce04e03ff25e27f0a5c5d7a7" kindref="member">SYN_HttpBodyCallback</ref>)(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*data,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>len,</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*ctx);</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"></highlight></codeline>
+<codeline lineno="62"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Cooperative<sp/>Task<sp/>API<sp/>──────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="63"><highlight class="normal"></highlight></codeline>
+<codeline lineno="67" refid="syn__http_8h_1ade2806666f57efffac1a6cb92925e417" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="68" refid="syn__http_8h_1ade2806666f57efffac1a6cb92925e417a4ac835ada29912b3b6ee3680de02635b" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__http_8h_1ade2806666f57efffac1a6cb92925e417a4ac835ada29912b3b6ee3680de02635b" kindref="member">SYN_HTTP_STATE_IDLE</ref>,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="69" refid="syn__http_8h_1ade2806666f57efffac1a6cb92925e417ab35b84914b3619aafc9d8e00afcbeb29" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__http_8h_1ade2806666f57efffac1a6cb92925e417ab35b84914b3619aafc9d8e00afcbeb29" kindref="member">SYN_HTTP_STATE_CONNECTING</ref>,<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="70" refid="syn__http_8h_1ade2806666f57efffac1a6cb92925e417a40de8f1b78df9507e2e5ba38a76012b5" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__http_8h_1ade2806666f57efffac1a6cb92925e417a40de8f1b78df9507e2e5ba38a76012b5" kindref="member">SYN_HTTP_STATE_SENDING_REQUEST</ref>,<sp/><sp/></highlight></codeline>
+<codeline lineno="71" refid="syn__http_8h_1ade2806666f57efffac1a6cb92925e417a234d150af77751fd1a2675f8f00480fb" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__http_8h_1ade2806666f57efffac1a6cb92925e417a234d150af77751fd1a2675f8f00480fb" kindref="member">SYN_HTTP_STATE_READING_HEADERS</ref>,<sp/><sp/></highlight></codeline>
+<codeline lineno="72" refid="syn__http_8h_1ade2806666f57efffac1a6cb92925e417aa85739a7b731b93c2365a1196e321e49" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__http_8h_1ade2806666f57efffac1a6cb92925e417aa85739a7b731b93c2365a1196e321e49" kindref="member">SYN_HTTP_STATE_READING_BODY</ref>,<sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="73" refid="syn__http_8h_1ade2806666f57efffac1a6cb92925e417aab1fe54c1deb1f95109a537883a96fb8" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__http_8h_1ade2806666f57efffac1a6cb92925e417aab1fe54c1deb1f95109a537883a96fb8" kindref="member">SYN_HTTP_STATE_DONE</ref>,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="74"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__http_8h_1ade2806666f57efffac1a6cb92925e417ac0c1abca53492ccb7286006a830e5c85" kindref="member">SYN_HTTP_STATE_ERROR</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="75" refid="syn__http_8h_1ade2806666f57efffac1a6cb92925e417ac0c1abca53492ccb7286006a830e5c85" refkind="member"><highlight class="normal">}<sp/><ref refid="syn__http_8h_1ade2806666f57efffac1a6cb92925e417" kindref="member">SYN_HttpState</ref>;</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"></highlight></codeline>
+<codeline lineno="80" refid="structSYN__HttpClient" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="81" refid="structSYN__HttpClient_1ab74a3ca5344f79313cd12cd9733c4fa0" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__http_8h_1ade2806666f57efffac1a6cb92925e417" kindref="member">SYN_HttpState</ref><sp/><ref refid="structSYN__HttpClient_1ab74a3ca5344f79313cd12cd9733c4fa0" kindref="member">state</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="82" refid="structSYN__HttpClient_1a75674daa70f4a04b7af7fcf6e0874064" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__port__socket_8h_1ae94da9613781abe2f50b7c00dcaf103f" kindref="member">SYN_Socket</ref><sp/><sp/><sp/><sp/><ref refid="structSYN__HttpClient_1a75674daa70f4a04b7af7fcf6e0874064" kindref="member">sock</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="83" refid="structSYN__HttpClient_1a493aa3707231d7fd3c21cc9b189a1967" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/><sp/><sp/>*<ref refid="structSYN__HttpClient_1a493aa3707231d7fd3c21cc9b189a1967" kindref="member">host</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="84" refid="structSYN__HttpClient_1ac94b8c6a4678abc547603ed7037cf67a" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__HttpClient_1ac94b8c6a4678abc547603ed7037cf67a" kindref="member">port</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="85" refid="structSYN__HttpClient_1a74a6c86b35b68915891a963576763aa4" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/><sp/><sp/>*<ref refid="structSYN__HttpClient_1a74a6c86b35b68915891a963576763aa4" kindref="member">path</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="86" refid="structSYN__HttpClient_1a0801bf5694b94be4f52f684545b36348" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/><sp/><sp/>*<ref refid="structSYN__HttpClient_1a0801bf5694b94be4f52f684545b36348" kindref="member">method</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="87" refid="structSYN__HttpClient_1a071a62cccb726ea363754e381f55b25c" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/><sp/><sp/>*<ref refid="structSYN__HttpClient_1a071a62cccb726ea363754e381f55b25c" kindref="member">content_type</ref>;<sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="88" refid="structSYN__HttpClient_1a7cde41113e41814c8e7f3d5ce62a4097" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*<ref refid="structSYN__HttpClient_1a7cde41113e41814c8e7f3d5ce62a4097" kindref="member">body</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="89" refid="structSYN__HttpClient_1a0be34388b8e982dea88495149e11d161" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__HttpClient_1a0be34388b8e982dea88495149e11d161" kindref="member">body_len</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="90" refid="structSYN__HttpClient_1a56af6478dcda75f7ac8de68bb42f8e41" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__HttpHeader" kindref="compound">SYN_HttpHeader</ref><sp/>*<ref refid="structSYN__HttpClient_1a56af6478dcda75f7ac8de68bb42f8e41" kindref="member">headers</ref>;<sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="91" refid="structSYN__HttpClient_1ac7c8713a4043618766495c7fb5d6accb" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__HttpClient_1ac7c8713a4043618766495c7fb5d6accb" kindref="member">header_count</ref>;<sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="93" refid="structSYN__HttpClient_1a964290ed689de156e621781ba2e73b8a" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structSYN__HttpResponse" kindref="compound">SYN_HttpResponse</ref><sp/><ref refid="structSYN__HttpClient_1a964290ed689de156e621781ba2e73b8a" kindref="member">resp</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="94" refid="structSYN__HttpClient_1aeae3e33114b2eb6d47108bd81571b804" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__http_8h_1aee2f2d1fce04e03ff25e27f0a5c5d7a7" kindref="member">SYN_HttpBodyCallback</ref><sp/><ref refid="structSYN__HttpClient_1aeae3e33114b2eb6d47108bd81571b804" kindref="member">body_cb</ref>;<sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="95" refid="structSYN__HttpClient_1aece65f291adfa2783f078b54485ac5f6" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<ref refid="structSYN__HttpClient_1aece65f291adfa2783f078b54485ac5f6" kindref="member">cb_ctx</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="97" refid="structSYN__HttpClient_1a56b62a01d270acb0bdfab86c5ca1be45" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/><sp/><sp/><sp/><sp/>*<ref refid="structSYN__HttpClient_1a56b62a01d270acb0bdfab86c5ca1be45" kindref="member">work_buf</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="98" refid="structSYN__HttpClient_1a9b610dcd2f60a87836aa89c329fe6f81" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__HttpClient_1a9b610dcd2f60a87836aa89c329fe6f81" kindref="member">work_buf_size</ref>;<sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Internal<sp/>tracking<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="101" refid="structSYN__HttpClient_1a6f56399ee80b8429af5920cc87bfcda2" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__HttpClient_1a6f56399ee80b8429af5920cc87bfcda2" kindref="member">hops</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="102" refid="structSYN__HttpClient_1ab2357f80d7b7509b83f4bbedc253e433" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>cur_host[64];<sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="103" refid="structSYN__HttpClient_1a44454e5b0758dda75b3d2738261af2b6" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>cur_path[128];<sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="104" refid="structSYN__HttpClient_1af140758032e87284d614a42b006228db" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__HttpClient_1af140758032e87284d614a42b006228db" kindref="member">cur_port</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="106" refid="structSYN__HttpClient_1ab405a04053e1e5f4cf84c9a30902d1fa" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__HttpClient_1ab405a04053e1e5f4cf84c9a30902d1fa" kindref="member">buf_used</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="107" refid="structSYN__HttpClient_1ac18894a03f15ebb126c397917004267e" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__HttpClient_1ac18894a03f15ebb126c397917004267e" kindref="member">buf_pos</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="108" refid="structSYN__HttpClient_1a562b913623197e0dd9a37df4b7ee7c82" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__HttpClient_1a562b913623197e0dd9a37df4b7ee7c82" kindref="member">body_start</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="110"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Header<sp/>reading<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="111" refid="structSYN__HttpClient_1a4d3464407a8afe59c46495d634cd1f30" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__HttpClient_1a4d3464407a8afe59c46495d634cd1f30" kindref="member">line_len</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="112" refid="structSYN__HttpClient_1aa9b399fc98c9caca8ea840f7827e28a8" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__HttpClient_1aa9b399fc98c9caca8ea840f7827e28a8" kindref="member">header_timeout_ms</ref>;<sp/></highlight></codeline>
+<codeline lineno="114"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Body<sp/>reading<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="115" refid="structSYN__HttpClient_1ad25c387a0ed58666d6c9f9bce732ef88" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__HttpClient_1ad25c387a0ed58666d6c9f9bce732ef88" kindref="member">body_remaining</ref>;<sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="116" refid="structSYN__HttpClient_1a1f5b688ad82739e7ef96994b6a88f40f" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__HttpClient_1a1f5b688ad82739e7ef96994b6a88f40f" kindref="member">known_length</ref>;<sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="117" refid="structSYN__HttpClient_1a8480b5da361b198f09fb95009e8517f0" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__HttpClient_1a8480b5da361b198f09fb95009e8517f0" kindref="member">body_timeout_ms</ref>;<sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="119"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Chunked<sp/>body<sp/>reading<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="120" refid="structSYN__HttpClient_1a56fb5d3a7f15574860efa8c1325940e9" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__HttpClient_1a56fb5d3a7f15574860efa8c1325940e9" kindref="member">chunk_remaining</ref>;<sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="121" refid="structSYN__HttpClient_1a5da5247e9332b5a99e8be26b681880ac" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__HttpClient_1a5da5247e9332b5a99e8be26b681880ac" kindref="member">chunk_state</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="122" refid="structSYN__HttpClient_1a4a50342a586415e6af6d500d9c08634d" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>chunk_line[32];<sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="123" refid="structSYN__HttpClient_1a9ec9dfa0703a4e9b315ec49a3ad6f134" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__HttpClient_1a9ec9dfa0703a4e9b315ec49a3ad6f134" kindref="member">chunk_line_pos</ref>;<sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="125" refid="structSYN__HttpClient_1a46d1750cd90a0048c70c04eedb318bef" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><sp/><sp/><sp/><ref refid="structSYN__HttpClient_1a46d1750cd90a0048c70c04eedb318bef" kindref="member">status</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="126"><highlight class="normal">}<sp/><ref refid="structSYN__HttpClient" kindref="compound">SYN_HttpClient</ref>;</highlight></codeline>
+<codeline lineno="127"><highlight class="normal"></highlight></codeline>
+<codeline lineno="150"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__http_8h_1ad3a602af4189476012bbe9723298eec7" kindref="member">syn_http_client_init</ref>(<ref refid="structSYN__HttpClient" kindref="compound">SYN_HttpClient</ref><sp/>*client,</highlight></codeline>
+<codeline lineno="151"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*method,</highlight></codeline>
+<codeline lineno="152"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*host,<sp/>uint16_t<sp/>port,</highlight></codeline>
+<codeline lineno="153"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*path,</highlight></codeline>
+<codeline lineno="154"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*content_type,</highlight></codeline>
+<codeline lineno="155"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*body,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>body_len,</highlight></codeline>
+<codeline lineno="156"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__HttpHeader" kindref="compound">SYN_HttpHeader</ref><sp/>*headers,<sp/>uint8_t<sp/>header_count,</highlight></codeline>
+<codeline lineno="157"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__http_8h_1aee2f2d1fce04e03ff25e27f0a5c5d7a7" kindref="member">SYN_HttpBodyCallback</ref><sp/>body_cb,<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*cb_ctx,</highlight></codeline>
+<codeline lineno="158"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>*work_buf,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>work_buf_size);</highlight></codeline>
+<codeline lineno="159"><highlight class="normal"></highlight></codeline>
+<codeline lineno="170"><highlight class="normal"><ref refid="syn__pt_8h_1a837fcf03fa24b6b73d66bb133b95d79e" kindref="member">SYN_PT_Status</ref><sp/><ref refid="syn__http_8h_1a7d21ff96419adca434cb0c74535426c0" kindref="member">syn_http_client_task</ref>(<ref refid="structSYN__PT" kindref="compound">SYN_PT</ref><sp/>*pt,<sp/><ref refid="structSYN__Task" kindref="compound">SYN_Task</ref><sp/>*task);</highlight></codeline>
+<codeline lineno="171"><highlight class="normal"></highlight></codeline>
+<codeline lineno="172"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="173"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="174"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="175"><highlight class="normal"></highlight></codeline>
+<codeline lineno="176"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_HTTP_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/net/syn_http.h"/>
+  </compounddef>
+</doxygen>

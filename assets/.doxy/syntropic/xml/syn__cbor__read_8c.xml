@@ -1,0 +1,868 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__cbor__read_8c" kind="file" language="C++">
+    <compoundname>syn_cbor_read.c</compoundname>
+    <includes refid="syn__cbor__read_8h" local="yes">syn_cbor_read.h</includes>
+    <includes local="no">string.h</includes>
+    <incdepgraph>
+      <node id="1">
+        <label>src/syntropic/util/syn_cbor_read.c</label>
+        <link refid="syn__cbor__read_8c"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>syn_cbor_read.h</label>
+        <link refid="syn__cbor__read_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>stdbool.h</label>
+      </node>
+      <node id="4">
+        <label>stddef.h</label>
+      </node>
+      <node id="3">
+        <label>stdint.h</label>
+      </node>
+      <node id="6">
+        <label>string.h</label>
+      </node>
+    </incdepgraph>
+    <sectiondef kind="define">
+      <memberdef kind="define" id="syn__cbor__read_8c_1a5f6043d3a28a96008e0d090dcc42c468" prot="public" static="no">
+        <name>SKIP_MAX_DEPTH</name>
+        <initializer>8u</initializer>
+        <briefdescription>
+<para>Maximum nesting depth for syn_cbor_skip. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_cbor_read.c" line="117" column="9" bodyfile="src/syntropic/util/syn_cbor_read.c" bodystart="117" bodyend="-1"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__cbor__read_8c_1ad688bce65784525169f5596bca8d0863" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint8_t</type>
+        <definition>static uint8_t consume_byte</definition>
+        <argsstring>(SYN_CborReader *r)</argsstring>
+        <name>consume_byte</name>
+        <param>
+          <type><ref refid="structSYN__CborReader" kindref="compound">SYN_CborReader</ref> *</type>
+          <declname>r</declname>
+        </param>
+        <briefdescription>
+<para>Consume and return one byte from the CBOR stream. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>r</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>CBOR reader. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Consumed byte, or 0 on underrun. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_cbor_read.c" line="21" column="16" bodyfile="src/syntropic/util/syn_cbor_read.c" bodystart="21" bodyend="28"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__cbor__read_8c_1ad91075a4af3d45bbc982f0526ba74e60" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint8_t</type>
+        <definition>static uint8_t peek_byte</definition>
+        <argsstring>(const SYN_CborReader *r)</argsstring>
+        <name>peek_byte</name>
+        <param>
+          <type>const <ref refid="structSYN__CborReader" kindref="compound">SYN_CborReader</ref> *</type>
+          <declname>r</declname>
+        </param>
+        <briefdescription>
+<para>Peek at the next byte without consuming it. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>r</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>CBOR reader. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Next byte, or 0 if at end. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_cbor_read.c" line="36" column="16" bodyfile="src/syntropic/util/syn_cbor_read.c" bodystart="36" bodyend="40"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__cbor__read_8c_1a07e17c0ac8bc689e0f2a65ec28ca14a1" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint64_t</type>
+        <definition>static uint64_t decode_arg</definition>
+        <argsstring>(SYN_CborReader *r, uint8_t info)</argsstring>
+        <name>decode_arg</name>
+        <param>
+          <type><ref refid="structSYN__CborReader" kindref="compound">SYN_CborReader</ref> *</type>
+          <declname>r</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>info</declname>
+        </param>
+        <briefdescription>
+<para>Decode a CBOR argument from the bottom-5-bit info field. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Reads the argument value associated with <computeroutput>info</computeroutput>. Consumes 0, 1, 2, 4, or 8 additional bytes. Sets <computeroutput>r-&gt;ok = false</computeroutput> for reserved info values.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>r</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>CBOR reader. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>info</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Bottom 5 bits of the header byte. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Decoded argument value. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_cbor_read.c" line="53" column="17" bodyfile="src/syntropic/util/syn_cbor_read.c" bodystart="53" bodyend="84"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__cbor__read_8c_1a94116ea55d5442452a9467bdce44d70b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_cbor_reader_init</definition>
+        <argsstring>(SYN_CborReader *r, const uint8_t *buf, size_t len)</argsstring>
+        <name>syn_cbor_reader_init</name>
+        <param>
+          <type><ref refid="structSYN__CborReader" kindref="compound">SYN_CborReader</ref> *</type>
+          <declname>r</declname>
+        </param>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>len</declname>
+        </param>
+        <briefdescription>
+<para>Initialize a CBOR reader. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>r</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Reader to initialize. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Input buffer containing encoded CBOR. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Buffer length in bytes. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_cbor_read.c" line="87" column="6" bodyfile="src/syntropic/util/syn_cbor_read.c" bodystart="87" bodyend="95"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__cbor__read_8c_1a521b230baddd5f26c19cec90cb2c8685" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__cbor__read_8h_1a191e287fb8d94de1d71a84160b0b0d01" kindref="member">SYN_CborType</ref></type>
+        <definition>SYN_CborType syn_cbor_peek_type</definition>
+        <argsstring>(const SYN_CborReader *r)</argsstring>
+        <name>syn_cbor_peek_type</name>
+        <param>
+          <type>const <ref refid="structSYN__CborReader" kindref="compound">SYN_CborReader</ref> *</type>
+          <declname>r</declname>
+        </param>
+        <briefdescription>
+<para>Return the type of the next item without consuming it. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>r</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Reader. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Item type, or SYN_CBOR_ERROR on buffer underrun. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_cbor_read.c" line="98" column="14" bodyfile="src/syntropic/util/syn_cbor_read.c" bodystart="98" bodyend="113"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__cbor__read_8c_1a86bb8f953601507d087fb79052c3ad89" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_cbor_skip</definition>
+        <argsstring>(SYN_CborReader *r)</argsstring>
+        <name>syn_cbor_skip</name>
+        <param>
+          <type><ref refid="structSYN__CborReader" kindref="compound">SYN_CborReader</ref> *</type>
+          <declname>r</declname>
+        </param>
+        <briefdescription>
+<para>Skip the next complete item (including nested contents). </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Handles nested arrays and maps up to 8 levels deep.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>r</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Reader. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_cbor_read.c" line="119" column="6" bodyfile="src/syntropic/util/syn_cbor_read.c" bodystart="119" bodyend="167"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__cbor__read_8c_1a95c9fba70321f22ff44e156ba56e414b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>size_t</type>
+        <definition>size_t syn_cbor_read_map_begin</definition>
+        <argsstring>(SYN_CborReader *r)</argsstring>
+        <name>syn_cbor_read_map_begin</name>
+        <param>
+          <type><ref refid="structSYN__CborReader" kindref="compound">SYN_CborReader</ref> *</type>
+          <declname>r</declname>
+        </param>
+        <briefdescription>
+<para>Consume a map header; return the number of key-value pairs. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>r</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Reader. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Pair count, or 0 on error. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_cbor_read.c" line="171" column="8" bodyfile="src/syntropic/util/syn_cbor_read.c" bodystart="171" bodyend="177"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__cbor__read_8c_1a28caf4cf03f65a890b443dc352f0ec12" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>size_t</type>
+        <definition>size_t syn_cbor_read_array_begin</definition>
+        <argsstring>(SYN_CborReader *r)</argsstring>
+        <name>syn_cbor_read_array_begin</name>
+        <param>
+          <type><ref refid="structSYN__CborReader" kindref="compound">SYN_CborReader</ref> *</type>
+          <declname>r</declname>
+        </param>
+        <briefdescription>
+<para>Consume an array header; return the number of items. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>r</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Reader. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Item count, or 0 on error. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_cbor_read.c" line="179" column="8" bodyfile="src/syntropic/util/syn_cbor_read.c" bodystart="179" bodyend="185"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__cbor__read_8c_1af00ecc36a771ac84dd1d4c4e54e545a3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint64_t</type>
+        <definition>uint64_t syn_cbor_read_uint</definition>
+        <argsstring>(SYN_CborReader *r)</argsstring>
+        <name>syn_cbor_read_uint</name>
+        <param>
+          <type><ref refid="structSYN__CborReader" kindref="compound">SYN_CborReader</ref> *</type>
+          <declname>r</declname>
+        </param>
+        <briefdescription>
+<para>Read an unsigned integer (major type 0). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>r</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Reader. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Decoded value, or 0 on error. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_cbor_read.c" line="189" column="10" bodyfile="src/syntropic/util/syn_cbor_read.c" bodystart="189" bodyend="195"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__cbor__read_8c_1a051c5dbd6ec6aedfa8d62318fa388a70" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int64_t</type>
+        <definition>int64_t syn_cbor_read_int</definition>
+        <argsstring>(SYN_CborReader *r)</argsstring>
+        <name>syn_cbor_read_int</name>
+        <param>
+          <type><ref refid="structSYN__CborReader" kindref="compound">SYN_CborReader</ref> *</type>
+          <declname>r</declname>
+        </param>
+        <briefdescription>
+<para>Read a signed integer (major type 0 or 1). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>r</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Reader. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Decoded value, or 0 on error. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_cbor_read.c" line="197" column="9" bodyfile="src/syntropic/util/syn_cbor_read.c" bodystart="197" bodyend="212"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__cbor__read_8c_1ac89cca7b44c0a094920a6f963d70f749" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>float</type>
+        <definition>float syn_cbor_read_float</definition>
+        <argsstring>(SYN_CborReader *r)</argsstring>
+        <name>syn_cbor_read_float</name>
+        <param>
+          <type><ref refid="structSYN__CborReader" kindref="compound">SYN_CborReader</ref> *</type>
+          <declname>r</declname>
+        </param>
+        <briefdescription>
+<para>Read a float32 value (major type 7, info=26). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>r</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Reader. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Decoded float, or 0.0f on error. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_cbor_read.c" line="214" column="7" bodyfile="src/syntropic/util/syn_cbor_read.c" bodystart="214" bodyend="228"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__cbor__read_8c_1af6c644e3d207995540fbd1847586694c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_cbor_read_bool</definition>
+        <argsstring>(SYN_CborReader *r)</argsstring>
+        <name>syn_cbor_read_bool</name>
+        <param>
+          <type><ref refid="structSYN__CborReader" kindref="compound">SYN_CborReader</ref> *</type>
+          <declname>r</declname>
+        </param>
+        <briefdescription>
+<para>Read a boolean (major type 7, info 20 or 21). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>r</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Reader. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Decoded value, or false on error. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_cbor_read.c" line="230" column="6" bodyfile="src/syntropic/util/syn_cbor_read.c" bodystart="230" bodyend="238"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__cbor__read_8c_1afe4566f61cbe0ca8128e5bf7f2f6d9f3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_cbor_read_null</definition>
+        <argsstring>(SYN_CborReader *r)</argsstring>
+        <name>syn_cbor_read_null</name>
+        <param>
+          <type><ref refid="structSYN__CborReader" kindref="compound">SYN_CborReader</ref> *</type>
+          <declname>r</declname>
+        </param>
+        <briefdescription>
+<para>Consume a null item (major type 7, info=22). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>r</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Reader. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_cbor_read.c" line="240" column="6" bodyfile="src/syntropic/util/syn_cbor_read.c" bodystart="240" bodyend="245"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__cbor__read_8c_1a4b8551f0a0299cef8b0c4235589e2df8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>size_t</type>
+        <definition>size_t syn_cbor_read_text</definition>
+        <argsstring>(SYN_CborReader *r, char *buf, size_t cap)</argsstring>
+        <name>syn_cbor_read_text</name>
+        <param>
+          <type><ref refid="structSYN__CborReader" kindref="compound">SYN_CborReader</ref> *</type>
+          <declname>r</declname>
+        </param>
+        <param>
+          <type>char *</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>cap</declname>
+        </param>
+        <briefdescription>
+<para>Read a text string into a caller-provided buffer. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Copies at most <computeroutput>cap-1</computeroutput> bytes and null-terminates. The CBOR item is fully consumed regardless of buffer capacity.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>r</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Reader. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>cap</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output buffer capacity (including space for null terminator). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Actual UTF-8 byte count in the CBOR item (may exceed <computeroutput>cap-1</computeroutput>). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_cbor_read.c" line="249" column="8" bodyfile="src/syntropic/util/syn_cbor_read.c" bodystart="249" bodyend="273"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__cbor__read_8c_1aa383c3a9c6aa3f8c1f6de8498ab4e657" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>size_t</type>
+        <definition>size_t syn_cbor_read_bytes</definition>
+        <argsstring>(SYN_CborReader *r, uint8_t *buf, size_t cap)</argsstring>
+        <name>syn_cbor_read_bytes</name>
+        <param>
+          <type><ref refid="structSYN__CborReader" kindref="compound">SYN_CborReader</ref> *</type>
+          <declname>r</declname>
+        </param>
+        <param>
+          <type>uint8_t *</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>cap</declname>
+        </param>
+        <briefdescription>
+<para>Read a byte string into a caller-provided buffer. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Copies at most <computeroutput>cap</computeroutput> bytes. The CBOR item is fully consumed.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>r</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Reader. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>cap</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output buffer capacity. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Actual byte count in the CBOR item (may exceed <computeroutput>cap</computeroutput>). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_cbor_read.c" line="275" column="8" bodyfile="src/syntropic/util/syn_cbor_read.c" bodystart="275" bodyend="296"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>CBOR decoder implementation. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#if<sp/>__has_include(&quot;syn_config.h&quot;)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/>#include<sp/>&quot;syn_config.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="4"><highlight class="normal"></highlight></codeline>
+<codeline lineno="5"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>!defined(SYN_USE_CBOR)<sp/>||<sp/>SYN_USE_CBOR</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__cbor__read_8h" kindref="compound">syn_cbor_read.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;string.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/>uint8_t<sp/><ref refid="syn__cbor__read_8c_1ad688bce65784525169f5596bca8d0863" kindref="member">consume_byte</ref>(<ref refid="structSYN__CborReader" kindref="compound">SYN_CborReader</ref><sp/>*r)</highlight></codeline>
+<codeline lineno="22"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="23"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(r-&gt;<ref refid="structSYN__CborReader_1a281e77ba8b9ef673f595acf8660591cf" kindref="member">pos</ref><sp/>&gt;=<sp/>r-&gt;<ref refid="structSYN__CborReader_1a697ecc1004306e0726af8f8f3446f7a2" kindref="member">len</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="24"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>r-&gt;<ref refid="structSYN__CborReader_1aa8a623da7a0fd7302c96427eaf2ac6d7" kindref="member">ok</ref><sp/>=<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="25"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0u;</highlight></codeline>
+<codeline lineno="26"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="27"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>r-&gt;<ref refid="structSYN__CborReader_1ab4d0b426b7874d1ea271df6559e15a0f" kindref="member">buf</ref>[r-&gt;<ref refid="structSYN__CborReader_1a281e77ba8b9ef673f595acf8660591cf" kindref="member">pos</ref>++];</highlight></codeline>
+<codeline lineno="28"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/>uint8_t<sp/><ref refid="syn__cbor__read_8c_1ad91075a4af3d45bbc982f0526ba74e60" kindref="member">peek_byte</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__CborReader" kindref="compound">SYN_CborReader</ref><sp/>*r)</highlight></codeline>
+<codeline lineno="37"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="38"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(r-&gt;<ref refid="structSYN__CborReader_1a281e77ba8b9ef673f595acf8660591cf" kindref="member">pos</ref><sp/>&gt;=<sp/>r-&gt;<ref refid="structSYN__CborReader_1a697ecc1004306e0726af8f8f3446f7a2" kindref="member">len</ref>)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0u;</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>r-&gt;<ref refid="structSYN__CborReader_1ab4d0b426b7874d1ea271df6559e15a0f" kindref="member">buf</ref>[r-&gt;<ref refid="structSYN__CborReader_1a281e77ba8b9ef673f595acf8660591cf" kindref="member">pos</ref>];</highlight></codeline>
+<codeline lineno="40"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight></codeline>
+<codeline lineno="53"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/>uint64_t<sp/><ref refid="syn__cbor__read_8c_1a07e17c0ac8bc689e0f2a65ec28ca14a1" kindref="member">decode_arg</ref>(<ref refid="structSYN__CborReader" kindref="compound">SYN_CborReader</ref><sp/>*r,<sp/>uint8_t<sp/>info)</highlight></codeline>
+<codeline lineno="54"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(info<sp/>&lt;=<sp/>23u)<sp/>{</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(uint64_t)info;</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">switch</highlight><highlight class="normal"><sp/>(info)<sp/>{</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/>24u:<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(uint64_t)<ref refid="syn__cbor__read_8c_1ad688bce65784525169f5596bca8d0863" kindref="member">consume_byte</ref>(r);</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/>25u:<sp/>{</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint64_t<sp/>hi<sp/>=<sp/><ref refid="syn__cbor__read_8c_1ad688bce65784525169f5596bca8d0863" kindref="member">consume_byte</ref>(r);</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint64_t<sp/>lo<sp/>=<sp/><ref refid="syn__cbor__read_8c_1ad688bce65784525169f5596bca8d0863" kindref="member">consume_byte</ref>(r);</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(hi<sp/>&lt;&lt;<sp/>8u)<sp/>|<sp/>lo;</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/>26u:<sp/>{</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint64_t<sp/>b3<sp/>=<sp/><ref refid="syn__cbor__read_8c_1ad688bce65784525169f5596bca8d0863" kindref="member">consume_byte</ref>(r);</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint64_t<sp/>b2<sp/>=<sp/><ref refid="syn__cbor__read_8c_1ad688bce65784525169f5596bca8d0863" kindref="member">consume_byte</ref>(r);</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint64_t<sp/>b1<sp/>=<sp/><ref refid="syn__cbor__read_8c_1ad688bce65784525169f5596bca8d0863" kindref="member">consume_byte</ref>(r);</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint64_t<sp/>b0<sp/>=<sp/><ref refid="syn__cbor__read_8c_1ad688bce65784525169f5596bca8d0863" kindref="member">consume_byte</ref>(r);</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(b3<sp/>&lt;&lt;<sp/>24u)<sp/>|<sp/>(b2<sp/>&lt;&lt;<sp/>16u)<sp/>|<sp/>(b1<sp/>&lt;&lt;<sp/>8u)<sp/>|<sp/>b0;</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/>27u:<sp/>{</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint64_t<sp/>v<sp/>=<sp/>0u;</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/>i;</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(i<sp/>=<sp/>0u;<sp/>i<sp/>&lt;<sp/>8u;<sp/>i++)<sp/>{</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>v<sp/>=<sp/>(v<sp/>&lt;&lt;<sp/>8u)<sp/>|<sp/>(uint64_t)<ref refid="syn__cbor__read_8c_1ad688bce65784525169f5596bca8d0863" kindref="member">consume_byte</ref>(r);</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>v;</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">default</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>r-&gt;<ref refid="structSYN__CborReader_1aa8a623da7a0fd7302c96427eaf2ac6d7" kindref="member">ok</ref><sp/>=<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0u;</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="84"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"></highlight></codeline>
+<codeline lineno="86"><highlight class="normal"></highlight></codeline>
+<codeline lineno="87"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__cbor__read_8c_1a94116ea55d5442452a9467bdce44d70b" kindref="member">syn_cbor_reader_init</ref>(<ref refid="structSYN__CborReader" kindref="compound">SYN_CborReader</ref><sp/>*r,</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/><sp/>*buf,</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>len)</highlight></codeline>
+<codeline lineno="90"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"><sp/><sp/><sp/><sp/>r-&gt;<ref refid="structSYN__CborReader_1ab4d0b426b7874d1ea271df6559e15a0f" kindref="member">buf</ref><sp/>=<sp/>buf;</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/><sp/><sp/>r-&gt;<ref refid="structSYN__CborReader_1a697ecc1004306e0726af8f8f3446f7a2" kindref="member">len</ref><sp/>=<sp/>len;</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><sp/><sp/><sp/><sp/>r-&gt;<ref refid="structSYN__CborReader_1a281e77ba8b9ef673f595acf8660591cf" kindref="member">pos</ref><sp/>=<sp/>0u;</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><sp/><sp/><sp/><sp/>r-&gt;<ref refid="structSYN__CborReader_1aa8a623da7a0fd7302c96427eaf2ac6d7" kindref="member">ok</ref><sp/><sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="95"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"></highlight></codeline>
+<codeline lineno="97"><highlight class="normal"></highlight></codeline>
+<codeline lineno="98"><highlight class="normal"><ref refid="syn__cbor__read_8h_1a191e287fb8d94de1d71a84160b0b0d01" kindref="member">SYN_CborType</ref><sp/><ref refid="syn__cbor__read_8c_1a521b230baddd5f26c19cec90cb2c8685" kindref="member">syn_cbor_peek_type</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__CborReader" kindref="compound">SYN_CborReader</ref><sp/>*r)</highlight></codeline>
+<codeline lineno="99"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(r-&gt;<ref refid="structSYN__CborReader_1a281e77ba8b9ef673f595acf8660591cf" kindref="member">pos</ref><sp/>&gt;=<sp/>r-&gt;<ref refid="structSYN__CborReader_1a697ecc1004306e0726af8f8f3446f7a2" kindref="member">len</ref>)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__cbor__read_8h_1a191e287fb8d94de1d71a84160b0b0d01ac8cb6c0a08adcd95415c805cbd60699a" kindref="member">SYN_CBOR_ERROR</ref>;</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>b<sp/><sp/><sp/><sp/>=<sp/><ref refid="syn__cbor__read_8c_1ad91075a4af3d45bbc982f0526ba74e60" kindref="member">peek_byte</ref>(r);</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>major<sp/>=<sp/>b<sp/>&gt;&gt;<sp/>5u;</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>info<sp/><sp/>=<sp/>b<sp/>&amp;<sp/>0x1Fu;</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"></highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(major<sp/>&lt;=<sp/>5u)<sp/>{</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(<ref refid="syn__cbor__read_8h_1a191e287fb8d94de1d71a84160b0b0d01" kindref="member">SYN_CborType</ref>)major;</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Major<sp/>type<sp/>7:<sp/>distinguish<sp/>float,<sp/>bool,<sp/>null<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="109"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(info<sp/>==<sp/>20u<sp/>||<sp/>info<sp/>==<sp/>21u)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__cbor__read_8h_1a191e287fb8d94de1d71a84160b0b0d01a2af16edc3e46d787d6f0f54c40759f7c" kindref="member">SYN_CBOR_BOOL</ref>;</highlight></codeline>
+<codeline lineno="110"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(info<sp/>==<sp/>22u)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__cbor__read_8h_1a191e287fb8d94de1d71a84160b0b0d01a2524344a100d5233a95fe5a1e11ce925" kindref="member">SYN_CBOR_NULL</ref>;</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(info<sp/>==<sp/>25u<sp/>||<sp/>info<sp/>==<sp/>26u<sp/>||<sp/>info<sp/>==<sp/>27u)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__cbor__read_8h_1a191e287fb8d94de1d71a84160b0b0d01a491a0cdff5081b00df1adbef44dcea30" kindref="member">SYN_CBOR_FLOAT</ref>;</highlight></codeline>
+<codeline lineno="112"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__cbor__read_8h_1a191e287fb8d94de1d71a84160b0b0d01ac8cb6c0a08adcd95415c805cbd60699a" kindref="member">SYN_CBOR_ERROR</ref>;</highlight></codeline>
+<codeline lineno="113"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"></highlight></codeline>
+<codeline lineno="115"><highlight class="normal"></highlight></codeline>
+<codeline lineno="117"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SKIP_MAX_DEPTH<sp/>8u</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="118"><highlight class="normal"></highlight></codeline>
+<codeline lineno="119"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__cbor__read_8c_1a86bb8f953601507d087fb79052c3ad89" kindref="member">syn_cbor_skip</ref>(<ref refid="structSYN__CborReader" kindref="compound">SYN_CborReader</ref><sp/>*r)</highlight></codeline>
+<codeline lineno="120"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="121"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>pending[<ref refid="syn__cbor__read_8c_1a5f6043d3a28a96008e0d090dcc42c468" kindref="member">SKIP_MAX_DEPTH</ref>];<sp/></highlight><highlight class="comment">/*<sp/>remaining<sp/>items<sp/>at<sp/>each<sp/>depth<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="122"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>depth<sp/>=<sp/>0u;</highlight></codeline>
+<codeline lineno="123"><highlight class="normal"><sp/><sp/><sp/><sp/>pending[0]<sp/>=<sp/>1u;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>we<sp/>must<sp/>skip<sp/>exactly<sp/>1<sp/>top-level<sp/>item<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="124"><highlight class="normal"></highlight></codeline>
+<codeline lineno="125"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">while</highlight><highlight class="normal"><sp/>(depth<sp/>&lt;<sp/><ref refid="syn__cbor__read_8c_1a5f6043d3a28a96008e0d090dcc42c468" kindref="member">SKIP_MAX_DEPTH</ref><sp/>&amp;&amp;<sp/>pending[depth]<sp/>&gt;<sp/>0u)<sp/>{</highlight></codeline>
+<codeline lineno="126"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>pending[depth]--;</highlight></codeline>
+<codeline lineno="127"><highlight class="normal"></highlight></codeline>
+<codeline lineno="128"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(r-&gt;<ref refid="structSYN__CborReader_1a281e77ba8b9ef673f595acf8660591cf" kindref="member">pos</ref><sp/>&gt;=<sp/>r-&gt;<ref refid="structSYN__CborReader_1a697ecc1004306e0726af8f8f3446f7a2" kindref="member">len</ref>)<sp/>{<sp/>r-&gt;<ref refid="structSYN__CborReader_1aa8a623da7a0fd7302c96427eaf2ac6d7" kindref="member">ok</ref><sp/>=<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal">;<sp/>}</highlight></codeline>
+<codeline lineno="129"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>b<sp/><sp/><sp/><sp/><sp/>=<sp/><ref refid="syn__cbor__read_8c_1ad688bce65784525169f5596bca8d0863" kindref="member">consume_byte</ref>(r);</highlight></codeline>
+<codeline lineno="130"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>major<sp/>=<sp/>b<sp/>&gt;&gt;<sp/>5u;</highlight></codeline>
+<codeline lineno="131"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>info<sp/><sp/>=<sp/>b<sp/>&amp;<sp/>0x1Fu;</highlight></codeline>
+<codeline lineno="132"><highlight class="normal"></highlight></codeline>
+<codeline lineno="133"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(major<sp/>==<sp/>7u)<sp/>{</highlight></codeline>
+<codeline lineno="134"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>float32:<sp/>4<sp/>more<sp/>bytes;<sp/>float16:<sp/>2;<sp/>float64:<sp/>8;<sp/>else<sp/>0<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="135"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(info<sp/>==<sp/>25u)<sp/>{<sp/>r-&gt;<ref refid="structSYN__CborReader_1a281e77ba8b9ef673f595acf8660591cf" kindref="member">pos</ref><sp/>+=<sp/>2u;<sp/>}</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(info<sp/>==<sp/>26u)<sp/>{<sp/>r-&gt;<ref refid="structSYN__CborReader_1a281e77ba8b9ef673f595acf8660591cf" kindref="member">pos</ref><sp/>+=<sp/>4u;<sp/>}</highlight></codeline>
+<codeline lineno="137"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(info<sp/>==<sp/>27u)<sp/>{<sp/>r-&gt;<ref refid="structSYN__CborReader_1a281e77ba8b9ef673f595acf8660591cf" kindref="member">pos</ref><sp/>+=<sp/>8u;<sp/>}</highlight></codeline>
+<codeline lineno="138"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>bool/null/simple:<sp/>0<sp/>extra<sp/>bytes<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="139"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(major<sp/>==<sp/>2u<sp/>||<sp/>major<sp/>==<sp/>3u)<sp/>{</highlight></codeline>
+<codeline lineno="140"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>byte/text<sp/>string:<sp/>skip<sp/>&apos;arg&apos;<sp/>data<sp/>bytes<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="141"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint64_t<sp/>n<sp/>=<sp/><ref refid="syn__cbor__read_8c_1a07e17c0ac8bc689e0f2a65ec28ca14a1" kindref="member">decode_arg</ref>(r,<sp/>info);</highlight></codeline>
+<codeline lineno="142"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>r-&gt;<ref refid="structSYN__CborReader_1a281e77ba8b9ef673f595acf8660591cf" kindref="member">pos</ref><sp/>+=<sp/>(size_t)n;</highlight></codeline>
+<codeline lineno="143"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(r-&gt;<ref refid="structSYN__CborReader_1a281e77ba8b9ef673f595acf8660591cf" kindref="member">pos</ref><sp/>&gt;<sp/>r-&gt;<ref refid="structSYN__CborReader_1a697ecc1004306e0726af8f8f3446f7a2" kindref="member">len</ref>)<sp/>{<sp/>r-&gt;<ref refid="structSYN__CborReader_1aa8a623da7a0fd7302c96427eaf2ac6d7" kindref="member">ok</ref><sp/>=<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal">;<sp/>}</highlight></codeline>
+<codeline lineno="144"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(major<sp/>==<sp/>4u)<sp/>{</highlight></codeline>
+<codeline lineno="145"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>array:<sp/>push<sp/>&apos;arg&apos;<sp/>items<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="146"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint64_t<sp/>n<sp/>=<sp/><ref refid="syn__cbor__read_8c_1a07e17c0ac8bc689e0f2a65ec28ca14a1" kindref="member">decode_arg</ref>(r,<sp/>info);</highlight></codeline>
+<codeline lineno="147"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>depth++;</highlight></codeline>
+<codeline lineno="148"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(depth<sp/>&gt;=<sp/><ref refid="syn__cbor__read_8c_1a5f6043d3a28a96008e0d090dcc42c468" kindref="member">SKIP_MAX_DEPTH</ref>)<sp/>{<sp/>r-&gt;<ref refid="structSYN__CborReader_1aa8a623da7a0fd7302c96427eaf2ac6d7" kindref="member">ok</ref><sp/>=<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal">;<sp/>}</highlight></codeline>
+<codeline lineno="149"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>pending[depth]<sp/>=<sp/>(size_t)n;</highlight></codeline>
+<codeline lineno="150"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(major<sp/>==<sp/>5u)<sp/>{</highlight></codeline>
+<codeline lineno="151"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>map:<sp/>push<sp/>&apos;arg<sp/>*<sp/>2&apos;<sp/>items<sp/>(each<sp/>pair<sp/>=<sp/>key<sp/>+<sp/>value)<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="152"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint64_t<sp/>n<sp/>=<sp/><ref refid="syn__cbor__read_8c_1a07e17c0ac8bc689e0f2a65ec28ca14a1" kindref="member">decode_arg</ref>(r,<sp/>info);</highlight></codeline>
+<codeline lineno="153"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>depth++;</highlight></codeline>
+<codeline lineno="154"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(depth<sp/>&gt;=<sp/><ref refid="syn__cbor__read_8c_1a5f6043d3a28a96008e0d090dcc42c468" kindref="member">SKIP_MAX_DEPTH</ref>)<sp/>{<sp/>r-&gt;<ref refid="structSYN__CborReader_1aa8a623da7a0fd7302c96427eaf2ac6d7" kindref="member">ok</ref><sp/>=<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal">;<sp/>}</highlight></codeline>
+<codeline lineno="155"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>pending[depth]<sp/>=<sp/>(size_t)(n<sp/>*<sp/>2u);</highlight></codeline>
+<codeline lineno="156"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="157"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>major<sp/>type<sp/>0<sp/>or<sp/>1:<sp/>uint/int,<sp/>arg<sp/>is<sp/>the<sp/>value,<sp/>no<sp/>data<sp/>bytes<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="158"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__cbor__read_8c_1a07e17c0ac8bc689e0f2a65ec28ca14a1" kindref="member">decode_arg</ref>(r,<sp/>info);</highlight></codeline>
+<codeline lineno="159"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="160"><highlight class="normal"></highlight></codeline>
+<codeline lineno="161"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Pop<sp/>completed<sp/>levels<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="162"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">while</highlight><highlight class="normal"><sp/>(depth<sp/>&gt;<sp/>0u<sp/>&amp;&amp;<sp/>pending[depth]<sp/>==<sp/>0u)<sp/>{</highlight></codeline>
+<codeline lineno="163"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>depth--;</highlight></codeline>
+<codeline lineno="164"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="165"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="166"><highlight class="normal"></highlight><highlight class="preprocessor">#undef<sp/>SKIP_MAX_DEPTH</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="167"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="168"><highlight class="normal"></highlight></codeline>
+<codeline lineno="169"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Collections<sp/>───────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="170"><highlight class="normal"></highlight></codeline>
+<codeline lineno="171"><highlight class="normal"></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="syn__cbor__read_8c_1a95c9fba70321f22ff44e156ba56e414b" kindref="member">syn_cbor_read_map_begin</ref>(<ref refid="structSYN__CborReader" kindref="compound">SYN_CborReader</ref><sp/>*r)</highlight></codeline>
+<codeline lineno="172"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="173"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(r-&gt;<ref refid="structSYN__CborReader_1a281e77ba8b9ef673f595acf8660591cf" kindref="member">pos</ref><sp/>&gt;=<sp/>r-&gt;<ref refid="structSYN__CborReader_1a697ecc1004306e0726af8f8f3446f7a2" kindref="member">len</ref>)<sp/>{<sp/>r-&gt;<ref refid="structSYN__CborReader_1aa8a623da7a0fd7302c96427eaf2ac6d7" kindref="member">ok</ref><sp/>=<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0u;<sp/>}</highlight></codeline>
+<codeline lineno="174"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>b<sp/>=<sp/><ref refid="syn__cbor__read_8c_1ad688bce65784525169f5596bca8d0863" kindref="member">consume_byte</ref>(r);</highlight></codeline>
+<codeline lineno="175"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>((b<sp/>&gt;&gt;<sp/>5u)<sp/>!=<sp/>5u)<sp/>{<sp/>r-&gt;<ref refid="structSYN__CborReader_1aa8a623da7a0fd7302c96427eaf2ac6d7" kindref="member">ok</ref><sp/>=<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0u;<sp/>}</highlight></codeline>
+<codeline lineno="176"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal">)<ref refid="syn__cbor__read_8c_1a07e17c0ac8bc689e0f2a65ec28ca14a1" kindref="member">decode_arg</ref>(r,<sp/>b<sp/>&amp;<sp/>0x1Fu);</highlight></codeline>
+<codeline lineno="177"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="178"><highlight class="normal"></highlight></codeline>
+<codeline lineno="179"><highlight class="normal"></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="syn__cbor__read_8c_1a28caf4cf03f65a890b443dc352f0ec12" kindref="member">syn_cbor_read_array_begin</ref>(<ref refid="structSYN__CborReader" kindref="compound">SYN_CborReader</ref><sp/>*r)</highlight></codeline>
+<codeline lineno="180"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="181"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(r-&gt;<ref refid="structSYN__CborReader_1a281e77ba8b9ef673f595acf8660591cf" kindref="member">pos</ref><sp/>&gt;=<sp/>r-&gt;<ref refid="structSYN__CborReader_1a697ecc1004306e0726af8f8f3446f7a2" kindref="member">len</ref>)<sp/>{<sp/>r-&gt;<ref refid="structSYN__CborReader_1aa8a623da7a0fd7302c96427eaf2ac6d7" kindref="member">ok</ref><sp/>=<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0u;<sp/>}</highlight></codeline>
+<codeline lineno="182"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>b<sp/>=<sp/><ref refid="syn__cbor__read_8c_1ad688bce65784525169f5596bca8d0863" kindref="member">consume_byte</ref>(r);</highlight></codeline>
+<codeline lineno="183"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>((b<sp/>&gt;&gt;<sp/>5u)<sp/>!=<sp/>4u)<sp/>{<sp/>r-&gt;<ref refid="structSYN__CborReader_1aa8a623da7a0fd7302c96427eaf2ac6d7" kindref="member">ok</ref><sp/>=<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0u;<sp/>}</highlight></codeline>
+<codeline lineno="184"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal">)<ref refid="syn__cbor__read_8c_1a07e17c0ac8bc689e0f2a65ec28ca14a1" kindref="member">decode_arg</ref>(r,<sp/>b<sp/>&amp;<sp/>0x1Fu);</highlight></codeline>
+<codeline lineno="185"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="186"><highlight class="normal"></highlight></codeline>
+<codeline lineno="187"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Scalars<sp/>───────────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="188"><highlight class="normal"></highlight></codeline>
+<codeline lineno="189"><highlight class="normal">uint64_t<sp/><ref refid="syn__cbor__read_8c_1af00ecc36a771ac84dd1d4c4e54e545a3" kindref="member">syn_cbor_read_uint</ref>(<ref refid="structSYN__CborReader" kindref="compound">SYN_CborReader</ref><sp/>*r)</highlight></codeline>
+<codeline lineno="190"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="191"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(r-&gt;<ref refid="structSYN__CborReader_1a281e77ba8b9ef673f595acf8660591cf" kindref="member">pos</ref><sp/>&gt;=<sp/>r-&gt;<ref refid="structSYN__CborReader_1a697ecc1004306e0726af8f8f3446f7a2" kindref="member">len</ref>)<sp/>{<sp/>r-&gt;<ref refid="structSYN__CborReader_1aa8a623da7a0fd7302c96427eaf2ac6d7" kindref="member">ok</ref><sp/>=<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0u;<sp/>}</highlight></codeline>
+<codeline lineno="192"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>b<sp/>=<sp/><ref refid="syn__cbor__read_8c_1ad688bce65784525169f5596bca8d0863" kindref="member">consume_byte</ref>(r);</highlight></codeline>
+<codeline lineno="193"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>((b<sp/>&gt;&gt;<sp/>5u)<sp/>!=<sp/>0u)<sp/>{<sp/>r-&gt;<ref refid="structSYN__CborReader_1aa8a623da7a0fd7302c96427eaf2ac6d7" kindref="member">ok</ref><sp/>=<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0u;<sp/>}</highlight></codeline>
+<codeline lineno="194"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__cbor__read_8c_1a07e17c0ac8bc689e0f2a65ec28ca14a1" kindref="member">decode_arg</ref>(r,<sp/>b<sp/>&amp;<sp/>0x1Fu);</highlight></codeline>
+<codeline lineno="195"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="196"><highlight class="normal"></highlight></codeline>
+<codeline lineno="197"><highlight class="normal">int64_t<sp/><ref refid="syn__cbor__read_8c_1a051c5dbd6ec6aedfa8d62318fa388a70" kindref="member">syn_cbor_read_int</ref>(<ref refid="structSYN__CborReader" kindref="compound">SYN_CborReader</ref><sp/>*r)</highlight></codeline>
+<codeline lineno="198"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="199"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(r-&gt;<ref refid="structSYN__CborReader_1a281e77ba8b9ef673f595acf8660591cf" kindref="member">pos</ref><sp/>&gt;=<sp/>r-&gt;<ref refid="structSYN__CborReader_1a697ecc1004306e0726af8f8f3446f7a2" kindref="member">len</ref>)<sp/>{<sp/>r-&gt;<ref refid="structSYN__CborReader_1aa8a623da7a0fd7302c96427eaf2ac6d7" kindref="member">ok</ref><sp/>=<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0;<sp/>}</highlight></codeline>
+<codeline lineno="200"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>b<sp/><sp/><sp/><sp/><sp/>=<sp/><ref refid="syn__cbor__read_8c_1ad688bce65784525169f5596bca8d0863" kindref="member">consume_byte</ref>(r);</highlight></codeline>
+<codeline lineno="201"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>major<sp/>=<sp/>b<sp/>&gt;&gt;<sp/>5u;</highlight></codeline>
+<codeline lineno="202"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>info<sp/><sp/>=<sp/>b<sp/>&amp;<sp/>0x1Fu;</highlight></codeline>
+<codeline lineno="203"><highlight class="normal"></highlight></codeline>
+<codeline lineno="204"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(major<sp/>==<sp/>0u)<sp/>{</highlight></codeline>
+<codeline lineno="205"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(int64_t)<ref refid="syn__cbor__read_8c_1a07e17c0ac8bc689e0f2a65ec28ca14a1" kindref="member">decode_arg</ref>(r,<sp/>info);</highlight></codeline>
+<codeline lineno="206"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="207"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(major<sp/>==<sp/>1u)<sp/>{</highlight></codeline>
+<codeline lineno="208"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(int64_t)(-1<sp/>-<sp/>(int64_t)<ref refid="syn__cbor__read_8c_1a07e17c0ac8bc689e0f2a65ec28ca14a1" kindref="member">decode_arg</ref>(r,<sp/>info));</highlight></codeline>
+<codeline lineno="209"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="210"><highlight class="normal"><sp/><sp/><sp/><sp/>r-&gt;<ref refid="structSYN__CborReader_1aa8a623da7a0fd7302c96427eaf2ac6d7" kindref="member">ok</ref><sp/>=<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="211"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0;</highlight></codeline>
+<codeline lineno="212"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="213"><highlight class="normal"></highlight></codeline>
+<codeline lineno="214"><highlight class="normal"></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/><ref refid="syn__cbor__read_8c_1ac89cca7b44c0a094920a6f963d70f749" kindref="member">syn_cbor_read_float</ref>(<ref refid="structSYN__CborReader" kindref="compound">SYN_CborReader</ref><sp/>*r)</highlight></codeline>
+<codeline lineno="215"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="216"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(r-&gt;<ref refid="structSYN__CborReader_1a281e77ba8b9ef673f595acf8660591cf" kindref="member">pos</ref><sp/>&gt;=<sp/>r-&gt;<ref refid="structSYN__CborReader_1a697ecc1004306e0726af8f8f3446f7a2" kindref="member">len</ref>)<sp/>{<sp/>r-&gt;<ref refid="structSYN__CborReader_1aa8a623da7a0fd7302c96427eaf2ac6d7" kindref="member">ok</ref><sp/>=<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0.0f;<sp/>}</highlight></codeline>
+<codeline lineno="217"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>b<sp/>=<sp/><ref refid="syn__cbor__read_8c_1ad688bce65784525169f5596bca8d0863" kindref="member">consume_byte</ref>(r);</highlight></codeline>
+<codeline lineno="218"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Must<sp/>be<sp/>major<sp/>type<sp/>7,<sp/>info=26<sp/>(float32)<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="219"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(b<sp/>!=<sp/>0xFAu)<sp/>{<sp/>r-&gt;<ref refid="structSYN__CborReader_1aa8a623da7a0fd7302c96427eaf2ac6d7" kindref="member">ok</ref><sp/>=<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0.0f;<sp/>}</highlight></codeline>
+<codeline lineno="220"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/>bits<sp/>=<sp/>0u;</highlight></codeline>
+<codeline lineno="221"><highlight class="normal"><sp/><sp/><sp/><sp/>bits<sp/>|=<sp/>(uint32_t)<ref refid="syn__cbor__read_8c_1ad688bce65784525169f5596bca8d0863" kindref="member">consume_byte</ref>(r)<sp/>&lt;&lt;<sp/>24u;</highlight></codeline>
+<codeline lineno="222"><highlight class="normal"><sp/><sp/><sp/><sp/>bits<sp/>|=<sp/>(uint32_t)<ref refid="syn__cbor__read_8c_1ad688bce65784525169f5596bca8d0863" kindref="member">consume_byte</ref>(r)<sp/>&lt;&lt;<sp/>16u;</highlight></codeline>
+<codeline lineno="223"><highlight class="normal"><sp/><sp/><sp/><sp/>bits<sp/>|=<sp/>(uint32_t)<ref refid="syn__cbor__read_8c_1ad688bce65784525169f5596bca8d0863" kindref="member">consume_byte</ref>(r)<sp/>&lt;&lt;<sp/><sp/>8u;</highlight></codeline>
+<codeline lineno="224"><highlight class="normal"><sp/><sp/><sp/><sp/>bits<sp/>|=<sp/>(uint32_t)<ref refid="syn__cbor__read_8c_1ad688bce65784525169f5596bca8d0863" kindref="member">consume_byte</ref>(r);</highlight></codeline>
+<codeline lineno="225"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>v<sp/>=<sp/>0.0f;</highlight></codeline>
+<codeline lineno="226"><highlight class="normal"><sp/><sp/><sp/><sp/>memcpy(&amp;v,<sp/>&amp;bits,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(v));</highlight></codeline>
+<codeline lineno="227"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>v;</highlight></codeline>
+<codeline lineno="228"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="229"><highlight class="normal"></highlight></codeline>
+<codeline lineno="230"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__cbor__read_8c_1af6c644e3d207995540fbd1847586694c" kindref="member">syn_cbor_read_bool</ref>(<ref refid="structSYN__CborReader" kindref="compound">SYN_CborReader</ref><sp/>*r)</highlight></codeline>
+<codeline lineno="231"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="232"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(r-&gt;<ref refid="structSYN__CborReader_1a281e77ba8b9ef673f595acf8660591cf" kindref="member">pos</ref><sp/>&gt;=<sp/>r-&gt;<ref refid="structSYN__CborReader_1a697ecc1004306e0726af8f8f3446f7a2" kindref="member">len</ref>)<sp/>{<sp/>r-&gt;<ref refid="structSYN__CborReader_1aa8a623da7a0fd7302c96427eaf2ac6d7" kindref="member">ok</ref><sp/>=<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;<sp/>}</highlight></codeline>
+<codeline lineno="233"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>b<sp/>=<sp/><ref refid="syn__cbor__read_8c_1ad688bce65784525169f5596bca8d0863" kindref="member">consume_byte</ref>(r);</highlight></codeline>
+<codeline lineno="234"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(b<sp/>==<sp/>0xF5u)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="235"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(b<sp/>==<sp/>0xF4u)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="236"><highlight class="normal"><sp/><sp/><sp/><sp/>r-&gt;<ref refid="structSYN__CborReader_1aa8a623da7a0fd7302c96427eaf2ac6d7" kindref="member">ok</ref><sp/>=<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="237"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="238"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="239"><highlight class="normal"></highlight></codeline>
+<codeline lineno="240"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__cbor__read_8c_1afe4566f61cbe0ca8128e5bf7f2f6d9f3" kindref="member">syn_cbor_read_null</ref>(<ref refid="structSYN__CborReader" kindref="compound">SYN_CborReader</ref><sp/>*r)</highlight></codeline>
+<codeline lineno="241"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="242"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(r-&gt;<ref refid="structSYN__CborReader_1a281e77ba8b9ef673f595acf8660591cf" kindref="member">pos</ref><sp/>&gt;=<sp/>r-&gt;<ref refid="structSYN__CborReader_1a697ecc1004306e0726af8f8f3446f7a2" kindref="member">len</ref>)<sp/>{<sp/>r-&gt;<ref refid="structSYN__CborReader_1aa8a623da7a0fd7302c96427eaf2ac6d7" kindref="member">ok</ref><sp/>=<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal">;<sp/>}</highlight></codeline>
+<codeline lineno="243"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>b<sp/>=<sp/><ref refid="syn__cbor__read_8c_1ad688bce65784525169f5596bca8d0863" kindref="member">consume_byte</ref>(r);</highlight></codeline>
+<codeline lineno="244"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(b<sp/>!=<sp/>0xF6u)<sp/>{<sp/>r-&gt;<ref refid="structSYN__CborReader_1aa8a623da7a0fd7302c96427eaf2ac6d7" kindref="member">ok</ref><sp/>=<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;<sp/>}</highlight></codeline>
+<codeline lineno="245"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="246"><highlight class="normal"></highlight></codeline>
+<codeline lineno="247"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Strings<sp/>───────────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="248"><highlight class="normal"></highlight></codeline>
+<codeline lineno="249"><highlight class="normal"></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="syn__cbor__read_8c_1a4b8551f0a0299cef8b0c4235589e2df8" kindref="member">syn_cbor_read_text</ref>(<ref refid="structSYN__CborReader" kindref="compound">SYN_CborReader</ref><sp/>*r,<sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*buf,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>cap)</highlight></codeline>
+<codeline lineno="250"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="251"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(r-&gt;<ref refid="structSYN__CborReader_1a281e77ba8b9ef673f595acf8660591cf" kindref="member">pos</ref><sp/>&gt;=<sp/>r-&gt;<ref refid="structSYN__CborReader_1a697ecc1004306e0726af8f8f3446f7a2" kindref="member">len</ref>)<sp/>{<sp/>r-&gt;<ref refid="structSYN__CborReader_1aa8a623da7a0fd7302c96427eaf2ac6d7" kindref="member">ok</ref><sp/>=<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0u;<sp/>}</highlight></codeline>
+<codeline lineno="252"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>b<sp/>=<sp/><ref refid="syn__cbor__read_8c_1ad688bce65784525169f5596bca8d0863" kindref="member">consume_byte</ref>(r);</highlight></codeline>
+<codeline lineno="253"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>((b<sp/>&gt;&gt;<sp/>5u)<sp/>!=<sp/>3u)<sp/>{<sp/>r-&gt;<ref refid="structSYN__CborReader_1aa8a623da7a0fd7302c96427eaf2ac6d7" kindref="member">ok</ref><sp/>=<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0u;<sp/>}</highlight></codeline>
+<codeline lineno="254"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>n<sp/>=<sp/>(size_t)<ref refid="syn__cbor__read_8c_1a07e17c0ac8bc689e0f2a65ec28ca14a1" kindref="member">decode_arg</ref>(r,<sp/>b<sp/>&amp;<sp/>0x1Fu);</highlight></codeline>
+<codeline lineno="255"><highlight class="normal"></highlight></codeline>
+<codeline lineno="256"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>available<sp/>=<sp/>(r-&gt;<ref refid="structSYN__CborReader_1a281e77ba8b9ef673f595acf8660591cf" kindref="member">pos</ref><sp/>&lt;<sp/>r-&gt;<ref refid="structSYN__CborReader_1a697ecc1004306e0726af8f8f3446f7a2" kindref="member">len</ref>)<sp/>?<sp/>(r-&gt;<ref refid="structSYN__CborReader_1a697ecc1004306e0726af8f8f3446f7a2" kindref="member">len</ref><sp/>-<sp/>r-&gt;<ref refid="structSYN__CborReader_1a281e77ba8b9ef673f595acf8660591cf" kindref="member">pos</ref>)<sp/>:<sp/>0u;</highlight></codeline>
+<codeline lineno="257"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(n<sp/>&gt;<sp/>available)<sp/>{</highlight></codeline>
+<codeline lineno="258"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>r-&gt;<ref refid="structSYN__CborReader_1aa8a623da7a0fd7302c96427eaf2ac6d7" kindref="member">ok</ref><sp/>=<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="259"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="260"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>copy<sp/>=<sp/>(n<sp/>&lt;<sp/>cap)<sp/>?<sp/>n<sp/>:<sp/>(cap<sp/>&gt;<sp/>0u<sp/>?<sp/>cap<sp/>-<sp/>1u<sp/>:<sp/>0u);</highlight></codeline>
+<codeline lineno="261"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(copy<sp/>&gt;<sp/>available)<sp/>{</highlight></codeline>
+<codeline lineno="262"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>copy<sp/>=<sp/>available;</highlight></codeline>
+<codeline lineno="263"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="264"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(buf<sp/>!=<sp/>NULL<sp/>&amp;&amp;<sp/>cap<sp/>&gt;<sp/>0u)<sp/>{</highlight></codeline>
+<codeline lineno="265"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(copy<sp/>&gt;<sp/>0u)<sp/>{</highlight></codeline>
+<codeline lineno="266"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>memcpy(buf,<sp/>r-&gt;<ref refid="structSYN__CborReader_1ab4d0b426b7874d1ea271df6559e15a0f" kindref="member">buf</ref><sp/>+<sp/>r-&gt;<ref refid="structSYN__CborReader_1a281e77ba8b9ef673f595acf8660591cf" kindref="member">pos</ref>,<sp/>copy);</highlight></codeline>
+<codeline lineno="267"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="268"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>buf[copy]<sp/>=<sp/></highlight><highlight class="charliteral">&apos;\0&apos;</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="269"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="270"><highlight class="normal"><sp/><sp/><sp/><sp/>r-&gt;<ref refid="structSYN__CborReader_1a281e77ba8b9ef673f595acf8660591cf" kindref="member">pos</ref><sp/>+=<sp/>n;</highlight></codeline>
+<codeline lineno="271"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(r-&gt;<ref refid="structSYN__CborReader_1a281e77ba8b9ef673f595acf8660591cf" kindref="member">pos</ref><sp/>&gt;<sp/>r-&gt;<ref refid="structSYN__CborReader_1a697ecc1004306e0726af8f8f3446f7a2" kindref="member">len</ref>)<sp/>{<sp/>r-&gt;<ref refid="structSYN__CborReader_1aa8a623da7a0fd7302c96427eaf2ac6d7" kindref="member">ok</ref><sp/>=<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;<sp/>}</highlight></codeline>
+<codeline lineno="272"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>n;</highlight></codeline>
+<codeline lineno="273"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="274"><highlight class="normal"></highlight></codeline>
+<codeline lineno="275"><highlight class="normal"></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="syn__cbor__read_8c_1aa383c3a9c6aa3f8c1f6de8498ab4e657" kindref="member">syn_cbor_read_bytes</ref>(<ref refid="structSYN__CborReader" kindref="compound">SYN_CborReader</ref><sp/>*r,<sp/>uint8_t<sp/>*buf,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>cap)</highlight></codeline>
+<codeline lineno="276"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="277"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(r-&gt;<ref refid="structSYN__CborReader_1a281e77ba8b9ef673f595acf8660591cf" kindref="member">pos</ref><sp/>&gt;=<sp/>r-&gt;<ref refid="structSYN__CborReader_1a697ecc1004306e0726af8f8f3446f7a2" kindref="member">len</ref>)<sp/>{<sp/>r-&gt;<ref refid="structSYN__CborReader_1aa8a623da7a0fd7302c96427eaf2ac6d7" kindref="member">ok</ref><sp/>=<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0u;<sp/>}</highlight></codeline>
+<codeline lineno="278"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>b<sp/>=<sp/><ref refid="syn__cbor__read_8c_1ad688bce65784525169f5596bca8d0863" kindref="member">consume_byte</ref>(r);</highlight></codeline>
+<codeline lineno="279"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>((b<sp/>&gt;&gt;<sp/>5u)<sp/>!=<sp/>2u)<sp/>{<sp/>r-&gt;<ref refid="structSYN__CborReader_1aa8a623da7a0fd7302c96427eaf2ac6d7" kindref="member">ok</ref><sp/>=<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0u;<sp/>}</highlight></codeline>
+<codeline lineno="280"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>n<sp/>=<sp/>(size_t)<ref refid="syn__cbor__read_8c_1a07e17c0ac8bc689e0f2a65ec28ca14a1" kindref="member">decode_arg</ref>(r,<sp/>b<sp/>&amp;<sp/>0x1Fu);</highlight></codeline>
+<codeline lineno="281"><highlight class="normal"></highlight></codeline>
+<codeline lineno="282"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>available<sp/>=<sp/>(r-&gt;<ref refid="structSYN__CborReader_1a281e77ba8b9ef673f595acf8660591cf" kindref="member">pos</ref><sp/>&lt;<sp/>r-&gt;<ref refid="structSYN__CborReader_1a697ecc1004306e0726af8f8f3446f7a2" kindref="member">len</ref>)<sp/>?<sp/>(r-&gt;<ref refid="structSYN__CborReader_1a697ecc1004306e0726af8f8f3446f7a2" kindref="member">len</ref><sp/>-<sp/>r-&gt;<ref refid="structSYN__CborReader_1a281e77ba8b9ef673f595acf8660591cf" kindref="member">pos</ref>)<sp/>:<sp/>0u;</highlight></codeline>
+<codeline lineno="283"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(n<sp/>&gt;<sp/>available)<sp/>{</highlight></codeline>
+<codeline lineno="284"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>r-&gt;<ref refid="structSYN__CborReader_1aa8a623da7a0fd7302c96427eaf2ac6d7" kindref="member">ok</ref><sp/>=<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="285"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="286"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>copy<sp/>=<sp/>(n<sp/>&lt;<sp/>cap)<sp/>?<sp/>n<sp/>:<sp/>cap;</highlight></codeline>
+<codeline lineno="287"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(copy<sp/>&gt;<sp/>available)<sp/>{</highlight></codeline>
+<codeline lineno="288"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>copy<sp/>=<sp/>available;</highlight></codeline>
+<codeline lineno="289"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="290"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(buf<sp/>!=<sp/>NULL<sp/>&amp;&amp;<sp/>copy<sp/>&gt;<sp/>0u)<sp/>{</highlight></codeline>
+<codeline lineno="291"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>memcpy(buf,<sp/>r-&gt;<ref refid="structSYN__CborReader_1ab4d0b426b7874d1ea271df6559e15a0f" kindref="member">buf</ref><sp/>+<sp/>r-&gt;<ref refid="structSYN__CborReader_1a281e77ba8b9ef673f595acf8660591cf" kindref="member">pos</ref>,<sp/>copy);</highlight></codeline>
+<codeline lineno="292"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="293"><highlight class="normal"><sp/><sp/><sp/><sp/>r-&gt;<ref refid="structSYN__CborReader_1a281e77ba8b9ef673f595acf8660591cf" kindref="member">pos</ref><sp/>+=<sp/>n;</highlight></codeline>
+<codeline lineno="294"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(r-&gt;<ref refid="structSYN__CborReader_1a281e77ba8b9ef673f595acf8660591cf" kindref="member">pos</ref><sp/>&gt;<sp/>r-&gt;<ref refid="structSYN__CborReader_1a697ecc1004306e0726af8f8f3446f7a2" kindref="member">len</ref>)<sp/>{<sp/>r-&gt;<ref refid="structSYN__CborReader_1aa8a623da7a0fd7302c96427eaf2ac6d7" kindref="member">ok</ref><sp/>=<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;<sp/>}</highlight></codeline>
+<codeline lineno="295"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>n;</highlight></codeline>
+<codeline lineno="296"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="297"><highlight class="normal"></highlight></codeline>
+<codeline lineno="298"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_USE_CBOR<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/util/syn_cbor_read.c"/>
+  </compounddef>
+</doxygen>

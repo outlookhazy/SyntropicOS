@@ -1,0 +1,490 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__trace_8h" kind="file" language="C++">
+    <compoundname>syn_trace.h</compoundname>
+    <includes refid="syn__port__system_8h" local="yes">../port/syn_port_system.h</includes>
+    <includes local="no">stdint.h</includes>
+    <includes local="no">stdbool.h</includes>
+    <includes local="no">stddef.h</includes>
+    <includedby refid="syn__trace_8c" local="yes">src/syntropic/debug/syn_trace.c</includedby>
+    <includedby refid="syntropic_8h" local="yes">src/syntropic/syntropic.h</includedby>
+    <incdepgraph>
+      <node id="6">
+        <label>../common/syn_compiler.h</label>
+        <link refid="syn__compiler_8h"/>
+      </node>
+      <node id="3">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/debug/syn_trace.h</label>
+        <link refid="syn__trace_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>../port/syn_port_system.h</label>
+        <link refid="syn__port__system_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>stdbool.h</label>
+      </node>
+      <node id="5">
+        <label>stddef.h</label>
+      </node>
+      <node id="4">
+        <label>stdint.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="2">
+        <label>src/syntropic/debug/syn_trace.c</label>
+        <link refid="syn__trace_8c"/>
+      </node>
+      <node id="1">
+        <label>src/syntropic/debug/syn_trace.h</label>
+        <link refid="syn__trace_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>src/syntropic/syntropic.h</label>
+        <link refid="syntropic_8h"/>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="structSYN__TraceEntry" prot="public">SYN_TraceEntry</innerclass>
+    <innerclass refid="structSYN__Trace" prot="public">SYN_Trace</innerclass>
+    <sectiondef kind="define">
+      <memberdef kind="define" id="syn__trace_8h_1a4b1193d9aeee964b5a38a61b670d13d7" prot="public" static="no">
+        <name>SYN_TRACE</name>
+        <param><defname>trace</defname></param>
+        <param><defname>id</defname></param>
+        <param><defname>val</defname></param>
+        <initializer><ref refid="syn__trace_8c_1a58464992b2ffed9a6c5ff944ab1f6f28" kindref="member">syn_trace_record</ref>((trace), (id), (val))</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Convenience macro with auto-timestamping. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/debug/syn_trace.h" line="82" column="9" bodyfile="src/syntropic/debug/syn_trace.h" bodystart="82" bodyend="-1"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="typedef">
+      <memberdef kind="typedef" id="syn__trace_8h_1a21ccbebb39e9c494d3331df0d1daa039" prot="public" static="no">
+        <type>void(*</type>
+        <definition>typedef void(* SYN_TracePrintFunc) (const char *str)</definition>
+        <argsstring>)(const char *str)</argsstring>
+        <name>SYN_TracePrintFunc</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Print callback for dump. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/debug/syn_trace.h" line="57" column="9" bodyfile="src/syntropic/debug/syn_trace.h" bodystart="57" bodyend="-1"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__trace_8h_1a6318026026f3606b1122f532293d0de8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_trace_init</definition>
+        <argsstring>(SYN_Trace *trace, SYN_TraceEntry *entries, uint16_t capacity)</argsstring>
+        <name>syn_trace_init</name>
+        <param>
+          <type><ref refid="structSYN__Trace" kindref="compound">SYN_Trace</ref> *</type>
+          <declname>trace</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__TraceEntry" kindref="compound">SYN_TraceEntry</ref> *</type>
+          <declname>entries</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>capacity</declname>
+        </param>
+        <briefdescription>
+<para>Initialize the trace buffer. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>trace</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Trace instance to initialize. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>entries</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Array of trace entries (caller-owned). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>capacity</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of entries in the array. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/debug/syn_trace.h" line="68" column="6" bodyfile="src/syntropic/debug/syn_trace.c" bodystart="18" bodyend="32" declfile="src/syntropic/debug/syn_trace.h" declline="68" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__trace_8h_1a58464992b2ffed9a6c5ff944ab1f6f28" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_trace_record</definition>
+        <argsstring>(SYN_Trace *trace, uint16_t event_id, uint16_t value)</argsstring>
+        <name>syn_trace_record</name>
+        <param>
+          <type><ref refid="structSYN__Trace" kindref="compound">SYN_Trace</ref> *</type>
+          <declname>trace</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>event_id</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>value</declname>
+        </param>
+        <briefdescription>
+<para>Record a trace event. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>trace</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Trace instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>event_id</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Application-defined event ID. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>value</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Optional 16-bit payload. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/debug/syn_trace.h" line="79" column="6" bodyfile="src/syntropic/debug/syn_trace.c" bodystart="34" bodyend="47" declfile="src/syntropic/debug/syn_trace.h" declline="79" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__trace_8h_1af580e8b3146417ca62ac841867b0d9d3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_trace_enable</definition>
+        <argsstring>(SYN_Trace *trace, bool enable)</argsstring>
+        <name>syn_trace_enable</name>
+        <param>
+          <type><ref refid="structSYN__Trace" kindref="compound">SYN_Trace</ref> *</type>
+          <declname>trace</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+          <declname>enable</declname>
+        </param>
+        <briefdescription>
+<para>Enable/disable recording. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>trace</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Trace instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>enable</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>True to enable recording, false to pause. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/debug/syn_trace.h" line="90" column="6" bodyfile="src/syntropic/debug/syn_trace.c" bodystart="49" bodyend="53" declfile="src/syntropic/debug/syn_trace.h" declline="90" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__trace_8h_1a2d14ad09c54aa1f165a931d6381e72e3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_trace_clear</definition>
+        <argsstring>(SYN_Trace *trace)</argsstring>
+        <name>syn_trace_clear</name>
+        <param>
+          <type><ref refid="structSYN__Trace" kindref="compound">SYN_Trace</ref> *</type>
+          <declname>trace</declname>
+        </param>
+        <briefdescription>
+<para>Clear the trace buffer. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>trace</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Trace instance to reset. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/debug/syn_trace.h" line="97" column="6" bodyfile="src/syntropic/debug/syn_trace.c" bodystart="55" bodyend="60" declfile="src/syntropic/debug/syn_trace.h" declline="97" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__trace_8h_1affce41a806b0d72c6b355e80ffdc5bcd" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>static uint32_t syn_trace_count</definition>
+        <argsstring>(const SYN_Trace *trace)</argsstring>
+        <name>syn_trace_count</name>
+        <param>
+          <type>const <ref refid="structSYN__Trace" kindref="compound">SYN_Trace</ref> *</type>
+          <declname>trace</declname>
+        </param>
+        <briefdescription>
+<para>Get total event count (may exceed capacity — indicates wrapping). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>trace</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Trace instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Total number of events written since initialization. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/debug/syn_trace.h" line="105" column="24" bodyfile="src/syntropic/debug/syn_trace.h" bodystart="105" bodyend="108"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__trace_8h_1a8544f5bfcc0ff86b46685adbf9628258" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_trace_read</definition>
+        <argsstring>(const SYN_Trace *trace, uint32_t index, SYN_TraceEntry *entry)</argsstring>
+        <name>syn_trace_read</name>
+        <param>
+          <type>const <ref refid="structSYN__Trace" kindref="compound">SYN_Trace</ref> *</type>
+          <declname>trace</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>index</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__TraceEntry" kindref="compound">SYN_TraceEntry</ref> *</type>
+          <declname>entry</declname>
+        </param>
+        <briefdescription>
+<para>Read an entry by index (0 = oldest available). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>trace</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Trace instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>index</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Index from oldest available. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>entry</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output entry. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if a valid entry was read. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/debug/syn_trace.h" line="118" column="6" bodyfile="src/syntropic/debug/syn_trace.c" bodystart="62" bodyend="82" declfile="src/syntropic/debug/syn_trace.h" declline="118" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__trace_8h_1a5d6ef52f60e6716d99d35842cc3a621b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_trace_dump</definition>
+        <argsstring>(const SYN_Trace *trace, SYN_TracePrintFunc print)</argsstring>
+        <name>syn_trace_dump</name>
+        <param>
+          <type>const <ref refid="structSYN__Trace" kindref="compound">SYN_Trace</ref> *</type>
+          <declname>trace</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__trace_8h_1a21ccbebb39e9c494d3331df0d1daa039" kindref="member">SYN_TracePrintFunc</ref></type>
+          <declname>print</declname>
+        </param>
+        <briefdescription>
+<para>Dump all entries via a print callback. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Output format: &quot;[tick] event_id=0xNNNN value=0xNNNN\n&quot;</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>trace</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Trace instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>print</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Print function (e.g., write to UART). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/debug/syn_trace.h" line="129" column="6" bodyfile="src/syntropic/debug/syn_trace.c" bodystart="84" bodyend="129" declfile="src/syntropic/debug/syn_trace.h" declline="129" declcolumn="6"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Lightweight trace buffer — timestamped event recorder. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Records events (id + optional 16-bit value) into a fixed-size circular buffer for post-mortem debugging. No UART, no printf — just stamp and store. Read it out with a debugger or dump over CLI.</para>
+<para><simplesect kind="par"><title>Usage</title><para><programlisting><codeline><highlight class="keyword">static</highlight><highlight class="normal"><sp/><ref refid="structSYN__TraceEntry" kindref="compound">SYN_TraceEntry</ref><sp/>entries[64];</highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/><ref refid="structSYN__Trace" kindref="compound">SYN_Trace</ref><sp/>trace;</highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__trace_8c_1a6318026026f3606b1122f532293d0de8" kindref="member">syn_trace_init</ref>(&amp;trace,<sp/>entries,<sp/>64);</highlight></codeline>
+<codeline><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__trace_8h_1a4b1193d9aeee964b5a38a61b670d13d7" kindref="member">SYN_TRACE</ref>(&amp;trace,<sp/>EVT_ISR_ENTER,<sp/>irq_num);</highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__trace_8h_1a4b1193d9aeee964b5a38a61b670d13d7" kindref="member">SYN_TRACE</ref>(&amp;trace,<sp/>EVT_TASK_SWITCH,<sp/>task_id);</highlight></codeline>
+<codeline><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="comment">//<sp/>Dump<sp/>from<sp/>CLI<sp/>or<sp/>debugger:</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__trace_8c_1a5d6ef52f60e6716d99d35842cc3a621b" kindref="member">syn_trace_dump</ref>(&amp;trace,<sp/>print_func);</highlight></codeline>
+</programlisting> </para>
+</simplesect>
+</para>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_TRACE_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_TRACE_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../port/syn_port_system.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stddef.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Trace<sp/>entry<sp/>──────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight></codeline>
+<codeline lineno="39" refid="structSYN__TraceEntry" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="40" refid="structSYN__TraceEntry_1a2cd6206bae66536c72575d4ec255a51f" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><sp/><ref refid="structSYN__TraceEntry_1a2cd6206bae66536c72575d4ec255a51f" kindref="member">timestamp</ref>;<sp/><sp/></highlight></codeline>
+<codeline lineno="41" refid="structSYN__TraceEntry_1a3e366d3e559ebb967aecf93697d2f666" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/><sp/><ref refid="structSYN__TraceEntry_1a3e366d3e559ebb967aecf93697d2f666" kindref="member">event_id</ref>;<sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="42" refid="structSYN__TraceEntry_1a67992384971ae0b319216e902ad81695" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/><sp/><ref refid="structSYN__TraceEntry_1a67992384971ae0b319216e902ad81695" kindref="member">value</ref>;<sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="43"><highlight class="normal">}<sp/><ref refid="structSYN__TraceEntry" kindref="compound">SYN_TraceEntry</ref>;</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Trace<sp/>buffer<sp/>─────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="46"><highlight class="normal"></highlight></codeline>
+<codeline lineno="48" refid="structSYN__Trace" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="49" refid="structSYN__Trace_1a98e1d0f9bc57e87f72f08f8bfc4acf01" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structSYN__TraceEntry" kindref="compound">SYN_TraceEntry</ref><sp/>*<ref refid="structSYN__Trace_1a98e1d0f9bc57e87f72f08f8bfc4acf01" kindref="member">entries</ref>;<sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="50" refid="structSYN__Trace_1aab5325a051720b21acb992a282df24db" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__Trace_1aab5325a051720b21acb992a282df24db" kindref="member">capacity</ref>;<sp/><sp/></highlight></codeline>
+<codeline lineno="51" refid="structSYN__Trace_1ab3d9a5850dfe6dd6cf6ca1b103465c39" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__Trace_1ab3d9a5850dfe6dd6cf6ca1b103465c39" kindref="member">head</ref>;<sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="52" refid="structSYN__Trace_1a685adc75034fcddee7967f5e5ecd10a5" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__Trace_1a685adc75034fcddee7967f5e5ecd10a5" kindref="member">count</ref>;<sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="53" refid="structSYN__Trace_1a16af6b576d0dd0a94d6650ff27fb5795" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__Trace_1a16af6b576d0dd0a94d6650ff27fb5795" kindref="member">enabled</ref>;<sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="54"><highlight class="normal">}<sp/><ref refid="structSYN__Trace" kindref="compound">SYN_Trace</ref>;</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"></highlight></codeline>
+<codeline lineno="57" refid="syn__trace_8h_1a21ccbebb39e9c494d3331df0d1daa039" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>void<sp/>(*<ref refid="syn__trace_8h_1a21ccbebb39e9c494d3331df0d1daa039" kindref="member">SYN_TracePrintFunc</ref>)(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*str);</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"></highlight></codeline>
+<codeline lineno="59"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>API<sp/>──────────────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="60"><highlight class="normal"></highlight></codeline>
+<codeline lineno="68"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__trace_8h_1a6318026026f3606b1122f532293d0de8" kindref="member">syn_trace_init</ref>(<ref refid="structSYN__Trace" kindref="compound">SYN_Trace</ref><sp/>*trace,</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__TraceEntry" kindref="compound">SYN_TraceEntry</ref><sp/>*entries,</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint16_t<sp/>capacity);</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"></highlight></codeline>
+<codeline lineno="79"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__trace_8h_1a58464992b2ffed9a6c5ff944ab1f6f28" kindref="member">syn_trace_record</ref>(<ref refid="structSYN__Trace" kindref="compound">SYN_Trace</ref><sp/>*trace,<sp/>uint16_t<sp/>event_id,<sp/>uint16_t<sp/>value);</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"></highlight></codeline>
+<codeline lineno="82" refid="syn__trace_8h_1a4b1193d9aeee964b5a38a61b670d13d7" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_TRACE(trace,<sp/>id,<sp/>val)<sp/>syn_trace_record((trace),<sp/>(id),<sp/>(val))</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="83"><highlight class="normal"></highlight></codeline>
+<codeline lineno="90"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__trace_8h_1af580e8b3146417ca62ac841867b0d9d3" kindref="member">syn_trace_enable</ref>(<ref refid="structSYN__Trace" kindref="compound">SYN_Trace</ref><sp/>*trace,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>enable);</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"></highlight></codeline>
+<codeline lineno="97"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__trace_8h_1a2d14ad09c54aa1f165a931d6381e72e3" kindref="member">syn_trace_clear</ref>(<ref refid="structSYN__Trace" kindref="compound">SYN_Trace</ref><sp/>*trace);</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"></highlight></codeline>
+<codeline lineno="105" refid="syn__trace_8h_1affce41a806b0d72c6b355e80ffdc5bcd" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>uint32_t<sp/><ref refid="syn__trace_8h_1affce41a806b0d72c6b355e80ffdc5bcd" kindref="member">syn_trace_count</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__Trace" kindref="compound">SYN_Trace</ref><sp/>*trace)</highlight></codeline>
+<codeline lineno="106"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>trace-&gt;<ref refid="structSYN__Trace_1a685adc75034fcddee7967f5e5ecd10a5" kindref="member">count</ref>;</highlight></codeline>
+<codeline lineno="108"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="109"><highlight class="normal"></highlight></codeline>
+<codeline lineno="118"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__trace_8h_1a8544f5bfcc0ff86b46685adbf9628258" kindref="member">syn_trace_read</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__Trace" kindref="compound">SYN_Trace</ref><sp/>*trace,<sp/>uint32_t<sp/>index,</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__TraceEntry" kindref="compound">SYN_TraceEntry</ref><sp/>*entry);</highlight></codeline>
+<codeline lineno="120"><highlight class="normal"></highlight></codeline>
+<codeline lineno="129"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__trace_8h_1a5d6ef52f60e6716d99d35842cc3a621b" kindref="member">syn_trace_dump</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__Trace" kindref="compound">SYN_Trace</ref><sp/>*trace,<sp/><ref refid="syn__trace_8h_1a21ccbebb39e9c494d3331df0d1daa039" kindref="member">SYN_TracePrintFunc</ref><sp/>print);</highlight></codeline>
+<codeline lineno="130"><highlight class="normal"></highlight></codeline>
+<codeline lineno="131"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="132"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="133"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="134"><highlight class="normal"></highlight></codeline>
+<codeline lineno="135"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_TRACE_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/debug/syn_trace.h"/>
+  </compounddef>
+</doxygen>

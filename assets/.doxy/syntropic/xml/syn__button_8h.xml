@@ -1,0 +1,918 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__button_8h" kind="file" language="C++">
+    <compoundname>syn_button.h</compoundname>
+    <includes refid="syn__defs_8h" local="yes">../common/syn_defs.h</includes>
+    <includes refid="syn__gpio_8h" local="yes">../drivers/syn_gpio.h</includes>
+    <includes refid="syn__port__system_8h" local="yes">../port/syn_port_system.h</includes>
+    <includes refid="syn__fsm_8h" local="yes">../util/syn_fsm.h</includes>
+    <includes local="no">stdbool.h</includes>
+    <includedby refid="syn__button_8c" local="yes">src/syntropic/input/syn_button.c</includedby>
+    <includedby refid="syntropic_8h" local="yes">src/syntropic/syntropic.h</includedby>
+    <incdepgraph>
+      <node id="8">
+        <label>../common/syn_compiler.h</label>
+        <link refid="syn__compiler_8h"/>
+      </node>
+      <node id="2">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>../drivers/syn_gpio.h</label>
+        <link refid="syn__gpio_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/input/syn_button.h</label>
+        <link refid="syn__button_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>../port/syn_port_gpio.h</label>
+        <link refid="syn__port__gpio_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>../port/syn_port_system.h</label>
+        <link refid="syn__port__system_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="9">
+        <label>../util/syn_fsm.h</label>
+        <link refid="syn__fsm_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="10">
+        <label>stdbool.h</label>
+      </node>
+      <node id="4">
+        <label>stddef.h</label>
+      </node>
+      <node id="3">
+        <label>stdint.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="2">
+        <label>src/syntropic/input/syn_button.c</label>
+        <link refid="syn__button_8c"/>
+      </node>
+      <node id="1">
+        <label>src/syntropic/input/syn_button.h</label>
+        <link refid="syn__button_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>src/syntropic/syntropic.h</label>
+        <link refid="syntropic_8h"/>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="structSYN__Button" prot="public">SYN_Button</innerclass>
+    <sectiondef kind="user-defined">
+      <header>Button event flags (bitmask)</header>
+      <memberdef kind="define" id="syn__button_8h_1acc12cfdd2beb1864c920192329012bd7" prot="public" static="no">
+        <name>SYN_BUTTON_EVT_PRESS</name>
+        <initializer>((uint8_t)(1u &lt;&lt; 0))</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Button pressed <linebreak/>
+ </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/input/syn_button.h" line="61" column="9" bodyfile="src/syntropic/input/syn_button.h" bodystart="61" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__button_8h_1a57717b47b66a1ae510874a0260d3f8cd" prot="public" static="no">
+        <name>SYN_BUTTON_EVT_RELEASE</name>
+        <initializer>((uint8_t)(1u &lt;&lt; 1))</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Button released <linebreak/>
+ </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/input/syn_button.h" line="62" column="9" bodyfile="src/syntropic/input/syn_button.h" bodystart="62" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__button_8h_1ace2801a464d415f96e480f91363c239b" prot="public" static="no">
+        <name>SYN_BUTTON_EVT_LONG_PRESS</name>
+        <initializer>((uint8_t)(1u &lt;&lt; 2))</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Long press detected </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/input/syn_button.h" line="63" column="9" bodyfile="src/syntropic/input/syn_button.h" bodystart="63" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__button_8h_1a761011313478a08f843f8fd73e74733a" prot="public" static="no">
+        <name>SYN_BUTTON_EVT_REPEAT</name>
+        <initializer>((uint8_t)(1u &lt;&lt; 3))</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Auto-repeat fire <linebreak/>
+ </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/input/syn_button.h" line="64" column="9" bodyfile="src/syntropic/input/syn_button.h" bodystart="64" bodyend="-1"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="define">
+      <memberdef kind="define" id="syn__button_8h_1a6118bbdc2372f2a0e5d9c8b5938be068" prot="public" static="no">
+        <name>PT_WAIT_BUTTON_PRESS</name>
+        <param><defname>pt</defname></param>
+        <param><defname>btn</defname></param>
+        <initializer>    <ref refid="syn__pt_8h_1a0a7f29e2a1e2caaf5bcc343412eef273" kindref="member">PT_WAIT_UNTIL</ref>(pt, (btn)-&gt;events &amp; <ref refid="syn__button_8h_1acc12cfdd2beb1864c920192329012bd7" kindref="member">SYN_BUTTON_EVT_PRESS</ref>); \
+    (btn)-&gt;events &amp;= (uint8_t)~<ref refid="syn__button_8h_1acc12cfdd2beb1864c920192329012bd7" kindref="member">SYN_BUTTON_EVT_PRESS</ref></initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Block until the button is pressed (debounced). </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/input/syn_button.h" line="231" column="9" bodyfile="src/syntropic/input/syn_button.h" bodystart="231" bodyend="233"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__button_8h_1a6afdc110479d166fdcbb277fba03a809" prot="public" static="no">
+        <name>PT_WAIT_BUTTON_RELEASE</name>
+        <param><defname>pt</defname></param>
+        <param><defname>btn</defname></param>
+        <initializer>    <ref refid="syn__pt_8h_1a0a7f29e2a1e2caaf5bcc343412eef273" kindref="member">PT_WAIT_UNTIL</ref>(pt, (btn)-&gt;events &amp; <ref refid="syn__button_8h_1a57717b47b66a1ae510874a0260d3f8cd" kindref="member">SYN_BUTTON_EVT_RELEASE</ref>); \
+    (btn)-&gt;events &amp;= (uint8_t)~<ref refid="syn__button_8h_1a57717b47b66a1ae510874a0260d3f8cd" kindref="member">SYN_BUTTON_EVT_RELEASE</ref></initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Block until the button is released. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/input/syn_button.h" line="236" column="9" bodyfile="src/syntropic/input/syn_button.h" bodystart="236" bodyend="238"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="enum">
+      <memberdef kind="enum" id="syn__button_8h_1a8c159b3cfee9b66ae9a56d406322b8ad" prot="public" static="no" strong="no">
+        <type></type>
+        <name>SYN_ButtonPolarity</name>
+        <enumvalue id="syn__button_8h_1a8c159b3cfee9b66ae9a56d406322b8ada4d19f399f95d935a9d4f41af0e7070fa" prot="public">
+          <name>SYN_BUTTON_ACTIVE_HIGH</name>
+          <initializer>= 0</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Pressed = GPIO high </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__button_8h_1a8c159b3cfee9b66ae9a56d406322b8ada8d6dd4c1b855ad3c348a3fda02903714" prot="public">
+          <name>SYN_BUTTON_ACTIVE_LOW</name>
+          <initializer>= 1</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Pressed = GPIO low (pull-up) </para>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>Button polarity selector. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/input/syn_button.h" line="43" column="1" bodyfile="src/syntropic/input/syn_button.h" bodystart="43" bodyend="46"/>
+      </memberdef>
+      <memberdef kind="enum" id="syn__button_8h_1aaf9d4b85177c668c326638cb5743b101" prot="public" static="no" strong="no">
+        <type></type>
+        <name>SYN_ButtonState</name>
+        <enumvalue id="syn__button_8h_1aaf9d4b85177c668c326638cb5743b101a3ba9cb79c3c26e9561e424183c6aca13" prot="public">
+          <name>SYN_BUTTON_STATE_IDLE</name>
+          <initializer>= 0</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Not pressed. <linebreak/>
+ </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__button_8h_1aaf9d4b85177c668c326638cb5743b101aabf2c402351690286ad492b26fc72e91" prot="public">
+          <name>SYN_BUTTON_STATE_DEBOUNCING</name>
+          <initializer>= 1</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Waiting for stable. <linebreak/>
+ </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__button_8h_1aaf9d4b85177c668c326638cb5743b101a21fc386f46a20c679ee6d907dd73e474" prot="public">
+          <name>SYN_BUTTON_STATE_PRESSED</name>
+          <initializer>= 2</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Confirmed pressed. <linebreak/>
+ </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__button_8h_1aaf9d4b85177c668c326638cb5743b101a87203a57ee7a78cd1a3e2f7ff30c9d52" prot="public">
+          <name>SYN_BUTTON_STATE_HELD</name>
+          <initializer>= 3</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Held past threshold. </para>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>Button FSM states. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/input/syn_button.h" line="51" column="1" bodyfile="src/syntropic/input/syn_button.h" bodystart="51" bodyend="56"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="typedef">
+      <memberdef kind="typedef" id="syn__button_8h_1ae2493d2bbafd46dac9226bd8e17ddaf3" prot="public" static="no">
+        <type>void(*</type>
+        <definition>typedef void(* SYN_ButtonCallback) (struct SYN_Button *btn, void *user_data)</definition>
+        <argsstring>)(struct SYN_Button *btn, void *user_data)</argsstring>
+        <name>SYN_ButtonCallback</name>
+        <briefdescription>
+<para>Button event callback. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>btn</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The button that generated the event. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>user_data</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>User-provided context pointer. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/input/syn_button.h" line="77" column="9" bodyfile="src/syntropic/input/syn_button.h" bodystart="77" bodyend="-1"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__button_8h_1ab1bc7d30fdaae996f330f69878963530" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_button_init</definition>
+        <argsstring>(SYN_Button *btn, SYN_GPIO_Pin pin, SYN_ButtonPolarity polarity, uint16_t debounce_ms)</argsstring>
+        <name>syn_button_init</name>
+        <param>
+          <type><ref refid="structSYN__Button" kindref="compound">SYN_Button</ref> *</type>
+          <declname>btn</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref></type>
+          <declname>pin</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__button_8h_1a8c159b3cfee9b66ae9a56d406322b8ad" kindref="member">SYN_ButtonPolarity</ref></type>
+          <declname>polarity</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>debounce_ms</declname>
+        </param>
+        <briefdescription>
+<para>Initialize a button descriptor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>btn</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Button to initialize. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>pin</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>GPIO pin number. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>polarity</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Active-high or active-low. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>debounce_ms</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Debounce window in milliseconds (e.g., 50). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/input/syn_button.h" line="119" column="6" bodyfile="src/syntropic/input/syn_button.c" bodystart="153" bodyend="171" declfile="src/syntropic/input/syn_button.h" declline="119" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__button_8h_1a381c5f765d91e2a780941572d4b026d3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_button_on_press</definition>
+        <argsstring>(SYN_Button *btn, SYN_ButtonCallback cb, void *ctx)</argsstring>
+        <name>syn_button_on_press</name>
+        <param>
+          <type><ref refid="structSYN__Button" kindref="compound">SYN_Button</ref> *</type>
+          <declname>btn</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__button_8h_1ae2493d2bbafd46dac9226bd8e17ddaf3" kindref="member">SYN_ButtonCallback</ref></type>
+          <declname>cb</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>ctx</declname>
+        </param>
+        <briefdescription>
+<para>Register a press callback. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>btn</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Button. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>cb</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Callback (or NULL to disable). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>ctx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>User context. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/input/syn_button.h" line="132" column="6" bodyfile="src/syntropic/input/syn_button.c" bodystart="175" bodyend="179" declfile="src/syntropic/input/syn_button.h" declline="132" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__button_8h_1a71724b40c0bac18cc9f01039cc3cb61a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_button_on_release</definition>
+        <argsstring>(SYN_Button *btn, SYN_ButtonCallback cb, void *ctx)</argsstring>
+        <name>syn_button_on_release</name>
+        <param>
+          <type><ref refid="structSYN__Button" kindref="compound">SYN_Button</ref> *</type>
+          <declname>btn</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__button_8h_1ae2493d2bbafd46dac9226bd8e17ddaf3" kindref="member">SYN_ButtonCallback</ref></type>
+          <declname>cb</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>ctx</declname>
+        </param>
+        <briefdescription>
+<para>Register a release callback. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>btn</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Button. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>cb</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Callback (or NULL to disable). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>ctx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>User context. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/input/syn_button.h" line="141" column="6" bodyfile="src/syntropic/input/syn_button.c" bodystart="181" bodyend="185" declfile="src/syntropic/input/syn_button.h" declline="141" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__button_8h_1a6ceaaaf8b60226a30257985141a4bf0f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_button_on_long_press</definition>
+        <argsstring>(SYN_Button *btn, SYN_ButtonCallback cb, uint16_t hold_ms, void *ctx)</argsstring>
+        <name>syn_button_on_long_press</name>
+        <param>
+          <type><ref refid="structSYN__Button" kindref="compound">SYN_Button</ref> *</type>
+          <declname>btn</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__button_8h_1ae2493d2bbafd46dac9226bd8e17ddaf3" kindref="member">SYN_ButtonCallback</ref></type>
+          <declname>cb</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>hold_ms</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>ctx</declname>
+        </param>
+        <briefdescription>
+<para>Register a long-press callback. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>btn</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Button. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>cb</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Callback (or NULL to disable). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>hold_ms</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Time the button must be held before firing (ms). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>ctx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>User context. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/input/syn_button.h" line="152" column="6" bodyfile="src/syntropic/input/syn_button.c" bodystart="187" bodyend="193" declfile="src/syntropic/input/syn_button.h" declline="152" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__button_8h_1ac1c5c513c52f8ece5601177b10364cad" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_button_on_repeat</definition>
+        <argsstring>(SYN_Button *btn, SYN_ButtonCallback cb, uint16_t interval_ms, void *ctx)</argsstring>
+        <name>syn_button_on_repeat</name>
+        <param>
+          <type><ref refid="structSYN__Button" kindref="compound">SYN_Button</ref> *</type>
+          <declname>btn</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__button_8h_1ae2493d2bbafd46dac9226bd8e17ddaf3" kindref="member">SYN_ButtonCallback</ref></type>
+          <declname>cb</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>interval_ms</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>ctx</declname>
+        </param>
+        <briefdescription>
+<para>Register an auto-repeat callback. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Fires repeatedly while the button is held, after the initial press.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>btn</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Button. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>cb</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Callback (or NULL to disable). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>interval_ms</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Repeat interval in milliseconds. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>ctx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>User context. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/input/syn_button.h" line="167" column="6" bodyfile="src/syntropic/input/syn_button.c" bodystart="195" bodyend="201" declfile="src/syntropic/input/syn_button.h" declline="167" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__button_8h_1a55a8be57fa7aaef677c9ddc8eae3b27a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_button_update</definition>
+        <argsstring>(SYN_Button *btn)</argsstring>
+        <name>syn_button_update</name>
+        <param>
+          <type><ref refid="structSYN__Button" kindref="compound">SYN_Button</ref> *</type>
+          <declname>btn</declname>
+        </param>
+        <briefdescription>
+<para>Update a single button&apos;s state machine. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Call this from your main loop, a scheduler task, or a timer callback. Reads the GPIO, runs debouncing, and fires callbacks as needed.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>btn</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Button to update. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/input/syn_button.h" line="182" column="6" bodyfile="src/syntropic/input/syn_button.c" bodystart="205" bodyend="252" declfile="src/syntropic/input/syn_button.h" declline="182" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__button_8h_1a001a444ddcdc84d6a84d3c3664c7deb5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_button_service</definition>
+        <argsstring>(SYN_Button *buttons, size_t count)</argsstring>
+        <name>syn_button_service</name>
+        <param>
+          <type><ref refid="structSYN__Button" kindref="compound">SYN_Button</ref> *</type>
+          <declname>buttons</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>count</declname>
+        </param>
+        <briefdescription>
+<para>Service an array of buttons. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>buttons</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Array of buttons. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>count</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of buttons. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/input/syn_button.h" line="189" column="6" bodyfile="src/syntropic/input/syn_button.c" bodystart="254" bodyend="261" declfile="src/syntropic/input/syn_button.h" declline="189" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__button_8h_1ac77229d916dcaf54a4f860899e1c3717" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>static bool syn_button_is_pressed</definition>
+        <argsstring>(const SYN_Button *btn)</argsstring>
+        <name>syn_button_is_pressed</name>
+        <param>
+          <type>const <ref refid="structSYN__Button" kindref="compound">SYN_Button</ref> *</type>
+          <declname>btn</declname>
+        </param>
+        <briefdescription>
+<para>Is the button currently pressed (debounced)? </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>btn</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Button. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if pressed. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/input/syn_button.h" line="198" column="20" bodyfile="src/syntropic/input/syn_button.h" bodystart="198" bodyend="201"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__button_8h_1aac50aa12e434ce31b7c7106d87d0b429" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>static uint32_t syn_button_held_ms</definition>
+        <argsstring>(const SYN_Button *btn)</argsstring>
+        <name>syn_button_held_ms</name>
+        <param>
+          <type>const <ref refid="structSYN__Button" kindref="compound">SYN_Button</ref> *</type>
+          <declname>btn</declname>
+        </param>
+        <briefdescription>
+<para>How long has the button been in its current state (ms)? </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>btn</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Button. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Duration in milliseconds. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/input/syn_button.h" line="208" column="24" bodyfile="src/syntropic/input/syn_button.h" bodystart="208" bodyend="211"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__button_8h_1ae2674b821de7ebe9ed7114df804835e1" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>uint8_t</type>
+        <definition>static uint8_t syn_button_poll_events</definition>
+        <argsstring>(SYN_Button *btn)</argsstring>
+        <name>syn_button_poll_events</name>
+        <param>
+          <type><ref refid="structSYN__Button" kindref="compound">SYN_Button</ref> *</type>
+          <declname>btn</declname>
+        </param>
+        <briefdescription>
+<para>Read and clear pending events (bitmask of SYN_BUTTON_EVT_*). </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Useful for polling instead of callbacks.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>btn</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Button. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Bitmask of events that occurred since last poll. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/input/syn_button.h" line="221" column="23" bodyfile="src/syntropic/input/syn_button.h" bodystart="221" bodyend="226"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Debounced button input with press/release/long-press/repeat. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Pure polling — no interrupts required. Call <ref refid="syn__button_8h_1a55a8be57fa7aaef677c9ddc8eae3b27a" kindref="member">syn_button_update()</ref> (or <ref refid="syn__button_8h_1a001a444ddcdc84d6a84d3c3664c7deb5" kindref="member">syn_button_service()</ref> for an array) from your main loop or a scheduler task. The module handles debouncing, edge detection, and long-press timing internally.</para>
+<para><simplesect kind="par"><title>Usage</title><para><programlisting><codeline><highlight class="keyword">static</highlight><highlight class="normal"><sp/><ref refid="structSYN__Button" kindref="compound">SYN_Button</ref><sp/>btn;</highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__button_8c_1ab1bc7d30fdaae996f330f69878963530" kindref="member">syn_button_init</ref>(&amp;btn,<sp/>PIN_BUTTON,<sp/><ref refid="syn__button_8h_1a8c159b3cfee9b66ae9a56d406322b8ada8d6dd4c1b855ad3c348a3fda02903714" kindref="member">SYN_BUTTON_ACTIVE_LOW</ref>,<sp/>50);</highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__button_8c_1a381c5f765d91e2a780941572d4b026d3" kindref="member">syn_button_on_press</ref>(&amp;btn,<sp/>my_press_handler,<sp/>NULL);</highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__button_8c_1a6ceaaaf8b60226a30257985141a4bf0f" kindref="member">syn_button_on_long_press</ref>(&amp;btn,<sp/>my_long_handler,<sp/>1000,<sp/>NULL);</highlight></codeline>
+<codeline><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="comment">//<sp/>Main<sp/>loop:</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="keywordflow">while</highlight><highlight class="normal"><sp/>(1)<sp/>{<sp/><ref refid="syn__button_8c_1a55a8be57fa7aaef677c9ddc8eae3b27a" kindref="member">syn_button_update</ref>(&amp;btn);<sp/>}</highlight></codeline>
+<codeline><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="comment">//<sp/>Or<sp/>in<sp/>a<sp/>protothread:</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__button_8h_1a6118bbdc2372f2a0e5d9c8b5938be068" kindref="member">PT_WAIT_BUTTON_PRESS</ref>(pt,<sp/>&amp;btn);</highlight></codeline>
+</programlisting> </para>
+</simplesect>
+</para>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_BUTTON_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_BUTTON_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../common/syn_defs.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../drivers/syn_gpio.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../port/syn_port_system.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../util/syn_fsm.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Button<sp/>polarity<sp/>──────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight></codeline>
+<codeline lineno="43" refid="syn__button_8h_1a8c159b3cfee9b66ae9a56d406322b8ad" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="44" refid="syn__button_8h_1a8c159b3cfee9b66ae9a56d406322b8ada4d19f399f95d935a9d4f41af0e7070fa" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__button_8h_1a8c159b3cfee9b66ae9a56d406322b8ada4d19f399f95d935a9d4f41af0e7070fa" kindref="member">SYN_BUTTON_ACTIVE_HIGH</ref><sp/>=<sp/>0,<sp/><sp/></highlight></codeline>
+<codeline lineno="45" refid="syn__button_8h_1a8c159b3cfee9b66ae9a56d406322b8ada8d6dd4c1b855ad3c348a3fda02903714" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__button_8h_1a8c159b3cfee9b66ae9a56d406322b8ada8d6dd4c1b855ad3c348a3fda02903714" kindref="member">SYN_BUTTON_ACTIVE_LOW</ref><sp/><sp/>=<sp/>1,<sp/><sp/></highlight></codeline>
+<codeline lineno="46"><highlight class="normal">}<sp/><ref refid="syn__button_8h_1a8c159b3cfee9b66ae9a56d406322b8ad" kindref="member">SYN_ButtonPolarity</ref>;</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"></highlight></codeline>
+<codeline lineno="48"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Button<sp/>state<sp/>─────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="49"><highlight class="normal"></highlight></codeline>
+<codeline lineno="51" refid="syn__button_8h_1aaf9d4b85177c668c326638cb5743b101" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="52" refid="syn__button_8h_1aaf9d4b85177c668c326638cb5743b101a3ba9cb79c3c26e9561e424183c6aca13" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__button_8h_1aaf9d4b85177c668c326638cb5743b101a3ba9cb79c3c26e9561e424183c6aca13" kindref="member">SYN_BUTTON_STATE_IDLE</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>0,<sp/><sp/></highlight></codeline>
+<codeline lineno="53" refid="syn__button_8h_1aaf9d4b85177c668c326638cb5743b101aabf2c402351690286ad492b26fc72e91" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__button_8h_1aaf9d4b85177c668c326638cb5743b101aabf2c402351690286ad492b26fc72e91" kindref="member">SYN_BUTTON_STATE_DEBOUNCING</ref><sp/>=<sp/>1,<sp/><sp/></highlight></codeline>
+<codeline lineno="54" refid="syn__button_8h_1aaf9d4b85177c668c326638cb5743b101a21fc386f46a20c679ee6d907dd73e474" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__button_8h_1aaf9d4b85177c668c326638cb5743b101a21fc386f46a20c679ee6d907dd73e474" kindref="member">SYN_BUTTON_STATE_PRESSED</ref><sp/><sp/><sp/><sp/>=<sp/>2,<sp/><sp/></highlight></codeline>
+<codeline lineno="55" refid="syn__button_8h_1aaf9d4b85177c668c326638cb5743b101a87203a57ee7a78cd1a3e2f7ff30c9d52" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__button_8h_1aaf9d4b85177c668c326638cb5743b101a87203a57ee7a78cd1a3e2f7ff30c9d52" kindref="member">SYN_BUTTON_STATE_HELD</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>3,<sp/><sp/></highlight></codeline>
+<codeline lineno="56"><highlight class="normal">}<sp/><ref refid="syn__button_8h_1aaf9d4b85177c668c326638cb5743b101" kindref="member">SYN_ButtonState</ref>;</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"></highlight></codeline>
+<codeline lineno="61" refid="syn__button_8h_1acc12cfdd2beb1864c920192329012bd7" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_BUTTON_EVT_PRESS<sp/><sp/><sp/><sp/><sp/><sp/><sp/>((uint8_t)(1u<sp/>&lt;&lt;<sp/>0))<sp/><sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="62" refid="syn__button_8h_1a57717b47b66a1ae510874a0260d3f8cd" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_BUTTON_EVT_RELEASE<sp/><sp/><sp/><sp/><sp/>((uint8_t)(1u<sp/>&lt;&lt;<sp/>1))<sp/><sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="63" refid="syn__button_8h_1ace2801a464d415f96e480f91363c239b" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_BUTTON_EVT_LONG_PRESS<sp/><sp/>((uint8_t)(1u<sp/>&lt;&lt;<sp/>2))<sp/><sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="64" refid="syn__button_8h_1a761011313478a08f843f8fd73e74733a" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_BUTTON_EVT_REPEAT<sp/><sp/><sp/><sp/><sp/><sp/>((uint8_t)(1u<sp/>&lt;&lt;<sp/>3))<sp/><sp/></highlight></codeline>
+<codeline lineno="67"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Callback<sp/>type<sp/>────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="68"><highlight class="normal"></highlight></codeline>
+<codeline lineno="69"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structSYN__Button" kindref="compound">SYN_Button</ref>;</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"></highlight></codeline>
+<codeline lineno="77" refid="syn__button_8h_1ae2493d2bbafd46dac9226bd8e17ddaf3" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>void<sp/>(*<ref refid="syn__button_8h_1ae2493d2bbafd46dac9226bd8e17ddaf3" kindref="member">SYN_ButtonCallback</ref>)(</highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structSYN__Button" kindref="compound">SYN_Button</ref><sp/>*btn,<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*user_data);</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"></highlight></codeline>
+<codeline lineno="79"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Button<sp/>descriptor<sp/>────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="80"><highlight class="normal"></highlight></codeline>
+<codeline lineno="82" refid="structSYN__Button" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structSYN__Button" kindref="compound">SYN_Button</ref><sp/>{</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Configuration<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="84" refid="structSYN__Button_1afe7d7daad514c70a9839d788d56e493e" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__Button_1afe7d7daad514c70a9839d788d56e493e" kindref="member">pin</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="85" refid="structSYN__Button_1abd113142332f15df1b626dfc0053a36f" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__Button_1abd113142332f15df1b626dfc0053a36f" kindref="member">polarity</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="86" refid="structSYN__Button_1af9dc1672a548e589880942889f2f31a2" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__Button_1af9dc1672a548e589880942889f2f31a2" kindref="member">debounce_ms</ref>;<sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="87" refid="structSYN__Button_1a10980e40e802083318bfa30c0cf9e534" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__Button_1a10980e40e802083318bfa30c0cf9e534" kindref="member">long_press_ms</ref>;<sp/><sp/></highlight></codeline>
+<codeline lineno="88" refid="structSYN__Button_1ab1ab0d9cc181f94de8c52931c13dce58" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__Button_1ab1ab0d9cc181f94de8c52931c13dce58" kindref="member">repeat_ms</ref>;<sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="90"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>State<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="91" refid="structSYN__Button_1a13b5478de6508344ce4306e1f9e05d5b" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structSYN__FSM" kindref="compound">SYN_FSM</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__Button_1a13b5478de6508344ce4306e1f9e05d5b" kindref="member">fsm</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="92" refid="structSYN__Button_1a37b339b5d7a136d42cd248af50c0033a" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__Button_1a37b339b5d7a136d42cd248af50c0033a" kindref="member">events</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="93" refid="structSYN__Button_1adf3bd34e3e1acadb042e900a88a4d659" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__Button_1adf3bd34e3e1acadb042e900a88a4d659" kindref="member">raw_pressed</ref>;<sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="94" refid="structSYN__Button_1af653dc08aa80fd352472599cef600de6" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__Button_1af653dc08aa80fd352472599cef600de6" kindref="member">pressed</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="95" refid="structSYN__Button_1af3bd39f4f9ec13715256462a973fedc3" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__Button_1af3bd39f4f9ec13715256462a973fedc3" kindref="member">state_tick</ref>;<sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="96" refid="structSYN__Button_1a45cb074ad2f48bb9c265374730cee620" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__Button_1a45cb074ad2f48bb9c265374730cee620" kindref="member">repeat_tick</ref>;<sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="98"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Callbacks<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="99" refid="structSYN__Button_1ac7f04d80a2cf3e53828112f8d425a16a" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__button_8h_1ae2493d2bbafd46dac9226bd8e17ddaf3" kindref="member">SYN_ButtonCallback</ref><sp/><sp/><sp/><ref refid="structSYN__Button_1ac7f04d80a2cf3e53828112f8d425a16a" kindref="member">on_press</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="100" refid="structSYN__Button_1a225631ed209d536137b414aa8cc74d73" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<ref refid="structSYN__Button_1a225631ed209d536137b414aa8cc74d73" kindref="member">on_press_ctx</ref>;<sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="101" refid="structSYN__Button_1ae89b66cb6c48eeafe76335c8fab64e6c" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__button_8h_1ae2493d2bbafd46dac9226bd8e17ddaf3" kindref="member">SYN_ButtonCallback</ref><sp/><sp/><sp/><ref refid="structSYN__Button_1ae89b66cb6c48eeafe76335c8fab64e6c" kindref="member">on_release</ref>;<sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="102" refid="structSYN__Button_1af987b2e81f8ef96840806048ccce12c9" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<ref refid="structSYN__Button_1af987b2e81f8ef96840806048ccce12c9" kindref="member">on_release_ctx</ref>;<sp/></highlight></codeline>
+<codeline lineno="103" refid="structSYN__Button_1ae8d84043abf309bf48607458443b461f" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__button_8h_1ae2493d2bbafd46dac9226bd8e17ddaf3" kindref="member">SYN_ButtonCallback</ref><sp/><sp/><sp/><ref refid="structSYN__Button_1ae8d84043abf309bf48607458443b461f" kindref="member">on_long_press</ref>;<sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="104" refid="structSYN__Button_1ae349afeed89f82a6f97b3134b43dfcc0" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<ref refid="structSYN__Button_1ae349afeed89f82a6f97b3134b43dfcc0" kindref="member">on_long_press_ctx</ref>;<sp/></highlight></codeline>
+<codeline lineno="105" refid="structSYN__Button_1acf526969707739a163e048603632852b" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__button_8h_1ae2493d2bbafd46dac9226bd8e17ddaf3" kindref="member">SYN_ButtonCallback</ref><sp/><sp/><sp/><ref refid="structSYN__Button_1acf526969707739a163e048603632852b" kindref="member">on_repeat</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="106" refid="structSYN__Button_1a41b00dadea46b2012a69eeebf6e5f2be" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<ref refid="structSYN__Button_1a41b00dadea46b2012a69eeebf6e5f2be" kindref="member">on_repeat_ctx</ref>;<sp/><sp/></highlight></codeline>
+<codeline lineno="107"><highlight class="normal">}<sp/><ref refid="structSYN__Button" kindref="compound">SYN_Button</ref>;</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"></highlight></codeline>
+<codeline lineno="109"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Initialization<sp/>───────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="110"><highlight class="normal"></highlight></codeline>
+<codeline lineno="119"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__button_8h_1ab1bc7d30fdaae996f330f69878963530" kindref="member">syn_button_init</ref>(<ref refid="structSYN__Button" kindref="compound">SYN_Button</ref><sp/>*btn,</highlight></codeline>
+<codeline lineno="120"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref><sp/>pin,</highlight></codeline>
+<codeline lineno="121"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__button_8h_1a8c159b3cfee9b66ae9a56d406322b8ad" kindref="member">SYN_ButtonPolarity</ref><sp/>polarity,</highlight></codeline>
+<codeline lineno="122"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint16_t<sp/>debounce_ms);</highlight></codeline>
+<codeline lineno="123"><highlight class="normal"></highlight></codeline>
+<codeline lineno="124"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Callback<sp/>registration<sp/>────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="125"><highlight class="normal"></highlight></codeline>
+<codeline lineno="132"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__button_8h_1a381c5f765d91e2a780941572d4b026d3" kindref="member">syn_button_on_press</ref>(<ref refid="structSYN__Button" kindref="compound">SYN_Button</ref><sp/>*btn,</highlight></codeline>
+<codeline lineno="133"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__button_8h_1ae2493d2bbafd46dac9226bd8e17ddaf3" kindref="member">SYN_ButtonCallback</ref><sp/>cb,<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*ctx);</highlight></codeline>
+<codeline lineno="134"><highlight class="normal"></highlight></codeline>
+<codeline lineno="141"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__button_8h_1a71724b40c0bac18cc9f01039cc3cb61a" kindref="member">syn_button_on_release</ref>(<ref refid="structSYN__Button" kindref="compound">SYN_Button</ref><sp/>*btn,</highlight></codeline>
+<codeline lineno="142"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__button_8h_1ae2493d2bbafd46dac9226bd8e17ddaf3" kindref="member">SYN_ButtonCallback</ref><sp/>cb,<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*ctx);</highlight></codeline>
+<codeline lineno="143"><highlight class="normal"></highlight></codeline>
+<codeline lineno="152"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__button_8h_1a6ceaaaf8b60226a30257985141a4bf0f" kindref="member">syn_button_on_long_press</ref>(<ref refid="structSYN__Button" kindref="compound">SYN_Button</ref><sp/>*btn,</highlight></codeline>
+<codeline lineno="153"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__button_8h_1ae2493d2bbafd46dac9226bd8e17ddaf3" kindref="member">SYN_ButtonCallback</ref><sp/>cb,</highlight></codeline>
+<codeline lineno="154"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint16_t<sp/>hold_ms,</highlight></codeline>
+<codeline lineno="155"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*ctx);</highlight></codeline>
+<codeline lineno="156"><highlight class="normal"></highlight></codeline>
+<codeline lineno="167"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__button_8h_1ac1c5c513c52f8ece5601177b10364cad" kindref="member">syn_button_on_repeat</ref>(<ref refid="structSYN__Button" kindref="compound">SYN_Button</ref><sp/>*btn,</highlight></codeline>
+<codeline lineno="168"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__button_8h_1ae2493d2bbafd46dac9226bd8e17ddaf3" kindref="member">SYN_ButtonCallback</ref><sp/>cb,</highlight></codeline>
+<codeline lineno="169"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint16_t<sp/>interval_ms,</highlight></codeline>
+<codeline lineno="170"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*ctx);</highlight></codeline>
+<codeline lineno="171"><highlight class="normal"></highlight></codeline>
+<codeline lineno="172"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Update<sp/>/<sp/>service<sp/>─────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="173"><highlight class="normal"></highlight></codeline>
+<codeline lineno="182"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__button_8h_1a55a8be57fa7aaef677c9ddc8eae3b27a" kindref="member">syn_button_update</ref>(<ref refid="structSYN__Button" kindref="compound">SYN_Button</ref><sp/>*btn);</highlight></codeline>
+<codeline lineno="183"><highlight class="normal"></highlight></codeline>
+<codeline lineno="189"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__button_8h_1a001a444ddcdc84d6a84d3c3664c7deb5" kindref="member">syn_button_service</ref>(<ref refid="structSYN__Button" kindref="compound">SYN_Button</ref><sp/>*buttons,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>count);</highlight></codeline>
+<codeline lineno="190"><highlight class="normal"></highlight></codeline>
+<codeline lineno="191"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Query<sp/>────────────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="192"><highlight class="normal"></highlight></codeline>
+<codeline lineno="198" refid="syn__button_8h_1ac77229d916dcaf54a4f860899e1c3717" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__button_8h_1ac77229d916dcaf54a4f860899e1c3717" kindref="member">syn_button_is_pressed</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__Button" kindref="compound">SYN_Button</ref><sp/>*btn)</highlight></codeline>
+<codeline lineno="199"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="200"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>btn-&gt;<ref refid="structSYN__Button_1af653dc08aa80fd352472599cef600de6" kindref="member">pressed</ref>;</highlight></codeline>
+<codeline lineno="201"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="202"><highlight class="normal"></highlight></codeline>
+<codeline lineno="208" refid="syn__button_8h_1aac50aa12e434ce31b7c7106d87d0b429" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>uint32_t<sp/><ref refid="syn__button_8h_1aac50aa12e434ce31b7c7106d87d0b429" kindref="member">syn_button_held_ms</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__Button" kindref="compound">SYN_Button</ref><sp/>*btn)</highlight></codeline>
+<codeline lineno="209"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="210"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__port__system_8h_1a6c7d98587814b2c0d9c09da02d318873" kindref="member">syn_port_get_tick_ms</ref>()<sp/>-<sp/>btn-&gt;<ref refid="structSYN__Button_1af3bd39f4f9ec13715256462a973fedc3" kindref="member">state_tick</ref>;</highlight></codeline>
+<codeline lineno="211"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="212"><highlight class="normal"></highlight></codeline>
+<codeline lineno="221" refid="syn__button_8h_1ae2674b821de7ebe9ed7114df804835e1" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>uint8_t<sp/><ref refid="syn__button_8h_1ae2674b821de7ebe9ed7114df804835e1" kindref="member">syn_button_poll_events</ref>(<ref refid="structSYN__Button" kindref="compound">SYN_Button</ref><sp/>*btn)</highlight></codeline>
+<codeline lineno="222"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="223"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>e<sp/>=<sp/>btn-&gt;<ref refid="structSYN__Button_1a37b339b5d7a136d42cd248af50c0033a" kindref="member">events</ref>;</highlight></codeline>
+<codeline lineno="224"><highlight class="normal"><sp/><sp/><sp/><sp/>btn-&gt;<ref refid="structSYN__Button_1a37b339b5d7a136d42cd248af50c0033a" kindref="member">events</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="225"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>e;</highlight></codeline>
+<codeline lineno="226"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="227"><highlight class="normal"></highlight></codeline>
+<codeline lineno="228"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Protothread<sp/>integration<sp/>──────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="229"><highlight class="normal"></highlight></codeline>
+<codeline lineno="231" refid="syn__button_8h_1a6118bbdc2372f2a0e5d9c8b5938be068" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>PT_WAIT_BUTTON_PRESS(pt,<sp/>btn)<sp/>\</highlight></codeline>
+<codeline lineno="232"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>PT_WAIT_UNTIL(pt,<sp/>(btn)-&gt;events<sp/>&amp;<sp/>SYN_BUTTON_EVT_PRESS);<sp/>\</highlight></codeline>
+<codeline lineno="233"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>(btn)-&gt;events<sp/>&amp;=<sp/>(uint8_t)~SYN_BUTTON_EVT_PRESS</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="234"><highlight class="normal"></highlight></codeline>
+<codeline lineno="236" refid="syn__button_8h_1a6afdc110479d166fdcbb277fba03a809" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>PT_WAIT_BUTTON_RELEASE(pt,<sp/>btn)<sp/>\</highlight></codeline>
+<codeline lineno="237"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>PT_WAIT_UNTIL(pt,<sp/>(btn)-&gt;events<sp/>&amp;<sp/>SYN_BUTTON_EVT_RELEASE);<sp/>\</highlight></codeline>
+<codeline lineno="238"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>(btn)-&gt;events<sp/>&amp;=<sp/>(uint8_t)~SYN_BUTTON_EVT_RELEASE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="239"><highlight class="normal"></highlight></codeline>
+<codeline lineno="240"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="241"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="242"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="243"><highlight class="normal"></highlight></codeline>
+<codeline lineno="244"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_BUTTON_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/input/syn_button.h"/>
+  </compounddef>
+</doxygen>

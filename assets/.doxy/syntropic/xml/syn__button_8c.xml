@@ -1,0 +1,1014 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__button_8c" kind="file" language="C++">
+    <compoundname>syn_button.c</compoundname>
+    <includes refid="syn__button_8h" local="yes">syn_button.h</includes>
+    <includes refid="syn__assert_8h" local="yes">../util/syn_assert.h</includes>
+    <includes local="no">string.h</includes>
+    <incdepgraph>
+      <node id="9">
+        <label>../common/syn_compiler.h</label>
+        <link refid="syn__compiler_8h"/>
+      </node>
+      <node id="3">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>../drivers/syn_gpio.h</label>
+        <link refid="syn__gpio_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/input/syn_button.c</label>
+        <link refid="syn__button_8c"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>syn_button.h</label>
+        <link refid="syn__button_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>../port/syn_port_gpio.h</label>
+        <link refid="syn__port__gpio_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>../port/syn_port_system.h</label>
+        <link refid="syn__port__system_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="12">
+        <label>../util/syn_assert.h</label>
+        <link refid="syn__assert_8h"/>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="10">
+        <label>../util/syn_fsm.h</label>
+        <link refid="syn__fsm_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="11">
+        <label>stdbool.h</label>
+      </node>
+      <node id="5">
+        <label>stddef.h</label>
+      </node>
+      <node id="4">
+        <label>stdint.h</label>
+      </node>
+      <node id="13">
+        <label>string.h</label>
+      </node>
+    </incdepgraph>
+    <sectiondef kind="enum">
+      <memberdef kind="enum" id="syn__button_8c_1a06fc87d81c62e9abb8790b6e5713c55b" prot="public" static="no" strong="no">
+        <type></type>
+        <name></name>
+        <enumvalue id="syn__button_8c_1a06fc87d81c62e9abb8790b6e5713c55ba02d7c9fbfe5449188984097665102071" prot="public">
+          <name>BTN_EV_RAW_PRESS</name>
+          <initializer>= 0</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>GPIO went active <linebreak/>
+ </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__button_8c_1a06fc87d81c62e9abb8790b6e5713c55ba2de664d8bc8f405f1181b802e4be98e8" prot="public">
+          <name>BTN_EV_RAW_RELEASE</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>GPIO went inactive <linebreak/>
+ </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__button_8c_1a06fc87d81c62e9abb8790b6e5713c55ba193950611643261fe865beb1d7697246" prot="public">
+          <name>BTN_EV_DEBOUNCE_OK</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Debounce timer expired while still held </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__button_8c_1a06fc87d81c62e9abb8790b6e5713c55ba77526bb50d7f4bd0f84fe8827d719aad" prot="public">
+          <name>BTN_EV_LONG_PRESS</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Long-press threshold reached <linebreak/>
+ </para>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/input/syn_button.c" line="23" column="1" bodyfile="src/syntropic/input/syn_button.c" bodystart="23" bodyend="28"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="var">
+      <memberdef kind="variable" id="syn__button_8c_1a9023511fba776c0299a164ccd7c7fe67" prot="public" static="yes" mutable="no">
+        <type>const <ref refid="structSYN__FSM__Transition" kindref="compound">SYN_FSM_Transition</ref></type>
+        <definition>const SYN_FSM_Transition g_button_transitions[]</definition>
+        <argsstring>[]</argsstring>
+        <name>g_button_transitions</name>
+        <initializer>= {
+    
+    { <ref refid="syn__button_8h_1aaf9d4b85177c668c326638cb5743b101a3ba9cb79c3c26e9561e424183c6aca13" kindref="member">SYN_BUTTON_STATE_IDLE</ref>,       <ref refid="syn__button_8c_1a06fc87d81c62e9abb8790b6e5713c55ba02d7c9fbfe5449188984097665102071" kindref="member">BTN_EV_RAW_PRESS</ref>,    <ref refid="syn__button_8h_1aaf9d4b85177c668c326638cb5743b101aabf2c402351690286ad492b26fc72e91" kindref="member">SYN_BUTTON_STATE_DEBOUNCING</ref>, NULL, <ref refid="syn__button_8c_1a86abbb8e3ce793fcc436b0cfa6194ff3" kindref="member">action_start_debounce</ref> },
+
+    
+    { <ref refid="syn__button_8h_1aaf9d4b85177c668c326638cb5743b101aabf2c402351690286ad492b26fc72e91" kindref="member">SYN_BUTTON_STATE_DEBOUNCING</ref>, <ref refid="syn__button_8c_1a06fc87d81c62e9abb8790b6e5713c55ba2de664d8bc8f405f1181b802e4be98e8" kindref="member">BTN_EV_RAW_RELEASE</ref>,  <ref refid="syn__button_8h_1aaf9d4b85177c668c326638cb5743b101a3ba9cb79c3c26e9561e424183c6aca13" kindref="member">SYN_BUTTON_STATE_IDLE</ref>,       NULL, <ref refid="syn__button_8c_1a5d4ffae9ad83ea3560171cc40a7943d1" kindref="member">action_bounce_back</ref>    },
+    { <ref refid="syn__button_8h_1aaf9d4b85177c668c326638cb5743b101aabf2c402351690286ad492b26fc72e91" kindref="member">SYN_BUTTON_STATE_DEBOUNCING</ref>, <ref refid="syn__button_8c_1a06fc87d81c62e9abb8790b6e5713c55ba193950611643261fe865beb1d7697246" kindref="member">BTN_EV_DEBOUNCE_OK</ref>,  <ref refid="syn__button_8h_1aaf9d4b85177c668c326638cb5743b101a21fc386f46a20c679ee6d907dd73e474" kindref="member">SYN_BUTTON_STATE_PRESSED</ref>,    NULL, <ref refid="syn__button_8c_1a5c2efc7df79366780f14f8a77d7b2547" kindref="member">action_confirm_press</ref>  },
+
+    
+    { <ref refid="syn__button_8h_1aaf9d4b85177c668c326638cb5743b101a21fc386f46a20c679ee6d907dd73e474" kindref="member">SYN_BUTTON_STATE_PRESSED</ref>,    <ref refid="syn__button_8c_1a06fc87d81c62e9abb8790b6e5713c55ba2de664d8bc8f405f1181b802e4be98e8" kindref="member">BTN_EV_RAW_RELEASE</ref>,  <ref refid="syn__button_8h_1aaf9d4b85177c668c326638cb5743b101a3ba9cb79c3c26e9561e424183c6aca13" kindref="member">SYN_BUTTON_STATE_IDLE</ref>,       NULL, <ref refid="syn__button_8c_1a307be20432fdf6631d7857992ff5da0d" kindref="member">action_release</ref>        },
+    { <ref refid="syn__button_8h_1aaf9d4b85177c668c326638cb5743b101a21fc386f46a20c679ee6d907dd73e474" kindref="member">SYN_BUTTON_STATE_PRESSED</ref>,    <ref refid="syn__button_8c_1a06fc87d81c62e9abb8790b6e5713c55ba77526bb50d7f4bd0f84fe8827d719aad" kindref="member">BTN_EV_LONG_PRESS</ref>,   <ref refid="syn__button_8h_1aaf9d4b85177c668c326638cb5743b101a87203a57ee7a78cd1a3e2f7ff30c9d52" kindref="member">SYN_BUTTON_STATE_HELD</ref>,       NULL, <ref refid="syn__button_8c_1a3b0f1849ecc4a8ef13c556960381e33b" kindref="member">action_long_press</ref>     },
+
+    
+    { <ref refid="syn__button_8h_1aaf9d4b85177c668c326638cb5743b101a87203a57ee7a78cd1a3e2f7ff30c9d52" kindref="member">SYN_BUTTON_STATE_HELD</ref>,       <ref refid="syn__button_8c_1a06fc87d81c62e9abb8790b6e5713c55ba2de664d8bc8f405f1181b802e4be98e8" kindref="member">BTN_EV_RAW_RELEASE</ref>,  <ref refid="syn__button_8h_1aaf9d4b85177c668c326638cb5743b101a3ba9cb79c3c26e9561e424183c6aca13" kindref="member">SYN_BUTTON_STATE_IDLE</ref>,       NULL, <ref refid="syn__button_8c_1a307be20432fdf6631d7857992ff5da0d" kindref="member">action_release</ref>        },
+
+    <ref refid="syn__fsm_8h_1af2404e64df1a0a4e163a125c6f924abc" kindref="member">SYN_FSM_END</ref>
+}</initializer>
+        <briefdescription>
+<para>Button FSM transition table. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/input/syn_button.c" line="133" column="33" bodyfile="src/syntropic/input/syn_button.c" bodystart="133" bodyend="149"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__button_8c_1a0ec7af8047210de9671d55b436cc30f9" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>static bool button_read_raw</definition>
+        <argsstring>(const SYN_Button *btn)</argsstring>
+        <name>button_read_raw</name>
+        <param>
+          <type>const <ref refid="structSYN__Button" kindref="compound">SYN_Button</ref> *</type>
+          <declname>btn</declname>
+        </param>
+        <briefdescription>
+<para>Read the raw (debounce-agnostic) button state. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>btn</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Button instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if the GPIO indicates pressed. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/input/syn_button.c" line="37" column="13" bodyfile="src/syntropic/input/syn_button.c" bodystart="37" bodyend="44"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__button_8c_1a0df7c3c646bea0550d9c0bbe81937fdf" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void button_fire_event</definition>
+        <argsstring>(SYN_Button *btn, uint8_t evt, SYN_ButtonCallback cb, void *ctx)</argsstring>
+        <name>button_fire_event</name>
+        <param>
+          <type><ref refid="structSYN__Button" kindref="compound">SYN_Button</ref> *</type>
+          <declname>btn</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>evt</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__button_8h_1ae2493d2bbafd46dac9226bd8e17ddaf3" kindref="member">SYN_ButtonCallback</ref></type>
+          <declname>cb</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>ctx</declname>
+        </param>
+        <briefdescription>
+<para>Set an event flag and invoke the callback. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>btn</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Button instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>evt</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Event bitmask. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>cb</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Callback (may be NULL). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>ctx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>User context for callback. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/input/syn_button.c" line="53" column="13" bodyfile="src/syntropic/input/syn_button.c" bodystart="53" bodyend="60"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__button_8c_1a86abbb8e3ce793fcc436b0cfa6194ff3" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void action_start_debounce</definition>
+        <argsstring>(void *ctx)</argsstring>
+        <name>action_start_debounce</name>
+        <param>
+          <type>void *</type>
+          <declname>ctx</declname>
+        </param>
+        <briefdescription>
+<para>FSM action: start debounce timer on raw press. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ctx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Button (as void*). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/input/syn_button.c" line="68" column="13" bodyfile="src/syntropic/input/syn_button.c" bodystart="68" bodyend="73"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__button_8c_1a5d4ffae9ad83ea3560171cc40a7943d1" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void action_bounce_back</definition>
+        <argsstring>(void *ctx)</argsstring>
+        <name>action_bounce_back</name>
+        <param>
+          <type>void *</type>
+          <declname>ctx</declname>
+        </param>
+        <briefdescription>
+<para>FSM action: raw release during debounce → return to idle. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ctx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Button (as void*). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/input/syn_button.c" line="79" column="13" bodyfile="src/syntropic/input/syn_button.c" bodystart="79" bodyend="84"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__button_8c_1a5c2efc7df79366780f14f8a77d7b2547" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void action_confirm_press</definition>
+        <argsstring>(void *ctx)</argsstring>
+        <name>action_confirm_press</name>
+        <param>
+          <type>void *</type>
+          <declname>ctx</declname>
+        </param>
+        <briefdescription>
+<para>FSM action: debounce confirmed, fire press event. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ctx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Button (as void*). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/input/syn_button.c" line="90" column="13" bodyfile="src/syntropic/input/syn_button.c" bodystart="90" bodyend="99"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__button_8c_1a307be20432fdf6631d7857992ff5da0d" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void action_release</definition>
+        <argsstring>(void *ctx)</argsstring>
+        <name>action_release</name>
+        <param>
+          <type>void *</type>
+          <declname>ctx</declname>
+        </param>
+        <briefdescription>
+<para>FSM action: button released, fire release event. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ctx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Button (as void*). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/input/syn_button.c" line="105" column="13" bodyfile="src/syntropic/input/syn_button.c" bodystart="105" bodyend="114"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__button_8c_1a3b0f1849ecc4a8ef13c556960381e33b" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void action_long_press</definition>
+        <argsstring>(void *ctx)</argsstring>
+        <name>action_long_press</name>
+        <param>
+          <type>void *</type>
+          <declname>ctx</declname>
+        </param>
+        <briefdescription>
+<para>FSM action: held long enough, fire long-press event. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ctx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Button (as void*). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/input/syn_button.c" line="120" column="13" bodyfile="src/syntropic/input/syn_button.c" bodystart="120" bodyend="128"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__button_8c_1ab1bc7d30fdaae996f330f69878963530" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_button_init</definition>
+        <argsstring>(SYN_Button *btn, SYN_GPIO_Pin pin, SYN_ButtonPolarity polarity, uint16_t debounce_ms)</argsstring>
+        <name>syn_button_init</name>
+        <param>
+          <type><ref refid="structSYN__Button" kindref="compound">SYN_Button</ref> *</type>
+          <declname>btn</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref></type>
+          <declname>pin</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__button_8h_1a8c159b3cfee9b66ae9a56d406322b8ad" kindref="member">SYN_ButtonPolarity</ref></type>
+          <declname>polarity</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>debounce_ms</declname>
+        </param>
+        <briefdescription>
+<para>Initialize a button descriptor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>btn</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Button to initialize. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>pin</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>GPIO pin number. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>polarity</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Active-high or active-low. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>debounce_ms</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Debounce window in milliseconds (e.g., 50). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/input/syn_button.c" line="153" column="6" bodyfile="src/syntropic/input/syn_button.c" bodystart="153" bodyend="171"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__button_8c_1a381c5f765d91e2a780941572d4b026d3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_button_on_press</definition>
+        <argsstring>(SYN_Button *btn, SYN_ButtonCallback cb, void *ctx)</argsstring>
+        <name>syn_button_on_press</name>
+        <param>
+          <type><ref refid="structSYN__Button" kindref="compound">SYN_Button</ref> *</type>
+          <declname>btn</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__button_8h_1ae2493d2bbafd46dac9226bd8e17ddaf3" kindref="member">SYN_ButtonCallback</ref></type>
+          <declname>cb</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>ctx</declname>
+        </param>
+        <briefdescription>
+<para>Register a press callback. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>btn</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Button. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>cb</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Callback (or NULL to disable). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>ctx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>User context. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/input/syn_button.c" line="175" column="6" bodyfile="src/syntropic/input/syn_button.c" bodystart="175" bodyend="179"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__button_8c_1a71724b40c0bac18cc9f01039cc3cb61a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_button_on_release</definition>
+        <argsstring>(SYN_Button *btn, SYN_ButtonCallback cb, void *ctx)</argsstring>
+        <name>syn_button_on_release</name>
+        <param>
+          <type><ref refid="structSYN__Button" kindref="compound">SYN_Button</ref> *</type>
+          <declname>btn</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__button_8h_1ae2493d2bbafd46dac9226bd8e17ddaf3" kindref="member">SYN_ButtonCallback</ref></type>
+          <declname>cb</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>ctx</declname>
+        </param>
+        <briefdescription>
+<para>Register a release callback. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>btn</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Button. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>cb</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Callback (or NULL to disable). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>ctx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>User context. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/input/syn_button.c" line="181" column="6" bodyfile="src/syntropic/input/syn_button.c" bodystart="181" bodyend="185"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__button_8c_1a6ceaaaf8b60226a30257985141a4bf0f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_button_on_long_press</definition>
+        <argsstring>(SYN_Button *btn, SYN_ButtonCallback cb, uint16_t hold_ms, void *ctx)</argsstring>
+        <name>syn_button_on_long_press</name>
+        <param>
+          <type><ref refid="structSYN__Button" kindref="compound">SYN_Button</ref> *</type>
+          <declname>btn</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__button_8h_1ae2493d2bbafd46dac9226bd8e17ddaf3" kindref="member">SYN_ButtonCallback</ref></type>
+          <declname>cb</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>hold_ms</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>ctx</declname>
+        </param>
+        <briefdescription>
+<para>Register a long-press callback. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>btn</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Button. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>cb</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Callback (or NULL to disable). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>hold_ms</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Time the button must be held before firing (ms). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>ctx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>User context. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/input/syn_button.c" line="187" column="6" bodyfile="src/syntropic/input/syn_button.c" bodystart="187" bodyend="193"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__button_8c_1ac1c5c513c52f8ece5601177b10364cad" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_button_on_repeat</definition>
+        <argsstring>(SYN_Button *btn, SYN_ButtonCallback cb, uint16_t interval_ms, void *ctx)</argsstring>
+        <name>syn_button_on_repeat</name>
+        <param>
+          <type><ref refid="structSYN__Button" kindref="compound">SYN_Button</ref> *</type>
+          <declname>btn</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__button_8h_1ae2493d2bbafd46dac9226bd8e17ddaf3" kindref="member">SYN_ButtonCallback</ref></type>
+          <declname>cb</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>interval_ms</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>ctx</declname>
+        </param>
+        <briefdescription>
+<para>Register an auto-repeat callback. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Fires repeatedly while the button is held, after the initial press.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>btn</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Button. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>cb</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Callback (or NULL to disable). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>interval_ms</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Repeat interval in milliseconds. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>ctx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>User context. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/input/syn_button.c" line="195" column="6" bodyfile="src/syntropic/input/syn_button.c" bodystart="195" bodyend="201"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__button_8c_1a55a8be57fa7aaef677c9ddc8eae3b27a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_button_update</definition>
+        <argsstring>(SYN_Button *btn)</argsstring>
+        <name>syn_button_update</name>
+        <param>
+          <type><ref refid="structSYN__Button" kindref="compound">SYN_Button</ref> *</type>
+          <declname>btn</declname>
+        </param>
+        <briefdescription>
+<para>Update a single button&apos;s state machine. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Call this from your main loop, a scheduler task, or a timer callback. Reads the GPIO, runs debouncing, and fires callbacks as needed.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>btn</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Button to update. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/input/syn_button.c" line="205" column="6" bodyfile="src/syntropic/input/syn_button.c" bodystart="205" bodyend="252"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__button_8c_1a001a444ddcdc84d6a84d3c3664c7deb5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_button_service</definition>
+        <argsstring>(SYN_Button *buttons, size_t count)</argsstring>
+        <name>syn_button_service</name>
+        <param>
+          <type><ref refid="structSYN__Button" kindref="compound">SYN_Button</ref> *</type>
+          <declname>buttons</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>count</declname>
+        </param>
+        <briefdescription>
+<para>Service an array of buttons. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>buttons</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Array of buttons. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>count</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of buttons. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/input/syn_button.c" line="254" column="6" bodyfile="src/syntropic/input/syn_button.c" bodystart="254" bodyend="261"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Debounced button implementation using syn_fsm. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#if<sp/>__has_include(&quot;syn_config.h&quot;)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/>#include<sp/>&quot;syn_config.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="4"><highlight class="normal"></highlight></codeline>
+<codeline lineno="5"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>!defined(SYN_USE_BUTTON)<sp/>||<sp/>SYN_USE_BUTTON</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(SYN_USE_FSM)<sp/>&amp;&amp;<sp/>!SYN_USE_FSM</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/>#error<sp/>&quot;syn_button<sp/>requires<sp/>SYN_USE_FSM=1<sp/>(table-driven<sp/>FSM)&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__button_8h" kindref="compound">syn_button.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../util/syn_assert.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;string.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Internal<sp/>FSM<sp/>events<sp/>─────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="24"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__button_8c_1a06fc87d81c62e9abb8790b6e5713c55ba02d7c9fbfe5449188984097665102071" kindref="member">BTN_EV_RAW_PRESS</ref><sp/>=<sp/>0,<sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__button_8c_1a06fc87d81c62e9abb8790b6e5713c55ba2de664d8bc8f405f1181b802e4be98e8" kindref="member">BTN_EV_RAW_RELEASE</ref>,<sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__button_8c_1a06fc87d81c62e9abb8790b6e5713c55ba193950611643261fe865beb1d7697246" kindref="member">BTN_EV_DEBOUNCE_OK</ref>,<sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__button_8c_1a06fc87d81c62e9abb8790b6e5713c55ba77526bb50d7f4bd0f84fe8827d719aad" kindref="member">BTN_EV_LONG_PRESS</ref>,<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="28"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Helpers<sp/>──────────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__button_8c_1a0ec7af8047210de9671d55b436cc30f9" kindref="member">button_read_raw</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__Button" kindref="compound">SYN_Button</ref><sp/>*btn)</highlight></codeline>
+<codeline lineno="38"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__defs_8h_1aaa3b9a5c8a9518fd3c3ca7bbe8b4de4a" kindref="member">SYN_GPIO_State</ref><sp/>level<sp/>=<sp/><ref refid="syn__port__gpio_8h_1ad51a5855a1190c56a0ab79cfdc4c2bbf" kindref="member">syn_port_gpio_read</ref>(btn-&gt;<ref refid="structSYN__Button_1afe7d7daad514c70a9839d788d56e493e" kindref="member">pin</ref>);</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(btn-&gt;<ref refid="structSYN__Button_1abd113142332f15df1b626dfc0053a36f" kindref="member">polarity</ref><sp/>==<sp/>(uint8_t)<ref refid="syn__button_8h_1a8c159b3cfee9b66ae9a56d406322b8ada8d6dd4c1b855ad3c348a3fda02903714" kindref="member">SYN_BUTTON_ACTIVE_LOW</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>level<sp/>==<sp/>SYN_GPIO_LOW;</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>level<sp/>==<sp/>SYN_GPIO_HIGH;</highlight></codeline>
+<codeline lineno="44"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight></codeline>
+<codeline lineno="53"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__button_8c_1a0df7c3c646bea0550d9c0bbe81937fdf" kindref="member">button_fire_event</ref>(<ref refid="structSYN__Button" kindref="compound">SYN_Button</ref><sp/>*btn,<sp/>uint8_t<sp/>evt,</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__button_8h_1ae2493d2bbafd46dac9226bd8e17ddaf3" kindref="member">SYN_ButtonCallback</ref><sp/>cb,<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*ctx)</highlight></codeline>
+<codeline lineno="55"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/><sp/><sp/>btn-&gt;<ref refid="structSYN__Button_1a37b339b5d7a136d42cd248af50c0033a" kindref="member">events</ref><sp/>|=<sp/>evt;</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(cb<sp/>!=<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>cb(btn,<sp/>ctx);</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="60"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"></highlight></codeline>
+<codeline lineno="62"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>FSM<sp/>transition<sp/>actions<sp/>───────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="63"><highlight class="normal"></highlight></codeline>
+<codeline lineno="68"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__button_8c_1a86abbb8e3ce793fcc436b0cfa6194ff3" kindref="member">action_start_debounce</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*ctx)</highlight></codeline>
+<codeline lineno="69"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structSYN__Button" kindref="compound">SYN_Button</ref><sp/>*btn<sp/>=<sp/>(<ref refid="structSYN__Button" kindref="compound">SYN_Button</ref><sp/>*)ctx;</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"><sp/><sp/><sp/><sp/>btn-&gt;<ref refid="structSYN__Button_1af3bd39f4f9ec13715256462a973fedc3" kindref="member">state_tick</ref><sp/><sp/>=<sp/><ref refid="syn__port__system_8h_1a6c7d98587814b2c0d9c09da02d318873" kindref="member">syn_port_get_tick_ms</ref>();</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"><sp/><sp/><sp/><sp/>btn-&gt;<ref refid="structSYN__Button_1adf3bd34e3e1acadb042e900a88a4d659" kindref="member">raw_pressed</ref><sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="73"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"></highlight></codeline>
+<codeline lineno="79"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__button_8c_1a5d4ffae9ad83ea3560171cc40a7943d1" kindref="member">action_bounce_back</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*ctx)</highlight></codeline>
+<codeline lineno="80"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structSYN__Button" kindref="compound">SYN_Button</ref><sp/>*btn<sp/>=<sp/>(<ref refid="structSYN__Button" kindref="compound">SYN_Button</ref><sp/>*)ctx;</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/>btn-&gt;<ref refid="structSYN__Button_1af3bd39f4f9ec13715256462a973fedc3" kindref="member">state_tick</ref><sp/><sp/>=<sp/><ref refid="syn__port__system_8h_1a6c7d98587814b2c0d9c09da02d318873" kindref="member">syn_port_get_tick_ms</ref>();</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/>btn-&gt;<ref refid="structSYN__Button_1adf3bd34e3e1acadb042e900a88a4d659" kindref="member">raw_pressed</ref><sp/>=<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="84"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"></highlight></codeline>
+<codeline lineno="90"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__button_8c_1a5c2efc7df79366780f14f8a77d7b2547" kindref="member">action_confirm_press</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*ctx)</highlight></codeline>
+<codeline lineno="91"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structSYN__Button" kindref="compound">SYN_Button</ref><sp/>*btn<sp/>=<sp/>(<ref refid="structSYN__Button" kindref="compound">SYN_Button</ref><sp/>*)ctx;</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><sp/><sp/><sp/><sp/>btn-&gt;<ref refid="structSYN__Button_1af3bd39f4f9ec13715256462a973fedc3" kindref="member">state_tick</ref><sp/><sp/>=<sp/><ref refid="syn__port__system_8h_1a6c7d98587814b2c0d9c09da02d318873" kindref="member">syn_port_get_tick_ms</ref>();</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><sp/><sp/><sp/><sp/>btn-&gt;<ref refid="structSYN__Button_1af653dc08aa80fd352472599cef600de6" kindref="member">pressed</ref><sp/><sp/><sp/><sp/><sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/>btn-&gt;<ref refid="structSYN__Button_1a45cb074ad2f48bb9c265374730cee620" kindref="member">repeat_tick</ref><sp/>=<sp/><ref refid="syn__port__system_8h_1a6c7d98587814b2c0d9c09da02d318873" kindref="member">syn_port_get_tick_ms</ref>();</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"></highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__button_8c_1a0df7c3c646bea0550d9c0bbe81937fdf" kindref="member">button_fire_event</ref>(btn,<sp/><ref refid="syn__button_8h_1acc12cfdd2beb1864c920192329012bd7" kindref="member">SYN_BUTTON_EVT_PRESS</ref>,</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>btn-&gt;<ref refid="structSYN__Button_1ac7f04d80a2cf3e53828112f8d425a16a" kindref="member">on_press</ref>,<sp/>btn-&gt;<ref refid="structSYN__Button_1a225631ed209d536137b414aa8cc74d73" kindref="member">on_press_ctx</ref>);</highlight></codeline>
+<codeline lineno="99"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"></highlight></codeline>
+<codeline lineno="105"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__button_8c_1a307be20432fdf6631d7857992ff5da0d" kindref="member">action_release</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*ctx)</highlight></codeline>
+<codeline lineno="106"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structSYN__Button" kindref="compound">SYN_Button</ref><sp/>*btn<sp/>=<sp/>(<ref refid="structSYN__Button" kindref="compound">SYN_Button</ref><sp/>*)ctx;</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"><sp/><sp/><sp/><sp/>btn-&gt;<ref refid="structSYN__Button_1af3bd39f4f9ec13715256462a973fedc3" kindref="member">state_tick</ref><sp/><sp/>=<sp/><ref refid="syn__port__system_8h_1a6c7d98587814b2c0d9c09da02d318873" kindref="member">syn_port_get_tick_ms</ref>();</highlight></codeline>
+<codeline lineno="109"><highlight class="normal"><sp/><sp/><sp/><sp/>btn-&gt;<ref refid="structSYN__Button_1af653dc08aa80fd352472599cef600de6" kindref="member">pressed</ref><sp/><sp/><sp/><sp/><sp/>=<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="110"><highlight class="normal"><sp/><sp/><sp/><sp/>btn-&gt;<ref refid="structSYN__Button_1adf3bd34e3e1acadb042e900a88a4d659" kindref="member">raw_pressed</ref><sp/>=<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"></highlight></codeline>
+<codeline lineno="112"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__button_8c_1a0df7c3c646bea0550d9c0bbe81937fdf" kindref="member">button_fire_event</ref>(btn,<sp/><ref refid="syn__button_8h_1a57717b47b66a1ae510874a0260d3f8cd" kindref="member">SYN_BUTTON_EVT_RELEASE</ref>,</highlight></codeline>
+<codeline lineno="113"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>btn-&gt;<ref refid="structSYN__Button_1ae89b66cb6c48eeafe76335c8fab64e6c" kindref="member">on_release</ref>,<sp/>btn-&gt;<ref refid="structSYN__Button_1af987b2e81f8ef96840806048ccce12c9" kindref="member">on_release_ctx</ref>);</highlight></codeline>
+<codeline lineno="114"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="115"><highlight class="normal"></highlight></codeline>
+<codeline lineno="120"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__button_8c_1a3b0f1849ecc4a8ef13c556960381e33b" kindref="member">action_long_press</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*ctx)</highlight></codeline>
+<codeline lineno="121"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="122"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structSYN__Button" kindref="compound">SYN_Button</ref><sp/>*btn<sp/>=<sp/>(<ref refid="structSYN__Button" kindref="compound">SYN_Button</ref><sp/>*)ctx;</highlight></codeline>
+<codeline lineno="123"><highlight class="normal"><sp/><sp/><sp/><sp/>btn-&gt;<ref refid="structSYN__Button_1af3bd39f4f9ec13715256462a973fedc3" kindref="member">state_tick</ref><sp/><sp/>=<sp/><ref refid="syn__port__system_8h_1a6c7d98587814b2c0d9c09da02d318873" kindref="member">syn_port_get_tick_ms</ref>();</highlight></codeline>
+<codeline lineno="124"><highlight class="normal"><sp/><sp/><sp/><sp/>btn-&gt;<ref refid="structSYN__Button_1a45cb074ad2f48bb9c265374730cee620" kindref="member">repeat_tick</ref><sp/>=<sp/><ref refid="syn__port__system_8h_1a6c7d98587814b2c0d9c09da02d318873" kindref="member">syn_port_get_tick_ms</ref>();</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"></highlight></codeline>
+<codeline lineno="126"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__button_8c_1a0df7c3c646bea0550d9c0bbe81937fdf" kindref="member">button_fire_event</ref>(btn,<sp/><ref refid="syn__button_8h_1ace2801a464d415f96e480f91363c239b" kindref="member">SYN_BUTTON_EVT_LONG_PRESS</ref>,</highlight></codeline>
+<codeline lineno="127"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>btn-&gt;<ref refid="structSYN__Button_1ae8d84043abf309bf48607458443b461f" kindref="member">on_long_press</ref>,<sp/>btn-&gt;<ref refid="structSYN__Button_1ae349afeed89f82a6f97b3134b43dfcc0" kindref="member">on_long_press_ctx</ref>);</highlight></codeline>
+<codeline lineno="128"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="129"><highlight class="normal"></highlight></codeline>
+<codeline lineno="130"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>FSM<sp/>transition<sp/>table<sp/>─────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="131"><highlight class="normal"></highlight></codeline>
+<codeline lineno="133"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__FSM__Transition" kindref="compound">SYN_FSM_Transition</ref><sp/><ref refid="syn__button_8c_1a9023511fba776c0299a164ccd7c7fe67" kindref="member">g_button_transitions</ref>[]<sp/>=<sp/>{</highlight></codeline>
+<codeline lineno="134"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>IDLE:<sp/>wait<sp/>for<sp/>press<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="135"><highlight class="normal"><sp/><sp/><sp/><sp/>{<sp/><ref refid="syn__button_8h_1aaf9d4b85177c668c326638cb5743b101a3ba9cb79c3c26e9561e424183c6aca13" kindref="member">SYN_BUTTON_STATE_IDLE</ref>,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__button_8c_1a06fc87d81c62e9abb8790b6e5713c55ba02d7c9fbfe5449188984097665102071" kindref="member">BTN_EV_RAW_PRESS</ref>,<sp/><sp/><sp/><sp/><ref refid="syn__button_8h_1aaf9d4b85177c668c326638cb5743b101aabf2c402351690286ad492b26fc72e91" kindref="member">SYN_BUTTON_STATE_DEBOUNCING</ref>,<sp/>NULL,<sp/><ref refid="syn__button_8c_1a86abbb8e3ce793fcc436b0cfa6194ff3" kindref="member">action_start_debounce</ref><sp/>},</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"></highlight></codeline>
+<codeline lineno="137"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>DEBOUNCING:<sp/>bounce<sp/>back<sp/>or<sp/>confirm<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="138"><highlight class="normal"><sp/><sp/><sp/><sp/>{<sp/><ref refid="syn__button_8h_1aaf9d4b85177c668c326638cb5743b101aabf2c402351690286ad492b26fc72e91" kindref="member">SYN_BUTTON_STATE_DEBOUNCING</ref>,<sp/><ref refid="syn__button_8c_1a06fc87d81c62e9abb8790b6e5713c55ba2de664d8bc8f405f1181b802e4be98e8" kindref="member">BTN_EV_RAW_RELEASE</ref>,<sp/><sp/><ref refid="syn__button_8h_1aaf9d4b85177c668c326638cb5743b101a3ba9cb79c3c26e9561e424183c6aca13" kindref="member">SYN_BUTTON_STATE_IDLE</ref>,<sp/><sp/><sp/><sp/><sp/><sp/><sp/>NULL,<sp/><ref refid="syn__button_8c_1a5d4ffae9ad83ea3560171cc40a7943d1" kindref="member">action_bounce_back</ref><sp/><sp/><sp/><sp/>},</highlight></codeline>
+<codeline lineno="139"><highlight class="normal"><sp/><sp/><sp/><sp/>{<sp/><ref refid="syn__button_8h_1aaf9d4b85177c668c326638cb5743b101aabf2c402351690286ad492b26fc72e91" kindref="member">SYN_BUTTON_STATE_DEBOUNCING</ref>,<sp/><ref refid="syn__button_8c_1a06fc87d81c62e9abb8790b6e5713c55ba193950611643261fe865beb1d7697246" kindref="member">BTN_EV_DEBOUNCE_OK</ref>,<sp/><sp/><ref refid="syn__button_8h_1aaf9d4b85177c668c326638cb5743b101a21fc386f46a20c679ee6d907dd73e474" kindref="member">SYN_BUTTON_STATE_PRESSED</ref>,<sp/><sp/><sp/><sp/>NULL,<sp/><ref refid="syn__button_8c_1a5c2efc7df79366780f14f8a77d7b2547" kindref="member">action_confirm_press</ref><sp/><sp/>},</highlight></codeline>
+<codeline lineno="140"><highlight class="normal"></highlight></codeline>
+<codeline lineno="141"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>PRESSED:<sp/>release<sp/>or<sp/>escalate<sp/>to<sp/>held<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="142"><highlight class="normal"><sp/><sp/><sp/><sp/>{<sp/><ref refid="syn__button_8h_1aaf9d4b85177c668c326638cb5743b101a21fc386f46a20c679ee6d907dd73e474" kindref="member">SYN_BUTTON_STATE_PRESSED</ref>,<sp/><sp/><sp/><sp/><ref refid="syn__button_8c_1a06fc87d81c62e9abb8790b6e5713c55ba2de664d8bc8f405f1181b802e4be98e8" kindref="member">BTN_EV_RAW_RELEASE</ref>,<sp/><sp/><ref refid="syn__button_8h_1aaf9d4b85177c668c326638cb5743b101a3ba9cb79c3c26e9561e424183c6aca13" kindref="member">SYN_BUTTON_STATE_IDLE</ref>,<sp/><sp/><sp/><sp/><sp/><sp/><sp/>NULL,<sp/><ref refid="syn__button_8c_1a307be20432fdf6631d7857992ff5da0d" kindref="member">action_release</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>},</highlight></codeline>
+<codeline lineno="143"><highlight class="normal"><sp/><sp/><sp/><sp/>{<sp/><ref refid="syn__button_8h_1aaf9d4b85177c668c326638cb5743b101a21fc386f46a20c679ee6d907dd73e474" kindref="member">SYN_BUTTON_STATE_PRESSED</ref>,<sp/><sp/><sp/><sp/><ref refid="syn__button_8c_1a06fc87d81c62e9abb8790b6e5713c55ba77526bb50d7f4bd0f84fe8827d719aad" kindref="member">BTN_EV_LONG_PRESS</ref>,<sp/><sp/><sp/><ref refid="syn__button_8h_1aaf9d4b85177c668c326638cb5743b101a87203a57ee7a78cd1a3e2f7ff30c9d52" kindref="member">SYN_BUTTON_STATE_HELD</ref>,<sp/><sp/><sp/><sp/><sp/><sp/><sp/>NULL,<sp/><ref refid="syn__button_8c_1a3b0f1849ecc4a8ef13c556960381e33b" kindref="member">action_long_press</ref><sp/><sp/><sp/><sp/><sp/>},</highlight></codeline>
+<codeline lineno="144"><highlight class="normal"></highlight></codeline>
+<codeline lineno="145"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>HELD:<sp/>release<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="146"><highlight class="normal"><sp/><sp/><sp/><sp/>{<sp/><ref refid="syn__button_8h_1aaf9d4b85177c668c326638cb5743b101a87203a57ee7a78cd1a3e2f7ff30c9d52" kindref="member">SYN_BUTTON_STATE_HELD</ref>,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__button_8c_1a06fc87d81c62e9abb8790b6e5713c55ba2de664d8bc8f405f1181b802e4be98e8" kindref="member">BTN_EV_RAW_RELEASE</ref>,<sp/><sp/><ref refid="syn__button_8h_1aaf9d4b85177c668c326638cb5743b101a3ba9cb79c3c26e9561e424183c6aca13" kindref="member">SYN_BUTTON_STATE_IDLE</ref>,<sp/><sp/><sp/><sp/><sp/><sp/><sp/>NULL,<sp/><ref refid="syn__button_8c_1a307be20432fdf6631d7857992ff5da0d" kindref="member">action_release</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>},</highlight></codeline>
+<codeline lineno="147"><highlight class="normal"></highlight></codeline>
+<codeline lineno="148"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__fsm_8h_1af2404e64df1a0a4e163a125c6f924abc" kindref="member">SYN_FSM_END</ref></highlight></codeline>
+<codeline lineno="149"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="150"><highlight class="normal"></highlight></codeline>
+<codeline lineno="151"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Initialization<sp/>───────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="152"><highlight class="normal"></highlight></codeline>
+<codeline lineno="153"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__button_8c_1ab1bc7d30fdaae996f330f69878963530" kindref="member">syn_button_init</ref>(<ref refid="structSYN__Button" kindref="compound">SYN_Button</ref><sp/>*btn,</highlight></codeline>
+<codeline lineno="154"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref><sp/>pin,</highlight></codeline>
+<codeline lineno="155"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__button_8h_1a8c159b3cfee9b66ae9a56d406322b8ad" kindref="member">SYN_ButtonPolarity</ref><sp/>polarity,</highlight></codeline>
+<codeline lineno="156"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint16_t<sp/>debounce_ms)</highlight></codeline>
+<codeline lineno="157"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="158"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(btn<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="159"><highlight class="normal"></highlight></codeline>
+<codeline lineno="160"><highlight class="normal"><sp/><sp/><sp/><sp/>memset(btn,<sp/>0,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(*btn));</highlight></codeline>
+<codeline lineno="161"><highlight class="normal"><sp/><sp/><sp/><sp/>btn-&gt;<ref refid="structSYN__Button_1afe7d7daad514c70a9839d788d56e493e" kindref="member">pin</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>pin;</highlight></codeline>
+<codeline lineno="162"><highlight class="normal"><sp/><sp/><sp/><sp/>btn-&gt;<ref refid="structSYN__Button_1abd113142332f15df1b626dfc0053a36f" kindref="member">polarity</ref><sp/><sp/><sp/><sp/><sp/>=<sp/>(uint8_t)polarity;</highlight></codeline>
+<codeline lineno="163"><highlight class="normal"><sp/><sp/><sp/><sp/>btn-&gt;<ref refid="structSYN__Button_1af9dc1672a548e589880942889f2f31a2" kindref="member">debounce_ms</ref><sp/><sp/>=<sp/>debounce_ms;</highlight></codeline>
+<codeline lineno="164"><highlight class="normal"><sp/><sp/><sp/><sp/>btn-&gt;<ref refid="structSYN__Button_1af653dc08aa80fd352472599cef600de6" kindref="member">pressed</ref><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="165"><highlight class="normal"><sp/><sp/><sp/><sp/>btn-&gt;<ref refid="structSYN__Button_1adf3bd34e3e1acadb042e900a88a4d659" kindref="member">raw_pressed</ref><sp/><sp/>=<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="166"><highlight class="normal"><sp/><sp/><sp/><sp/>btn-&gt;<ref refid="structSYN__Button_1af3bd39f4f9ec13715256462a973fedc3" kindref="member">state_tick</ref><sp/><sp/><sp/>=<sp/><ref refid="syn__port__system_8h_1a6c7d98587814b2c0d9c09da02d318873" kindref="member">syn_port_get_tick_ms</ref>();</highlight></codeline>
+<codeline lineno="167"><highlight class="normal"></highlight></codeline>
+<codeline lineno="168"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__fsm_8c_1a3f54118308974242383fc0e5d50f6288" kindref="member">syn_fsm_init</ref>(&amp;btn-&gt;<ref refid="structSYN__Button_1a13b5478de6508344ce4306e1f9e05d5b" kindref="member">fsm</ref>,<sp/><ref refid="syn__button_8c_1a9023511fba776c0299a164ccd7c7fe67" kindref="member">g_button_transitions</ref>,</highlight></codeline>
+<codeline lineno="169"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(<ref refid="syn__fsm_8h_1ad8cfe43fdd7bc35f628c1b467dca6602" kindref="member">SYN_FSM_State</ref>)<ref refid="syn__button_8h_1aaf9d4b85177c668c326638cb5743b101a3ba9cb79c3c26e9561e424183c6aca13" kindref="member">SYN_BUTTON_STATE_IDLE</ref>,<sp/></highlight><highlight class="stringliteral">&quot;btn&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="170"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__fsm_8c_1a83f77469ee2552e4bbf0762cddacc1a8" kindref="member">syn_fsm_set_context</ref>(&amp;btn-&gt;<ref refid="structSYN__Button_1a13b5478de6508344ce4306e1f9e05d5b" kindref="member">fsm</ref>,<sp/>btn);</highlight></codeline>
+<codeline lineno="171"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="172"><highlight class="normal"></highlight></codeline>
+<codeline lineno="173"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Callback<sp/>registration<sp/>────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="174"><highlight class="normal"></highlight></codeline>
+<codeline lineno="175"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__button_8c_1a381c5f765d91e2a780941572d4b026d3" kindref="member">syn_button_on_press</ref>(<ref refid="structSYN__Button" kindref="compound">SYN_Button</ref><sp/>*btn,<sp/><ref refid="syn__button_8h_1ae2493d2bbafd46dac9226bd8e17ddaf3" kindref="member">SYN_ButtonCallback</ref><sp/>cb,<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*ctx)</highlight></codeline>
+<codeline lineno="176"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="177"><highlight class="normal"><sp/><sp/><sp/><sp/>btn-&gt;<ref refid="structSYN__Button_1ac7f04d80a2cf3e53828112f8d425a16a" kindref="member">on_press</ref><sp/><sp/><sp/><sp/><sp/>=<sp/>cb;</highlight></codeline>
+<codeline lineno="178"><highlight class="normal"><sp/><sp/><sp/><sp/>btn-&gt;<ref refid="structSYN__Button_1a225631ed209d536137b414aa8cc74d73" kindref="member">on_press_ctx</ref><sp/>=<sp/>ctx;</highlight></codeline>
+<codeline lineno="179"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="180"><highlight class="normal"></highlight></codeline>
+<codeline lineno="181"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__button_8c_1a71724b40c0bac18cc9f01039cc3cb61a" kindref="member">syn_button_on_release</ref>(<ref refid="structSYN__Button" kindref="compound">SYN_Button</ref><sp/>*btn,<sp/><ref refid="syn__button_8h_1ae2493d2bbafd46dac9226bd8e17ddaf3" kindref="member">SYN_ButtonCallback</ref><sp/>cb,<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*ctx)</highlight></codeline>
+<codeline lineno="182"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="183"><highlight class="normal"><sp/><sp/><sp/><sp/>btn-&gt;<ref refid="structSYN__Button_1ae89b66cb6c48eeafe76335c8fab64e6c" kindref="member">on_release</ref><sp/><sp/><sp/><sp/><sp/>=<sp/>cb;</highlight></codeline>
+<codeline lineno="184"><highlight class="normal"><sp/><sp/><sp/><sp/>btn-&gt;<ref refid="structSYN__Button_1af987b2e81f8ef96840806048ccce12c9" kindref="member">on_release_ctx</ref><sp/>=<sp/>ctx;</highlight></codeline>
+<codeline lineno="185"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="186"><highlight class="normal"></highlight></codeline>
+<codeline lineno="187"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__button_8c_1a6ceaaaf8b60226a30257985141a4bf0f" kindref="member">syn_button_on_long_press</ref>(<ref refid="structSYN__Button" kindref="compound">SYN_Button</ref><sp/>*btn,<sp/><ref refid="syn__button_8h_1ae2493d2bbafd46dac9226bd8e17ddaf3" kindref="member">SYN_ButtonCallback</ref><sp/>cb,</highlight></codeline>
+<codeline lineno="188"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint16_t<sp/>hold_ms,<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*ctx)</highlight></codeline>
+<codeline lineno="189"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="190"><highlight class="normal"><sp/><sp/><sp/><sp/>btn-&gt;<ref refid="structSYN__Button_1ae8d84043abf309bf48607458443b461f" kindref="member">on_long_press</ref><sp/><sp/><sp/><sp/><sp/>=<sp/>cb;</highlight></codeline>
+<codeline lineno="191"><highlight class="normal"><sp/><sp/><sp/><sp/>btn-&gt;<ref refid="structSYN__Button_1ae349afeed89f82a6f97b3134b43dfcc0" kindref="member">on_long_press_ctx</ref><sp/>=<sp/>ctx;</highlight></codeline>
+<codeline lineno="192"><highlight class="normal"><sp/><sp/><sp/><sp/>btn-&gt;<ref refid="structSYN__Button_1a10980e40e802083318bfa30c0cf9e534" kindref="member">long_press_ms</ref><sp/><sp/><sp/><sp/><sp/>=<sp/>hold_ms;</highlight></codeline>
+<codeline lineno="193"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="194"><highlight class="normal"></highlight></codeline>
+<codeline lineno="195"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__button_8c_1ac1c5c513c52f8ece5601177b10364cad" kindref="member">syn_button_on_repeat</ref>(<ref refid="structSYN__Button" kindref="compound">SYN_Button</ref><sp/>*btn,<sp/><ref refid="syn__button_8h_1ae2493d2bbafd46dac9226bd8e17ddaf3" kindref="member">SYN_ButtonCallback</ref><sp/>cb,</highlight></codeline>
+<codeline lineno="196"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint16_t<sp/>interval_ms,<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*ctx)</highlight></codeline>
+<codeline lineno="197"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="198"><highlight class="normal"><sp/><sp/><sp/><sp/>btn-&gt;<ref refid="structSYN__Button_1acf526969707739a163e048603632852b" kindref="member">on_repeat</ref><sp/><sp/><sp/><sp/><sp/>=<sp/>cb;</highlight></codeline>
+<codeline lineno="199"><highlight class="normal"><sp/><sp/><sp/><sp/>btn-&gt;<ref refid="structSYN__Button_1a41b00dadea46b2012a69eeebf6e5f2be" kindref="member">on_repeat_ctx</ref><sp/>=<sp/>ctx;</highlight></codeline>
+<codeline lineno="200"><highlight class="normal"><sp/><sp/><sp/><sp/>btn-&gt;<ref refid="structSYN__Button_1ab1ab0d9cc181f94de8c52931c13dce58" kindref="member">repeat_ms</ref><sp/><sp/><sp/><sp/><sp/>=<sp/>interval_ms;</highlight></codeline>
+<codeline lineno="201"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="202"><highlight class="normal"></highlight></codeline>
+<codeline lineno="203"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>State<sp/>machine<sp/>update<sp/>─────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="204"><highlight class="normal"></highlight></codeline>
+<codeline lineno="205"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__button_8c_1a55a8be57fa7aaef677c9ddc8eae3b27a" kindref="member">syn_button_update</ref>(<ref refid="structSYN__Button" kindref="compound">SYN_Button</ref><sp/>*btn)</highlight></codeline>
+<codeline lineno="206"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="207"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(btn<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="208"><highlight class="normal"></highlight></codeline>
+<codeline lineno="209"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>raw<sp/>=<sp/><ref refid="syn__button_8c_1a0ec7af8047210de9671d55b436cc30f9" kindref="member">button_read_raw</ref>(btn);</highlight></codeline>
+<codeline lineno="210"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/>now<sp/>=<sp/><ref refid="syn__port__system_8h_1a6c7d98587814b2c0d9c09da02d318873" kindref="member">syn_port_get_tick_ms</ref>();</highlight></codeline>
+<codeline lineno="211"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/>elapsed<sp/>=<sp/>now<sp/>-<sp/>btn-&gt;<ref refid="structSYN__Button_1af3bd39f4f9ec13715256462a973fedc3" kindref="member">state_tick</ref>;</highlight></codeline>
+<codeline lineno="212"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__button_8h_1aaf9d4b85177c668c326638cb5743b101" kindref="member">SYN_ButtonState</ref><sp/>current<sp/>=<sp/>(<ref refid="syn__button_8h_1aaf9d4b85177c668c326638cb5743b101" kindref="member">SYN_ButtonState</ref>)<ref refid="syn__fsm_8h_1ad2c8762b39f0d678d4eaa03c955f5a05" kindref="member">syn_fsm_state</ref>(&amp;btn-&gt;<ref refid="structSYN__Button_1a13b5478de6508344ce4306e1f9e05d5b" kindref="member">fsm</ref>);</highlight></codeline>
+<codeline lineno="213"><highlight class="normal"></highlight></codeline>
+<codeline lineno="214"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Generate<sp/>edge<sp/>events<sp/>from<sp/>GPIO<sp/>reading<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="215"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(current<sp/>==<sp/><ref refid="syn__button_8h_1aaf9d4b85177c668c326638cb5743b101a3ba9cb79c3c26e9561e424183c6aca13" kindref="member">SYN_BUTTON_STATE_IDLE</ref><sp/>&amp;&amp;<sp/>raw)<sp/>{</highlight></codeline>
+<codeline lineno="216"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__fsm_8c_1ab7f75662633d9d4643ba7a9fd93e3a3b" kindref="member">syn_fsm_dispatch</ref>(&amp;btn-&gt;<ref refid="structSYN__Button_1a13b5478de6508344ce4306e1f9e05d5b" kindref="member">fsm</ref>,<sp/><ref refid="syn__button_8c_1a06fc87d81c62e9abb8790b6e5713c55ba02d7c9fbfe5449188984097665102071" kindref="member">BTN_EV_RAW_PRESS</ref>);</highlight></codeline>
+<codeline lineno="217"><highlight class="normal"><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(current<sp/>==<sp/><ref refid="syn__button_8h_1aaf9d4b85177c668c326638cb5743b101aabf2c402351690286ad492b26fc72e91" kindref="member">SYN_BUTTON_STATE_DEBOUNCING</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="218"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!raw)<sp/>{</highlight></codeline>
+<codeline lineno="219"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__fsm_8c_1ab7f75662633d9d4643ba7a9fd93e3a3b" kindref="member">syn_fsm_dispatch</ref>(&amp;btn-&gt;<ref refid="structSYN__Button_1a13b5478de6508344ce4306e1f9e05d5b" kindref="member">fsm</ref>,<sp/><ref refid="syn__button_8c_1a06fc87d81c62e9abb8790b6e5713c55ba2de664d8bc8f405f1181b802e4be98e8" kindref="member">BTN_EV_RAW_RELEASE</ref>);</highlight></codeline>
+<codeline lineno="220"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(elapsed<sp/>&gt;=<sp/>btn-&gt;<ref refid="structSYN__Button_1af9dc1672a548e589880942889f2f31a2" kindref="member">debounce_ms</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="221"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__fsm_8c_1ab7f75662633d9d4643ba7a9fd93e3a3b" kindref="member">syn_fsm_dispatch</ref>(&amp;btn-&gt;<ref refid="structSYN__Button_1a13b5478de6508344ce4306e1f9e05d5b" kindref="member">fsm</ref>,<sp/><ref refid="syn__button_8c_1a06fc87d81c62e9abb8790b6e5713c55ba193950611643261fe865beb1d7697246" kindref="member">BTN_EV_DEBOUNCE_OK</ref>);</highlight></codeline>
+<codeline lineno="222"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="223"><highlight class="normal"><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(current<sp/>==<sp/><ref refid="syn__button_8h_1aaf9d4b85177c668c326638cb5743b101a21fc386f46a20c679ee6d907dd73e474" kindref="member">SYN_BUTTON_STATE_PRESSED</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="224"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!raw)<sp/>{</highlight></codeline>
+<codeline lineno="225"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__fsm_8c_1ab7f75662633d9d4643ba7a9fd93e3a3b" kindref="member">syn_fsm_dispatch</ref>(&amp;btn-&gt;<ref refid="structSYN__Button_1a13b5478de6508344ce4306e1f9e05d5b" kindref="member">fsm</ref>,<sp/><ref refid="syn__button_8c_1a06fc87d81c62e9abb8790b6e5713c55ba2de664d8bc8f405f1181b802e4be98e8" kindref="member">BTN_EV_RAW_RELEASE</ref>);</highlight></codeline>
+<codeline lineno="226"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="227"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Check<sp/>long<sp/>press<sp/>threshold<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="228"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(btn-&gt;<ref refid="structSYN__Button_1a10980e40e802083318bfa30c0cf9e534" kindref="member">long_press_ms</ref><sp/>&gt;<sp/>0<sp/>&amp;&amp;<sp/>elapsed<sp/>&gt;=<sp/>btn-&gt;<ref refid="structSYN__Button_1a10980e40e802083318bfa30c0cf9e534" kindref="member">long_press_ms</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="229"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__fsm_8c_1ab7f75662633d9d4643ba7a9fd93e3a3b" kindref="member">syn_fsm_dispatch</ref>(&amp;btn-&gt;<ref refid="structSYN__Button_1a13b5478de6508344ce4306e1f9e05d5b" kindref="member">fsm</ref>,<sp/><ref refid="syn__button_8c_1a06fc87d81c62e9abb8790b6e5713c55ba77526bb50d7f4bd0f84fe8827d719aad" kindref="member">BTN_EV_LONG_PRESS</ref>);</highlight></codeline>
+<codeline lineno="230"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="231"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Check<sp/>repeat<sp/>(stays<sp/>in<sp/>same<sp/>state,<sp/>no<sp/>FSM<sp/>transition)<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="232"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(btn-&gt;<ref refid="structSYN__Button_1ab1ab0d9cc181f94de8c52931c13dce58" kindref="member">repeat_ms</ref><sp/>&gt;<sp/>0<sp/>&amp;&amp;</highlight></codeline>
+<codeline lineno="233"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(now<sp/>-<sp/>btn-&gt;<ref refid="structSYN__Button_1a45cb074ad2f48bb9c265374730cee620" kindref="member">repeat_tick</ref>)<sp/>&gt;=<sp/>btn-&gt;<ref refid="structSYN__Button_1ab1ab0d9cc181f94de8c52931c13dce58" kindref="member">repeat_ms</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="234"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>btn-&gt;<ref refid="structSYN__Button_1a45cb074ad2f48bb9c265374730cee620" kindref="member">repeat_tick</ref><sp/>=<sp/>now;</highlight></codeline>
+<codeline lineno="235"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__button_8c_1a0df7c3c646bea0550d9c0bbe81937fdf" kindref="member">button_fire_event</ref>(btn,<sp/><ref refid="syn__button_8h_1a761011313478a08f843f8fd73e74733a" kindref="member">SYN_BUTTON_EVT_REPEAT</ref>,</highlight></codeline>
+<codeline lineno="236"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>btn-&gt;<ref refid="structSYN__Button_1acf526969707739a163e048603632852b" kindref="member">on_repeat</ref>,<sp/>btn-&gt;<ref refid="structSYN__Button_1a41b00dadea46b2012a69eeebf6e5f2be" kindref="member">on_repeat_ctx</ref>);</highlight></codeline>
+<codeline lineno="237"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="238"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="239"><highlight class="normal"><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(current<sp/>==<sp/><ref refid="syn__button_8h_1aaf9d4b85177c668c326638cb5743b101a87203a57ee7a78cd1a3e2f7ff30c9d52" kindref="member">SYN_BUTTON_STATE_HELD</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="240"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!raw)<sp/>{</highlight></codeline>
+<codeline lineno="241"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__fsm_8c_1ab7f75662633d9d4643ba7a9fd93e3a3b" kindref="member">syn_fsm_dispatch</ref>(&amp;btn-&gt;<ref refid="structSYN__Button_1a13b5478de6508344ce4306e1f9e05d5b" kindref="member">fsm</ref>,<sp/><ref refid="syn__button_8c_1a06fc87d81c62e9abb8790b6e5713c55ba2de664d8bc8f405f1181b802e4be98e8" kindref="member">BTN_EV_RAW_RELEASE</ref>);</highlight></codeline>
+<codeline lineno="242"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="243"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Check<sp/>repeat<sp/>in<sp/>held<sp/>state<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="244"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(btn-&gt;<ref refid="structSYN__Button_1ab1ab0d9cc181f94de8c52931c13dce58" kindref="member">repeat_ms</ref><sp/>&gt;<sp/>0<sp/>&amp;&amp;</highlight></codeline>
+<codeline lineno="245"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(now<sp/>-<sp/>btn-&gt;<ref refid="structSYN__Button_1a45cb074ad2f48bb9c265374730cee620" kindref="member">repeat_tick</ref>)<sp/>&gt;=<sp/>btn-&gt;<ref refid="structSYN__Button_1ab1ab0d9cc181f94de8c52931c13dce58" kindref="member">repeat_ms</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="246"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>btn-&gt;<ref refid="structSYN__Button_1a45cb074ad2f48bb9c265374730cee620" kindref="member">repeat_tick</ref><sp/>=<sp/>now;</highlight></codeline>
+<codeline lineno="247"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__button_8c_1a0df7c3c646bea0550d9c0bbe81937fdf" kindref="member">button_fire_event</ref>(btn,<sp/><ref refid="syn__button_8h_1a761011313478a08f843f8fd73e74733a" kindref="member">SYN_BUTTON_EVT_REPEAT</ref>,</highlight></codeline>
+<codeline lineno="248"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>btn-&gt;<ref refid="structSYN__Button_1acf526969707739a163e048603632852b" kindref="member">on_repeat</ref>,<sp/>btn-&gt;<ref refid="structSYN__Button_1a41b00dadea46b2012a69eeebf6e5f2be" kindref="member">on_repeat_ctx</ref>);</highlight></codeline>
+<codeline lineno="249"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="250"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="251"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="252"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="253"><highlight class="normal"></highlight></codeline>
+<codeline lineno="254"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__button_8c_1a001a444ddcdc84d6a84d3c3664c7deb5" kindref="member">syn_button_service</ref>(<ref refid="structSYN__Button" kindref="compound">SYN_Button</ref><sp/>*buttons,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>count)</highlight></codeline>
+<codeline lineno="255"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="256"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(buttons<sp/>!=<sp/>NULL<sp/>||<sp/>count<sp/>==<sp/>0);</highlight></codeline>
+<codeline lineno="257"><highlight class="normal"></highlight></codeline>
+<codeline lineno="258"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>count;<sp/>i++)<sp/>{</highlight></codeline>
+<codeline lineno="259"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__button_8c_1a55a8be57fa7aaef677c9ddc8eae3b27a" kindref="member">syn_button_update</ref>(&amp;buttons[i]);</highlight></codeline>
+<codeline lineno="260"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="261"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="262"><highlight class="normal"></highlight></codeline>
+<codeline lineno="263"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_USE_BUTTON<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/input/syn_button.c"/>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,554 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__profiler_8c" kind="file" language="C++">
+    <compoundname>syn_profiler.c</compoundname>
+    <includes refid="syn__profiler_8h" local="yes">syn_profiler.h</includes>
+    <includes refid="syn__assert_8h" local="yes">../util/syn_assert.h</includes>
+    <includes refid="syn__fmt_8h" local="yes">../util/syn_fmt.h</includes>
+    <includes local="no">string.h</includes>
+    <incdepgraph>
+      <node id="7">
+        <label>../common/syn_compiler.h</label>
+        <link refid="syn__compiler_8h"/>
+      </node>
+      <node id="4">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/debug/syn_profiler.c</label>
+        <link refid="syn__profiler_8c"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>syn_profiler.h</label>
+        <link refid="syn__profiler_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>../port/syn_port_system.h</label>
+        <link refid="syn__port__system_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="9">
+        <label>../util/syn_assert.h</label>
+        <link refid="syn__assert_8h"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="10">
+        <label>../util/syn_fmt.h</label>
+        <link refid="syn__fmt_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>stdbool.h</label>
+      </node>
+      <node id="6">
+        <label>stddef.h</label>
+      </node>
+      <node id="5">
+        <label>stdint.h</label>
+      </node>
+      <node id="11">
+        <label>string.h</label>
+      </node>
+    </incdepgraph>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__profiler_8c_1a9ca44f287241b6ecc7a3f997fd8b2c43" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_profiler_init</definition>
+        <argsstring>(SYN_Profiler *prof, SYN_ProfileEntry *entries, uint8_t capacity)</argsstring>
+        <name>syn_profiler_init</name>
+        <param>
+          <type><ref refid="structSYN__Profiler" kindref="compound">SYN_Profiler</ref> *</type>
+          <declname>prof</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__ProfileEntry" kindref="compound">SYN_ProfileEntry</ref> *</type>
+          <declname>entries</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>capacity</declname>
+        </param>
+        <briefdescription>
+<para>Initialize the profiler. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>prof</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Profiler instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>entries</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Array of profile entries (one per task). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>capacity</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of entries. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/debug/syn_profiler.c" line="18" column="6" bodyfile="src/syntropic/debug/syn_profiler.c" bodystart="18" bodyend="32"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__profiler_8c_1a7b490028aa87f49ce6bfb7a448af9e86" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_profiler_register</definition>
+        <argsstring>(SYN_Profiler *prof, uint8_t index, const char *name)</argsstring>
+        <name>syn_profiler_register</name>
+        <param>
+          <type><ref refid="structSYN__Profiler" kindref="compound">SYN_Profiler</ref> *</type>
+          <declname>prof</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>index</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>name</declname>
+        </param>
+        <briefdescription>
+<para>Register a task for profiling. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>prof</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Profiler. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>index</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Task index (must match scheduler task index). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>name</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Task name for display. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/debug/syn_profiler.c" line="34" column="6" bodyfile="src/syntropic/debug/syn_profiler.c" bodystart="34" bodyend="40"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__profiler_8c_1ac7ae112c228a6198e46761e21e09d282" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_profiler_task_begin</definition>
+        <argsstring>(SYN_Profiler *prof, uint8_t index)</argsstring>
+        <name>syn_profiler_task_begin</name>
+        <param>
+          <type><ref refid="structSYN__Profiler" kindref="compound">SYN_Profiler</ref> *</type>
+          <declname>prof</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>index</declname>
+        </param>
+        <briefdescription>
+<para>Mark the start of a task&apos;s execution. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>prof</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Profiler. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>index</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Task index. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/debug/syn_profiler.c" line="42" column="6" bodyfile="src/syntropic/debug/syn_profiler.c" bodystart="42" bodyend="49"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__profiler_8c_1abb50a00a3545546dc9036f7b29bad26e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_profiler_task_end</definition>
+        <argsstring>(SYN_Profiler *prof, uint8_t index)</argsstring>
+        <name>syn_profiler_task_end</name>
+        <param>
+          <type><ref refid="structSYN__Profiler" kindref="compound">SYN_Profiler</ref> *</type>
+          <declname>prof</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>index</declname>
+        </param>
+        <briefdescription>
+<para>Mark the end of a task&apos;s execution. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>prof</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Profiler. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>index</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Task index. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/debug/syn_profiler.c" line="51" column="6" bodyfile="src/syntropic/debug/syn_profiler.c" bodystart="51" bodyend="69"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__profiler_8c_1a896d1010e12d51b9bd18421037ec2059" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_profiler_update</definition>
+        <argsstring>(SYN_Profiler *prof)</argsstring>
+        <name>syn_profiler_update</name>
+        <param>
+          <type><ref refid="structSYN__Profiler" kindref="compound">SYN_Profiler</ref> *</type>
+          <declname>prof</declname>
+        </param>
+        <briefdescription>
+<para>Update CPU percentages and reset counters for the next period. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Call periodically (e.g., every 1 second).</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>prof</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Profiler. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/debug/syn_profiler.c" line="71" column="6" bodyfile="src/syntropic/debug/syn_profiler.c" bodystart="71" bodyend="100"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__profiler_8c_1aa107271d4fe6d97add8d27ce1e4dad28" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_profiler_dump</definition>
+        <argsstring>(const SYN_Profiler *prof, SYN_ProfilerPrintFunc print)</argsstring>
+        <name>syn_profiler_dump</name>
+        <param>
+          <type>const <ref refid="structSYN__Profiler" kindref="compound">SYN_Profiler</ref> *</type>
+          <declname>prof</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__profiler_8h_1a38b16beff23e5ada7147a504b817e694" kindref="member">SYN_ProfilerPrintFunc</ref></type>
+          <declname>print</declname>
+        </param>
+        <briefdescription>
+<para>Dump profiler results via print callback. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>prof</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Profiler. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>print</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Print function. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/debug/syn_profiler.c" line="102" column="6" bodyfile="src/syntropic/debug/syn_profiler.c" bodystart="102" bodyend="164"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__profiler_8c_1a483c2038238caa719ae8ed522c084420" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_profiler_enable</definition>
+        <argsstring>(SYN_Profiler *prof, bool enable)</argsstring>
+        <name>syn_profiler_enable</name>
+        <param>
+          <type><ref refid="structSYN__Profiler" kindref="compound">SYN_Profiler</ref> *</type>
+          <declname>prof</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+          <declname>enable</declname>
+        </param>
+        <briefdescription>
+<para>Enable/disable profiling. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>prof</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Profiler. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>enable</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>true to enable, false to disable. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/debug/syn_profiler.c" line="166" column="6" bodyfile="src/syntropic/debug/syn_profiler.c" bodystart="166" bodyend="170"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Task profiler implementation. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#if<sp/>__has_include(&quot;syn_config.h&quot;)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/>#include<sp/>&quot;syn_config.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="4"><highlight class="normal"></highlight></codeline>
+<codeline lineno="5"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>!defined(SYN_USE_PROFILER)<sp/>||<sp/>SYN_USE_PROFILER</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__profiler_8h" kindref="compound">syn_profiler.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../util/syn_assert.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../util/syn_fmt.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;string.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__profiler_8c_1a9ca44f287241b6ecc7a3f997fd8b2c43" kindref="member">syn_profiler_init</ref>(<ref refid="structSYN__Profiler" kindref="compound">SYN_Profiler</ref><sp/>*prof,</highlight></codeline>
+<codeline lineno="19"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__ProfileEntry" kindref="compound">SYN_ProfileEntry</ref><sp/>*entries,</highlight></codeline>
+<codeline lineno="20"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>capacity)</highlight></codeline>
+<codeline lineno="21"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="22"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(prof<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="23"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(entries<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="24"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(capacity<sp/>&gt;<sp/>0);</highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"><sp/><sp/><sp/><sp/>memset(entries,<sp/>0,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(*entries)<sp/>*<sp/>capacity);</highlight></codeline>
+<codeline lineno="27"><highlight class="normal"><sp/><sp/><sp/><sp/>prof-&gt;<ref refid="structSYN__Profiler_1aafd1c856ea71e07bb69469158eaaeeac" kindref="member">entries</ref><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>entries;</highlight></codeline>
+<codeline lineno="28"><highlight class="normal"><sp/><sp/><sp/><sp/>prof-&gt;<ref refid="structSYN__Profiler_1a340d989996cc11f7c8ff892ea3879788" kindref="member">capacity</ref><sp/><sp/><sp/><sp/><sp/>=<sp/>capacity;</highlight></codeline>
+<codeline lineno="29"><highlight class="normal"><sp/><sp/><sp/><sp/>prof-&gt;<ref refid="structSYN__Profiler_1af6bfa2f44c7dbd6878cc72ce0f982846" kindref="member">period_start</ref><sp/>=<sp/><ref refid="syn__port__system_8h_1a6c7d98587814b2c0d9c09da02d318873" kindref="member">syn_port_get_tick_ms</ref>();</highlight></codeline>
+<codeline lineno="30"><highlight class="normal"><sp/><sp/><sp/><sp/>prof-&gt;<ref refid="structSYN__Profiler_1a6b4d4b6a8ff00bf062a168603e2eceab" kindref="member">period_ms</ref><sp/><sp/><sp/><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="31"><highlight class="normal"><sp/><sp/><sp/><sp/>prof-&gt;<ref refid="structSYN__Profiler_1a5d6ef17b9a6b5d10eba2bc1bc8ab7e68" kindref="member">enabled</ref><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="32"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__profiler_8c_1a7b490028aa87f49ce6bfb7a448af9e86" kindref="member">syn_profiler_register</ref>(<ref refid="structSYN__Profiler" kindref="compound">SYN_Profiler</ref><sp/>*prof,<sp/>uint8_t<sp/>index,</highlight></codeline>
+<codeline lineno="35"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*name)</highlight></codeline>
+<codeline lineno="36"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="37"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(prof<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="38"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(index<sp/>&lt;<sp/>prof-&gt;capacity);</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"><sp/><sp/><sp/><sp/>prof-&gt;<ref refid="structSYN__Profiler_1aafd1c856ea71e07bb69469158eaaeeac" kindref="member">entries</ref>[index].<ref refid="structSYN__ProfileEntry_1a037e6428c8f02d9b9e4c8c4885598e47" kindref="member">name</ref><sp/>=<sp/>name;</highlight></codeline>
+<codeline lineno="40"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__profiler_8c_1ac7ae112c228a6198e46761e21e09d282" kindref="member">syn_profiler_task_begin</ref>(<ref refid="structSYN__Profiler" kindref="compound">SYN_Profiler</ref><sp/>*prof,<sp/>uint8_t<sp/>index)</highlight></codeline>
+<codeline lineno="43"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(prof<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!prof-&gt;<ref refid="structSYN__Profiler_1a5d6ef17b9a6b5d10eba2bc1bc8ab7e68" kindref="member">enabled</ref>)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(index<sp/>&gt;=<sp/>prof-&gt;<ref refid="structSYN__Profiler_1a340d989996cc11f7c8ff892ea3879788" kindref="member">capacity</ref>)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"></highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/><sp/><sp/>prof-&gt;<ref refid="structSYN__Profiler_1aafd1c856ea71e07bb69469158eaaeeac" kindref="member">entries</ref>[index].<ref refid="structSYN__ProfileEntry_1a10df4bb1fcff4f783bdb322056da5cda" kindref="member">_start_tick</ref><sp/>=<sp/><ref refid="syn__port__system_8h_1a6c7d98587814b2c0d9c09da02d318873" kindref="member">syn_port_get_tick_ms</ref>();</highlight></codeline>
+<codeline lineno="49"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"></highlight></codeline>
+<codeline lineno="51"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__profiler_8c_1abb50a00a3545546dc9036f7b29bad26e" kindref="member">syn_profiler_task_end</ref>(<ref refid="structSYN__Profiler" kindref="compound">SYN_Profiler</ref><sp/>*prof,<sp/>uint8_t<sp/>index)</highlight></codeline>
+<codeline lineno="52"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(prof<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!prof-&gt;<ref refid="structSYN__Profiler_1a5d6ef17b9a6b5d10eba2bc1bc8ab7e68" kindref="member">enabled</ref>)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(index<sp/>&gt;=<sp/>prof-&gt;<ref refid="structSYN__Profiler_1a340d989996cc11f7c8ff892ea3879788" kindref="member">capacity</ref>)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"></highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structSYN__ProfileEntry" kindref="compound">SYN_ProfileEntry</ref><sp/>*e<sp/>=<sp/>&amp;prof-&gt;<ref refid="structSYN__Profiler_1aafd1c856ea71e07bb69469158eaaeeac" kindref="member">entries</ref>[index];</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/>elapsed<sp/>=<sp/><ref refid="syn__port__system_8h_1a6c7d98587814b2c0d9c09da02d318873" kindref="member">syn_port_get_tick_ms</ref>()<sp/>-<sp/>e-&gt;<ref refid="structSYN__ProfileEntry_1a10df4bb1fcff4f783bdb322056da5cda" kindref="member">_start_tick</ref>;</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"></highlight></codeline>
+<codeline lineno="60"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>We<sp/>work<sp/>in<sp/>ms<sp/>(our<sp/>tick<sp/>resolution)<sp/>but<sp/>report<sp/>as<sp/>µs<sp/>for<sp/>display.</highlight></codeline>
+<codeline lineno="61"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/>*<sp/>On<sp/>platforms<sp/>with<sp/>µs<sp/>ticks,<sp/>this<sp/>is<sp/>exact;<sp/>with<sp/>ms<sp/>ticks<sp/>it&apos;s<sp/>×1000.<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="62"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/>elapsed_us<sp/>=<sp/>elapsed<sp/>*<sp/>1000;</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"></highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/><sp/><sp/>e-&gt;<ref refid="structSYN__ProfileEntry_1a6686e4521a97f6342231138a29360d88" kindref="member">total_us</ref><sp/>+=<sp/>elapsed_us;</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(elapsed_us<sp/>&gt;<sp/>e-&gt;<ref refid="structSYN__ProfileEntry_1a0b6cad67d7fe39a0f5953fd9c0f125b9" kindref="member">peak_us</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>e-&gt;<ref refid="structSYN__ProfileEntry_1a0b6cad67d7fe39a0f5953fd9c0f125b9" kindref="member">peak_us</ref><sp/>=<sp/>elapsed_us;</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/><sp/><sp/>e-&gt;<ref refid="structSYN__ProfileEntry_1a929052d56f0cba421c7b47e8fdab38d9" kindref="member">run_count</ref>++;</highlight></codeline>
+<codeline lineno="69"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"></highlight></codeline>
+<codeline lineno="71"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__profiler_8c_1a896d1010e12d51b9bd18421037ec2059" kindref="member">syn_profiler_update</ref>(<ref refid="structSYN__Profiler" kindref="compound">SYN_Profiler</ref><sp/>*prof)</highlight></codeline>
+<codeline lineno="72"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(prof<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"></highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/>now<sp/>=<sp/><ref refid="syn__port__system_8h_1a6c7d98587814b2c0d9c09da02d318873" kindref="member">syn_port_get_tick_ms</ref>();</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/>period<sp/>=<sp/>now<sp/>-<sp/>prof-&gt;<ref refid="structSYN__Profiler_1af6bfa2f44c7dbd6878cc72ce0f982846" kindref="member">period_start</ref>;</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/><sp/><sp/>prof-&gt;<ref refid="structSYN__Profiler_1a6b4d4b6a8ff00bf062a168603e2eceab" kindref="member">period_ms</ref><sp/>=<sp/>period;</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"></highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(period<sp/>==<sp/>0)<sp/>period<sp/>=<sp/>1;<sp/></highlight><highlight class="comment">/*<sp/>avoid<sp/>divide<sp/>by<sp/>zero<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="80"><highlight class="normal"></highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Calculate<sp/>CPU<sp/>percentages<sp/>(×10<sp/>for<sp/>0.1%<sp/>resolution)<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(uint8_t<sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>prof-&gt;<ref refid="structSYN__Profiler_1a340d989996cc11f7c8ff892ea3879788" kindref="member">capacity</ref>;<sp/>i++)<sp/>{</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__ProfileEntry" kindref="compound">SYN_ProfileEntry</ref><sp/>*e<sp/>=<sp/>&amp;prof-&gt;<ref refid="structSYN__Profiler_1aafd1c856ea71e07bb69469158eaaeeac" kindref="member">entries</ref>[i];</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(e-&gt;<ref refid="structSYN__ProfileEntry_1a037e6428c8f02d9b9e4c8c4885598e47" kindref="member">name</ref><sp/>==<sp/>NULL)<sp/></highlight><highlight class="keywordflow">continue</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"></highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>total_us<sp/>is<sp/>in<sp/>microseconds,<sp/>period<sp/>is<sp/>in<sp/>ms<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>cpu%<sp/>=<sp/>(total_us<sp/>/<sp/>1000)<sp/>/<sp/>period<sp/>*<sp/>100</highlight></codeline>
+<codeline lineno="88"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>total_us<sp/>/<sp/>(period<sp/>*<sp/>10)</highlight></codeline>
+<codeline lineno="89"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>cpu%<sp/>×<sp/>10<sp/>=<sp/>total_us<sp/>/<sp/>period<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="90"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>e-&gt;<ref refid="structSYN__ProfileEntry_1a0e4c549237535092c9695618c44f076c" kindref="member">cpu_percent_x10</ref><sp/>=<sp/>(uint16_t)(e-&gt;<ref refid="structSYN__ProfileEntry_1a6686e4521a97f6342231138a29360d88" kindref="member">total_us</ref><sp/>/<sp/>period);</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"></highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Reset<sp/>for<sp/>next<sp/>period<sp/>(keep<sp/>peak)<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(uint8_t<sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>prof-&gt;<ref refid="structSYN__Profiler_1a340d989996cc11f7c8ff892ea3879788" kindref="member">capacity</ref>;<sp/>i++)<sp/>{</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>prof-&gt;<ref refid="structSYN__Profiler_1aafd1c856ea71e07bb69469158eaaeeac" kindref="member">entries</ref>[i].<ref refid="structSYN__ProfileEntry_1a6686e4521a97f6342231138a29360d88" kindref="member">total_us</ref><sp/><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>prof-&gt;<ref refid="structSYN__Profiler_1aafd1c856ea71e07bb69469158eaaeeac" kindref="member">entries</ref>[i].<ref refid="structSYN__ProfileEntry_1a929052d56f0cba421c7b47e8fdab38d9" kindref="member">run_count</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>peak_us<sp/>is<sp/>NOT<sp/>reset<sp/>—<sp/>it&apos;s<sp/>an<sp/>all-time<sp/>high<sp/>watermark<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="98"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"><sp/><sp/><sp/><sp/>prof-&gt;<ref refid="structSYN__Profiler_1af6bfa2f44c7dbd6878cc72ce0f982846" kindref="member">period_start</ref><sp/>=<sp/>now;</highlight></codeline>
+<codeline lineno="100"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"></highlight></codeline>
+<codeline lineno="102"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__profiler_8c_1aa107271d4fe6d97add8d27ce1e4dad28" kindref="member">syn_profiler_dump</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__Profiler" kindref="compound">SYN_Profiler</ref><sp/>*prof,</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__profiler_8h_1a38b16beff23e5ada7147a504b817e694" kindref="member">SYN_ProfilerPrintFunc</ref><sp/>print)</highlight></codeline>
+<codeline lineno="104"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(prof<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(print<sp/>==<sp/>NULL)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"></highlight></codeline>
+<codeline lineno="108"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>buf[80];</highlight></codeline>
+<codeline lineno="109"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>num[12];</highlight></codeline>
+<codeline lineno="110"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>pos;</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"></highlight></codeline>
+<codeline lineno="112"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Header<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="113"><highlight class="normal"><sp/><sp/><sp/><sp/>pos<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*h1[]<sp/>=<sp/>{<sp/></highlight><highlight class="stringliteral">&quot;---<sp/>Task<sp/>Profiler<sp/>(period=&quot;</highlight><highlight class="normal">,<sp/>NULL,<sp/></highlight><highlight class="stringliteral">&quot;ms)<sp/>---\n&quot;</highlight><highlight class="normal"><sp/>};</highlight></codeline>
+<codeline lineno="115"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__fmt_8c_1a9baa1e38d53a8bef96b571b110b329ea" kindref="member">syn_fmt_uint</ref>(num,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(num),<sp/>(uint32_t)prof-&gt;<ref refid="structSYN__Profiler_1a6b4d4b6a8ff00bf062a168603e2eceab" kindref="member">period_ms</ref>);</highlight></codeline>
+<codeline lineno="116"><highlight class="normal"><sp/><sp/><sp/><sp/>h1[1]<sp/>=<sp/>num;</highlight></codeline>
+<codeline lineno="117"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__fmt_8c_1ab79100c3dda421c0d6ee44be803421b4" kindref="member">syn_fmt_concat</ref>(buf,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(buf),<sp/>h1,<sp/>3);</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"><sp/><sp/><sp/><sp/>print(buf);</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"></highlight></codeline>
+<codeline lineno="120"><highlight class="normal"><sp/><sp/><sp/><sp/>print(</highlight><highlight class="stringliteral">&quot;Task<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>CPU%<sp/><sp/><sp/><sp/><sp/>Peak(us)<sp/><sp/><sp/><sp/><sp/>Runs\n&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="121"><highlight class="normal"></highlight></codeline>
+<codeline lineno="122"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(uint8_t<sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>prof-&gt;<ref refid="structSYN__Profiler_1a340d989996cc11f7c8ff892ea3879788" kindref="member">capacity</ref>;<sp/>i++)<sp/>{</highlight></codeline>
+<codeline lineno="123"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__ProfileEntry" kindref="compound">SYN_ProfileEntry</ref><sp/>*e<sp/>=<sp/>&amp;prof-&gt;<ref refid="structSYN__Profiler_1aafd1c856ea71e07bb69469158eaaeeac" kindref="member">entries</ref>[i];</highlight></codeline>
+<codeline lineno="124"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(e-&gt;<ref refid="structSYN__ProfileEntry_1a037e6428c8f02d9b9e4c8c4885598e47" kindref="member">name</ref><sp/>==<sp/>NULL)<sp/></highlight><highlight class="keywordflow">continue</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"></highlight></codeline>
+<codeline lineno="126"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Build<sp/>line:<sp/>&quot;name<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>XX.X%<sp/><sp/><sp/>peak<sp/><sp/><sp/><sp/><sp/>runs\n&quot;<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="127"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>pos<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="128"><highlight class="normal"></highlight></codeline>
+<codeline lineno="129"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Name<sp/>(pad<sp/>to<sp/>14<sp/>chars)<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="130"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>nlen<sp/>=<sp/>strlen(e-&gt;<ref refid="structSYN__ProfileEntry_1a037e6428c8f02d9b9e4c8c4885598e47" kindref="member">name</ref>);</highlight></codeline>
+<codeline lineno="131"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(nlen<sp/>&gt;<sp/>13)<sp/>nlen<sp/>=<sp/>13;</highlight></codeline>
+<codeline lineno="132"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>memcpy(buf<sp/>+<sp/>pos,<sp/>e-&gt;<ref refid="structSYN__ProfileEntry_1a037e6428c8f02d9b9e4c8c4885598e47" kindref="member">name</ref>,<sp/>nlen);</highlight></codeline>
+<codeline lineno="133"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>pos<sp/>+=<sp/>nlen;</highlight></codeline>
+<codeline lineno="134"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">while</highlight><highlight class="normal"><sp/>(pos<sp/>&lt;<sp/>14)<sp/>buf[pos++]<sp/>=<sp/></highlight><highlight class="charliteral">&apos;<sp/>&apos;</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="135"><highlight class="normal"></highlight></codeline>
+<codeline lineno="136"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>CPU%<sp/>as<sp/>X.X%<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="137"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__fmt_8c_1a9baa1e38d53a8bef96b571b110b329ea" kindref="member">syn_fmt_uint</ref>(num,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(num),<sp/>e-&gt;<ref refid="structSYN__ProfileEntry_1a0e4c549237535092c9695618c44f076c" kindref="member">cpu_percent_x10</ref><sp/>/<sp/>10);</highlight></codeline>
+<codeline lineno="138"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>nl<sp/>=<sp/>strlen(num);</highlight></codeline>
+<codeline lineno="139"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>memcpy(buf<sp/>+<sp/>pos,<sp/>num,<sp/>nl);<sp/>pos<sp/>+=<sp/>nl;</highlight></codeline>
+<codeline lineno="140"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>buf[pos++]<sp/>=<sp/></highlight><highlight class="charliteral">&apos;.&apos;</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="141"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>buf[pos++]<sp/>=<sp/>(char)(</highlight><highlight class="charliteral">&apos;0&apos;</highlight><highlight class="normal"><sp/>+<sp/>(e-&gt;<ref refid="structSYN__ProfileEntry_1a0e4c549237535092c9695618c44f076c" kindref="member">cpu_percent_x10</ref><sp/>%<sp/>10));</highlight></codeline>
+<codeline lineno="142"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>buf[pos++]<sp/>=<sp/></highlight><highlight class="charliteral">&apos;%&apos;</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="143"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">while</highlight><highlight class="normal"><sp/>(pos<sp/>&lt;<sp/>22)<sp/>buf[pos++]<sp/>=<sp/></highlight><highlight class="charliteral">&apos;<sp/>&apos;</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="144"><highlight class="normal"></highlight></codeline>
+<codeline lineno="145"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Peak<sp/>(us)<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="146"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__fmt_8c_1a9baa1e38d53a8bef96b571b110b329ea" kindref="member">syn_fmt_uint</ref>(num,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(num),<sp/>(uint32_t)e-&gt;<ref refid="structSYN__ProfileEntry_1a0b6cad67d7fe39a0f5953fd9c0f125b9" kindref="member">peak_us</ref>);</highlight></codeline>
+<codeline lineno="147"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>nl<sp/>=<sp/>strlen(num);</highlight></codeline>
+<codeline lineno="148"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>pad<sp/>=<sp/>(8<sp/>&gt;<sp/>nl)<sp/>?<sp/>8<sp/>-<sp/>nl<sp/>:<sp/>0;</highlight></codeline>
+<codeline lineno="149"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">while</highlight><highlight class="normal"><sp/>(pad--<sp/>&gt;<sp/>0)<sp/>buf[pos++]<sp/>=<sp/></highlight><highlight class="charliteral">&apos;<sp/>&apos;</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="150"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>memcpy(buf<sp/>+<sp/>pos,<sp/>num,<sp/>nl);<sp/>pos<sp/>+=<sp/>nl;</highlight></codeline>
+<codeline lineno="151"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">while</highlight><highlight class="normal"><sp/>(pos<sp/>&lt;<sp/>35)<sp/>buf[pos++]<sp/>=<sp/></highlight><highlight class="charliteral">&apos;<sp/>&apos;</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="152"><highlight class="normal"></highlight></codeline>
+<codeline lineno="153"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Runs<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="154"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__fmt_8c_1a9baa1e38d53a8bef96b571b110b329ea" kindref="member">syn_fmt_uint</ref>(num,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(num),<sp/>(uint32_t)e-&gt;<ref refid="structSYN__ProfileEntry_1a929052d56f0cba421c7b47e8fdab38d9" kindref="member">run_count</ref>);</highlight></codeline>
+<codeline lineno="155"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>nl<sp/>=<sp/>strlen(num);</highlight></codeline>
+<codeline lineno="156"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>pad<sp/>=<sp/>(8<sp/>&gt;<sp/>nl)<sp/>?<sp/>8<sp/>-<sp/>nl<sp/>:<sp/>0;</highlight></codeline>
+<codeline lineno="157"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">while</highlight><highlight class="normal"><sp/>(pad--<sp/>&gt;<sp/>0)<sp/>buf[pos++]<sp/>=<sp/></highlight><highlight class="charliteral">&apos;<sp/>&apos;</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="158"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>memcpy(buf<sp/>+<sp/>pos,<sp/>num,<sp/>nl);<sp/>pos<sp/>+=<sp/>nl;</highlight></codeline>
+<codeline lineno="159"><highlight class="normal"></highlight></codeline>
+<codeline lineno="160"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>buf[pos++]<sp/>=<sp/></highlight><highlight class="charliteral">&apos;\n&apos;</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="161"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>buf[pos]<sp/>=<sp/></highlight><highlight class="charliteral">&apos;\0&apos;</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="162"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>print(buf);</highlight></codeline>
+<codeline lineno="163"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="164"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="165"><highlight class="normal"></highlight></codeline>
+<codeline lineno="166"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__profiler_8c_1a483c2038238caa719ae8ed522c084420" kindref="member">syn_profiler_enable</ref>(<ref refid="structSYN__Profiler" kindref="compound">SYN_Profiler</ref><sp/>*prof,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>enable)</highlight></codeline>
+<codeline lineno="167"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="168"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(prof<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="169"><highlight class="normal"><sp/><sp/><sp/><sp/>prof-&gt;<ref refid="structSYN__Profiler_1a5d6ef17b9a6b5d10eba2bc1bc8ab7e68" kindref="member">enabled</ref><sp/>=<sp/>enable;</highlight></codeline>
+<codeline lineno="170"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="171"><highlight class="normal"></highlight></codeline>
+<codeline lineno="172"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_USE_PROFILER<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/debug/syn_profiler.c"/>
+  </compounddef>
+</doxygen>

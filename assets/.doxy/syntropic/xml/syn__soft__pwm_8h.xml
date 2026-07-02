@@ -1,0 +1,373 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__soft__pwm_8h" kind="file" language="C++">
+    <compoundname>syn_soft_pwm.h</compoundname>
+    <includes refid="syn__defs_8h" local="yes">../common/syn_defs.h</includes>
+    <includes refid="syn__gpio_8h" local="yes">../drivers/syn_gpio.h</includes>
+    <includes local="no">stdbool.h</includes>
+    <includedby refid="syn__soft__pwm_8c" local="yes">src/syntropic/output/syn_soft_pwm.c</includedby>
+    <includedby refid="syntropic_8h" local="yes">src/syntropic/syntropic.h</includedby>
+    <incdepgraph>
+      <node id="2">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>../drivers/syn_gpio.h</label>
+        <link refid="syn__gpio_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/output/syn_soft_pwm.h</label>
+        <link refid="syn__soft__pwm_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>../port/syn_port_gpio.h</label>
+        <link refid="syn__port__gpio_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>stdbool.h</label>
+      </node>
+      <node id="4">
+        <label>stddef.h</label>
+      </node>
+      <node id="3">
+        <label>stdint.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="2">
+        <label>src/syntropic/output/syn_soft_pwm.c</label>
+        <link refid="syn__soft__pwm_8c"/>
+      </node>
+      <node id="1">
+        <label>src/syntropic/output/syn_soft_pwm.h</label>
+        <link refid="syn__soft__pwm_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>src/syntropic/syntropic.h</label>
+        <link refid="syntropic_8h"/>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="structSYN__SoftPWM" prot="public">SYN_SoftPWM</innerclass>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__soft__pwm_8h_1a93672b25001790e1b84b8265a525cb36" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_soft_pwm_init</definition>
+        <argsstring>(SYN_SoftPWM *pwm, SYN_GPIO_Pin pin, uint16_t resolution)</argsstring>
+        <name>syn_soft_pwm_init</name>
+        <param>
+          <type><ref refid="structSYN__SoftPWM" kindref="compound">SYN_SoftPWM</ref> *</type>
+          <declname>pwm</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref></type>
+          <declname>pin</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>resolution</declname>
+        </param>
+        <briefdescription>
+<para>Initialize a soft PWM channel. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>pwm</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>PWM instance to initialize. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>pin</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>GPIO pin to drive. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>resolution</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of steps per PWM period (e.g., 100 or 256). Higher = finer duty control, but requires faster tick. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/output/syn_soft_pwm.h" line="55" column="6" bodyfile="src/syntropic/output/syn_soft_pwm.c" bodystart="17" bodyend="31" declfile="src/syntropic/output/syn_soft_pwm.h" declline="55" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__soft__pwm_8h_1a7714c1dec900b8ce3331dd79170319f1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_soft_pwm_set_duty</definition>
+        <argsstring>(SYN_SoftPWM *pwm, uint16_t duty)</argsstring>
+        <name>syn_soft_pwm_set_duty</name>
+        <param>
+          <type><ref refid="structSYN__SoftPWM" kindref="compound">SYN_SoftPWM</ref> *</type>
+          <declname>pwm</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>duty</declname>
+        </param>
+        <briefdescription>
+<para>Set the duty cycle. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>pwm</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>PWM instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>duty</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Duty cycle value (0 = off, resolution = 100% on). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/output/syn_soft_pwm.h" line="64" column="6" bodyfile="src/syntropic/output/syn_soft_pwm.c" bodystart="33" bodyend="41" declfile="src/syntropic/output/syn_soft_pwm.h" declline="64" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__soft__pwm_8h_1aab7bc177c2520609eb466b531fb87851" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_soft_pwm_set_percent</definition>
+        <argsstring>(SYN_SoftPWM *pwm, uint8_t percent)</argsstring>
+        <name>syn_soft_pwm_set_percent</name>
+        <param>
+          <type><ref refid="structSYN__SoftPWM" kindref="compound">SYN_SoftPWM</ref> *</type>
+          <declname>pwm</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>percent</declname>
+        </param>
+        <briefdescription>
+<para>Set duty cycle as a percentage (0–100). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>pwm</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>PWM instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>percent</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Duty cycle percentage (0 to 100). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/output/syn_soft_pwm.h" line="72" column="6" bodyfile="src/syntropic/output/syn_soft_pwm.c" bodystart="43" bodyend="50" declfile="src/syntropic/output/syn_soft_pwm.h" declline="72" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__soft__pwm_8h_1ae194322acdf37a9bd84bb65eedcbf790" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_soft_pwm_tick</definition>
+        <argsstring>(SYN_SoftPWM *pwm)</argsstring>
+        <name>syn_soft_pwm_tick</name>
+        <param>
+          <type><ref refid="structSYN__SoftPWM" kindref="compound">SYN_SoftPWM</ref> *</type>
+          <declname>pwm</declname>
+        </param>
+        <briefdescription>
+<para>Advance the PWM phase by one tick. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Call this from a timer ISR or high-frequency polling loop. The tick rate determines the PWM frequency: PWM_freq = tick_rate / resolution</para>
+<para>For example: 10 kHz tick with resolution=100 → 100 Hz PWM.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>pwm</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>PWM instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/output/syn_soft_pwm.h" line="85" column="6" bodyfile="src/syntropic/output/syn_soft_pwm.c" bodystart="52" bodyend="78" declfile="src/syntropic/output/syn_soft_pwm.h" declline="85" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__soft__pwm_8h_1a22cf33475d1e7b24ee59581b060d3702" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_soft_pwm_service</definition>
+        <argsstring>(SYN_SoftPWM *channels, size_t count)</argsstring>
+        <name>syn_soft_pwm_service</name>
+        <param>
+          <type><ref refid="structSYN__SoftPWM" kindref="compound">SYN_SoftPWM</ref> *</type>
+          <declname>channels</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>count</declname>
+        </param>
+        <briefdescription>
+<para>Service an array of PWM channels in one call. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>channels</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Array of PWM instances. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>count</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of channels in the array. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/output/syn_soft_pwm.h" line="93" column="6" bodyfile="src/syntropic/output/syn_soft_pwm.c" bodystart="80" bodyend="87" declfile="src/syntropic/output/syn_soft_pwm.h" declline="93" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__soft__pwm_8h_1a0026f377878702a1b43d4289d462e908" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>uint16_t</type>
+        <definition>static uint16_t syn_soft_pwm_get_duty</definition>
+        <argsstring>(const SYN_SoftPWM *pwm)</argsstring>
+        <name>syn_soft_pwm_get_duty</name>
+        <param>
+          <type>const <ref refid="structSYN__SoftPWM" kindref="compound">SYN_SoftPWM</ref> *</type>
+          <declname>pwm</declname>
+        </param>
+        <briefdescription>
+<para>Get the current duty cycle value. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>pwm</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>PWM instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Current duty cycle raw value. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/output/syn_soft_pwm.h" line="101" column="24" bodyfile="src/syntropic/output/syn_soft_pwm.h" bodystart="101" bodyend="104"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Software PWM on any GPIO pin. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>When hardware PWM isn&apos;t available or you&apos;ve run out of channels, this module generates PWM by toggling GPIO in a high-frequency tick ISR.</para>
+<para><simplesect kind="par"><title>Usage</title><para><programlisting><codeline><highlight class="keyword">static</highlight><highlight class="normal"><sp/><ref refid="structSYN__SoftPWM" kindref="compound">SYN_SoftPWM</ref><sp/>pwm;</highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__soft__pwm_8c_1a93672b25001790e1b84b8265a525cb36" kindref="member">syn_soft_pwm_init</ref>(&amp;pwm,<sp/>LED_PIN,<sp/>100);<sp/><sp/></highlight><highlight class="comment">//<sp/>100<sp/>steps<sp/>resolution</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__soft__pwm_8c_1a7714c1dec900b8ce3331dd79170319f1" kindref="member">syn_soft_pwm_set_duty</ref>(&amp;pwm,<sp/>75);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>75%<sp/>duty<sp/>cycle</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="comment">//<sp/>Call<sp/>from<sp/>a<sp/>timer<sp/>ISR<sp/>at<sp/>(desired_freq<sp/>*<sp/>resolution)<sp/>Hz:</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>TIM_IRQHandler(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__soft__pwm_8c_1ae194322acdf37a9bd84bb65eedcbf790" kindref="member">syn_soft_pwm_tick</ref>(&amp;pwm);</highlight></codeline>
+<codeline><highlight class="normal">}</highlight></codeline>
+</programlisting> </para>
+</simplesect>
+</para>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_SOFT_PWM_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_SOFT_PWM_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../common/syn_defs.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../drivers/syn_gpio.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Soft<sp/>PWM<sp/>descriptor<sp/>──────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight></codeline>
+<codeline lineno="37" refid="structSYN__SoftPWM" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="38" refid="structSYN__SoftPWM_1ab944eacfa6eb322811f80a03884574a6" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref><sp/><sp/><ref refid="structSYN__SoftPWM_1ab944eacfa6eb322811f80a03884574a6" kindref="member">pin</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="39" refid="structSYN__SoftPWM_1ab7fef3985197f8852c35bc9e38d558a3" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__SoftPWM_1ab7fef3985197f8852c35bc9e38d558a3" kindref="member">resolution</ref>;<sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="40" refid="structSYN__SoftPWM_1a4a1718cfa1ed0d5384b877d7ffeb8a82" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__SoftPWM_1a4a1718cfa1ed0d5384b877d7ffeb8a82" kindref="member">duty</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="41" refid="structSYN__SoftPWM_1a29bba7352e3ef8764b9fed5687db45a3" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__SoftPWM_1a29bba7352e3ef8764b9fed5687db45a3" kindref="member">counter</ref>;<sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="42" refid="structSYN__SoftPWM_1a70856b8cee1bf1f905fcd8c37336374d" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__SoftPWM_1a70856b8cee1bf1f905fcd8c37336374d" kindref="member">active_high</ref>;<sp/><sp/></highlight></codeline>
+<codeline lineno="43"><highlight class="normal">}<sp/><ref refid="structSYN__SoftPWM" kindref="compound">SYN_SoftPWM</ref>;</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>API<sp/>──────────────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="46"><highlight class="normal"></highlight></codeline>
+<codeline lineno="55"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__soft__pwm_8h_1a93672b25001790e1b84b8265a525cb36" kindref="member">syn_soft_pwm_init</ref>(<ref refid="structSYN__SoftPWM" kindref="compound">SYN_SoftPWM</ref><sp/>*pwm,<sp/><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref><sp/>pin,</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint16_t<sp/>resolution);</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"></highlight></codeline>
+<codeline lineno="64"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__soft__pwm_8h_1a7714c1dec900b8ce3331dd79170319f1" kindref="member">syn_soft_pwm_set_duty</ref>(<ref refid="structSYN__SoftPWM" kindref="compound">SYN_SoftPWM</ref><sp/>*pwm,<sp/>uint16_t<sp/>duty);</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"></highlight></codeline>
+<codeline lineno="72"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__soft__pwm_8h_1aab7bc177c2520609eb466b531fb87851" kindref="member">syn_soft_pwm_set_percent</ref>(<ref refid="structSYN__SoftPWM" kindref="compound">SYN_SoftPWM</ref><sp/>*pwm,<sp/>uint8_t<sp/>percent);</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"></highlight></codeline>
+<codeline lineno="85"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__soft__pwm_8h_1ae194322acdf37a9bd84bb65eedcbf790" kindref="member">syn_soft_pwm_tick</ref>(<ref refid="structSYN__SoftPWM" kindref="compound">SYN_SoftPWM</ref><sp/>*pwm);</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"></highlight></codeline>
+<codeline lineno="93"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__soft__pwm_8h_1a22cf33475d1e7b24ee59581b060d3702" kindref="member">syn_soft_pwm_service</ref>(<ref refid="structSYN__SoftPWM" kindref="compound">SYN_SoftPWM</ref><sp/>*channels,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>count);</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"></highlight></codeline>
+<codeline lineno="101" refid="syn__soft__pwm_8h_1a0026f377878702a1b43d4289d462e908" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>uint16_t<sp/><ref refid="syn__soft__pwm_8h_1a0026f377878702a1b43d4289d462e908" kindref="member">syn_soft_pwm_get_duty</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__SoftPWM" kindref="compound">SYN_SoftPWM</ref><sp/>*pwm)</highlight></codeline>
+<codeline lineno="102"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>pwm-&gt;<ref refid="structSYN__SoftPWM_1a4a1718cfa1ed0d5384b877d7ffeb8a82" kindref="member">duty</ref>;</highlight></codeline>
+<codeline lineno="104"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"></highlight></codeline>
+<codeline lineno="106"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="107"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="109"><highlight class="normal"></highlight></codeline>
+<codeline lineno="110"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_SOFT_PWM_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/output/syn_soft_pwm.h"/>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,567 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__adc_8h" kind="file" language="C++">
+    <compoundname>syn_adc.h</compoundname>
+    <includes refid="syn__defs_8h" local="yes">../common/syn_defs.h</includes>
+    <includes refid="syn__port__adc_8h" local="yes">../port/syn_port_adc.h</includes>
+    <includes refid="syn__filter_8h" local="yes">../dsp/syn_filter.h</includes>
+    <includes refid="syn__signal_8h" local="yes">../dsp/syn_signal.h</includes>
+    <includes local="no">stdint.h</includes>
+    <includes local="no">stdbool.h</includes>
+    <includedby refid="syn__adc_8c" local="yes">src/syntropic/drivers/syn_adc.c</includedby>
+    <includedby refid="syntropic_8h" local="yes">src/syntropic/syntropic.h</includedby>
+    <includedby refid="syn__power_8h" local="yes">src/syntropic/system/syn_power.h</includedby>
+    <incdepgraph>
+      <node id="2">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/drivers/syn_adc.h</label>
+        <link refid="syn__adc_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>../dsp/syn_filter.h</label>
+        <link refid="syn__filter_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>../dsp/syn_signal.h</label>
+        <link refid="syn__signal_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>../port/syn_port_adc.h</label>
+        <link refid="syn__port__adc_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>stdbool.h</label>
+      </node>
+      <node id="4">
+        <label>stddef.h</label>
+      </node>
+      <node id="3">
+        <label>stdint.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="2">
+        <label>src/syntropic/drivers/syn_adc.c</label>
+        <link refid="syn__adc_8c"/>
+      </node>
+      <node id="1">
+        <label>src/syntropic/drivers/syn_adc.h</label>
+        <link refid="syn__adc_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>src/syntropic/syntropic.h</label>
+        <link refid="syntropic_8h"/>
+      </node>
+      <node id="5">
+        <label>src/syntropic/system/syn_power.c</label>
+        <link refid="syn__power_8c"/>
+      </node>
+      <node id="4">
+        <label>src/syntropic/system/syn_power.h</label>
+        <link refid="syn__power_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="structSYN__ADC__Config" prot="public">SYN_ADC_Config</innerclass>
+    <innerclass refid="structSYN__ADC" prot="public">SYN_ADC</innerclass>
+    <sectiondef kind="enum">
+      <memberdef kind="enum" id="syn__adc_8h_1ad50439195f63f14186813a40497839a2" prot="public" static="no" strong="no">
+        <type></type>
+        <name>SYN_ADC_FilterType</name>
+        <enumvalue id="syn__adc_8h_1ad50439195f63f14186813a40497839a2a007a9a3185a90e2e14b5ac277640bece" prot="public">
+          <name>SYN_ADC_FILTER_NONE</name>
+          <initializer>= 0</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>No filtering <linebreak/>
+ </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__adc_8h_1ad50439195f63f14186813a40497839a2ae9ec10465d83b60f2b8752d88ec1a648" prot="public">
+          <name>SYN_ADC_FILTER_MA</name>
+          <initializer>= 1</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Moving average <linebreak/>
+ </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__adc_8h_1ad50439195f63f14186813a40497839a2a4a352d04847f1e6ac28515764e4c3e84" prot="public">
+          <name>SYN_ADC_FILTER_EMA</name>
+          <initializer>= 2</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Exponential moving average <linebreak/>
+ </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__adc_8h_1ad50439195f63f14186813a40497839a2a4f07920d6d1de9093cb3cb2751cacbf7" prot="public">
+          <name>SYN_ADC_FILTER_MEDIAN</name>
+          <initializer>= 3</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Median filter <linebreak/>
+ </para>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>ADC digital filter selector. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_adc.h" line="49" column="1" bodyfile="src/syntropic/drivers/syn_adc.h" bodystart="49" bodyend="54"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__adc_8h_1ac365fdd22a7e709c7a96b0e792b1131a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_adc_init</definition>
+        <argsstring>(SYN_ADC *adc, const SYN_ADC_Config *cfg)</argsstring>
+        <name>syn_adc_init</name>
+        <param>
+          <type><ref refid="structSYN__ADC" kindref="compound">SYN_ADC</ref> *</type>
+          <declname>adc</declname>
+        </param>
+        <param>
+          <type>const <ref refid="structSYN__ADC__Config" kindref="compound">SYN_ADC_Config</ref> *</type>
+          <declname>cfg</declname>
+        </param>
+        <briefdescription>
+<para>Initialize an ADC channel with oversampling and calibration. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>adc</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>ADC instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>cfg</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Configuration. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_adc.h" line="92" column="12" bodyfile="src/syntropic/drivers/syn_adc.c" bodystart="17" bodyend="29" declfile="src/syntropic/drivers/syn_adc.h" declline="92" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__adc_8h_1a41bb362742d7f62dcaa35355ab53a61e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int32_t</type>
+        <definition>int32_t syn_adc_read</definition>
+        <argsstring>(SYN_ADC *adc)</argsstring>
+        <name>syn_adc_read</name>
+        <param>
+          <type><ref refid="structSYN__ADC" kindref="compound">SYN_ADC</ref> *</type>
+          <declname>adc</declname>
+        </param>
+        <briefdescription>
+<para>Read the ADC (oversample + filter + calibrate). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>adc</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>ADC instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Calibrated value. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_adc.h" line="100" column="9" bodyfile="src/syntropic/drivers/syn_adc.c" bodystart="53" bodyend="80" declfile="src/syntropic/drivers/syn_adc.h" declline="100" declcolumn="9"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__adc_8h_1a243fc8b5b40967ca1cc3fabeef6fe793" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int32_t</type>
+        <definition>int32_t syn_adc_read_mv</definition>
+        <argsstring>(SYN_ADC *adc)</argsstring>
+        <name>syn_adc_read_mv</name>
+        <param>
+          <type><ref refid="structSYN__ADC" kindref="compound">SYN_ADC</ref> *</type>
+          <declname>adc</declname>
+        </param>
+        <briefdescription>
+<para>Read and convert to millivolts. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Uses the port&apos;s reference voltage and resolution for conversion.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>adc</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>ADC instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Value in millivolts. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_adc.h" line="110" column="9" bodyfile="src/syntropic/drivers/syn_adc.c" bodystart="82" bodyend="96" declfile="src/syntropic/drivers/syn_adc.h" declline="110" declcolumn="9"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__adc_8h_1ac4301d5d732a5094b28d11f781be9dbc" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>int32_t</type>
+        <definition>static int32_t syn_adc_raw</definition>
+        <argsstring>(const SYN_ADC *adc)</argsstring>
+        <name>syn_adc_raw</name>
+        <param>
+          <type>const <ref refid="structSYN__ADC" kindref="compound">SYN_ADC</ref> *</type>
+          <declname>adc</declname>
+        </param>
+        <briefdescription>
+<para>Get last raw value. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>adc</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>ADC instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Raw ADC reading. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_adc.h" line="117" column="23" bodyfile="src/syntropic/drivers/syn_adc.h" bodystart="117" bodyend="117"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__adc_8h_1a82d4eea613a42da81930cb7d306790b1" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>int32_t</type>
+        <definition>static int32_t syn_adc_filtered</definition>
+        <argsstring>(const SYN_ADC *adc)</argsstring>
+        <name>syn_adc_filtered</name>
+        <param>
+          <type>const <ref refid="structSYN__ADC" kindref="compound">SYN_ADC</ref> *</type>
+          <declname>adc</declname>
+        </param>
+        <briefdescription>
+<para>Get last filtered value. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>adc</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>ADC instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Filtered reading. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_adc.h" line="124" column="23" bodyfile="src/syntropic/drivers/syn_adc.h" bodystart="124" bodyend="124"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__adc_8h_1a53a4396772ad9294b73ab3b2aef3d51e" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>int32_t</type>
+        <definition>static int32_t syn_adc_calibrated</definition>
+        <argsstring>(const SYN_ADC *adc)</argsstring>
+        <name>syn_adc_calibrated</name>
+        <param>
+          <type>const <ref refid="structSYN__ADC" kindref="compound">SYN_ADC</ref> *</type>
+          <declname>adc</declname>
+        </param>
+        <briefdescription>
+<para>Get last calibrated value. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>adc</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>ADC instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Calibrated reading. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_adc.h" line="131" column="23" bodyfile="src/syntropic/drivers/syn_adc.h" bodystart="131" bodyend="131"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__adc_8h_1a5f882e165ba2227d1297764f1a041da0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_adc_set_calibration</definition>
+        <argsstring>(SYN_ADC *adc, int16_t offset, uint16_t scale, uint8_t shift)</argsstring>
+        <name>syn_adc_set_calibration</name>
+        <param>
+          <type><ref refid="structSYN__ADC" kindref="compound">SYN_ADC</ref> *</type>
+          <declname>adc</declname>
+        </param>
+        <param>
+          <type>int16_t</type>
+          <declname>offset</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>scale</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>shift</declname>
+        </param>
+        <briefdescription>
+<para>Update calibration at runtime. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>adc</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>ADC instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>offset</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>New zero-point offset. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>scale</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>New scale numerator. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>shift</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>New scale shift (denominator = 1 &lt;&lt; shift). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_adc.h" line="140" column="6" bodyfile="src/syntropic/drivers/syn_adc.c" bodystart="98" bodyend="105" declfile="src/syntropic/drivers/syn_adc.h" declline="140" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__adc_8h_1a079e939764f8418d635f0929d638d0ff" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_adc_set_stats</definition>
+        <argsstring>(SYN_ADC *adc, SYN_Signal *stats)</argsstring>
+        <name>syn_adc_set_stats</name>
+        <param>
+          <type><ref refid="structSYN__ADC" kindref="compound">SYN_ADC</ref> *</type>
+          <declname>adc</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__Signal" kindref="compound">SYN_Signal</ref> *</type>
+          <declname>stats</declname>
+        </param>
+        <briefdescription>
+<para>Attach a signal statistics window. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Each <ref refid="syn__adc_8h_1a41bb362742d7f62dcaa35355ab53a61e" kindref="member">syn_adc_read()</ref> pushes the calibrated value into the signal window, giving you noise stats (min/max/mean/variance) for free.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>adc</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>ADC instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>stats</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Initialized <ref refid="structSYN__Signal" kindref="compound">SYN_Signal</ref>, or NULL to detach. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_adc.h" line="152" column="6" bodyfile="src/syntropic/drivers/syn_adc.c" bodystart="107" bodyend="111" declfile="src/syntropic/drivers/syn_adc.h" declline="152" declcolumn="6"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>ADC abstraction — oversampling, calibration, unit conversion. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Wraps the raw ADC port with oversampling, digital filtering, calibration (via LUT or linear scale/offset), and conversion to engineering units (millivolts, etc.).</para>
+<para><simplesect kind="par"><title>Usage</title><para><programlisting><codeline><highlight class="normal"><ref refid="structSYN__ADC" kindref="compound">SYN_ADC</ref><sp/>adc;</highlight></codeline>
+<codeline><highlight class="normal"><ref refid="structSYN__FilterEMA" kindref="compound">SYN_FilterEMA</ref><sp/>adc_filter;</highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__filter_8c_1ab99eb743ba11ff4821430daa40081aae" kindref="member">syn_filter_ema_init</ref>(&amp;adc_filter,<sp/>128);</highlight></codeline>
+<codeline><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"><ref refid="structSYN__ADC__Config" kindref="compound">SYN_ADC_Config</ref><sp/>cfg<sp/>=<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>.<ref refid="structSYN__ADC__Config_1a145f9eef59946be01cc69108a5f1d695" kindref="member">channel</ref><sp/>=<sp/>0,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>.oversample<sp/>=<sp/>4,<sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>4×<sp/>oversampling<sp/>(2<sp/>extra<sp/>bits)</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>.filter<sp/>=<sp/>&amp;adc_filter,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>.filter_type<sp/>=<sp/><ref refid="syn__adc_8h_1ad50439195f63f14186813a40497839a2a4a352d04847f1e6ac28515764e4c3e84" kindref="member">SYN_ADC_FILTER_EMA</ref>,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>.cal_offset<sp/>=<sp/>0,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>.cal_scale<sp/>=<sp/>1000,<sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>×<sp/>1.000</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>.cal_scale_shift<sp/>=<sp/>10,<sp/></highlight><highlight class="comment">//<sp/>scale<sp/>denominator<sp/>=<sp/>1024</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal">};</highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__adc_8c_1ac365fdd22a7e709c7a96b0e792b1131a" kindref="member">syn_adc_init</ref>(&amp;adc,<sp/>&amp;cfg);</highlight></codeline>
+<codeline><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal">int32_t<sp/>mv<sp/>=<sp/><ref refid="syn__adc_8c_1a243fc8b5b40967ca1cc3fabeef6fe793" kindref="member">syn_adc_read_mv</ref>(&amp;adc);</highlight></codeline>
+</programlisting> </para>
+</simplesect>
+</para>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_ADC_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_ADC_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../common/syn_defs.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../port/syn_port_adc.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../dsp/syn_filter.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../dsp/syn_signal.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight></codeline>
+<codeline lineno="46"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Filter<sp/>type<sp/>──────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="47"><highlight class="normal"></highlight></codeline>
+<codeline lineno="49" refid="syn__adc_8h_1ad50439195f63f14186813a40497839a2" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="50" refid="syn__adc_8h_1ad50439195f63f14186813a40497839a2a007a9a3185a90e2e14b5ac277640bece" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__adc_8h_1ad50439195f63f14186813a40497839a2a007a9a3185a90e2e14b5ac277640bece" kindref="member">SYN_ADC_FILTER_NONE</ref><sp/><sp/><sp/>=<sp/>0,<sp/><sp/></highlight></codeline>
+<codeline lineno="51" refid="syn__adc_8h_1ad50439195f63f14186813a40497839a2ae9ec10465d83b60f2b8752d88ec1a648" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__adc_8h_1ad50439195f63f14186813a40497839a2ae9ec10465d83b60f2b8752d88ec1a648" kindref="member">SYN_ADC_FILTER_MA</ref><sp/><sp/><sp/><sp/><sp/>=<sp/>1,<sp/><sp/></highlight></codeline>
+<codeline lineno="52" refid="syn__adc_8h_1ad50439195f63f14186813a40497839a2a4a352d04847f1e6ac28515764e4c3e84" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__adc_8h_1ad50439195f63f14186813a40497839a2a4a352d04847f1e6ac28515764e4c3e84" kindref="member">SYN_ADC_FILTER_EMA</ref><sp/><sp/><sp/><sp/>=<sp/>2,<sp/><sp/></highlight></codeline>
+<codeline lineno="53" refid="syn__adc_8h_1ad50439195f63f14186813a40497839a2a4f07920d6d1de9093cb3cb2751cacbf7" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__adc_8h_1ad50439195f63f14186813a40497839a2a4f07920d6d1de9093cb3cb2751cacbf7" kindref="member">SYN_ADC_FILTER_MEDIAN</ref><sp/>=<sp/>3,<sp/><sp/></highlight></codeline>
+<codeline lineno="54"><highlight class="normal">}<sp/><ref refid="syn__adc_8h_1ad50439195f63f14186813a40497839a2" kindref="member">SYN_ADC_FilterType</ref>;</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"></highlight></codeline>
+<codeline lineno="56"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>ADC<sp/>configuration<sp/>────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="57"><highlight class="normal"></highlight></codeline>
+<codeline lineno="59" refid="structSYN__ADC__Config" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="60" refid="structSYN__ADC__Config_1a145f9eef59946be01cc69108a5f1d695" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__ADC__Config_1a145f9eef59946be01cc69108a5f1d695" kindref="member">channel</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="61" refid="structSYN__ADC__Config_1a5078b7d10abf5b86b299d1c05033b492" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__ADC__Config_1a5078b7d10abf5b86b299d1c05033b492" kindref="member">oversample</ref>;<sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="63"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Optional<sp/>filter<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="64" refid="structSYN__ADC__Config_1a0eb85031a223d0781b7e550462546ce4" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<ref refid="structSYN__ADC__Config_1a0eb85031a223d0781b7e550462546ce4" kindref="member">filter</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="65" refid="structSYN__ADC__Config_1a95beedaf436d660b97ec7c9181ccd96b" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__adc_8h_1ad50439195f63f14186813a40497839a2" kindref="member">SYN_ADC_FilterType</ref><sp/><sp/><ref refid="structSYN__ADC__Config_1a95beedaf436d660b97ec7c9181ccd96b" kindref="member">filter_type</ref>;<sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Calibration:<sp/>result<sp/>=<sp/>(raw<sp/>+<sp/>cal_offset)<sp/>*<sp/>cal_scale<sp/>&gt;&gt;<sp/>cal_scale_shift<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="68" refid="structSYN__ADC__Config_1a82223b6c39dc9ab796dce048f057a9e1" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>int16_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__ADC__Config_1a82223b6c39dc9ab796dce048f057a9e1" kindref="member">cal_offset</ref>;<sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="69" refid="structSYN__ADC__Config_1aa626b6562481b2f490b1fa9355dfd3bd" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__ADC__Config_1aa626b6562481b2f490b1fa9355dfd3bd" kindref="member">cal_scale</ref>;<sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="70" refid="structSYN__ADC__Config_1a3fed99f41348996ad8b0412900dab363" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__ADC__Config_1a3fed99f41348996ad8b0412900dab363" kindref="member">cal_scale_shift</ref>;<sp/></highlight></codeline>
+<codeline lineno="71"><highlight class="normal">}<sp/><ref refid="structSYN__ADC__Config" kindref="compound">SYN_ADC_Config</ref>;</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"></highlight></codeline>
+<codeline lineno="73"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>ADC<sp/>instance<sp/>─────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="74"><highlight class="normal"></highlight></codeline>
+<codeline lineno="76" refid="structSYN__ADC" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="77" refid="structSYN__ADC_1a13b2682f003bfc01cad9de178549711f" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structSYN__ADC__Config" kindref="compound">SYN_ADC_Config</ref><sp/><ref refid="structSYN__ADC_1a13b2682f003bfc01cad9de178549711f" kindref="member">cfg</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="78" refid="structSYN__ADC_1aec56d59da1a8cbbf469de41cacb20217" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>int32_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__ADC_1aec56d59da1a8cbbf469de41cacb20217" kindref="member">raw</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="79" refid="structSYN__ADC_1a5f16093bfc6306dc7b03ab56e3ea196f" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>int32_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__ADC_1a5f16093bfc6306dc7b03ab56e3ea196f" kindref="member">filtered</ref>;<sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="80" refid="structSYN__ADC_1a17b090ba269587100e4db22c9ec1e24b" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>int32_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__ADC_1a17b090ba269587100e4db22c9ec1e24b" kindref="member">calibrated</ref>;<sp/><sp/></highlight></codeline>
+<codeline lineno="81" refid="structSYN__ADC_1abc5eb0901dbc2e0fa481efc52b5157ca" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structSYN__Signal" kindref="compound">SYN_Signal</ref><sp/><sp/><sp/><sp/>*<ref refid="structSYN__ADC_1abc5eb0901dbc2e0fa481efc52b5157ca" kindref="member">stats</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="82"><highlight class="normal">}<sp/><ref refid="structSYN__ADC" kindref="compound">SYN_ADC</ref>;</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"></highlight></codeline>
+<codeline lineno="84"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>API<sp/>──────────────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="85"><highlight class="normal"></highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__adc_8h_1ac365fdd22a7e709c7a96b0e792b1131a" kindref="member">syn_adc_init</ref>(<ref refid="structSYN__ADC" kindref="compound">SYN_ADC</ref><sp/>*adc,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__ADC__Config" kindref="compound">SYN_ADC_Config</ref><sp/>*cfg);</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"></highlight></codeline>
+<codeline lineno="100"><highlight class="normal">int32_t<sp/><ref refid="syn__adc_8h_1a41bb362742d7f62dcaa35355ab53a61e" kindref="member">syn_adc_read</ref>(<ref refid="structSYN__ADC" kindref="compound">SYN_ADC</ref><sp/>*adc);</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"></highlight></codeline>
+<codeline lineno="110"><highlight class="normal">int32_t<sp/><ref refid="syn__adc_8h_1a243fc8b5b40967ca1cc3fabeef6fe793" kindref="member">syn_adc_read_mv</ref>(<ref refid="structSYN__ADC" kindref="compound">SYN_ADC</ref><sp/>*adc);</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"></highlight></codeline>
+<codeline lineno="117" refid="syn__adc_8h_1ac4301d5d732a5094b28d11f781be9dbc" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>int32_t<sp/><ref refid="syn__adc_8h_1ac4301d5d732a5094b28d11f781be9dbc" kindref="member">syn_adc_raw</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__ADC" kindref="compound">SYN_ADC</ref><sp/>*adc)<sp/>{<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>adc-&gt;<ref refid="structSYN__ADC_1aec56d59da1a8cbbf469de41cacb20217" kindref="member">raw</ref>;<sp/>}</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"></highlight></codeline>
+<codeline lineno="124" refid="syn__adc_8h_1a82d4eea613a42da81930cb7d306790b1" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>int32_t<sp/><ref refid="syn__adc_8h_1a82d4eea613a42da81930cb7d306790b1" kindref="member">syn_adc_filtered</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__ADC" kindref="compound">SYN_ADC</ref><sp/>*adc)<sp/>{<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>adc-&gt;<ref refid="structSYN__ADC_1a5f16093bfc6306dc7b03ab56e3ea196f" kindref="member">filtered</ref>;<sp/>}</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"></highlight></codeline>
+<codeline lineno="131" refid="syn__adc_8h_1a53a4396772ad9294b73ab3b2aef3d51e" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>int32_t<sp/><ref refid="syn__adc_8h_1a53a4396772ad9294b73ab3b2aef3d51e" kindref="member">syn_adc_calibrated</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__ADC" kindref="compound">SYN_ADC</ref><sp/>*adc)<sp/>{<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>adc-&gt;<ref refid="structSYN__ADC_1a17b090ba269587100e4db22c9ec1e24b" kindref="member">calibrated</ref>;<sp/>}</highlight></codeline>
+<codeline lineno="132"><highlight class="normal"></highlight></codeline>
+<codeline lineno="140"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__adc_8h_1a5f882e165ba2227d1297764f1a041da0" kindref="member">syn_adc_set_calibration</ref>(<ref refid="structSYN__ADC" kindref="compound">SYN_ADC</ref><sp/>*adc,<sp/>int16_t<sp/>offset,</highlight></codeline>
+<codeline lineno="141"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint16_t<sp/>scale,<sp/>uint8_t<sp/>shift);</highlight></codeline>
+<codeline lineno="142"><highlight class="normal"></highlight></codeline>
+<codeline lineno="152"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__adc_8h_1a079e939764f8418d635f0929d638d0ff" kindref="member">syn_adc_set_stats</ref>(<ref refid="structSYN__ADC" kindref="compound">SYN_ADC</ref><sp/>*adc,<sp/><ref refid="structSYN__Signal" kindref="compound">SYN_Signal</ref><sp/>*stats);</highlight></codeline>
+<codeline lineno="153"><highlight class="normal"></highlight></codeline>
+<codeline lineno="154"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="155"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="156"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="157"><highlight class="normal"></highlight></codeline>
+<codeline lineno="158"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_ADC_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/drivers/syn_adc.h"/>
+  </compounddef>
+</doxygen>

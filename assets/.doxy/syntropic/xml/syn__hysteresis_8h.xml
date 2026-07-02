@@ -1,0 +1,342 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__hysteresis_8h" kind="file" language="C++">
+    <compoundname>syn_hysteresis.h</compoundname>
+    <includes local="no">stdint.h</includes>
+    <includes local="no">stdbool.h</includes>
+    <includedby refid="syn__sensor_8h" local="yes">src/syntropic/sensor/syn_sensor.h</includedby>
+    <includedby refid="syntropic_8h" local="yes">src/syntropic/syntropic.h</includedby>
+    <includedby refid="syn__power_8h" local="yes">src/syntropic/system/syn_power.h</includedby>
+    <incdepgraph>
+      <node id="1">
+        <label>src/syntropic/util/syn_hysteresis.h</label>
+        <link refid="syn__hysteresis_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>stdbool.h</label>
+      </node>
+      <node id="2">
+        <label>stdint.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="3">
+        <label>src/syntropic/sensor/syn_sensor.c</label>
+        <link refid="syn__sensor_8c"/>
+      </node>
+      <node id="2">
+        <label>src/syntropic/sensor/syn_sensor.h</label>
+        <link refid="syn__sensor_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>src/syntropic/syntropic.h</label>
+        <link refid="syntropic_8h"/>
+      </node>
+      <node id="6">
+        <label>src/syntropic/system/syn_power.c</label>
+        <link refid="syn__power_8c"/>
+      </node>
+      <node id="5">
+        <label>src/syntropic/system/syn_power.h</label>
+        <link refid="syn__power_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/util/syn_hysteresis.h</label>
+        <link refid="syn__hysteresis_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="structSYN__Hysteresis" prot="public">SYN_Hysteresis</innerclass>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__hysteresis_8h_1a7966f7b85a50125cba2686d132bf48c5" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void syn_hyst_init</definition>
+        <argsstring>(SYN_Hysteresis *h, int32_t threshold, int32_t band, bool initial)</argsstring>
+        <name>syn_hyst_init</name>
+        <param>
+          <type><ref refid="structSYN__Hysteresis" kindref="compound">SYN_Hysteresis</ref> *</type>
+          <declname>h</declname>
+        </param>
+        <param>
+          <type>int32_t</type>
+          <declname>threshold</declname>
+        </param>
+        <param>
+          <type>int32_t</type>
+          <declname>band</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+          <declname>initial</declname>
+        </param>
+        <briefdescription>
+<para>Initialize a hysteresis comparator. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>h</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>threshold</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Center threshold value. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>band</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Half-width of hysteresis band. The high trip point is (threshold + band) and the low trip point is (threshold - band). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>initial</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Initial output state. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_hysteresis.h" line="54" column="20" bodyfile="src/syntropic/util/syn_hysteresis.h" bodystart="54" bodyend="62"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__hysteresis_8h_1ac6347b045e734fce6c69957566d81b3b" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>static bool syn_hyst_update</definition>
+        <argsstring>(SYN_Hysteresis *h, int32_t value)</argsstring>
+        <name>syn_hyst_update</name>
+        <param>
+          <type><ref refid="structSYN__Hysteresis" kindref="compound">SYN_Hysteresis</ref> *</type>
+          <declname>h</declname>
+        </param>
+        <param>
+          <type>int32_t</type>
+          <declname>value</declname>
+        </param>
+        <briefdescription>
+<para>Feed a new value and get the output state. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>h</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Hysteresis instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>value</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>New input value. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if the value crossed the high trip point (threshold + band) while state was low, or remains above the low trip point. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_hysteresis.h" line="72" column="20" bodyfile="src/syntropic/util/syn_hysteresis.h" bodystart="72" bodyend="86"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__hysteresis_8h_1a42e4f0b388af9a60be7f1b3db81dcdd4" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>static bool syn_hyst_state</definition>
+        <argsstring>(const SYN_Hysteresis *h)</argsstring>
+        <name>syn_hyst_state</name>
+        <param>
+          <type>const <ref refid="structSYN__Hysteresis" kindref="compound">SYN_Hysteresis</ref> *</type>
+          <declname>h</declname>
+        </param>
+        <briefdescription>
+<para>Get the current output state without updating. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>h</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Hysteresis instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Current state. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_hysteresis.h" line="93" column="20" bodyfile="src/syntropic/util/syn_hysteresis.h" bodystart="93" bodyend="96"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__hysteresis_8h_1ae745559ed49b983860584b79c9891ecc" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void syn_hyst_set</definition>
+        <argsstring>(SYN_Hysteresis *h, int32_t threshold, int32_t band)</argsstring>
+        <name>syn_hyst_set</name>
+        <param>
+          <type><ref refid="structSYN__Hysteresis" kindref="compound">SYN_Hysteresis</ref> *</type>
+          <declname>h</declname>
+        </param>
+        <param>
+          <type>int32_t</type>
+          <declname>threshold</declname>
+        </param>
+        <param>
+          <type>int32_t</type>
+          <declname>band</declname>
+        </param>
+        <briefdescription>
+<para>Update the threshold and band at runtime. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>h</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Hysteresis instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>threshold</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>New center threshold. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>band</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>New half-width of dead-band. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_hysteresis.h" line="104" column="20" bodyfile="src/syntropic/util/syn_hysteresis.h" bodystart="104" bodyend="109"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Threshold comparator with hysteresis (deadband). </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Prevents rapid on/off cycling when a signal hovers near a threshold. Classic use cases: thermostat, battery low warning, tank level control.</para>
+<para>Header-only — zero code size if unused.</para>
+<para><simplesect kind="par"><title>Usage</title><para><programlisting><codeline><highlight class="normal"><ref refid="structSYN__Hysteresis" kindref="compound">SYN_Hysteresis</ref><sp/>hyst;</highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__hysteresis_8h_1a7966f7b85a50125cba2686d132bf48c5" kindref="member">syn_hyst_init</ref>(&amp;hyst,<sp/>1000,<sp/>50,<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">);<sp/><sp/></highlight><highlight class="comment">//<sp/>threshold=1000,<sp/>band=±50</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="comment">//<sp/>In<sp/>sensor<sp/>loop:</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="syn__hysteresis_8h_1ac6347b045e734fce6c69957566d81b3b" kindref="member">syn_hyst_update</ref>(&amp;hyst,<sp/>temperature))<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>crossed<sp/>high<sp/>threshold<sp/>(1050)<sp/>going<sp/>up</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>heater_off();</highlight></codeline>
+<codeline><highlight class="normal">}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!<ref refid="syn__hysteresis_8h_1a42e4f0b388af9a60be7f1b3db81dcdd4" kindref="member">syn_hyst_state</ref>(&amp;hyst))<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>crossed<sp/>low<sp/>threshold<sp/>(950)<sp/>going<sp/>down</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>heater_on();</highlight></codeline>
+<codeline><highlight class="normal">}</highlight></codeline>
+</programlisting> </para>
+</simplesect>
+</para>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_HYSTERESIS_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_HYSTERESIS_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight></codeline>
+<codeline lineno="38" refid="structSYN__Hysteresis" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="39" refid="structSYN__Hysteresis_1a3ddd69c3628e2baddb98ced16946eb0f" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>int32_t<sp/><sp/><ref refid="structSYN__Hysteresis_1a3ddd69c3628e2baddb98ced16946eb0f" kindref="member">threshold</ref>;<sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="40" refid="structSYN__Hysteresis_1adc2ed6a6f5bfceb3ac649f87b2c4072d" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>int32_t<sp/><sp/><ref refid="structSYN__Hysteresis_1adc2ed6a6f5bfceb3ac649f87b2c4072d" kindref="member">band</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="41" refid="structSYN__Hysteresis_1a51e48a25af0cd8e01544b8da4df50727" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__Hysteresis_1a51e48a25af0cd8e01544b8da4df50727" kindref="member">state</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="42"><highlight class="normal">}<sp/><ref refid="structSYN__Hysteresis" kindref="compound">SYN_Hysteresis</ref>;</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight></codeline>
+<codeline lineno="54" refid="syn__hysteresis_8h_1a7966f7b85a50125cba2686d132bf48c5" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__hysteresis_8h_1a7966f7b85a50125cba2686d132bf48c5" kindref="member">syn_hyst_init</ref>(<ref refid="structSYN__Hysteresis" kindref="compound">SYN_Hysteresis</ref><sp/>*h,</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int32_t<sp/>threshold,</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int32_t<sp/>band,</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>initial)</highlight></codeline>
+<codeline lineno="58"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><sp/><sp/><sp/><sp/>h-&gt;<ref refid="structSYN__Hysteresis_1a3ddd69c3628e2baddb98ced16946eb0f" kindref="member">threshold</ref><sp/>=<sp/>threshold;</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"><sp/><sp/><sp/><sp/>h-&gt;<ref refid="structSYN__Hysteresis_1adc2ed6a6f5bfceb3ac649f87b2c4072d" kindref="member">band</ref><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>band;</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/><sp/><sp/>h-&gt;<ref refid="structSYN__Hysteresis_1a51e48a25af0cd8e01544b8da4df50727" kindref="member">state</ref><sp/><sp/><sp/><sp/><sp/>=<sp/>initial;</highlight></codeline>
+<codeline lineno="62"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"></highlight></codeline>
+<codeline lineno="72" refid="syn__hysteresis_8h_1ac6347b045e734fce6c69957566d81b3b" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__hysteresis_8h_1ac6347b045e734fce6c69957566d81b3b" kindref="member">syn_hyst_update</ref>(<ref refid="structSYN__Hysteresis" kindref="compound">SYN_Hysteresis</ref><sp/>*h,<sp/>int32_t<sp/>value)</highlight></codeline>
+<codeline lineno="73"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(h-&gt;<ref refid="structSYN__Hysteresis_1a51e48a25af0cd8e01544b8da4df50727" kindref="member">state</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Currently<sp/>high<sp/>—<sp/>switch<sp/>low<sp/>only<sp/>if<sp/>value<sp/>drops<sp/>below<sp/>(threshold<sp/>-<sp/>band)<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(value<sp/>&lt;<sp/>h-&gt;threshold<sp/>-<sp/>h-&gt;<ref refid="structSYN__Hysteresis_1adc2ed6a6f5bfceb3ac649f87b2c4072d" kindref="member">band</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>h-&gt;<ref refid="structSYN__Hysteresis_1a51e48a25af0cd8e01544b8da4df50727" kindref="member">state</ref><sp/>=<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Currently<sp/>low<sp/>—<sp/>switch<sp/>high<sp/>only<sp/>if<sp/>value<sp/>rises<sp/>above<sp/>(threshold<sp/>+<sp/>band)<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(value<sp/>&gt;<sp/>h-&gt;<ref refid="structSYN__Hysteresis_1a3ddd69c3628e2baddb98ced16946eb0f" kindref="member">threshold</ref><sp/>+<sp/>h-&gt;<ref refid="structSYN__Hysteresis_1adc2ed6a6f5bfceb3ac649f87b2c4072d" kindref="member">band</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>h-&gt;<ref refid="structSYN__Hysteresis_1a51e48a25af0cd8e01544b8da4df50727" kindref="member">state</ref><sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>h-&gt;<ref refid="structSYN__Hysteresis_1a51e48a25af0cd8e01544b8da4df50727" kindref="member">state</ref>;</highlight></codeline>
+<codeline lineno="86"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"></highlight></codeline>
+<codeline lineno="93" refid="syn__hysteresis_8h_1a42e4f0b388af9a60be7f1b3db81dcdd4" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__hysteresis_8h_1a42e4f0b388af9a60be7f1b3db81dcdd4" kindref="member">syn_hyst_state</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__Hysteresis" kindref="compound">SYN_Hysteresis</ref><sp/>*h)</highlight></codeline>
+<codeline lineno="94"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>h-&gt;<ref refid="structSYN__Hysteresis_1a51e48a25af0cd8e01544b8da4df50727" kindref="member">state</ref>;</highlight></codeline>
+<codeline lineno="96"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"></highlight></codeline>
+<codeline lineno="104" refid="syn__hysteresis_8h_1ae745559ed49b983860584b79c9891ecc" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__hysteresis_8h_1ae745559ed49b983860584b79c9891ecc" kindref="member">syn_hyst_set</ref>(<ref refid="structSYN__Hysteresis" kindref="compound">SYN_Hysteresis</ref><sp/>*h,</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int32_t<sp/>threshold,<sp/>int32_t<sp/>band)</highlight></codeline>
+<codeline lineno="106"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"><sp/><sp/><sp/><sp/>h-&gt;<ref refid="structSYN__Hysteresis_1a3ddd69c3628e2baddb98ced16946eb0f" kindref="member">threshold</ref><sp/>=<sp/>threshold;</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"><sp/><sp/><sp/><sp/>h-&gt;<ref refid="structSYN__Hysteresis_1adc2ed6a6f5bfceb3ac649f87b2c4072d" kindref="member">band</ref><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>band;</highlight></codeline>
+<codeline lineno="109"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="110"><highlight class="normal"></highlight></codeline>
+<codeline lineno="111"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="112"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="113"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="114"><highlight class="normal"></highlight></codeline>
+<codeline lineno="115"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_HYSTERESIS_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/util/syn_hysteresis.h"/>
+  </compounddef>
+</doxygen>

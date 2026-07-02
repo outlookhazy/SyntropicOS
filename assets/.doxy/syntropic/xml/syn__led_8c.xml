@@ -1,0 +1,790 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__led_8c" kind="file" language="C++">
+    <compoundname>syn_led.c</compoundname>
+    <includes refid="syn__led_8h" local="yes">syn_led.h</includes>
+    <includes refid="syn__assert_8h" local="yes">../util/syn_assert.h</includes>
+    <includes local="no">string.h</includes>
+    <incdepgraph>
+      <node id="9">
+        <label>../common/syn_compiler.h</label>
+        <link refid="syn__compiler_8h"/>
+      </node>
+      <node id="3">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>../drivers/syn_gpio.h</label>
+        <link refid="syn__gpio_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/output/syn_led.c</label>
+        <link refid="syn__led_8c"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>syn_led.h</label>
+        <link refid="syn__led_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>../port/syn_port_gpio.h</label>
+        <link refid="syn__port__gpio_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>../port/syn_port_system.h</label>
+        <link refid="syn__port__system_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="11">
+        <label>../util/syn_assert.h</label>
+        <link refid="syn__assert_8h"/>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="10">
+        <label>stdbool.h</label>
+      </node>
+      <node id="5">
+        <label>stddef.h</label>
+      </node>
+      <node id="4">
+        <label>stdint.h</label>
+      </node>
+      <node id="12">
+        <label>string.h</label>
+      </node>
+    </incdepgraph>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__led_8c_1ae6461bf736bd5004b73554cf66ea054c" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void led_set_output</definition>
+        <argsstring>(SYN_LED *led, bool on)</argsstring>
+        <name>led_set_output</name>
+        <param>
+          <type><ref refid="structSYN__LED" kindref="compound">SYN_LED</ref> *</type>
+          <declname>led</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+          <declname>on</declname>
+        </param>
+        <briefdescription>
+<para>Set the LED GPIO output based on polarity. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>led</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>LED instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>on</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>true to light the LED. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/output/syn_led.c" line="24" column="13" bodyfile="src/syntropic/output/syn_led.c" bodystart="24" bodyend="34"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__led_8c_1a59b4e3625b4e1c6e62e79ad03e8615b1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_led_init</definition>
+        <argsstring>(SYN_LED *led, SYN_GPIO_Pin pin, SYN_LEDPolarity polarity)</argsstring>
+        <name>syn_led_init</name>
+        <param>
+          <type><ref refid="structSYN__LED" kindref="compound">SYN_LED</ref> *</type>
+          <declname>led</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref></type>
+          <declname>pin</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__led_8h_1ad66a76e60f2e0d045b294acafcf8b661" kindref="member">SYN_LEDPolarity</ref></type>
+          <declname>polarity</declname>
+        </param>
+        <briefdescription>
+<para>Initialize an LED descriptor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>led</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>LED to initialize. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>pin</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>GPIO pin number. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>polarity</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Active-high or active-low. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/output/syn_led.c" line="38" column="6" bodyfile="src/syntropic/output/syn_led.c" bodystart="38" bodyend="49"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__led_8c_1ad42921d420727ead1658a05ac8a65229" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_led_on</definition>
+        <argsstring>(SYN_LED *led)</argsstring>
+        <name>syn_led_on</name>
+        <param>
+          <type><ref refid="structSYN__LED" kindref="compound">SYN_LED</ref> *</type>
+          <declname>led</declname>
+        </param>
+        <briefdescription>
+<para>Turn the LED on (steady). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>led</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>LED instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/output/syn_led.c" line="51" column="6" bodyfile="src/syntropic/output/syn_led.c" bodystart="51" bodyend="56"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__led_8c_1accad8b3372c6e82564f0e0673456f85b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_led_off</definition>
+        <argsstring>(SYN_LED *led)</argsstring>
+        <name>syn_led_off</name>
+        <param>
+          <type><ref refid="structSYN__LED" kindref="compound">SYN_LED</ref> *</type>
+          <declname>led</declname>
+        </param>
+        <briefdescription>
+<para>Turn the LED off. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>led</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>LED instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/output/syn_led.c" line="58" column="6" bodyfile="src/syntropic/output/syn_led.c" bodystart="58" bodyend="63"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__led_8c_1a3cc7b3394db2cdc435f01226eb59dc3f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_led_toggle</definition>
+        <argsstring>(SYN_LED *led)</argsstring>
+        <name>syn_led_toggle</name>
+        <param>
+          <type><ref refid="structSYN__LED" kindref="compound">SYN_LED</ref> *</type>
+          <declname>led</declname>
+        </param>
+        <briefdescription>
+<para>Toggle the LED (only meaningful in ON/OFF modes). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>led</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>LED instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/output/syn_led.c" line="65" column="6" bodyfile="src/syntropic/output/syn_led.c" bodystart="65" bodyend="73"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__led_8c_1a9cfe968960b3294b5614880222684691" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_led_blink</definition>
+        <argsstring>(SYN_LED *led, uint16_t on_ms, uint16_t off_ms)</argsstring>
+        <name>syn_led_blink</name>
+        <param>
+          <type><ref refid="structSYN__LED" kindref="compound">SYN_LED</ref> *</type>
+          <declname>led</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>on_ms</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>off_ms</declname>
+        </param>
+        <briefdescription>
+<para>Start a continuous blink. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>led</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>LED. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>on_ms</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>On time in milliseconds. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>off_ms</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Off time in milliseconds. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/output/syn_led.c" line="75" column="6" bodyfile="src/syntropic/output/syn_led.c" bodystart="75" bodyend="84"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__led_8c_1a84b1685f2588202f2062947b0de402f9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_led_flash</definition>
+        <argsstring>(SYN_LED *led, uint16_t on_ms, uint16_t off_ms, uint8_t count)</argsstring>
+        <name>syn_led_flash</name>
+        <param>
+          <type><ref refid="structSYN__LED" kindref="compound">SYN_LED</ref> *</type>
+          <declname>led</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>on_ms</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>off_ms</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>count</declname>
+        </param>
+        <briefdescription>
+<para>Flash the LED N times, then turn off. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>led</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>LED. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>on_ms</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>On time per flash (ms). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>off_ms</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Off time between flashes (ms). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>count</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of flashes. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/output/syn_led.c" line="86" column="6" bodyfile="src/syntropic/output/syn_led.c" bodystart="86" bodyend="98"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__led_8c_1a6782e6202beec3a5b77e23aff0180f34" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_led_pattern</definition>
+        <argsstring>(SYN_LED *led, const char *pattern, uint16_t unit_ms)</argsstring>
+        <name>syn_led_pattern</name>
+        <param>
+          <type><ref refid="structSYN__LED" kindref="compound">SYN_LED</ref> *</type>
+          <declname>led</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>pattern</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>unit_ms</declname>
+        </param>
+        <briefdescription>
+<para>Play a pattern string. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Pattern characters: &apos;.&apos; = short on (1 unit) &apos;-&apos; = long on (3 units) &apos; &apos; = pause (1 unit) &apos;|&apos; = long pause (3 units)</para>
+<para>The pattern repeats indefinitely. Set a null or empty string to stop.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>led</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>LED. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>pattern</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Null-terminated pattern string. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>unit_ms</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Base time unit in milliseconds (e.g., 100). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/output/syn_led.c" line="100" column="6" bodyfile="src/syntropic/output/syn_led.c" bodystart="100" bodyend="115"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__led_8c_1a85314d01990c87e390a5c060a6fb3e63" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_led_update</definition>
+        <argsstring>(SYN_LED *led)</argsstring>
+        <name>syn_led_update</name>
+        <param>
+          <type><ref refid="structSYN__LED" kindref="compound">SYN_LED</ref> *</type>
+          <declname>led</declname>
+        </param>
+        <briefdescription>
+<para>Update the LED state machine. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Call from your main loop or a scheduler task.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>led</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>LED instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/output/syn_led.c" line="119" column="6" bodyfile="src/syntropic/output/syn_led.c" bodystart="119" bodyend="209"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__led_8c_1a3d5aa3b274d1ad96dd96d062ec63d0a2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_led_service</definition>
+        <argsstring>(SYN_LED *leds, size_t count)</argsstring>
+        <name>syn_led_service</name>
+        <param>
+          <type><ref refid="structSYN__LED" kindref="compound">SYN_LED</ref> *</type>
+          <declname>leds</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>count</declname>
+        </param>
+        <briefdescription>
+<para>Service an array of LEDs. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>leds</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>LED array. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>count</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of LEDs. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/output/syn_led.c" line="211" column="6" bodyfile="src/syntropic/output/syn_led.c" bodystart="211" bodyend="218"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__led_8c_1a88b4b7f90d45e32f1fb2492ae11ed86d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>uint32_t syn_led_next_ms</definition>
+        <argsstring>(const SYN_LED *led)</argsstring>
+        <name>syn_led_next_ms</name>
+        <param>
+          <type>const <ref refid="structSYN__LED" kindref="compound">SYN_LED</ref> *</type>
+          <declname>led</declname>
+        </param>
+        <briefdescription>
+<para>Milliseconds until the next state transition. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns 0 if a transition is overdue, UINT32_MAX if the LED is static (ON or OFF). Useful for sleeping in a protothread:</para>
+<para><programlisting><codeline><highlight class="normal">uint32_t<sp/>wait<sp/>=<sp/>syn_led_next_ms(&amp;led);</highlight></codeline>
+<codeline><highlight class="normal">if<sp/>(wait<sp/>&gt;<sp/>0<sp/>&amp;&amp;<sp/>wait<sp/>&lt;<sp/>UINT32_MAX)</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>PT_TASK_DELAY_MS(pt,<sp/>task,<sp/>wait);</highlight></codeline>
+</programlisting></para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>led</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>LED instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Milliseconds until the next toggle. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/output/syn_led.c" line="220" column="10" bodyfile="src/syntropic/output/syn_led.c" bodystart="220" bodyend="253"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>LED controller implementation. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#if<sp/>__has_include(&quot;syn_config.h&quot;)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/>#include<sp/>&quot;syn_config.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="4"><highlight class="normal"></highlight></codeline>
+<codeline lineno="5"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>!defined(SYN_USE_LED)<sp/>||<sp/>SYN_USE_LED</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__led_8h" kindref="compound">syn_led.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../util/syn_assert.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;string.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Internal<sp/>helpers<sp/>─────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__led_8c_1ae6461bf736bd5004b73554cf66ea054c" kindref="member">led_set_output</ref>(<ref refid="structSYN__LED" kindref="compound">SYN_LED</ref><sp/>*led,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>on)</highlight></codeline>
+<codeline lineno="25"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="26"><highlight class="normal"><sp/><sp/><sp/><sp/>led-&gt;<ref refid="structSYN__LED_1a12b48f2936662482a45826217ff3bfe3" kindref="member">lit</ref><sp/>=<sp/>on;</highlight></codeline>
+<codeline lineno="27"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__defs_8h_1aaa3b9a5c8a9518fd3c3ca7bbe8b4de4a" kindref="member">SYN_GPIO_State</ref><sp/>level;</highlight></codeline>
+<codeline lineno="28"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(led-&gt;<ref refid="structSYN__LED_1a2d83ee4fb47588443b28faa17cad296a" kindref="member">polarity</ref><sp/>==<sp/>(uint8_t)<ref refid="syn__led_8h_1ad66a76e60f2e0d045b294acafcf8b661a1f4050d02b6fd7d9a91dfeb0770b20d7" kindref="member">SYN_LED_ACTIVE_LOW</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="29"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>level<sp/>=<sp/>on<sp/>?<sp/>SYN_GPIO_LOW<sp/>:<sp/>SYN_GPIO_HIGH;</highlight></codeline>
+<codeline lineno="30"><highlight class="normal"><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="31"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>level<sp/>=<sp/>on<sp/>?<sp/>SYN_GPIO_HIGH<sp/>:<sp/>SYN_GPIO_LOW;</highlight></codeline>
+<codeline lineno="32"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="33"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__port__gpio_8h_1a797218e188e548d3e6116e87554b29fe" kindref="member">syn_port_gpio_write</ref>(led-&gt;<ref refid="structSYN__LED_1a37dfe5a3198c3cb436eb078e6162bc6f" kindref="member">pin</ref>,<sp/>level);</highlight></codeline>
+<codeline lineno="34"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>API<sp/>──────────────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__led_8c_1a59b4e3625b4e1c6e62e79ad03e8615b1" kindref="member">syn_led_init</ref>(<ref refid="structSYN__LED" kindref="compound">SYN_LED</ref><sp/>*led,<sp/><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref><sp/>pin,<sp/><ref refid="syn__led_8h_1ad66a76e60f2e0d045b294acafcf8b661" kindref="member">SYN_LEDPolarity</ref><sp/>polarity)</highlight></codeline>
+<codeline lineno="39"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(led<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"><sp/><sp/><sp/><sp/>memset(led,<sp/>0,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(*led));</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"><sp/><sp/><sp/><sp/>led-&gt;<ref refid="structSYN__LED_1a37dfe5a3198c3cb436eb078e6162bc6f" kindref="member">pin</ref><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>pin;</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"><sp/><sp/><sp/><sp/>led-&gt;<ref refid="structSYN__LED_1a2d83ee4fb47588443b28faa17cad296a" kindref="member">polarity</ref><sp/>=<sp/>(uint8_t)polarity;</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"><sp/><sp/><sp/><sp/>led-&gt;<ref refid="structSYN__LED_1a38f1c565b655a21604b28a1bd70ccdcb" kindref="member">mode</ref><sp/><sp/><sp/><sp/><sp/>=<sp/>(uint8_t)<ref refid="syn__led_8h_1a43205f03fc97a41b0ce98d64e8959cfdae16334ad01afad25bdc51514678a1825" kindref="member">SYN_LED_MODE_OFF</ref>;</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/><sp/><sp/>led-&gt;<ref refid="structSYN__LED_1a12b48f2936662482a45826217ff3bfe3" kindref="member">lit</ref><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__port__gpio_8h_1a885fe878ae93414309a62202b5c30b79" kindref="member">syn_port_gpio_init</ref>(pin,<sp/>SYN_GPIO_OUTPUT);</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__led_8c_1ae6461bf736bd5004b73554cf66ea054c" kindref="member">led_set_output</ref>(led,<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="49"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"></highlight></codeline>
+<codeline lineno="51"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__led_8c_1ad42921d420727ead1658a05ac8a65229" kindref="member">syn_led_on</ref>(<ref refid="structSYN__LED" kindref="compound">SYN_LED</ref><sp/>*led)</highlight></codeline>
+<codeline lineno="52"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(led<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/><sp/><sp/>led-&gt;<ref refid="structSYN__LED_1a38f1c565b655a21604b28a1bd70ccdcb" kindref="member">mode</ref><sp/>=<sp/>(uint8_t)<ref refid="syn__led_8h_1a43205f03fc97a41b0ce98d64e8959cfda6e454b3f1022e64b14a11714f923a73a" kindref="member">SYN_LED_MODE_ON</ref>;</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__led_8c_1ae6461bf736bd5004b73554cf66ea054c" kindref="member">led_set_output</ref>(led,<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="56"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"></highlight></codeline>
+<codeline lineno="58"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__led_8c_1accad8b3372c6e82564f0e0673456f85b" kindref="member">syn_led_off</ref>(<ref refid="structSYN__LED" kindref="compound">SYN_LED</ref><sp/>*led)</highlight></codeline>
+<codeline lineno="59"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(led<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/><sp/><sp/>led-&gt;<ref refid="structSYN__LED_1a38f1c565b655a21604b28a1bd70ccdcb" kindref="member">mode</ref><sp/>=<sp/>(uint8_t)<ref refid="syn__led_8h_1a43205f03fc97a41b0ce98d64e8959cfdae16334ad01afad25bdc51514678a1825" kindref="member">SYN_LED_MODE_OFF</ref>;</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__led_8c_1ae6461bf736bd5004b73554cf66ea054c" kindref="member">led_set_output</ref>(led,<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="63"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"></highlight></codeline>
+<codeline lineno="65"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__led_8c_1a3cc7b3394db2cdc435f01226eb59dc3f" kindref="member">syn_led_toggle</ref>(<ref refid="structSYN__LED" kindref="compound">SYN_LED</ref><sp/>*led)</highlight></codeline>
+<codeline lineno="66"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(led<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(led-&gt;<ref refid="structSYN__LED_1a12b48f2936662482a45826217ff3bfe3" kindref="member">lit</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__led_8c_1accad8b3372c6e82564f0e0673456f85b" kindref="member">syn_led_off</ref>(led);</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__led_8c_1ad42921d420727ead1658a05ac8a65229" kindref="member">syn_led_on</ref>(led);</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="73"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"></highlight></codeline>
+<codeline lineno="75"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__led_8c_1a9cfe968960b3294b5614880222684691" kindref="member">syn_led_blink</ref>(<ref refid="structSYN__LED" kindref="compound">SYN_LED</ref><sp/>*led,<sp/>uint16_t<sp/>on_ms,<sp/>uint16_t<sp/>off_ms)</highlight></codeline>
+<codeline lineno="76"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(led<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"></highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/><sp/><sp/>led-&gt;<ref refid="structSYN__LED_1a38f1c565b655a21604b28a1bd70ccdcb" kindref="member">mode</ref><sp/><sp/><sp/>=<sp/>(uint8_t)<ref refid="syn__led_8h_1a43205f03fc97a41b0ce98d64e8959cfda9110697b8f92d492c091ea676fa6dc62" kindref="member">SYN_LED_MODE_BLINK</ref>;</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/><sp/><sp/>led-&gt;<ref refid="structSYN__LED_1a7410d0e1da09d5787b694e0cbb2d157c" kindref="member">on_ms</ref><sp/><sp/>=<sp/>on_ms;</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/><sp/><sp/>led-&gt;<ref refid="structSYN__LED_1a1aa9a12e4214ddaa09bda85107da0ddd" kindref="member">off_ms</ref><sp/>=<sp/>off_ms;</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/>led-&gt;<ref refid="structSYN__LED_1a12ff8cd7f234ed1c68910f76ff72f139" kindref="member">tick</ref><sp/><sp/><sp/>=<sp/><ref refid="syn__port__system_8h_1a6c7d98587814b2c0d9c09da02d318873" kindref="member">syn_port_get_tick_ms</ref>();</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__led_8c_1ae6461bf736bd5004b73554cf66ea054c" kindref="member">led_set_output</ref>(led,<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="84"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"></highlight></codeline>
+<codeline lineno="86"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__led_8c_1a84b1685f2588202f2062947b0de402f9" kindref="member">syn_led_flash</ref>(<ref refid="structSYN__LED" kindref="compound">SYN_LED</ref><sp/>*led,<sp/>uint16_t<sp/>on_ms,<sp/>uint16_t<sp/>off_ms,</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>count)</highlight></codeline>
+<codeline lineno="88"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(led<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(count<sp/>&gt;<sp/>0);</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"></highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/><sp/><sp/>led-&gt;<ref refid="structSYN__LED_1a38f1c565b655a21604b28a1bd70ccdcb" kindref="member">mode</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>(uint8_t)<ref refid="syn__led_8h_1a43205f03fc97a41b0ce98d64e8959cfda0c5468790acc0504599d99c25e61632f" kindref="member">SYN_LED_MODE_FLASH</ref>;</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><sp/><sp/><sp/><sp/>led-&gt;<ref refid="structSYN__LED_1a7410d0e1da09d5787b694e0cbb2d157c" kindref="member">on_ms</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>on_ms;</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><sp/><sp/><sp/><sp/>led-&gt;<ref refid="structSYN__LED_1a1aa9a12e4214ddaa09bda85107da0ddd" kindref="member">off_ms</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>off_ms;</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/>led-&gt;<ref refid="structSYN__LED_1acc07219d69c069c7a47ca0adf269a254" kindref="member">flash_remain</ref><sp/>=<sp/>count;</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/><sp/><sp/>led-&gt;<ref refid="structSYN__LED_1a12ff8cd7f234ed1c68910f76ff72f139" kindref="member">tick</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/><ref refid="syn__port__system_8h_1a6c7d98587814b2c0d9c09da02d318873" kindref="member">syn_port_get_tick_ms</ref>();</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__led_8c_1ae6461bf736bd5004b73554cf66ea054c" kindref="member">led_set_output</ref>(led,<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="98"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"></highlight></codeline>
+<codeline lineno="100"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__led_8c_1a6782e6202beec3a5b77e23aff0180f34" kindref="member">syn_led_pattern</ref>(<ref refid="structSYN__LED" kindref="compound">SYN_LED</ref><sp/>*led,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*pattern,<sp/>uint16_t<sp/>unit_ms)</highlight></codeline>
+<codeline lineno="101"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(led<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"></highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(pattern<sp/>==<sp/>NULL<sp/>||<sp/>pattern[0]<sp/>==<sp/></highlight><highlight class="charliteral">&apos;\0&apos;</highlight><highlight class="normal">)<sp/>{</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__led_8c_1accad8b3372c6e82564f0e0673456f85b" kindref="member">syn_led_off</ref>(led);</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"></highlight></codeline>
+<codeline lineno="109"><highlight class="normal"><sp/><sp/><sp/><sp/>led-&gt;<ref refid="structSYN__LED_1a38f1c565b655a21604b28a1bd70ccdcb" kindref="member">mode</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>(uint8_t)<ref refid="syn__led_8h_1a43205f03fc97a41b0ce98d64e8959cfdaf0c2c75339e45f4d54cd9e82557819b2" kindref="member">SYN_LED_MODE_PATTERN</ref>;</highlight></codeline>
+<codeline lineno="110"><highlight class="normal"><sp/><sp/><sp/><sp/>led-&gt;<ref refid="structSYN__LED_1a5ac4a0405cc9f78a8966164bb8fd690f" kindref="member">pattern</ref><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>pattern;</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"><sp/><sp/><sp/><sp/>led-&gt;<ref refid="structSYN__LED_1a7a8f5d28d56ad4700727acc6ac520d25" kindref="member">pattern_idx</ref><sp/><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="112"><highlight class="normal"><sp/><sp/><sp/><sp/>led-&gt;<ref refid="structSYN__LED_1aab70ec087a268f76115055b0c5da26bd" kindref="member">pattern_unit</ref><sp/>=<sp/>unit_ms;</highlight></codeline>
+<codeline lineno="113"><highlight class="normal"><sp/><sp/><sp/><sp/>led-&gt;<ref refid="structSYN__LED_1a12ff8cd7f234ed1c68910f76ff72f139" kindref="member">tick</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/><ref refid="syn__port__system_8h_1a6c7d98587814b2c0d9c09da02d318873" kindref="member">syn_port_get_tick_ms</ref>();</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__led_8c_1ae6461bf736bd5004b73554cf66ea054c" kindref="member">led_set_output</ref>(led,<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="115"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="116"><highlight class="normal"></highlight></codeline>
+<codeline lineno="117"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Update<sp/>───────────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="118"><highlight class="normal"></highlight></codeline>
+<codeline lineno="119"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__led_8c_1a85314d01990c87e390a5c060a6fb3e63" kindref="member">syn_led_update</ref>(<ref refid="structSYN__LED" kindref="compound">SYN_LED</ref><sp/>*led)</highlight></codeline>
+<codeline lineno="120"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="121"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(led<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="122"><highlight class="normal"></highlight></codeline>
+<codeline lineno="123"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/>now<sp/>=<sp/><ref refid="syn__port__system_8h_1a6c7d98587814b2c0d9c09da02d318873" kindref="member">syn_port_get_tick_ms</ref>();</highlight></codeline>
+<codeline lineno="124"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/>elapsed<sp/>=<sp/>now<sp/>-<sp/>led-&gt;<ref refid="structSYN__LED_1a12ff8cd7f234ed1c68910f76ff72f139" kindref="member">tick</ref>;</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"></highlight></codeline>
+<codeline lineno="126"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">switch</highlight><highlight class="normal"><sp/>((<ref refid="syn__led_8h_1a43205f03fc97a41b0ce98d64e8959cfd" kindref="member">SYN_LEDMode</ref>)led-&gt;<ref refid="structSYN__LED_1a38f1c565b655a21604b28a1bd70ccdcb" kindref="member">mode</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="127"><highlight class="normal"></highlight></codeline>
+<codeline lineno="128"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__led_8h_1a43205f03fc97a41b0ce98d64e8959cfdae16334ad01afad25bdc51514678a1825" kindref="member">SYN_LED_MODE_OFF</ref>:</highlight></codeline>
+<codeline lineno="129"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__led_8h_1a43205f03fc97a41b0ce98d64e8959cfda6e454b3f1022e64b14a11714f923a73a" kindref="member">SYN_LED_MODE_ON</ref>:</highlight></codeline>
+<codeline lineno="130"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Static<sp/>—<sp/>nothing<sp/>to<sp/>do<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="131"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="132"><highlight class="normal"></highlight></codeline>
+<codeline lineno="133"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__led_8h_1a43205f03fc97a41b0ce98d64e8959cfda9110697b8f92d492c091ea676fa6dc62" kindref="member">SYN_LED_MODE_BLINK</ref>:</highlight></codeline>
+<codeline lineno="134"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(led-&gt;<ref refid="structSYN__LED_1a12b48f2936662482a45826217ff3bfe3" kindref="member">lit</ref><sp/>&amp;&amp;<sp/>elapsed<sp/>&gt;=<sp/>led-&gt;<ref refid="structSYN__LED_1a7410d0e1da09d5787b694e0cbb2d157c" kindref="member">on_ms</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="135"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__led_8c_1ae6461bf736bd5004b73554cf66ea054c" kindref="member">led_set_output</ref>(led,<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>led-&gt;<ref refid="structSYN__LED_1a12ff8cd7f234ed1c68910f76ff72f139" kindref="member">tick</ref><sp/>=<sp/>now;</highlight></codeline>
+<codeline lineno="137"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!led-&gt;<ref refid="structSYN__LED_1a12b48f2936662482a45826217ff3bfe3" kindref="member">lit</ref><sp/>&amp;&amp;<sp/>elapsed<sp/>&gt;=<sp/>led-&gt;<ref refid="structSYN__LED_1a1aa9a12e4214ddaa09bda85107da0ddd" kindref="member">off_ms</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="138"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__led_8c_1ae6461bf736bd5004b73554cf66ea054c" kindref="member">led_set_output</ref>(led,<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="139"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>led-&gt;<ref refid="structSYN__LED_1a12ff8cd7f234ed1c68910f76ff72f139" kindref="member">tick</ref><sp/>=<sp/>now;</highlight></codeline>
+<codeline lineno="140"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="141"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="142"><highlight class="normal"></highlight></codeline>
+<codeline lineno="143"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__led_8h_1a43205f03fc97a41b0ce98d64e8959cfda0c5468790acc0504599d99c25e61632f" kindref="member">SYN_LED_MODE_FLASH</ref>:</highlight></codeline>
+<codeline lineno="144"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(led-&gt;<ref refid="structSYN__LED_1a12b48f2936662482a45826217ff3bfe3" kindref="member">lit</ref><sp/>&amp;&amp;<sp/>elapsed<sp/>&gt;=<sp/>led-&gt;<ref refid="structSYN__LED_1a7410d0e1da09d5787b694e0cbb2d157c" kindref="member">on_ms</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="145"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__led_8c_1ae6461bf736bd5004b73554cf66ea054c" kindref="member">led_set_output</ref>(led,<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="146"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>led-&gt;<ref refid="structSYN__LED_1a12ff8cd7f234ed1c68910f76ff72f139" kindref="member">tick</ref><sp/>=<sp/>now;</highlight></codeline>
+<codeline lineno="147"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>led-&gt;<ref refid="structSYN__LED_1acc07219d69c069c7a47ca0adf269a254" kindref="member">flash_remain</ref>--;</highlight></codeline>
+<codeline lineno="148"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(led-&gt;<ref refid="structSYN__LED_1acc07219d69c069c7a47ca0adf269a254" kindref="member">flash_remain</ref><sp/>==<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="149"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>led-&gt;<ref refid="structSYN__LED_1a38f1c565b655a21604b28a1bd70ccdcb" kindref="member">mode</ref><sp/>=<sp/>(uint8_t)<ref refid="syn__led_8h_1a43205f03fc97a41b0ce98d64e8959cfdae16334ad01afad25bdc51514678a1825" kindref="member">SYN_LED_MODE_OFF</ref>;</highlight></codeline>
+<codeline lineno="150"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="151"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!led-&gt;<ref refid="structSYN__LED_1a12b48f2936662482a45826217ff3bfe3" kindref="member">lit</ref><sp/>&amp;&amp;<sp/>elapsed<sp/>&gt;=<sp/>led-&gt;<ref refid="structSYN__LED_1a1aa9a12e4214ddaa09bda85107da0ddd" kindref="member">off_ms</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="152"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(led-&gt;<ref refid="structSYN__LED_1acc07219d69c069c7a47ca0adf269a254" kindref="member">flash_remain</ref><sp/>&gt;<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="153"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__led_8c_1ae6461bf736bd5004b73554cf66ea054c" kindref="member">led_set_output</ref>(led,<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="154"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>led-&gt;<ref refid="structSYN__LED_1a12ff8cd7f234ed1c68910f76ff72f139" kindref="member">tick</ref><sp/>=<sp/>now;</highlight></codeline>
+<codeline lineno="155"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="156"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="157"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="158"><highlight class="normal"></highlight></codeline>
+<codeline lineno="159"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__led_8h_1a43205f03fc97a41b0ce98d64e8959cfdaf0c2c75339e45f4d54cd9e82557819b2" kindref="member">SYN_LED_MODE_PATTERN</ref>:<sp/>{</highlight></codeline>
+<codeline lineno="160"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/><ref refid="syn__sha256_8c_1a040629ce734f8c5b8c1b917ee7330a7b" kindref="member">ch</ref><sp/>=<sp/>led-&gt;<ref refid="structSYN__LED_1a5ac4a0405cc9f78a8966164bb8fd690f" kindref="member">pattern</ref>[led-&gt;<ref refid="structSYN__LED_1a7a8f5d28d56ad4700727acc6ac520d25" kindref="member">pattern_idx</ref>];</highlight></codeline>
+<codeline lineno="161"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint16_t<sp/>dur;</highlight></codeline>
+<codeline lineno="162"><highlight class="normal"></highlight></codeline>
+<codeline lineno="163"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">switch</highlight><highlight class="normal"><sp/>(<ref refid="syn__sha256_8c_1a040629ce734f8c5b8c1b917ee7330a7b" kindref="member">ch</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="164"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/></highlight><highlight class="charliteral">&apos;.&apos;</highlight><highlight class="normal">:<sp/><sp/></highlight><highlight class="comment">/*<sp/>short<sp/>on<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="165"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!led-&gt;<ref refid="structSYN__LED_1a12b48f2936662482a45826217ff3bfe3" kindref="member">lit</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="166"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__led_8c_1ae6461bf736bd5004b73554cf66ea054c" kindref="member">led_set_output</ref>(led,<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="167"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>led-&gt;<ref refid="structSYN__LED_1a12ff8cd7f234ed1c68910f76ff72f139" kindref="member">tick</ref><sp/>=<sp/>now;</highlight></codeline>
+<codeline lineno="168"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(elapsed<sp/>&gt;=<sp/>led-&gt;<ref refid="structSYN__LED_1aab70ec087a268f76115055b0c5da26bd" kindref="member">pattern_unit</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="169"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__led_8c_1ae6461bf736bd5004b73554cf66ea054c" kindref="member">led_set_output</ref>(led,<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="170"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>led-&gt;<ref refid="structSYN__LED_1a12ff8cd7f234ed1c68910f76ff72f139" kindref="member">tick</ref><sp/>=<sp/>now;</highlight></codeline>
+<codeline lineno="171"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>led-&gt;<ref refid="structSYN__LED_1a7a8f5d28d56ad4700727acc6ac520d25" kindref="member">pattern_idx</ref>++;</highlight></codeline>
+<codeline lineno="172"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="173"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="174"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/></highlight><highlight class="charliteral">&apos;-&apos;</highlight><highlight class="normal">:<sp/><sp/></highlight><highlight class="comment">/*<sp/>long<sp/>on<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="175"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!led-&gt;<ref refid="structSYN__LED_1a12b48f2936662482a45826217ff3bfe3" kindref="member">lit</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="176"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__led_8c_1ae6461bf736bd5004b73554cf66ea054c" kindref="member">led_set_output</ref>(led,<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="177"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>led-&gt;<ref refid="structSYN__LED_1a12ff8cd7f234ed1c68910f76ff72f139" kindref="member">tick</ref><sp/>=<sp/>now;</highlight></codeline>
+<codeline lineno="178"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(elapsed<sp/>&gt;=<sp/>(uint32_t)(led-&gt;<ref refid="structSYN__LED_1aab70ec087a268f76115055b0c5da26bd" kindref="member">pattern_unit</ref><sp/>*<sp/>3u))<sp/>{</highlight></codeline>
+<codeline lineno="179"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__led_8c_1ae6461bf736bd5004b73554cf66ea054c" kindref="member">led_set_output</ref>(led,<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="180"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>led-&gt;<ref refid="structSYN__LED_1a12ff8cd7f234ed1c68910f76ff72f139" kindref="member">tick</ref><sp/>=<sp/>now;</highlight></codeline>
+<codeline lineno="181"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>led-&gt;<ref refid="structSYN__LED_1a7a8f5d28d56ad4700727acc6ac520d25" kindref="member">pattern_idx</ref>++;</highlight></codeline>
+<codeline lineno="182"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="183"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="184"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/></highlight><highlight class="charliteral">&apos;<sp/>&apos;</highlight><highlight class="normal">:<sp/><sp/></highlight><highlight class="comment">/*<sp/>short<sp/>pause<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="185"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>dur<sp/>=<sp/>led-&gt;<ref refid="structSYN__LED_1aab70ec087a268f76115055b0c5da26bd" kindref="member">pattern_unit</ref>;</highlight></codeline>
+<codeline lineno="186"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(elapsed<sp/>&gt;=<sp/>dur)<sp/>{</highlight></codeline>
+<codeline lineno="187"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>led-&gt;<ref refid="structSYN__LED_1a7a8f5d28d56ad4700727acc6ac520d25" kindref="member">pattern_idx</ref>++;</highlight></codeline>
+<codeline lineno="188"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>led-&gt;<ref refid="structSYN__LED_1a12ff8cd7f234ed1c68910f76ff72f139" kindref="member">tick</ref><sp/>=<sp/>now;</highlight></codeline>
+<codeline lineno="189"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="190"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="191"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/></highlight><highlight class="charliteral">&apos;|&apos;</highlight><highlight class="normal">:<sp/><sp/></highlight><highlight class="comment">/*<sp/>long<sp/>pause<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="192"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>dur<sp/>=<sp/>(uint16_t)(led-&gt;<ref refid="structSYN__LED_1aab70ec087a268f76115055b0c5da26bd" kindref="member">pattern_unit</ref><sp/>*<sp/>3u);</highlight></codeline>
+<codeline lineno="193"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(elapsed<sp/>&gt;=<sp/>dur)<sp/>{</highlight></codeline>
+<codeline lineno="194"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>led-&gt;<ref refid="structSYN__LED_1a7a8f5d28d56ad4700727acc6ac520d25" kindref="member">pattern_idx</ref>++;</highlight></codeline>
+<codeline lineno="195"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>led-&gt;<ref refid="structSYN__LED_1a12ff8cd7f234ed1c68910f76ff72f139" kindref="member">tick</ref><sp/>=<sp/>now;</highlight></codeline>
+<codeline lineno="196"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="197"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="198"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/></highlight><highlight class="charliteral">&apos;\0&apos;</highlight><highlight class="normal">:<sp/></highlight><highlight class="comment">/*<sp/>end<sp/>of<sp/>pattern<sp/>—<sp/>loop<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="199"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>led-&gt;<ref refid="structSYN__LED_1a7a8f5d28d56ad4700727acc6ac520d25" kindref="member">pattern_idx</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="200"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>led-&gt;<ref refid="structSYN__LED_1a12ff8cd7f234ed1c68910f76ff72f139" kindref="member">tick</ref><sp/>=<sp/>now;</highlight></codeline>
+<codeline lineno="201"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="202"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">default</highlight><highlight class="normal">:<sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>unknown<sp/>char<sp/>—<sp/>skip<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="203"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>led-&gt;<ref refid="structSYN__LED_1a7a8f5d28d56ad4700727acc6ac520d25" kindref="member">pattern_idx</ref>++;</highlight></codeline>
+<codeline lineno="204"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="205"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="206"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="207"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="208"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="209"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="210"><highlight class="normal"></highlight></codeline>
+<codeline lineno="211"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__led_8c_1a3d5aa3b274d1ad96dd96d062ec63d0a2" kindref="member">syn_led_service</ref>(<ref refid="structSYN__LED" kindref="compound">SYN_LED</ref><sp/>*leds,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>count)</highlight></codeline>
+<codeline lineno="212"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="213"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(leds<sp/>!=<sp/>NULL<sp/>||<sp/>count<sp/>==<sp/>0);</highlight></codeline>
+<codeline lineno="214"><highlight class="normal"></highlight></codeline>
+<codeline lineno="215"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>count;<sp/>i++)<sp/>{</highlight></codeline>
+<codeline lineno="216"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__led_8c_1a85314d01990c87e390a5c060a6fb3e63" kindref="member">syn_led_update</ref>(&amp;leds[i]);</highlight></codeline>
+<codeline lineno="217"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="218"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="219"><highlight class="normal"></highlight></codeline>
+<codeline lineno="220"><highlight class="normal">uint32_t<sp/><ref refid="syn__led_8c_1a88b4b7f90d45e32f1fb2492ae11ed86d" kindref="member">syn_led_next_ms</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__LED" kindref="compound">SYN_LED</ref><sp/>*led)</highlight></codeline>
+<codeline lineno="221"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="222"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(led<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="223"><highlight class="normal"></highlight></codeline>
+<codeline lineno="224"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/>now<sp/>=<sp/><ref refid="syn__port__system_8h_1a6c7d98587814b2c0d9c09da02d318873" kindref="member">syn_port_get_tick_ms</ref>();</highlight></codeline>
+<codeline lineno="225"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/>elapsed<sp/>=<sp/>now<sp/>-<sp/>led-&gt;<ref refid="structSYN__LED_1a12ff8cd7f234ed1c68910f76ff72f139" kindref="member">tick</ref>;</highlight></codeline>
+<codeline lineno="226"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/>duration;</highlight></codeline>
+<codeline lineno="227"><highlight class="normal"></highlight></codeline>
+<codeline lineno="228"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">switch</highlight><highlight class="normal"><sp/>((<ref refid="syn__led_8h_1a43205f03fc97a41b0ce98d64e8959cfd" kindref="member">SYN_LEDMode</ref>)led-&gt;<ref refid="structSYN__LED_1a38f1c565b655a21604b28a1bd70ccdcb" kindref="member">mode</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="229"><highlight class="normal"></highlight></codeline>
+<codeline lineno="230"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__led_8h_1a43205f03fc97a41b0ce98d64e8959cfdae16334ad01afad25bdc51514678a1825" kindref="member">SYN_LED_MODE_OFF</ref>:</highlight></codeline>
+<codeline lineno="231"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__led_8h_1a43205f03fc97a41b0ce98d64e8959cfda6e454b3f1022e64b14a11714f923a73a" kindref="member">SYN_LED_MODE_ON</ref>:</highlight></codeline>
+<codeline lineno="232"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>UINT32_MAX;<sp/></highlight><highlight class="comment">/*<sp/>Static<sp/>—<sp/>no<sp/>upcoming<sp/>transition<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="233"><highlight class="normal"></highlight></codeline>
+<codeline lineno="234"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__led_8h_1a43205f03fc97a41b0ce98d64e8959cfda9110697b8f92d492c091ea676fa6dc62" kindref="member">SYN_LED_MODE_BLINK</ref>:</highlight></codeline>
+<codeline lineno="235"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__led_8h_1a43205f03fc97a41b0ce98d64e8959cfda0c5468790acc0504599d99c25e61632f" kindref="member">SYN_LED_MODE_FLASH</ref>:</highlight></codeline>
+<codeline lineno="236"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>duration<sp/>=<sp/>led-&gt;<ref refid="structSYN__LED_1a12b48f2936662482a45826217ff3bfe3" kindref="member">lit</ref><sp/>?<sp/>led-&gt;<ref refid="structSYN__LED_1a7410d0e1da09d5787b694e0cbb2d157c" kindref="member">on_ms</ref><sp/>:<sp/>led-&gt;<ref refid="structSYN__LED_1a1aa9a12e4214ddaa09bda85107da0ddd" kindref="member">off_ms</ref>;</highlight></codeline>
+<codeline lineno="237"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(elapsed<sp/>&gt;=<sp/>duration)<sp/>?<sp/>0<sp/>:<sp/>(duration<sp/>-<sp/>elapsed);</highlight></codeline>
+<codeline lineno="238"><highlight class="normal"></highlight></codeline>
+<codeline lineno="239"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__led_8h_1a43205f03fc97a41b0ce98d64e8959cfdaf0c2c75339e45f4d54cd9e82557819b2" kindref="member">SYN_LED_MODE_PATTERN</ref>:<sp/>{</highlight></codeline>
+<codeline lineno="240"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/><ref refid="syn__sha256_8c_1a040629ce734f8c5b8c1b917ee7330a7b" kindref="member">ch</ref><sp/>=<sp/>led-&gt;<ref refid="structSYN__LED_1a5ac4a0405cc9f78a8966164bb8fd690f" kindref="member">pattern</ref>[led-&gt;<ref refid="structSYN__LED_1a7a8f5d28d56ad4700727acc6ac520d25" kindref="member">pattern_idx</ref>];</highlight></codeline>
+<codeline lineno="241"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">switch</highlight><highlight class="normal"><sp/>(<ref refid="syn__sha256_8c_1a040629ce734f8c5b8c1b917ee7330a7b" kindref="member">ch</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="242"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/></highlight><highlight class="charliteral">&apos;.&apos;</highlight><highlight class="normal">:<sp/>duration<sp/>=<sp/>led-&gt;<ref refid="structSYN__LED_1aab70ec087a268f76115055b0c5da26bd" kindref="member">pattern_unit</ref>;<sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="243"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/></highlight><highlight class="charliteral">&apos;-&apos;</highlight><highlight class="normal">:<sp/>duration<sp/>=<sp/>led-&gt;<ref refid="structSYN__LED_1aab70ec087a268f76115055b0c5da26bd" kindref="member">pattern_unit</ref><sp/>*<sp/>3u;<sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="244"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/></highlight><highlight class="charliteral">&apos;<sp/>&apos;</highlight><highlight class="normal">:<sp/>duration<sp/>=<sp/>led-&gt;<ref refid="structSYN__LED_1aab70ec087a268f76115055b0c5da26bd" kindref="member">pattern_unit</ref>;<sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="245"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/></highlight><highlight class="charliteral">&apos;|&apos;</highlight><highlight class="normal">:<sp/>duration<sp/>=<sp/>led-&gt;<ref refid="structSYN__LED_1aab70ec087a268f76115055b0c5da26bd" kindref="member">pattern_unit</ref><sp/>*<sp/>3u;<sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="246"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">default</highlight><highlight class="normal">:<sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0;<sp/></highlight><highlight class="comment">/*<sp/>&apos;\0&apos;<sp/>or<sp/>unknown<sp/>—<sp/>immediate<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="247"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="248"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(elapsed<sp/>&gt;=<sp/>duration)<sp/>?<sp/>0<sp/>:<sp/>(duration<sp/>-<sp/>elapsed);</highlight></codeline>
+<codeline lineno="249"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="250"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="251"><highlight class="normal"></highlight></codeline>
+<codeline lineno="252"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0;</highlight></codeline>
+<codeline lineno="253"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="254"><highlight class="normal"></highlight></codeline>
+<codeline lineno="255"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_USE_LED<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/output/syn_led.c"/>
+  </compounddef>
+</doxygen>

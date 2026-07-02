@@ -1,0 +1,271 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__workqueue_8c" kind="file" language="C++">
+    <compoundname>syn_workqueue.c</compoundname>
+    <includes refid="syn__workqueue_8h" local="yes">syn_workqueue.h</includes>
+    <includes refid="syn__assert_8h" local="yes">../util/syn_assert.h</includes>
+    <includes local="no">string.h</includes>
+    <incdepgraph>
+      <node id="7">
+        <label>../common/syn_compiler.h</label>
+        <link refid="syn__compiler_8h"/>
+      </node>
+      <node id="1">
+        <label>src/syntropic/sched/syn_workqueue.c</label>
+        <link refid="syn__workqueue_8c"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>syn_workqueue.h</label>
+        <link refid="syn__workqueue_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>../util/syn_assert.h</label>
+        <link refid="syn__assert_8h"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>stdbool.h</label>
+      </node>
+      <node id="4">
+        <label>stddef.h</label>
+      </node>
+      <node id="3">
+        <label>stdint.h</label>
+      </node>
+      <node id="8">
+        <label>string.h</label>
+      </node>
+    </incdepgraph>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__workqueue_8c_1a9c41f6c3858cfc51fce2c7fc43e0f0f6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_workqueue_init</definition>
+        <argsstring>(SYN_WorkQueue *wq, SYN_WorkItem *buf, size_t capacity)</argsstring>
+        <name>syn_workqueue_init</name>
+        <param>
+          <type><ref refid="structSYN__WorkQueue" kindref="compound">SYN_WorkQueue</ref> *</type>
+          <declname>wq</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__WorkItem" kindref="compound">SYN_WorkItem</ref> *</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>capacity</declname>
+        </param>
+        <briefdescription>
+<para>Initialize the work queue. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>wq</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to work queue context to initialize. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Backing storage array for work items. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>capacity</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of elements in the buffer. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/sched/syn_workqueue.c" line="17" column="6" bodyfile="src/syntropic/sched/syn_workqueue.c" bodystart="17" bodyend="31"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__workqueue_8c_1aa21f36ebf0f10cc13bd62e2a55d34264" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_workqueue_post</definition>
+        <argsstring>(SYN_WorkQueue *wq, SYN_WorkFunc func, void *ctx)</argsstring>
+        <name>syn_workqueue_post</name>
+        <param>
+          <type><ref refid="structSYN__WorkQueue" kindref="compound">SYN_WorkQueue</ref> *</type>
+          <declname>wq</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__workqueue_8h_1aa39bc8dd64ab0c13ab4f63c7a4cabf8e" kindref="member">SYN_WorkFunc</ref></type>
+          <declname>func</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>ctx</declname>
+        </param>
+        <briefdescription>
+<para>Post a work item. ISR-safe (single producer). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>wq</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to work queue context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>func</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Callback function to defer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>ctx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>User data passed to the callback. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if posted, false if queue is full. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/sched/syn_workqueue.c" line="33" column="6" bodyfile="src/syntropic/sched/syn_workqueue.c" bodystart="33" bodyend="53"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__workqueue_8c_1a159723032296a26e12734817350fff37" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>size_t</type>
+        <definition>size_t syn_workqueue_process</definition>
+        <argsstring>(SYN_WorkQueue *wq)</argsstring>
+        <name>syn_workqueue_process</name>
+        <param>
+          <type><ref refid="structSYN__WorkQueue" kindref="compound">SYN_WorkQueue</ref> *</type>
+          <declname>wq</declname>
+        </param>
+        <briefdescription>
+<para>Process all pending work items. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Call from main loop. Executes each queued function in FIFO order.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>wq</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to work queue context. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Number of items processed. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/sched/syn_workqueue.c" line="55" column="8" bodyfile="src/syntropic/sched/syn_workqueue.c" bodystart="55" bodyend="74"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Deferred work queue implementation. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#if<sp/>__has_include(&quot;syn_config.h&quot;)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/>#include<sp/>&quot;syn_config.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="4"><highlight class="normal"></highlight></codeline>
+<codeline lineno="5"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>!defined(SYN_USE_WORKQUEUE)<sp/>||<sp/>SYN_USE_WORKQUEUE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__workqueue_8h" kindref="compound">syn_workqueue.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../util/syn_assert.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;string.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__workqueue_8c_1a9c41f6c3858cfc51fce2c7fc43e0f0f6" kindref="member">syn_workqueue_init</ref>(<ref refid="structSYN__WorkQueue" kindref="compound">SYN_WorkQueue</ref><sp/>*wq,</highlight></codeline>
+<codeline lineno="18"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__WorkItem" kindref="compound">SYN_WorkItem</ref><sp/>*buf,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>capacity)</highlight></codeline>
+<codeline lineno="19"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="20"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(wq<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="21"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(buf<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="22"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(capacity<sp/>&gt;<sp/>1);</highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"><sp/><sp/><sp/><sp/>wq-&gt;<ref refid="structSYN__WorkQueue_1a834597d29bf1ffca0855aabb3a4ab252" kindref="member">items</ref><sp/><sp/><sp/><sp/>=<sp/>buf;</highlight></codeline>
+<codeline lineno="25"><highlight class="normal"><sp/><sp/><sp/><sp/>wq-&gt;<ref refid="structSYN__WorkQueue_1ad578847ac4d8c764e8d74d6cc915961c" kindref="member">capacity</ref><sp/>=<sp/>capacity;</highlight></codeline>
+<codeline lineno="26"><highlight class="normal"><sp/><sp/><sp/><sp/>wq-&gt;<ref refid="structSYN__WorkQueue_1a9592427c2bf720fc5525dc3180ef8746" kindref="member">head</ref><sp/><sp/><sp/><sp/><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="27"><highlight class="normal"><sp/><sp/><sp/><sp/>wq-&gt;<ref refid="structSYN__WorkQueue_1ae07df5dfdb3a9b9a3f27b5385c6b1bb9" kindref="member">tail</ref><sp/><sp/><sp/><sp/><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="28"><highlight class="normal"><sp/><sp/><sp/><sp/>wq-&gt;<ref refid="structSYN__WorkQueue_1a5f22564ed93b8493d7fe0320fba3add1" kindref="member">overflow</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"><sp/><sp/><sp/><sp/>memset(buf,<sp/>0,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(<ref refid="structSYN__WorkItem" kindref="compound">SYN_WorkItem</ref>)<sp/>*<sp/>capacity);</highlight></codeline>
+<codeline lineno="31"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__workqueue_8c_1aa21f36ebf0f10cc13bd62e2a55d34264" kindref="member">syn_workqueue_post</ref>(<ref refid="structSYN__WorkQueue" kindref="compound">SYN_WorkQueue</ref><sp/>*wq,</highlight></codeline>
+<codeline lineno="34"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__workqueue_8h_1aa39bc8dd64ab0c13ab4f63c7a4cabf8e" kindref="member">SYN_WorkFunc</ref><sp/>func,<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*ctx)</highlight></codeline>
+<codeline lineno="35"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="36"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>next<sp/>=<sp/>wq-&gt;<ref refid="structSYN__WorkQueue_1a9592427c2bf720fc5525dc3180ef8746" kindref="member">head</ref><sp/>+<sp/>1;</highlight></codeline>
+<codeline lineno="37"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(next<sp/>&gt;=<sp/>wq-&gt;<ref refid="structSYN__WorkQueue_1ad578847ac4d8c764e8d74d6cc915961c" kindref="member">capacity</ref>)<sp/>next<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(next<sp/>==<sp/>wq-&gt;<ref refid="structSYN__WorkQueue_1ae07df5dfdb3a9b9a3f27b5385c6b1bb9" kindref="member">tail</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Queue<sp/>full<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>wq-&gt;<ref refid="structSYN__WorkQueue_1a5f22564ed93b8493d7fe0320fba3add1" kindref="member">overflow</ref>++;</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="normal"><sp/><sp/><sp/><sp/>wq-&gt;<ref refid="structSYN__WorkQueue_1a834597d29bf1ffca0855aabb3a4ab252" kindref="member">items</ref>[wq-&gt;<ref refid="structSYN__WorkQueue_1a9592427c2bf720fc5525dc3180ef8746" kindref="member">head</ref>].<ref refid="structSYN__WorkItem_1a04dd6537fb05d8ed98f0acb9245dcd01" kindref="member">func</ref><sp/>=<sp/>func;</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/><sp/><sp/>wq-&gt;<ref refid="structSYN__WorkQueue_1a834597d29bf1ffca0855aabb3a4ab252" kindref="member">items</ref>[wq-&gt;<ref refid="structSYN__WorkQueue_1a9592427c2bf720fc5525dc3180ef8746" kindref="member">head</ref>].<ref refid="structSYN__WorkItem_1ae24a5e21e2e49f3365623cf556a09919" kindref="member">ctx</ref><sp/><sp/>=<sp/>ctx;</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"></highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Memory<sp/>barrier<sp/>hint<sp/>for<sp/>ISR→main<sp/>ordering.</highlight></codeline>
+<codeline lineno="49"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/>*<sp/>On<sp/>Cortex-M<sp/>this<sp/>is<sp/>sufficient<sp/>as<sp/>stores<sp/>are<sp/>ordered.<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/><sp/><sp/>wq-&gt;<ref refid="structSYN__WorkQueue_1a9592427c2bf720fc5525dc3180ef8746" kindref="member">head</ref><sp/>=<sp/>next;</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"></highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="53"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"></highlight></codeline>
+<codeline lineno="55"><highlight class="normal"></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="syn__workqueue_8c_1a159723032296a26e12734817350fff37" kindref="member">syn_workqueue_process</ref>(<ref refid="structSYN__WorkQueue" kindref="compound">SYN_WorkQueue</ref><sp/>*wq)</highlight></codeline>
+<codeline lineno="56"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>count<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"></highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">while</highlight><highlight class="normal"><sp/>(wq-&gt;<ref refid="structSYN__WorkQueue_1ae07df5dfdb3a9b9a3f27b5385c6b1bb9" kindref="member">tail</ref><sp/>!=<sp/>wq-&gt;<ref refid="structSYN__WorkQueue_1a9592427c2bf720fc5525dc3180ef8746" kindref="member">head</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__workqueue_8h_1aa39bc8dd64ab0c13ab4f63c7a4cabf8e" kindref="member">SYN_WorkFunc</ref><sp/>func<sp/>=<sp/>wq-&gt;<ref refid="structSYN__WorkQueue_1a834597d29bf1ffca0855aabb3a4ab252" kindref="member">items</ref>[wq-&gt;<ref refid="structSYN__WorkQueue_1ae07df5dfdb3a9b9a3f27b5385c6b1bb9" kindref="member">tail</ref>].<ref refid="structSYN__WorkItem_1a04dd6537fb05d8ed98f0acb9245dcd01" kindref="member">func</ref>;</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*ctx<sp/><sp/>=<sp/>wq-&gt;<ref refid="structSYN__WorkQueue_1a834597d29bf1ffca0855aabb3a4ab252" kindref="member">items</ref>[wq-&gt;<ref refid="structSYN__WorkQueue_1ae07df5dfdb3a9b9a3f27b5385c6b1bb9" kindref="member">tail</ref>].<ref refid="structSYN__WorkItem_1ae24a5e21e2e49f3365623cf556a09919" kindref="member">ctx</ref>;</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"></highlight></codeline>
+<codeline lineno="63"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>next<sp/>=<sp/>wq-&gt;<ref refid="structSYN__WorkQueue_1ae07df5dfdb3a9b9a3f27b5385c6b1bb9" kindref="member">tail</ref><sp/>+<sp/>1;</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(next<sp/>&gt;=<sp/>wq-&gt;<ref refid="structSYN__WorkQueue_1ad578847ac4d8c764e8d74d6cc915961c" kindref="member">capacity</ref>)<sp/>next<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>wq-&gt;<ref refid="structSYN__WorkQueue_1ae07df5dfdb3a9b9a3f27b5385c6b1bb9" kindref="member">tail</ref><sp/>=<sp/>next;</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"></highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(func<sp/>!=<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>func(ctx);</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>count++;</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"></highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>count;</highlight></codeline>
+<codeline lineno="74"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"></highlight></codeline>
+<codeline lineno="76"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_USE_WORKQUEUE<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/sched/syn_workqueue.c"/>
+  </compounddef>
+</doxygen>

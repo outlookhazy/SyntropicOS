@@ -1,0 +1,125 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__port__wdt_8h" kind="file" language="C++">
+    <compoundname>syn_port_wdt.h</compoundname>
+    <includes local="no">stdint.h</includes>
+    <includes refid="syn__defs_8h" local="yes">../common/syn_defs.h</includes>
+    <includedby refid="syn__hwwdt_8c" local="yes">src/syntropic/system/syn_hwwdt.c</includedby>
+    <incdepgraph>
+      <node id="3">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/port/syn_port_wdt.h</label>
+        <link refid="syn__port__wdt_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>stddef.h</label>
+      </node>
+      <node id="2">
+        <label>stdint.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="1">
+        <label>src/syntropic/port/syn_port_wdt.h</label>
+        <link refid="syn__port__wdt_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>src/syntropic/system/syn_hwwdt.c</label>
+        <link refid="syn__hwwdt_8c"/>
+      </node>
+    </invincdepgraph>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__port__wdt_8h_1a290c7351d8dc6e2b9b6bb22f84cfbfd0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_port_wdt_init</definition>
+        <argsstring>(uint32_t timeout_ms)</argsstring>
+        <name>syn_port_wdt_init</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>timeout_ms</declname>
+        </param>
+        <briefdescription>
+<para>Configure and start the hardware watchdog. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Once started, the watchdog cannot be stopped without a reset on most MCUs. Call <ref refid="syn__port__wdt_8h_1a0e7f9466b41b8fdc50fe06e4e61ecbf4" kindref="member">syn_port_wdt_feed()</ref> regularly within the timeout window.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>timeout_ms</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Desired watchdog timeout in milliseconds. The port will round to the nearest supported value. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_ERROR if the WDT cannot be started. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/port/syn_port_wdt.h" line="31" column="12" declfile="src/syntropic/port/syn_port_wdt.h" declline="31" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__port__wdt_8h_1a0e7f9466b41b8fdc50fe06e4e61ecbf4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_port_wdt_feed</definition>
+        <argsstring>(void)</argsstring>
+        <name>syn_port_wdt_feed</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Feed (pet) the hardware watchdog, resetting its counter. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Must be called more frequently than the timeout configured in <ref refid="syn__port__wdt_8h_1a290c7351d8dc6e2b9b6bb22f84cfbfd0" kindref="member">syn_port_wdt_init()</ref> to prevent a hardware reset. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/port/syn_port_wdt.h" line="39" column="6" declfile="src/syntropic/port/syn_port_wdt.h" declline="39" declcolumn="6"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Platform port: Hardware Watchdog Timer (WDT). </para>
+    </briefdescription>
+    <detaileddescription>
+<para>The hardware watchdog resets the MCU if not fed within the timeout window — even if the CPU is hard-locked (unlike the software watchdog in <ref refid="syn__watchdog_8h" kindref="compound">syn_watchdog.h</ref> which requires the scheduler to keep running). </para>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_PORT_WDT_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_PORT_WDT_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../common/syn_defs.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight></codeline>
+<codeline lineno="31" refid="syn__port__wdt_8h_1a290c7351d8dc6e2b9b6bb22f84cfbfd0" refkind="member"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__port__wdt_8h_1a290c7351d8dc6e2b9b6bb22f84cfbfd0" kindref="member">syn_port_wdt_init</ref>(uint32_t<sp/>timeout_ms);</highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight></codeline>
+<codeline lineno="39" refid="syn__port__wdt_8h_1a0e7f9466b41b8fdc50fe06e4e61ecbf4" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__port__wdt_8h_1a0e7f9466b41b8fdc50fe06e4e61ecbf4" kindref="member">syn_port_wdt_feed</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_PORT_WDT_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/port/syn_port_wdt.h"/>
+  </compounddef>
+</doxygen>

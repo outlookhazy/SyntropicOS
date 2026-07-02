@@ -1,0 +1,325 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__dac_8c" kind="file" language="C++">
+    <compoundname>syn_dac.c</compoundname>
+    <includes refid="syn__dac_8h" local="yes">syn_dac.h</includes>
+    <includes refid="syn__assert_8h" local="yes">../util/syn_assert.h</includes>
+    <incdepgraph>
+      <node id="8">
+        <label>../common/syn_compiler.h</label>
+        <link refid="syn__compiler_8h"/>
+      </node>
+      <node id="4">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/drivers/syn_dac.c</label>
+        <link refid="syn__dac_8c"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>syn_dac.h</label>
+        <link refid="syn__dac_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>../port/syn_port_dac.h</label>
+        <link refid="syn__port__dac_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>../util/syn_assert.h</label>
+        <link refid="syn__assert_8h"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>stddef.h</label>
+      </node>
+      <node id="3">
+        <label>stdint.h</label>
+      </node>
+    </incdepgraph>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__dac_8c_1ad3e2b65d32e8a1d6d5d9bb8c2ec6856d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_dac_init</definition>
+        <argsstring>(SYN_DAC *dac, uint8_t channel)</argsstring>
+        <name>syn_dac_init</name>
+        <param>
+          <type><ref refid="structSYN__DAC" kindref="compound">SYN_DAC</ref> *</type>
+          <declname>dac</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>channel</declname>
+        </param>
+        <briefdescription>
+<para>Initialize a DAC channel. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>dac</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Handle to initialize. Must not be NULL. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>channel</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Platform DAC channel index. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_ERROR on hardware failure. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_dac.c" line="15" column="12" bodyfile="src/syntropic/drivers/syn_dac.c" bodystart="15" bodyend="20"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__dac_8c_1a082250a995660a7446b96e39691dc3e0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_dac_write_raw</definition>
+        <argsstring>(const SYN_DAC *dac, uint16_t raw)</argsstring>
+        <name>syn_dac_write_raw</name>
+        <param>
+          <type>const <ref refid="structSYN__DAC" kindref="compound">SYN_DAC</ref> *</type>
+          <declname>dac</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>raw</declname>
+        </param>
+        <briefdescription>
+<para>Write a raw count value to the DAC. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>dac</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Initialized DAC handle. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>raw</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Value in range [0, syn_dac_max_raw(dac)]. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_dac.c" line="22" column="12" bodyfile="src/syntropic/drivers/syn_dac.c" bodystart="22" bodyend="26"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__dac_8c_1aa9759c1a7f09bd78c44d91c4dbd4ea6b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_dac_write_mv</definition>
+        <argsstring>(const SYN_DAC *dac, uint16_t mv)</argsstring>
+        <name>syn_dac_write_mv</name>
+        <param>
+          <type>const <ref refid="structSYN__DAC" kindref="compound">SYN_DAC</ref> *</type>
+          <declname>dac</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>mv</declname>
+        </param>
+        <briefdescription>
+<para>Write a millivolt target to the DAC. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Clamps to the reference voltage automatically.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>dac</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Initialized DAC handle. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>mv</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Desired output voltage in millivolts. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_dac.c" line="28" column="12" bodyfile="src/syntropic/drivers/syn_dac.c" bodystart="28" bodyend="40"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__dac_8c_1a401cb86d2c6c2f901ab186e9aa0e16b8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_dac_write_percent</definition>
+        <argsstring>(const SYN_DAC *dac, uint8_t percent)</argsstring>
+        <name>syn_dac_write_percent</name>
+        <param>
+          <type>const <ref refid="structSYN__DAC" kindref="compound">SYN_DAC</ref> *</type>
+          <declname>dac</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>percent</declname>
+        </param>
+        <briefdescription>
+<para>Write a percentage of full scale to the DAC. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>dac</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Initialized DAC handle. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>percent</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>0 = 0 V, 100 = full reference voltage. Values &gt; 100 are clamped to 100. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_dac.c" line="42" column="12" bodyfile="src/syntropic/drivers/syn_dac.c" bodystart="42" bodyend="51"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__dac_8c_1a003d3cb9364036f03485ebb754bc9d3d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint16_t</type>
+        <definition>uint16_t syn_dac_max_raw</definition>
+        <argsstring>(const SYN_DAC *dac)</argsstring>
+        <name>syn_dac_max_raw</name>
+        <param>
+          <type>const <ref refid="structSYN__DAC" kindref="compound">SYN_DAC</ref> *</type>
+          <declname>dac</declname>
+        </param>
+        <briefdescription>
+<para>Return the maximum raw value for this DAC (2^resolution - 1). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>dac</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Initialized DAC handle (channel field used to query port). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Maximum raw count (e.g. 4095 for 12-bit). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_dac.c" line="53" column="10" bodyfile="src/syntropic/drivers/syn_dac.c" bodystart="53" bodyend="59"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>DAC driver implementation. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#if<sp/>__has_include(&quot;syn_config.h&quot;)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/>#include<sp/>&quot;syn_config.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="4"><highlight class="normal"></highlight></codeline>
+<codeline lineno="5"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>!defined(SYN_USE_DAC)<sp/>||<sp/>SYN_USE_DAC</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__dac_8h" kindref="compound">syn_dac.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../util/syn_assert.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__dac_8c_1ad3e2b65d32e8a1d6d5d9bb8c2ec6856d" kindref="member">syn_dac_init</ref>(<ref refid="structSYN__DAC" kindref="compound">SYN_DAC</ref><sp/>*dac,<sp/>uint8_t<sp/>channel)</highlight></codeline>
+<codeline lineno="16"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="17"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(dac<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="18"><highlight class="normal"><sp/><sp/><sp/><sp/>dac-&gt;<ref refid="structSYN__DAC_1a034d142ce50c036011965ee854fa0a2e" kindref="member">channel</ref><sp/>=<sp/>channel;</highlight></codeline>
+<codeline lineno="19"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__port__dac_8h_1a453d6d242e70a4f088e76c3c1ab98ba2" kindref="member">syn_port_dac_init</ref>(channel);</highlight></codeline>
+<codeline lineno="20"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__dac_8c_1a082250a995660a7446b96e39691dc3e0" kindref="member">syn_dac_write_raw</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__DAC" kindref="compound">SYN_DAC</ref><sp/>*dac,<sp/>uint16_t<sp/>raw)</highlight></codeline>
+<codeline lineno="23"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="24"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(dac<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="25"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__port__dac_8h_1a9aadeba89903be9fe262baddd9c90875" kindref="member">syn_port_dac_write</ref>(dac-&gt;<ref refid="structSYN__DAC_1a034d142ce50c036011965ee854fa0a2e" kindref="member">channel</ref>,<sp/>raw);</highlight></codeline>
+<codeline lineno="26"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__dac_8c_1aa9759c1a7f09bd78c44d91c4dbd4ea6b" kindref="member">syn_dac_write_mv</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__DAC" kindref="compound">SYN_DAC</ref><sp/>*dac,<sp/>uint16_t<sp/>mv)</highlight></codeline>
+<codeline lineno="29"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="30"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(dac<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="31"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/>ref_mv<sp/>=<sp/><ref refid="syn__port__dac_8h_1ab2b63775ba64fee5b64708c57624d6f2" kindref="member">syn_port_dac_reference_mv</ref>();</highlight></codeline>
+<codeline lineno="32"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/>max<sp/><sp/><sp/><sp/>=<sp/><ref refid="syn__dac_8c_1a003d3cb9364036f03485ebb754bc9d3d" kindref="member">syn_dac_max_raw</ref>(dac);</highlight></codeline>
+<codeline lineno="33"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Clamp<sp/>to<sp/>reference<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(mv<sp/>&gt;<sp/>ref_mv)<sp/>{</highlight></codeline>
+<codeline lineno="35"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>mv<sp/>=<sp/>ref_mv;</highlight></codeline>
+<codeline lineno="36"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="37"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>raw<sp/>=<sp/>mv<sp/>*<sp/>max<sp/>/<sp/>ref_mv<sp/>—<sp/>use<sp/>32-bit<sp/>intermediate<sp/>to<sp/>avoid<sp/>overflow<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/>raw<sp/>=<sp/>(uint16_t)(((uint32_t)mv<sp/>*<sp/>(uint32_t)max)<sp/>/<sp/>(uint32_t)ref_mv);</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__port__dac_8h_1a9aadeba89903be9fe262baddd9c90875" kindref="member">syn_port_dac_write</ref>(dac-&gt;<ref refid="structSYN__DAC_1a034d142ce50c036011965ee854fa0a2e" kindref="member">channel</ref>,<sp/>raw);</highlight></codeline>
+<codeline lineno="40"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__dac_8c_1a401cb86d2c6c2f901ab186e9aa0e16b8" kindref="member">syn_dac_write_percent</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__DAC" kindref="compound">SYN_DAC</ref><sp/>*dac,<sp/>uint8_t<sp/>percent)</highlight></codeline>
+<codeline lineno="43"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(dac<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(percent<sp/>&gt;<sp/>100u)<sp/>{</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>percent<sp/>=<sp/>100u;</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/>max<sp/>=<sp/><ref refid="syn__dac_8c_1a003d3cb9364036f03485ebb754bc9d3d" kindref="member">syn_dac_max_raw</ref>(dac);</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/>raw<sp/>=<sp/>(uint16_t)(((uint32_t)percent<sp/>*<sp/>(uint32_t)max)<sp/>/<sp/>100u);</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__port__dac_8h_1a9aadeba89903be9fe262baddd9c90875" kindref="member">syn_port_dac_write</ref>(dac-&gt;<ref refid="structSYN__DAC_1a034d142ce50c036011965ee854fa0a2e" kindref="member">channel</ref>,<sp/>raw);</highlight></codeline>
+<codeline lineno="51"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"></highlight></codeline>
+<codeline lineno="53"><highlight class="normal">uint16_t<sp/><ref refid="syn__dac_8c_1a003d3cb9364036f03485ebb754bc9d3d" kindref="member">syn_dac_max_raw</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__DAC" kindref="compound">SYN_DAC</ref><sp/>*dac)</highlight></codeline>
+<codeline lineno="54"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(dac<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/><sp/><sp/>(void)dac;</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>res<sp/>=<sp/><ref refid="syn__port__dac_8h_1a93cec9b5f4fb455f6f08d3974d036546" kindref="member">syn_port_dac_resolution</ref>();</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(uint16_t)((1u<sp/>&lt;&lt;<sp/>res)<sp/>-<sp/>1u);</highlight></codeline>
+<codeline lineno="59"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"></highlight></codeline>
+<codeline lineno="61"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_USE_DAC<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/drivers/syn_dac.c"/>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,983 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__sensor_8h" kind="file" language="C++">
+    <compoundname>syn_sensor.h</compoundname>
+    <includes refid="syn__defs_8h" local="yes">../common/syn_defs.h</includes>
+    <includes refid="syn__port__system_8h" local="yes">../port/syn_port_system.h</includes>
+    <includes refid="syn__filter_8h" local="yes">../dsp/syn_filter.h</includes>
+    <includes refid="syn__signal_8h" local="yes">../dsp/syn_signal.h</includes>
+    <includes refid="syn__hysteresis_8h" local="yes">../util/syn_hysteresis.h</includes>
+    <includes local="no">stdbool.h</includes>
+    <includedby refid="syn__sensor_8c" local="yes">src/syntropic/sensor/syn_sensor.c</includedby>
+    <includedby refid="syntropic_8h" local="yes">src/syntropic/syntropic.h</includedby>
+    <incdepgraph>
+      <node id="6">
+        <label>../common/syn_compiler.h</label>
+        <link refid="syn__compiler_8h"/>
+      </node>
+      <node id="2">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>../dsp/syn_filter.h</label>
+        <link refid="syn__filter_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="9">
+        <label>../dsp/syn_signal.h</label>
+        <link refid="syn__signal_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>../port/syn_port_system.h</label>
+        <link refid="syn__port__system_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/sensor/syn_sensor.h</label>
+        <link refid="syn__sensor_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="10">
+        <label>../util/syn_hysteresis.h</label>
+        <link refid="syn__hysteresis_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>stdbool.h</label>
+      </node>
+      <node id="4">
+        <label>stddef.h</label>
+      </node>
+      <node id="3">
+        <label>stdint.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="2">
+        <label>src/syntropic/sensor/syn_sensor.c</label>
+        <link refid="syn__sensor_8c"/>
+      </node>
+      <node id="1">
+        <label>src/syntropic/sensor/syn_sensor.h</label>
+        <link refid="syn__sensor_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>src/syntropic/syntropic.h</label>
+        <link refid="syntropic_8h"/>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="structSYN__Sensor" prot="public">SYN_Sensor</innerclass>
+    <sectiondef kind="enum">
+      <memberdef kind="enum" id="syn__sensor_8h_1aa597e75ba2b4a6cda56734d11ddd91fd" prot="public" static="no" strong="no">
+        <type></type>
+        <name>SYN_SensorFilterType</name>
+        <enumvalue id="syn__sensor_8h_1aa597e75ba2b4a6cda56734d11ddd91fdabbd9429c27202be738b57451df68b617" prot="public">
+          <name>SYN_SENSOR_FILTER_NONE</name>
+          <initializer>= 0</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>No filter. <linebreak/>
+ </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__sensor_8h_1aa597e75ba2b4a6cda56734d11ddd91fdac8e5ad5a499cbb7e885f47f521e6e58c" prot="public">
+          <name>SYN_SENSOR_FILTER_MA</name>
+          <initializer>= 1</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Moving average. <linebreak/>
+ </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__sensor_8h_1aa597e75ba2b4a6cda56734d11ddd91fda2db22dacb559a10ec94a70fb967f26c1" prot="public">
+          <name>SYN_SENSOR_FILTER_EMA</name>
+          <initializer>= 2</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Exponential moving avg. </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__sensor_8h_1aa597e75ba2b4a6cda56734d11ddd91fdad5930608766de9a361f6953edd158d58" prot="public">
+          <name>SYN_SENSOR_FILTER_MEDIAN</name>
+          <initializer>= 3</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Median filter. <linebreak/>
+ </para>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>Filter type selector for sensor pipeline. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/sensor/syn_sensor.h" line="65" column="1" bodyfile="src/syntropic/sensor/syn_sensor.h" bodystart="65" bodyend="70"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="typedef">
+      <memberdef kind="typedef" id="syn__sensor_8h_1a6650ac1ba177aa09ca502b2c7975425e" prot="public" static="no">
+        <type>int16_t(*</type>
+        <definition>typedef int16_t(* SYN_SensorReadFunc) (void *ctx)</definition>
+        <argsstring>)(void *ctx)</argsstring>
+        <name>SYN_SensorReadFunc</name>
+        <briefdescription>
+<para>Read function — returns the raw sensor value. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ctx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>User context pointer. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Raw sensor reading. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/sensor/syn_sensor.h" line="51" column="9" bodyfile="src/syntropic/sensor/syn_sensor.h" bodystart="51" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="typedef" id="syn__sensor_8h_1abf4b85d1b4d9103e01c0bdcb190ae87d" prot="public" static="no">
+        <type>void(*</type>
+        <definition>typedef void(* SYN_SensorThresholdCallback) (struct SYN_Sensor *sensor, int16_t value, void *ctx)</definition>
+        <argsstring>)(struct SYN_Sensor *sensor, int16_t value, void *ctx)</argsstring>
+        <name>SYN_SensorThresholdCallback</name>
+        <briefdescription>
+<para>Threshold callback — called when threshold is crossed. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>sensor</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The sensor that fired. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>value</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Current filtered value. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>ctx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>User context pointer. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/sensor/syn_sensor.h" line="59" column="9" bodyfile="src/syntropic/sensor/syn_sensor.h" bodystart="59" bodyend="-1"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__sensor_8h_1a9325dd84b73fc75094c0023b7637c086" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_sensor_init</definition>
+        <argsstring>(SYN_Sensor *sensor, const char *name, SYN_SensorReadFunc read_func, void *ctx)</argsstring>
+        <name>syn_sensor_init</name>
+        <param>
+          <type><ref refid="structSYN__Sensor" kindref="compound">SYN_Sensor</ref> *</type>
+          <declname>sensor</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>name</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__sensor_8h_1a6650ac1ba177aa09ca502b2c7975425e" kindref="member">SYN_SensorReadFunc</ref></type>
+          <declname>read_func</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>ctx</declname>
+        </param>
+        <briefdescription>
+<para>Initialize a sensor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>sensor</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Sensor instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>name</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Human-readable name (for logging). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>read_func</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function that reads the sensor hardware. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>ctx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Context passed to read_func. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/sensor/syn_sensor.h" line="117" column="6" bodyfile="src/syntropic/sensor/syn_sensor.c" bodystart="19" bodyend="30" declfile="src/syntropic/sensor/syn_sensor.h" declline="117" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__sensor_8h_1a150671e5302b58fc71caab3ed5501709" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_sensor_set_interval</definition>
+        <argsstring>(SYN_Sensor *sensor, uint32_t interval_ms)</argsstring>
+        <name>syn_sensor_set_interval</name>
+        <param>
+          <type><ref refid="structSYN__Sensor" kindref="compound">SYN_Sensor</ref> *</type>
+          <declname>sensor</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>interval_ms</declname>
+        </param>
+        <briefdescription>
+<para>Set polling interval in milliseconds. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>sensor</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Sensor. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>interval_ms</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Poll interval. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/sensor/syn_sensor.h" line="125" column="6" bodyfile="src/syntropic/sensor/syn_sensor.c" bodystart="32" bodyend="37" declfile="src/syntropic/sensor/syn_sensor.h" declline="125" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__sensor_8h_1a138537c6f8fd2157df2ba980dd094e13" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_sensor_enable</definition>
+        <argsstring>(SYN_Sensor *sensor, bool enable)</argsstring>
+        <name>syn_sensor_enable</name>
+        <param>
+          <type><ref refid="structSYN__Sensor" kindref="compound">SYN_Sensor</ref> *</type>
+          <declname>sensor</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+          <declname>enable</declname>
+        </param>
+        <briefdescription>
+<para>Enable or disable polling. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>sensor</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Sensor. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>enable</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>true to enable, false to disable. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/sensor/syn_sensor.h" line="132" column="6" bodyfile="src/syntropic/sensor/syn_sensor.c" bodystart="39" bodyend="46" declfile="src/syntropic/sensor/syn_sensor.h" declline="132" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__sensor_8h_1a577dc5b46bf99450e3ab87f88e887aac" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_sensor_set_filter_ma</definition>
+        <argsstring>(SYN_Sensor *sensor, SYN_FilterMA *f)</argsstring>
+        <name>syn_sensor_set_filter_ma</name>
+        <param>
+          <type><ref refid="structSYN__Sensor" kindref="compound">SYN_Sensor</ref> *</type>
+          <declname>sensor</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__FilterMA" kindref="compound">SYN_FilterMA</ref> *</type>
+          <declname>f</declname>
+        </param>
+        <briefdescription>
+<para>Attach a moving-average filter. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>sensor</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Sensor. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>f</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Initialized MA filter. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/sensor/syn_sensor.h" line="141" column="6" bodyfile="src/syntropic/sensor/syn_sensor.c" bodystart="50" bodyend="55" declfile="src/syntropic/sensor/syn_sensor.h" declline="141" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__sensor_8h_1abb388e44c79860b956a3ce9bc9c039af" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_sensor_set_filter_ema</definition>
+        <argsstring>(SYN_Sensor *sensor, SYN_FilterEMA *f)</argsstring>
+        <name>syn_sensor_set_filter_ema</name>
+        <param>
+          <type><ref refid="structSYN__Sensor" kindref="compound">SYN_Sensor</ref> *</type>
+          <declname>sensor</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__FilterEMA" kindref="compound">SYN_FilterEMA</ref> *</type>
+          <declname>f</declname>
+        </param>
+        <briefdescription>
+<para>Attach an exponential moving-average filter. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>sensor</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Sensor. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>f</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Initialized EMA filter. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/sensor/syn_sensor.h" line="148" column="6" bodyfile="src/syntropic/sensor/syn_sensor.c" bodystart="57" bodyend="62" declfile="src/syntropic/sensor/syn_sensor.h" declline="148" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__sensor_8h_1a57332de6c4d59bf81c68938afcd7295b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_sensor_set_filter_median</definition>
+        <argsstring>(SYN_Sensor *sensor, SYN_FilterMedian *f)</argsstring>
+        <name>syn_sensor_set_filter_median</name>
+        <param>
+          <type><ref refid="structSYN__Sensor" kindref="compound">SYN_Sensor</ref> *</type>
+          <declname>sensor</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__FilterMedian" kindref="compound">SYN_FilterMedian</ref> *</type>
+          <declname>f</declname>
+        </param>
+        <briefdescription>
+<para>Attach a median filter. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>sensor</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Sensor. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>f</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Initialized median filter. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/sensor/syn_sensor.h" line="155" column="6" bodyfile="src/syntropic/sensor/syn_sensor.c" bodystart="64" bodyend="69" declfile="src/syntropic/sensor/syn_sensor.h" declline="155" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__sensor_8h_1a5f993be2245025ac74ecf7e048d30f5e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_sensor_clear_filter</definition>
+        <argsstring>(SYN_Sensor *sensor)</argsstring>
+        <name>syn_sensor_clear_filter</name>
+        <param>
+          <type><ref refid="structSYN__Sensor" kindref="compound">SYN_Sensor</ref> *</type>
+          <declname>sensor</declname>
+        </param>
+        <briefdescription>
+<para>Remove any attached filter. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>sensor</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Sensor. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/sensor/syn_sensor.h" line="161" column="6" bodyfile="src/syntropic/sensor/syn_sensor.c" bodystart="71" bodyend="76" declfile="src/syntropic/sensor/syn_sensor.h" declline="161" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__sensor_8h_1a94a7fbb06e9af6d7076dee7ce5372afd" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_sensor_set_threshold</definition>
+        <argsstring>(SYN_Sensor *sensor, int32_t threshold, int32_t band, SYN_SensorThresholdCallback on_high, SYN_SensorThresholdCallback on_low, void *ctx)</argsstring>
+        <name>syn_sensor_set_threshold</name>
+        <param>
+          <type><ref refid="structSYN__Sensor" kindref="compound">SYN_Sensor</ref> *</type>
+          <declname>sensor</declname>
+        </param>
+        <param>
+          <type>int32_t</type>
+          <declname>threshold</declname>
+        </param>
+        <param>
+          <type>int32_t</type>
+          <declname>band</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__sensor_8h_1abf4b85d1b4d9103e01c0bdcb190ae87d" kindref="member">SYN_SensorThresholdCallback</ref></type>
+          <declname>on_high</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__sensor_8h_1abf4b85d1b4d9103e01c0bdcb190ae87d" kindref="member">SYN_SensorThresholdCallback</ref></type>
+          <declname>on_low</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>ctx</declname>
+        </param>
+        <briefdescription>
+<para>Set a threshold with hysteresis and callbacks. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>sensor</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Sensor. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>threshold</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Center threshold value. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>band</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Hysteresis half-width. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>on_high</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Called when value crosses above (threshold + band). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>on_low</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Called when value drops below (threshold - band). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>ctx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Context for callbacks. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/sensor/syn_sensor.h" line="175" column="6" bodyfile="src/syntropic/sensor/syn_sensor.c" bodystart="80" bodyend="92" declfile="src/syntropic/sensor/syn_sensor.h" declline="175" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__sensor_8h_1a4fcf7edc5e006bea9d2f74d3a730629a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_sensor_clear_threshold</definition>
+        <argsstring>(SYN_Sensor *sensor)</argsstring>
+        <name>syn_sensor_clear_threshold</name>
+        <param>
+          <type><ref refid="structSYN__Sensor" kindref="compound">SYN_Sensor</ref> *</type>
+          <declname>sensor</declname>
+        </param>
+        <briefdescription>
+<para>Disable threshold monitoring. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>sensor</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Sensor. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/sensor/syn_sensor.h" line="185" column="6" bodyfile="src/syntropic/sensor/syn_sensor.c" bodystart="94" bodyend="98" declfile="src/syntropic/sensor/syn_sensor.h" declline="185" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__sensor_8h_1a37eb432f9b7982c53a0ba256ac72f6b0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_sensor_set_stats</definition>
+        <argsstring>(SYN_Sensor *sensor, SYN_Signal *stats)</argsstring>
+        <name>syn_sensor_set_stats</name>
+        <param>
+          <type><ref refid="structSYN__Sensor" kindref="compound">SYN_Sensor</ref> *</type>
+          <declname>sensor</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__Signal" kindref="compound">SYN_Signal</ref> *</type>
+          <declname>stats</declname>
+        </param>
+        <briefdescription>
+<para>Attach a signal statistics window. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Each update pushes the filtered value into the signal window, giving you min/max/mean/variance/delta automatically.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>sensor</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Sensor. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>stats</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Initialized <ref refid="structSYN__Signal" kindref="compound">SYN_Signal</ref> instance, or NULL to detach. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/sensor/syn_sensor.h" line="198" column="6" bodyfile="src/syntropic/sensor/syn_sensor.c" bodystart="193" bodyend="197" declfile="src/syntropic/sensor/syn_sensor.h" declline="198" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__sensor_8h_1a8bb7f094a7bf30d4fcf66fc2b2e8135f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_sensor_update</definition>
+        <argsstring>(SYN_Sensor *sensor)</argsstring>
+        <name>syn_sensor_update</name>
+        <param>
+          <type><ref refid="structSYN__Sensor" kindref="compound">SYN_Sensor</ref> *</type>
+          <declname>sensor</declname>
+        </param>
+        <briefdescription>
+<para>Update the sensor — poll if interval elapsed, filter, check threshold. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Call from your main loop or scheduler task.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>sensor</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Sensor. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if a new reading was taken this call. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/sensor/syn_sensor.h" line="210" column="6" bodyfile="src/syntropic/sensor/syn_sensor.c" bodystart="161" bodyend="175" declfile="src/syntropic/sensor/syn_sensor.h" declline="210" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__sensor_8h_1a48bacc0bfd6247a900b0d2a9535a4a77" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int16_t</type>
+        <definition>int16_t syn_sensor_read_now</definition>
+        <argsstring>(SYN_Sensor *sensor)</argsstring>
+        <name>syn_sensor_read_now</name>
+        <param>
+          <type><ref refid="structSYN__Sensor" kindref="compound">SYN_Sensor</ref> *</type>
+          <declname>sensor</declname>
+        </param>
+        <briefdescription>
+<para>Force an immediate reading (ignoring interval). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>sensor</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Sensor. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>The filtered value. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/sensor/syn_sensor.h" line="218" column="9" bodyfile="src/syntropic/sensor/syn_sensor.c" bodystart="177" bodyend="183" declfile="src/syntropic/sensor/syn_sensor.h" declline="218" declcolumn="9"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__sensor_8h_1aca014216906e8bfc00070b2deee088a7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_sensor_service</definition>
+        <argsstring>(SYN_Sensor *sensors, size_t count)</argsstring>
+        <name>syn_sensor_service</name>
+        <param>
+          <type><ref refid="structSYN__Sensor" kindref="compound">SYN_Sensor</ref> *</type>
+          <declname>sensors</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>count</declname>
+        </param>
+        <briefdescription>
+<para>Service an array of sensors (calls syn_sensor_update on each). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>sensors</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Array of sensors. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>count</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of sensors. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/sensor/syn_sensor.h" line="225" column="6" bodyfile="src/syntropic/sensor/syn_sensor.c" bodystart="185" bodyend="191" declfile="src/syntropic/sensor/syn_sensor.h" declline="225" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__sensor_8h_1a224ad7adb540b716dcd2192cff0e3a39" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>int16_t</type>
+        <definition>static int16_t syn_sensor_value</definition>
+        <argsstring>(const SYN_Sensor *sensor)</argsstring>
+        <name>syn_sensor_value</name>
+        <param>
+          <type>const <ref refid="structSYN__Sensor" kindref="compound">SYN_Sensor</ref> *</type>
+          <declname>sensor</declname>
+        </param>
+        <briefdescription>
+<para>Get the last filtered value. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>sensor</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Sensor. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Filtered reading. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/sensor/syn_sensor.h" line="232" column="23" bodyfile="src/syntropic/sensor/syn_sensor.h" bodystart="232" bodyend="235"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__sensor_8h_1a1eafa37538e939be6cc69e3cb04c864a" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>int16_t</type>
+        <definition>static int16_t syn_sensor_raw</definition>
+        <argsstring>(const SYN_Sensor *sensor)</argsstring>
+        <name>syn_sensor_raw</name>
+        <param>
+          <type>const <ref refid="structSYN__Sensor" kindref="compound">SYN_Sensor</ref> *</type>
+          <declname>sensor</declname>
+        </param>
+        <briefdescription>
+<para>Get the last raw value. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>sensor</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Sensor. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Raw reading. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/sensor/syn_sensor.h" line="242" column="23" bodyfile="src/syntropic/sensor/syn_sensor.h" bodystart="242" bodyend="245"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Sensor polling framework — periodic read → filter → threshold → event. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Wires up the full sensor pipeline: poll at an interval, filter the reading, compare against thresholds (with hysteresis), and fire callbacks or set event flags.</para>
+<para><simplesect kind="par"><title>Usage</title><para><programlisting><codeline><highlight class="keyword">static</highlight><highlight class="normal"><sp/><ref refid="structSYN__Sensor" kindref="compound">SYN_Sensor</ref><sp/>temp_sensor;</highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/><ref refid="structSYN__FilterEMA" kindref="compound">SYN_FilterEMA</ref><sp/>temp_filter;</highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__filter_8c_1ab99eb743ba11ff4821430daa40081aae" kindref="member">syn_filter_ema_init</ref>(&amp;temp_filter,<sp/>64);</highlight></codeline>
+<codeline><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__sensor_8c_1a9325dd84b73fc75094c0023b7637c086" kindref="member">syn_sensor_init</ref>(&amp;temp_sensor,<sp/></highlight><highlight class="stringliteral">&quot;temp&quot;</highlight><highlight class="normal">,<sp/>read_temperature,<sp/>NULL);</highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__sensor_8c_1a150671e5302b58fc71caab3ed5501709" kindref="member">syn_sensor_set_interval</ref>(&amp;temp_sensor,<sp/>1000);<sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>poll<sp/>every<sp/>1s</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__sensor_8c_1abb388e44c79860b956a3ce9bc9c039af" kindref="member">syn_sensor_set_filter_ema</ref>(&amp;temp_sensor,<sp/>&amp;temp_filter);</highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__sensor_8c_1a94a7fbb06e9af6d7076dee7ce5372afd" kindref="member">syn_sensor_set_threshold</ref>(&amp;temp_sensor,<sp/>8000,<sp/>500,<sp/><sp/></highlight><highlight class="comment">//<sp/>80.00°C<sp/>±<sp/>5°C</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>on_temp_high,<sp/>on_temp_low,<sp/>NULL);</highlight></codeline>
+<codeline><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="comment">//<sp/>In<sp/>main<sp/>loop:</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__sensor_8c_1a8bb7f094a7bf30d4fcf66fc2b2e8135f" kindref="member">syn_sensor_update</ref>(&amp;temp_sensor);</highlight></codeline>
+</programlisting> </para>
+</simplesect>
+</para>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_SENSOR_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_SENSOR_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../common/syn_defs.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../port/syn_port_system.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../dsp/syn_filter.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../dsp/syn_signal.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../util/syn_hysteresis.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Callback<sp/>types<sp/>───────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structSYN__Sensor" kindref="compound">SYN_Sensor</ref>;</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight></codeline>
+<codeline lineno="51" refid="syn__sensor_8h_1a6650ac1ba177aa09ca502b2c7975425e" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>int16_t<sp/>(*<ref refid="syn__sensor_8h_1a6650ac1ba177aa09ca502b2c7975425e" kindref="member">SYN_SensorReadFunc</ref>)(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*ctx);</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"></highlight></codeline>
+<codeline lineno="59" refid="syn__sensor_8h_1abf4b85d1b4d9103e01c0bdcb190ae87d" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>void<sp/>(*<ref refid="syn__sensor_8h_1abf4b85d1b4d9103e01c0bdcb190ae87d" kindref="member">SYN_SensorThresholdCallback</ref>)(</highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structSYN__Sensor" kindref="compound">SYN_Sensor</ref><sp/>*sensor,</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int16_t<sp/>value,<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*ctx);</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"></highlight></codeline>
+<codeline lineno="62"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Filter<sp/>type<sp/>──────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="63"><highlight class="normal"></highlight></codeline>
+<codeline lineno="65" refid="syn__sensor_8h_1aa597e75ba2b4a6cda56734d11ddd91fd" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="66" refid="syn__sensor_8h_1aa597e75ba2b4a6cda56734d11ddd91fdabbd9429c27202be738b57451df68b617" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__sensor_8h_1aa597e75ba2b4a6cda56734d11ddd91fdabbd9429c27202be738b57451df68b617" kindref="member">SYN_SENSOR_FILTER_NONE</ref><sp/><sp/><sp/>=<sp/>0,<sp/><sp/></highlight></codeline>
+<codeline lineno="67" refid="syn__sensor_8h_1aa597e75ba2b4a6cda56734d11ddd91fdac8e5ad5a499cbb7e885f47f521e6e58c" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__sensor_8h_1aa597e75ba2b4a6cda56734d11ddd91fdac8e5ad5a499cbb7e885f47f521e6e58c" kindref="member">SYN_SENSOR_FILTER_MA</ref><sp/><sp/><sp/><sp/><sp/>=<sp/>1,<sp/><sp/></highlight></codeline>
+<codeline lineno="68" refid="syn__sensor_8h_1aa597e75ba2b4a6cda56734d11ddd91fda2db22dacb559a10ec94a70fb967f26c1" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__sensor_8h_1aa597e75ba2b4a6cda56734d11ddd91fda2db22dacb559a10ec94a70fb967f26c1" kindref="member">SYN_SENSOR_FILTER_EMA</ref><sp/><sp/><sp/><sp/>=<sp/>2,<sp/><sp/></highlight></codeline>
+<codeline lineno="69" refid="syn__sensor_8h_1aa597e75ba2b4a6cda56734d11ddd91fdad5930608766de9a361f6953edd158d58" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__sensor_8h_1aa597e75ba2b4a6cda56734d11ddd91fdad5930608766de9a361f6953edd158d58" kindref="member">SYN_SENSOR_FILTER_MEDIAN</ref><sp/>=<sp/>3,<sp/><sp/></highlight></codeline>
+<codeline lineno="70"><highlight class="normal">}<sp/><ref refid="syn__sensor_8h_1aa597e75ba2b4a6cda56734d11ddd91fd" kindref="member">SYN_SensorFilterType</ref>;</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"></highlight></codeline>
+<codeline lineno="72"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Sensor<sp/>descriptor<sp/>────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="73"><highlight class="normal"></highlight></codeline>
+<codeline lineno="75" refid="structSYN__Sensor" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structSYN__Sensor" kindref="compound">SYN_Sensor</ref><sp/>{</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Identity<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="77" refid="structSYN__Sensor_1a0f6472d4c876ad04372463d4e3918806" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<ref refid="structSYN__Sensor_1a0f6472d4c876ad04372463d4e3918806" kindref="member">name</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Read<sp/>function<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="80" refid="structSYN__Sensor_1ab97d23b856eec51cc3286944e30b3aea" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__sensor_8h_1a6650ac1ba177aa09ca502b2c7975425e" kindref="member">SYN_SensorReadFunc</ref><sp/><ref refid="structSYN__Sensor_1ab97d23b856eec51cc3286944e30b3aea" kindref="member">read_func</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="81" refid="structSYN__Sensor_1a94f7e197bb1865266cf22b4f10e22f0a" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<ref refid="structSYN__Sensor_1a94f7e197bb1865266cf22b4f10e22f0a" kindref="member">read_ctx</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Polling<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="84" refid="structSYN__Sensor_1a0ec97849dd3996f7d11939f09b6382ab" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__Sensor_1a0ec97849dd3996f7d11939f09b6382ab" kindref="member">interval_ms</ref>;<sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="85" refid="structSYN__Sensor_1a9bf9a4fbda473672d2a72e0a4ae860b9" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__Sensor_1a9bf9a4fbda473672d2a72e0a4ae860b9" kindref="member">last_poll_tick</ref>;<sp/><sp/></highlight></codeline>
+<codeline lineno="86" refid="structSYN__Sensor_1a8911a3ac0ec58ff5ddbfa8b209c9c079" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__Sensor_1a8911a3ac0ec58ff5ddbfa8b209c9c079" kindref="member">enabled</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Values<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="89" refid="structSYN__Sensor_1a6914ab42520eca72332afbf3232ced2a" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>int16_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__Sensor_1a6914ab42520eca72332afbf3232ced2a" kindref="member">raw</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="90" refid="structSYN__Sensor_1a4d74353bcbb3c72c5b03812e3177cf9c" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>int16_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__Sensor_1a4d74353bcbb3c72c5b03812e3177cf9c" kindref="member">filtered</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Filter<sp/>(union<sp/>would<sp/>save<sp/>RAM<sp/>but<sp/>complicates<sp/>API)<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="93" refid="structSYN__Sensor_1a8451bb5015660594ba71dc27287e019a" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__Sensor_1a8451bb5015660594ba71dc27287e019a" kindref="member">filter_type</ref>;<sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="94" refid="structSYN__Sensor_1ac532d0de4d126eb00ba0d8dd044ca11c" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<ref refid="structSYN__Sensor_1ac532d0de4d126eb00ba0d8dd044ca11c" kindref="member">filter</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Threshold<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="97" refid="structSYN__Sensor_1acc905f1c3aa757d4f945f003b77eda73" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__Sensor_1acc905f1c3aa757d4f945f003b77eda73" kindref="member">threshold_enabled</ref>;<sp/></highlight></codeline>
+<codeline lineno="98" refid="structSYN__Sensor_1a42137780020c2432b6d55a765dbac519" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structSYN__Hysteresis" kindref="compound">SYN_Hysteresis</ref><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__Sensor_1a42137780020c2432b6d55a765dbac519" kindref="member">hyst</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="99" refid="structSYN__Sensor_1a36926210fdab1008ff3479bdc1f9b7f9" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__sensor_8h_1abf4b85d1b4d9103e01c0bdcb190ae87d" kindref="member">SYN_SensorThresholdCallback</ref><sp/><ref refid="structSYN__Sensor_1a36926210fdab1008ff3479bdc1f9b7f9" kindref="member">on_high</ref>;<sp/></highlight></codeline>
+<codeline lineno="100" refid="structSYN__Sensor_1a1cc6e2e4090006abd41cd5c1b3e8cab3" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__sensor_8h_1abf4b85d1b4d9103e01c0bdcb190ae87d" kindref="member">SYN_SensorThresholdCallback</ref><sp/><ref refid="structSYN__Sensor_1a1cc6e2e4090006abd41cd5c1b3e8cab3" kindref="member">on_low</ref>;<sp/><sp/></highlight></codeline>
+<codeline lineno="101" refid="structSYN__Sensor_1aaabd16c8f8aa05b0d1089b6bf7533072" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<ref refid="structSYN__Sensor_1aaabd16c8f8aa05b0d1089b6bf7533072" kindref="member">threshold_ctx</ref>;<sp/><sp/></highlight></codeline>
+<codeline lineno="103"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Statistics<sp/>(optional<sp/>—<sp/>set<sp/>via<sp/>syn_sensor_set_stats)<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="104" refid="structSYN__Sensor_1a42fae5198fab3bd074c74772012e1851" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structSYN__Signal" kindref="compound">SYN_Signal</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<ref refid="structSYN__Sensor_1a42fae5198fab3bd074c74772012e1851" kindref="member">stats</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="105"><highlight class="normal">}<sp/><ref refid="structSYN__Sensor" kindref="compound">SYN_Sensor</ref>;</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"></highlight></codeline>
+<codeline lineno="107"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>API<sp/>──────────────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="108"><highlight class="normal"></highlight></codeline>
+<codeline lineno="117"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__sensor_8h_1a9325dd84b73fc75094c0023b7637c086" kindref="member">syn_sensor_init</ref>(<ref refid="structSYN__Sensor" kindref="compound">SYN_Sensor</ref><sp/>*sensor,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*name,</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__sensor_8h_1a6650ac1ba177aa09ca502b2c7975425e" kindref="member">SYN_SensorReadFunc</ref><sp/>read_func,<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*ctx);</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"></highlight></codeline>
+<codeline lineno="125"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__sensor_8h_1a150671e5302b58fc71caab3ed5501709" kindref="member">syn_sensor_set_interval</ref>(<ref refid="structSYN__Sensor" kindref="compound">SYN_Sensor</ref><sp/>*sensor,<sp/>uint32_t<sp/>interval_ms);</highlight></codeline>
+<codeline lineno="126"><highlight class="normal"></highlight></codeline>
+<codeline lineno="132"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__sensor_8h_1a138537c6f8fd2157df2ba980dd094e13" kindref="member">syn_sensor_enable</ref>(<ref refid="structSYN__Sensor" kindref="compound">SYN_Sensor</ref><sp/>*sensor,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>enable);</highlight></codeline>
+<codeline lineno="133"><highlight class="normal"></highlight></codeline>
+<codeline lineno="134"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Filter<sp/>setup<sp/>─────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="135"><highlight class="normal"></highlight></codeline>
+<codeline lineno="141"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__sensor_8h_1a577dc5b46bf99450e3ab87f88e887aac" kindref="member">syn_sensor_set_filter_ma</ref>(<ref refid="structSYN__Sensor" kindref="compound">SYN_Sensor</ref><sp/>*sensor,<sp/><ref refid="structSYN__FilterMA" kindref="compound">SYN_FilterMA</ref><sp/>*f);</highlight></codeline>
+<codeline lineno="142"><highlight class="normal"></highlight></codeline>
+<codeline lineno="148"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__sensor_8h_1abb388e44c79860b956a3ce9bc9c039af" kindref="member">syn_sensor_set_filter_ema</ref>(<ref refid="structSYN__Sensor" kindref="compound">SYN_Sensor</ref><sp/>*sensor,<sp/><ref refid="structSYN__FilterEMA" kindref="compound">SYN_FilterEMA</ref><sp/>*f);</highlight></codeline>
+<codeline lineno="149"><highlight class="normal"></highlight></codeline>
+<codeline lineno="155"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__sensor_8h_1a57332de6c4d59bf81c68938afcd7295b" kindref="member">syn_sensor_set_filter_median</ref>(<ref refid="structSYN__Sensor" kindref="compound">SYN_Sensor</ref><sp/>*sensor,<sp/><ref refid="structSYN__FilterMedian" kindref="compound">SYN_FilterMedian</ref><sp/>*f);</highlight></codeline>
+<codeline lineno="156"><highlight class="normal"></highlight></codeline>
+<codeline lineno="161"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__sensor_8h_1a5f993be2245025ac74ecf7e048d30f5e" kindref="member">syn_sensor_clear_filter</ref>(<ref refid="structSYN__Sensor" kindref="compound">SYN_Sensor</ref><sp/>*sensor);</highlight></codeline>
+<codeline lineno="162"><highlight class="normal"></highlight></codeline>
+<codeline lineno="163"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Threshold<sp/>setup<sp/>──────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="164"><highlight class="normal"></highlight></codeline>
+<codeline lineno="175"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__sensor_8h_1a94a7fbb06e9af6d7076dee7ce5372afd" kindref="member">syn_sensor_set_threshold</ref>(<ref refid="structSYN__Sensor" kindref="compound">SYN_Sensor</ref><sp/>*sensor,</highlight></codeline>
+<codeline lineno="176"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int32_t<sp/>threshold,<sp/>int32_t<sp/>band,</highlight></codeline>
+<codeline lineno="177"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__sensor_8h_1abf4b85d1b4d9103e01c0bdcb190ae87d" kindref="member">SYN_SensorThresholdCallback</ref><sp/>on_high,</highlight></codeline>
+<codeline lineno="178"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__sensor_8h_1abf4b85d1b4d9103e01c0bdcb190ae87d" kindref="member">SYN_SensorThresholdCallback</ref><sp/>on_low,</highlight></codeline>
+<codeline lineno="179"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*ctx);</highlight></codeline>
+<codeline lineno="180"><highlight class="normal"></highlight></codeline>
+<codeline lineno="185"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__sensor_8h_1a4fcf7edc5e006bea9d2f74d3a730629a" kindref="member">syn_sensor_clear_threshold</ref>(<ref refid="structSYN__Sensor" kindref="compound">SYN_Sensor</ref><sp/>*sensor);</highlight></codeline>
+<codeline lineno="186"><highlight class="normal"></highlight></codeline>
+<codeline lineno="187"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Statistics<sp/>───────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="188"><highlight class="normal"></highlight></codeline>
+<codeline lineno="198"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__sensor_8h_1a37eb432f9b7982c53a0ba256ac72f6b0" kindref="member">syn_sensor_set_stats</ref>(<ref refid="structSYN__Sensor" kindref="compound">SYN_Sensor</ref><sp/>*sensor,<sp/><ref refid="structSYN__Signal" kindref="compound">SYN_Signal</ref><sp/>*stats);</highlight></codeline>
+<codeline lineno="199"><highlight class="normal"></highlight></codeline>
+<codeline lineno="200"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Update<sp/>───────────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="201"><highlight class="normal"></highlight></codeline>
+<codeline lineno="210"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__sensor_8h_1a8bb7f094a7bf30d4fcf66fc2b2e8135f" kindref="member">syn_sensor_update</ref>(<ref refid="structSYN__Sensor" kindref="compound">SYN_Sensor</ref><sp/>*sensor);</highlight></codeline>
+<codeline lineno="211"><highlight class="normal"></highlight></codeline>
+<codeline lineno="218"><highlight class="normal">int16_t<sp/><ref refid="syn__sensor_8h_1a48bacc0bfd6247a900b0d2a9535a4a77" kindref="member">syn_sensor_read_now</ref>(<ref refid="structSYN__Sensor" kindref="compound">SYN_Sensor</ref><sp/>*sensor);</highlight></codeline>
+<codeline lineno="219"><highlight class="normal"></highlight></codeline>
+<codeline lineno="225"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__sensor_8h_1aca014216906e8bfc00070b2deee088a7" kindref="member">syn_sensor_service</ref>(<ref refid="structSYN__Sensor" kindref="compound">SYN_Sensor</ref><sp/>*sensors,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>count);</highlight></codeline>
+<codeline lineno="226"><highlight class="normal"></highlight></codeline>
+<codeline lineno="232" refid="syn__sensor_8h_1a224ad7adb540b716dcd2192cff0e3a39" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>int16_t<sp/><ref refid="syn__sensor_8h_1a224ad7adb540b716dcd2192cff0e3a39" kindref="member">syn_sensor_value</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__Sensor" kindref="compound">SYN_Sensor</ref><sp/>*sensor)</highlight></codeline>
+<codeline lineno="233"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="234"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>sensor-&gt;<ref refid="structSYN__Sensor_1a4d74353bcbb3c72c5b03812e3177cf9c" kindref="member">filtered</ref>;</highlight></codeline>
+<codeline lineno="235"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="236"><highlight class="normal"></highlight></codeline>
+<codeline lineno="242" refid="syn__sensor_8h_1a1eafa37538e939be6cc69e3cb04c864a" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>int16_t<sp/><ref refid="syn__sensor_8h_1a1eafa37538e939be6cc69e3cb04c864a" kindref="member">syn_sensor_raw</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__Sensor" kindref="compound">SYN_Sensor</ref><sp/>*sensor)</highlight></codeline>
+<codeline lineno="243"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="244"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>sensor-&gt;<ref refid="structSYN__Sensor_1a6914ab42520eca72332afbf3232ced2a" kindref="member">raw</ref>;</highlight></codeline>
+<codeline lineno="245"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="246"><highlight class="normal"></highlight></codeline>
+<codeline lineno="247"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="248"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="249"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="250"><highlight class="normal"></highlight></codeline>
+<codeline lineno="251"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_SENSOR_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/sensor/syn_sensor.h"/>
+  </compounddef>
+</doxygen>

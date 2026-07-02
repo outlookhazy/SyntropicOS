@@ -1,0 +1,684 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__crc_8h" kind="file" language="C++">
+    <compoundname>syn_crc.h</compoundname>
+    <includes local="no">stdint.h</includes>
+    <includes local="no">stddef.h</includes>
+    <includedby refid="syn__modbus_8h" local="yes">src/syntropic/proto/syn_modbus.h</includedby>
+    <includedby refid="syn__param_8c" local="yes">src/syntropic/storage/syn_param.c</includedby>
+    <includedby refid="syn__settings_8c" local="yes">src/syntropic/storage/syn_settings.c</includedby>
+    <includedby refid="syntropic_8h" local="yes">src/syntropic/syntropic.h</includedby>
+    <includedby refid="syn__coredump_8c" local="yes">src/syntropic/system/syn_coredump.c</includedby>
+    <includedby refid="syn__fwimage_8h" local="yes">src/syntropic/system/syn_fwimage.h</includedby>
+    <includedby refid="syn__fwupdate_8c" local="yes">src/syntropic/system/syn_fwupdate.c</includedby>
+    <includedby refid="syn__crc_8c" local="yes">src/syntropic/util/syn_crc.c</includedby>
+    <incdepgraph>
+      <node id="1">
+        <label>src/syntropic/util/syn_crc.h</label>
+        <link refid="syn__crc_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>stddef.h</label>
+      </node>
+      <node id="2">
+        <label>stdint.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="3">
+        <label>src/syntropic/proto/syn_modbus.c</label>
+        <link refid="syn__modbus_8c"/>
+      </node>
+      <node id="2">
+        <label>src/syntropic/proto/syn_modbus.h</label>
+        <link refid="syn__modbus_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>src/syntropic/storage/syn_param.c</label>
+        <link refid="syn__param_8c"/>
+      </node>
+      <node id="4">
+        <label>src/syntropic/syntropic.h</label>
+        <link refid="syntropic_8h"/>
+      </node>
+      <node id="6">
+        <label>src/syntropic/system/syn_coredump.c</label>
+        <link refid="syn__coredump_8c"/>
+      </node>
+      <node id="8">
+        <label>src/syntropic/system/syn_fwboot.c</label>
+        <link refid="syn__fwboot_8c"/>
+      </node>
+      <node id="9">
+        <label>src/syntropic/system/syn_fwboot.h</label>
+        <link refid="syn__fwboot_8h"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>src/syntropic/system/syn_fwimage.h</label>
+        <link refid="syn__fwimage_8h"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+      </node>
+      <node id="10">
+        <label>src/syntropic/system/syn_fwupdate.c</label>
+        <link refid="syn__fwupdate_8c"/>
+      </node>
+      <node id="11">
+        <label>src/syntropic/system/syn_fwupdate.h</label>
+        <link refid="syn__fwupdate_8h"/>
+        <childnode refid="10" relation="include">
+        </childnode>
+      </node>
+      <node id="12">
+        <label>src/syntropic/util/syn_crc.c</label>
+        <link refid="syn__crc_8c"/>
+      </node>
+      <node id="1">
+        <label>src/syntropic/util/syn_crc.h</label>
+        <link refid="syn__crc_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <sectiondef kind="define">
+      <memberdef kind="define" id="syn__crc_8h_1a0712b7a9d866bb1f8b73d17af05727d4" prot="public" static="no">
+        <name>SYN_CRC_USE_TABLE</name>
+        <initializer>1</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Set to 1 for lookup-table CRC (fast), 0 for bit-by-bit (small). </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_crc.h" line="38" column="11" bodyfile="src/syntropic/util/syn_crc.h" bodystart="38" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__crc_8h_1a67ac3932734eb6661a0e3903e47dbc6e" prot="public" static="no">
+        <name>SYN_CRC8_INIT</name>
+        <initializer>0x00u</initializer>
+        <briefdescription>
+<para>CRC-8 initial value. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_crc.h" line="45" column="9" bodyfile="src/syntropic/util/syn_crc.h" bodystart="45" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__crc_8h_1a4ae76bf9bddc0e29abe49db2cc308b20" prot="public" static="no">
+        <name>SYN_CRC16_CCITT_INIT</name>
+        <initializer>0xFFFFu</initializer>
+        <briefdescription>
+<para>CRC-16 CCITT initial value. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_crc.h" line="71" column="9" bodyfile="src/syntropic/util/syn_crc.h" bodystart="71" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__crc_8h_1a1ba732fe086b1ebf5b3ffff4eaacad5d" prot="public" static="no">
+        <name>SYN_CRC16_MODBUS_INIT</name>
+        <initializer>0xFFFFu</initializer>
+        <briefdescription>
+<para>CRC-16 Modbus initial value. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_crc.h" line="97" column="9" bodyfile="src/syntropic/util/syn_crc.h" bodystart="97" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__crc_8h_1a2e9975199df0f2bdb608d27f6917c1ec" prot="public" static="no">
+        <name>SYN_CRC32_INIT</name>
+        <initializer>0xFFFFFFFFu</initializer>
+        <briefdescription>
+<para>CRC-32 initial value. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_crc.h" line="123" column="9" bodyfile="src/syntropic/util/syn_crc.h" bodystart="123" bodyend="-1"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__crc_8h_1a45257acbf28b3dd7d320e84fbcb99083" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint8_t</type>
+        <definition>uint8_t syn_crc8_update</definition>
+        <argsstring>(uint8_t crc, const void *data, size_t len)</argsstring>
+        <name>syn_crc8_update</name>
+        <param>
+          <type>uint8_t</type>
+          <declname>crc</declname>
+        </param>
+        <param>
+          <type>const void *</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>len</declname>
+        </param>
+        <briefdescription>
+<para>Update CRC-8 with a block of data. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>crc</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Running CRC value (start with SYN_CRC8_INIT). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>data</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Data buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Length in bytes. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Updated CRC-8. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_crc.h" line="54" column="9" bodyfile="src/syntropic/util/syn_crc.c" bodystart="34" bodyend="41" declfile="src/syntropic/util/syn_crc.h" declline="54" declcolumn="9"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__crc_8h_1ac1a11f0a6756c5a1d17740d664956f3c" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>uint8_t</type>
+        <definition>static uint8_t syn_crc8</definition>
+        <argsstring>(const void *data, size_t len)</argsstring>
+        <name>syn_crc8</name>
+        <param>
+          <type>const void *</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>len</declname>
+        </param>
+        <briefdescription>
+<para>Compute CRC-8 of a complete buffer. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>data</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Data buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Length in bytes. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>CRC-8 value. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_crc.h" line="62" column="23" bodyfile="src/syntropic/util/syn_crc.h" bodystart="62" bodyend="65"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__crc_8h_1a45d16f270e7e4a1dc377bee47388b2f2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint16_t</type>
+        <definition>uint16_t syn_crc16_ccitt_update</definition>
+        <argsstring>(uint16_t crc, const void *data, size_t len)</argsstring>
+        <name>syn_crc16_ccitt_update</name>
+        <param>
+          <type>uint16_t</type>
+          <declname>crc</declname>
+        </param>
+        <param>
+          <type>const void *</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>len</declname>
+        </param>
+        <briefdescription>
+<para>Update CRC-16 CCITT with a block of data. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>crc</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Running CRC value (start with SYN_CRC16_CCITT_INIT). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>data</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Data buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Length in bytes. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Updated CRC-16. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_crc.h" line="80" column="10" bodyfile="src/syntropic/util/syn_crc.c" bodystart="105" bodyend="112" declfile="src/syntropic/util/syn_crc.h" declline="80" declcolumn="10"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__crc_8h_1a7f547455d6657471da9cfc954bb7e139" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>uint16_t</type>
+        <definition>static uint16_t syn_crc16_ccitt</definition>
+        <argsstring>(const void *data, size_t len)</argsstring>
+        <name>syn_crc16_ccitt</name>
+        <param>
+          <type>const void *</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>len</declname>
+        </param>
+        <briefdescription>
+<para>Compute CRC-16 CCITT of a complete buffer. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>data</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Data buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Length in bytes. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>CRC-16 CCITT value. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_crc.h" line="88" column="24" bodyfile="src/syntropic/util/syn_crc.h" bodystart="88" bodyend="91"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__crc_8h_1aa9f74a3c090eafdfbe82fdc058862771" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint16_t</type>
+        <definition>uint16_t syn_crc16_modbus_update</definition>
+        <argsstring>(uint16_t crc, const void *data, size_t len)</argsstring>
+        <name>syn_crc16_modbus_update</name>
+        <param>
+          <type>uint16_t</type>
+          <declname>crc</declname>
+        </param>
+        <param>
+          <type>const void *</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>len</declname>
+        </param>
+        <briefdescription>
+<para>Update CRC-16 Modbus with a block of data. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>crc</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Running CRC value (start with SYN_CRC16_MODBUS_INIT). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>data</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Data buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Length in bytes. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Updated CRC-16. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_crc.h" line="106" column="10" bodyfile="src/syntropic/util/syn_crc.c" bodystart="176" bodyend="183" declfile="src/syntropic/util/syn_crc.h" declline="106" declcolumn="10"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__crc_8h_1aaca1b84c65ac5075a33e906be74dbc3c" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>uint16_t</type>
+        <definition>static uint16_t syn_crc16_modbus</definition>
+        <argsstring>(const void *data, size_t len)</argsstring>
+        <name>syn_crc16_modbus</name>
+        <param>
+          <type>const void *</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>len</declname>
+        </param>
+        <briefdescription>
+<para>Compute CRC-16 Modbus of a complete buffer. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>data</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Data buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Length in bytes. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>CRC-16 Modbus value. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_crc.h" line="114" column="24" bodyfile="src/syntropic/util/syn_crc.h" bodystart="114" bodyend="117"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__crc_8h_1a7fa3cbce3d3438068f99089412433df8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>uint32_t syn_crc32_update</definition>
+        <argsstring>(uint32_t crc, const void *data, size_t len)</argsstring>
+        <name>syn_crc32_update</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>crc</declname>
+        </param>
+        <param>
+          <type>const void *</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>len</declname>
+        </param>
+        <briefdescription>
+<para>Update CRC-32 with a block of data. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>crc</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Running CRC value (start with SYN_CRC32_INIT). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>data</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Data buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Length in bytes. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Updated CRC-32 (call syn_crc32_final to finalize). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_crc.h" line="132" column="10" bodyfile="src/syntropic/util/syn_crc.c" bodystart="258" bodyend="265" declfile="src/syntropic/util/syn_crc.h" declline="132" declcolumn="10"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__crc_8h_1a92ddc269f32b4a7cb9c4ceff87997f32" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>static uint32_t syn_crc32_final</definition>
+        <argsstring>(uint32_t crc)</argsstring>
+        <name>syn_crc32_final</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>crc</declname>
+        </param>
+        <briefdescription>
+<para>Finalize CRC-32 (XOR with 0xFFFFFFFF). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>crc</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Running CRC-32 value. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Final CRC-32. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_crc.h" line="139" column="24" bodyfile="src/syntropic/util/syn_crc.h" bodystart="139" bodyend="142"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__crc_8h_1a7bd1bde00ecfa8d1207257035708c39a" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>static uint32_t syn_crc32</definition>
+        <argsstring>(const void *data, size_t len)</argsstring>
+        <name>syn_crc32</name>
+        <param>
+          <type>const void *</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>len</declname>
+        </param>
+        <briefdescription>
+<para>Compute CRC-32 of a complete buffer. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>data</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Data buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Length in bytes. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>CRC-32 value. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_crc.h" line="150" column="24" bodyfile="src/syntropic/util/syn_crc.h" bodystart="150" bodyend="153"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>CRC calculation for communication protocols. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Provides CRC-8, CRC-16 (CCITT, Modbus), and CRC-32 (Ethernet). Configure SYN_CRC_USE_TABLE to trade ROM for speed: 1 = 256-entry lookup table (fast, ~256–1024 bytes ROM per variant) 0 = bit-by-bit computation (small, slower)</para>
+<para>All variants support incremental (streaming) computation.</para>
+<para><simplesect kind="par"><title>Usage</title><para><programlisting><codeline><highlight class="normal">uint16_t<sp/>crc<sp/>=<sp/><ref refid="syn__crc_8h_1a7f547455d6657471da9cfc954bb7e139" kindref="member">syn_crc16_ccitt</ref>(data,<sp/>len);</highlight></codeline>
+<codeline><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="comment">//<sp/>Incremental:</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal">uint16_t<sp/>crc<sp/>=<sp/><ref refid="syn__crc_8h_1a4ae76bf9bddc0e29abe49db2cc308b20" kindref="member">SYN_CRC16_CCITT_INIT</ref>;</highlight></codeline>
+<codeline><highlight class="normal">crc<sp/>=<sp/><ref refid="syn__crc_8c_1a45d16f270e7e4a1dc377bee47388b2f2" kindref="member">syn_crc16_ccitt_update</ref>(crc,<sp/>chunk1,<sp/>len1);</highlight></codeline>
+<codeline><highlight class="normal">crc<sp/>=<sp/><ref refid="syn__crc_8c_1a45d16f270e7e4a1dc377bee47388b2f2" kindref="member">syn_crc16_ccitt_update</ref>(crc,<sp/>chunk2,<sp/>len2);</highlight></codeline>
+</programlisting> </para>
+</simplesect>
+</para>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_CRC_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_CRC_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stddef.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Configuration<sp/>────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_CRC_USE_TABLE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="38" refid="syn__crc_8h_1a0712b7a9d866bb1f8b73d17af05727d4" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/>#define<sp/>SYN_CRC_USE_TABLE<sp/><sp/>1</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>CRC-8<sp/>(MAXIM<sp/>/<sp/>Dallas<sp/>1-Wire)<sp/>───────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>Polynomial:<sp/>x^8<sp/>+<sp/>x^5<sp/>+<sp/>x^4<sp/>+<sp/>1<sp/><sp/>(0x31)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight></codeline>
+<codeline lineno="45" refid="syn__crc_8h_1a67ac3932734eb6661a0e3903e47dbc6e" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_CRC8_INIT<sp/><sp/>0x00u</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="46"><highlight class="normal"></highlight></codeline>
+<codeline lineno="54"><highlight class="normal">uint8_t<sp/><ref refid="syn__crc_8h_1a45257acbf28b3dd7d320e84fbcb99083" kindref="member">syn_crc8_update</ref>(uint8_t<sp/>crc,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*data,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>len);</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"></highlight></codeline>
+<codeline lineno="62" refid="syn__crc_8h_1ac1a11f0a6756c5a1d17740d664956f3c" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>uint8_t<sp/><ref refid="syn__crc_8h_1ac1a11f0a6756c5a1d17740d664956f3c" kindref="member">syn_crc8</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*data,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>len)</highlight></codeline>
+<codeline lineno="63"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__crc_8h_1a45257acbf28b3dd7d320e84fbcb99083" kindref="member">syn_crc8_update</ref>(<ref refid="syn__crc_8h_1a67ac3932734eb6661a0e3903e47dbc6e" kindref="member">SYN_CRC8_INIT</ref>,<sp/>data,<sp/>len);</highlight></codeline>
+<codeline lineno="65"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"></highlight></codeline>
+<codeline lineno="67"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>CRC-16/CCITT<sp/>(XModem)<sp/>────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="68"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>Polynomial:<sp/>x^16<sp/>+<sp/>x^12<sp/>+<sp/>x^5<sp/>+<sp/>1<sp/><sp/>(0x1021)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="69"><highlight class="normal"></highlight></codeline>
+<codeline lineno="71" refid="syn__crc_8h_1a4ae76bf9bddc0e29abe49db2cc308b20" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_CRC16_CCITT_INIT<sp/><sp/>0xFFFFu</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="72"><highlight class="normal"></highlight></codeline>
+<codeline lineno="80"><highlight class="normal">uint16_t<sp/><ref refid="syn__crc_8h_1a45d16f270e7e4a1dc377bee47388b2f2" kindref="member">syn_crc16_ccitt_update</ref>(uint16_t<sp/>crc,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*data,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>len);</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"></highlight></codeline>
+<codeline lineno="88" refid="syn__crc_8h_1a7f547455d6657471da9cfc954bb7e139" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>uint16_t<sp/><ref refid="syn__crc_8h_1a7f547455d6657471da9cfc954bb7e139" kindref="member">syn_crc16_ccitt</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*data,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>len)</highlight></codeline>
+<codeline lineno="89"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__crc_8h_1a45d16f270e7e4a1dc377bee47388b2f2" kindref="member">syn_crc16_ccitt_update</ref>(<ref refid="syn__crc_8h_1a4ae76bf9bddc0e29abe49db2cc308b20" kindref="member">SYN_CRC16_CCITT_INIT</ref>,<sp/>data,<sp/>len);</highlight></codeline>
+<codeline lineno="91"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"></highlight></codeline>
+<codeline lineno="93"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>CRC-16/Modbus<sp/>────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="94"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>Polynomial:<sp/>x^16<sp/>+<sp/>x^15<sp/>+<sp/>x^2<sp/>+<sp/>1<sp/><sp/>(0x8005,<sp/>reflected)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="95"><highlight class="normal"></highlight></codeline>
+<codeline lineno="97" refid="syn__crc_8h_1a1ba732fe086b1ebf5b3ffff4eaacad5d" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_CRC16_MODBUS_INIT<sp/><sp/>0xFFFFu</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="98"><highlight class="normal"></highlight></codeline>
+<codeline lineno="106"><highlight class="normal">uint16_t<sp/><ref refid="syn__crc_8h_1aa9f74a3c090eafdfbe82fdc058862771" kindref="member">syn_crc16_modbus_update</ref>(uint16_t<sp/>crc,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*data,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>len);</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"></highlight></codeline>
+<codeline lineno="114" refid="syn__crc_8h_1aaca1b84c65ac5075a33e906be74dbc3c" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>uint16_t<sp/><ref refid="syn__crc_8h_1aaca1b84c65ac5075a33e906be74dbc3c" kindref="member">syn_crc16_modbus</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*data,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>len)</highlight></codeline>
+<codeline lineno="115"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="116"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__crc_8h_1aa9f74a3c090eafdfbe82fdc058862771" kindref="member">syn_crc16_modbus_update</ref>(<ref refid="syn__crc_8h_1a1ba732fe086b1ebf5b3ffff4eaacad5d" kindref="member">SYN_CRC16_MODBUS_INIT</ref>,<sp/>data,<sp/>len);</highlight></codeline>
+<codeline lineno="117"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"></highlight></codeline>
+<codeline lineno="119"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>CRC-32<sp/>(Ethernet<sp/>/<sp/>zlib)<sp/>─────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="120"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>Polynomial:<sp/>0x04C11DB7<sp/>(reflected:<sp/>0xEDB88320)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="121"><highlight class="normal"></highlight></codeline>
+<codeline lineno="123" refid="syn__crc_8h_1a2e9975199df0f2bdb608d27f6917c1ec" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_CRC32_INIT<sp/><sp/>0xFFFFFFFFu</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="124"><highlight class="normal"></highlight></codeline>
+<codeline lineno="132"><highlight class="normal">uint32_t<sp/><ref refid="syn__crc_8h_1a7fa3cbce3d3438068f99089412433df8" kindref="member">syn_crc32_update</ref>(uint32_t<sp/>crc,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*data,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>len);</highlight></codeline>
+<codeline lineno="133"><highlight class="normal"></highlight></codeline>
+<codeline lineno="139" refid="syn__crc_8h_1a92ddc269f32b4a7cb9c4ceff87997f32" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>uint32_t<sp/><ref refid="syn__crc_8h_1a92ddc269f32b4a7cb9c4ceff87997f32" kindref="member">syn_crc32_final</ref>(uint32_t<sp/>crc)</highlight></codeline>
+<codeline lineno="140"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="141"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>crc<sp/>^<sp/>0xFFFFFFFFu;</highlight></codeline>
+<codeline lineno="142"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="143"><highlight class="normal"></highlight></codeline>
+<codeline lineno="150" refid="syn__crc_8h_1a7bd1bde00ecfa8d1207257035708c39a" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>uint32_t<sp/><ref refid="syn__crc_8h_1a7bd1bde00ecfa8d1207257035708c39a" kindref="member">syn_crc32</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*data,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>len)</highlight></codeline>
+<codeline lineno="151"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="152"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__crc_8h_1a92ddc269f32b4a7cb9c4ceff87997f32" kindref="member">syn_crc32_final</ref>(<ref refid="syn__crc_8h_1a7fa3cbce3d3438068f99089412433df8" kindref="member">syn_crc32_update</ref>(<ref refid="syn__crc_8h_1a2e9975199df0f2bdb608d27f6917c1ec" kindref="member">SYN_CRC32_INIT</ref>,<sp/>data,<sp/>len));</highlight></codeline>
+<codeline lineno="153"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="154"><highlight class="normal"></highlight></codeline>
+<codeline lineno="155"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="156"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="157"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="158"><highlight class="normal"></highlight></codeline>
+<codeline lineno="159"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_CRC_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/util/syn_crc.h"/>
+  </compounddef>
+</doxygen>

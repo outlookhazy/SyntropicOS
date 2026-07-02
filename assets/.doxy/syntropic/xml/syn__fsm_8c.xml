@@ -1,0 +1,626 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__fsm_8c" kind="file" language="C++">
+    <compoundname>syn_fsm.c</compoundname>
+    <includes refid="syn__fsm_8h" local="yes">syn_fsm.h</includes>
+    <includes refid="syn__assert_8h" local="yes">syn_assert.h</includes>
+    <includes refid="syn__log_8h" local="yes">../log/syn_log.h</includes>
+    <includes local="no">string.h</includes>
+    <incdepgraph>
+      <node id="8">
+        <label>../common/syn_compiler.h</label>
+        <link refid="syn__compiler_8h"/>
+      </node>
+      <node id="3">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="9">
+        <label>../log/syn_log.h</label>
+        <link refid="syn__log_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>syn_assert.h</label>
+        <link refid="syn__assert_8h"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/util/syn_fsm.c</label>
+        <link refid="syn__fsm_8c"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>syn_fsm.h</label>
+        <link refid="syn__fsm_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="10">
+        <label>stdarg.h</label>
+      </node>
+      <node id="6">
+        <label>stdbool.h</label>
+      </node>
+      <node id="5">
+        <label>stddef.h</label>
+      </node>
+      <node id="4">
+        <label>stdint.h</label>
+      </node>
+      <node id="11">
+        <label>string.h</label>
+      </node>
+    </incdepgraph>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__fsm_8c_1afc1357d1d277427d3bdcccc34fd01f45" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>const <ref refid="structSYN__FSM__StateDesc" kindref="compound">SYN_FSM_StateDesc</ref> *</type>
+        <definition>static const SYN_FSM_StateDesc * find_state_desc</definition>
+        <argsstring>(const SYN_FSM *fsm, SYN_FSM_State state)</argsstring>
+        <name>find_state_desc</name>
+        <param>
+          <type>const <ref refid="structSYN__FSM" kindref="compound">SYN_FSM</ref> *</type>
+          <declname>fsm</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__fsm_8h_1ad8cfe43fdd7bc35f628c1b467dca6602" kindref="member">SYN_FSM_State</ref></type>
+          <declname>state</declname>
+        </param>
+        <briefdescription>
+<para>Find the state descriptor for a given state. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>fsm</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>FSM instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>state</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>State to look up. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Descriptor, or NULL if not found. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_fsm.c" line="26" column="32" bodyfile="src/syntropic/util/syn_fsm.c" bodystart="26" bodyend="37"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__fsm_8c_1a3401250d8d2d74842478d92c286308aa" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void fire_exit</definition>
+        <argsstring>(const SYN_FSM *fsm, SYN_FSM_State state)</argsstring>
+        <name>fire_exit</name>
+        <param>
+          <type>const <ref refid="structSYN__FSM" kindref="compound">SYN_FSM</ref> *</type>
+          <declname>fsm</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__fsm_8h_1ad8cfe43fdd7bc35f628c1b467dca6602" kindref="member">SYN_FSM_State</ref></type>
+          <declname>state</declname>
+        </param>
+        <briefdescription>
+<para>Invoke the on_exit callback for a state. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>fsm</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>FSM instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>state</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>State being exited. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_fsm.c" line="44" column="13" bodyfile="src/syntropic/util/syn_fsm.c" bodystart="44" bodyend="50"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__fsm_8c_1a99c9fadb1df7ada25b95d54bd12a86b2" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void fire_enter</definition>
+        <argsstring>(const SYN_FSM *fsm, SYN_FSM_State state)</argsstring>
+        <name>fire_enter</name>
+        <param>
+          <type>const <ref refid="structSYN__FSM" kindref="compound">SYN_FSM</ref> *</type>
+          <declname>fsm</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__fsm_8h_1ad8cfe43fdd7bc35f628c1b467dca6602" kindref="member">SYN_FSM_State</ref></type>
+          <declname>state</declname>
+        </param>
+        <briefdescription>
+<para>Invoke the on_enter callback for a state. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>fsm</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>FSM instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>state</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>State being entered. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_fsm.c" line="57" column="13" bodyfile="src/syntropic/util/syn_fsm.c" bodystart="57" bodyend="63"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__fsm_8c_1a3f54118308974242383fc0e5d50f6288" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_fsm_init</definition>
+        <argsstring>(SYN_FSM *fsm, const SYN_FSM_Transition *transitions, SYN_FSM_State initial, const char *tag)</argsstring>
+        <name>syn_fsm_init</name>
+        <param>
+          <type><ref refid="structSYN__FSM" kindref="compound">SYN_FSM</ref> *</type>
+          <declname>fsm</declname>
+        </param>
+        <param>
+          <type>const <ref refid="structSYN__FSM__Transition" kindref="compound">SYN_FSM_Transition</ref> *</type>
+          <declname>transitions</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__fsm_8h_1ad8cfe43fdd7bc35f628c1b467dca6602" kindref="member">SYN_FSM_State</ref></type>
+          <declname>initial</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>tag</declname>
+        </param>
+        <briefdescription>
+<para>Initialize the FSM. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>fsm</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>FSM instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>transitions</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Transition table (terminated by SYN_FSM_END). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>initial</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Initial state. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>tag</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Log tag for transition logging (e.g., &quot;motor&quot;). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_fsm.c" line="67" column="6" bodyfile="src/syntropic/util/syn_fsm.c" bodystart="67" bodyend="79"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__fsm_8c_1acc75a566eba2c46cb6ad10e87fbea1fb" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_fsm_set_state_descs</definition>
+        <argsstring>(SYN_FSM *fsm, const SYN_FSM_StateDesc *descs)</argsstring>
+        <name>syn_fsm_set_state_descs</name>
+        <param>
+          <type><ref refid="structSYN__FSM" kindref="compound">SYN_FSM</ref> *</type>
+          <declname>fsm</declname>
+        </param>
+        <param>
+          <type>const <ref refid="structSYN__FSM__StateDesc" kindref="compound">SYN_FSM_StateDesc</ref> *</type>
+          <declname>descs</declname>
+        </param>
+        <briefdescription>
+<para>Set optional state descriptors (entry/exit actions). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>fsm</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>FSM instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>descs</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>State descriptor table (terminated by SYN_FSM_STATE_END). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_fsm.c" line="81" column="6" bodyfile="src/syntropic/util/syn_fsm.c" bodystart="81" bodyend="85"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__fsm_8c_1a942efe174dc83bb3a3c33ce13c9be4f5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_fsm_set_state_names</definition>
+        <argsstring>(SYN_FSM *fsm, const char *const *names)</argsstring>
+        <name>syn_fsm_set_state_names</name>
+        <param>
+          <type><ref refid="structSYN__FSM" kindref="compound">SYN_FSM</ref> *</type>
+          <declname>fsm</declname>
+        </param>
+        <param>
+          <type>const char *const *</type>
+          <declname>names</declname>
+        </param>
+        <briefdescription>
+<para>Set optional state name strings for debug/logging. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>fsm</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>FSM instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>names</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Array of state name strings, indexed by state value. Must cover all state values used in the transition table. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_fsm.c" line="87" column="6" bodyfile="src/syntropic/util/syn_fsm.c" bodystart="87" bodyend="91"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__fsm_8c_1a83f77469ee2552e4bbf0762cddacc1a8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_fsm_set_context</definition>
+        <argsstring>(SYN_FSM *fsm, void *ctx)</argsstring>
+        <name>syn_fsm_set_context</name>
+        <param>
+          <type><ref refid="structSYN__FSM" kindref="compound">SYN_FSM</ref> *</type>
+          <declname>fsm</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>ctx</declname>
+        </param>
+        <briefdescription>
+<para>Set the user context pointer passed to guards and actions. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>fsm</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>FSM instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>ctx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>User context. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_fsm.c" line="93" column="6" bodyfile="src/syntropic/util/syn_fsm.c" bodystart="93" bodyend="97"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__fsm_8c_1ab7f75662633d9d4643ba7a9fd93e3a3b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_fsm_dispatch</definition>
+        <argsstring>(SYN_FSM *fsm, SYN_FSM_Event event)</argsstring>
+        <name>syn_fsm_dispatch</name>
+        <param>
+          <type><ref refid="structSYN__FSM" kindref="compound">SYN_FSM</ref> *</type>
+          <declname>fsm</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__fsm_8h_1a90b0f5971f3d0a0be445bff99c9a62f2" kindref="member">SYN_FSM_Event</ref></type>
+          <declname>event</declname>
+        </param>
+        <briefdescription>
+<para>Dispatch an event. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Scans the transition table for a matching (current_state, event) pair. If a guard exists and returns false, the transition is skipped and the next matching row is tried. On a successful match:<orderedlist>
+<listitem><para>Exit action for the current state (if state_descs set)</para>
+</listitem><listitem><para>Transition action</para>
+</listitem><listitem><para>State change</para>
+</listitem><listitem><para>Entry action for the new state (if state_descs set)</para>
+</listitem></orderedlist>
+</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>fsm</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>FSM instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>event</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Event to dispatch. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if a transition was taken, false if no match found. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_fsm.c" line="99" column="6" bodyfile="src/syntropic/util/syn_fsm.c" bodystart="99" bodyend="149"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__fsm_8c_1a4dede62acaabb845183096e95eaebddf" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_fsm_set_state</definition>
+        <argsstring>(SYN_FSM *fsm, SYN_FSM_State state)</argsstring>
+        <name>syn_fsm_set_state</name>
+        <param>
+          <type><ref refid="structSYN__FSM" kindref="compound">SYN_FSM</ref> *</type>
+          <declname>fsm</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__fsm_8h_1ad8cfe43fdd7bc35f628c1b467dca6602" kindref="member">SYN_FSM_State</ref></type>
+          <declname>state</declname>
+        </param>
+        <briefdescription>
+<para>Force-set the FSM to a specific state. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Fires exit action for the old state and entry action for the new state (if state_descs are set). No transition action is called.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>fsm</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>FSM instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>state</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>New state. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_fsm.c" line="151" column="6" bodyfile="src/syntropic/util/syn_fsm.c" bodystart="151" bodyend="160"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Finite state machine implementation. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#if<sp/>__has_include(&quot;syn_config.h&quot;)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/>#include<sp/>&quot;syn_config.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="4"><highlight class="normal"></highlight></codeline>
+<codeline lineno="5"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>!defined(SYN_USE_FSM)<sp/>||<sp/>SYN_USE_FSM</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__fsm_8h" kindref="compound">syn_fsm.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__assert_8h" kindref="compound">syn_assert.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../log/syn_log.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;string.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Internal<sp/>helpers<sp/>─────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__FSM__StateDesc" kindref="compound">SYN_FSM_StateDesc</ref><sp/>*<ref refid="syn__fsm_8c_1afc1357d1d277427d3bdcccc34fd01f45" kindref="member">find_state_desc</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__FSM" kindref="compound">SYN_FSM</ref><sp/>*fsm,</highlight></codeline>
+<codeline lineno="27"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__fsm_8h_1ad8cfe43fdd7bc35f628c1b467dca6602" kindref="member">SYN_FSM_State</ref><sp/>state)</highlight></codeline>
+<codeline lineno="28"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="29"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(fsm-&gt;<ref refid="structSYN__FSM_1a23c93c83daa905812323fbffc5e9cff5" kindref="member">state_descs</ref><sp/>==<sp/>NULL)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>NULL;</highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight></codeline>
+<codeline lineno="31"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__FSM__StateDesc" kindref="compound">SYN_FSM_StateDesc</ref><sp/>*d<sp/>=<sp/>fsm-&gt;<ref refid="structSYN__FSM_1a23c93c83daa905812323fbffc5e9cff5" kindref="member">state_descs</ref>;</highlight></codeline>
+<codeline lineno="32"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">while</highlight><highlight class="normal"><sp/>(d-&gt;<ref refid="structSYN__FSM__StateDesc_1a7a2e43576fc4e9185f75b29f7e310a2a" kindref="member">state</ref><sp/>!=<sp/><ref refid="syn__fsm_8h_1ae54950710070110df8c36ef1a3add611" kindref="member">SYN_FSM_STATE_NONE</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="33"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(d-&gt;<ref refid="structSYN__FSM__StateDesc_1a7a2e43576fc4e9185f75b29f7e310a2a" kindref="member">state</ref><sp/>==<sp/>state)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>d;</highlight></codeline>
+<codeline lineno="34"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>d++;</highlight></codeline>
+<codeline lineno="35"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="36"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>NULL;</highlight></codeline>
+<codeline lineno="37"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__fsm_8c_1a3401250d8d2d74842478d92c286308aa" kindref="member">fire_exit</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__FSM" kindref="compound">SYN_FSM</ref><sp/>*fsm,<sp/><ref refid="syn__fsm_8h_1ad8cfe43fdd7bc35f628c1b467dca6602" kindref="member">SYN_FSM_State</ref><sp/>state)</highlight></codeline>
+<codeline lineno="45"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__FSM__StateDesc" kindref="compound">SYN_FSM_StateDesc</ref><sp/>*d<sp/>=<sp/><ref refid="syn__fsm_8c_1afc1357d1d277427d3bdcccc34fd01f45" kindref="member">find_state_desc</ref>(fsm,<sp/>state);</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(d<sp/>!=<sp/>NULL<sp/>&amp;&amp;<sp/>d-&gt;<ref refid="structSYN__FSM__StateDesc_1a12299017cd4ef1d7548d3ad00aeedcc4" kindref="member">on_exit</ref><sp/>!=<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>d-&gt;<ref refid="structSYN__FSM__StateDesc_1a12299017cd4ef1d7548d3ad00aeedcc4" kindref="member">on_exit</ref>(fsm-&gt;<ref refid="structSYN__FSM_1ad146aaa726a157b8d20bcfb9f1ab2eec" kindref="member">ctx</ref>);</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="50"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"></highlight></codeline>
+<codeline lineno="57"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__fsm_8c_1a99c9fadb1df7ada25b95d54bd12a86b2" kindref="member">fire_enter</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__FSM" kindref="compound">SYN_FSM</ref><sp/>*fsm,<sp/><ref refid="syn__fsm_8h_1ad8cfe43fdd7bc35f628c1b467dca6602" kindref="member">SYN_FSM_State</ref><sp/>state)</highlight></codeline>
+<codeline lineno="58"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__FSM__StateDesc" kindref="compound">SYN_FSM_StateDesc</ref><sp/>*d<sp/>=<sp/><ref refid="syn__fsm_8c_1afc1357d1d277427d3bdcccc34fd01f45" kindref="member">find_state_desc</ref>(fsm,<sp/>state);</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(d<sp/>!=<sp/>NULL<sp/>&amp;&amp;<sp/>d-&gt;<ref refid="structSYN__FSM__StateDesc_1a1a047e51d9e5c86b6b0a393bd81d54a5" kindref="member">on_enter</ref><sp/>!=<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>d-&gt;<ref refid="structSYN__FSM__StateDesc_1a1a047e51d9e5c86b6b0a393bd81d54a5" kindref="member">on_enter</ref>(fsm-&gt;<ref refid="structSYN__FSM_1ad146aaa726a157b8d20bcfb9f1ab2eec" kindref="member">ctx</ref>);</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="63"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"></highlight></codeline>
+<codeline lineno="65"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>API<sp/>──────────────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="66"><highlight class="normal"></highlight></codeline>
+<codeline lineno="67"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__fsm_8c_1a3f54118308974242383fc0e5d50f6288" kindref="member">syn_fsm_init</ref>(<ref refid="structSYN__FSM" kindref="compound">SYN_FSM</ref><sp/>*fsm,</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__FSM__Transition" kindref="compound">SYN_FSM_Transition</ref><sp/>*transitions,</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__fsm_8h_1ad8cfe43fdd7bc35f628c1b467dca6602" kindref="member">SYN_FSM_State</ref><sp/>initial,</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*tag)</highlight></codeline>
+<codeline lineno="71"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(fsm<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(transitions<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"></highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/><sp/><sp/>memset(fsm,<sp/>0,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(*fsm));</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/><sp/><sp/>fsm-&gt;<ref refid="structSYN__FSM_1a81ae98fe0c44916b12b1016ddfc58571" kindref="member">transitions</ref><sp/>=<sp/>transitions;</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/><sp/><sp/>fsm-&gt;<ref refid="structSYN__FSM_1a79a044178815127812d0830f9e9d015e" kindref="member">current</ref><sp/><sp/><sp/><sp/><sp/>=<sp/>initial;</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/><sp/><sp/>fsm-&gt;<ref refid="structSYN__FSM_1a0f0dfe7d21bd76b0b60d2a8bf29582e8" kindref="member">tag</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>tag;</highlight></codeline>
+<codeline lineno="79"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"></highlight></codeline>
+<codeline lineno="81"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__fsm_8c_1acc75a566eba2c46cb6ad10e87fbea1fb" kindref="member">syn_fsm_set_state_descs</ref>(<ref refid="structSYN__FSM" kindref="compound">SYN_FSM</ref><sp/>*fsm,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__FSM__StateDesc" kindref="compound">SYN_FSM_StateDesc</ref><sp/>*descs)</highlight></codeline>
+<codeline lineno="82"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(fsm<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/><sp/><sp/>fsm-&gt;<ref refid="structSYN__FSM_1a23c93c83daa905812323fbffc5e9cff5" kindref="member">state_descs</ref><sp/>=<sp/>descs;</highlight></codeline>
+<codeline lineno="85"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"></highlight></codeline>
+<codeline lineno="87"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__fsm_8c_1a942efe174dc83bb3a3c33ce13c9be4f5" kindref="member">syn_fsm_set_state_names</ref>(<ref refid="structSYN__FSM" kindref="compound">SYN_FSM</ref><sp/>*fsm,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>*names)</highlight></codeline>
+<codeline lineno="88"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(fsm<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"><sp/><sp/><sp/><sp/>fsm-&gt;<ref refid="structSYN__FSM_1ac1ef17a56519c36ab749b47f083ca88b" kindref="member">state_names</ref><sp/>=<sp/>names;</highlight></codeline>
+<codeline lineno="91"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"></highlight></codeline>
+<codeline lineno="93"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__fsm_8c_1a83f77469ee2552e4bbf0762cddacc1a8" kindref="member">syn_fsm_set_context</ref>(<ref refid="structSYN__FSM" kindref="compound">SYN_FSM</ref><sp/>*fsm,<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*ctx)</highlight></codeline>
+<codeline lineno="94"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(fsm<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/><sp/><sp/>fsm-&gt;<ref refid="structSYN__FSM_1ad146aaa726a157b8d20bcfb9f1ab2eec" kindref="member">ctx</ref><sp/>=<sp/>ctx;</highlight></codeline>
+<codeline lineno="97"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"></highlight></codeline>
+<codeline lineno="99"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__fsm_8c_1ab7f75662633d9d4643ba7a9fd93e3a3b" kindref="member">syn_fsm_dispatch</ref>(<ref refid="structSYN__FSM" kindref="compound">SYN_FSM</ref><sp/>*fsm,<sp/><ref refid="syn__fsm_8h_1a90b0f5971f3d0a0be445bff99c9a62f2" kindref="member">SYN_FSM_Event</ref><sp/>event)</highlight></codeline>
+<codeline lineno="100"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(fsm<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"></highlight></codeline>
+<codeline lineno="103"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__FSM__Transition" kindref="compound">SYN_FSM_Transition</ref><sp/>*t<sp/>=<sp/>fsm-&gt;<ref refid="structSYN__FSM_1a81ae98fe0c44916b12b1016ddfc58571" kindref="member">transitions</ref>;</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"></highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">while</highlight><highlight class="normal"><sp/>(t-&gt;<ref refid="structSYN__FSM__Transition_1a2dad569c83df92eb707fe30d628fea11" kindref="member">from</ref><sp/>!=<sp/><ref refid="syn__fsm_8h_1ae54950710070110df8c36ef1a3add611" kindref="member">SYN_FSM_STATE_NONE</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(t-&gt;<ref refid="structSYN__FSM__Transition_1a2dad569c83df92eb707fe30d628fea11" kindref="member">from</ref><sp/>==<sp/>fsm-&gt;<ref refid="structSYN__FSM_1a79a044178815127812d0830f9e9d015e" kindref="member">current</ref><sp/>&amp;&amp;<sp/>t-&gt;<ref refid="structSYN__FSM__Transition_1a6da9cc018b9ee8a1e8d70bba5fba7b4e" kindref="member">event</ref><sp/>==<sp/>event)<sp/>{</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Check<sp/>guard<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="108"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(t-&gt;<ref refid="structSYN__FSM__Transition_1a687653f0a7c63101ceeb0e2ef6df8e25" kindref="member">guard</ref><sp/>!=<sp/>NULL<sp/>&amp;&amp;<sp/>!t-&gt;<ref refid="structSYN__FSM__Transition_1a687653f0a7c63101ceeb0e2ef6df8e25" kindref="member">guard</ref>(fsm-&gt;<ref refid="structSYN__FSM_1ad146aaa726a157b8d20bcfb9f1ab2eec" kindref="member">ctx</ref>))<sp/>{</highlight></codeline>
+<codeline lineno="109"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>t++;</highlight></codeline>
+<codeline lineno="110"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">continue</highlight><highlight class="normal">;<sp/></highlight><highlight class="comment">/*<sp/>try<sp/>next<sp/>matching<sp/>row<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="111"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="112"><highlight class="normal"></highlight></codeline>
+<codeline lineno="113"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__fsm_8h_1ad8cfe43fdd7bc35f628c1b467dca6602" kindref="member">SYN_FSM_State</ref><sp/>old_state<sp/>=<sp/>fsm-&gt;<ref refid="structSYN__FSM_1a79a044178815127812d0830f9e9d015e" kindref="member">current</ref>;</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"></highlight></codeline>
+<codeline lineno="115"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Exit<sp/>old<sp/>state<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="116"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__fsm_8c_1a3401250d8d2d74842478d92c286308aa" kindref="member">fire_exit</ref>(fsm,<sp/>old_state);</highlight></codeline>
+<codeline lineno="117"><highlight class="normal"></highlight></codeline>
+<codeline lineno="118"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Transition<sp/>action<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="119"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(t-&gt;<ref refid="structSYN__FSM__Transition_1ac64edb8cd549d96fa851b6f42a02de0f" kindref="member">action</ref><sp/>!=<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="120"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>t-&gt;<ref refid="structSYN__FSM__Transition_1ac64edb8cd549d96fa851b6f42a02de0f" kindref="member">action</ref>(fsm-&gt;<ref refid="structSYN__FSM_1ad146aaa726a157b8d20bcfb9f1ab2eec" kindref="member">ctx</ref>);</highlight></codeline>
+<codeline lineno="121"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="122"><highlight class="normal"></highlight></codeline>
+<codeline lineno="123"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Change<sp/>state<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="124"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>fsm-&gt;<ref refid="structSYN__FSM_1a79a044178815127812d0830f9e9d015e" kindref="member">current</ref><sp/>=<sp/>t-&gt;<ref refid="structSYN__FSM__Transition_1a89d2bb22bdb66ea90bcecfe83737a8d0" kindref="member">to</ref>;</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"></highlight></codeline>
+<codeline lineno="126"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Log<sp/>transition<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="127"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>!defined(SYN_USE_LOG)<sp/>||<sp/>SYN_USE_LOG</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="128"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(fsm-&gt;<ref refid="structSYN__FSM_1a0f0dfe7d21bd76b0b60d2a8bf29582e8" kindref="member">tag</ref><sp/>!=<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="129"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(fsm-&gt;<ref refid="structSYN__FSM_1ac1ef17a56519c36ab749b47f083ca88b" kindref="member">state_names</ref><sp/>!=<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="130"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__log_8h_1a8f3bc1363ca2c44eefb38498ba16da47" kindref="member">SYN_LOG_D</ref>(fsm-&gt;<ref refid="structSYN__FSM_1a0f0dfe7d21bd76b0b60d2a8bf29582e8" kindref="member">tag</ref>,<sp/></highlight><highlight class="stringliteral">&quot;%s<sp/>-&gt;<sp/>%s<sp/>(evt<sp/>%d)&quot;</highlight><highlight class="normal">,</highlight></codeline>
+<codeline lineno="131"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>fsm-&gt;<ref refid="structSYN__FSM_1ac1ef17a56519c36ab749b47f083ca88b" kindref="member">state_names</ref>[old_state],</highlight></codeline>
+<codeline lineno="132"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>fsm-&gt;<ref refid="structSYN__FSM_1ac1ef17a56519c36ab749b47f083ca88b" kindref="member">state_names</ref>[t-&gt;<ref refid="structSYN__FSM__Transition_1a89d2bb22bdb66ea90bcecfe83737a8d0" kindref="member">to</ref>],</highlight></codeline>
+<codeline lineno="133"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal">)event);</highlight></codeline>
+<codeline lineno="134"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="135"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__log_8h_1a8f3bc1363ca2c44eefb38498ba16da47" kindref="member">SYN_LOG_D</ref>(fsm-&gt;<ref refid="structSYN__FSM_1a0f0dfe7d21bd76b0b60d2a8bf29582e8" kindref="member">tag</ref>,<sp/></highlight><highlight class="stringliteral">&quot;S%d<sp/>-&gt;<sp/>S%d<sp/>(evt<sp/>%d)&quot;</highlight><highlight class="normal">,</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal">)old_state,<sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal">)t-&gt;<ref refid="structSYN__FSM__Transition_1a89d2bb22bdb66ea90bcecfe83737a8d0" kindref="member">to</ref>,<sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal">)event);</highlight></codeline>
+<codeline lineno="137"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="138"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="139"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="140"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Enter<sp/>new<sp/>state<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="141"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__fsm_8c_1a99c9fadb1df7ada25b95d54bd12a86b2" kindref="member">fire_enter</ref>(fsm,<sp/>t-&gt;<ref refid="structSYN__FSM__Transition_1a89d2bb22bdb66ea90bcecfe83737a8d0" kindref="member">to</ref>);</highlight></codeline>
+<codeline lineno="142"><highlight class="normal"></highlight></codeline>
+<codeline lineno="143"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="144"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="145"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>t++;</highlight></codeline>
+<codeline lineno="146"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="147"><highlight class="normal"></highlight></codeline>
+<codeline lineno="148"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;<sp/></highlight><highlight class="comment">/*<sp/>no<sp/>matching<sp/>transition<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="149"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="150"><highlight class="normal"></highlight></codeline>
+<codeline lineno="151"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__fsm_8c_1a4dede62acaabb845183096e95eaebddf" kindref="member">syn_fsm_set_state</ref>(<ref refid="structSYN__FSM" kindref="compound">SYN_FSM</ref><sp/>*fsm,<sp/><ref refid="syn__fsm_8h_1ad8cfe43fdd7bc35f628c1b467dca6602" kindref="member">SYN_FSM_State</ref><sp/>state)</highlight></codeline>
+<codeline lineno="152"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="153"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(fsm<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="154"><highlight class="normal"></highlight></codeline>
+<codeline lineno="155"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(fsm-&gt;<ref refid="structSYN__FSM_1a79a044178815127812d0830f9e9d015e" kindref="member">current</ref><sp/>!=<sp/>state)<sp/>{</highlight></codeline>
+<codeline lineno="156"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__fsm_8c_1a3401250d8d2d74842478d92c286308aa" kindref="member">fire_exit</ref>(fsm,<sp/>fsm-&gt;<ref refid="structSYN__FSM_1a79a044178815127812d0830f9e9d015e" kindref="member">current</ref>);</highlight></codeline>
+<codeline lineno="157"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>fsm-&gt;<ref refid="structSYN__FSM_1a79a044178815127812d0830f9e9d015e" kindref="member">current</ref><sp/>=<sp/>state;</highlight></codeline>
+<codeline lineno="158"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__fsm_8c_1a99c9fadb1df7ada25b95d54bd12a86b2" kindref="member">fire_enter</ref>(fsm,<sp/>state);</highlight></codeline>
+<codeline lineno="159"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="160"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="161"><highlight class="normal"></highlight></codeline>
+<codeline lineno="162"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_USE_FSM<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/util/syn_fsm.c"/>
+  </compounddef>
+</doxygen>

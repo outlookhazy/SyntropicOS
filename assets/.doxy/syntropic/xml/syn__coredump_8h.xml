@@ -1,0 +1,282 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__coredump_8h" kind="file" language="C++">
+    <compoundname>syn_coredump.h</compoundname>
+    <includes refid="syn__defs_8h" local="yes">../common/syn_defs.h</includes>
+    <includes refid="syn__fault_8h" local="yes">syn_fault.h</includes>
+    <includes local="no">stdint.h</includes>
+    <includes local="no">stdbool.h</includes>
+    <includedby refid="syntropic_8h" local="yes">src/syntropic/syntropic.h</includedby>
+    <includedby refid="syn__coredump_8c" local="yes">src/syntropic/system/syn_coredump.c</includedby>
+    <incdepgraph>
+      <node id="2">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/system/syn_coredump.h</label>
+        <link refid="syn__coredump_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>syn_errlog.h</label>
+        <link refid="syn__errlog_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>syn_fault.h</label>
+        <link refid="syn__fault_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>stdbool.h</label>
+      </node>
+      <node id="4">
+        <label>stddef.h</label>
+      </node>
+      <node id="3">
+        <label>stdint.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="2">
+        <label>src/syntropic/syntropic.h</label>
+        <link refid="syntropic_8h"/>
+      </node>
+      <node id="3">
+        <label>src/syntropic/system/syn_coredump.c</label>
+        <link refid="syn__coredump_8c"/>
+      </node>
+      <node id="1">
+        <label>src/syntropic/system/syn_coredump.h</label>
+        <link refid="syn__coredump_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="structSYN__CoreDump" prot="public">SYN_CoreDump</innerclass>
+    <sectiondef kind="define">
+      <memberdef kind="define" id="syn__coredump_8h_1afdacc978da55b758a4156aa85f7e9462" prot="public" static="no">
+        <name>SYN_COREDUMP_STACK_SIZE</name>
+        <initializer>128</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Bytes of stack to capture <linebreak/>
+ </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/system/syn_coredump.h" line="54" column="11" bodyfile="src/syntropic/system/syn_coredump.h" bodystart="54" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__coredump_8h_1ab7598fbc9b8bd1086da7bd2955dfc53f" prot="public" static="no">
+        <name>SYN_COREDUMP_MAGIC</name>
+        <initializer>0x43444D50u</initializer>
+        <briefdescription>
+<para>Magic number identifying a valid core dump (&quot;CDMP&quot;). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/system/syn_coredump.h" line="64" column="9" bodyfile="src/syntropic/system/syn_coredump.h" bodystart="64" bodyend="-1"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__coredump_8h_1a18b7376e90a7040fc91f6288f826216d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_coredump_save</definition>
+        <argsstring>(const SYN_FaultContext *ctx)</argsstring>
+        <name>syn_coredump_save</name>
+        <param>
+          <type>const <ref refid="structSYN__FaultContext" kindref="compound">SYN_FaultContext</ref> *</type>
+          <declname>ctx</declname>
+        </param>
+        <briefdescription>
+<para>Save a core dump to flash. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Safe to call from a hard fault handler: no heap, no locks. Erases the reserved sector and writes the dump.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ctx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Register context captured at fault time. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/system/syn_coredump.h" line="92" column="6" bodyfile="src/syntropic/system/syn_coredump.c" bodystart="41" bodyend="86" declfile="src/syntropic/system/syn_coredump.h" declline="92" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__coredump_8h_1ae5241ba9aa7cc0acfea391ccb578acfc" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_coredump_read</definition>
+        <argsstring>(SYN_CoreDump *out)</argsstring>
+        <name>syn_coredump_read</name>
+        <param>
+          <type><ref refid="structSYN__CoreDump" kindref="compound">SYN_CoreDump</ref> *</type>
+          <declname>out</declname>
+        </param>
+        <briefdescription>
+<para>Read a core dump from flash. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Validates the magic number and CRC. If valid, copies the dump into the output buffer.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>out</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output buffer for the core dump. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if a valid core dump was found. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/system/syn_coredump.h" line="103" column="6" bodyfile="src/syntropic/system/syn_coredump.c" bodystart="88" bodyend="105" declfile="src/syntropic/system/syn_coredump.h" declline="103" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__coredump_8h_1aaa03df79e68e215e2a19a6f1e2ec4e9d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_coredump_clear</definition>
+        <argsstring>(void)</argsstring>
+        <name>syn_coredump_clear</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Clear the core dump from flash. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Erases the reserved sector so subsequent reads return false. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/system/syn_coredump.h" line="110" column="6" bodyfile="src/syntropic/system/syn_coredump.c" bodystart="107" bodyend="110" declfile="src/syntropic/system/syn_coredump.h" declline="110" declcolumn="6"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Persistent core dump — saves fault context to flash. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Captures CPU register state and a partial stack snapshot during a hard fault and persists them to a reserved flash sector. On the next boot, the dump can be read back for post-mortem diagnostics.</para>
+<para>Requires: SYN_USE_FAULT, CRC module, flash port.</para>
+<para><simplesect kind="par"><title>Configuration</title><para>Define these in syn_config.h:<itemizedlist>
+<listitem><para><computeroutput>SYN_COREDUMP_FLASH_ADDR</computeroutput> — Start address of the reserved flash sector.</para>
+</listitem><listitem><para><computeroutput>SYN_COREDUMP_STACK_SIZE</computeroutput> — Bytes of stack to capture (default 128).</para>
+</listitem></itemizedlist>
+</para>
+</simplesect>
+<simplesect kind="par"><title>Usage</title><para><programlisting><codeline><highlight class="comment">//<sp/>In<sp/>your<sp/>HardFault<sp/>handler:</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__coredump_8c_1a18b7376e90a7040fc91f6288f826216d" kindref="member">syn_coredump_save</ref>(&amp;fault_context);</highlight></codeline>
+<codeline><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="comment">//<sp/>At<sp/>boot:</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"><ref refid="structSYN__CoreDump" kindref="compound">SYN_CoreDump</ref><sp/>dump;</highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="syn__coredump_8c_1ae5241ba9aa7cc0acfea391ccb578acfc" kindref="member">syn_coredump_read</ref>(&amp;dump))<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>printf(</highlight><highlight class="stringliteral">&quot;Previous<sp/>crash<sp/>at<sp/>PC=0x%08x,<sp/>uptime=%lu<sp/>ms\n&quot;</highlight><highlight class="normal">,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>dump.<ref refid="structSYN__CoreDump_1a20599edf2b6bdc05f5268a1424f44914" kindref="member">regs</ref>.<ref refid="structSYN__FaultContext_1a8ab1fbd2b66b0c20c521c01a24de9b53" kindref="member">pc</ref>,<sp/>dump.<ref refid="structSYN__CoreDump_1a0c5d520c0d65e78beeacd35adf0868cf" kindref="member">uptime_ms</ref>);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__coredump_8c_1aaa03df79e68e215e2a19a6f1e2ec4e9d" kindref="member">syn_coredump_clear</ref>();</highlight></codeline>
+<codeline><highlight class="normal">}</highlight></codeline>
+</programlisting> </para>
+</simplesect>
+</para>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_COREDUMP_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_COREDUMP_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>__has_include(&quot;syn_config.h&quot;)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/>#include<sp/>&quot;syn_config.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(SYN_USE_COREDUMP)<sp/>&amp;&amp;<sp/>SYN_USE_COREDUMP</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../common/syn_defs.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__fault_8h" kindref="compound">syn_fault.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="46"><highlight class="normal"></highlight></codeline>
+<codeline lineno="47"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="48"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="50"><highlight class="normal"></highlight></codeline>
+<codeline lineno="51"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Configuration<sp/>defaults<sp/>───────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="52"><highlight class="normal"></highlight></codeline>
+<codeline lineno="53"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_COREDUMP_STACK_SIZE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="54" refid="syn__coredump_8h_1afdacc978da55b758a4156aa85f7e9462" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/>#define<sp/>SYN_COREDUMP_STACK_SIZE<sp/><sp/>128<sp/><sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="55"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="56"><highlight class="normal"></highlight></codeline>
+<codeline lineno="57"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_COREDUMP_FLASH_ADDR</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="58"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/>#error<sp/>&quot;SYN_COREDUMP_FLASH_ADDR<sp/>must<sp/>be<sp/>defined<sp/>to<sp/>the<sp/>reserved<sp/>flash<sp/>sector<sp/>address&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="59"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="60"><highlight class="normal"></highlight></codeline>
+<codeline lineno="61"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Magic<sp/>────────────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="62"><highlight class="normal"></highlight></codeline>
+<codeline lineno="64" refid="syn__coredump_8h_1ab7598fbc9b8bd1086da7bd2955dfc53f" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_COREDUMP_MAGIC<sp/><sp/>0x43444D50u</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="65"><highlight class="normal"></highlight></codeline>
+<codeline lineno="66"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Core<sp/>dump<sp/>structure<sp/>──────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="67"><highlight class="normal"></highlight></codeline>
+<codeline lineno="73" refid="structSYN__CoreDump" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="74" refid="structSYN__CoreDump_1ab9c8e663707a2ff6956401edbb78ebae" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__CoreDump_1ab9c8e663707a2ff6956401edbb78ebae" kindref="member">magic</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="75" refid="structSYN__CoreDump_1a20599edf2b6bdc05f5268a1424f44914" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structSYN__FaultContext" kindref="compound">SYN_FaultContext</ref><sp/><ref refid="structSYN__CoreDump_1a20599edf2b6bdc05f5268a1424f44914" kindref="member">regs</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="76" refid="structSYN__CoreDump_1abf218079520d8c183907688222ff8df7" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__CoreDump_1abf218079520d8c183907688222ff8df7" kindref="member">stack_bytes</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="77" refid="structSYN__CoreDump_1a65ed1bf0bb8d548f02fbbbd5587fd68b" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>stack[<ref refid="syn__coredump_8h_1afdacc978da55b758a4156aa85f7e9462" kindref="member">SYN_COREDUMP_STACK_SIZE</ref>];<sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="78" refid="structSYN__CoreDump_1a0c5d520c0d65e78beeacd35adf0868cf" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__CoreDump_1a0c5d520c0d65e78beeacd35adf0868cf" kindref="member">uptime_ms</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="79" refid="structSYN__CoreDump_1a61c49e3d5a4d659c2322aa0e0e0cc431" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__CoreDump_1a61c49e3d5a4d659c2322aa0e0e0cc431" kindref="member">crc</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="80"><highlight class="normal">}<sp/><ref refid="structSYN__CoreDump" kindref="compound">SYN_CoreDump</ref>;</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"></highlight></codeline>
+<codeline lineno="82"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>API<sp/>──────────────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="83"><highlight class="normal"></highlight></codeline>
+<codeline lineno="92"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__coredump_8h_1a18b7376e90a7040fc91f6288f826216d" kindref="member">syn_coredump_save</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__FaultContext" kindref="compound">SYN_FaultContext</ref><sp/>*ctx);</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"></highlight></codeline>
+<codeline lineno="103"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__coredump_8h_1ae5241ba9aa7cc0acfea391ccb578acfc" kindref="member">syn_coredump_read</ref>(<ref refid="structSYN__CoreDump" kindref="compound">SYN_CoreDump</ref><sp/>*out);</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"></highlight></codeline>
+<codeline lineno="110"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__coredump_8h_1aaa03df79e68e215e2a19a6f1e2ec4e9d" kindref="member">syn_coredump_clear</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"></highlight></codeline>
+<codeline lineno="112"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="113"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="115"><highlight class="normal"></highlight></codeline>
+<codeline lineno="116"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_USE_COREDUMP<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="117"><highlight class="normal"></highlight></codeline>
+<codeline lineno="118"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_COREDUMP_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/system/syn_coredump.h"/>
+  </compounddef>
+</doxygen>
