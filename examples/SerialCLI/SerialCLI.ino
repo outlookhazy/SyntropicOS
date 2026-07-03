@@ -84,14 +84,7 @@ static const SYN_CLI_Command commands[] = {
     { "fsm", "Drive the demo state machine", cmd_fsm },
 };
 
-/* ── Callbacks ────────────────────────────────────────────────────────── */
-
-static void cli_putchar(char ch) { syn_port_uart_transmit_byte(0, (uint8_t)ch); }
-
-static void log_output(const char *s, size_t len)
-{
-    syn_port_uart_transmit(0, (const uint8_t *)s, len, 100);
-}
+/* ── Platform hooks ───────────────────────────────────────────────────── */
 
 extern "C" void syn_assert_failed(const char *f, int l) { (void)f; (void)l; for(;;); }
 
@@ -129,11 +122,11 @@ void setup()
     syn_led_init(&led, LED_BUILTIN, SYN_LED_ACTIVE_HIGH);
     syn_led_blink(&led, 500, 500);
 
-    syn_log_init(log_output, SYN_LOG_INFO);
+    syn_log_init(SYN_LOG_INFO);
     SYN_LOG_I(TAG, "boot");
 
     syn_cli_init(&cli, commands, sizeof(commands)/sizeof(commands[0]),
-                 cli_putchar, "> ");
+                 "> ");
     syn_cli_set_scheduler(&sched);
     syn_cli_printf(&cli, "\r\n--- SyntropicOS ---\r\n");
     syn_cli_print_prompt(&cli);

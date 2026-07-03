@@ -41,15 +41,6 @@ typedef struct {
 
 SYN_MAILBOX_DEFINE(cross_core_mbox, DualCoreMsg, 8);
 
-/* ── Spinlock-protected serial output ───────────────────────────────────── */
-
-static void serial_output(const char *str, size_t len)
-{
-    syn_port_spinlock_acquire(SYN_SPINLOCK_UART);
-    Serial.write(str, len);
-    syn_port_spinlock_release(SYN_SPINLOCK_UART);
-}
-
 /* ════════════════════════════════════════════════════════════════════════
  * CORE 0 — Producer
  * ════════════════════════════════════════════════════════════════════════ */
@@ -157,9 +148,7 @@ static void core1_entry(void)
 
 #include <syntropic/cli/syn_cli.h>
 
-/* ── CLI ────────────────────────────────────────────────────────────────── */
 
-static void cli_putchar(char ch) { Serial.write(ch); }
 
 static int cmd_bootloader(int argc, char *argv[])
 {
@@ -187,11 +176,11 @@ void setup()
     Serial.println("=== SyntropicOS Dual-Core AMP Demo ===");
     Serial.println();
 
-    /* Logging (spinlock-protected output) */
-    syn_log_init(serial_output, SYN_LOG_DEBUG);
+    /* Logging */
+    syn_log_init(SYN_LOG_DEBUG);
 
     /* CLI */
-    syn_cli_init(&cli, cli_commands, 1, cli_putchar, "synos> ");
+    syn_cli_init(&cli, cli_commands, 1, "synos> ");
     syn_cli_set_echo(&cli, true);
     syn_cli_print_prompt(&cli);
 

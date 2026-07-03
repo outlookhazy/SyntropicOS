@@ -55,12 +55,8 @@ static const SYN_CLI_Command commands[] = {
     { "adc", "Read ADC channel with statistics", cmd_adc },
 };
 
-/* ── Callbacks ────────────────────────────────────────────────────────── */
+/* ── Platform hooks ───────────────────────────────────────────────────── */
 
-static void cli_putchar(char c) { syn_port_uart_transmit_byte(0, (uint8_t)c); }
-static void log_output(const char *s, size_t n) {
-    syn_port_uart_transmit(0, (const uint8_t *)s, n, 100);
-}
 extern "C" void syn_assert_failed(const char *f, int l) { (void)f; (void)l; for(;;); }
 
 /* ── Tasks ────────────────────────────────────────────────────────────── */
@@ -125,9 +121,9 @@ void setup()
         syn_adc_set_stats(&adc[i], &signal[i]);
     }
 
-    syn_log_init(log_output, SYN_LOG_INFO);
+    syn_log_init(SYN_LOG_INFO);
     syn_cli_init(&cli, commands, sizeof(commands)/sizeof(commands[0]),
-                 cli_putchar, "> ");
+                 "> ");
     syn_cli_set_scheduler(&sched);
     syn_cli_printf(&cli, "\r\n--- SyntropicOS Sensor Logger ---\r\n");
     syn_cli_print_prompt(&cli);

@@ -28,12 +28,7 @@ static SYN_Sched sched;
 static SYN_Task  tasks[2];
 static SYN_LED   led;
 
-/* ── Log output over USB serial ─────────────────────────────────────────── */
-
-static void serial_output(const char *str, size_t len)
-{
-    Serial.write(str, len);
-}
+/* ── Tasks ─────────────────────────────────────────────────────────────── */
 
 /* ── Task 1: Blink LED ──────────────────────────────────────────────────── */
 
@@ -74,7 +69,7 @@ void setup()
     Serial.println();
 
     /* Initialize logging over USB serial */
-    syn_log_init(serial_output, SYN_LOG_DEBUG);
+    syn_log_init(SYN_LOG_DEBUG);
 
     /* LED on GP25: 500ms on / 500ms off */
     syn_gpio_init(LED_BUILTIN, SYN_GPIO_OUTPUT);

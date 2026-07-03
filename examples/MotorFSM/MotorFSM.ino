@@ -123,12 +123,8 @@ static const SYN_CLI_Command commands[] = {
     { "motor", "Control the motor FSM", cmd_motor },
 };
 
-/* ── Callbacks ────────────────────────────────────────────────────────── */
+/* ── Platform hooks ───────────────────────────────────────────────────── */
 
-static void cli_putchar(char c) { syn_port_uart_transmit_byte(0, (uint8_t)c); }
-static void log_output(const char *s, size_t n) {
-    syn_port_uart_transmit(0, (const uint8_t *)s, n, 100);
-}
 extern "C" void syn_assert_failed(const char *f, int l) { (void)f; (void)l; for(;;); }
 
 /* ── Tasks ────────────────────────────────────────────────────────────── */
@@ -158,10 +154,12 @@ static SYN_PT_Status cli_task(SYN_PT *pt, SYN_Task *task)
  */
 static SYN_PT_Status motor_task(SYN_PT *pt, SYN_Task *task)
 {
+    static uint32_t last_print;
+    static int32_t speed;
     PT_BEGIN(pt);
     for (;;) {
         syn_ramp_update(&speed_ramp);
-        int32_t speed = syn_ramp_value(&speed_ramp);
+        speed = syn_ramp_value(&speed_ramp);
 
         /* Auto-transition when ramp completes */
         if (syn_fsm_state(&fsm) == ST_RAMP_UP && syn_ramp_done(&speed_ramp)) {
@@ -172,11 +170,12 @@ static SYN_PT_Status motor_task(SYN_PT *pt, SYN_Task *task)
         }
 
         /* Print speed periodically while ramping */
-        static uint32_t last = 0;
-        uint32_t now = syn_port_get_tick_ms();
-        if (now - last >= 500 && !syn_ramp_done(&speed_ramp)) {
-            last = now;
-            SYN_LOG_I(TAG, "speed: %ld", speed);
+        {
+            uint32_t now = syn_port_get_tick_ms();
+            if (now - last_print >= 500 && !syn_ramp_done(&speed_ramp)) {
+                last_print = now;
+                SYN_LOG_I(TAG, "speed: %ld", speed);
+            }
         }
 
         PT_TASK_DELAY_MS(pt, task, 20);
@@ -196,11 +195,11 @@ void setup()
     syn_fsm_init(&fsm, motor_transitions, ST_STOPPED, "motor");
     syn_fsm_set_state_names(&fsm, state_names);
 
-    syn_log_init(log_output, SYN_LOG_INFO);
+    syn_log_init(SYN_LOG_INFO);
     SYN_LOG_I(TAG, "Motor FSM ready");
 
     syn_cli_init(&cli, commands, sizeof(commands)/sizeof(commands[0]),
-                 cli_putchar, "> ");
+                 "> ");
     syn_cli_set_scheduler(&sched);
     syn_cli_printf(&cli, "\r\n--- SyntropicOS Motor FSM ---\r\n");
     syn_cli_print_prompt(&cli);
