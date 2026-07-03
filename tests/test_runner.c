@@ -117,6 +117,7 @@ void run_wg_tests(void);
 void run_sntp_tests(void);
 void run_control_stats_tests(void);
 void run_settings_tests(void);
+void run_stream_tests(void);
 
 /* ── Main ───────────────────────────────────────────────────────────────── */
 
@@ -260,6 +261,9 @@ int main(void)
 
     /* Storage */
     run_settings_tests();
+
+    /* Streams */
+    run_stream_tests();
 
     return UNITY_END();
 }

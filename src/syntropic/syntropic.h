@@ -67,6 +67,7 @@ extern "C" {
 #include "util/syn_assert.h"
 #include "util/syn_bits.h"
 #include "util/syn_ringbuf.h"
+#include "util/syn_stream.h"
 #include "util/syn_timeout.h"
 #include "util/syn_crc.h"
 #include "util/syn_hysteresis.h"

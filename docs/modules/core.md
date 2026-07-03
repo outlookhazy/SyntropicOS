@@ -15,8 +15,59 @@ These modules are **always included** by the umbrella header `syntropic/syntropi
 | Module | Header | Description |
 |---|---|---|
 | Ring Buffer | `util/syn_ringbuf.h` | ISR-safe single-producer/single-consumer (SPSC) ring buffer. Used internally by UART TX/RX and other modules. |
+| Stream | `util/syn_stream.h` | Cooperative byte stream — wraps `SYN_RingBuf` with protothread-aware readability (threshold and delimiter modes). |
 | Ping-Pong | `util/syn_pingpong.h` | Double buffer for DMA or ISR ↔ main-thread handoff |
 | Data Pack | `util/syn_pack.h` | Binary structure serialization helper |
+
+### Stream
+
+A `SYN_Stream` composes a ring buffer with readability awareness for cooperative tasks. Three modes:
+
+- **Default** — readable when any bytes are available.
+- **Threshold** — readable when N+ bytes are in the buffer (frame-oriented protocols).
+- **Delimiter** — readable when a delimiter byte is present (line-oriented protocols, e.g. UART `\n`).
+
+Producer side is ISR-safe. Consumer side integrates with protothreads via `PT_STREAM_WAIT`.
+
+```c
+static uint8_t backing[128];
+static SYN_Stream uart_rx;
+syn_stream_init(&uart_rx, backing, sizeof(backing));
+syn_stream_set_delimiter(&uart_rx, '\n');
+
+// ISR fills the stream:
+void UART_IRQHandler(void) {
+    syn_stream_put(&uart_rx, UART->DR);
+}
+
+// Protothread consumes complete lines:
+SYN_PT_Status my_task(SYN_PT *pt, SYN_Task *task) {
+    static uint8_t line[80];
+    static size_t  n;
+    PT_BEGIN(pt);
+    for (;;) {
+        PT_STREAM_WAIT(pt, &uart_rx);           // yields until '\n' arrives
+        n = syn_stream_read_line(&uart_rx, line, sizeof(line));
+        process_line(line, n);
+    }
+    PT_END(pt);
+}
+```
+
+For frame-based protocols, use threshold mode:
+
+```c
+syn_stream_set_threshold(&adc_stream, 64);   // wait for 64 bytes
+PT_STREAM_WAIT(pt, &adc_stream);
+n = syn_stream_read(&adc_stream, frame, 64);
+```
+
+Backpressure (blocking write from a protothread producer):
+
+```c
+PT_WAIT_UNTIL(pt, syn_stream_free(&log_stream) >= msg_len);
+syn_stream_write(&log_stream, msg, msg_len);
+```
 
 ## Math & Numeric
 
