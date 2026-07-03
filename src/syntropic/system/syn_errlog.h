@@ -62,7 +62,7 @@ typedef struct {
 /* ── Error log instance ─────────────────────────────────────────────────── */
 
 /** @brief Error log instance — circular buffer of error entries. */
-typedef struct {
+typedef struct SYN_ErrLog {
     SYN_ErrEntry  *entries;     /**< Circular buffer of entries          */
     size_t          capacity;    /**< Max entries                         */
     size_t          head;        /**< Next write position                 */

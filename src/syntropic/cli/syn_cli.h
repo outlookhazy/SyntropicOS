@@ -227,8 +227,8 @@ void syn_cli_printf(const SYN_CLI *cli, const char *fmt, ...);
  *
  * @param errlog  Error log instance.
  */
-#include "../system/syn_errlog.h"
-void syn_cli_set_errlog(SYN_ErrLog *errlog);
+struct SYN_ErrLog;
+void syn_cli_set_errlog(struct SYN_ErrLog *errlog);
 
 /**
  * @brief Set scheduler instance for the `tasks` built-in command.
@@ -237,8 +237,8 @@ void syn_cli_set_errlog(SYN_ErrLog *errlog);
  *
  * @param sched  Scheduler instance.
  */
-#include "../sched/syn_sched.h"
-void syn_cli_set_scheduler(SYN_Sched *sched);
+struct SYN_Sched;
+void syn_cli_set_scheduler(struct SYN_Sched *sched);
 
 #ifdef __cplusplus
 }

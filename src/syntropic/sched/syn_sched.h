@@ -56,7 +56,7 @@ extern "C" {
  * The scheduler does not own the task array — you allocate it and pass
  * a pointer. This means zero hidden allocation.
  */
-typedef struct {
+typedef struct SYN_Sched {
     SYN_Task  *tasks;         /**< Pointer to caller-owned task array    */
     size_t     task_count;    /**< Number of tasks in the array          */
     size_t     rr_per_prio[SYN_SCHED_PRIO_LEVELS];

@@ -256,7 +256,7 @@ typedef enum {
  */
 #define PT_DEFER(pt, task)                                    \
     do {                                                       \
-        (task)->state = (uint8_t)3; /* SYN_TASK_DEFERRED */   \
+        (task)->state = (uint8_t)SYN_TASK_DEFERRED;            \
         PT_YIELD(pt);                                          \
     } while (0)
 
@@ -283,7 +283,7 @@ typedef enum {
     do {                                                       \
         (task)->wait_event = (struct SYN_EventGroup *)(grp);   \
         (task)->wait_mask  = (mask);                            \
-        (task)->state = (uint8_t)4; /* SYN_TASK_BLOCKED */     \
+        (task)->state = (uint8_t)SYN_TASK_BLOCKED;             \
         PT_YIELD(pt);                                          \
         (grp)->flags &= ~(mask);  /* Auto-clear matched */    \
     } while (0)
