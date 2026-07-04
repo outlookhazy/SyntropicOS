@@ -18,6 +18,7 @@
 #include "freertos/task.h"
 #include "esp_timer.h"
 #include "esp_system.h"
+#include "esp_random.h"
 #include "esp_log.h"
 #include "driver/gpio.h"
 #include "driver/uart.h"

@@ -3,8 +3,13 @@
  * @brief Implementation of system-wide metrics registry.
  */
 
+#ifdef SYN_CONFIG_FILE
+#include SYN_CONFIG_FILE
+#elif __has_include("syn_config.h")
+#include "syn_config.h"
+#endif
+
 #include "syn_metrics.h"
-#include "../net/syn_router.h"
 #include "../util/syn_fmt.h"
 #include <string.h>
 #include <stdio.h>
@@ -12,6 +17,9 @@
 #if SYN_USE_METRICS
 
 void syn_metrics_init(void) {}
+
+#if SYN_USE_ROUTER
+#include "../net/syn_router.h"
 
 void syn_metrics_record(const char *name, float value) {
     char buf[64];
@@ -29,18 +37,17 @@ void syn_metrics_record(const char *name, float value) {
     buf[len++] = 'g';
     buf[len] = '\0';
     
-    /* Using type 0x04 for Metrics as envisioned in docs */
     syn_router_send(0x0001 /* GATEWAY */, 0x04, buf, len);
 }
 
 void syn_metrics_count(const char *name, int32_t delta) {
     char buf[64];
-    /* Using snprintf for simplicity with integers */
     int slen = snprintf(buf, sizeof(buf), "%s:%d|c", name, (int)delta);
     if (slen > 0) {
         syn_router_send(0x0001 /* GATEWAY */, 0x04, buf, (size_t)slen);
     }
 }
+#endif /* SYN_USE_ROUTER */
 
 static SYN_Metric *g_metrics_head = NULL;
 
