@@ -69,15 +69,23 @@ int syn_port_udp_sendto(SYN_Socket sock, const void *data, size_t len,
 int syn_port_udp_recvfrom(SYN_Socket sock, void *buf, size_t max_len,
                           SYN_SockAddr *from, uint32_t timeout_ms)
 {
-    struct timeval tv;
-    tv.tv_sec  = timeout_ms / 1000;
-    tv.tv_usec = (timeout_ms % 1000) * 1000;
-    setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv));
+    int flags = 0;
+
+    if (timeout_ms == 0) {
+        /* Non-blocking poll — SO_RCVTIMEO of {0,0} means infinite on
+         * POSIX/lwIP, so use MSG_DONTWAIT instead. */
+        flags = MSG_DONTWAIT;
+    } else {
+        struct timeval tv;
+        tv.tv_sec  = timeout_ms / 1000;
+        tv.tv_usec = (timeout_ms % 1000) * 1000;
+        setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv));
+    }
 
     struct sockaddr_in sa;
     memset(&sa, 0, sizeof(sa));
     socklen_t sa_len = sizeof(sa);
-    int n = recvfrom(sock, buf, max_len, 0, (struct sockaddr *)&sa, &sa_len);
+    int n = recvfrom(sock, buf, max_len, flags, (struct sockaddr *)&sa, &sa_len);
 
     if (n > 0 && from) {
         memcpy(from->ip, &sa.sin_addr.s_addr, 4);

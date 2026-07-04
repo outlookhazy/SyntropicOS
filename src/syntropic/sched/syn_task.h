@@ -35,6 +35,7 @@ typedef enum {
     SYN_TASK_DEAD      = 2,  /**< Exited — will not run again            */
     SYN_TASK_DEFERRED  = 3,  /**< Deferred — skipped for one pass        */
     SYN_TASK_BLOCKED   = 4,  /**< Blocked on event — skipped until fired */
+    SYN_TASK_WAITING   = 5,  /**< PT_WAIT condition false — skip this tick */
 } SYN_TaskState;
 
 /* ── Forward declaration ────────────────────────────────────────────────── */

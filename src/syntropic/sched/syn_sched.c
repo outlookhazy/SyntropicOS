@@ -65,15 +65,17 @@ void syn_task_create(SYN_Task *task,
 /**
  * @brief Execute a single task's protothread function.
  * @param task  Task to run.
+ * @return The protothread status returned by the task.
  */
-static void sched_run_task(SYN_Task *task)
+static SYN_PT_Status sched_run_task(SYN_Task *task)
 {
     SYN_PT_Status status = task->func(&task->pt, task);
 
     if (status == PT_EXITED || status == PT_ENDED) {
         task->state = (uint8_t)SYN_TASK_DEAD;
     }
-    /* PT_YIELDED and PT_WAITING: task stays in its current state */
+    /* PT_YIELDED and PT_WAITING: caller decides next action */
+    return status;
 }
 
 /* ── Scheduler tick ─────────────────────────────────────────────────────── */
@@ -93,90 +95,121 @@ bool syn_sched_run(SYN_Sched *sched)
     SYN_METRIC_INC(sched_ticks);
 
     /*
-     * Single-pass priority scan with per-priority round-robin.
+     * Priority scan with retry on PT_WAITING.
      *
-     * For each ready task, compute its rotation distance from
-     * rr_per_prio[priority]. The ready task at the best (lowest)
-     * priority with the smallest rotation distance wins.
+     * When a task returns PT_WAITING its condition was false — it couldn't
+     * execute.  We set its state to SYN_TASK_WAITING (skipped for the
+     * remainder of this tick only) and immediately re-scan for the next
+     * best candidate.  This prevents high-priority waiting tasks from
+     * starving lower-priority tasks that CAN do useful work.
      *
-     * Rotation distance = how far this task's index is ahead of the
-     * priority's round-robin start, wrapping at task_count. This is
-     * pure integer arithmetic — no extra data structures.
+     * SYN_TASK_WAITING is separate from SYN_TASK_DEFERRED (used by
+     * PT_DEFER) — DEFERRED persists across ticks, WAITING is tick-local.
+     *
+     * Bounded by task_count so we stop if every task is waiting.
      */
-    SYN_Task *best_task = NULL;
-    size_t    best_idx  = 0;
-    uint8_t   best_prio = 255;
-    size_t    best_dist = n;   /* Larger than any valid distance */
+    SYN_Task *executed_task = NULL;
+    size_t    executed_idx  = 0;
+    size_t    attempts      = 0;
 
-    for (size_t i = 0; i < n; i++) {
-        SYN_Task *task = &sched->tasks[i];
+    while (attempts < n) {
+        SYN_Task *best_task = NULL;
+        size_t    best_idx  = 0;
+        uint8_t   best_prio = 255;
+        size_t    best_dist = n;   /* Larger than any valid distance */
 
-        if (task->state == (uint8_t)SYN_TASK_DEAD) {
-            continue;
-        }
+        for (size_t i = 0; i < n; i++) {
+            SYN_Task *task = &sched->tasks[i];
 
-        any_alive = true;
+            if (task->state == (uint8_t)SYN_TASK_DEAD) {
+                continue;
+            }
 
-        if (task->state == (uint8_t)SYN_TASK_SUSPENDED ||
-            task->state == (uint8_t)SYN_TASK_DEFERRED) {
-            continue;
-        }
+            any_alive = true;
 
-        /* Blocked on event — check if the event has fired */
-        if (task->state == (uint8_t)SYN_TASK_BLOCKED) {
-            if (task->wait_event != NULL &&
-                (task->wait_event->flags & task->wait_mask)) {
-                /* Event fired — transition to READY */
-                task->wait_event = NULL;
-                task->state = (uint8_t)SYN_TASK_READY;
-                /* Fall through to normal priority evaluation */
-            } else {
-                continue;  /* Still blocked */
+            if (task->state == (uint8_t)SYN_TASK_SUSPENDED ||
+                task->state == (uint8_t)SYN_TASK_DEFERRED  ||
+                task->state == (uint8_t)SYN_TASK_WAITING) {
+                continue;
+            }
+
+            /* Blocked on event — check if the event has fired */
+            if (task->state == (uint8_t)SYN_TASK_BLOCKED) {
+                if (task->wait_event != NULL &&
+                    (task->wait_event->flags & task->wait_mask)) {
+                    /* Event fired — transition to READY */
+                    task->wait_event = NULL;
+                    task->state = (uint8_t)SYN_TASK_READY;
+                    /* Fall through to normal priority evaluation */
+                } else {
+                    continue;  /* Still blocked */
+                }
+            }
+
+            /* Delay check — signed arithmetic for wraparound safety */
+            if (task->delay_until != 0 && (int32_t)(now - task->delay_until) < 0) {
+                continue;
+            }
+
+            /* Task is ready — compute rotation distance for its priority */
+            const uint8_t prio = task->priority;
+            size_t rr_start = sched->rr_per_prio[prio];
+            if (rr_start >= n) { rr_start = 0; } /* Defensive clamp */
+
+            const size_t dist = (i >= rr_start)
+                              ? (i - rr_start)
+                              : (n - rr_start + i);
+
+            if (prio < best_prio ||
+                (prio == best_prio && dist < best_dist)) {
+                best_prio = prio;
+                best_dist = dist;
+                best_task = task;
+                best_idx  = i;
             }
         }
 
-        /* Delay check — signed arithmetic for wraparound safety */
-        if (task->delay_until != 0 && (int32_t)(now - task->delay_until) < 0) {
+        if (best_task == NULL) {
+            break;  /* No eligible tasks this tick */
+        }
+
+        SYN_PT_Status status = sched_run_task(best_task);
+
+        if (status == PT_WAITING) {
+            /* Task's condition was false — it didn't do useful work.
+             * Mark WAITING so it's skipped on re-scan, then try the
+             * next candidate immediately within this same tick. */
+            best_task->state = (uint8_t)SYN_TASK_WAITING;
+            attempts++;
             continue;
         }
 
-        /* Task is ready — compute rotation distance for its priority */
-        const uint8_t prio = task->priority;
-        size_t rr_start = sched->rr_per_prio[prio];
-        if (rr_start >= n) { rr_start = 0; } /* Defensive clamp */
-
-        const size_t dist = (i >= rr_start)
-                          ? (i - rr_start)
-                          : (n - rr_start + i);
-
-        if (prio < best_prio ||
-            (prio == best_prio && dist < best_dist)) {
-            best_prio = prio;
-            best_dist = dist;
-            best_task = task;
-            best_idx  = i;
-        }
-    }
-
-    if (best_task != NULL) {
-        sched_run_task(best_task);
+        /* Task did real work (or deferred itself via PT_DEFER). */
+        executed_task = best_task;
+        executed_idx  = best_idx;
         SYN_METRIC_INC(sched_switches);
 
-        /* Advance this priority's round-robin index — unless the task
-         * deferred, in which case it didn't do useful work and shouldn't
-         * consume the rotation slot. */
+        /* Advance round-robin unless the task deferred (PT_DEFER sets
+         * state to DEFERRED before yielding — no RR advance). */
         if (best_task->state != (uint8_t)SYN_TASK_DEFERRED) {
-            const size_t next = best_idx + 1;
+            const size_t next = executed_idx + 1;
             sched->rr_per_prio[best_prio] = (next >= n) ? 0 : next;
         }
+        break;  /* One useful execution per tick */
     }
 
-    /* Clear previously-DEFERRED tasks back to READY.  The task that just
-     * ran (and possibly deferred THIS pass) is excluded so it stays
-     * DEFERRED through the next pass where it will actually be skipped. */
+    /* Clean up task states for the next tick:
+     *
+     * WAITING  → always cleared (tick-local, used for PT_WAITING retry).
+     * DEFERRED → cleared UNLESS it's the task that just ran and deferred
+     *            itself (PT_DEFER).  That task must stay DEFERRED so it's
+     *            skipped on the NEXT tick — one-tick skip contract. */
     for (size_t i = 0; i < n; i++) {
-        if (sched->tasks[i].state == (uint8_t)SYN_TASK_DEFERRED &&
-            &sched->tasks[i] != best_task) {
+        const uint8_t st = sched->tasks[i].state;
+        if (st == (uint8_t)SYN_TASK_WAITING) {
+            sched->tasks[i].state = (uint8_t)SYN_TASK_READY;
+        } else if (st == (uint8_t)SYN_TASK_DEFERRED &&
+                   &sched->tasks[i] != executed_task) {
             sched->tasks[i].state = (uint8_t)SYN_TASK_READY;
         }
     }
@@ -204,9 +237,18 @@ uint32_t syn_sched_next_wakeup(const SYN_Sched *sched)
     for (size_t i = 0; i < sched->task_count; i++) {
         const SYN_Task *task = &sched->tasks[i];
 
-        if (task->state == (uint8_t)SYN_TASK_DEAD    ||
-            task->state == (uint8_t)SYN_TASK_SUSPENDED ||
-            task->state == (uint8_t)SYN_TASK_BLOCKED) {
+        if (task->state == (uint8_t)SYN_TASK_DEAD ||
+            task->state == (uint8_t)SYN_TASK_SUSPENDED) {
+            continue;
+        }
+
+        /* Blocked on event — check if the event has fired since the
+         * last syn_sched_run() (e.g. from an ISR or timer service). */
+        if (task->state == (uint8_t)SYN_TASK_BLOCKED) {
+            if (task->wait_event != NULL &&
+                (task->wait_event->flags & task->wait_mask)) {
+                any_ready_now = true;  /* Event fired — don't sleep */
+            }
             continue;
         }
 
@@ -222,10 +264,15 @@ uint32_t syn_sched_next_wakeup(const SYN_Sched *sched)
             continue;
         }
 
-        /* This task is in the future — track the earliest */
-        if ((int32_t)(task->delay_until - earliest) < 0 ||
+        /* This task is in the future — track the earliest.
+         * Cap at UINT32_MAX-1 so a real deadline at counter wrap
+         * is never confused with the "no deadlines" sentinel. */
+        uint32_t target = task->delay_until;
+        if (target == UINT32_MAX) target = UINT32_MAX - 1;
+
+        if ((int32_t)(target - earliest) < 0 ||
             earliest == UINT32_MAX) {
-            earliest = task->delay_until;
+            earliest = target;
         }
     }
 
@@ -332,6 +379,8 @@ void syn_task_restart(SYN_Task *task)
     SYN_ASSERT(task != NULL);
     PT_INIT(&task->pt);
     task->delay_until = 0;
+    task->wait_event  = NULL;
+    task->wait_mask   = 0;
     task->state = (uint8_t)SYN_TASK_READY;
 }
 

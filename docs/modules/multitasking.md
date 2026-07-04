@@ -157,7 +157,7 @@ static SYN_PT_Status my_task(SYN_PT *pt, SYN_Task *task)
 
 **Return values** (`SYN_PT_Status`):
 
-- `PT_WAITING` — blocked, condition not met
+- `PT_WAITING` — condition not met; scheduler marks the task `WAITING` for this tick and tries the next-best candidate (prevents starvation of lower-priority tasks)
 - `PT_YIELDED` — voluntarily yielded
 - `PT_EXITED` — ran to `PT_END`
 - `PT_ENDED` — explicitly ended via `PT_EXIT`
@@ -218,6 +218,7 @@ static SYN_PT_Status comms_task(SYN_PT *pt, SYN_Task *task)
 |---|---|---|
 | `PT_YIELD(pt)` | Yields to same-priority round-robin only | Task has more work soon |
 | `PT_DEFER(pt, task)` | Skipped for one scheduler pass, any priority can run | Task has no immediate work |
+| `PT_WAIT_UNTIL(pt, cond)` | If condition is false, returns `PT_WAITING` — scheduler skips the task for this tick and tries the next candidate | Polling a condition without starving lower priorities |
 | `PT_BLOCK_EVENT(pt, task, grp, mask)` | Blocked until event fires, then auto-cleared | Task waits for external signal |
 | `PT_TASK_DELAY_MS(pt, task, ms)` | Blocked until deadline | Task needs a timed wait |
 
@@ -265,8 +266,9 @@ static SYN_PT_Status uart_task(SYN_PT *pt, SYN_Task *task)
 | `SYN_TASK_READY` | 0 | Eligible to run |
 | `SYN_TASK_SUSPENDED` | 1 | Skipped until resumed |
 | `SYN_TASK_DEAD` | 2 | Exited, will not run again |
-| `SYN_TASK_DEFERRED` | 3 | Skipped for one pass, then cleared to READY |
+| `SYN_TASK_DEFERRED` | 3 | Skipped for one pass (`PT_DEFER`), then cleared to READY |
 | `SYN_TASK_BLOCKED` | 4 | Waiting on event — skipped until event fires |
+| `SYN_TASK_WAITING` | 5 | Tick-local skip — set when `PT_WAIT_UNTIL` condition is false, cleared to READY at end of tick |
 
 **Task control:**
 

@@ -667,6 +667,214 @@ static void test_block_event_suspend(void)
     TEST_ASSERT_EQUAL_UINT8(SYN_TASK_READY, tasks[0].state);
 }
 
+/* ── PT_WAITING retry tests ──────────────────────────────────────────────── */
+
+static bool wait_cond_a;
+
+/* Task that waits on a condition, logs ID when condition is true */
+static SYN_PT_Status wait_task(SYN_PT *pt, SYN_Task *task)
+{
+    int id = *(int *)task->user_data;
+    PT_BEGIN(pt);
+    for (;;) {
+        PT_WAIT_UNTIL(pt, wait_cond_a);
+        run_log[run_log_idx++] = id;
+        wait_cond_a = false;  /* consume the event */
+        PT_YIELD(pt);
+    }
+    PT_END(pt);
+}
+
+/**
+ * Waiting high-pri task doesn't starve lower-pri task.
+ * A (pri 0) waits on false condition. B (pri 1) should run.
+ */
+static void test_waiting_doesnt_starve(void)
+{
+    mock_tick_ms = 0;
+    log_reset();
+    wait_cond_a = false;
+
+    SYN_Task tasks[2];
+    SYN_Sched sched;
+    static int id_a = 1, id_b = 2;
+
+    syn_task_create(&tasks[0], "w", wait_task,  0, &id_a);
+    syn_task_create(&tasks[1], "b", yield_task, 1, &id_b);
+    syn_sched_init(&sched, tasks, 2);
+
+    /* Tick 1: A runs, hits PT_WAIT_UNTIL (false) → WAITING.
+     * Scheduler retries → B runs. */
+    syn_sched_run(&sched);
+    TEST_ASSERT_EQUAL_INT(1, run_log_idx);
+    TEST_ASSERT_EQUAL_INT(2, run_log[0]);  /* B ran, not A */
+
+    /* Tick 2: same pattern — B keeps running */
+    syn_sched_run(&sched);
+    TEST_ASSERT_EQUAL_INT(2, run_log_idx);
+    TEST_ASSERT_EQUAL_INT(2, run_log[1]);  /* B again */
+
+    /* Tick 3: condition becomes true — A runs */
+    wait_cond_a = true;
+    syn_sched_run(&sched);
+    TEST_ASSERT_EQUAL_INT(3, run_log_idx);
+    TEST_ASSERT_EQUAL_INT(1, run_log[2]);  /* A ran */
+}
+
+/**
+ * PT_DEFER + PT_WAITING don't interfere.
+ * A (pri 0, defers) → B (pri 1, waits) → C (pri 2, yields).
+ * Expected: A, C, A, C, ...  (B never does useful work)
+ */
+static void test_waiting_with_defer_no_inversion(void)
+{
+    mock_tick_ms = 0;
+    log_reset();
+    wait_cond_a = false;
+
+    SYN_Task tasks[3];
+    SYN_Sched sched;
+    static int id_a = 1, id_b = 2, id_c = 3;
+
+    syn_task_create(&tasks[0], "a", defer_task, 0, &id_a);
+    syn_task_create(&tasks[1], "w", wait_task,  1, &id_b);
+    syn_task_create(&tasks[2], "c", yield_task, 2, &id_c);
+    syn_sched_init(&sched, tasks, 3);
+
+    /* Tick 1: A runs, defers */
+    syn_sched_run(&sched);
+    TEST_ASSERT_EQUAL_INT(1, run_log[0]);  /* A */
+    TEST_ASSERT_EQUAL_UINT8(SYN_TASK_DEFERRED, tasks[0].state);
+
+    /* Tick 2: A deferred → skipped. B waits → WAITING. C runs. 
+     * A cleared to READY at end of tick. */
+    syn_sched_run(&sched);
+    TEST_ASSERT_EQUAL_INT(3, run_log[1]);  /* C */
+    TEST_ASSERT_EQUAL_UINT8(SYN_TASK_READY, tasks[0].state);
+
+    /* Tick 3: A is back — runs and defers again */
+    syn_sched_run(&sched);
+    TEST_ASSERT_EQUAL_INT(1, run_log[2]);  /* A */
+
+    /* Tick 4: A deferred, B waits, C runs */
+    syn_sched_run(&sched);
+    TEST_ASSERT_EQUAL_INT(3, run_log[3]);  /* C */
+}
+
+/**
+ * All tasks waiting — no infinite loop, all cleared to READY.
+ */
+static void test_all_tasks_waiting(void)
+{
+    mock_tick_ms = 0;
+    log_reset();
+    wait_cond_a = false;
+
+    SYN_Task tasks[3];
+    SYN_Sched sched;
+    static int id_a = 1, id_b = 2, id_c = 3;
+
+    syn_task_create(&tasks[0], "a", wait_task, 0, &id_a);
+    syn_task_create(&tasks[1], "b", wait_task, 1, &id_b);
+    syn_task_create(&tasks[2], "c", wait_task, 2, &id_c);
+    syn_sched_init(&sched, tasks, 3);
+
+    /* All tasks wait — should not hang, no log entries */
+    bool alive = syn_sched_run(&sched);
+    TEST_ASSERT_TRUE(alive);
+    TEST_ASSERT_EQUAL_INT(0, run_log_idx);
+
+    /* All should be READY again for next tick */
+    TEST_ASSERT_EQUAL_UINT8(SYN_TASK_READY, tasks[0].state);
+    TEST_ASSERT_EQUAL_UINT8(SYN_TASK_READY, tasks[1].state);
+    TEST_ASSERT_EQUAL_UINT8(SYN_TASK_READY, tasks[2].state);
+}
+
+/**
+ * WAITING state lifecycle: set during tick, cleared at end.
+ */
+static void test_waiting_state_lifecycle(void)
+{
+    mock_tick_ms = 0;
+    wait_cond_a = false;
+
+    SYN_Task tasks[1];
+    SYN_Sched sched;
+    static int id_a = 1;
+
+    syn_task_create(&tasks[0], "w", wait_task, 0, &id_a);
+    syn_sched_init(&sched, tasks, 1);
+
+    /* After tick: task was WAITING during tick but cleared to READY */
+    syn_sched_run(&sched);
+    TEST_ASSERT_EQUAL_UINT8(SYN_TASK_READY, tasks[0].state);
+}
+
+/**
+ * Same-priority: one waits, the other works. They should alternate
+ * fairly once the waiting condition clears.
+ */
+static void test_waiting_same_priority_fairness(void)
+{
+    mock_tick_ms = 0;
+    log_reset();
+    wait_cond_a = false;
+
+    SYN_Task tasks[2];
+    SYN_Sched sched;
+    static int id_a = 1, id_b = 2;
+
+    syn_task_create(&tasks[0], "w", wait_task,  0, &id_a);
+    syn_task_create(&tasks[1], "b", yield_task, 0, &id_b);
+    syn_sched_init(&sched, tasks, 2);
+
+    /* While A waits, B should run every tick */
+    syn_sched_run(&sched);
+    syn_sched_run(&sched);
+    TEST_ASSERT_EQUAL_INT(2, run_log[0]);  /* B */
+    TEST_ASSERT_EQUAL_INT(2, run_log[1]);  /* B */
+
+    /* Condition true: A runs (RR should give it a turn) */
+    wait_cond_a = true;
+    syn_sched_run(&sched);
+    TEST_ASSERT_EQUAL_INT(1, run_log[2]);  /* A */
+}
+
+/**
+ * Delayed prio-0 + waiting prio-1: no priority inversion.
+ * A (pri 0) is delayed. B (pri 1) waits. C (pri 2) should run.
+ * When A's delay expires, A runs first.
+ */
+static void test_waiting_delayed_no_inversion(void)
+{
+    mock_tick_ms = 0;
+    log_reset();
+    wait_cond_a = false;
+
+    SYN_Task tasks[3];
+    SYN_Sched sched;
+    static int id_a = 1, id_b = 2, id_c = 3;
+
+    syn_task_create(&tasks[0], "a", yield_task, 0, &id_a);
+    syn_task_create(&tasks[1], "w", wait_task,  1, &id_b);
+    syn_task_create(&tasks[2], "c", yield_task, 2, &id_c);
+    syn_sched_init(&sched, tasks, 3);
+
+    /* Delay A for 100ms */
+    tasks[0].delay_until = mock_tick_ms + 100;
+
+    /* Tick: A delayed, B waits, C runs */
+    syn_sched_run(&sched);
+    TEST_ASSERT_EQUAL_INT(3, run_log[0]);  /* C, not B */
+
+    /* Advance past A's delay */
+    mock_tick_advance(150);
+
+    /* Tick: A is ready (pri 0) → runs first */
+    syn_sched_run(&sched);
+    TEST_ASSERT_EQUAL_INT(1, run_log[1]);  /* A */
+}
+
 void run_sched_tests(void)
 {
     RUN_TEST(test_scheduler);
@@ -688,4 +896,11 @@ void run_sched_tests(void)
     RUN_TEST(test_block_event_priority);
     RUN_TEST(test_block_event_multiple_tasks);
     RUN_TEST(test_block_event_suspend);
+    RUN_TEST(test_waiting_doesnt_starve);
+    RUN_TEST(test_waiting_with_defer_no_inversion);
+    RUN_TEST(test_all_tasks_waiting);
+    RUN_TEST(test_waiting_state_lifecycle);
+    RUN_TEST(test_waiting_same_priority_fairness);
+    RUN_TEST(test_waiting_delayed_no_inversion);
 }
+

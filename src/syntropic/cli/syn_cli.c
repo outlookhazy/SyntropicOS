@@ -552,9 +552,10 @@ static void cli_builtin_tasks(const SYN_CLI *cli)
         cli_puts(cli, num);
 
         static const char * const state_names[] = {
-            "  READY", "  SUSPENDED", "  DEAD"
+            "  READY", "  SUSPENDED", "  DEAD",
+            "  DEFERRED", "  BLOCKED", "  WAITING"
         };
-        const char *sn = (t->state <= 2) ? state_names[t->state] : "  ???";
+        const char *sn = (t->state <= 5) ? state_names[t->state] : "  ???";
         cli_puts(cli, sn);
         cli_puts(cli, "\r\n");
     }
