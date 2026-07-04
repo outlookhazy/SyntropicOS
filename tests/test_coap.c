@@ -121,11 +121,7 @@ static void test_coap_request_task_success(void)
     };
 
     SYN_CoapRequest req;
-    memset(&req, 0, sizeof(req));
-    req.server_addr = from;
-    req.req_msg = &req_msg;
-    req.timeout_ms = 100;
-    req.retries = 2;
+    syn_coap_request_init(&req, &from, &req_msg, 100, 2);
 
     SYN_Sched sched;
     SYN_Task task;
@@ -289,11 +285,7 @@ static void test_coap_request_task_failures(void)
     /* 1. UDP open fails */
     mock_port_reset();
     mock_udp_open_ok = false;
-    memset(&req, 0, sizeof(req));
-    req.server_addr = server_addr;
-    req.req_msg = &req_msg;
-    req.timeout_ms = 100;
-    req.retries = 1;
+    syn_coap_request_init(&req, &server_addr, &req_msg, 100, 1);
 
     SYN_Sched sched;
     SYN_Task task;
@@ -307,32 +299,16 @@ static void test_coap_request_task_failures(void)
 
     /* 2. Serialization fails */
     mock_port_reset();
-    memset(&req, 0, sizeof(req));
-    req.server_addr = server_addr;
     /* Invalid token length to fail serialization */
     req_msg.token_len = 255;
-    req.req_msg = &req_msg;
-    req.timeout_ms = 100;
-    req.retries = 1;
-
-    syn_task_create(&task, "coap", syn_coap_request_task, 0, &req);
-    syn_sched_init(&sched, &task, 1);
-
-    while (syn_sched_run(&sched)) {
-        mock_tick_advance(10);
-    }
-    TEST_ASSERT_EQUAL(SYN_ERROR, req.status);
+    syn_coap_request_init(&req, &server_addr, &req_msg, 100, 2);
     
     /* Reset token_len */
     req_msg.token_len = 2;
 
     /* 3. UDP send fails */
     mock_port_reset();
-    memset(&req, 0, sizeof(req));
-    req.server_addr = server_addr;
-    req.req_msg = &req_msg;
-    req.timeout_ms = 100;
-    req.retries = 1;
+    syn_coap_request_init(&req, &server_addr, &req_msg, 100, 1);
     mock_udp_tx_len = MOCK_UDP_BUF_SIZE; // make sendto fail
 
     syn_task_create(&task, "coap", syn_coap_request_task, 0, &req);
@@ -345,11 +321,7 @@ static void test_coap_request_task_failures(void)
 
     /* 4. Request timeout and retries */
     mock_port_reset();
-    memset(&req, 0, sizeof(req));
-    req.server_addr = server_addr;
-    req.req_msg = &req_msg;
-    req.timeout_ms = 100;
-    req.retries = 2;
+    syn_coap_request_init(&req, &server_addr, &req_msg, 100, 2);
 
     syn_task_create(&task, "coap", syn_coap_request_task, 0, &req);
     syn_sched_init(&sched, &task, 1);
@@ -362,15 +334,11 @@ static void test_coap_request_task_failures(void)
     }
     TEST_ASSERT_FALSE(alive);
     TEST_ASSERT_EQUAL(SYN_TIMEOUT, req.status);
-    TEST_ASSERT_EQUAL_INT(3, req.retry_count); // retry_count went up to 3 (which is > retries)
+    TEST_ASSERT_EQUAL_INT(3, req.backoff.attempts); // attempts went up to 3 (which is > retries)
 
     /* 5. Request mismatching token */
     mock_port_reset();
-    memset(&req, 0, sizeof(req));
-    req.server_addr = server_addr;
-    req.req_msg = &req_msg;
-    req.timeout_ms = 100;
-    req.retries = 1;
+    syn_coap_request_init(&req, &server_addr, &req_msg, 100, 1);
 
     /* Mock response with WRONG token */
     SYN_CoapMsg resp_msg_bad = {

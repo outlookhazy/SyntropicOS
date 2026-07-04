@@ -218,9 +218,20 @@ SYN_Status syn_coap_parse(SYN_CoapMsg *msg, SYN_CoapOption *options, size_t max_
         }
         pos += len;
     }
-
     *option_count = opt_idx;
     return SYN_OK;
+}
+
+void syn_coap_request_init(SYN_CoapRequest *r, const SYN_SockAddr *server_addr,
+                           const SYN_CoapMsg *msg, uint32_t timeout_ms, uint8_t retries)
+{
+    SYN_ASSERT(r != NULL);
+    memset(r, 0, sizeof(*r));
+    r->server_addr = *server_addr;
+    r->req_msg     = msg;
+    /* Initialize backoff: factor 2 for binary exponential.
+     * max_attempts = retries + 1 (original + retransmissions) */
+    syn_backoff_init(&r->backoff, timeout_ms, timeout_ms << retries, 2, retries + 1);
 }
 
 SYN_PT_Status syn_coap_request_task(SYN_PT *pt, SYN_Task *task)
@@ -248,46 +259,42 @@ SYN_PT_Status syn_coap_request_task(SYN_PT *pt, SYN_Task *task)
     }
 
     r->start_ms = syn_port_get_tick_ms();
-    r->retry_count = 0;
 
-    while (r->retry_count <= r->retries) {
-        {
-            int sent = syn_port_udp_sendto(r->sock, r->tx_buf, r->tx_len, &r->server_addr);
-            if (sent != (int)r->tx_len) {
-                r->status = SYN_ERROR;
-                break;
-            }
+    syn_backoff_reset(&r->backoff);
+
+    while (!syn_backoff_exhausted(&r->backoff)) {
+        /* Send request */
+        if (syn_port_udp_sendto(r->sock, r->tx_buf, r->tx_len, &r->server_addr) != (int)r->tx_len) {
+            r->status = SYN_ERROR;
+            break;
         }
 
+        /* Calculate delay for THIS attempt (including jitter) */
+        uint32_t delay = syn_backoff_next_ms(&r->backoff);
         r->start_ms = syn_port_get_tick_ms();
-        {
-            uint32_t current_timeout = r->timeout_ms << r->retry_count;
 
-            while ((syn_port_get_tick_ms() - r->start_ms) < current_timeout) {
-                SYN_SockAddr from;
-                /* Non-blocking poll (timeout_ms = 0) */
-                int n = syn_port_udp_recvfrom(r->sock, r->resp_buf, sizeof(r->resp_buf), &from, 0);
-                if (n > 0) {
-                    r->resp_len = (size_t)n;
-                    SYN_Status st = syn_coap_parse(&r->resp_msg, r->resp_options, 8,
-                                                   &r->resp_option_count, r->resp_buf, r->resp_len);
-                    if (st == SYN_OK &&
-                        r->resp_msg.token_len == r->req_msg->token_len &&
-                        memcmp(r->resp_msg.token, r->req_msg->token, r->resp_msg.token_len) == 0) {
-                        r->status = SYN_OK;
-                        break;  /* matched — exit recv loop */
-                    }
+        /* Wait for response */
+        while ((syn_port_get_tick_ms() - r->start_ms) < delay) {
+            SYN_SockAddr from;
+            int n = syn_port_udp_recvfrom(r->sock, r->resp_buf, sizeof(r->resp_buf), &from, 0);
+            if (n > 0) {
+                r->resp_len = (size_t)n;
+                SYN_Status st = syn_coap_parse(&r->resp_msg, r->resp_options, 8,
+                                               &r->resp_option_count, r->resp_buf, r->resp_len);
+                if (st == SYN_OK &&
+                    r->resp_msg.token_len == r->req_msg->token_len &&
+                    memcmp(r->resp_msg.token, r->req_msg->token, r->resp_msg.token_len) == 0) {
+                    r->status = SYN_OK;
+                    break;
                 }
-                PT_YIELD(pt);
             }
-
-            if (r->status == SYN_OK) {
-                break;  /* matched — exit retry loop */
-            }
+            PT_YIELD(pt);
         }
 
-        r->retry_count++;
+        if (r->status == SYN_OK) break;
     }
+
+    if (r->status == SYN_BUSY) r->status = SYN_TIMEOUT;
 
     syn_port_sock_close(r->sock);
     r->sock = SYN_SOCKET_INVALID;

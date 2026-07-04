@@ -61,6 +61,14 @@ SYN_NORETURN void syn_assert_failed(const char *file, int line)
     abort();
 }
 
+/* ── Random Port ────────────────────────────────────────────────────────── */
+
+SYN_Status syn_port_random_fill(void *buf, size_t len)
+{
+    esp_fill_random(buf, len);
+    return SYN_OK;
+}
+
 /* ── GPIO Port ──────────────────────────────────────────────────────────── */
 
 SYN_Status syn_port_gpio_init(SYN_GPIO_Pin pin, SYN_GPIO_Mode mode)

@@ -204,8 +204,8 @@ void test_soft_i2c_write_read_data_nack(void) {
     uint8_t tx[] = {0xAB}; /* tx_len=1: address ACKs, then data byte NACKs */
     uint8_t rx[1] = {0};
     bool ok = syn_soft_i2c_write_read(&i2c, 0x50, tx, 1, rx, 1);
-    /* Should fail because data byte NACK → lines 149-150 */
-    (void)ok; /* may or may not fail depending on timing — no crash = pass */
+    /* Data byte NACK should cause write_read to return false */
+    TEST_ASSERT_FALSE(ok);
 
     mock_gpio_set_write_callback(NULL, NULL);
     mock_gpio_read_overrides[PIN_SDA] = -1;

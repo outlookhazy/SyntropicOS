@@ -26,6 +26,39 @@ void     syn_port_delay_ms(uint32_t ms) { mock_tick_ms += ms; }
 void     syn_port_enter_critical(void)  { /* no-op on host */ }
 void     syn_port_exit_critical(void)   { /* no-op on host */ }
 
+/* ── Random Port ────────────────────────────────────────────────────────── */
+
+bool mock_random_skip = false;
+
+SYN_Status syn_port_random_fill(void *buf, size_t len)
+{
+    if (mock_random_skip) {
+        return SYN_ERROR; /* Forces fallback in some contexts, or we can use another approach */
+    }
+    FILE *f = fopen("/dev/urandom", "rb");
+    if (!f) return SYN_ERROR;
+    size_t n = fread(buf, 1, len, f);
+    fclose(f);
+    return (n == len) ? SYN_OK : SYN_ERROR;
+}
+
+MockUdpPacket mock_udp_rx_queue[MOCK_UDP_MAX_PACKETS];
+int           mock_udp_rx_count = 0;
+int           mock_udp_rx_pos = 0;
+
+/** Compatibility wrapper for old tests. */
+void mock_udp_set_response(const void *data, size_t len, const SYN_SockAddr *from);
+
+void mock_udp_inject_packet(const void *data, size_t len, const SYN_SockAddr *from)
+{
+    if (mock_udp_rx_count >= MOCK_UDP_MAX_PACKETS) return;
+    MockUdpPacket *p = &mock_udp_rx_queue[mock_udp_rx_count++];
+    p->len = len > MOCK_UDP_BUF_SIZE ? MOCK_UDP_BUF_SIZE : len;
+    memcpy(p->data, data, p->len);
+    if (from) p->from = *from;
+    else memset(&p->from, 0, sizeof(SYN_SockAddr));
+}
+
 /* ── GPIO ───────────────────────────────────────────────────────────────── */
 
 uint8_t mock_gpio_states[32];
@@ -563,12 +596,9 @@ void syn_port_sock_close(SYN_Socket sock)
     mock_sock_connected = false;
 }
 
-/* ── UDP Mocks ──────────────────────────────────────────────────────────── */
+/* ── UDP port ───────────────────────────────────────────────────────────── */
 
-uint8_t      mock_udp_rx_buf[MOCK_UDP_BUF_SIZE];
-size_t       mock_udp_rx_len = 0;
-size_t       mock_udp_rx_pos = 0;
-SYN_SockAddr mock_udp_rx_from;
+#include "syntropic/port/syn_port_socket.h"
 uint8_t      mock_udp_tx_buf[MOCK_UDP_BUF_SIZE];
 size_t       mock_udp_tx_len = 0;
 SYN_SockAddr mock_udp_tx_to;
@@ -578,15 +608,9 @@ bool         mock_udp_sendto_fail = false;
 
 void mock_udp_set_response(const void *data, size_t len, const SYN_SockAddr *from)
 {
-    if (len > MOCK_UDP_BUF_SIZE) len = MOCK_UDP_BUF_SIZE;
-    memcpy(mock_udp_rx_buf, data, len);
-    mock_udp_rx_len = len;
+    mock_udp_rx_count = 0;
     mock_udp_rx_pos = 0;
-    if (from != NULL) {
-        mock_udp_rx_from = *from;
-    } else {
-        memset(&mock_udp_rx_from, 0, sizeof(mock_udp_rx_from));
-    }
+    mock_udp_inject_packet(data, len, from);
 }
 
 SYN_Socket syn_port_udp_open(uint16_t port)
@@ -613,16 +637,16 @@ int syn_port_udp_sendto(SYN_Socket sock, const void *data, size_t len,
 int syn_port_udp_recvfrom(SYN_Socket sock, void *buf, size_t max_len,
                           SYN_SockAddr *from, uint32_t timeout_ms)
 {
-    (void)sock; (void)timeout_ms;
-    size_t avail = mock_udp_rx_len - mock_udp_rx_pos;
-    if (avail == 0) return -1; /* Timeout/no data */
-    if (max_len > avail) max_len = avail;
-    memcpy(buf, mock_udp_rx_buf + mock_udp_rx_pos, max_len);
-    mock_udp_rx_pos += max_len;
-    if (from != NULL) {
-        *from = mock_udp_rx_from;
-    }
-    return (int)max_len;
+    (void)sock;
+    (void)timeout_ms;
+
+    if (mock_udp_rx_pos >= mock_udp_rx_count) return 0;
+
+    MockUdpPacket *p = &mock_udp_rx_queue[mock_udp_rx_pos++];
+    size_t to_copy = p->len < max_len ? p->len : max_len;
+    memcpy(buf, p->data, to_copy);
+    if (from) *from = p->from;
+    return (int)to_copy;
 }
 
 SYN_Status syn_port_udp_join_multicast(SYN_Socket sock, const char *multicast_ip)
@@ -672,6 +696,8 @@ void mock_port_reset(void)
     /* SPI */
     memset(mock_spi_rx_buf, 0, sizeof(mock_spi_rx_buf));
     mock_spi_rx_len = 0;
+    mock_udp_rx_count = 0;
+    mock_udp_rx_pos = 0;
     mock_spi_rx_pos = 0;
     memset(mock_spi_tx_buf, 0, sizeof(mock_spi_tx_buf));
     mock_spi_tx_len = 0;
@@ -708,10 +734,8 @@ void mock_port_reset(void)
     mock_sock_send_fail_after_bytes = -1;
 
     /* UDP Mock */
-    memset(mock_udp_rx_buf, 0, sizeof(mock_udp_rx_buf));
-    mock_udp_rx_len = 0;
+    mock_udp_rx_count = 0;
     mock_udp_rx_pos = 0;
-    memset(&mock_udp_rx_from, 0, sizeof(mock_udp_rx_from));
     memset(mock_udp_tx_buf, 0, sizeof(mock_udp_tx_buf));
     mock_udp_tx_len = 0;
     memset(&mock_udp_tx_to, 0, sizeof(mock_udp_tx_to));

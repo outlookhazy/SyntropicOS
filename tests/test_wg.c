@@ -440,17 +440,92 @@ static void test_wg_init_state(void)
     TEST_ASSERT_EQUAL(0, wg.session.recv_counter);
 }
 
-/* ═══════════════════════════════════════════════════════════════════════════
- *  Test group runner
- * ═══════════════════════════════════════════════════════════════════════════ */
+/* ── State Machine Tests ────────────────────────────────────────────────── */
+
+static uint8_t s_rx_buf[1024];
+static uint8_t s_tx_buf[1024];
+static SYN_WG   s_wg;
+static SYN_SNTP s_sntp;
+
+/* Canned keys for testing */
+static const uint8_t CLIENT_PRIV[32] = {
+    0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01,
+    0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01,
+    0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01,
+    0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01
+};
+
+static const uint8_t PEER_PUB[32] = {
+    0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02,
+    0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02,
+    0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02,
+    0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02
+};
+
+static void wg_state_setup(void)
+{
+    mock_port_reset();
+    
+    /* Mock SNTP as synced */
+    memset(&s_sntp, 0, sizeof(s_sntp));
+    s_sntp.synced = true;
+    s_sntp.epoch_s = 1600000000;
+    s_sntp.sync_tick_ms = mock_tick_ms;
+
+    SYN_WgConfig cfg = {0};
+    memcpy(cfg.private_key, CLIENT_PRIV, 32);
+    memcpy(cfg.peer_public_key, PEER_PUB, 32);
+    cfg.endpoint.port = 51820;
+    cfg.endpoint.ip[0] = 1; cfg.endpoint.ip[1] = 2; cfg.endpoint.ip[2] = 3; cfg.endpoint.ip[3] = 4;
+    cfg.keepalive_interval_s = 25;
+
+    syn_wg_init(&s_wg, &cfg, &s_sntp, s_rx_buf, sizeof(s_rx_buf), s_tx_buf, sizeof(s_tx_buf));
+}
+
+static void test_wg_initiation_on_task(void)
+{
+    wg_state_setup();
+    TEST_ASSERT_EQUAL(SYN_WG_DISCONNECTED, s_wg.state);
+    
+    SYN_PT pt;
+    PT_INIT(&pt);
+    SYN_Task task = { .user_data = &s_wg };
+    
+    syn_wg_task(&pt, &task);
+    TEST_ASSERT_EQUAL(SYN_WG_HANDSHAKE_INIT, s_wg.state);
+}
+
+static void test_wg_handshake_response_invalid(void)
+{
+    wg_state_setup();
+    
+    SYN_PT pt;
+    PT_INIT(&pt);
+    SYN_Task task = { .user_data = &s_wg };
+    syn_wg_task(&pt, &task);
+    
+    /* Simulate a Handshake Response from peer (but with invalid crypto) */
+    uint8_t mock_resp[92];
+    memset(mock_resp, 0, sizeof(mock_resp));
+    uint32_t *msg_type = (uint32_t *)mock_resp;
+    *msg_type = SYN_WG_MSG_RESPONSE;
+    
+    SYN_SockAddr from = { .port = 51820 };
+    from.ip[0] = 1; from.ip[1] = 2; from.ip[2] = 3; from.ip[3] = 4;
+    
+    mock_udp_inject_packet(mock_resp, sizeof(mock_resp), &from);
+    
+    syn_wg_task(&pt, &task);
+    
+    /* Should still be HANDSHAKE_INIT (rejected response) */
+    TEST_ASSERT_EQUAL(SYN_WG_HANDSHAKE_INIT, s_wg.state);
+}
 
 void run_wg_tests(void)
 {
-    /* Construction constants */
+    /* Handshake internals */
     RUN_TEST(test_wg_construction_hash);
     RUN_TEST(test_wg_identifier_hash);
-
-    /* HKDF */
     RUN_TEST(test_wg_hkdf2);
     RUN_TEST(test_wg_hkdf3);
 
@@ -471,9 +546,11 @@ void run_wg_tests(void)
     RUN_TEST(test_wg_replay_out_of_order);
     RUN_TEST(test_wg_replay_window_boundary);
 
-    /* Full handshake */
+    /* Full handshake construction */
     RUN_TEST(test_wg_handshake_intermediates);
 
-    /* Init state */
+    /* State machine */
     RUN_TEST(test_wg_init_state);
+    RUN_TEST(test_wg_initiation_on_task);
+    RUN_TEST(test_wg_handshake_response_invalid);
 }

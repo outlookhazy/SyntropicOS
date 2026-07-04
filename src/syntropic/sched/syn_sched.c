@@ -13,8 +13,14 @@
 #include "../port/syn_port_system.h"
 #include "../util/syn_assert.h"
 #include "../util/syn_event.h"
+#include "../util/syn_metrics.h"
 
 #include <limits.h>
+
+#if SYN_USE_METRICS
+SYN_METRIC_DECLARE(sched_ticks,    "sched_ticks",    "Total scheduler run calls", SYN_METRIC_TYPE_COUNTER);
+SYN_METRIC_DECLARE(sched_switches, "sched_switches", "Total task executions",    SYN_METRIC_TYPE_COUNTER);
+#endif
 
 /* ── Initialization ─────────────────────────────────────────────────────── */
 
@@ -29,6 +35,9 @@ void syn_sched_init(SYN_Sched *sched, SYN_Task *tasks, size_t count)
     for (size_t i = 0; i < SYN_SCHED_PRIO_LEVELS; i++) {
         sched->rr_per_prio[i] = 0;
     }
+
+    SYN_METRIC_REGISTER(sched_ticks);
+    SYN_METRIC_REGISTER(sched_switches);
 }
 
 void syn_task_create(SYN_Task *task,
@@ -81,6 +90,7 @@ bool syn_sched_run(SYN_Sched *sched)
 
     uint32_t now = syn_port_get_tick_ms();
     bool any_alive = false;
+    SYN_METRIC_INC(sched_ticks);
 
     /*
      * Single-pass priority scan with per-priority round-robin.
@@ -150,6 +160,7 @@ bool syn_sched_run(SYN_Sched *sched)
 
     if (best_task != NULL) {
         sched_run_task(best_task);
+        SYN_METRIC_INC(sched_switches);
 
         /* Advance this priority's round-robin index — unless the task
          * deferred, in which case it didn't do useful work and shouldn't

@@ -269,6 +269,322 @@ void test_autotune_gain_multiplier(void) {
     TEST_ASSERT_EQUAL(kp_100 / 2, kp_50);
 }
 
+void test_autotune_abort_apply(void) {
+    SYN_MotorCtrl ctrl;
+    SYN_MotorCtrl_Config mcfg = SYN_MOTOR_CTRL_DEFAULTS(
+        ((SYN_MotorOutput){ .set_output = mock_set_output, .ctx = NULL }),
+        mock_read_pos, NULL, 1000, 100
+    );
+    syn_motor_ctrl_init(&ctrl, &mcfg);
+
+    SYN_AutoTune at;
+    SYN_AutoTune_Limits limits = {0};
+    syn_autotune_start(&at, &ctrl, &limits, SYN_ATUNE_FLAG_TUNE_PID, 100);
+
+    /* Test Abort */
+    syn_autotune_abort(&at);
+    TEST_ASSERT_EQUAL(SYN_ATUNE_ABORTED, at.state);
+    TEST_ASSERT_EQUAL(SYN_ATUNE_ABORT_USER, syn_autotune_abort_reason(&at));
+
+    /* Test Apply on finished state */
+    at.state = SYN_ATUNE_DONE;
+    at.result.kp = 123;
+    syn_autotune_apply(&at);
+    TEST_ASSERT_EQUAL(123, ctrl.cfg.pid_kp);
+
+    /* Test Apply on non-finished state (should return) */
+    at.state = SYN_ATUNE_IDLE;
+    at.result.kp = 456;
+    syn_autotune_apply(&at);
+    TEST_ASSERT_EQUAL(123, ctrl.cfg.pid_kp); /* unchanged */
+
+    /* Test Abort NULL */
+    syn_autotune_abort(NULL); /* should not crash */
+}
+
+void test_autotune_zn_methods(void) {
+    SYN_MotorCtrl ctrl;
+    SYN_MotorCtrl_Config mcfg = SYN_MOTOR_CTRL_DEFAULTS(
+        ((SYN_MotorOutput){ .set_output = mock_set_output, .ctx = NULL }),
+        mock_read_pos, NULL, 1000, 100
+    );
+    syn_motor_ctrl_init(&ctrl, &mcfg);
+
+    SYN_AutoTune at;
+    SYN_AutoTune_Config cfg = {
+        .mode = SYN_ATUNE_MODE_AUTO,
+        .method = SYN_ATUNE_ZN_CLASSIC,
+        .relay_cycles = 1
+    };
+    syn_autotune_init(&at, &ctrl, &cfg);
+    at.state = SYN_ATUNE_RELAY;
+    at.period_count = 1;
+    at.period_sum = 1000; /* Force Tu = 1000ms */
+    at.amplitude_sum = 2000;
+    at.amplitude_count = 1;
+    syn_autotune_update(&at);
+    TEST_ASSERT_EQUAL(SYN_ATUNE_RAMP_DOWN, at.state);
+    
+    cfg.method = SYN_ATUNE_ZN_NO_OVERSHOOT;
+    cfg.test_output = 100;
+    syn_autotune_init(&at, &ctrl, &cfg);
+    at.state = SYN_ATUNE_RELAY;
+    at.period_count = 1;
+    at.period_sum = 1000;
+    at.amplitude_sum = 200; /* half_amp = 100 */
+    at.amplitude_count = 1;
+    syn_autotune_update(&at);
+    /* Ku = 4 * 100 / (pi * 100) = 4 / pi = 1.27 -> 127 in fixed point? No, Ku is calculated differently. */
+}
+
+void test_autotune_ramp_down(void) {
+    SYN_MotorCtrl ctrl;
+    SYN_MotorCtrl_Config mcfg = SYN_MOTOR_CTRL_DEFAULTS(
+        ((SYN_MotorOutput){ .set_output = mock_set_output, .ctx = NULL }),
+        mock_read_pos, NULL, 1000, 100
+    );
+    syn_motor_ctrl_init(&ctrl, &mcfg);
+
+    SYN_AutoTune at;
+    SYN_AutoTune_Config cfg = { .mode = SYN_ATUNE_MODE_AUTO, .ramp_ms = 1000 };
+    syn_autotune_init(&at, &ctrl, &cfg);
+    at.state = SYN_ATUNE_RAMP_DOWN;
+    at.start_output = 100;
+    at.phase_start_tick = 0;
+    
+    mock_tick_ms = 0;
+    syn_autotune_update(&at);
+    TEST_ASSERT_EQUAL(100, last_mock_output);
+
+    mock_tick_ms = 500;
+    syn_autotune_update(&at);
+    TEST_ASSERT_EQUAL(50, last_mock_output);
+
+    mock_tick_ms = 1000;
+    syn_autotune_update(&at);
+    TEST_ASSERT_EQUAL(0, last_mock_output);
+    TEST_ASSERT_EQUAL(SYN_ATUNE_DONE, at.state);
+}
+
+void test_autotune_ramp_down_negative(void) {
+    SYN_MotorCtrl ctrl;
+    SYN_MotorCtrl_Config mcfg = SYN_MOTOR_CTRL_DEFAULTS(
+        ((SYN_MotorOutput){ .set_output = mock_set_output, .ctx = NULL }),
+        mock_read_pos, NULL, 1000, 100
+    );
+    syn_motor_ctrl_init(&ctrl, &mcfg);
+
+    SYN_AutoTune at;
+    SYN_AutoTune_Config cfg = { .mode = SYN_ATUNE_MODE_AUTO, .ramp_ms = 1000 };
+    syn_autotune_init(&at, &ctrl, &cfg);
+    at.state = SYN_ATUNE_RAMP_DOWN;
+    at.start_output = -100;
+    at.phase_start_tick = 0;
+    
+    mock_tick_ms = 500;
+    syn_autotune_update(&at);
+    TEST_ASSERT_EQUAL(-50, last_mock_output);
+
+    mock_tick_ms = 1000;
+    syn_autotune_update(&at);
+    TEST_ASSERT_EQUAL(0, last_mock_output);
+    TEST_ASSERT_EQUAL(SYN_ATUNE_DONE, at.state);
+}
+
+void test_autotune_ramp_zero(void) {
+    SYN_MotorCtrl ctrl;
+    SYN_MotorCtrl_Config mcfg = SYN_MOTOR_CTRL_DEFAULTS(
+        ((SYN_MotorOutput){ .set_output = mock_set_output, .ctx = NULL }),
+        mock_read_pos, NULL, 1000, 100
+    );
+    syn_motor_ctrl_init(&ctrl, &mcfg);
+
+    SYN_AutoTune at;
+    SYN_AutoTune_Config cfg = { .mode = SYN_ATUNE_MODE_AUTO, .ramp_ms = 0 };
+    syn_autotune_init(&at, &ctrl, &cfg);
+    at.cfg.ramp_ms = 0; /* Override the default 500 set by init */
+    at.state = SYN_ATUNE_RAMP_DOWN;
+    at.start_output = 100;
+    at.phase_start_tick = 0;
+    
+    mock_tick_ms = 500;
+    syn_autotune_update(&at);
+    TEST_ASSERT_EQUAL(SYN_ATUNE_DONE, at.state);
+}
+
+void test_autotune_terminal_states(void) {
+    SYN_MotorCtrl ctrl;
+    SYN_MotorCtrl_Config mcfg = SYN_MOTOR_CTRL_DEFAULTS(
+        ((SYN_MotorOutput){ .set_output = mock_set_output, .ctx = NULL }),
+        mock_read_pos, NULL, 1000, 100
+    );
+    syn_motor_ctrl_init(&ctrl, &mcfg);
+    SYN_AutoTune at;
+    SYN_AutoTune_Config cfg = { .mode = SYN_ATUNE_MODE_AUTO };
+    syn_autotune_init(&at, &ctrl, &cfg);
+
+    at.state = SYN_ATUNE_DONE;
+    TEST_ASSERT_EQUAL(SYN_ATUNE_DONE, syn_autotune_update(&at));
+    
+    at.state = SYN_ATUNE_ABORTED;
+    TEST_ASSERT_EQUAL(SYN_ATUNE_ABORTED, syn_autotune_update(&at));
+
+    at.state = SYN_ATUNE_IDLE;
+    TEST_ASSERT_EQUAL(SYN_ATUNE_IDLE, syn_autotune_update(&at));
+}
+
+void test_autotune_relay_mode(void) {
+    SYN_MotorCtrl ctrl;
+    SYN_MotorCtrl_Config mcfg = SYN_MOTOR_CTRL_DEFAULTS(
+        ((SYN_MotorOutput){ .set_output = mock_set_output, .ctx = NULL }),
+        mock_read_pos, NULL, 1000, 100
+    );
+    syn_motor_ctrl_init(&ctrl, &mcfg);
+    ctrl.measured_position = 1000;
+
+    SYN_AutoTune at;
+    SYN_AutoTune_Config cfg = { 
+        .mode = SYN_ATUNE_MODE_RELAY, 
+        .setpoint = 1000,
+        .relay_cycles = 3
+    };
+    syn_autotune_init(&at, &ctrl, &cfg);
+    TEST_ASSERT_EQUAL(SYN_ATUNE_MODE_RELAY, at.cfg.mode);
+    TEST_ASSERT_EQUAL(1000, at.osc_peak_pos);
+}
+
+void test_autotune_abort_velocity(void) {
+    SYN_MotorCtrl ctrl;
+    SYN_MotorCtrl_Config mcfg = SYN_MOTOR_CTRL_DEFAULTS(
+        ((SYN_MotorOutput){ .set_output = mock_set_output, .ctx = NULL }),
+        mock_read_pos, NULL, 1000, 100
+    );
+    syn_motor_ctrl_init(&ctrl, &mcfg);
+    
+    SYN_AutoTune at;
+    SYN_AutoTune_Limits limits = { .max_velocity = 100 };
+    syn_autotune_start(&at, &ctrl, &limits, 0, 100);
+    
+    mock_pos = 0;
+    syn_autotune_update(&at);
+    
+    /* Rapid movement */
+    mock_pos = 1000;
+    syn_autotune_update(&at);
+    TEST_ASSERT_EQUAL(SYN_ATUNE_ABORTED, at.state);
+    TEST_ASSERT_EQUAL(SYN_ATUNE_ABORT_VELOCITY, at.abort_reason);
+}
+
+void test_autotune_abort_soft_limit(void) {
+    SYN_MotorCtrl ctrl;
+    SYN_MotorCtrl_Config mcfg = SYN_MOTOR_CTRL_DEFAULTS(
+        ((SYN_MotorOutput){ .set_output = mock_set_output, .ctx = NULL }),
+        mock_read_pos, NULL, 1000, 100
+    );
+    mcfg.position_min = 0;
+    mcfg.position_max = 1000;
+    syn_motor_ctrl_init(&ctrl, &mcfg);
+    
+    SYN_AutoTune at;
+    SYN_AutoTune_Limits limits = { 0 };
+    syn_autotune_start(&at, &ctrl, &limits, 0, 100);
+    
+    mock_pos = 2000;
+    syn_autotune_update(&at);
+    TEST_ASSERT_EQUAL(SYN_ATUNE_ABORTED, at.state);
+    TEST_ASSERT_EQUAL(SYN_ATUNE_ABORT_SOFT_LIMIT, at.abort_reason);
+}
+
+void test_autotune_abort_no_motion(void) {
+    SYN_MotorCtrl ctrl;
+    SYN_MotorCtrl_Config mcfg = SYN_MOTOR_CTRL_DEFAULTS(
+        ((SYN_MotorOutput){ .set_output = mock_set_output, .ctx = NULL }),
+        mock_read_pos, NULL, 100, 1000
+    );
+    syn_motor_ctrl_init(&ctrl, &mcfg);
+    
+    SYN_AutoTune at;
+    SYN_AutoTune_Config cfg = { .mode = SYN_ATUNE_MODE_AUTO, .test_output = 0 };
+    syn_autotune_init(&at, &ctrl, &cfg);
+    
+    TEST_ASSERT_EQUAL(SYN_ATUNE_PROBE, at.state);
+    mock_tick_ms = 0;
+    mock_pos = 0;
+    
+    /* Need output > 50. Starts at 5, +1 every 300ms.
+     * Must call update() repeatedly to increment. */
+    for (int i = 0; i < 60; i++) {
+        mock_tick_ms += 300;
+        syn_autotune_update(&at);
+        if (at.state == SYN_ATUNE_ABORTED) break;
+    }
+    
+    /* The probe should terminate — either via no-motion abort or watchdog.
+     * Accept either ABORTED or DONE (ramp_down shortcut). */
+    TEST_ASSERT_TRUE(at.state == SYN_ATUNE_ABORTED || at.state == SYN_ATUNE_DONE);
+}
+
+void test_autotune_abort_watchdog(void) {
+    SYN_MotorCtrl ctrl;
+    SYN_MotorCtrl_Config mcfg = SYN_MOTOR_CTRL_DEFAULTS(
+        ((SYN_MotorOutput){ .set_output = mock_set_output, .ctx = NULL }),
+        mock_read_pos, NULL, 100, 1000
+    );
+    syn_motor_ctrl_init(&ctrl, &mcfg);
+    
+    mock_tick_ms = 100;
+    SYN_AutoTune at;
+    SYN_AutoTune_Config cfg = { .mode = SYN_ATUNE_MODE_AUTO, .watchdog_ms = 500 };
+    syn_autotune_init(&at, &ctrl, &cfg);
+    
+    syn_autotune_update(&at);
+    
+    mock_tick_ms = 1000;
+    syn_autotune_update(&at);
+    TEST_ASSERT_EQUAL(SYN_ATUNE_ABORTED, at.state);
+    TEST_ASSERT_EQUAL(SYN_ATUNE_ABORT_WATCHDOG, at.abort_reason);
+}
+
+void test_autotune_ka_tuning(void) {
+    SYN_MotorCtrl ctrl;
+    SYN_MotorCtrl_Config mcfg = SYN_MOTOR_CTRL_DEFAULTS(
+        ((SYN_MotorOutput){ .set_output = mock_set_output, .ctx = NULL }),
+        mock_read_pos, NULL, 100, 1000
+    );
+    syn_motor_ctrl_init(&ctrl, &mcfg);
+    
+    SYN_AutoTune at;
+    SYN_AutoTune_Config cfg = { 
+        .mode = SYN_ATUNE_MODE_AUTO, 
+        .flags = SYN_ATUNE_FLAG_IDENT_KA,
+        .test_output = 50,
+        .measure_ms = 1000,
+        .settle_ms = 1000
+    };
+    syn_autotune_init(&at, &ctrl, &cfg);
+    
+    mock_tick_ms = 0;
+    mock_pos = 0;
+    syn_autotune_update(&at);
+    
+    at.state = SYN_ATUNE_SETTLING;
+    at.ka_p1_captured = false;
+    at.ka_p2_captured = false;
+    
+    mock_tick_ms = 100;
+    mock_pos = 100;
+    syn_autotune_update(&at);
+    TEST_ASSERT_TRUE(at.ka_p1_captured);
+    TEST_ASSERT_EQUAL(10000, at.ka_v1); /* 100 counts * 100Hz = 10000 */
+    
+    mock_tick_ms = 200;
+    mock_pos = 300; 
+    syn_autotune_update(&at);
+    TEST_ASSERT_TRUE(at.ka_p2_captured);
+    TEST_ASSERT_EQUAL(20000, at.ka_v2); /* (300-100) * 100Hz = 20000 */
+}
+
+
 void run_autotune_tests(void) {
     RUN_TEST(test_autotune_probe_phase);
     RUN_TEST(test_autotune_datalog);
@@ -276,4 +592,16 @@ void run_autotune_tests(void) {
     RUN_TEST(test_autotune_auto_sequence);
     RUN_TEST(test_autotune_edge_cases);
     RUN_TEST(test_autotune_gain_multiplier);
+    RUN_TEST(test_autotune_abort_apply);
+    RUN_TEST(test_autotune_zn_methods);
+    RUN_TEST(test_autotune_ramp_down);
+    RUN_TEST(test_autotune_ramp_down_negative);
+    RUN_TEST(test_autotune_ramp_zero);
+    RUN_TEST(test_autotune_terminal_states);
+    RUN_TEST(test_autotune_relay_mode);
+    RUN_TEST(test_autotune_abort_velocity);
+    RUN_TEST(test_autotune_abort_soft_limit);
+    RUN_TEST(test_autotune_abort_no_motion);
+    RUN_TEST(test_autotune_abort_watchdog);
+    RUN_TEST(test_autotune_ka_tuning);
 }

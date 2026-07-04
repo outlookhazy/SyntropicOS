@@ -43,6 +43,7 @@
 #include "../port/syn_port_socket.h"
 #include "../pt/syn_pt.h"
 #include "../sched/syn_task.h"
+#include "../util/syn_backoff.h"
 
 #include <stdbool.h>
 
@@ -84,6 +85,7 @@ typedef struct {
 
     bool         synced;            /**< true after first successful sync   */
     uint32_t     recv_deadline;     /**< Tick deadline for non-blocking recv */
+    SYN_Backoff  backoff;           /**< Retry backoff state                */
 } SYN_SNTP;
 
 /* ── API ────────────────────────────────────────────────────────────────── */
@@ -117,7 +119,7 @@ SYN_Status syn_sntp_query(SYN_SNTP *sntp);
  *
  * @param pt   Protothread.
  * @param task Task descriptor.
- * @return PT status.
+ * @return PT status (PT_WAITING, PT_YIELDED, or PT_ENDED).
  */
 SYN_PT_Status syn_sntp_task(SYN_PT *pt, SYN_Task *task);
 

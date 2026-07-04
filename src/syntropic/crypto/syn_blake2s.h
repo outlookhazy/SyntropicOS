@@ -193,6 +193,9 @@ static inline void syn_hmac_blake2s_init(SYN_HMAC_BLAKE2s *ctx,
 
 /**
  * @brief Feed message data into the HMAC.
+ * @param ctx   HMAC context.
+ * @param data  Message data.
+ * @param len   Data length in bytes.
  */
 static inline void syn_hmac_blake2s_update(SYN_HMAC_BLAKE2s *ctx,
                                            const void *data, size_t len)
@@ -202,6 +205,8 @@ static inline void syn_hmac_blake2s_update(SYN_HMAC_BLAKE2s *ctx,
 
 /**
  * @brief Finalize HMAC-BLAKE2s and produce 32-byte MAC.
+ * @param ctx HMAC context.
+ * @param mac Output buffer for the 32-byte MAC.
  */
 static inline void syn_hmac_blake2s_final(SYN_HMAC_BLAKE2s *ctx,
                                           uint8_t mac[SYN_BLAKE2S_MAX_DIGEST])
@@ -219,6 +224,11 @@ static inline void syn_hmac_blake2s_final(SYN_HMAC_BLAKE2s *ctx,
 
 /**
  * @brief One-shot HMAC-BLAKE2s.
+ * @param key     Secret key.
+ * @param keylen  Key length in bytes.
+ * @param data    Message data.
+ * @param datalen Message length in bytes.
+ * @param mac     Output buffer for the 32-byte MAC.
  */
 static inline void syn_hmac_blake2s(const void *key, size_t keylen,
                                     const void *data, size_t datalen,

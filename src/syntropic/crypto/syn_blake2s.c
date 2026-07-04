@@ -12,8 +12,13 @@
 #include "syn_blake2s.h"
 #include <string.h>
 
+/** @name Constants
+ * @{
+ */
+
 /* ── IV (same as SHA-256, from the fractional parts of sqrt(2..19)) ───── */
 
+/** @brief BLAKE2s initialization vector. */
 static const uint32_t blake2s_iv[8] = {
     0x6A09E667UL, 0xBB67AE85UL, 0x3C6EF372UL, 0xA54FF53AUL,
     0x510E527FUL, 0x9B05688CUL, 0x1F83D9ABUL, 0x5BE0CD19UL,
@@ -21,6 +26,7 @@ static const uint32_t blake2s_iv[8] = {
 
 /* ── Message word permutation schedule (10 rounds) ────────────────────── */
 
+/** @brief BLAKE2s message word permutation schedule. */
 static const uint8_t sigma[10][16] = {
     {  0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15 },
     { 14, 10,  4,  8,  9, 15, 13,  6,  1, 12,  0,  2, 11,  7,  5,  3 },
@@ -34,13 +40,26 @@ static const uint8_t sigma[10][16] = {
     { 10,  2,  8,  4,  7,  6,  1,  5, 15, 11,  9, 14,  3, 12, 13,  0 },
 };
 
+/** @} */
+
 /* ── Helpers ────────────────────────────────────────────────────────────── */
 
+/**
+ * @brief 32-bit right rotation.
+ * @param x Value to rotate.
+ * @param n Bits to shift.
+ * @return Rotated value.
+ */
 static inline uint32_t rotr32(uint32_t x, unsigned n)
 {
     return (x >> n) | (x << (32 - n));
 }
 
+/**
+ * @brief Load 32-bit little-endian word.
+ * @param p Pointer to source bytes.
+ * @return 32-bit value.
+ */
 static inline uint32_t load32_le(const uint8_t *p)
 {
     return (uint32_t)p[0]
@@ -49,6 +68,11 @@ static inline uint32_t load32_le(const uint8_t *p)
          | ((uint32_t)p[3] << 24);
 }
 
+/**
+ * @brief Store 32-bit little-endian word.
+ * @param p Pointer to destination.
+ * @param v Value to store.
+ */
 static inline void store32_le(uint8_t *p, uint32_t v)
 {
     p[0] = (uint8_t)(v);
@@ -59,6 +83,12 @@ static inline void store32_le(uint8_t *p, uint32_t v)
 
 /* ── G mixing function ──────────────────────────────────────────────────── */
 
+/**
+ * @brief BLAKE2s G mixing function.
+ * @param v Working vector (16 words).
+ * @param a,b,c,d Vector indices.
+ * @param x,y Message words.
+ */
 #define G(v, a, b, c, d, x, y)       \
     do {                              \
         v[a] += v[b] + (x);          \
@@ -73,7 +103,11 @@ static inline void store32_le(uint8_t *p, uint32_t v)
 
 /* ── Compression function ───────────────────────────────────────────────── */
 
-/** @brief BLAKE2s compression (F). Mixes one 64-byte block into state. */
+/** @brief BLAKE2s compression (F). Mixes one 64-byte block into state.
+ * @param ctx     Hash context.
+ * @param block   64-byte input block.
+ * @param is_last Flag indicating the last block.
+ */
 static void blake2s_compress(SYN_BLAKE2s *ctx, const uint8_t block[64],
                              int is_last)
 {
@@ -124,6 +158,11 @@ static void blake2s_compress(SYN_BLAKE2s *ctx, const uint8_t block[64],
 
 /* ── Increment byte counter ─────────────────────────────────────────────── */
 
+/**
+ * @brief Increment byte counter.
+ * @param ctx Hash context.
+ * @param inc Increment value in bytes.
+ */
 static inline void blake2s_increment_counter(SYN_BLAKE2s *ctx, uint32_t inc)
 {
     ctx->t[0] += inc;
@@ -134,11 +173,6 @@ static inline void blake2s_increment_counter(SYN_BLAKE2s *ctx, uint32_t inc)
 
 /* ── Public API ─────────────────────────────────────────────────────────── */
 
-/**
- * @brief Initialise unkeyed BLAKE2s with the given digest length.
- * @param ctx    Caller-owned hash context.
- * @param outlen Desired digest length in bytes (1–32).
- */
 void syn_blake2s_init(SYN_BLAKE2s *ctx, size_t outlen)
 {
     unsigned i;
@@ -154,16 +188,9 @@ void syn_blake2s_init(SYN_BLAKE2s *ctx, size_t outlen)
     ctx->outlen = (uint8_t)outlen;
 }
 
-/**
- * @brief Initialise keyed BLAKE2s (MAC mode) with key and digest length.
- * @param ctx    Caller-owned hash context.
- * @param key    MAC key.
- * @param keylen Key length in bytes (1–32).
- * @param outlen Desired digest length in bytes (1–32).
- */
 void syn_blake2s_init_keyed(SYN_BLAKE2s *ctx,
-                            const void *key, size_t keylen,
-                            size_t outlen)
+                             const void *key, size_t keylen,
+                             size_t outlen)
 {
     uint8_t block[SYN_BLAKE2S_BLOCK_SIZE];
     unsigned i;
@@ -186,12 +213,6 @@ void syn_blake2s_init_keyed(SYN_BLAKE2s *ctx,
     syn_blake2s_update(ctx, block, SYN_BLAKE2S_BLOCK_SIZE);
 }
 
-/**
- * @brief Feed data into an ongoing BLAKE2s hash. May be called repeatedly.
- * @param ctx  Hash context (must have been initialised).
- * @param data Input bytes.
- * @param len  Number of bytes to absorb.
- */
 void syn_blake2s_update(SYN_BLAKE2s *ctx, const void *data, size_t len)
 {
     const uint8_t *in = (const uint8_t *)data;
@@ -215,11 +236,6 @@ void syn_blake2s_update(SYN_BLAKE2s *ctx, const void *data, size_t len)
     }
 }
 
-/**
- * @brief Finalise BLAKE2s and write the digest.
- * @param ctx Hash context.
- * @param out Output buffer (at least @c outlen bytes as set during init).
- */
 void syn_blake2s_final(SYN_BLAKE2s *ctx, uint8_t *out)
 {
     unsigned i;

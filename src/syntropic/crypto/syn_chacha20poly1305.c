@@ -16,10 +16,13 @@
 #include "syn_chacha20poly1305.h"
 #include <string.h>
 
-/* ═══════════════════════════════════════════════════════════════════════════
- *  Helpers
- * ═══════════════════════════════════════════════════════════════════════════ */
+/* ── Helpers ────────────────────────────────────────────────────────────── */
 
+/**
+ * @brief Load 32-bit little-endian word.
+ * @param p Source bytes.
+ * @return 32-bit value.
+ */
 static inline uint32_t load32_le(const uint8_t *p)
 {
     return (uint32_t)p[0]
@@ -28,6 +31,11 @@ static inline uint32_t load32_le(const uint8_t *p)
          | ((uint32_t)p[3] << 24);
 }
 
+/**
+ * @brief Store 32-bit little-endian word.
+ * @param p Destination bytes.
+ * @param v Value to store.
+ */
 static inline void store32_le(uint8_t *p, uint32_t v)
 {
     p[0] = (uint8_t)(v);
@@ -36,12 +44,23 @@ static inline void store32_le(uint8_t *p, uint32_t v)
     p[3] = (uint8_t)(v >> 24);
 }
 
+/**
+ * @brief Store 64-bit little-endian word.
+ * @param p Destination bytes.
+ * @param v Value to store.
+ */
 static inline void store64_le(uint8_t *p, uint64_t v)
 {
     store32_le(p,     (uint32_t)(v));
     store32_le(p + 4, (uint32_t)(v >> 32));
 }
 
+/**
+ * @brief 32-bit left rotation.
+ * @param x Value to rotate.
+ * @param n Bits to shift.
+ * @return Rotated value.
+ */
 static inline uint32_t rotl32(uint32_t x, unsigned n)
 {
     return (x << n) | (x >> (32 - n));
@@ -51,6 +70,10 @@ static inline uint32_t rotl32(uint32_t x, unsigned n)
  *  ChaCha20
  * ═══════════════════════════════════════════════════════════════════════════ */
 
+/**
+ * @brief ChaCha20 Quarter Round.
+ * @param a,b,c,d Indices into the state vector.
+ */
 #define QR(a, b, c, d)           \
     do {                         \
         a += b; d ^= a; d = rotl32(d, 16); \
@@ -59,7 +82,10 @@ static inline uint32_t rotl32(uint32_t x, unsigned n)
         c += d; b ^= c; b = rotl32(b,  7); \
     } while (0)
 
-/** @brief Compute one ChaCha20 block into @p out (16 uint32_t). */
+/** @brief Compute one ChaCha20 block into @p out (16 uint32_t).
+ * @param out Output buffer (16 words).
+ * @param in  Initial state (16 words).
+ */
 static void chacha20_block_core(uint32_t out[16], const uint32_t in[16])
 {
     int i;
@@ -81,7 +107,12 @@ static void chacha20_block_core(uint32_t out[16], const uint32_t in[16])
     for (i = 0; i < 16; i++) out[i] += in[i];
 }
 
-/** @brief Set up the ChaCha20 initial state. */
+/** @brief Set up the ChaCha20 initial state.
+ * @param state   Initial state buffer (16 words).
+ * @param key     256-bit key.
+ * @param nonce   96-bit nonce.
+ * @param counter Initial block counter.
+ */
 static void chacha20_init(uint32_t state[16],
                           const uint8_t key[32],
                           const uint8_t nonce[12],
@@ -110,13 +141,6 @@ static void chacha20_init(uint32_t state[16],
     state[15] = load32_le(nonce + 8);
 }
 
-/**
- * @brief Compute one 64-byte ChaCha20 keystream block (RFC 8439 §2.3).
- * @param key     256-bit key (32 bytes).
- * @param nonce   96-bit nonce (12 bytes).
- * @param counter Block counter.
- * @param out     Output buffer (exactly 64 bytes).
- */
 void syn_chacha20_block(const uint8_t key[32],
                         const uint8_t nonce[12],
                         uint32_t counter,
@@ -133,15 +157,6 @@ void syn_chacha20_block(const uint8_t key[32],
     }
 }
 
-/**
- * @brief XOR @p len bytes of @p in with ChaCha20 keystream into @p out.
- * @param key     256-bit key (32 bytes).
- * @param nonce   96-bit nonce (12 bytes).
- * @param counter Initial block counter (usually 0 or 1).
- * @param in      Input data.
- * @param len     Data length in bytes.
- * @param out     Output buffer (may alias @p in).
- */
 void syn_chacha20_xor(const uint8_t key[32],
                       const uint8_t nonce[12],
                       uint32_t counter,
@@ -180,13 +195,17 @@ void syn_chacha20_xor(const uint8_t key[32],
  *  Poly1305  (donna-style, 5 × 26-bit limbs)
  * ═══════════════════════════════════════════════════════════════════════════ */
 
+/** @brief Poly1305 context. */
 typedef struct {
-    uint32_t r[5];   /* Clamped key r (26-bit limbs)  */
-    uint32_t h[5];   /* Accumulator (26-bit limbs)    */
-    uint32_t pad[4]; /* Key s = second 16 bytes       */
+    uint32_t r[5];   /**< Clamped key r (26-bit limbs)  */
+    uint32_t h[5];   /**< Accumulator (26-bit limbs)    */
+    uint32_t pad[4]; /**< Key s = second 16 bytes       */
 } Poly1305_Ctx;
 
-/** @brief Initialise Poly1305 from a 32-byte one-time key. */
+/** @brief Initialise Poly1305 from a 32-byte one-time key.
+ * @param ctx Context to initialize.
+ * @param key 32-byte key.
+ */
 static void poly1305_init(Poly1305_Ctx *ctx, const uint8_t key[32])
 {
     /* r = key[0..15], clamped */
@@ -211,7 +230,12 @@ static void poly1305_init(Poly1305_Ctx *ctx, const uint8_t key[32])
     ctx->pad[3] = load32_le(key + 28);
 }
 
-/** @brief Absorb full 16-byte blocks into Poly1305 accumulator. */
+/** @brief Absorb full 16-byte blocks into Poly1305 accumulator.
+ * @param ctx   Poly1305 context.
+ * @param data  Input data.
+ * @param len   Length in bytes (must be multiple of 16).
+ * @param hibit High bit to add (1<<24 for message, 0 for special uses).
+ */
 static void poly1305_blocks(Poly1305_Ctx *ctx,
                             const uint8_t *data, size_t len,
                             uint32_t hibit)
@@ -265,7 +289,10 @@ static void poly1305_blocks(Poly1305_Ctx *ctx,
     ctx->h[3] = h3; ctx->h[4] = h4;
 }
 
-/** @brief Finalise Poly1305 and write the 16-byte MAC to @p mac. */
+/** @brief Finalise Poly1305 and write the 16-byte MAC to @p mac.
+ * @param ctx Poly1305 context.
+ * @param mac Output buffer (16 bytes).
+ */
 static void poly1305_finish(Poly1305_Ctx *ctx, uint8_t mac[16])
 {
     uint32_t h0 = ctx->h[0], h1 = ctx->h[1], h2 = ctx->h[2];
@@ -322,6 +349,12 @@ static void poly1305_finish(Poly1305_Ctx *ctx, uint8_t mac[16])
 
 /**
  * @brief Compute Poly1305 MAC over (aad || pad || ct || pad || len(aad) || len(ct)).
+ * @param poly_key One-time Poly1305 key (32 bytes).
+ * @param aad      Additional authenticated data.
+ * @param aad_len  Length of @p aad.
+ * @param ct       Ciphertext.
+ * @param ct_len   Length of @p ct.
+ * @param tag      Output 16-byte tag.
  */
 static void aead_mac(const uint8_t poly_key[32],
                      const uint8_t *aad, size_t aad_len,
@@ -364,17 +397,6 @@ static void aead_mac(const uint8_t poly_key[32],
     poly1305_finish(&poly, tag);
 }
 
-/**
- * @brief AEAD encrypt (RFC 8439 §2.8): ChaCha20 + Poly1305.
- * @param key        256-bit key.
- * @param nonce      96-bit nonce.
- * @param aad        Additional authenticated data (or NULL).
- * @param aad_len    AAD length.
- * @param plaintext  Data to encrypt.
- * @param pt_len     Plaintext length.
- * @param ciphertext Output ciphertext (same length as plaintext).
- * @param tag        Output 128-bit authentication tag (16 bytes).
- */
 void syn_aead_encrypt(const uint8_t key[32],
                       const uint8_t nonce[12],
                       const uint8_t *aad, size_t aad_len,
@@ -394,18 +416,6 @@ void syn_aead_encrypt(const uint8_t key[32],
     aead_mac(poly_key, aad, aad_len, ciphertext, pt_len, tag);
 }
 
-/**
- * @brief AEAD decrypt + verify (RFC 8439 §2.8).
- * @param key        256-bit key.
- * @param nonce      96-bit nonce.
- * @param aad        Additional authenticated data (or NULL).
- * @param aad_len    AAD length.
- * @param ciphertext Data to decrypt.
- * @param ct_len     Ciphertext length.
- * @param tag        Expected 128-bit authentication tag (16 bytes).
- * @param plaintext  Output plaintext (same length as ciphertext).
- * @return true if tag is valid and decryption succeeded.
- */
 bool syn_aead_decrypt(const uint8_t key[32],
                       const uint8_t nonce[12],
                       const uint8_t *aad, size_t aad_len,

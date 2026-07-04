@@ -13,10 +13,20 @@
 #include "../util/syn_assert.h"
 #include "../port/syn_port_system.h"
 #include <string.h>
+#include <stdio.h>
 
-/* ── Helpers ────────────────────────────────────────────────────────────── */
+/* ── Internal Helpers ───────────────────────────────────────────────────── */
 
-/** @brief Read a big-endian uint32 from a byte buffer. */
+static SYN_Status sntp_send_request(const SYN_SNTP *sntp, SYN_Socket sock);
+static SYN_Status sntp_parse_packet(SYN_SNTP *sntp, const uint8_t *pkt, size_t len);
+
+/* ── API ────────────────────────────────────────────────────────────────── */
+
+/**
+ * @brief Read a big-endian uint32 from a byte buffer.
+ * @param p Source bytes.
+ * @return 32-bit value.
+ */
 static inline uint32_t load32_be(const uint8_t *p)
 {
     return ((uint32_t)p[0] << 24)
@@ -27,12 +37,6 @@ static inline uint32_t load32_be(const uint8_t *p)
 
 /* ── API ────────────────────────────────────────────────────────────────── */
 
-/**
- * @brief Initialise SNTP client with server address and sync interval.
- * @param sntp            Caller-owned SNTP context.
- * @param server          NTP server address.
- * @param sync_interval_s Re-sync interval in seconds.
- */
 void syn_sntp_init(SYN_SNTP *sntp, const SYN_SockAddr *server,
                    uint32_t sync_interval_s)
 {
@@ -42,80 +46,66 @@ void syn_sntp_init(SYN_SNTP *sntp, const SYN_SockAddr *server,
     memset(sntp, 0, sizeof(*sntp));
     sntp->server          = *server;
     sntp->sync_interval_s = sync_interval_s;
+    sntp->synced          = false;
+
+    /* Initialize backoff: 1s base, 60s max, factor 2, max_retries */
+    syn_backoff_init(&sntp->backoff, 1000, 60000, 2, SYN_SNTP_MAX_RETRIES);
     sntp->udp_sock        = SYN_SOCKET_INVALID;
 }
 
 /**
- * @brief Send one SNTP query and block until response or timeout.
- * @param sntp SNTP context.
- * @return SYN_OK on success, SYN_TIMEOUT or SYN_ERROR on failure.
+ * @brief Parse an SNTP response packet and extract the transmit timestamp.
+ * @param sntp  SNTP client instance.
+ * @param pkt   Raw UDP payload.
+ * @param len   Payload length in bytes.
+ * @return SYN_OK on success, SYN_BUSY if packet too short, SYN_ERROR on invalid response.
  */
+static SYN_Status sntp_parse_packet(SYN_SNTP *sntp, const uint8_t *pkt, size_t len)
+{
+    if (len < SYN_SNTP_PACKET_SIZE) return SYN_BUSY;
+
+    /* Validate mode (4=server, 5=broadcast) and stratum != 0 */
+    uint8_t mode = pkt[0] & 0x07;
+    if (mode != 4 && mode != 5) return SYN_ERROR;
+    if (pkt[1] == 0) return SYN_ERROR;  /* kiss-of-death */
+
+    /* Extract transmit timestamp (bytes 40–47, NTP epoch big-endian) */
+    uint32_t ntp_s    = load32_be(pkt + 40);
+    uint32_t ntp_frac = load32_be(pkt + 44);
+
+    if (ntp_s < SYN_SNTP_EPOCH_OFFSET) return SYN_ERROR;
+
+    sntp->epoch_s      = ntp_s - SYN_SNTP_EPOCH_OFFSET;
+    sntp->epoch_frac   = ntp_frac;
+    sntp->sync_tick_ms = syn_port_get_tick_ms();
+    sntp->synced       = true;
+
+    return SYN_OK;
+}
+
 SYN_Status syn_sntp_query(SYN_SNTP *sntp)
 {
     SYN_ASSERT(sntp != NULL);
 
     uint8_t pkt[SYN_SNTP_PACKET_SIZE];
     SYN_SockAddr from;
-    int n;
 
-    /* Open ephemeral UDP socket */
     SYN_Socket sock = syn_port_udp_open(0);
-    if (sock == SYN_SOCKET_INVALID) {
-        return SYN_ERROR;
-    }
+    if (sock == SYN_SOCKET_INVALID) return SYN_ERROR;
 
-    /* Build SNTP request: LI=0, VN=4, Mode=3 (client) */
-    memset(pkt, 0, sizeof(pkt));
-    pkt[0] = 0x23; /* 00 100 011 */
-
-    /* Send request */
-    n = syn_port_udp_sendto(sock, pkt, sizeof(pkt), &sntp->server);
-    if (n != SYN_SNTP_PACKET_SIZE) {
+    if (sntp_send_request(sntp, sock) != SYN_OK) {
         syn_port_sock_close(sock);
         return SYN_ERROR;
     }
 
-    /* Wait for response */
-    n = syn_port_udp_recvfrom(sock, pkt, sizeof(pkt), &from,
-                              SYN_SNTP_TIMEOUT_MS);
+    int n = syn_port_udp_recvfrom(sock, pkt, sizeof(pkt), &from, SYN_SNTP_TIMEOUT_MS);
     syn_port_sock_close(sock);
 
-    if (n < SYN_SNTP_PACKET_SIZE) {
-        return SYN_TIMEOUT;
-    }
+    if (n < (int)SYN_SNTP_PACKET_SIZE) return (n <= 0) ? SYN_TIMEOUT : SYN_ERROR;
 
-    /* Validate: check Mode == 4 (server) or Mode == 5 (broadcast),
-     * and stratum != 0 (kiss-of-death) */
-    uint8_t mode = pkt[0] & 0x07;
-    if (mode != 4 && mode != 5) {
-        return SYN_ERROR;
-    }
-    if (pkt[1] == 0) {  /* stratum 0 = kiss-of-death */
-        return SYN_ERROR;
-    }
-
-    /* Extract transmit timestamp (bytes 40–47, NTP epoch big-endian) */
-    uint32_t ntp_s    = load32_be(pkt + 40);
-    uint32_t ntp_frac = load32_be(pkt + 44);
-
-    /* Convert NTP epoch (1900) → Unix epoch (1970) */
-    if (ntp_s < SYN_SNTP_EPOCH_OFFSET) {
-        return SYN_ERROR;  /* timestamp before 1970 — invalid */
-    }
-
-    sntp->epoch_s     = ntp_s - SYN_SNTP_EPOCH_OFFSET;
-    sntp->epoch_frac  = ntp_frac;
-    sntp->sync_tick_ms = syn_port_get_tick_ms();
-    sntp->synced      = true;
-
-    return SYN_OK;
+    return sntp_parse_packet(sntp, pkt, (size_t)n);
 }
 
-/**
- * @brief Return current Unix epoch seconds (synced time + local drift).
- * @param sntp SNTP context.
- * @return Epoch seconds, or 0 if not synced.
- */
 uint32_t syn_sntp_get_epoch_s(const SYN_SNTP *sntp)
 {
     if (!sntp->synced) return 0;
@@ -124,11 +114,6 @@ uint32_t syn_sntp_get_epoch_s(const SYN_SNTP *sntp)
     return sntp->epoch_s + (elapsed_ms / 1000u);
 }
 
-/**
- * @brief Return sub-second component as nanoseconds.
- * @param sntp SNTP context.
- * @return Nanoseconds (0–999 999 999), or 0 if not synced.
- */
 uint32_t syn_sntp_get_epoch_ns(const SYN_SNTP *sntp)
 {
     if (!sntp->synced) return 0;
@@ -174,63 +159,31 @@ static SYN_Status sntp_try_recv(SYN_SNTP *sntp, SYN_Socket sock)
     SYN_SockAddr from;
 
     int n = syn_port_udp_recvfrom(sock, pkt, sizeof(pkt), &from, 0);
-    if (n < SYN_SNTP_PACKET_SIZE) {
-        return (n == 0 || n == -1) ? SYN_BUSY : SYN_ERROR;
+    if (n < (int)SYN_SNTP_PACKET_SIZE) {
+        return (n <= 0) ? SYN_BUSY : SYN_ERROR;
     }
 
-    /* Validate mode (4=server, 5=broadcast) and stratum != 0 */
-    uint8_t mode = pkt[0] & 0x07;
-    if (mode != 4 && mode != 5) return SYN_ERROR;
-    if (pkt[1] == 0) return SYN_ERROR;  /* kiss-of-death */
-
-    /* Extract transmit timestamp */
-    uint32_t ntp_s = load32_be(pkt + 40);
-    if (ntp_s < SYN_SNTP_EPOCH_OFFSET) return SYN_ERROR;
-
-    sntp->epoch_s      = ntp_s - SYN_SNTP_EPOCH_OFFSET;
-    sntp->epoch_frac   = load32_be(pkt + 44);
-    sntp->sync_tick_ms = syn_port_get_tick_ms();
-    sntp->synced       = true;
-
-    return SYN_OK;
+    return sntp_parse_packet(sntp, pkt, (size_t)n);
 }
 
 /* ── Protothread task ───────────────────────────────────────────────────── */
 
-/**
- * @brief Protothread task: periodically re-syncs via SNTP.
- *
- * Fully non-blocking — uses timeout_ms = 0 polling so the cooperative
- * scheduler is never blocked. Each query cycle:
- *   1. Open socket
- *   2. Send NTP request
- *   3. Poll for response (PT_WAIT_UNTIL with deadline)
- *   4. Close socket
- *   5. Retry or wait for next sync interval
- *
- * @param pt   Protothread context.
- * @param task Task descriptor (user_data must point to SYN_SNTP).
- * @return PT status.
- */
 SYN_PT_Status syn_sntp_task(SYN_PT *pt, SYN_Task *task)
 {
     SYN_SNTP *sntp = (SYN_SNTP *)task->user_data;
     SYN_ASSERT(sntp != NULL);
 
-    /* Static locals survive PT_YIELD — safe for single-instance task */
-    static uint8_t retries;
-
     PT_BEGIN(pt);
 
     for (;;) {
-        retries = 0;
-        while (retries < SYN_SNTP_MAX_RETRIES) {
+        syn_backoff_reset(&sntp->backoff);
+
+        while (sntp->backoff.attempts < SYN_SNTP_MAX_RETRIES) {
 
             /* Phase 1: Open socket */
             sntp->udp_sock = syn_port_udp_open(0);
             if (sntp->udp_sock == SYN_SOCKET_INVALID) {
-                retries++;
-                PT_TASK_DELAY_MS(pt, task, 1000);
+                PT_TASK_DELAY_MS(pt, task, syn_backoff_next_ms(&sntp->backoff));
                 continue;
             }
 
@@ -238,8 +191,7 @@ SYN_PT_Status syn_sntp_task(SYN_PT *pt, SYN_Task *task)
             if (sntp_send_request(sntp, sntp->udp_sock) != SYN_OK) {
                 syn_port_sock_close(sntp->udp_sock);
                 sntp->udp_sock = SYN_SOCKET_INVALID;
-                retries++;
-                PT_TASK_DELAY_MS(pt, task, 1000);
+                PT_TASK_DELAY_MS(pt, task, syn_backoff_next_ms(&sntp->backoff));
                 continue;
             }
 
@@ -249,17 +201,19 @@ SYN_PT_Status syn_sntp_task(SYN_PT *pt, SYN_Task *task)
                 sntp_try_recv(sntp, sntp->udp_sock) != SYN_BUSY ||
                 (int32_t)(syn_port_get_tick_ms() - sntp->recv_deadline) >= 0);
 
-            /* Phase 4: Close socket */
             syn_port_sock_close(sntp->udp_sock);
             sntp->udp_sock = SYN_SOCKET_INVALID;
 
-            if (sntp->synced) break;  /* Success — exit retry loop */
-            retries++;
-            PT_TASK_DELAY_MS(pt, task, 1000);  /* 1s between retries */
+            if (sntp->synced) {
+                break; /* Success! */
+            }
+
+            /* Failure or timeout — backoff and try again */
+            PT_TASK_DELAY_MS(pt, task, syn_backoff_next_ms(&sntp->backoff));
         }
 
         /* Wait for next sync interval */
-        PT_TASK_DELAY_MS(pt, task, sntp->sync_interval_s * 1000u);
+        PT_TASK_DELAY_MS(pt, task, sntp->sync_interval_s * 1000);
     }
 
     PT_END(pt);

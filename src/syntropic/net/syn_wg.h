@@ -73,14 +73,14 @@ extern "C" {
 #define SYN_WG_KEEPALIVE_TIMEOUT       10   /**< Send keepalive if no outbound (s)      */
 
 /** WireGuard message types. */
-#define SYN_WG_MSG_INITIATION   1
-#define SYN_WG_MSG_RESPONSE     2
-#define SYN_WG_MSG_COOKIE       3
-#define SYN_WG_MSG_TRANSPORT    4
+#define SYN_WG_MSG_INITIATION   1  /**< Handshake initiation message */
+#define SYN_WG_MSG_RESPONSE     2  /**< Handshake response message   */
+#define SYN_WG_MSG_COOKIE       3  /**< Cookie reply message        */
+#define SYN_WG_MSG_TRANSPORT    4  /**< Encrypted transport message */
 
 /** Message sizes. */
-#define SYN_WG_INITIATION_SIZE  148
-#define SYN_WG_RESPONSE_SIZE     92
+#define SYN_WG_INITIATION_SIZE  148 /**< Size of initiation message */
+#define SYN_WG_RESPONSE_SIZE     92 /**< Size of response message   */
 
 /* ── States ─────────────────────────────────────────────────────────────── */
 
@@ -142,7 +142,7 @@ typedef struct {
     uint8_t        public_key[32];  /**< Our public key (from private)       */
 
     /* Active session */
-    SYN_WgSession  session;
+    SYN_WgSession  session;          /**< Currently active transport session */
 
     /* Handshake state (scratch — only valid during handshake) */
     uint8_t        hs_ephemeral_priv[32]; /**< Ephemeral private key         */

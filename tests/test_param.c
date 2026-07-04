@@ -75,9 +75,9 @@ static void test_param_store(void)
     st = syn_param_load(&store, &loaded);
     TEST_ASSERT_EQUAL(SYN_ERROR, st);
 
-    /* Write count */
+    /* After erase_all, next_seq resets to 0 → write_count returns 0 */
     uint16_t wc = syn_param_write_count(&store);
-    (void)wc; /* just verify it doesn't crash */
+    TEST_ASSERT_EQUAL_UINT16(0, wc);
 }
 
 /** data_size exceeds sector capacity — exercises line 132 (slots_per_sector == 0) */

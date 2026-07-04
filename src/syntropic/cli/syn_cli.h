@@ -220,24 +220,19 @@ void syn_cli_printf(const SYN_CLI *cli, const char *fmt, ...);
 #define SYN_CLI_CMD_TASKS    1
 #endif
 
+struct SYN_ErrLog;
+struct SYN_Sched;
+
 /**
  * @brief Set errlog instance for the `errors` built-in command.
- *
- * If set, the `errors` command will dump all entries from this log.
- *
- * @param errlog  Error log instance.
+ * @param errlog  Error log instance (or NULL to detach).
  */
-struct SYN_ErrLog;
 void syn_cli_set_errlog(struct SYN_ErrLog *errlog);
 
 /**
  * @brief Set scheduler instance for the `tasks` built-in command.
- *
- * If set, the `tasks` command will list all registered tasks.
- *
- * @param sched  Scheduler instance.
+ * @param sched  Scheduler instance (or NULL to detach).
  */
-struct SYN_Sched;
 void syn_cli_set_scheduler(struct SYN_Sched *sched);
 
 #ifdef __cplusplus

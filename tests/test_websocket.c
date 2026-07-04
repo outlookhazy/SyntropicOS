@@ -184,8 +184,9 @@ static void test_websocket_upgrade_long_key(void)
     req.headers = headers;
 
     SYN_WebsocketSession ws;
-    syn_websocket_upgrade(&req, &resp, &ws, on_ws_message, NULL);
-    /* Result may vary; we're after coverage of sha1_transform multi-block */
+    SYN_Status st = syn_websocket_upgrade(&req, &resp, &ws, on_ws_message, NULL);
+    /* Long key should still produce a valid upgrade (SHA-1 multi-block) */
+    TEST_ASSERT_EQUAL(SYN_OK, st);
 }
 
 /** Upgrade without Sec-WebSocket-Key — exercises line 229 */

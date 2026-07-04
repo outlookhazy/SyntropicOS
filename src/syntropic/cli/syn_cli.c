@@ -416,7 +416,10 @@ void syn_cli_printf(const SYN_CLI *cli, const char *fmt, ...)
 static SYN_ErrLog *s_cli_errlog = NULL;  /**< Error log instance for 'errors' command. */
 static SYN_Sched  *s_cli_sched  = NULL;  /**< Scheduler for 'tasks' command. */
 
+/** @brief Set errlog instance for the `errors` built-in command. */
 void syn_cli_set_errlog(SYN_ErrLog *errlog)  { s_cli_errlog = errlog; }
+
+/** @brief Set scheduler instance for the `tasks` built-in command. */
 void syn_cli_set_scheduler(SYN_Sched *sched) { s_cli_sched = sched; }
 
 #if SYN_CLI_CMD_VERSION

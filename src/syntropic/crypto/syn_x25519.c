@@ -19,15 +19,21 @@
 #include "syn_x25519.h"
 #include <string.h>
 
+/** @brief Field element (GF(2^255 - 19)) represented by 16 × 16-bit limbs. */
 typedef int64_t gf[16];
 
+/** @brief Field element 0. */
 static const gf gf0 = {0};
+/** @brief Field element 1. */
 static const gf gf1 = {1};
+/** @brief Constant (121665) used in Montgomery arithmetic. */
 static const gf _121665 = {0xDB41, 1};
 
 /* ── Field Arithmetic (GF(2^255 - 19), 16 × 16-bit limbs) ──────────── */
 
-/** @brief Carry-propagate across 16 limbs of a GF(2^255-19) element. */
+/** @brief Carry-propagate across 16 limbs of a GF(2^255-19) element.
+ * @param o Element to normalize.
+ */
 static void car25519(gf o)
 {
     int64_t c;
@@ -40,7 +46,11 @@ static void car25519(gf o)
     }
 }
 
-/** @brief Constant-time conditional swap of @p p and @p q (if b=1). */
+/** @brief Constant-time conditional swap of @p p and @p q (if b=1).
+ * @param p First element.
+ * @param q Second element.
+ * @param b Condition (1 to swap, 0 to keep).
+ */
 static void sel25519(gf p, gf q, int b)
 {
     int64_t t, c = ~(int64_t)(b-1);
@@ -52,7 +62,10 @@ static void sel25519(gf p, gf q, int b)
     }
 }
 
-/** @brief Reduce and serialise a GF element to 32 bytes (little-endian). */
+/** @brief Reduce and serialise a GF element to 32 bytes (little-endian).
+ * @param o Output buffer (32 bytes).
+ * @param n Field element to serialize.
+ */
 static void pack25519(uint8_t o[32], const gf n)
 {
     int i, j;
@@ -79,7 +92,10 @@ static void pack25519(uint8_t o[32], const gf n)
     }
 }
 
-/** @brief Deserialise 32 bytes into a GF element. */
+/** @brief Deserialise 32 bytes into a GF element.
+ * @param o Output field element.
+ * @param n 32-byte input buffer.
+ */
 static void unpack25519(gf o, const uint8_t n[32])
 {
     int i;
@@ -88,21 +104,33 @@ static void unpack25519(gf o, const uint8_t n[32])
     o[15] &= 0x7FFF;
 }
 
-/** @brief Field addition: o = a + b. */
+/** @brief Field addition: o = a + b.
+ * @param o Output element.
+ * @param a First operand.
+ * @param b Second operand.
+ */
 static void A(gf o, const gf a, const gf b)
 {
     int i;
     for (i = 0; i < 16; i++) o[i] = a[i] + b[i];
 }
 
-/** @brief Field subtraction: o = a - b. */
+/** @brief Field subtraction: o = a - b.
+ * @param o Output element.
+ * @param a Minuend.
+ * @param b Subtrahend.
+ */
 static void Z(gf o, const gf a, const gf b)
 {
     int i;
     for (i = 0; i < 16; i++) o[i] = a[i] - b[i];
 }
 
-/** @brief Field multiplication: o = a * b mod p. */
+/** @brief Field multiplication: o = a * b mod p.
+ * @param o Output element.
+ * @param a Multiplicand.
+ * @param b Multiplier.
+ */
 static void M(gf o, const gf a, const gf b)
 {
     int64_t t[31];
@@ -118,13 +146,19 @@ static void M(gf o, const gf a, const gf b)
     car25519(o);
 }
 
-/** @brief Field squaring: o = a^2 mod p. */
+/** @brief Field squaring: o = a^2 mod p.
+ * @param o Output element.
+ * @param a Element to square.
+ */
 static void S(gf o, const gf a)
 {
     M(o, a, a);
 }
 
-/** @brief Field inversion: o = a^(-1) mod p via Fermat's little theorem. */
+/** @brief Field inversion: o = a^(-1) mod p via Fermat's little theorem.
+ * @param o Output element.
+ * @param a Element to invert.
+ */
 static void inv25519(gf o, const gf a)
 {
     gf c;
@@ -141,12 +175,6 @@ static void inv25519(gf o, const gf a)
 
 /* ── X25519 scalar multiplication (Montgomery ladder) ───────────────── */
 
-/**
- * @brief X25519 Diffie-Hellman: shared_out = scalar * point (RFC 7748).
- * @param shared_out  32-byte shared secret output.
- * @param scalar      32-byte scalar (private key, will be clamped internally).
- * @param point       32-byte u-coordinate of the peer's public key.
- */
 void syn_x25519(uint8_t shared_out[32],
                 const uint8_t scalar[32],
                 const uint8_t point[32])
@@ -197,11 +225,6 @@ void syn_x25519(uint8_t shared_out[32],
     pack25519(shared_out, a);
 }
 
-/**
- * @brief Derive X25519 public key from a (clamped) private key.
- * @param public_out  32-byte public key output.
- * @param private_key 32-byte private key (should already be clamped).
- */
 void syn_x25519_pubkey(uint8_t public_out[32],
                        const uint8_t private_key[32])
 {

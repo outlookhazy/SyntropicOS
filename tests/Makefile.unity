@@ -58,7 +58,10 @@ SYN_SRCS := \
 	src/syntropic/crypto/syn_chacha20poly1305.c \
 	src/syntropic/crypto/syn_x25519.c \
 	src/syntropic/net/syn_sntp.c \
-	src/syntropic/util/syn_stream.c
+	src/syntropic/util/syn_stream.c \
+	src/syntropic/util/syn_backoff.c \
+	src/syntropic/util/syn_random.c \
+	src/syntropic/util/syn_metrics.c
 
 # Unity framework
 UNITY_SRCS := tests/unity/unity.c
@@ -87,6 +90,9 @@ clean:
 
 coverage:
 	find . \( -name "*.gcda" -o -name "*.gcno" \) -delete
-	$(MAKE) -f tests/Makefile.unity test CFLAGS="$(CFLAGS) --coverage -O0" TARGET="test_unity_cov"
-	gcov -n -o test_unity_cov-syn_autotune src/syntropic/control/syn_autotune.c
+	$(MAKE) -f tests/Makefile.unity test CFLAGS="$(CFLAGS) --coverage -O0 -DSYN_USE_METRICS=1" TARGET="test_unity_cov"
+	lcov --capture --directory . --output-file coverage.info --no-external
+	lcov --remove coverage.info '*/tests/*' '*/unity/*' '*/mocks/*' --output-file coverage_filtered.info
+	genhtml coverage_filtered.info --output-directory coverage_html
+	@echo "Coverage report generated in coverage_html/index.html"
 

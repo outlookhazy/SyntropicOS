@@ -250,6 +250,136 @@ static void test_sntp_request_packet_format(void)
     }
 }
 
+static void test_sntp_task_success(void)
+{
+    SYN_SNTP sntp;
+    SYN_SockAddr server = { .ip = {1, 2, 3, 4}, .port = 123 };
+    SYN_Task task = { .user_data = &sntp };
+    SYN_PT pt;
+    PT_INIT(&pt);
+
+    syn_sntp_init(&sntp, &server, 3600);
+    sntp.sync_interval_s = 10; /* Short interval for test */
+
+    /* Phase 1: Task should open socket and send request */
+    uint8_t resp[SYN_SNTP_PACKET_SIZE];
+    build_ntp_response(resp, 1700000000UL, 0);
+    SYN_SockAddr from = { .ip = {1, 2, 3, 4}, .port = 123 };
+    mock_udp_set_response(resp, SYN_SNTP_PACKET_SIZE, &from);
+
+    /* Run task until it waits for response or succeeds */
+    for (int i = 0; i < 10; i++) {
+        syn_sntp_task(&pt, &task);
+        if (sntp.synced) break;
+        mock_tick_ms += 100;
+    }
+
+    TEST_ASSERT_TRUE(sntp.synced);
+    TEST_ASSERT_EQUAL_UINT32(1700000000UL, sntp.epoch_s);
+}
+
+static void test_sntp_task_fail_and_retry(void)
+{
+    SYN_SNTP sntp;
+    SYN_SockAddr server = { .ip = {1, 2, 3, 4}, .port = 123 };
+    SYN_Task task = { .user_data = &sntp };
+    SYN_PT pt;
+    PT_INIT(&pt);
+
+    syn_sntp_init(&sntp, &server, 3600);
+    sntp.sync_interval_s = 10;
+
+    /* Fail socket open first */
+    mock_udp_open_ok = false;
+    syn_sntp_task(&pt, &task);
+    TEST_ASSERT_EQUAL(SYN_SOCKET_INVALID, sntp.udp_sock);
+    
+    /* Advance to clear delay */
+    mock_tick_ms += 1100;
+    mock_udp_open_ok = true;
+    
+    /* Fail send */
+    mock_udp_sendto_fail = true;
+    syn_sntp_task(&pt, &task); /* next step: open ok, send fail */
+    TEST_ASSERT_EQUAL(SYN_SOCKET_INVALID, sntp.udp_sock);
+    
+    /* Advance to clear delay */
+    mock_tick_ms += 2100;
+    mock_udp_sendto_fail = false;
+    
+    /* Succeed finally */
+    uint8_t resp[SYN_SNTP_PACKET_SIZE];
+    build_ntp_response(resp, 1700000000UL, 0);
+    SYN_SockAddr from = { .ip = {1, 2, 3, 4}, .port = 123 };
+    mock_udp_set_response(resp, SYN_SNTP_PACKET_SIZE, &from);
+    
+    for (int i = 0; i < 10; i++) {
+        syn_sntp_task(&pt, &task);
+        if (sntp.synced) break;
+        mock_tick_ms += 100;
+    }
+    
+    TEST_ASSERT_TRUE(sntp.synced);
+}
+
+static void test_sntp_task_timeout_and_retry(void)
+{
+    SYN_SNTP sntp;
+    SYN_SockAddr server = { .ip = {1, 2, 3, 4}, .port = 123 };
+    SYN_Task task = { .user_data = &sntp };
+    SYN_PT pt;
+    PT_INIT(&pt);
+
+    syn_sntp_init(&sntp, &server, 3600);
+    sntp.sync_interval_s = 10;
+
+    /* 1. Send ok, but NO response (timeout) */
+    mock_udp_rx_count = 0; 
+    syn_sntp_task(&pt, &task); /* Phase 1: Open/Send */
+    
+    /* Advance time beyond timeout */
+    mock_tick_ms += SYN_SNTP_TIMEOUT_MS + 100;
+    syn_sntp_task(&pt, &task); /* Phase 2: Detect timeout, Close, Start Delay */
+    
+    TEST_ASSERT_FALSE(sntp.synced);
+    TEST_ASSERT_EQUAL(SYN_SOCKET_INVALID, sntp.udp_sock);
+    
+    /* 2. Advance time to clear backoff delay */
+    mock_tick_ms += 1100;
+    
+    /* 3. Provide valid response now */
+    uint8_t resp[SYN_SNTP_PACKET_SIZE];
+    build_ntp_response(resp, 1700000000UL, 0);
+    SYN_SockAddr from = { .ip = {1, 2, 3, 4}, .port = 123 };
+    mock_udp_set_response(resp, SYN_SNTP_PACKET_SIZE, &from);
+    
+    for (int i = 0; i < 10; i++) {
+        syn_sntp_task(&pt, &task);
+        if (sntp.synced) break;
+        mock_tick_ms += 100;
+    }
+    
+    TEST_ASSERT_TRUE(sntp.synced);
+}
+
+static void test_sntp_task_send_fail(void)
+{
+    SYN_SNTP sntp;
+    SYN_SockAddr server = { .ip = {1, 2, 3, 4}, .port = 123 };
+    SYN_Task task = { .user_data = &sntp };
+    SYN_PT pt;
+    PT_INIT(&pt);
+
+    syn_sntp_init(&sntp, &server, 3600);
+    
+    mock_udp_sendto_fail = true;
+    syn_sntp_task(&pt, &task); /* Open ok, but Send fails */
+    
+    TEST_ASSERT_EQUAL(SYN_SOCKET_INVALID, sntp.udp_sock);
+    TEST_ASSERT_EQUAL(1, sntp.backoff.attempts);
+    mock_udp_sendto_fail = false;
+}
+
 /* ── Runner ─────────────────────────────────────────────────────────────── */
 
 void run_sntp_tests(void)
@@ -265,4 +395,8 @@ void run_sntp_tests(void)
     RUN_TEST(test_sntp_query_kiss_of_death);
     RUN_TEST(test_sntp_query_sendto_fail);
     RUN_TEST(test_sntp_request_packet_format);
+    RUN_TEST(test_sntp_task_success);
+    RUN_TEST(test_sntp_task_fail_and_retry);
+    RUN_TEST(test_sntp_task_timeout_and_retry);
+    RUN_TEST(test_sntp_task_send_fail);
 }

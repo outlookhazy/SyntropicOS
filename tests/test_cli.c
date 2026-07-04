@@ -538,14 +538,14 @@ static void test_cli_history(void)
     syn_cli_process_line(&cli, "led on");
     syn_cli_process_line(&cli, "status");
 
-    /* Ctrl-P recalls previous command */
+    /* Ctrl-P recalls previous command ("status") */
     clear_output();
     syn_cli_process_char(&cli, 0x10); /* Ctrl-P (Up arrow) */
 
-    /* Execute recalled command */
-    led_handler_called = 0;
+    /* Execute recalled command — should run "status" */
+    status_handler_called = 0;
     syn_cli_process_char(&cli, '\r');
-    /* Should have executed whatever was recalled */
+    TEST_ASSERT_EQUAL_INT(1, status_handler_called);
 
     /* Duplicate suppression: re-running same command should not duplicate */
     syn_cli_process_line(&cli, "led on");
@@ -557,10 +557,13 @@ static void test_cli_history(void)
     syn_cli_process_char(&cli2, 0x10); /* Ctrl-P with empty history — no-op */
 
     /* History via ANSI Up Arrow sequence → ESC [ A */
+    led_handler_called = 0;
     syn_cli_process_char(&cli, 0x1B);
     syn_cli_process_char(&cli, '[');
     syn_cli_process_char(&cli, 'A'); /* Maps to Ctrl-P */
     syn_cli_process_char(&cli, '\r');
+    /* Should have recalled and executed a command from history */
+    TEST_ASSERT_TRUE(led_handler_called > 0 || status_handler_called > 1);
 }
 #endif
 

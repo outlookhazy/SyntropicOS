@@ -43,7 +43,7 @@ static void test_crc8(void)
     /* Compute CRC-8 from scratch */
     uint8_t crc = 0x00;
     crc = syn_crc8_update(crc, data, 4);
-    TEST_ASSERT_NOT_EQUAL(0x00, crc); /* just verify it's computed */
+    TEST_ASSERT_EQUAL_HEX8(0xFE, crc);
 
     /* Incremental should match one-shot */
     uint8_t crc_inc = 0x00;
@@ -54,8 +54,7 @@ static void test_crc8(void)
     /* Empty buffer — CRC unchanged */
     uint8_t before = crc;
     crc = syn_crc8_update(crc, NULL, 0);
-    /* After 0-length update, crc should still be computable (no crash) */
-    (void)before;
+    TEST_ASSERT_EQUAL_HEX8(before, crc);
 }
 
 void run_crc_tests(void)

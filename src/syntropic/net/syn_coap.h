@@ -11,6 +11,7 @@
 #include "../port/syn_port_socket.h"
 #include "../pt/syn_pt.h"
 #include "../sched/syn_task.h"
+#include "../util/syn_backoff.h"
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
@@ -156,9 +157,7 @@ typedef struct {
     uint8_t          tx_buf[256];       /**< Serialized request (persists across retries) */
     size_t           tx_len;            /**< Length of serialized request           */
     uint32_t         start_ms;          /**< Tick at start of current send attempt */
-    uint32_t         timeout_ms;        /**< Base timeout per attempt (ms)         */
-    uint8_t          retries;           /**< Max retry count                       */
-    uint8_t          retry_count;       /**< Current retry iteration               */
+    SYN_Backoff      backoff;           /**< Retransmit backoff state              */
     SYN_Status       status;            /**< Final result (SYN_OK / SYN_TIMEOUT / SYN_ERROR) */
 } SYN_CoapRequest;
 
@@ -169,6 +168,17 @@ typedef struct {
  * @return Protothread status.
  */
 SYN_PT_Status syn_coap_request_task(SYN_PT *pt, SYN_Task *task);
+
+/**
+ * @brief Initialize a CoAP request context.
+ * @param r             Request context.
+ * @param server_addr   Target server address.
+ * @param msg           Request header/token/payload.
+ * @param timeout_ms    Initial retransmit timeout (ms).
+ * @param retries       Maximum number of retransmissions.
+ */
+void syn_coap_request_init(SYN_CoapRequest *r, const SYN_SockAddr *server_addr,
+                           const SYN_CoapMsg *msg, uint32_t timeout_ms, uint8_t retries);
 
 #ifdef __cplusplus
 }

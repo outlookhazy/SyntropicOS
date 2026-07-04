@@ -329,6 +329,8 @@ void syn_autotune_abort(SYN_AutoTune *at);
  * as a single self-sequencing state machine. The user only provides
  * physical constraints.
  *
+ * @param at               Auto-tuner instance.
+ * @param ctrl             Motor controller to tune.
  * @param limits           Physical constraints (track limits, max velocity).
  * @param flags            Feature flags (e.g., SYN_ATUNE_FLAG_ALL).
  * @param gain_multiplier  Safety margin for PID gains (percentage, e.g., 80).

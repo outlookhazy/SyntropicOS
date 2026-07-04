@@ -130,10 +130,6 @@ extern bool     mock_sock_accept_ok;
 
 /* UDP mock */
 #define MOCK_UDP_BUF_SIZE 2048
-extern uint8_t      mock_udp_rx_buf[MOCK_UDP_BUF_SIZE];
-extern size_t       mock_udp_rx_len;
-extern size_t       mock_udp_rx_pos;
-extern SYN_SockAddr mock_udp_rx_from;
 extern uint8_t      mock_udp_tx_buf[MOCK_UDP_BUF_SIZE];
 extern size_t       mock_udp_tx_len;
 extern SYN_SockAddr mock_udp_tx_to;
@@ -243,6 +239,32 @@ extern uint32_t mock_ipc_notify_count;
 extern uint32_t mock_barrier_count;
 
 #endif /* SYN_USE_MULTICORE */
+
+/* ── Random ───────────────────────────────────────────────────────────────── */
+
+/** Set true to make syn_port_random_fill fail, triggering fallback. */
+extern bool mock_random_skip;
+
+/* ── UDP mock ───────────────────────────────────────────────────────────── */
+
+#define MOCK_UDP_MAX_PACKETS  4
+#define MOCK_UDP_BUF_SIZE    2048
+
+typedef struct {
+    uint8_t  data[MOCK_UDP_BUF_SIZE];
+    size_t   len;
+    SYN_SockAddr from;
+} MockUdpPacket;
+
+extern MockUdpPacket mock_udp_rx_queue[MOCK_UDP_MAX_PACKETS];
+extern int           mock_udp_rx_count;
+extern int           mock_udp_rx_pos;
+
+/** Compatibility wrapper for old tests. */
+void mock_udp_set_response(const void *data, size_t len, const SYN_SockAddr *from);
+
+/** Add a packet to the mock RX queue for the next recvfrom() call. */
+void mock_udp_inject_packet(const void *data, size_t len, const SYN_SockAddr *from);
 
 /* ── Reset ────────────────────────────────────────────────────────────────── */
 

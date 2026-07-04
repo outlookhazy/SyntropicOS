@@ -517,7 +517,12 @@ SYN_AutoTune_State syn_autotune_update(SYN_AutoTune *at)
     /* ── Ramp down to zero ─────────────────────────────────────── */
     case SYN_ATUNE_RAMP_DOWN: {
         uint32_t ramp = at->cfg.ramp_ms;
-        if (ramp == 0) ramp = 500;
+        if (ramp == 0) {
+            apply_raw_output(at, 0);
+            syn_motor_ctrl_stop(at->ctrl);
+            at->state = SYN_ATUNE_DONE;
+            break;
+        }
         
         uint32_t e = (elapsed > ramp) ? ramp : elapsed;
         int32_t out = (at->start_output * (int32_t)(ramp - e)) / (int32_t)ramp;

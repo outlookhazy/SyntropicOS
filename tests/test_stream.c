@@ -179,16 +179,30 @@ void test_stream_read_line(void)
 void test_stream_read_line_no_delim(void)
 {
     stream_setup();
-    syn_stream_set_delimiter(&s_stream, '\n');
-
-    /* Write data without delimiter */
-    const uint8_t data[] = "no newline here";
+    /* No delimiter */
+    const uint8_t data[] = "plain read";
     syn_stream_write(&s_stream, data, sizeof(data) - 1);
 
     uint8_t line[32];
     size_t n = syn_stream_read_line(&s_stream, line, sizeof(line));
-    TEST_ASSERT_EQUAL(0, n);  /* Nothing consumed */
-    TEST_ASSERT_EQUAL(15, syn_stream_count(&s_stream));  /* Still there */
+    TEST_ASSERT_EQUAL(10, n);
+    TEST_ASSERT_EQUAL_MEMORY("plain read", line, 10);
+    TEST_ASSERT_EQUAL(0, syn_stream_count(&s_stream));
+}
+
+void test_stream_read_line_no_match(void)
+{
+    stream_setup();
+    syn_stream_set_delimiter(&s_stream, '\n');
+
+    /* Write data without newline */
+    const uint8_t data[] = "no newline";
+    syn_stream_write(&s_stream, data, sizeof(data) - 1);
+
+    uint8_t line[32];
+    size_t n = syn_stream_read_line(&s_stream, line, sizeof(line));
+    TEST_ASSERT_EQUAL(0, n);
+    TEST_ASSERT_EQUAL(10, syn_stream_count(&s_stream));
 }
 
 void test_stream_read_line_max_len(void)
@@ -274,6 +288,7 @@ void run_stream_tests(void)
     RUN_TEST(test_stream_delimiter_wrap);
     RUN_TEST(test_stream_read_line);
     RUN_TEST(test_stream_read_line_no_delim);
+    RUN_TEST(test_stream_read_line_no_match);
     RUN_TEST(test_stream_read_line_max_len);
     RUN_TEST(test_stream_delimiter_overrides_threshold);
     RUN_TEST(test_stream_flush);

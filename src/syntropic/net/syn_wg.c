@@ -17,26 +17,38 @@
  */
 
 #include "syn_wg.h"
+#include "../port/syn_port_system.h"
+#include "../port/syn_port_socket.h"
+#include "../util/syn_random.h"
+#include "../util/syn_assert.h"
 #include "../crypto/syn_blake2s.h"
 #include "../crypto/syn_chacha20poly1305.h"
 #include "../crypto/syn_x25519.h"
-#include "../util/syn_assert.h"
-#include "../port/syn_port_system.h"
+#include "../util/syn_metrics.h"
 #include <string.h>
 
 /* ═══════════════════════════════════════════════════════════════════════════
  *  Construction constants (from WireGuard spec)
  * ═══════════════════════════════════════════════════════════════════════════ */
 
-static const uint8_t WG_CONSTRUCTION[] = "Noise_IKpsk2_25519_ChaChaPoly_BLAKE2s";
-static const uint8_t WG_IDENTIFIER[]   = "WireGuard v1 zx2c4 Jason@zx2c4.com";
-static const uint8_t WG_LABEL_MAC1[]   = "mac1----";
-static const uint8_t WG_LABEL_COOKIE[] = "cookie--";
+/** @name Internal constants
+ * @{
+ */
+static const uint8_t WG_CONSTRUCTION[] = "Noise_IKpsk2_25519_ChaChaPoly_BLAKE2s"; /**< Noise construction string */
+static const uint8_t WG_IDENTIFIER[]   = "WireGuard v1 zx2c4 Jason@zx2c4.com";    /**< Protocol identifier string */
+static const uint8_t WG_LABEL_MAC1[]   = "mac1----";                              /**< MAC1 label                */
+static const uint8_t WG_LABEL_COOKIE[] = "cookie--";                              /**< Cookie label              */
+/** @} */
 
 /* ═══════════════════════════════════════════════════════════════════════════
  *  Helpers
  * ═══════════════════════════════════════════════════════════════════════════ */
 
+/**
+ * @brief Store 32-bit little-endian word.
+ * @param p Destination bytes.
+ * @param v Value to store.
+ */
 static inline void store32_le(uint8_t *p, uint32_t v)
 {
     p[0] = (uint8_t)(v);
@@ -45,6 +57,11 @@ static inline void store32_le(uint8_t *p, uint32_t v)
     p[3] = (uint8_t)(v >> 24);
 }
 
+/**
+ * @brief Load 32-bit little-endian word.
+ * @param p Source bytes.
+ * @return 32-bit value.
+ */
 static inline uint32_t load32_le(const uint8_t *p)
 {
     return (uint32_t)p[0]
@@ -53,17 +70,32 @@ static inline uint32_t load32_le(const uint8_t *p)
          | ((uint32_t)p[3] << 24);
 }
 
+/**
+ * @brief Store 64-bit little-endian word.
+ * @param p Destination bytes.
+ * @param v Value to store.
+ */
 static inline void store64_le(uint8_t *p, uint64_t v)
 {
     store32_le(p,     (uint32_t)(v));
     store32_le(p + 4, (uint32_t)(v >> 32));
 }
 
+/**
+ * @brief Load 64-bit little-endian word.
+ * @param p Source bytes.
+ * @return 64-bit value.
+ */
 static inline uint64_t load64_le(const uint8_t *p)
 {
     return (uint64_t)load32_le(p) | ((uint64_t)load32_le(p + 4) << 32);
 }
 
+/**
+ * @brief Store 32-bit big-endian word.
+ * @param p Destination bytes.
+ * @param v Value to store.
+ */
 static inline void store32_be(uint8_t *p, uint32_t v)
 {
     p[0] = (uint8_t)(v >> 24);
@@ -72,28 +104,35 @@ static inline void store32_be(uint8_t *p, uint32_t v)
     p[3] = (uint8_t)(v);
 }
 
+/**
+ * @brief Store 64-bit big-endian word.
+ * @param p Destination bytes.
+ * @param v Value to store.
+ */
 static inline void store64_be(uint8_t *p, uint64_t v)
 {
     store32_be(p,     (uint32_t)(v >> 32));
     store32_be(p + 4, (uint32_t)(v));
 }
 
-/** @brief Simple PRNG for sender index — not cryptographic, just unique-ish. */
-static uint32_t wg_random_u32(void)
-{
-    static uint32_t state = 0x12345678;
-    state ^= syn_port_get_tick_ms();
-    state ^= state << 13;
-    state ^= state >> 17;
-    state ^= state << 5;
-    return state;
-}
+/* sender index — now using syn_random */
+#if SYN_USE_METRICS
+SYN_METRIC_DECLARE(wg_handshakes, "wg_handshakes", "Total WireGuard handshakes", SYN_METRIC_TYPE_COUNTER);
+SYN_METRIC_DECLARE(wg_tx_bytes,   "wg_tx_bytes",   "Total bytes sent over WG",    SYN_METRIC_TYPE_COUNTER);
+SYN_METRIC_DECLARE(wg_rx_bytes,   "wg_rx_bytes",   "Total bytes received over WG", SYN_METRIC_TYPE_COUNTER);
+SYN_METRIC_DECLARE(wg_errors,     "wg_errors",     "Total WG processing errors",  SYN_METRIC_TYPE_COUNTER);
+#endif
 
 /* ═══════════════════════════════════════════════════════════════════════════
  *  HKDF (HMAC-BLAKE2s based, per WireGuard spec)
  * ═══════════════════════════════════════════════════════════════════════════ */
 
-/** HKDF-Extract + Expand producing 2 outputs. */
+/** HKDF-Extract + Expand producing 2 outputs.
+ * @param out1,out2 Output buffers (32 bytes each).
+ * @param ck        Chaining key (32 bytes).
+ * @param input     Input data.
+ * @param input_len Length of input data.
+ */
 static void wg_hkdf2(uint8_t out1[32], uint8_t out2[32],
                      const uint8_t ck[32],
                      const uint8_t *input, size_t input_len)
@@ -113,7 +152,12 @@ static void wg_hkdf2(uint8_t out1[32], uint8_t out2[32],
     syn_hmac_blake2s(prk, 32, tmp, 33, out2);
 }
 
-/** HKDF-Extract + Expand producing 3 outputs. */
+/** HKDF-Extract + Expand producing 3 outputs.
+ * @param out1,out2,out3 Output buffers (32 bytes each).
+ * @param ck             Chaining key (32 bytes).
+ * @param input          Input data.
+ * @param input_len      Length of input data.
+ */
 static void wg_hkdf3(uint8_t out1[32], uint8_t out2[32], uint8_t out3[32],
                      const uint8_t ck[32],
                      const uint8_t *input, size_t input_len)
@@ -138,7 +182,11 @@ static void wg_hkdf3(uint8_t out1[32], uint8_t out2[32], uint8_t out3[32],
  *  Noise handshake helpers
  * ═══════════════════════════════════════════════════════════════════════════ */
 
-/** @brief Mix hash: H = BLAKE2s(H || data). */
+/** @brief Mix hash: H = BLAKE2s(H || data).
+ * @param h    Running hash (32 bytes).
+ * @param data Input data.
+ * @param len  Length of input data.
+ */
 static void wg_mix_hash(uint8_t h[32], const void *data, size_t len)
 {
     SYN_BLAKE2s ctx;
@@ -148,14 +196,26 @@ static void wg_mix_hash(uint8_t h[32], const void *data, size_t len)
     syn_blake2s_final(&ctx, h);
 }
 
-/** @brief Mix key: (CK, k) = HKDF(CK, input). */
+/** @brief Mix key: (CK, k) = HKDF(CK, input).
+ * @param ck    Running chaining key (32 bytes).
+ * @param k     Output key (32 bytes).
+ * @param input Input data.
+ * @param len   Length of input data.
+ */
 static void wg_mix_key(uint8_t ck[32], uint8_t k[32],
                        const uint8_t *input, size_t len)
 {
     wg_hkdf2(ck, k, ck, input, len);
 }
 
-/** @brief Encrypt-and-hash: encrypt plaintext, mix ciphertext+tag into hash. */
+/** @brief Encrypt-and-hash: encrypt plaintext, mix ciphertext+tag into hash.
+ * @param h         Running hash (32 bytes).
+ * @param k         Encryption key (32 bytes).
+ * @param plain     Plaintext input.
+ * @param plain_len Plaintext length.
+ * @param ct        Ciphertext output.
+ * @param tag       MAC tag output (16 bytes).
+ */
 static void wg_encrypt_and_hash(uint8_t h[32], const uint8_t k[32],
                                 const uint8_t *plain, size_t plain_len,
                                 uint8_t *ct, uint8_t tag[16])
@@ -177,7 +237,15 @@ static void wg_encrypt_and_hash(uint8_t h[32], const uint8_t k[32],
     }
 }
 
-/** @brief Decrypt-and-hash: verify + decrypt, mix ciphertext+tag into hash. */
+/** @brief Decrypt-and-hash: verify + decrypt, mix ciphertext+tag into hash.
+ * @param h      Running hash (32 bytes).
+ * @param k      Decryption key (32 bytes).
+ * @param ct     Ciphertext input.
+ * @param ct_len Ciphertext length.
+ * @param tag    MAC tag input (16 bytes).
+ * @param plain  Plaintext output.
+ * @return true if decryption and verification succeeded.
+ */
 static bool wg_decrypt_and_hash(uint8_t h[32], const uint8_t k[32],
                                 const uint8_t *ct, size_t ct_len,
                                 const uint8_t tag[16],
@@ -207,7 +275,10 @@ static bool wg_decrypt_and_hash(uint8_t h[32], const uint8_t k[32],
  *  TAI64N timestamp
  * ═══════════════════════════════════════════════════════════════════════════ */
 
-/** @brief Write a 12-byte TAI64N timestamp from NTP time. */
+/** @brief Write a 12-byte TAI64N timestamp from NTP time.
+ * @param out  Output buffer (12 bytes).
+ * @param sntp NTP time source.
+ */
 static void wg_tai64n(uint8_t out[12], const SYN_SNTP *sntp)
 {
     uint32_t epoch_s  = syn_sntp_get_epoch_s(sntp);
@@ -226,7 +297,12 @@ static void wg_tai64n(uint8_t out[12], const SYN_SNTP *sntp)
  *  MAC1 (for handshake messages)
  * ═══════════════════════════════════════════════════════════════════════════ */
 
-/** @brief Compute mac1 = keyed BLAKE2s(HASH("mac1----" || peer_pub), msg). */
+/** @brief Compute mac1 = keyed BLAKE2s(HASH("mac1----" || peer_pub), msg).
+ * @param mac      Output MAC (16 bytes).
+ * @param peer_pub Peer's public key.
+ * @param msg      Message data.
+ * @param msg_len  Length of message data.
+ */
 static void wg_mac1(uint8_t mac[16],
                     const uint8_t peer_pub[32],
                     const uint8_t *msg, size_t msg_len)
@@ -248,7 +324,10 @@ static void wg_mac1(uint8_t mac[16],
  *  Handshake: Initiation (we are the initiator)
  * ═══════════════════════════════════════════════════════════════════════════ */
 
-/** @brief Build and send a Noise_IKpsk2 handshake initiation message. */
+/** @brief Build and send a Noise_IKpsk2 handshake initiation message.
+ * @param wg Client context.
+ * @return true if message was built and sent.
+ */
 static bool wg_send_initiation(SYN_WG *wg)
 {
     uint8_t *msg = wg->tx_buf;
@@ -277,15 +356,11 @@ static bool wg_send_initiation(SYN_WG *wg)
     wg_mix_hash(h, wg->config.peer_public_key, 32);
 
     /* Generate ephemeral keypair */
-    /* Use a mix of tick and state as entropy (not cryptographically random
-     * on bare metal — production should use a hardware RNG port function) */
-    {
-        uint32_t entropy[8];
-        unsigned i;
-        for (i = 0; i < 8; i++) entropy[i] = wg_random_u32();
-        memcpy(wg->hs_ephemeral_priv, entropy, 32);
-        syn_x25519_clamp(wg->hs_ephemeral_priv);
+    /* Now using secure syn_random_fill */
+    if (syn_random_fill(wg->hs_ephemeral_priv, 32) != SYN_OK) {
+        return false;
     }
+    syn_x25519_clamp(wg->hs_ephemeral_priv);
 
     uint8_t ephemeral_pub[32];
     syn_x25519_pubkey(ephemeral_pub, wg->hs_ephemeral_priv);
@@ -295,7 +370,7 @@ static bool wg_send_initiation(SYN_WG *wg)
     store32_le(msg + pos, SYN_WG_MSG_INITIATION); pos += 4;
 
     /* Sender index */
-    wg->session.sender_index = wg_random_u32();
+    wg->session.sender_index = syn_random_u32();
     store32_le(msg + pos, wg->session.sender_index); pos += 4;
 
     /* msg.ephemeral = E_pub */
@@ -346,7 +421,12 @@ static bool wg_send_initiation(SYN_WG *wg)
  *  Handshake: Consume Response
  * ═══════════════════════════════════════════════════════════════════════════ */
 
-/** @brief Parse and validate a handshake response, deriving session keys. */
+/** @brief Parse and validate a handshake response, deriving session keys.
+ * @param wg  Client context.
+ * @param msg Received message data.
+ * @param len Received message length.
+ * @return true if response was valid and session established.
+ */
 static bool wg_consume_response(SYN_WG *wg, const uint8_t *msg, size_t len)
 {
     uint8_t *h = wg->hs_hash;
@@ -426,13 +506,6 @@ static bool wg_consume_response(SYN_WG *wg, const uint8_t *msg, size_t len)
  *  Transport: Encrypt + Send
  * ═══════════════════════════════════════════════════════════════════════════ */
 
-/**
- * @brief Encrypt and send an IP packet as a WireGuard transport message.
- * @param wg        Client context.
- * @param ip_packet Raw IP packet to send.
- * @param len       Packet length.
- * @return SYN_OK on success, SYN_ERROR if no session or send failed.
- */
 SYN_Status syn_wg_send(SYN_WG *wg, const uint8_t *ip_packet, size_t len)
 {
     SYN_ASSERT(wg != NULL);
@@ -466,7 +539,7 @@ SYN_Status syn_wg_send(SYN_WG *wg, const uint8_t *ip_packet, size_t len)
     int sent = syn_port_udp_sendto(wg->udp_sock, msg, total,
                                    &wg->config.endpoint);
     if (sent != (int)total) return SYN_ERROR;
-
+    SYN_METRIC_ADD(wg_tx_bytes, len);
     wg->last_sent_ms = syn_port_get_tick_ms();
     return SYN_OK;
 }
@@ -475,7 +548,11 @@ SYN_Status syn_wg_send(SYN_WG *wg, const uint8_t *ip_packet, size_t len)
  *  Transport: Receive + Decrypt
  * ═══════════════════════════════════════════════════════════════════════════ */
 
-/** @brief Anti-replay check using a sliding window bitmap. */
+/** @brief Anti-replay check using a sliding window bitmap.
+ * @param s       Active session.
+ * @param counter Received counter value.
+ * @return true if counter is new and within window.
+ */
 static bool wg_replay_check(SYN_WgSession *s, uint64_t counter)
 {
     if (counter > s->recv_counter) {
@@ -501,7 +578,12 @@ static bool wg_replay_check(SYN_WgSession *s, uint64_t counter)
     return true;
 }
 
-/** @brief Decrypt and deliver an incoming WireGuard transport message. */
+/** @brief Decrypt and deliver an incoming WireGuard transport message.
+ * @param wg  Client context.
+ * @param msg Received message data.
+ * @param len Received message length.
+ * @return true if message was valid and delivered.
+ */
 static bool wg_handle_transport(SYN_WG *wg, const uint8_t *msg, size_t len)
 {
     if (len < 32) return false;  /* Minimum: 16 header + 16 tag (empty) */
@@ -531,6 +613,7 @@ static bool wg_handle_transport(SYN_WG *wg, const uint8_t *msg, size_t len)
 
     if (!syn_aead_decrypt(wg->session.recv_key, nonce,
                           NULL, 0, ct, ct_len, tag, plain)) {
+        SYN_METRIC_INC(wg_errors);
         return false;
     }
 
@@ -548,7 +631,9 @@ static bool wg_handle_transport(SYN_WG *wg, const uint8_t *msg, size_t len)
  *  Keepalive
  * ═══════════════════════════════════════════════════════════════════════════ */
 
-/** @brief Send an empty (keepalive) transport message. */
+/** @brief Send an empty (keepalive) transport message.
+ * @param wg Client context.
+ */
 static void wg_send_keepalive(SYN_WG *wg)
 {
     /* A keepalive is just a transport message with zero-length payload */
@@ -559,16 +644,6 @@ static void wg_send_keepalive(SYN_WG *wg)
  *  Public API
  * ═══════════════════════════════════════════════════════════════════════════ */
 
-/**
- * @brief Initialise WireGuard client, derive public key, prepare state.
- * @param wg          Client context.
- * @param config      Peer configuration (copied).
- * @param sntp        SNTP time source.
- * @param rx_buf      Receive buffer.
- * @param rx_buf_size Receive buffer capacity.
- * @param tx_buf      Transmit buffer.
- * @param tx_buf_size Transmit buffer capacity.
- */
 void syn_wg_init(SYN_WG *wg, const SYN_WgConfig *config,
                  SYN_SNTP *sntp,
                  uint8_t *rx_buf, size_t rx_buf_size,
@@ -592,18 +667,17 @@ void syn_wg_init(SYN_WG *wg, const SYN_WgConfig *config,
 
     /* Derive our public key */
     syn_x25519_pubkey(wg->public_key, wg->config.private_key);
+
+    SYN_METRIC_REGISTER(wg_handshakes);
+    SYN_METRIC_REGISTER(wg_tx_bytes);
+    SYN_METRIC_REGISTER(wg_rx_bytes);
+    SYN_METRIC_REGISTER(wg_errors);
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
  *  Protothread task
  * ═══════════════════════════════════════════════════════════════════════════ */
 
-/**
- * @brief Cooperative protothread: drives handshake, keepalive, and receive.
- * @param pt   Protothread context.
- * @param task Task descriptor (user_data must point to SYN_WG).
- * @return PT status.
- */
 SYN_PT_Status syn_wg_task(SYN_PT *pt, SYN_Task *task)
 {
     SYN_WG *wg = (SYN_WG *)task->user_data;
@@ -621,7 +695,6 @@ SYN_PT_Status syn_wg_task(SYN_PT *pt, SYN_Task *task)
         PT_RESTART(pt);
     }
 
-    /* ── Main loop ──────────────────────────────────────────────────── */
     for (;;) {
         uint32_t now = syn_port_get_tick_ms();
 

@@ -12,9 +12,8 @@
 
 /**
  * @brief Scan the ringbuf for the delimiter byte.
- *
- * Returns the 1-based position of the first delimiter (i.e. the number
- * of bytes up to and including the delimiter), or 0 if not found.
+ * @param s Stream to scan.
+ * @return 1-based position of the first delimiter, or 0 if not found.
  */
 static size_t stream_find_delimiter(const SYN_Stream *s)
 {
