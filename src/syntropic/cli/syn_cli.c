@@ -227,7 +227,10 @@ static void cli_history_push(SYN_CLI *cli, const char *line)
     if (cli->history_count > 0) {
         size_t last = (cli->history_write + SYN_CLI_HISTORY_DEPTH - 1)
                       % SYN_CLI_HISTORY_DEPTH;
-        if (strcmp(cli->history[last], line) == 0) return;
+        if (strcmp(cli->history[last], line) == 0) {
+            cli->history_read = cli->history_write;  /* reset cursor */
+            return;
+        }
     }
 
     strncpy(cli->history[cli->history_write], line,

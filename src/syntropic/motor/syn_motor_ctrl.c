@@ -257,11 +257,25 @@ void syn_motor_ctrl_move_to(SYN_MotorCtrl *ctrl, int32_t target,
     if (vel_q8 < 1)   vel_q8 = 1;
     if (accel_q8 < 1)  accel_q8 = 1;
 
-    /* Initialize the internal ramp from current position */
-    int32_t current = read_position(ctrl);
-    syn_ramp_init(&ctrl->profile, current);
-    syn_ramp_set_target_trapezoid_fp(&ctrl->profile, target,
-                                      vel_q8, accel_q8, 8);
+    if (ctrl->profile_active) {
+        /* Mid-move retarget: update target while preserving current velocity.
+         * The ramp will decelerate/reverse smoothly toward the new target. */
+        ctrl->profile.target = target;
+        ctrl->profile.rate   = vel_q8;
+        ctrl->profile.accel  = accel_q8;
+        ctrl->profile.done   = false;
+    } else {
+        /* Fresh move from standstill */
+        int32_t current = read_position(ctrl);
+        syn_ramp_init(&ctrl->profile, current);
+        syn_ramp_set_target_trapezoid_fp(&ctrl->profile, target,
+                                          vel_q8, accel_q8, 8);
+
+        ctrl->last_position    = current;
+        ctrl->measured_position = current;
+        ctrl->last_update_tick = syn_port_get_tick_ms();
+        syn_pid_reset(&ctrl->pid);
+    }
 
     ctrl->target_position = target;
     ctrl->mode  = SYN_MCTRL_MODE_POSITION;
@@ -269,11 +283,6 @@ void syn_motor_ctrl_move_to(SYN_MotorCtrl *ctrl, int32_t target,
     ctrl->stall_active = false;
     ctrl->trajectory_active = true;
     ctrl->profile_active = true;
-
-    syn_pid_reset(&ctrl->pid);
-    ctrl->last_position    = current;
-    ctrl->measured_position = current;
-    ctrl->last_update_tick = syn_port_get_tick_ms();
 }
 
 void syn_motor_ctrl_move_to_scurve(SYN_MotorCtrl *ctrl, int32_t target,
