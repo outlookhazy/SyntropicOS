@@ -399,7 +399,7 @@ SYN_MotorCtrl_State syn_motor_ctrl_update(SYN_MotorCtrl *ctrl)
 
         if (syn_ramp_done(&ctrl->profile)) {
             ctrl->profile_active = false;
-            /* Keep trajectory_active for final PID correction */
+            ctrl->trajectory_active = false;
         }
     }
 
@@ -415,7 +415,7 @@ SYN_MotorCtrl_State syn_motor_ctrl_update(SYN_MotorCtrl *ctrl)
 
         if (syn_scurve_done(&ctrl->scurve_profile)) {
             ctrl->scurve_active = false;
-            /* Keep trajectory_active for final PID correction */
+            ctrl->trajectory_active = false;
         }
     }
 
