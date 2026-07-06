@@ -37,6 +37,16 @@ static void cli_builtin_errors(const SYN_CLI *cli);
 static void cli_builtin_tasks(const SYN_CLI *cli);
 #endif
 
+/* Runtime-configured singletons (set via syn_cli_set_*) */
+#if SYN_CLI_CMD_ERRORS
+struct SYN_ErrLog;
+static struct SYN_ErrLog *s_cli_errlog = NULL;
+#endif
+#if SYN_CLI_CMD_TASKS
+struct SYN_Sched;
+static struct SYN_Sched  *s_cli_sched  = NULL;
+#endif
+
 /**
  * @brief Emit a single character via the console serial port.
  * @param cli  CLI instance (unused, kept for internal API consistency).
@@ -126,10 +136,12 @@ static void cli_dispatch(SYN_CLI *cli, char *line)
         cli_puts(cli, "  uptime         -- Show system uptime\r\n");
 #endif
 #if SYN_CLI_CMD_ERRORS
-        cli_puts(cli, "  errors         -- Dump error log\r\n");
+        if (s_cli_errlog != NULL)
+            cli_puts(cli, "  errors         -- Dump error log\r\n");
 #endif
 #if SYN_CLI_CMD_TASKS
-        cli_puts(cli, "  tasks          -- Show scheduler tasks\r\n");
+        if (s_cli_sched != NULL)
+            cli_puts(cli, "  tasks          -- Show scheduler tasks\r\n");
 #endif
 
         for (size_t i = 0; i < cli->command_count; i++) {
@@ -412,9 +424,7 @@ void syn_cli_printf(const SYN_CLI *cli, const char *fmt, ...)
 #include "../system/syn_errlog.h"
 #include "../sched/syn_sched.h"
 
-/* Singletons (set via syn_cli_set_*) */
-static SYN_ErrLog *s_cli_errlog = NULL;  /**< Error log instance for 'errors' command. */
-static SYN_Sched  *s_cli_sched  = NULL;  /**< Scheduler for 'tasks' command. */
+/* Singletons — defined near top of file, setters here */
 
 /** @brief Set errlog instance for the `errors` built-in command. */
 void syn_cli_set_errlog(SYN_ErrLog *errlog)  { s_cli_errlog = errlog; }
