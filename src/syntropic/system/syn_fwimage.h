@@ -86,7 +86,8 @@ static inline bool syn_fwimage_header_valid(const SYN_FwImageHeader *hdr)
 {
     if (hdr->magic != SYN_FW_MAGIC) return false;
 
-    /* CRC-32 over the first 20 bytes (everything except header_crc) */
+    /* CRC-32 over all fields before header_crc, including padding and HMAC (if present).
+     * offsetof correctly accounts for struct layout and padding. */
     uint32_t crc = syn_crc32(hdr, offsetof(SYN_FwImageHeader, header_crc));
     return (crc == hdr->header_crc);
 }
