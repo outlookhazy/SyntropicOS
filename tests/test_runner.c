@@ -57,6 +57,7 @@ void run_stepper_tests(void);
 void run_motor_ctrl_tests(void);
 void run_actuator_tests(void);
 void run_sensor_tests(void);
+void run_sensor_fusion_tests(void);
 void run_adc_tests(void);
 void run_log_tests(void);
 void run_cli_tests(void);
@@ -277,6 +278,9 @@ int main(void)
 
     /* FOC transforms */
     run_foc_tests();
+
+    /* IMU Sensor Fusion */
+    run_sensor_fusion_tests();
 
     /* Modbus Master */
     run_modbus_master_tests();
