@@ -271,6 +271,27 @@ static void test_fft_n256(void)
     TEST_ASSERT_TRUE(q16_abs(real[0]) > 0);
 }
 
+static void test_fft_windows(void)
+{
+    q16_t win[32];
+
+    /* 1. Hanning window: w[0] ≈ 0, w[16] ≈ 1.0, w[31] ≈ 0 */
+    TEST_ASSERT_EQUAL(SYN_OK, syn_fft_window_hanning(win, 32));
+    TEST_ASSERT_INT_WITHIN(Q16_FROM_FLOAT(0.01), 0, win[0]);
+    TEST_ASSERT_INT_WITHIN(Q16_FROM_FLOAT(0.01), Q16_ONE, win[16]);
+    TEST_ASSERT_INT_WITHIN(Q16_FROM_FLOAT(0.01), 0, win[31]);
+
+    /* 2. Hamming window: w[0] ≈ 0.08, w[16] ≈ 1.0, w[31] ≈ 0.08 */
+    TEST_ASSERT_EQUAL(SYN_OK, syn_fft_window_hamming(win, 32));
+    TEST_ASSERT_INT_WITHIN(Q16_FROM_FLOAT(0.02), Q16_FROM_FLOAT(0.08), win[0]);
+    TEST_ASSERT_INT_WITHIN(Q16_FROM_FLOAT(0.02), Q16_ONE, win[16]);
+
+    /* 3. Blackman-Harris window: w[0] ≈ 0, w[16] ≈ 1.0 */
+    TEST_ASSERT_EQUAL(SYN_OK, syn_fft_window_blackman(win, 32));
+    TEST_ASSERT_INT_WITHIN(Q16_FROM_FLOAT(0.02), 0, win[0]);
+    TEST_ASSERT_INT_WITHIN(Q16_FROM_FLOAT(0.02), Q16_ONE, win[16]);
+}
+
 void run_biquad_tests(void)
 {
     RUN_TEST(test_biquad_filter);
@@ -286,4 +307,5 @@ void run_fft_tests(void)
     RUN_TEST(test_fft_invalid);
     RUN_TEST(test_fft_against_reference);
     RUN_TEST(test_fft_n256);
+    RUN_TEST(test_fft_windows);
 }

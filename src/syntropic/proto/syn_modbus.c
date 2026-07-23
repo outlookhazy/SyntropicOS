@@ -212,6 +212,238 @@ static void handle_write_multiple(SYN_Modbus *mb)
     send_response(mb, 6);
 }
 
+/**
+ * @brief Handle Modbus read exception status (FC 0x07).
+ * @param mb Modbus instance.
+ */
+static void handle_read_exception_status(SYN_Modbus *mb)
+{
+    mb->buf[2] = mb->cfg.exception_status;
+    send_response(mb, 3);
+}
+
+/**
+ * @brief Handle Modbus read/write multiple registers (FC 0x17).
+ * @param mb Modbus instance.
+ */
+static void handle_read_write_multiple(SYN_Modbus *mb)
+{
+    uint16_t read_addr   = read_u16(&mb->buf[2]);
+    uint16_t read_count  = read_u16(&mb->buf[4]);
+    uint16_t write_addr  = read_u16(&mb->buf[6]);
+    uint16_t write_count = read_u16(&mb->buf[8]);
+    uint8_t  write_bytes = mb->buf[10];
+
+    if (read_count == 0 || read_count > 125 ||
+        write_count == 0 || write_count > 121 ||
+        write_bytes != write_count * 2) {
+        send_exception(mb, SYN_MB_FC_READ_WRITE_MULTIPLE, SYN_MB_EX_ILLEGAL_VALUE);
+        return;
+    }
+
+    if ((uint32_t)read_addr + read_count > mb->cfg.holding_count ||
+        (uint32_t)write_addr + write_count > mb->cfg.holding_count) {
+        send_exception(mb, SYN_MB_FC_READ_WRITE_MULTIPLE, SYN_MB_EX_ILLEGAL_ADDR);
+        return;
+    }
+
+    if (mb->cfg.on_write != NULL) {
+        if (!mb->cfg.on_write(mb, write_addr, write_count, mb->cfg.on_write_ctx)) {
+            send_exception(mb, SYN_MB_FC_READ_WRITE_MULTIPLE, SYN_MB_EX_ILLEGAL_VALUE);
+            return;
+        }
+    }
+
+    /* Write performed first according to spec */
+    for (uint16_t i = 0; i < write_count; i++) {
+        mb->cfg.holding_regs[write_addr + i] = read_u16(&mb->buf[11 + i * 2]);
+    }
+
+    /* Read performed second */
+    mb->buf[2] = (uint8_t)(read_count * 2);
+    for (uint16_t i = 0; i < read_count; i++) {
+        write_u16(&mb->buf[3 + i * 2], mb->cfg.holding_regs[read_addr + i]);
+    }
+    send_response(mb, (uint16_t)(3 + read_count * 2));
+}
+
+/**
+ * @brief Handle Modbus read device identification (FC 0x2B / MEI 0x0E).
+ * @param mb Modbus instance.
+ */
+static void handle_read_device_info(SYN_Modbus *mb)
+{
+    if (mb->buf[2] != SYN_MB_MEI_TYPE_READ_DEVICE_ID) {
+        send_exception(mb, SYN_MB_FC_READ_DEVICE_INFO, SYN_MB_EX_ILLEGAL_VALUE);
+        return;
+    }
+
+    uint8_t read_code = mb->buf[3];
+    uint8_t object_id = mb->buf[4];
+
+    if (read_code < 1 || read_code > 4) {
+        send_exception(mb, SYN_MB_FC_READ_DEVICE_INFO, SYN_MB_EX_ILLEGAL_VALUE);
+        return;
+    }
+
+    const SYN_Modbus_DeviceInfo *info = mb->cfg.device_info;
+
+    mb->buf[2] = SYN_MB_MEI_TYPE_READ_DEVICE_ID;
+    mb->buf[3] = read_code;
+    mb->buf[4] = 0x01; /* Conformity level: Basic stream */
+    mb->buf[5] = 0x00; /* More follows: 0 */
+    mb->buf[6] = 0x00; /* Next object id */
+
+    uint16_t pos = 8;
+    uint8_t  obj_count = 0;
+
+    uint8_t start_obj = (read_code == 0x04) ? object_id : 0;
+    uint8_t max_obj   = (read_code == 0x01) ? 2 : 6;
+    if (read_code == 0x04) max_obj = object_id;
+
+    for (uint8_t id = start_obj; id <= max_obj; id++) {
+        const char *str = NULL;
+        if (info != NULL) {
+            switch (id) {
+            case 0x00: str = info->vendor_name; break;
+            case 0x01: str = info->product_code; break;
+            case 0x02: str = info->revision; break;
+            case 0x03: str = info->vendor_url; break;
+            case 0x04: str = info->product_name; break;
+            case 0x05: str = info->model_name; break;
+            case 0x06: str = info->user_app_name; break;
+            }
+        }
+        if (str == NULL) {
+            if (id == 0x00) str = "SyntropicOS";
+            else if (id == 0x01) str = "SYN-MB";
+            else if (id == 0x02) str = "1.0.0";
+            else continue;
+        }
+
+        size_t slen = strlen(str);
+        if (slen > 245) slen = 245;
+
+        if ((uint32_t)pos + 2 + (uint32_t)slen > (uint32_t)mb->buf_size - 2) break;
+
+        mb->buf[pos++] = id;
+        mb->buf[pos++] = (uint8_t)slen;
+        memcpy(&mb->buf[pos], str, slen);
+        pos += slen;
+        obj_count++;
+    }
+
+    mb->buf[7] = obj_count;
+    send_response(mb, pos);
+}
+
+/**
+ * @brief Handle Modbus read file record (FC 0x14).
+ * @param mb Modbus instance.
+ */
+static void handle_read_file_record(SYN_Modbus *mb)
+{
+    uint8_t byte_count = mb->buf[2];
+    if (byte_count < 7 || (byte_count % 7) != 0 || mb->cfg.on_read_file == NULL) {
+        send_exception(mb, SYN_MB_FC_READ_FILE_RECORD, SYN_MB_EX_ILLEGAL_VALUE);
+        return;
+    }
+
+    uint8_t sub_req_count = byte_count / 7;
+    uint8_t req_pos = 3;
+
+    uint8_t resp_buf[256];
+    uint16_t resp_pos = 3;
+
+    for (uint8_t i = 0; i < sub_req_count; i++) {
+        uint8_t ref_type   = mb->buf[req_pos];
+        uint16_t file_num  = read_u16(&mb->buf[req_pos + 1]);
+        uint16_t rec_num   = read_u16(&mb->buf[req_pos + 3]);
+        uint16_t rec_len   = read_u16(&mb->buf[req_pos + 5]);
+        req_pos += 7;
+
+        if (ref_type != 0x06 || rec_len == 0 || rec_len > 120) {
+            send_exception(mb, SYN_MB_FC_READ_FILE_RECORD, SYN_MB_EX_ILLEGAL_VALUE);
+            return;
+        }
+
+        uint16_t rec_data[120];
+        if (!mb->cfg.on_read_file(mb, file_num, rec_num, rec_len, rec_data, mb->cfg.file_cb_ctx)) {
+            send_exception(mb, SYN_MB_FC_READ_FILE_RECORD, SYN_MB_EX_ILLEGAL_ADDR);
+            return;
+        }
+
+        uint8_t sub_resp_len = (uint8_t)(1 + rec_len * 2);
+        if ((uint32_t)resp_pos + 2 + (uint32_t)rec_len * 2 > (uint32_t)mb->buf_size - 2) {
+            send_exception(mb, SYN_MB_FC_READ_FILE_RECORD, SYN_MB_EX_ILLEGAL_VALUE);
+            return;
+        }
+
+        resp_buf[resp_pos++] = sub_resp_len;
+        resp_buf[resp_pos++] = 0x06;
+        for (uint16_t j = 0; j < rec_len; j++) {
+            write_u16(&resp_buf[resp_pos], rec_data[j]);
+            resp_pos += 2;
+        }
+    }
+
+    resp_buf[0] = mb->cfg.slave_addr;
+    resp_buf[1] = SYN_MB_FC_READ_FILE_RECORD;
+    resp_buf[2] = (uint8_t)(resp_pos - 3);
+    memcpy(mb->buf, resp_buf, resp_pos);
+    send_response(mb, resp_pos);
+}
+
+/**
+ * @brief Handle Modbus write file record (FC 0x15).
+ * @param mb Modbus instance.
+ */
+static void handle_write_file_record(SYN_Modbus *mb)
+{
+    uint8_t data_len = mb->buf[2];
+    if (data_len < 9 || mb->cfg.on_write_file == NULL) {
+        send_exception(mb, SYN_MB_FC_WRITE_FILE_RECORD, SYN_MB_EX_ILLEGAL_VALUE);
+        return;
+    }
+
+    uint16_t pos = 3;
+    uint16_t end = 3 + data_len;
+
+    while (pos < end) {
+        if (pos + 7 > end) {
+            send_exception(mb, SYN_MB_FC_WRITE_FILE_RECORD, SYN_MB_EX_ILLEGAL_VALUE);
+            return;
+        }
+        uint8_t ref_type  = mb->buf[pos];
+        uint16_t file_num = read_u16(&mb->buf[pos + 1]);
+        uint16_t rec_num  = read_u16(&mb->buf[pos + 3]);
+        uint16_t rec_len  = read_u16(&mb->buf[pos + 5]);
+        pos += 7;
+
+        if (ref_type != 0x06 || rec_len == 0 || pos + rec_len * 2 > end) {
+            send_exception(mb, SYN_MB_FC_WRITE_FILE_RECORD, SYN_MB_EX_ILLEGAL_VALUE);
+            return;
+        }
+
+        uint16_t rec_data[120];
+        if (rec_len > 120) {
+            send_exception(mb, SYN_MB_FC_WRITE_FILE_RECORD, SYN_MB_EX_ILLEGAL_VALUE);
+            return;
+        }
+        for (uint16_t j = 0; j < rec_len; j++) {
+            rec_data[j] = read_u16(&mb->buf[pos + j * 2]);
+        }
+        pos += rec_len * 2;
+
+        if (!mb->cfg.on_write_file(mb, file_num, rec_num, rec_len, rec_data, mb->cfg.file_cb_ctx)) {
+            send_exception(mb, SYN_MB_FC_WRITE_FILE_RECORD, SYN_MB_EX_ILLEGAL_ADDR);
+            return;
+        }
+    }
+
+    send_response(mb, (uint16_t)(3 + data_len));
+}
+
 /* ── API ────────────────────────────────────────────────────────────────── */
 
 void syn_modbus_init(SYN_Modbus *mb, const SYN_Modbus_Config *cfg,
@@ -297,9 +529,32 @@ bool syn_modbus_process(SYN_Modbus *mb)
         handle_write_single(mb);
         return !is_broadcast;
 
+    case SYN_MB_FC_READ_EXCEPTION_STATUS:
+        if (is_broadcast) break;
+        handle_read_exception_status(mb);
+        return true;
+
     case SYN_MB_FC_WRITE_MULTIPLE:
         handle_write_multiple(mb);
         return !is_broadcast;
+
+    case SYN_MB_FC_READ_FILE_RECORD:
+        if (is_broadcast) break;
+        handle_read_file_record(mb);
+        return true;
+
+    case SYN_MB_FC_WRITE_FILE_RECORD:
+        handle_write_file_record(mb);
+        return !is_broadcast;
+
+    case SYN_MB_FC_READ_WRITE_MULTIPLE:
+        handle_read_write_multiple(mb);
+        return !is_broadcast;
+
+    case SYN_MB_FC_READ_DEVICE_INFO:
+        if (is_broadcast) break;
+        handle_read_device_info(mb);
+        return true;
 
     default:
         if (!is_broadcast) {

@@ -519,10 +519,7 @@ SYN_PT_Status syn_httpd_task(SYN_PT *pt, SYN_Task *task)
     for (;;) {
         /* Non-blocking step — always returns immediately */
         if (srv->running) {
-            SYN_Status st = syn_httpd_step(srv);
-            if (st == SYN_TIMEOUT) {
-                PT_TASK_DELAY_MS(pt, task, 1);
-            }
+            syn_httpd_step(srv);
         }
         PT_YIELD(pt);
     }

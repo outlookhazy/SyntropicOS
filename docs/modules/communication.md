@@ -5,7 +5,7 @@
 | Module | Header | Config | Description |
 |---|---|---|---|
 | COBS | `proto/syn_cobs.h` | `SYN_USE_COBS` | Consistent Overhead Byte Stuffing — packet framing with a streaming byte-at-a-time decoder. Zero-delimited packets over any byte stream. |
-| Modbus RTU | `proto/syn_modbus.h` | `SYN_USE_MODBUS` | Modbus RTU slave implementation: function codes FC01–FC04, FC06, FC16. Uses `syn_crc16_modbus()` for frame integrity. |
+| Modbus RTU | `proto/syn_modbus.h` | `SYN_USE_MODBUS` | Modbus RTU slave implementation: function codes FC03 (Read Holding), FC04 (Read Input), FC06 (Write Single), FC07 (Read Exception Status), FC16 (Write Multiple), FC14 (Read File Record), FC15 (Write File Record), FC17 (Read/Write Multiple), FC43/14 (Read Device Identification). Uses `syn_crc16_modbus()` for frame integrity. |
 
 ## Cooperative Network Stack
 

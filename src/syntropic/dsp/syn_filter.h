@@ -18,6 +18,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include "../util/syn_qmath.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -130,6 +131,39 @@ int16_t syn_filter_median_update(SYN_FilterMedian *f, int16_t sample);
  * @param f  Filter instance.
  */
 void syn_filter_median_reset(SYN_FilterMedian *f);
+
+/* ── FIR Filter ─────────────────────────────────────────────────────────── */
+
+/** @brief FIR filter state (Q16 fixed-point). */
+typedef struct {
+    const q16_t *taps;     /**< Filter coefficient array (length num_taps) */
+    q16_t       *history;  /**< Sample history buffer (length num_taps)    */
+    uint16_t     num_taps; /**< Number of taps / filter length            */
+    uint16_t     head;     /**< Circular history write index              */
+} SYN_FilterFIR;
+
+/**
+ * @brief Initialize an FIR filter.
+ * @param f         Filter instance.
+ * @param taps      Array of Q16 filter coefficients.
+ * @param history   Caller-provided Q16 history buffer of size @c num_taps.
+ * @param num_taps  Number of filter taps.
+ */
+void syn_filter_fir_init(SYN_FilterFIR *f, const q16_t *taps, q16_t *history, uint16_t num_taps);
+
+/**
+ * @brief Feed a new Q16 sample and get the FIR filtered output.
+ * @param f       Filter instance.
+ * @param sample  New Q16 sample.
+ * @return Filtered output in Q16.
+ */
+q16_t syn_filter_fir_update(SYN_FilterFIR *f, q16_t sample);
+
+/**
+ * @brief Reset FIR filter sample history to 0.
+ * @param f  Filter instance.
+ */
+void syn_filter_fir_reset(SYN_FilterFIR *f);
 
 #ifdef __cplusplus
 }

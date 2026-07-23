@@ -27,6 +27,30 @@ extern "C" {
  */
 SYN_Status syn_dsp_fft(q16_t *real, q16_t *imag, uint16_t n);
 
+/**
+ * @brief Generate Hanning window: w[i] = 0.5 * (1 - cos(2*pi*i / (n-1))).
+ * @param out Output buffer of size n.
+ * @param n   Window length.
+ * @return SYN_OK on success, SYN_INVALID_PARAM if NULL or n <= 1.
+ */
+SYN_Status syn_fft_window_hanning(q16_t *out, uint16_t n);
+
+/**
+ * @brief Generate Hamming window: w[i] = 0.54 - 0.46 * cos(2*pi*i / (n-1)).
+ * @param out Output buffer of size n.
+ * @param n   Window length.
+ * @return SYN_OK on success, SYN_INVALID_PARAM if NULL or n <= 1.
+ */
+SYN_Status syn_fft_window_hamming(q16_t *out, uint16_t n);
+
+/**
+ * @brief Generate Blackman-Harris window: w[i] = 0.42 - 0.5*cos(2*pi*i/(n-1)) + 0.08*cos(4*pi*i/(n-1)).
+ * @param out Output buffer of size n.
+ * @param n   Window length.
+ * @return SYN_OK on success, SYN_INVALID_PARAM if NULL or n <= 1.
+ */
+SYN_Status syn_fft_window_blackman(q16_t *out, uint16_t n);
+
 #ifdef __cplusplus
 }
 #endif

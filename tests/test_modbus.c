@@ -547,6 +547,236 @@ static void test_modbus_custom_silence(void)
     TEST_ASSERT_EQUAL_INT(0, mb2.rx_len);  /* runt discarded */
 }
 
+static bool mock_read_file(SYN_Modbus *mb, uint16_t file_num, uint16_t record_num,
+                          uint16_t record_len, uint16_t *record_data, void *ctx)
+{
+    (void)mb; (void)ctx;
+    if (file_num != 1 || record_num > 10) return false;
+    for (uint16_t i = 0; i < record_len; i++) {
+        record_data[i] = (uint16_t)(file_num * 1000 + record_num * 10 + i);
+    }
+    return true;
+}
+
+static uint16_t mock_file_store[10];
+static bool mock_write_file(SYN_Modbus *mb, uint16_t file_num, uint16_t record_num,
+                           uint16_t record_len, const uint16_t *record_data, void *ctx)
+{
+    (void)mb; (void)ctx;
+    if (file_num != 1 || record_num >= 10 || record_len > 10) return false;
+    for (uint16_t i = 0; i < record_len; i++) {
+        mock_file_store[record_num + i] = record_data[i];
+    }
+    return true;
+}
+
+static void test_modbus_read_exception_status(void)
+{
+    static uint8_t mb_buf[64];
+    mock_port_reset();
+
+    SYN_Modbus mb;
+    SYN_Modbus_Config cfg = {
+        .slave_addr       = 1,
+        .exception_status = 0x5A,
+    };
+    syn_modbus_init(&mb, &cfg, mb_buf, sizeof(mb_buf));
+
+    /* Build FC 0x07 request */
+    mb.buf[0] = 1;
+    mb.buf[1] = SYN_MB_FC_READ_EXCEPTION_STATUS;
+    uint16_t crc = syn_crc16_modbus(mb.buf, 2);
+    mb.buf[2] = (uint8_t)(crc & 0xFF);
+    mb.buf[3] = (uint8_t)(crc >> 8);
+    mb.rx_len = 4;
+
+    TEST_ASSERT_TRUE(syn_modbus_process(&mb));
+    TEST_ASSERT_EQUAL_INT(1, mb.frames_rx);
+    TEST_ASSERT_EQUAL_INT(5, mock_uart_tx_len);
+    TEST_ASSERT_EQUAL_HEX8(1, mock_uart_tx_buf[0]);
+    TEST_ASSERT_EQUAL_HEX8(0x07, mock_uart_tx_buf[1]);
+    TEST_ASSERT_EQUAL_HEX8(0x5A, mock_uart_tx_buf[2]);
+}
+
+static void test_modbus_read_write_multiple(void)
+{
+    static uint16_t holding[8] = { 10, 20, 30, 40, 50, 60, 70, 80 };
+    static uint8_t mb_buf[256];
+    mock_port_reset();
+
+    SYN_Modbus mb;
+    SYN_Modbus_Config cfg = {
+        .slave_addr    = 1,
+        .holding_regs  = holding,
+        .holding_count = 8,
+    };
+    syn_modbus_init(&mb, &cfg, mb_buf, sizeof(mb_buf));
+
+    /* FC 0x17: Read 2 regs from addr 0; Write 2 regs to addr 2 (val 888, 999) */
+    mb.buf[0] = 1;
+    mb.buf[1] = SYN_MB_FC_READ_WRITE_MULTIPLE;
+    mb.buf[2] = 0x00; mb.buf[3] = 0x00; /* Read start = 0 */
+    mb.buf[4] = 0x00; mb.buf[5] = 0x02; /* Read count = 2 */
+    mb.buf[6] = 0x00; mb.buf[7] = 0x02; /* Write start = 2 */
+    mb.buf[8] = 0x00; mb.buf[9] = 0x02; /* Write count = 2 */
+    mb.buf[10] = 0x04;                  /* Write byte count = 4 */
+    mb.buf[11] = 0x03; mb.buf[12] = 0x78; /* 888 */
+    mb.buf[13] = 0x03; mb.buf[14] = 0xE7; /* 999 */
+    uint16_t crc = syn_crc16_modbus(mb.buf, 15);
+    mb.buf[15] = (uint8_t)(crc & 0xFF);
+    mb.buf[16] = (uint8_t)(crc >> 8);
+    mb.rx_len = 17;
+
+    TEST_ASSERT_TRUE(syn_modbus_process(&mb));
+    TEST_ASSERT_EQUAL_INT(888, holding[2]);
+    TEST_ASSERT_EQUAL_INT(999, holding[3]);
+    TEST_ASSERT_EQUAL_HEX8(0x17, mock_uart_tx_buf[1]);
+    TEST_ASSERT_EQUAL_INT(4, mock_uart_tx_buf[2]); /* byte count */
+}
+
+static void test_modbus_read_device_identification(void)
+{
+    static uint8_t mb_buf[256];
+    mock_port_reset();
+
+    SYN_Modbus_DeviceInfo dev_info = {
+        .vendor_name  = "Acme Corp",
+        .product_code = "ACME-100",
+        .revision     = "v2.1.0",
+    };
+
+    SYN_Modbus mb;
+    SYN_Modbus_Config cfg = {
+        .slave_addr  = 1,
+        .device_info = &dev_info,
+    };
+    syn_modbus_init(&mb, &cfg, mb_buf, sizeof(mb_buf));
+
+    /* FC 0x2B / MEI 0x0E / Read Code 0x01 / Obj 0x00 */
+    mb.buf[0] = 1;
+    mb.buf[1] = SYN_MB_FC_READ_DEVICE_INFO;
+    mb.buf[2] = SYN_MB_MEI_TYPE_READ_DEVICE_ID;
+    mb.buf[3] = 0x01; /* Read basic */
+    mb.buf[4] = 0x00; /* Start object */
+    uint16_t crc = syn_crc16_modbus(mb.buf, 5);
+    mb.buf[5] = (uint8_t)(crc & 0xFF);
+    mb.buf[6] = (uint8_t)(crc >> 8);
+    mb.rx_len = 7;
+
+    TEST_ASSERT_TRUE(syn_modbus_process(&mb));
+    TEST_ASSERT_EQUAL_HEX8(0x2B, mock_uart_tx_buf[1]);
+    TEST_ASSERT_EQUAL_HEX8(0x0E, mock_uart_tx_buf[2]);
+    TEST_ASSERT_EQUAL_INT(3, mock_uart_tx_buf[7]); /* 3 objects */
+}
+
+static void test_modbus_file_records(void)
+{
+    static uint8_t mb_buf[256];
+    mock_port_reset();
+
+    SYN_Modbus mb;
+    SYN_Modbus_Config cfg = {
+        .slave_addr    = 1,
+        .on_read_file  = mock_read_file,
+        .on_write_file = mock_write_file,
+    };
+    syn_modbus_init(&mb, &cfg, mb_buf, sizeof(mb_buf));
+
+    /* 1. Read file record (FC 0x14) */
+    mb.buf[0] = 1;
+    mb.buf[1] = SYN_MB_FC_READ_FILE_RECORD;
+    mb.buf[2] = 0x07; /* byte count */
+    mb.buf[3] = 0x06; /* ref type */
+    mb.buf[4] = 0x00; mb.buf[5] = 0x01; /* file 1 */
+    mb.buf[6] = 0x00; mb.buf[7] = 0x02; /* record 2 */
+    mb.buf[8] = 0x00; mb.buf[9] = 0x02; /* len 2 */
+    uint16_t crc = syn_crc16_modbus(mb.buf, 10);
+    mb.buf[10] = (uint8_t)(crc & 0xFF);
+    mb.buf[11] = (uint8_t)(crc >> 8);
+    mb.rx_len = 12;
+
+    TEST_ASSERT_TRUE(syn_modbus_process(&mb));
+    TEST_ASSERT_EQUAL_HEX8(0x14, mock_uart_tx_buf[1]);
+
+    /* 2. Write file record (FC 0x15) */
+    mock_port_reset();
+    mb.buf[0] = 1;
+    mb.buf[1] = SYN_MB_FC_WRITE_FILE_RECORD;
+    mb.buf[2] = 0x0B; /* data len = 7 + 4 = 11 */
+    mb.buf[3] = 0x06;
+    mb.buf[4] = 0x00; mb.buf[5] = 0x01; /* file 1 */
+    mb.buf[6] = 0x00; mb.buf[7] = 0x00; /* record 0 */
+    mb.buf[8] = 0x00; mb.buf[9] = 0x02; /* len 2 */
+    mb.buf[10] = 0x12; mb.buf[11] = 0x34; /* val 0x1234 */
+    mb.buf[12] = 0x56; mb.buf[13] = 0x78; /* val 0x5678 */
+    crc = syn_crc16_modbus(mb.buf, 14);
+    mb.buf[14] = (uint8_t)(crc & 0xFF);
+    mb.buf[15] = (uint8_t)(crc >> 8);
+    mb.rx_len = 16;
+
+    TEST_ASSERT_TRUE(syn_modbus_process(&mb));
+    TEST_ASSERT_EQUAL_HEX16(0x1234, mock_file_store[0]);
+    TEST_ASSERT_EQUAL_HEX16(0x5678, mock_file_store[1]);
+}
+
+static void test_modbus_ext_error_paths(void)
+{
+    static uint16_t holding[8] = { 10, 20, 30, 40, 50, 60, 70, 80 };
+    static uint8_t mb_buf[256];
+    mock_port_reset();
+
+    SYN_Modbus mb;
+    SYN_Modbus_Config cfg = {
+        .slave_addr    = 1,
+        .holding_regs  = holding,
+        .holding_count = 8,
+        .on_read_file  = NULL, /* No callbacks configured */
+        .on_write_file = NULL,
+    };
+    syn_modbus_init(&mb, &cfg, mb_buf, sizeof(mb_buf));
+
+    /* 1. FC 0x14 without callback -> EXCEPTION ILLEGAL_VALUE */
+    mb.buf[0] = 1; mb.buf[1] = SYN_MB_FC_READ_FILE_RECORD; mb.buf[2] = 0x07;
+    mb.buf[3] = 0x06; mb.buf[4] = 0; mb.buf[5] = 1; mb.buf[6] = 0; mb.buf[7] = 2; mb.buf[8] = 0; mb.buf[9] = 2;
+    uint16_t crc = syn_crc16_modbus(mb.buf, 10);
+    mb.buf[10] = (uint8_t)(crc & 0xFF); mb.buf[11] = (uint8_t)(crc >> 8);
+    mb.rx_len = 12;
+    TEST_ASSERT_TRUE(syn_modbus_process(&mb));
+    TEST_ASSERT_EQUAL_HEX8(0x94, mock_uart_tx_buf[1]); /* Exception FC 0x80 | 0x14 */
+
+    /* 2. FC 0x15 without callback -> EXCEPTION ILLEGAL_VALUE */
+    mock_port_reset();
+    mb.buf[0] = 1; mb.buf[1] = SYN_MB_FC_WRITE_FILE_RECORD; mb.buf[2] = 0x0B;
+    mb.buf[3] = 0x06; mb.buf[4] = 0; mb.buf[5] = 1; mb.buf[6] = 0; mb.buf[7] = 0; mb.buf[8] = 0; mb.buf[9] = 2;
+    mb.buf[10] = 0x12; mb.buf[11] = 0x34; mb.buf[12] = 0x56; mb.buf[13] = 0x78;
+    crc = syn_crc16_modbus(mb.buf, 14);
+    mb.buf[14] = (uint8_t)(crc & 0xFF); mb.buf[15] = (uint8_t)(crc >> 8);
+    mb.rx_len = 16;
+    TEST_ASSERT_TRUE(syn_modbus_process(&mb));
+    TEST_ASSERT_EQUAL_HEX8(0x95, mock_uart_tx_buf[1]);
+
+    /* 3. FC 0x17 out of range -> EXCEPTION ILLEGAL_ADDR */
+    mock_port_reset();
+    mb.buf[0] = 1; mb.buf[1] = SYN_MB_FC_READ_WRITE_MULTIPLE;
+    mb.buf[2] = 0x00; mb.buf[3] = 0x00; mb.buf[4] = 0x00; mb.buf[5] = 0x02;
+    mb.buf[6] = 0x00; mb.buf[7] = 0x07; mb.buf[8] = 0x00; mb.buf[9] = 0x03; /* 7+3=10 > 8 */
+    mb.buf[10] = 0x06;
+    crc = syn_crc16_modbus(mb.buf, 11);
+    mb.buf[11] = (uint8_t)(crc & 0xFF); mb.buf[12] = (uint8_t)(crc >> 8);
+    mb.rx_len = 13;
+    TEST_ASSERT_TRUE(syn_modbus_process(&mb));
+    TEST_ASSERT_EQUAL_HEX8(0x97, mock_uart_tx_buf[1]);
+
+    /* 4. FC 0x2B invalid MEI type -> EXCEPTION ILLEGAL_VALUE */
+    mock_port_reset();
+    mb.buf[0] = 1; mb.buf[1] = SYN_MB_FC_READ_DEVICE_INFO; mb.buf[2] = 0x0F; /* invalid */
+    crc = syn_crc16_modbus(mb.buf, 3);
+    mb.buf[3] = (uint8_t)(crc & 0xFF); mb.buf[4] = (uint8_t)(crc >> 8);
+    mb.rx_len = 5;
+    TEST_ASSERT_TRUE(syn_modbus_process(&mb));
+    TEST_ASSERT_EQUAL_HEX8(0xAB, mock_uart_tx_buf[1]);
+}
+
 void run_modbus_tests(void)
 {
     RUN_TEST(test_modbus_basic);
@@ -556,5 +786,10 @@ void run_modbus_tests(void)
     RUN_TEST(test_modbus_feed_timeout);
     RUN_TEST(test_modbus_polling_reset);
     RUN_TEST(test_modbus_custom_silence);
+    RUN_TEST(test_modbus_read_exception_status);
+    RUN_TEST(test_modbus_read_write_multiple);
+    RUN_TEST(test_modbus_read_device_identification);
+    RUN_TEST(test_modbus_file_records);
+    RUN_TEST(test_modbus_ext_error_paths);
 }
 

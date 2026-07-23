@@ -72,8 +72,80 @@ static void test_rate_limit(void)
     TEST_ASSERT_EQUAL_INT(3, syn_rate_limit_remaining(&rl));
 }
 
+static void test_q16_rounding(void)
+{
+    q16_t x_pos = Q16_FROM_INT(2) + Q16_FROM_FRAC(3, 4); /* 2.75 */
+    q16_t x_neg = Q16_FROM_INT(-2) - Q16_FROM_FRAC(3, 4); /* -2.75 */
+
+    TEST_ASSERT_EQUAL(Q16_FROM_INT(2), q16_floor(x_pos));
+    TEST_ASSERT_EQUAL(Q16_FROM_INT(-3), q16_floor(x_neg));
+
+    TEST_ASSERT_EQUAL(Q16_FROM_INT(3), q16_ceil(x_pos));
+    TEST_ASSERT_EQUAL(Q16_FROM_INT(-2), q16_ceil(x_neg));
+
+    TEST_ASSERT_EQUAL(Q16_FROM_INT(3), q16_round(x_pos));
+    TEST_ASSERT_EQUAL(Q16_FROM_INT(-3), q16_round(x_neg));
+}
+
+static void test_q16_saturating(void)
+{
+    q16_t max_val = INT32_MAX;
+    q16_t min_val = INT32_MIN;
+
+    TEST_ASSERT_EQUAL(max_val, q16_add_sat(max_val - 10, Q16_FROM_INT(1)));
+    TEST_ASSERT_EQUAL(min_val, q16_sub_sat(min_val + 10, Q16_FROM_INT(1)));
+    TEST_ASSERT_EQUAL(max_val, q16_mul_sat(Q16_FROM_INT(10000), Q16_FROM_INT(10000)));
+}
+
+static void test_q16_poly_eval(void)
+{
+    /* P(x) = 1 + 2*x + 3*x^2 */
+    q16_t coeffs[3] = { Q16_FROM_INT(1), Q16_FROM_INT(2), Q16_FROM_INT(3) };
+
+    /* P(0) = 1 */
+    TEST_ASSERT_EQUAL(Q16_FROM_INT(1), q16_poly_eval(coeffs, 3, 0));
+
+    /* P(1) = 1 + 2 + 3 = 6 */
+    TEST_ASSERT_EQUAL(Q16_FROM_INT(6), q16_poly_eval(coeffs, 3, Q16_ONE));
+
+    /* P(2) = 1 + 4 + 12 = 17 */
+    TEST_ASSERT_EQUAL(Q16_FROM_INT(17), q16_poly_eval(coeffs, 3, Q16_FROM_INT(2)));
+
+    /* Null / 0 size */
+    TEST_ASSERT_EQUAL(0, q16_poly_eval(NULL, 3, Q16_ONE));
+    TEST_ASSERT_EQUAL(0, q16_poly_eval(coeffs, 0, Q16_ONE));
+}
+
+static void test_q16_math_edge_cases(void)
+{
+    /* q16_exp edge cases */
+    TEST_ASSERT_EQUAL(Q16_ONE, q16_exp(0));
+    TEST_ASSERT_EQUAL(INT32_MAX, q16_exp(Q16_FROM_INT(11)));
+    /* exp of negative value with negative k */
+    q16_t exp_neg = q16_exp(-Q16_FROM_INT(5));
+    TEST_ASSERT_TRUE(exp_neg > 0 && exp_neg < Q16_ONE);
+
+    /* q16_log edge cases */
+    TEST_ASSERT_EQUAL(INT32_MIN, q16_log(0));
+    TEST_ASSERT_EQUAL(INT32_MIN, q16_log(-100));
+    TEST_ASSERT_EQUAL(0, q16_log(Q16_ONE));
+    /* log of fractional value (x < 1.0) */
+    q16_t log_frac = q16_log(Q16_HALF);
+    TEST_ASSERT_TRUE(log_frac < 0);
+
+    /* q16_pow edge cases */
+    TEST_ASSERT_EQUAL(0, q16_pow(0, Q16_ONE));
+    TEST_ASSERT_EQUAL(0, q16_pow(-Q16_ONE, Q16_ONE));
+    TEST_ASSERT_EQUAL(Q16_ONE, q16_pow(Q16_FROM_INT(5), 0));
+    TEST_ASSERT_EQUAL(Q16_FROM_INT(5), q16_pow(Q16_FROM_INT(5), Q16_ONE));
+}
+
 void run_math_tests(void)
 {
     RUN_TEST(test_qmath);
+    RUN_TEST(test_q16_rounding);
+    RUN_TEST(test_q16_saturating);
+    RUN_TEST(test_q16_poly_eval);
+    RUN_TEST(test_q16_math_edge_cases);
     RUN_TEST(test_rate_limit);
 }

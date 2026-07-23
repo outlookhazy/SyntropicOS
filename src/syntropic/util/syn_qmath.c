@@ -33,15 +33,17 @@ q16_t q16_sin(q16_t x)
         x = -Q16_PI - x;
     }
 
-    /* Taylor series: sin(x) ≈ x - x^3/6 + x^5/120 */
+    /* 7th-order Taylor series: sin(x) ≈ x - x^3/6 + x^5/120 - x^7/5040 */
     int64_t x_sq = ((int64_t)x * x) >> 16;
     int64_t x_cube = (x_sq * x) >> 16;
-    int64_t x_five = (((x_cube * x) >> 16) * x) >> 16;
+    int64_t x_five = (x_cube * x_sq) >> 16;
+    int64_t x_seven = (x_five * x_sq) >> 16;
 
     int64_t term3 = x_cube / 6;
     int64_t term5 = x_five / 120;
+    int64_t term7 = x_seven / 5040;
 
-    return (q16_t)(x - term3 + term5);
+    return (q16_t)(x - term3 + term5 - term7);
 }
 
 q16_t q16_cos(q16_t x)
@@ -67,9 +69,9 @@ q16_t q16_tan(q16_t x)
  * @brief Core atan approximation for x in [0, 1] (Q16.16).
  *
  * Uses a 7th-order minimax polynomial:
- *   atan(x) ≈ x - x³/3 + x⁵/5 - x⁷/7
+ *   atan(x) ≈ c1*x + c3*x³ + c5*x⁵ + c7*x⁷
  *
- * Max error < 0.005 rad over [0, 1]. Sufficient for Q16.16 precision.
+ * Max error < 0.0003 rad over [0, 1]. High precision for Q16.16.
  *
  * @param x  Input value in Q16.16 (must be in [0, Q16_ONE]).
  * @return Arctangent in Q16.16.
@@ -77,16 +79,20 @@ q16_t q16_tan(q16_t x)
 static q16_t atan_core(q16_t x)
 {
     /* x is in [0, Q16_ONE] */
+    static const int64_t c1 = 65527;   /*  0.999866 */
+    static const int64_t c3 = -21646;  /* -0.330299 */
+    static const int64_t c5 = 11805;   /*  0.180141 */
+    static const int64_t c7 = -4200;   /* -0.064090 */
+
     int64_t x2 = ((int64_t)x * x) >> 16;
     int64_t x3 = (x2 * x) >> 16;
-    int64_t x5 = ((x3 * x) >> 16) * x >> 16;
-    int64_t x7 = ((x5 * x) >> 16) * x >> 16;
+    int64_t x5 = (x3 * x2) >> 16;
+    int64_t x7 = (x5 * x2) >> 16;
 
-    /* atan(x) ≈ x - x³/3 + x⁵/5 - x⁷/7 */
-    int64_t result = (int64_t)x
-                   - x3 / 3
-                   + x5 / 5
-                   - x7 / 7;
+    int64_t result = (c1 * x) >> 16;
+    result += (c3 * x3) >> 16;
+    result += (c5 * x5) >> 16;
+    result += (c7 * x7) >> 16;
 
     return (q16_t)result;
 }
@@ -328,30 +334,55 @@ q16_t q16_log(q16_t x)
     q16_t m = (q16_t)ux;
 
     /*
-     * ln(m) for m in [1, 2) via Taylor series around m=1:
-     *   Let t = m - 1 (so t is in [0, 1))
-     *   ln(1 + t) ≈ t - t²/2 + t³/3 - t⁴/4
-     *
-     * Max error < 0.001 over [0, 1).
+     * ln(m) for m in [1, 2) via transformation y = (m - 1) / (m + 1):
+     *   ln(m) = 2 * (y + y³/3 + y⁵/5 + y⁷/7)
+     * Rapidly convergent for y in [0, 1/3].
      */
-    q16_t t = m - Q16_ONE;
-    int64_t t2 = ((int64_t)t * t) >> 16;
-    int64_t t3 = (t2 * t) >> 16;
-    int64_t t4 = (t3 * t) >> 16;
+    q16_t y = q16_div(m - Q16_ONE, m + Q16_ONE);
+    int64_t y2 = ((int64_t)y * y) >> 16;
+    int64_t y3 = (y2 * y) >> 16;
+    int64_t y5 = (y3 * y2) >> 16;
+    int64_t y7 = (y5 * y2) >> 16;
 
-    q16_t ln_m = (q16_t)(t - t2 / 2 + t3 / 3 - t4 / 4);
+    int64_t ln_m = ((int64_t)y + y3 / 3 + y5 / 5 + y7 / 7) << 1;
 
     /* ln(x) = k * ln(2) + ln(m) */
-    return q16_mul(Q16_FROM_INT(k), Q16_LN2) + ln_m;
+    return q16_mul(Q16_FROM_INT(k), Q16_LN2) + (q16_t)ln_m;
 }
 
-q16_t q16_pow(q16_t base, q16_t exponent)
+q16_t q16_pow(q16_t base, q16_t exp)
 {
     if (base <= 0) return 0;
-    if (exponent == 0) return Q16_ONE;
-    if (exponent == Q16_ONE) return base;
+    if (exp == 0) return Q16_ONE;
+    if (exp == Q16_ONE) return base;
 
-    return q16_exp(q16_mul(exponent, q16_log(base)));
+    return q16_exp(q16_mul(exp, q16_log(base)));
+}
+
+q16_t q16_floor(q16_t x)
+{
+    return (q16_t)((uint32_t)x & 0xFFFF0000u);
+}
+
+q16_t q16_ceil(q16_t x)
+{
+    return (q16_t)(((uint32_t)x + 0x0000FFFFu) & 0xFFFF0000u);
+}
+
+q16_t q16_round(q16_t x)
+{
+    return q16_floor(x + Q16_HALF);
+}
+
+q16_t q16_poly_eval(const q16_t *coeffs, uint8_t n, q16_t x)
+{
+    if (coeffs == NULL || n == 0) return 0;
+
+    q16_t res = coeffs[n - 1];
+    for (int i = (int)n - 2; i >= 0; i--) {
+        res = q16_mul(res, x) + coeffs[i];
+    }
+    return res;
 }
 
 /* ════════════════════════════════════════════════════════════════════════ */

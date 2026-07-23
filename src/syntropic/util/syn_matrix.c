@@ -370,6 +370,19 @@ static SYN_Status inv_4x4(const SYN_Matrix *m, SYN_Matrix *out)
     return SYN_OK;
 }
 
+/**
+ * @brief 1×1 inverse via scalar division: 1/a.
+ * @param m    Input 1×1 matrix.
+ * @param out  Output 1×1 inverse.
+ * @return SYN_OK or SYN_ERROR if zero.
+ */
+static SYN_Status inv_1x1(const SYN_Matrix *m, SYN_Matrix *out)
+{
+    if (m->data[0] == 0) return SYN_ERROR;
+    out->data[0] = q16_div(Q16_ONE, m->data[0]);
+    return SYN_OK;
+}
+
 SYN_Status syn_matrix_inv(const SYN_Matrix *m, SYN_Matrix *out)
 {
     SYN_ASSERT(m != NULL && out != NULL);
@@ -377,6 +390,7 @@ SYN_Status syn_matrix_inv(const SYN_Matrix *m, SYN_Matrix *out)
     SYN_ASSERT(out->rows == m->rows && out->cols == m->cols);
 
     switch (m->rows) {
+    case 1:  return inv_1x1(m, out);
     case 2:  return inv_2x2(m, out);
     case 3:  return inv_3x3(m, out);
     case 4:  return inv_4x4(m, out);
@@ -707,6 +721,209 @@ SYN_Status syn_matrix_least_squares(const SYN_Matrix *A, const SYN_Matrix *b, SY
     }
 
     return status;
+}
+
+SYN_Status syn_matrix_get_block(const SYN_Matrix *src, uint8_t r0, uint8_t c0, SYN_Matrix *dst)
+{
+    SYN_ASSERT(src != NULL && dst != NULL);
+    if (r0 + dst->rows > src->rows || c0 + dst->cols > src->cols) {
+        return SYN_INVALID_PARAM;
+    }
+
+    for (uint8_t r = 0; r < dst->rows; r++) {
+        for (uint8_t c = 0; c < dst->cols; c++) {
+            SYN_MAT_AT(dst, r, c) = SYN_MAT_AT(src, r0 + r, c0 + c);
+        }
+    }
+    return SYN_OK;
+}
+
+SYN_Status syn_matrix_set_block(SYN_Matrix *dst, uint8_t r0, uint8_t c0, const SYN_Matrix *src)
+{
+    SYN_ASSERT(dst != NULL && src != NULL);
+    if (r0 + src->rows > dst->rows || c0 + src->cols > dst->cols) {
+        return SYN_INVALID_PARAM;
+    }
+
+    for (uint8_t r = 0; r < src->rows; r++) {
+        for (uint8_t c = 0; c < src->cols; c++) {
+            SYN_MAT_AT(dst, r0 + r, c0 + c) = SYN_MAT_AT(src, r, c);
+        }
+    }
+    return SYN_OK;
+}
+
+SYN_Status syn_matrix_outer_product(const q16_t *u, uint8_t rows, const q16_t *v, uint8_t cols, SYN_Matrix *out)
+{
+    if (u == NULL || v == NULL || out == NULL) return SYN_INVALID_PARAM;
+    if (out->rows != rows || out->cols != cols) return SYN_INVALID_PARAM;
+
+    for (uint8_t r = 0; r < rows; r++) {
+        for (uint8_t c = 0; c < cols; c++) {
+            SYN_MAT_AT(out, r, c) = q16_mul(u[r], v[c]);
+        }
+    }
+    return SYN_OK;
+}
+
+SYN_Status syn_matrix_qr(const SYN_Matrix *A, SYN_Matrix *Q, SYN_Matrix *R)
+{
+    SYN_ASSERT(A != NULL && Q != NULL && R != NULL);
+
+    uint8_t m = A->rows;
+    uint8_t n = A->cols;
+    if (m < n || Q->rows != m || Q->cols != n || R->rows != n || R->cols != n) {
+        return SYN_INVALID_PARAM;
+    }
+
+    syn_matrix_zero(R);
+    syn_matrix_copy(Q, A);
+
+    /* Modified Gram-Schmidt orthogonalization */
+    q16_t v[SYN_SOLVER_MAX_N];
+    if (m > SYN_SOLVER_MAX_N) return SYN_INVALID_PARAM;
+
+    for (uint8_t k = 0; k < n; k++) {
+        /* Extract k-th column into v */
+        for (uint8_t i = 0; i < m; i++) {
+            v[i] = SYN_MAT_AT(Q, i, k);
+        }
+
+        /* Orthogonalize against previous q_j columns */
+        for (uint8_t j = 0; j < k; j++) {
+            q16_t r_jk = 0;
+            int64_t dot = 0;
+            for (uint8_t i = 0; i < m; i++) {
+                dot += (int64_t)SYN_MAT_AT(Q, i, j) * v[i];
+            }
+            r_jk = (q16_t)(dot >> Q16_SHIFT);
+            SYN_MAT_AT(R, j, k) = r_jk;
+
+            for (uint8_t i = 0; i < m; i++) {
+                v[i] -= q16_mul(r_jk, SYN_MAT_AT(Q, i, j));
+            }
+        }
+
+        /* Compute norm of v */
+        q16_t norm_v = syn_vec_norm(v, m);
+        if (norm_v == 0) return SYN_ERROR; /* Singular / linearly dependent */
+
+        SYN_MAT_AT(R, k, k) = norm_v;
+
+        /* Normalize and store in Q */
+        for (uint8_t i = 0; i < m; i++) {
+            SYN_MAT_AT(Q, i, k) = q16_div(v[i], norm_v);
+        }
+    }
+
+    return SYN_OK;
+}
+
+SYN_Status syn_matrix_eigen_sym2(const SYN_Matrix *A, q16_t evals[2], SYN_Matrix *E)
+{
+    if (A == NULL || evals == NULL || E == NULL) return SYN_INVALID_PARAM;
+    if (A->rows != 2 || A->cols != 2 || E->rows != 2 || E->cols != 2) return SYN_INVALID_PARAM;
+
+    q16_t a = SYN_MAT_AT(A, 0, 0);
+    q16_t b = SYN_MAT_AT(A, 0, 1);
+    q16_t d = SYN_MAT_AT(A, 1, 1);
+
+    q16_t trace = a + d;
+    q16_t diff  = a - d;
+
+    q16_t disc = q16_hypot(diff, q16_mul(Q16_FROM_INT(2), b));
+    q16_t l1 = (trace + disc) >> 1;
+    q16_t l2 = (trace - disc) >> 1;
+
+    evals[0] = l1;
+    evals[1] = l2;
+
+    /* Eigenvectors */
+    if (b == 0) {
+        SYN_MAT_AT(E, 0, 0) = Q16_ONE; SYN_MAT_AT(E, 0, 1) = 0;
+        SYN_MAT_AT(E, 1, 0) = 0;       SYN_MAT_AT(E, 1, 1) = Q16_ONE;
+    } else {
+        q16_t v1[2] = { l1 - d, b };
+        q16_t v2[2] = { l2 - d, b };
+        q16_t e1[2], e2[2];
+        syn_vec_normalize(v1, e1, 2);
+        syn_vec_normalize(v2, e2, 2);
+
+        SYN_MAT_AT(E, 0, 0) = e1[0]; SYN_MAT_AT(E, 0, 1) = e2[0];
+        SYN_MAT_AT(E, 1, 0) = e1[1]; SYN_MAT_AT(E, 1, 1) = e2[1];
+    }
+
+    return SYN_OK;
+}
+
+SYN_Status syn_matrix_eigen_sym3(const SYN_Matrix *A, q16_t evals[3], SYN_Matrix *E)
+{
+    if (A == NULL || evals == NULL || E == NULL) return SYN_INVALID_PARAM;
+    if (A->rows != 3 || A->cols != 3 || E->rows != 3 || E->cols != 3) return SYN_INVALID_PARAM;
+
+    SYN_MAT_DECL(S, 3, 3);
+    syn_matrix_copy(&S, A);
+    syn_matrix_identity(E);
+
+    /* Cyclic Jacobi rotation algorithm for symmetric 3×3 matrix */
+    for (uint8_t iter = 0; iter < 30; iter++) {
+        /* Find largest off-diagonal element */
+        uint8_t p = 0, q = 1;
+        q16_t max_off = q16_abs(SYN_MAT_AT(&S, 0, 1));
+        if (q16_abs(SYN_MAT_AT(&S, 0, 2)) > max_off) { max_off = q16_abs(SYN_MAT_AT(&S, 0, 2)); p = 0; q = 2; }
+        if (q16_abs(SYN_MAT_AT(&S, 1, 2)) > max_off) { max_off = q16_abs(SYN_MAT_AT(&S, 1, 2)); p = 1; q = 2; }
+
+        if (max_off < 4) break; /* Converged (less than 1e-4 in Q16) */
+
+        q16_t app = SYN_MAT_AT(&S, p, p);
+        q16_t aqq = SYN_MAT_AT(&S, q, q);
+        q16_t apq = SYN_MAT_AT(&S, p, q);
+
+        q16_t phi = q16_atan2(q16_mul(Q16_FROM_INT(2), apq), aqq - app) >> 1;
+        q16_t c = q16_cos(phi);
+        q16_t s = q16_sin(phi);
+
+        /* Update matrix S = Jᵀ S J */
+        for (uint8_t i = 0; i < 3; i++) {
+            if (i != p && i != q) {
+                q16_t a_ip = SYN_MAT_AT(&S, i, p);
+                q16_t a_iq = SYN_MAT_AT(&S, i, q);
+                SYN_MAT_AT(&S, i, p) = SYN_MAT_AT(&S, p, i) = q16_mul(c, a_ip) - q16_mul(s, a_iq);
+                SYN_MAT_AT(&S, i, q) = SYN_MAT_AT(&S, q, i) = q16_mul(s, a_ip) + q16_mul(c, a_iq);
+            }
+        }
+        SYN_MAT_AT(&S, p, p) = q16_mul(c, q16_mul(c, app) - q16_mul(s, apq)) - q16_mul(s, q16_mul(c, apq) - q16_mul(s, aqq));
+        SYN_MAT_AT(&S, q, q) = q16_mul(s, q16_mul(s, app) + q16_mul(c, apq)) + q16_mul(c, q16_mul(s, apq) + q16_mul(c, aqq));
+        SYN_MAT_AT(&S, p, q) = SYN_MAT_AT(&S, q, p) = 0;
+
+        /* Update eigenvector matrix E = E J */
+        for (uint8_t i = 0; i < 3; i++) {
+            q16_t e_ip = SYN_MAT_AT(E, i, p);
+            q16_t e_iq = SYN_MAT_AT(E, i, q);
+            SYN_MAT_AT(E, i, p) = q16_mul(c, e_ip) - q16_mul(s, e_iq);
+            SYN_MAT_AT(E, i, q) = q16_mul(s, e_ip) + q16_mul(c, e_iq);
+        }
+    }
+
+    evals[0] = SYN_MAT_AT(&S, 0, 0);
+    evals[1] = SYN_MAT_AT(&S, 1, 1);
+    evals[2] = SYN_MAT_AT(&S, 2, 2);
+
+    /* Sort eigenvalues and eigenvectors descending */
+    for (uint8_t i = 0; i < 2; i++) {
+        for (uint8_t j = i + 1; j < 3; j++) {
+            if (evals[j] > evals[i]) {
+                q16_t tmp_e = evals[i]; evals[i] = evals[j]; evals[j] = tmp_e;
+                for (uint8_t k = 0; k < 3; k++) {
+                    q16_t tmp_v = SYN_MAT_AT(E, k, i);
+                    SYN_MAT_AT(E, k, i) = SYN_MAT_AT(E, k, j);
+                    SYN_MAT_AT(E, k, j) = tmp_v;
+                }
+            }
+        }
+    }
+
+    return SYN_OK;
 }
 
 #endif /* SYN_USE_MATRIX */

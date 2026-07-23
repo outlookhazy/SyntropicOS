@@ -62,10 +62,16 @@ extern "C" {
 /** @name Modbus function codes
  * @{
  */
-#define SYN_MB_FC_READ_HOLDING    0x03  /**< Read holding registers       */
-#define SYN_MB_FC_READ_INPUT      0x04  /**< Read input registers         */
-#define SYN_MB_FC_WRITE_SINGLE    0x06  /**< Write single register        */
-#define SYN_MB_FC_WRITE_MULTIPLE  0x10  /**< Write multiple registers     */
+#define SYN_MB_FC_READ_HOLDING          0x03  /**< Read holding registers       */
+#define SYN_MB_FC_READ_INPUT            0x04  /**< Read input registers         */
+#define SYN_MB_FC_WRITE_SINGLE          0x06  /**< Write single register        */
+#define SYN_MB_FC_READ_EXCEPTION_STATUS 0x07  /**< Read exception status        */
+#define SYN_MB_FC_WRITE_MULTIPLE        0x10  /**< Write multiple registers     */
+#define SYN_MB_FC_READ_FILE_RECORD      0x14  /**< Read file record             */
+#define SYN_MB_FC_WRITE_FILE_RECORD     0x15  /**< Write file record            */
+#define SYN_MB_FC_READ_WRITE_MULTIPLE   0x17  /**< Read/Write multiple regs     */
+#define SYN_MB_FC_READ_DEVICE_INFO      0x2B  /**< Encapsulated interface trans */
+#define SYN_MB_MEI_TYPE_READ_DEVICE_ID  0x0E  /**< Read Device Identification   */
 /** @} */
 
 /** @name Modbus exception codes
@@ -77,9 +83,20 @@ extern "C" {
 #define SYN_MB_EX_DEVICE_FAILURE  0x04  /**< Device failure               */
 /** @} */
 
-/* ── Callbacks ──────────────────────────────────────────────────────────── */
+/* ── Callbacks & Structures ─────────────────────────────────────────────── */
 
 struct SYN_Modbus;
+
+/** @brief Device Information structure for FC 0x2B / 0x0E. */
+typedef struct {
+    const char *vendor_name;     /**< Object ID 0x00 */
+    const char *product_code;    /**< Object ID 0x01 */
+    const char *revision;        /**< Object ID 0x02 */
+    const char *vendor_url;      /**< Object ID 0x03 */
+    const char *product_name;    /**< Object ID 0x04 */
+    const char *model_name;      /**< Object ID 0x05 */
+    const char *user_app_name;   /**< Object ID 0x06 */
+} SYN_Modbus_DeviceInfo;
 
 /**
  * @brief Called before a write to holding registers is applied.
@@ -93,6 +110,26 @@ struct SYN_Modbus;
 typedef bool (*SYN_Modbus_WriteCallback)(struct SYN_Modbus *mb,
                                          uint16_t addr, uint16_t count,
                                          void *ctx);
+
+/**
+ * @brief Callback for reading file records (FC 0x14).
+ */
+typedef bool (*SYN_Modbus_ReadFileRecordCallback)(struct SYN_Modbus *mb,
+                                                   uint16_t file_num,
+                                                   uint16_t record_num,
+                                                   uint16_t record_len,
+                                                   uint16_t *record_data,
+                                                   void *ctx);
+
+/**
+ * @brief Callback for writing file records (FC 0x15).
+ */
+typedef bool (*SYN_Modbus_WriteFileRecordCallback)(struct SYN_Modbus *mb,
+                                                    uint16_t file_num,
+                                                    uint16_t record_num,
+                                                    uint16_t record_len,
+                                                    const uint16_t *record_data,
+                                                    void *ctx);
 
 /* ── Configuration ──────────────────────────────────────────────────────── */
 
@@ -111,6 +148,11 @@ typedef struct {
     SYN_Modbus_WriteCallback on_write;    /**< Write pre-check callback   */
     void            *on_write_ctx;        /**< Context for on_write       */
     uint32_t         silence_ms;          /**< Custom inter-frame silence gap in ms (0 = default 5ms) */
+    uint8_t          exception_status;    /**< Status byte for FC 0x07    */
+    const SYN_Modbus_DeviceInfo *device_info; /**< Device Info for FC 0x2B/0x0E */
+    SYN_Modbus_ReadFileRecordCallback  on_read_file;  /**< File read callback FC 0x14 */
+    SYN_Modbus_WriteFileRecordCallback on_write_file; /**< File write callback FC 0x15 */
+    void            *file_cb_ctx;         /**< Context for file callbacks */
 } SYN_Modbus_Config;
 
 /* ── Modbus instance ────────────────────────────────────────────────────── */

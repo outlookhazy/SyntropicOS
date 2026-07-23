@@ -96,9 +96,36 @@ static void test_filter_median_reset(void)
     TEST_ASSERT_EQUAL_INT(42, v);
 }
 
+/** FIR filter test — 3-tap moving average */
+static void test_filter_fir(void)
+{
+    q16_t taps[3] = { Q16_FROM_FRAC(1, 3), Q16_FROM_FRAC(1, 3), Q16_FROM_FRAC(1, 3) };
+    q16_t history[3];
+
+    SYN_FilterFIR fir;
+    syn_filter_fir_init(&fir, taps, history, 3);
+
+    /* Impulse response: feed 1.0 */
+    q16_t out1 = syn_filter_fir_update(&fir, Q16_ONE);
+    q16_t out2 = syn_filter_fir_update(&fir, 0);
+    q16_t out3 = syn_filter_fir_update(&fir, 0);
+    q16_t out4 = syn_filter_fir_update(&fir, 0);
+
+    TEST_ASSERT_INT_WITHIN(Q16_FROM_FLOAT(0.01), Q16_FROM_FRAC(1, 3), out1);
+    TEST_ASSERT_INT_WITHIN(Q16_FROM_FLOAT(0.01), Q16_FROM_FRAC(1, 3), out2);
+    TEST_ASSERT_INT_WITHIN(Q16_FROM_FLOAT(0.01), Q16_FROM_FRAC(1, 3), out3);
+    TEST_ASSERT_EQUAL(0, out4);
+
+    /* Reset test */
+    syn_filter_fir_update(&fir, Q16_ONE);
+    syn_filter_fir_reset(&fir);
+    TEST_ASSERT_EQUAL(0, syn_filter_fir_update(&fir, 0));
+}
+
 void run_filter_tests(void)
 {
     RUN_TEST(test_filters);
     RUN_TEST(test_filter_ema_reset);
     RUN_TEST(test_filter_median_reset);
+    RUN_TEST(test_filter_fir);
 }

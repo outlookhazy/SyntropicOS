@@ -143,6 +143,20 @@ static inline q16_t q16_add_sat(q16_t a, q16_t b)
 }
 
 /**
+ * @brief Saturating subtract (clamp to INT32 range).
+ * @param a  Minuend.
+ * @param b  Subtrahend.
+ * @return Clamped difference in Q16.
+ */
+static inline q16_t q16_sub_sat(q16_t a, q16_t b)
+{
+    int64_t r = (int64_t)a - b;
+    if (r > INT32_MAX) return INT32_MAX;
+    if (r < INT32_MIN) return INT32_MIN;
+    return (q16_t)r;
+}
+
+/**
  * @brief Saturating multiply.
  * @param a  First operand.
  * @param b  Second operand.
@@ -263,6 +277,36 @@ q16_t q16_log(q16_t x);
  * @return base^exp in Q16.
  */
 q16_t q16_pow(q16_t base, q16_t exp);
+
+/**
+ * @brief Fixed-point floor: largest integer <= x.
+ * @param x Input in Q16.
+ * @return Floor value in Q16.
+ */
+q16_t q16_floor(q16_t x);
+
+/**
+ * @brief Fixed-point ceil: smallest integer >= x.
+ * @param x Input in Q16.
+ * @return Ceil value in Q16.
+ */
+q16_t q16_ceil(q16_t x);
+
+/**
+ * @brief Fixed-point round: nearest integer (half rounded up).
+ * @param x Input in Q16.
+ * @return Rounded value in Q16.
+ */
+q16_t q16_round(q16_t x);
+
+/**
+ * @brief Evaluate polynomial P(x) = c0 + c1*x + c2*x^2 + ... + cn*x^n via Horner's method.
+ * @param coeffs Array of polynomial coefficients [c0, c1, ..., cn].
+ * @param n      Number of coefficients (order = n - 1).
+ * @param x      Evaluation point in Q16.
+ * @return P(x) in Q16.
+ */
+q16_t q16_poly_eval(const q16_t *coeffs, uint8_t n, q16_t x);
 
 /* ── String I/O (compiled in syn_qmath.c) ───────────────────────────────── */
 

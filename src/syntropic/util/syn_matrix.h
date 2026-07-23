@@ -330,6 +330,70 @@ SYN_Status syn_matrix_solve_cholesky(const SYN_Matrix *A, const SYN_Matrix *b, S
  */
 SYN_Status syn_matrix_least_squares(const SYN_Matrix *A, const SYN_Matrix *b, SYN_Matrix *x);
 
+/* ── Block & Outer Product Operations ──────────────────────────────────── */
+
+/**
+ * @brief Extract a submatrix block from src into dst.
+ * @param src Source matrix (M×N).
+ * @param r0  Starting row index in src.
+ * @param c0  Starting column index in src.
+ * @param dst Destination matrix (R×C). Must fit within src bounds from (r0, c0).
+ * @return SYN_OK on success, SYN_INVALID_PARAM on out-of-bounds.
+ */
+SYN_Status syn_matrix_get_block(const SYN_Matrix *src, uint8_t r0, uint8_t c0, SYN_Matrix *dst);
+
+/**
+ * @brief Embed a submatrix block src into dst at position (r0, c0).
+ * @param dst Destination matrix (M×N).
+ * @param r0  Starting row index in dst.
+ * @param c0  Starting column index in dst.
+ * @param src Source submatrix block (R×C).
+ * @return SYN_OK on success, SYN_INVALID_PARAM on out-of-bounds.
+ */
+SYN_Status syn_matrix_set_block(SYN_Matrix *dst, uint8_t r0, uint8_t c0, const SYN_Matrix *src);
+
+/**
+ * @brief Vector outer product: out = u · vᵀ (rows(u) × cols(v)).
+ * @param u     Column vector elements (R elements).
+ * @param rows  Number of rows (R).
+ * @param v     Row vector elements (C elements).
+ * @param cols  Number of columns (C).
+ * @param out   Output matrix (R×C).
+ * @return SYN_OK on success, SYN_INVALID_PARAM if NULL or invalid dimensions.
+ */
+SYN_Status syn_matrix_outer_product(const q16_t *u, uint8_t rows, const q16_t *v, uint8_t cols, SYN_Matrix *out);
+
+/**
+ * @brief QR Decomposition: A = Q · R via Modified Gram-Schmidt process.
+ *
+ * Decomposes an M×N matrix A (M ≥ N) into orthogonal M×N matrix Q (QᵀQ = I)
+ * and upper-triangular N×N matrix R.
+ *
+ * @param A  Input matrix (M×N, M ≥ N).
+ * @param Q  Output orthogonal matrix (M×N).
+ * @param R  Output upper-triangular matrix (N×N).
+ * @return SYN_OK on success, SYN_ERROR if A is linearly dependent / singular.
+ */
+SYN_Status syn_matrix_qr(const SYN_Matrix *A, SYN_Matrix *Q, SYN_Matrix *R);
+
+/**
+ * @brief Compute eigenvalues and eigenvectors of a symmetric 2×2 matrix A.
+ * @param A     Symmetric 2×2 matrix.
+ * @param evals Output array of 2 eigenvalues (sorted descending).
+ * @param E     Output 2×2 matrix whose columns are the normalized eigenvectors.
+ * @return SYN_OK on success, SYN_INVALID_PARAM on invalid inputs.
+ */
+SYN_Status syn_matrix_eigen_sym2(const SYN_Matrix *A, q16_t evals[2], SYN_Matrix *E);
+
+/**
+ * @brief Compute eigenvalues and eigenvectors of a symmetric 3×3 matrix A via Jacobi rotations.
+ * @param A     Symmetric 3×3 matrix.
+ * @param evals Output array of 3 eigenvalues (sorted descending).
+ * @param E     Output 3×3 matrix whose columns are the normalized eigenvectors.
+ * @return SYN_OK on success, SYN_INVALID_PARAM on invalid inputs.
+ */
+SYN_Status syn_matrix_eigen_sym3(const SYN_Matrix *A, q16_t evals[3], SYN_Matrix *E);
+
 #ifdef __cplusplus
 }
 #endif

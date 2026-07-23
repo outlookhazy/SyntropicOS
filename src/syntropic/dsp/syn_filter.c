@@ -145,4 +145,48 @@ void syn_filter_median_reset(SYN_FilterMedian *f)
     f->window = w;
 }
 
+/* ════════════════════════════════════════════════════════════════════════ */
+/*  FIR Filter                                                             */
+/* ════════════════════════════════════════════════════════════════════════ */
+
+void syn_filter_fir_init(SYN_FilterFIR *f, const q16_t *taps, q16_t *history, uint16_t num_taps)
+{
+    SYN_ASSERT(f != NULL && taps != NULL && history != NULL && num_taps > 0);
+
+    f->taps     = taps;
+    f->history  = history;
+    f->num_taps = num_taps;
+    f->head     = 0;
+    memset(history, 0, (size_t)num_taps * sizeof(q16_t));
+}
+
+q16_t syn_filter_fir_update(SYN_FilterFIR *f, q16_t sample)
+{
+    SYN_ASSERT(f != NULL && f->taps != NULL && f->history != NULL);
+
+    /* Insert new sample into circular history */
+    f->history[f->head] = sample;
+
+    int64_t acc = 0;
+    uint16_t idx = f->head;
+    for (uint16_t i = 0; i < f->num_taps; i++) {
+        acc += (int64_t)f->taps[i] * f->history[idx];
+        if (idx == 0) {
+            idx = f->num_taps - 1;
+        } else {
+            idx--;
+        }
+    }
+
+    f->head = (uint16_t)((f->head + 1) % f->num_taps);
+    return (q16_t)(acc >> Q16_SHIFT);
+}
+
+void syn_filter_fir_reset(SYN_FilterFIR *f)
+{
+    SYN_ASSERT(f != NULL && f->history != NULL);
+    memset(f->history, 0, (size_t)f->num_taps * sizeof(q16_t));
+    f->head = 0;
+}
+
 #endif /* SYN_USE_FILTER */
