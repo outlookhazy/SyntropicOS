@@ -8,6 +8,7 @@
 | Modbus RTU Slave | `proto/syn_modbus.h` | `SYN_USE_MODBUS` | Modbus RTU slave implementation: function codes FC03 (Read Holding), FC04 (Read Input), FC06 (Write Single), FC07 (Read Exception Status), FC16 (Write Multiple), FC14 (Read File Record), FC15 (Write File Record), FC17 (Read/Write Multiple), FC43/14 (Read Device Identification). Uses `syn_crc16_modbus()` for frame integrity. |
 | Modbus RTU Master | `proto/syn_modbus_master.h` | `SYN_USE_MODBUS` | Non-blocking Modbus RTU Master / Client state machine supporting FC03, FC04, FC06, and FC16 queries, stream parsing, and tick-based timeout tracking. |
 | CANopen DS301 Slave | `proto/syn_canopen.h` | `SYN_USE_CANOPEN` | Zero-allocation CANopen DS301 slave protocol engine supporting Object Dictionary (OD) lookup, SDO Server (expedited download/upload, segmented SDO, SDO Aborts), up to 4 RPDOs & 4 TPDOs, Heartbeat Producer, Emergency (EMCY) alarms, and NMT state machine management. |
+| CANopen CiA 402 Drive | `proto/syn_cia402.h` | `SYN_USE_CIA402` | CANopen CiA 402 Servo Drive & Motion Control profile engine supporting standard 8-state power drive state machine, Controlword (0x6040), Statusword (0x6041), Profile Position (PP), Profile Velocity (PV), Profile Torque (PT), and Cyclic Synchronous (CSP/CSV) modes with S-Curve trajectory generation. |
 
 ## Cooperative Network Stack
 

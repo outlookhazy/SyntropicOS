@@ -70,6 +70,7 @@ void run_power_tests(void);
 void run_modbus_tests(void);
 void run_modbus_master_tests(void);
 void run_canopen_tests(void);
+void run_cia402_tests(void);
 void run_canvas_tests(void);
 void run_menu_tests(void);
 void run_imgui_tests(void);
@@ -182,6 +183,7 @@ int main(void)
     run_modbus_tests();
     run_modbus_master_tests();
     run_canopen_tests();
+    run_cia402_tests();
     run_stepper_tests();
     run_motor_ctrl_tests();
     run_actuator_tests();
