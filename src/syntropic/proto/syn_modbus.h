@@ -62,14 +62,23 @@ extern "C" {
 /** @name Modbus function codes
  * @{
  */
+#define SYN_MB_FC_READ_COILS            0x01  /**< Read coils (bits)            */
+#define SYN_MB_FC_READ_DISCRETE_INPUTS  0x02  /**< Read discrete inputs (bits)  */
 #define SYN_MB_FC_READ_HOLDING          0x03  /**< Read holding registers       */
 #define SYN_MB_FC_READ_INPUT            0x04  /**< Read input registers         */
+#define SYN_MB_FC_WRITE_SINGLE_COIL     0x05  /**< Write single coil (bit)      */
 #define SYN_MB_FC_WRITE_SINGLE          0x06  /**< Write single register        */
 #define SYN_MB_FC_READ_EXCEPTION_STATUS 0x07  /**< Read exception status        */
+#define SYN_MB_FC_DIAGNOSTICS           0x08  /**< Serial line diagnostics      */
+#define SYN_MB_FC_GET_COMM_EVENT_CNT    0x0B  /**< Get comm event counter       */
+#define SYN_MB_FC_GET_COMM_EVENT_LOG    0x0C  /**< Get comm event log           */
+#define SYN_MB_FC_WRITE_MULTIPLE_COILS  0x0F  /**< Write multiple coils (bits)  */
 #define SYN_MB_FC_WRITE_MULTIPLE        0x10  /**< Write multiple registers     */
 #define SYN_MB_FC_READ_FILE_RECORD      0x14  /**< Read file record             */
 #define SYN_MB_FC_WRITE_FILE_RECORD     0x15  /**< Write file record            */
+#define SYN_MB_FC_MASK_WRITE_REGISTER   0x16  /**< Mask write register          */
 #define SYN_MB_FC_READ_WRITE_MULTIPLE   0x17  /**< Read/Write multiple regs     */
+#define SYN_MB_FC_READ_FIFO_QUEUE       0x18  /**< Read FIFO queue              */
 #define SYN_MB_FC_READ_DEVICE_INFO      0x2B  /**< Encapsulated interface trans */
 #define SYN_MB_MEI_TYPE_READ_DEVICE_ID  0x0E  /**< Read Device Identification   */
 /** @} */
@@ -144,6 +153,16 @@ typedef struct {
     uint16_t        *input_regs;     /**< Read-only input registers       */
     uint16_t         input_count;    /**< Number of input registers       */
 
+    /* Discrete bit maps (coils & discrete inputs) */
+    uint8_t         *coils;          /**< Read/write coils (1 byte = 8 bits) */
+    uint16_t         coils_count;    /**< Total number of coil bits       */
+    uint8_t         *discrete_inputs;/**< Read-only discrete inputs (1 byte = 8 bits) */
+    uint16_t         discrete_count; /**< Total discrete input bits       */
+
+    /* FIFO Queue map */
+    const uint16_t  *fifo_queue;     /**< Pointer to FIFO queue elements  */
+    uint16_t         fifo_count;     /**< Number of elements in FIFO      */
+
     /* Optional */
     SYN_Modbus_WriteCallback on_write;    /**< Write pre-check callback   */
     void            *on_write_ctx;        /**< Context for on_write       */
@@ -172,6 +191,8 @@ typedef struct SYN_Modbus {
     uint32_t     frames_rx;      /**< Total frames received              */
     uint32_t     frames_tx;      /**< Total frames sent                  */
     uint32_t     errors;         /**< CRC/framing error count            */
+    uint16_t     comm_event_counter; /**< Event counter for FC 0x0B/0x0C */
+    uint16_t     bus_message_count;   /**< Bus message count for FC 0x0C   */
 } SYN_Modbus;
 
 /* ── API ────────────────────────────────────────────────────────────────── */

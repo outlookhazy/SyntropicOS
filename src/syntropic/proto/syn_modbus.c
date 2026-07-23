@@ -484,6 +484,225 @@ void syn_modbus_feed(SYN_Modbus *mb, uint8_t byte)
     mb->last_byte_tick = now;
 }
 
+/**
+ * @brief Helper to get bit from array.
+ */
+static bool get_bit(const uint8_t *bits, uint16_t idx)
+{
+    return (bits[idx / 8U] & (uint8_t)(1U << (idx % 8U))) != 0U;
+}
+
+/**
+ * @brief Helper to set bit in array.
+ */
+static void set_bit(uint8_t *bits, uint16_t idx, bool val)
+{
+    if (val) {
+        bits[idx / 8U] |= (uint8_t)(1U << (idx % 8U));
+    } else {
+        bits[idx / 8U] &= (uint8_t)~(1U << (idx % 8U));
+    }
+}
+
+/**
+ * @brief Handle Read Coils (FC 0x01) and Read Discrete Inputs (FC 0x02).
+ */
+static void handle_read_bits(SYN_Modbus *mb, const uint8_t *bits, uint16_t total_bits)
+{
+    if (bits == NULL) {
+        send_exception(mb, mb->buf[1], SYN_MB_EX_ILLEGAL_ADDR);
+        return;
+    }
+
+    uint16_t addr = read_u16(&mb->buf[2]);
+    uint16_t count = read_u16(&mb->buf[4]);
+
+    if (count == 0 || count > 2000) {
+        send_exception(mb, mb->buf[1], SYN_MB_EX_ILLEGAL_VALUE);
+        return;
+    }
+
+    if ((uint32_t)addr + count > total_bits) {
+        send_exception(mb, mb->buf[1], SYN_MB_EX_ILLEGAL_ADDR);
+        return;
+    }
+
+    uint8_t num_bytes = (uint8_t)((count + 7U) / 8U);
+    mb->buf[2] = num_bytes;
+    (void)memset(&mb->buf[3], 0, num_bytes);
+
+    for (uint16_t i = 0; i < count; i++) {
+        if (get_bit(bits, (uint16_t)(addr + i))) {
+            set_bit(&mb->buf[3], i, true);
+        }
+    }
+
+    send_response(mb, (uint16_t)(3 + num_bytes));
+    mb->comm_event_counter++;
+}
+
+/**
+ * @brief Handle Write Single Coil (FC 0x05).
+ */
+static void handle_write_single_coil(SYN_Modbus *mb)
+{
+    if (mb->cfg.coils == NULL) {
+        send_exception(mb, mb->buf[1], SYN_MB_EX_ILLEGAL_ADDR);
+        return;
+    }
+
+    uint16_t addr = read_u16(&mb->buf[2]);
+    uint16_t val  = read_u16(&mb->buf[4]);
+
+    if (val != 0xFF00U && val != 0x0000U) {
+        send_exception(mb, mb->buf[1], SYN_MB_EX_ILLEGAL_VALUE);
+        return;
+    }
+
+    if (addr >= mb->cfg.coils_count) {
+        send_exception(mb, mb->buf[1], SYN_MB_EX_ILLEGAL_ADDR);
+        return;
+    }
+
+    set_bit(mb->cfg.coils, addr, (val == 0xFF00U));
+    send_response(mb, 6);
+    mb->comm_event_counter++;
+}
+
+/**
+ * @brief Handle Write Multiple Coils (FC 0x0F).
+ */
+static void handle_write_multiple_coils(SYN_Modbus *mb)
+{
+    if (mb->cfg.coils == NULL) {
+        send_exception(mb, mb->buf[1], SYN_MB_EX_ILLEGAL_ADDR);
+        return;
+    }
+
+    uint16_t addr = read_u16(&mb->buf[2]);
+    uint16_t count = read_u16(&mb->buf[4]);
+    uint8_t byte_count = mb->buf[6];
+
+    uint8_t expected_bytes = (uint8_t)((count + 7U) / 8U);
+    if (count == 0 || count > 1968 || byte_count != expected_bytes) {
+        send_exception(mb, mb->buf[1], SYN_MB_EX_ILLEGAL_VALUE);
+        return;
+    }
+
+    if ((uint32_t)addr + count > mb->cfg.coils_count) {
+        send_exception(mb, mb->buf[1], SYN_MB_EX_ILLEGAL_ADDR);
+        return;
+    }
+
+    for (uint16_t i = 0; i < count; i++) {
+        bool b = get_bit(&mb->buf[7], i);
+        set_bit(mb->cfg.coils, (uint16_t)(addr + i), b);
+    }
+
+    send_response(mb, 6);
+    mb->comm_event_counter++;
+}
+
+/**
+ * @brief Handle Diagnostics (FC 0x08).
+ */
+static void handle_diagnostics(SYN_Modbus *mb)
+{
+    uint16_t subfunc = read_u16(&mb->buf[2]);
+    if (subfunc == 0x0000U) { /* Return Query Data (Echo) */
+        send_response(mb, 6);
+        mb->comm_event_counter++;
+    } else {
+        send_exception(mb, mb->buf[1], SYN_MB_EX_ILLEGAL_VALUE);
+    }
+}
+
+/**
+ * @brief Handle Get Comm Event Counter (FC 0x0B).
+ */
+static void handle_get_comm_event_cnt(SYN_Modbus *mb)
+{
+    mb->buf[2] = 0x00U;
+    mb->buf[3] = 0x00U;
+    write_u16(&mb->buf[4], mb->comm_event_counter);
+    send_response(mb, 6);
+}
+
+/**
+ * @brief Handle Get Comm Event Log (FC 0x0C).
+ */
+static void handle_get_comm_event_log(SYN_Modbus *mb)
+{
+    mb->buf[2] = 0x08U; /* byte count */
+    mb->buf[3] = 0x00U; /* status high */
+    mb->buf[4] = 0x00U; /* status low */
+    write_u16(&mb->buf[5], mb->comm_event_counter);
+    write_u16(&mb->buf[7], mb->bus_message_count);
+    mb->buf[9] = 0x00U; /* event log byte 0 */
+    mb->buf[10] = 0x00U; /* event log byte 1 */
+    send_response(mb, 11);
+}
+
+/**
+ * @brief Handle Mask Write Register (FC 0x16).
+ */
+static void handle_mask_write_register(SYN_Modbus *mb)
+{
+    if (mb->cfg.holding_regs == NULL) {
+        send_exception(mb, mb->buf[1], SYN_MB_EX_ILLEGAL_ADDR);
+        return;
+    }
+
+    uint16_t addr = read_u16(&mb->buf[2]);
+    uint16_t and_mask = read_u16(&mb->buf[4]);
+    uint16_t or_mask = read_u16(&mb->buf[6]);
+
+    if (addr >= mb->cfg.holding_count) {
+        send_exception(mb, mb->buf[1], SYN_MB_EX_ILLEGAL_ADDR);
+        return;
+    }
+
+    if (mb->cfg.on_write != NULL) {
+        if (!mb->cfg.on_write(mb, addr, 1, mb->cfg.on_write_ctx)) {
+            send_exception(mb, mb->buf[1], SYN_MB_EX_ILLEGAL_VALUE);
+            return;
+        }
+    }
+
+    uint16_t cur = mb->cfg.holding_regs[addr];
+    mb->cfg.holding_regs[addr] = (uint16_t)((cur & and_mask) | (or_mask & (uint16_t)~and_mask));
+    send_response(mb, 8);
+    mb->comm_event_counter++;
+}
+
+/**
+ * @brief Handle Read FIFO Queue (FC 0x18).
+ */
+static void handle_read_fifo_queue(SYN_Modbus *mb)
+{
+    if (mb->cfg.fifo_queue == NULL) {
+        send_exception(mb, mb->buf[1], SYN_MB_EX_ILLEGAL_ADDR);
+        return;
+    }
+
+    uint16_t fifo_count = mb->cfg.fifo_count;
+    if (fifo_count > 31) {
+        send_exception(mb, mb->buf[1], SYN_MB_EX_DEVICE_FAILURE);
+        return;
+    }
+
+    uint16_t byte_count = (uint16_t)(2 + fifo_count * 2);
+    write_u16(&mb->buf[2], byte_count);
+    write_u16(&mb->buf[4], fifo_count);
+
+    for (uint16_t i = 0; i < fifo_count; i++) {
+        write_u16(&mb->buf[6 + i * 2], mb->cfg.fifo_queue[i]);
+    }
+
+    send_response(mb, (uint16_t)(6 + fifo_count * 2));
+    mb->comm_event_counter++;
+}
+
 bool syn_modbus_process(SYN_Modbus *mb)
 {
     SYN_ASSERT(mb != NULL);
@@ -504,6 +723,7 @@ bool syn_modbus_process(SYN_Modbus *mb)
     }
 
     mb->frames_rx++;
+    mb->bus_message_count++;
 
     /* Check slave address (0 = broadcast, we process but don't respond) */
     uint8_t addr = mb->buf[0];
@@ -515,18 +735,35 @@ bool syn_modbus_process(SYN_Modbus *mb)
     uint8_t func = mb->buf[1];
 
     switch (func) {
+    case SYN_MB_FC_READ_COILS:
+        if (is_broadcast) break;
+        handle_read_bits(mb, mb->cfg.coils, mb->cfg.coils_count);
+        return true;
+
+    case SYN_MB_FC_READ_DISCRETE_INPUTS:
+        if (is_broadcast) break;
+        handle_read_bits(mb, mb->cfg.discrete_inputs, mb->cfg.discrete_count);
+        return true;
+
     case SYN_MB_FC_READ_HOLDING:
         if (is_broadcast) break;
         handle_read_regs(mb, mb->cfg.holding_regs, mb->cfg.holding_count);
+        mb->comm_event_counter++;
         return true;
 
     case SYN_MB_FC_READ_INPUT:
         if (is_broadcast) break;
         handle_read_regs(mb, mb->cfg.input_regs, mb->cfg.input_count);
+        mb->comm_event_counter++;
         return true;
+
+    case SYN_MB_FC_WRITE_SINGLE_COIL:
+        handle_write_single_coil(mb);
+        return !is_broadcast;
 
     case SYN_MB_FC_WRITE_SINGLE:
         handle_write_single(mb);
+        mb->comm_event_counter++;
         return !is_broadcast;
 
     case SYN_MB_FC_READ_EXCEPTION_STATUS:
@@ -534,26 +771,59 @@ bool syn_modbus_process(SYN_Modbus *mb)
         handle_read_exception_status(mb);
         return true;
 
+    case SYN_MB_FC_DIAGNOSTICS:
+        if (is_broadcast) break;
+        handle_diagnostics(mb);
+        return true;
+
+    case SYN_MB_FC_GET_COMM_EVENT_CNT:
+        if (is_broadcast) break;
+        handle_get_comm_event_cnt(mb);
+        return true;
+
+    case SYN_MB_FC_GET_COMM_EVENT_LOG:
+        if (is_broadcast) break;
+        handle_get_comm_event_log(mb);
+        return true;
+
+    case SYN_MB_FC_WRITE_MULTIPLE_COILS:
+        handle_write_multiple_coils(mb);
+        return !is_broadcast;
+
     case SYN_MB_FC_WRITE_MULTIPLE:
         handle_write_multiple(mb);
+        mb->comm_event_counter++;
         return !is_broadcast;
 
     case SYN_MB_FC_READ_FILE_RECORD:
         if (is_broadcast) break;
         handle_read_file_record(mb);
+        mb->comm_event_counter++;
         return true;
 
     case SYN_MB_FC_WRITE_FILE_RECORD:
         handle_write_file_record(mb);
+        mb->comm_event_counter++;
+        return !is_broadcast;
+
+    case SYN_MB_FC_MASK_WRITE_REGISTER:
+        handle_mask_write_register(mb);
         return !is_broadcast;
 
     case SYN_MB_FC_READ_WRITE_MULTIPLE:
         handle_read_write_multiple(mb);
+        mb->comm_event_counter++;
         return !is_broadcast;
+
+    case SYN_MB_FC_READ_FIFO_QUEUE:
+        if (is_broadcast) break;
+        handle_read_fifo_queue(mb);
+        return true;
 
     case SYN_MB_FC_READ_DEVICE_INFO:
         if (is_broadcast) break;
         handle_read_device_info(mb);
+        mb->comm_event_counter++;
         return true;
 
     default:

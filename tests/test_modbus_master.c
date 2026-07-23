@@ -191,6 +191,82 @@ static void test_modbus_master_process_edge_cases(void)
     TEST_ASSERT_EQUAL(SYN_MB_MASTER_STATE_ERROR, syn_modbus_master_process(&master, 10));
 }
 
+static void test_modbus_master_new_queries(void)
+{
+    SYN_ModbusMaster master;
+    syn_modbus_master_init(&master, 500);
+
+    /* 1. Read Coils (FC 0x01) */
+    TEST_ASSERT_EQUAL(SYN_OK, syn_modbus_master_read_coils(&master, 1, 0, 8));
+    uint8_t resp_coils[6] = { 1, 1, 1, 0x55, 0, 0 };
+    uint16_t crc = syn_crc16_modbus(resp_coils, 4);
+    resp_coils[4] = (uint8_t)(crc & 0xFF); resp_coils[5] = (uint8_t)(crc >> 8);
+    for (int i = 0; i < 6; i++) syn_modbus_master_feed(&master, resp_coils[i]);
+    TEST_ASSERT_EQUAL(SYN_MB_MASTER_STATE_COMPLETE, syn_modbus_master_process(&master, 10));
+    TEST_ASSERT_EQUAL(1, master.read_count);
+    TEST_ASSERT_EQUAL_HEX16(0x55, master.read_data[0]);
+
+    /* 2. Read Discrete Inputs (FC 0x02) */
+    syn_modbus_master_init(&master, 500);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_modbus_master_read_discrete_inputs(&master, 1, 0, 8));
+    uint8_t resp_disc[6] = { 1, 2, 1, 0xAA, 0, 0 };
+    crc = syn_crc16_modbus(resp_disc, 4);
+    resp_disc[4] = (uint8_t)(crc & 0xFF); resp_disc[5] = (uint8_t)(crc >> 8);
+    for (int i = 0; i < 6; i++) syn_modbus_master_feed(&master, resp_disc[i]);
+    TEST_ASSERT_EQUAL(SYN_MB_MASTER_STATE_COMPLETE, syn_modbus_master_process(&master, 10));
+
+    /* 3. Write Single Coil (FC 0x05) */
+    syn_modbus_master_init(&master, 500);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_modbus_master_write_single_coil(&master, 1, 0, true));
+    uint8_t resp_sc[8] = { 1, 5, 0, 0, 0xFF, 0, 0, 0 };
+    crc = syn_crc16_modbus(resp_sc, 6);
+    resp_sc[6] = (uint8_t)(crc & 0xFF); resp_sc[7] = (uint8_t)(crc >> 8);
+    for (int i = 0; i < 8; i++) syn_modbus_master_feed(&master, resp_sc[i]);
+    TEST_ASSERT_EQUAL(SYN_MB_MASTER_STATE_COMPLETE, syn_modbus_master_process(&master, 10));
+
+    /* 4. Write Multiple Coils (FC 0x0F) */
+    syn_modbus_master_init(&master, 500);
+    uint8_t coil_bits[1] = { 0xFF };
+    TEST_ASSERT_EQUAL(SYN_OK, syn_modbus_master_write_multiple_coils(&master, 1, 0, 8, coil_bits));
+    uint8_t resp_mc[8] = { 1, 0x0F, 0, 0, 0, 8, 0, 0 };
+    crc = syn_crc16_modbus(resp_mc, 6);
+    resp_mc[6] = (uint8_t)(crc & 0xFF); resp_mc[7] = (uint8_t)(crc >> 8);
+    for (int i = 0; i < 8; i++) syn_modbus_master_feed(&master, resp_mc[i]);
+    TEST_ASSERT_EQUAL(SYN_MB_MASTER_STATE_COMPLETE, syn_modbus_master_process(&master, 10));
+
+    /* 5. Mask Write Register (FC 0x16) */
+    syn_modbus_master_init(&master, 500);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_modbus_master_mask_write_register(&master, 1, 0, 0xFF00, 0x00AB));
+    uint8_t resp_mw[10] = { 1, 0x16, 0, 0, 0xFF, 0, 0, 0xAB, 0, 0 };
+    crc = syn_crc16_modbus(resp_mw, 8);
+    resp_mw[8] = (uint8_t)(crc & 0xFF); resp_mw[9] = (uint8_t)(crc >> 8);
+    for (int i = 0; i < 10; i++) syn_modbus_master_feed(&master, resp_mw[i]);
+    TEST_ASSERT_EQUAL(SYN_MB_MASTER_STATE_COMPLETE, syn_modbus_master_process(&master, 10));
+
+    /* 6. Read FIFO Queue (FC 0x18) */
+    syn_modbus_master_init(&master, 500);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_modbus_master_read_fifo_queue(&master, 1, 0));
+    uint8_t resp_fifo[10] = { 1, 0x18, 0, 6, 0, 2, 0, 100, 0, 200 };
+    crc = syn_crc16_modbus(resp_fifo, 10);
+    /* Append CRC */
+    uint8_t resp_fifo_full[12];
+    memcpy(resp_fifo_full, resp_fifo, 10);
+    resp_fifo_full[10] = (uint8_t)(crc & 0xFF); resp_fifo_full[11] = (uint8_t)(crc >> 8);
+    for (int i = 0; i < 12; i++) syn_modbus_master_feed(&master, resp_fifo_full[i]);
+    TEST_ASSERT_EQUAL(SYN_MB_MASTER_STATE_COMPLETE, syn_modbus_master_process(&master, 10));
+    TEST_ASSERT_EQUAL(2, master.read_count);
+    TEST_ASSERT_EQUAL_INT(100, master.read_data[0]);
+    TEST_ASSERT_EQUAL_INT(200, master.read_data[1]);
+
+    /* Invalid parameters checks */
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM, syn_modbus_master_read_coils(NULL, 1, 0, 8));
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM, syn_modbus_master_read_discrete_inputs(NULL, 1, 0, 8));
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM, syn_modbus_master_write_single_coil(NULL, 1, 0, true));
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM, syn_modbus_master_write_multiple_coils(NULL, 1, 0, 8, coil_bits));
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM, syn_modbus_master_mask_write_register(NULL, 1, 0, 0, 0));
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM, syn_modbus_master_read_fifo_queue(NULL, 1, 0));
+}
+
 void run_modbus_master_tests(void)
 {
     RUN_TEST(test_modbus_master_read_holding);
@@ -198,4 +274,5 @@ void run_modbus_master_tests(void)
     RUN_TEST(test_modbus_master_write_single_and_multiple);
     RUN_TEST(test_modbus_master_timeout_and_exceptions);
     RUN_TEST(test_modbus_master_process_edge_cases);
+    RUN_TEST(test_modbus_master_new_queries);
 }
