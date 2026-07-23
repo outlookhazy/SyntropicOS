@@ -15,16 +15,14 @@
 #include "syn_foc.h"
 #include "../util/syn_assert.h"
 
-/*
- * Precomputed constants:
- *   1/√3 ≈ 0.57735 → Q16: 37837
- *   2/√3 ≈ 1.15470 → Q16: 75674
- *   √3/2 ≈ 0.86603 → Q16: 56756
- *   1/2  = 0.5      → Q16: 32768
- */
-#define Q16_INV_SQRT3     37837   /* 1/√3 in Q16.16 */
-#define Q16_2_INV_SQRT3   75674   /* 2/√3 in Q16.16 */
-#define Q16_SQRT3_OVER_2  56756   /* √3/2 in Q16.16 */
+/** @brief Precomputed 1/√3 in Q16.16 (≈ 0.57735). */
+#define Q16_INV_SQRT3     37837
+
+/** @brief Precomputed 2/√3 in Q16.16 (≈ 1.15470). */
+#define Q16_2_INV_SQRT3   75674
+
+/** @brief Precomputed √3/2 in Q16.16 (≈ 0.86603). */
+#define Q16_SQRT3_OVER_2  56756
 
 /* ── Clarke transform ───────────────────────────────────────────────────── */
 

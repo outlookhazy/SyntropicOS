@@ -70,6 +70,9 @@ q16_t q16_tan(q16_t x)
  *   atan(x) ≈ x - x³/3 + x⁵/5 - x⁷/7
  *
  * Max error < 0.005 rad over [0, 1]. Sufficient for Q16.16 precision.
+ *
+ * @param x  Input value in Q16.16 (must be in [0, Q16_ONE]).
+ * @return Arctangent in Q16.16.
  */
 static q16_t atan_core(q16_t x)
 {
