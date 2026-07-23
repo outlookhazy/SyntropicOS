@@ -6,7 +6,7 @@ All DSP modules use integer-only math — no floating point.
 
 | Module | Header | Config | Description |
 |---|---|---|---|
-| Filters | `dsp/syn_filter.h` | `SYN_USE_FILTER` | Moving average, exponential moving average (EMA), and median filters. Window size configurable up to `SYN_FILTER_MAX_WINDOW` (default 32). |
+| Filters | `dsp/syn_filter.h` | `SYN_USE_FILTER` | Moving average, exponential moving average (EMA), median filters, and direct-form FIR filter (`SYN_FilterFIR`) with 64-bit fixed-point circular buffer accumulation. |
 | Biquad | `dsp/syn_biquad.h` | `SYN_USE_BIQUAD` | Direct Form I biquad filter with built-in Butterworth design functions for lowpass, highpass, bandpass, and notch configurations. Uses Q16.16 coefficients with int64 accumulator. |
 
 ### Biquad Filter Design
@@ -37,7 +37,7 @@ q16_t out = syn_filter_biquad_update(&lpf, sample);
 | Module | Header | Config | Description |
 |---|---|---|---|
 | Signal Stats | `dsp/syn_signal.h` | `SYN_USE_SIGNAL` | Sliding window statistics: min, max, mean, peak-to-peak, variance (Q16), standard deviation (Q16), RMS (Q16), delta, and latest value. |
-| FFT | `dsp/syn_fft.h` | `SYN_USE_FFT` | Cooley-Tukey Radix-2 Fast Fourier Transform with cooperative protothread support for yielding mid-computation. |
+| FFT | `dsp/syn_fft.h` | `SYN_USE_FFT` | Radix-2 FFT, Hanning/Hamming/Blackman-Harris spectral windowing, magnitude spectrum (`syn_fft_magnitude_spectrum`), dominant peak detection (`syn_fft_find_peaks`), and Total Harmonic Distortion (`syn_fft_thd`). |
 
 ### Signal Statistics
 
@@ -57,11 +57,12 @@ int32_t rms  = syn_signal_rms_q16(&sig);       // RMS in Q16.16
 int32_t sdev = syn_signal_std_dev_q16(&sig);    // Std deviation in Q16.16
 ```
 
-## State Estimation
+## State Estimation & Sensor Fusion
 
 | Module | Header | Config | Description |
 |---|---|---|---|
 | Kalman Filter | `dsp/syn_kalman.h` | `SYN_USE_KALMAN` | General-purpose discrete-time linear Kalman filter using fixed-point matrix algebra. Supports arbitrary state and measurement dimensions (compile-time). Zero heap allocation. |
+| Sensor Fusion | `sensor/syn_sensor_fusion.h` | `SYN_USE_SENSOR` | 6-DOF IMU Mahony Complementary / AHRS Filter fusing 3-axis accelerometer and 3-axis gyroscope into 3D attitude representations (Quaternions and Roll/Pitch/Yaw angles). |
 
 ### Kalman Filter
 
