@@ -67,6 +67,7 @@ void run_boot_tests(void);
 void run_errlog_tests(void);
 void run_power_tests(void);
 void run_modbus_tests(void);
+void run_modbus_master_tests(void);
 void run_canvas_tests(void);
 void run_menu_tests(void);
 void run_imgui_tests(void);
@@ -276,6 +277,9 @@ int main(void)
 
     /* FOC transforms */
     run_foc_tests();
+
+    /* Modbus Master */
+    run_modbus_master_tests();
 
     return UNITY_END();
 }

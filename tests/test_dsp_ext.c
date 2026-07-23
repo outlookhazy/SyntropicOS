@@ -292,6 +292,49 @@ static void test_fft_windows(void)
     TEST_ASSERT_INT_WITHIN(Q16_FROM_FLOAT(0.02), Q16_ONE, win[16]);
 }
 
+static void test_fft_spectrum_analytics(void)
+{
+    q16_t real[32], imag[32], mag[17];
+
+    /* Synthesize signal: fundamental at bin 4 (A=1.0), harmonic at bin 8 (A=0.1) */
+    for (uint16_t i = 0; i < 32; i++) {
+        q16_t t = q16_div(q16_mul(q16_mul(Q16_FROM_INT(2), Q16_PI), Q16_FROM_INT(i)), Q16_FROM_INT(32));
+        q16_t f1 = q16_cos(q16_mul(Q16_FROM_INT(4), t));
+        q16_t f2 = q16_mul(Q16_FROM_FLOAT(0.1), q16_cos(q16_mul(Q16_FROM_INT(8), t)));
+        real[i] = f1 + f2;
+        imag[i] = 0;
+    }
+
+    TEST_ASSERT_EQUAL(SYN_OK, syn_dsp_fft(real, imag, 32));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_fft_magnitude_spectrum(real, imag, mag, 32));
+
+    /* Peak finding */
+    SYN_FFTPeak peaks[4];
+    uint8_t num_peaks = 0;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_fft_find_peaks(mag, 17, Q16_FROM_INT(1000), peaks, 4, &num_peaks));
+    TEST_ASSERT_TRUE(num_peaks >= 2);
+    TEST_ASSERT_EQUAL_INT(4, peaks[0].bin); /* Top peak at bin 4 */
+    TEST_ASSERT_EQUAL_INT(8, peaks[1].bin); /* Second peak at bin 8 */
+
+    /* THD calculation: bin 4 fundamental, bin 8 harmonic */
+    q16_t thd_pct = 0;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_fft_thd(mag, 17, 4, 3, &thd_pct));
+    /* Harmonic is 0.1 of fundamental -> ~10% THD */
+    TEST_ASSERT_INT_WITHIN(Q16_FROM_FLOAT(2.0), Q16_FROM_INT(10), thd_pct);
+
+    /* Invalid parameters tests */
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM, syn_fft_magnitude_spectrum(NULL, imag, mag, 32));
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM, syn_fft_find_peaks(NULL, 17, Q16_FROM_INT(1000), peaks, 4, &num_peaks));
+    TEST_ASSERT_EQUAL(SYN_INVALID_PARAM, syn_fft_thd(NULL, 17, 4, 3, &thd_pct));
+
+    /* Peak sorting test: smaller peak at lower bin, larger peak at higher bin */
+    q16_t synthetic_mag[8] = { 0, 100, 0, 500, 0, 0, 0, 0 };
+    TEST_ASSERT_EQUAL(SYN_OK, syn_fft_find_peaks(synthetic_mag, 8, Q16_FROM_INT(1000), peaks, 4, &num_peaks));
+    TEST_ASSERT_EQUAL_INT(2, num_peaks);
+    TEST_ASSERT_EQUAL_INT(3, peaks[0].bin); /* Larger peak (500) sorted first */
+    TEST_ASSERT_EQUAL_INT(1, peaks[1].bin); /* Smaller peak (100) sorted second */
+}
+
 void run_biquad_tests(void)
 {
     RUN_TEST(test_biquad_filter);
@@ -308,4 +351,5 @@ void run_fft_tests(void)
     RUN_TEST(test_fft_against_reference);
     RUN_TEST(test_fft_n256);
     RUN_TEST(test_fft_windows);
+    RUN_TEST(test_fft_spectrum_analytics);
 }

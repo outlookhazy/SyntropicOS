@@ -202,4 +202,77 @@ SYN_Status syn_fft_window_blackman(q16_t *out, uint16_t n)
     return SYN_OK;
 }
 
+SYN_Status syn_fft_magnitude_spectrum(const q16_t *real, const q16_t *imag, q16_t *mag, uint16_t n)
+{
+    if (real == NULL || imag == NULL || mag == NULL || n == 0) return SYN_INVALID_PARAM;
+
+    uint16_t n_bins = (n >> 1) + 1;
+    for (uint16_t k = 0; k < n_bins; k++) {
+        mag[k] = q16_hypot(real[k], imag[k]);
+    }
+    return SYN_OK;
+}
+
+SYN_Status syn_fft_find_peaks(const q16_t *mag, uint16_t n_bins, q16_t sample_rate_hz,
+                              SYN_FFTPeak *peaks, uint8_t max_peaks, uint8_t *num_peaks_found)
+{
+    if (mag == NULL || peaks == NULL || num_peaks_found == NULL || n_bins <= 2 || max_peaks == 0) {
+        return SYN_INVALID_PARAM;
+    }
+
+    uint8_t count = 0;
+    q16_t bin_resolution = q16_div(sample_rate_hz, Q16_FROM_INT((n_bins - 1) * 2));
+
+    for (uint16_t k = 1; k < n_bins - 1 && count < max_peaks; k++) {
+        if (mag[k] > mag[k - 1] && mag[k] > mag[k + 1]) {
+            peaks[count].bin       = k;
+            peaks[count].magnitude = mag[k];
+            peaks[count].freq_hz   = q16_mul(Q16_FROM_INT(k), bin_resolution);
+            count++;
+        }
+    }
+
+    /* Sort detected peaks descending by magnitude */
+    for (uint8_t i = 0; i < count; i++) {
+        for (uint8_t j = i + 1; j < count; j++) {
+            if (peaks[j].magnitude > peaks[i].magnitude) {
+                SYN_FFTPeak tmp = peaks[i];
+                peaks[i] = peaks[j];
+                peaks[j] = tmp;
+            }
+        }
+    }
+
+    *num_peaks_found = count;
+    return SYN_OK;
+}
+
+SYN_Status syn_fft_thd(const q16_t *mag, uint16_t n_bins, uint16_t fundamental_bin,
+                       uint8_t max_harmonics, q16_t *thd_pct)
+{
+    if (mag == NULL || thd_pct == NULL || fundamental_bin == 0 || fundamental_bin >= n_bins || max_harmonics == 0) {
+        return SYN_INVALID_PARAM;
+    }
+
+    q16_t v1 = mag[fundamental_bin];
+    if (v1 == 0) return SYN_INVALID_PARAM;
+
+    int64_t sum_h2 = 0;
+    for (uint8_t h = 2; h <= max_harmonics + 1; h++) {
+        uint32_t h_bin = (uint32_t)fundamental_bin * h;
+        if (h_bin < n_bins) {
+            q16_t v_h = mag[h_bin];
+            int64_t v_h_q16 = v_h;
+            sum_h2 += (v_h_q16 * v_h_q16) >> Q16_SHIFT;
+        }
+    }
+
+    q16_t harmonic_rms = q16_sqrt((q16_t)sum_h2);
+    /* THD % = (V_harmonics / V_1) * 100 */
+    q16_t ratio = q16_div(harmonic_rms, v1);
+    *thd_pct = q16_mul(ratio, Q16_FROM_INT(100));
+
+    return SYN_OK;
+}
+
 #endif /* SYN_USE_FFT */
