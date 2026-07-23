@@ -226,15 +226,22 @@ SYN_Status syn_port_uart_receive(SYN_UARTInstance instance,
 #if defined(ARDUINO_ARCH_AVR) || defined(ARDUINO_ARCH_SAMD) || defined(CORE_TEENSY) || defined(ARDUINO_ARCH_RP2040)
     HardwareSerial* serial = get_serial_instance(instance);
     if (!serial) return SYN_INVALID_PARAM;
-    
-    serial->setTimeout(timeout_ms == 0 ? 1000 : timeout_ms);
+    if (serial->available() == 0 && timeout_ms == 0) {
+        if (received) *received = 0;
+        return SYN_TIMEOUT;
+    }
+    serial->setTimeout(timeout_ms);
     size_t count = serial->readBytes(data, len);
     if (received) *received = count;
     
     return (count > 0) ? SYN_OK : SYN_TIMEOUT;
 #else
     if (instance != 0) return SYN_INVALID_PARAM;
-    Serial.setTimeout(timeout_ms == 0 ? 1000 : timeout_ms);
+    if (Serial.available() == 0 && timeout_ms == 0) {
+        if (received) *received = 0;
+        return SYN_TIMEOUT;
+    }
+    Serial.setTimeout(timeout_ms);
     size_t count = Serial.readBytes(data, len);
     if (received) *received = count;
     return (count > 0) ? SYN_OK : SYN_TIMEOUT;
@@ -729,7 +736,6 @@ void syn_port_wdt_feed(void)
 
 extern "C" {
 #include "syntropic/port/syn_port_serial.h"
-}
 
 SYN_WEAK SYN_Status syn_port_serial_init(uint32_t baudrate)
 {
@@ -752,6 +758,7 @@ SYN_WEAK int syn_port_serial_read(uint8_t *buf, size_t max_len)
         buf[count++] = (uint8_t)ch;
     }
     return (int)count;
+}
 }
 
 #endif /* ARDUINO */

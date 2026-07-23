@@ -12,6 +12,10 @@
  * spinlock to prevent garbled output.
  *
  * Board: Raspberry Pi Pico (arduino-pico core)
+ *
+ * Documentation & Related Features:
+ *   - Multitasking & Mailbox:https://outlookhazy.github.io/SyntropicOS/modules/multitasking/ (syn_mailbox.h)
+ *   - Spinlocks & Barrier:  https://outlookhazy.github.io/SyntropicOS/syntropic/group__syn__sched/ (syn_spinlock.h)
  */
 
 #include "syn_config.h"

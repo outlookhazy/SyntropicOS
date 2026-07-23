@@ -429,11 +429,15 @@ void syn_cli_printf(const SYN_CLI *cli, const char *fmt, ...)
 
 /* Singletons — defined near top of file, setters here */
 
+#if SYN_CLI_CMD_ERRORS
 /** @brief Set errlog instance for the `errors` built-in command. */
 void syn_cli_set_errlog(SYN_ErrLog *errlog)  { s_cli_errlog = errlog; }
+#endif
 
+#if SYN_CLI_CMD_TASKS
 /** @brief Set scheduler instance for the `tasks` built-in command. */
 void syn_cli_set_scheduler(SYN_Sched *sched) { s_cli_sched = sched; }
+#endif
 
 #if SYN_CLI_CMD_VERSION
 /**

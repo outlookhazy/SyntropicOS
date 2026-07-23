@@ -6,6 +6,10 @@
  *
  * Board: Raspberry Pi Pico (arduino-pico core)
  * Upload: Hold BOOTSEL → plug USB → release → Upload
+ *
+ * Documentation & Related Features:
+ *   - Arduino & Pico Guide: https://outlookhazy.github.io/SyntropicOS/arduino/
+ *   - Multitasking & Sched: https://outlookhazy.github.io/SyntropicOS/modules/multitasking/
  */
 
 #include <SyntropicOS.h>

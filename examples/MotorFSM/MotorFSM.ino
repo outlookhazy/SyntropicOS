@@ -12,11 +12,16 @@
  *
  * Type commands in Serial Monitor at 115200 baud:
  *   motor start / motor stop / motor fault / motor reset
+ *
+ * Documentation & Related Features:
+ *   - State Machines (FSM): https://outlookhazy.github.io/SyntropicOS/modules/core/ (syn_fsm.h)
+ *   - Motion Ramps:         https://outlookhazy.github.io/SyntropicOS/modules/control/ (syn_ramp.h)
+ *   - Closed-Loop Motors:   https://outlookhazy.github.io/SyntropicOS/syntropic/group__syn__motor/ (syn_motor_ctrl.h)
  */
 
 #include <SyntropicOS.h>
 #include <syntropic/sched/syn_sched.h>
-#include <syntropic/port/syn_port_uart.h>
+#include <syntropic/port/syn_port_serial.h>
 #include <syntropic/output/syn_led.h>
 #include <syntropic/util/syn_fsm.h>
 #include <syntropic/util/syn_ramp.h>
@@ -138,12 +143,16 @@ static SYN_PT_Status blink_task(SYN_PT *pt, SYN_Task *task)
 
 static SYN_PT_Status cli_task(SYN_PT *pt, SYN_Task *task)
 {
-    uint8_t ch; size_t n; SYN_Status st; (void)task;
+    uint8_t ch;
     PT_BEGIN(pt);
     for (;;) {
-        n = 0; st = syn_port_uart_receive(0, &ch, 1, &n, 1);
-        if (st == SYN_OK && n > 0) syn_cli_process_char(&cli, (char)ch);
-        PT_YIELD(pt);
+        int r = syn_port_serial_read(&ch, 1);
+        if (r > 0) {
+            syn_cli_process_char(&cli, (char)ch);
+            PT_YIELD(pt);
+        } else {
+            PT_TASK_DELAY_MS(pt, task, 20);
+        }
     }
     PT_END(pt);
 }
@@ -187,7 +196,7 @@ static SYN_PT_Status motor_task(SYN_PT *pt, SYN_Task *task)
 
 void setup()
 {
-    syn_port_uart_init(0, 115200);
+    syn_port_serial_init(115200);
     syn_led_init(&led, LED_BUILTIN, SYN_LED_ACTIVE_HIGH);
     syn_led_blink(&led, 500, 500);
 
@@ -212,5 +221,7 @@ void setup()
 
 void loop()
 {
-    syn_sched_run(&sched);
+    if (!syn_sched_run(&sched)) {
+        syn_port_delay_ms(1);
+    }
 }

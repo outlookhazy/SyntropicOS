@@ -223,17 +223,21 @@ void syn_cli_printf(const SYN_CLI *cli, const char *fmt, ...);
 struct SYN_ErrLog;
 struct SYN_Sched;
 
+#if SYN_CLI_CMD_ERRORS
 /**
  * @brief Set errlog instance for the `errors` built-in command.
  * @param errlog  Error log instance (or NULL to detach).
  */
 void syn_cli_set_errlog(struct SYN_ErrLog *errlog);
+#endif
 
+#if SYN_CLI_CMD_TASKS
 /**
  * @brief Set scheduler instance for the `tasks` built-in command.
  * @param sched  Scheduler instance (or NULL to detach).
  */
 void syn_cli_set_scheduler(struct SYN_Sched *sched);
+#endif
 
 #ifdef __cplusplus
 }

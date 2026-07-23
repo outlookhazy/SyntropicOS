@@ -39,10 +39,14 @@ If you need a specific development branch or want to contribute to the code:
 
 After installing, open **File → Examples → SyntropicOS**. You should see:
 
-- **Blink** — LED blink using the scheduler
+- **Blink** — LED blink using the cooperative scheduler
 - **SerialCLI** — Command-line interface over serial
-- **SensorLogger** — ADC reading with digital filtering
-- **MotorFSM** — State machine controlling a motor
+- **SensorLogger** — Dual-channel ADC sampling, EMA filtering, and statistics
+- **MotorFSM** — Finite state machine controlling a DC motor ramp
+- **PID_TempControl** — Closed-loop integer PID temperature controller with thermal plant simulation
+- **Telemetry_CBOR** — Zero-heap binary CBOR encoding, COBS packet framing, and CRC16 validation
+- **SysMonitor** — Multi-task software watchdog monitoring and circular error logging
+- **MotionPlanner** — Jerk-limited S-curve trajectory planning over a PubSub event bus
 - **PicoBlink** — Raspberry Pi Pico bring-up blink and diagnostics (RP2040 only)
 - **PicoDualCore** — Raspberry Pi Pico AMP dual-core mailbox & CLI demo (RP2040 only)
 
