@@ -538,4 +538,175 @@ SYN_Status syn_vec_normalize(const q16_t *v, q16_t *out, uint8_t n)
     return SYN_OK;
 }
 
+/* ── Linear Solvers ─────────────────────────────────────────────────────── */
+
+#define SYN_SOLVER_MAX_N 16
+
+SYN_Status syn_matrix_solve_lu(const SYN_Matrix *A, const SYN_Matrix *b, SYN_Matrix *x)
+{
+    SYN_ASSERT(A != NULL && b != NULL && x != NULL);
+
+    uint8_t n = A->rows;
+    if (A->cols != n || b->rows != n || b->cols != 1 || x->rows != n || x->cols != 1) {
+        return SYN_INVALID_PARAM;
+    }
+    if (n > SYN_SOLVER_MAX_N) return SYN_INVALID_PARAM;
+
+    /* Local copy of A for LU decomposition */
+    q16_t lu[SYN_SOLVER_MAX_N * SYN_SOLVER_MAX_N];
+    uint8_t P[SYN_SOLVER_MAX_N];
+    uint8_t i, j, k;
+
+    for (i = 0; i < n; i++) {
+        P[i] = i;
+        for (j = 0; j < n; j++) {
+            lu[i * n + j] = SYN_MAT_AT(A, i, j);
+        }
+    }
+
+    /* Doolittle LU factorization with partial pivoting */
+    for (i = 0; i < n; i++) {
+        /* Pivot selection */
+        q16_t max_val = 0;
+        uint8_t pivot_idx = i;
+        for (j = i; j < n; j++) {
+            q16_t val = q16_abs(lu[j * n + i]);
+            if (val > max_val) {
+                max_val = val;
+                pivot_idx = j;
+            }
+        }
+
+        if (max_val == 0) return SYN_ERROR; /* Singular matrix */
+
+        /* Swap rows if needed */
+        if (pivot_idx != i) {
+            uint8_t tmp_p = P[i]; P[i] = P[pivot_idx]; P[pivot_idx] = tmp_p;
+            for (j = 0; j < n; j++) {
+                q16_t tmp_v = lu[i * n + j];
+                lu[i * n + j] = lu[pivot_idx * n + j];
+                lu[pivot_idx * n + j] = tmp_v;
+            }
+        }
+
+        /* Elimination */
+        for (j = i + 1; j < n; j++) {
+            lu[j * n + i] = q16_div(lu[j * n + i], lu[i * n + i]);
+            for (k = i + 1; k < n; k++) {
+                int64_t mult = (int64_t)lu[j * n + i] * lu[i * n + k];
+                lu[j * n + k] -= (q16_t)(mult >> Q16_SHIFT);
+            }
+        }
+    }
+
+    /* Forward substitution L · y = P · b */
+    q16_t y[SYN_SOLVER_MAX_N];
+    for (i = 0; i < n; i++) {
+        int64_t sum = (int64_t)b->data[P[i]];
+        for (j = 0; j < i; j++) {
+            sum -= ((int64_t)lu[i * n + j] * y[j]) >> Q16_SHIFT;
+        }
+        y[i] = (q16_t)sum;
+    }
+
+    /* Back substitution U · x = y */
+    for (i = n; i > 0; i--) {
+        uint8_t idx = i - 1;
+        int64_t sum = (int64_t)y[idx];
+        for (j = idx + 1; j < n; j++) {
+            sum -= ((int64_t)lu[idx * n + j] * x->data[j]) >> Q16_SHIFT;
+        }
+        x->data[idx] = q16_div((q16_t)sum, lu[idx * n + idx]);
+    }
+
+    return SYN_OK;
+}
+
+SYN_Status syn_matrix_solve_cholesky(const SYN_Matrix *A, const SYN_Matrix *b, SYN_Matrix *x)
+{
+    SYN_ASSERT(A != NULL && b != NULL && x != NULL);
+
+    uint8_t n = A->rows;
+    if (A->cols != n || b->rows != n || b->cols != 1 || x->rows != n || x->cols != 1) {
+        return SYN_INVALID_PARAM;
+    }
+    if (n > SYN_SOLVER_MAX_N) return SYN_INVALID_PARAM;
+
+    q16_t L[SYN_SOLVER_MAX_N * SYN_SOLVER_MAX_N];
+    memset(L, 0, sizeof(L));
+
+    uint8_t i, j, k;
+    for (i = 0; i < n; i++) {
+        for (j = 0; j <= i; j++) {
+            int64_t sum = (int64_t)SYN_MAT_AT(A, i, j);
+            for (k = 0; k < j; k++) {
+                sum -= ((int64_t)L[i * n + k] * L[j * n + k]) >> Q16_SHIFT;
+            }
+
+            if (i == j) {
+                if (sum <= 0) return SYN_ERROR; /* Not positive-definite */
+                L[i * n + j] = q16_sqrt((q16_t)sum);
+            } else {
+                L[i * n + j] = q16_div((q16_t)sum, L[j * n + j]);
+            }
+        }
+    }
+
+    /* Forward substitution L · y = b */
+    q16_t y[SYN_SOLVER_MAX_N];
+    for (i = 0; i < n; i++) {
+        int64_t sum = (int64_t)b->data[i];
+        for (j = 0; j < i; j++) {
+            sum -= ((int64_t)L[i * n + j] * y[j]) >> Q16_SHIFT;
+        }
+        y[i] = q16_div((q16_t)sum, L[i * n + i]);
+    }
+
+    /* Back substitution Lᵀ · x = y */
+    for (i = n; i > 0; i--) {
+        uint8_t idx = i - 1;
+        int64_t sum = (int64_t)y[idx];
+        for (j = idx + 1; j < n; j++) {
+            sum -= ((int64_t)L[j * n + idx] * x->data[j]) >> Q16_SHIFT;
+        }
+        x->data[idx] = q16_div((q16_t)sum, L[idx * n + idx]);
+    }
+
+    return SYN_OK;
+}
+
+SYN_Status syn_matrix_least_squares(const SYN_Matrix *A, const SYN_Matrix *b, SYN_Matrix *x)
+{
+    SYN_ASSERT(A != NULL && b != NULL && x != NULL);
+
+    uint8_t m = A->rows;
+    uint8_t n = A->cols;
+    if (m < n || b->rows != m || b->cols != 1 || x->rows != n || x->cols != 1) {
+        return SYN_INVALID_PARAM;
+    }
+
+    /* Normal Equations: (Aᵀ · A) · x = Aᵀ · b */
+    q16_t ata_data[SYN_SOLVER_MAX_N * SYN_SOLVER_MAX_N];
+    q16_t atb_data[SYN_SOLVER_MAX_N];
+
+    SYN_Matrix AtA = { ata_data, n, n };
+    SYN_Matrix Atb = { atb_data, n, 1 };
+
+    /* AtA = Aᵀ · A */
+    SYN_MAT_DECL(AT, n, m);
+    syn_matrix_transpose(A, &AT);
+    syn_matrix_mul(&AT, A, &AtA);
+
+    /* Atb = Aᵀ · b */
+    syn_matrix_mul(&AT, b, &Atb);
+
+    /* Try Cholesky first (fastest for AᵀA), fall back to LU */
+    SYN_Status status = syn_matrix_solve_cholesky(&AtA, &Atb, x);
+    if (status != SYN_OK) {
+        status = syn_matrix_solve_lu(&AtA, &Atb, x);
+    }
+
+    return status;
+}
+
 #endif /* SYN_USE_MATRIX */

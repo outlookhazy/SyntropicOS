@@ -424,6 +424,78 @@ static void test_vec_normalize(void)
 }
 
 /* ════════════════════════════════════════════════════════════════════════ */
+/*  Linear Solvers Tests                                                    */
+/* ════════════════════════════════════════════════════════════════════════ */
+
+static void test_mat_solve_lu(void)
+{
+    /* Solve A · x = b where A = [[2, 1], [5, 7]], b = [11, 13] */
+    SYN_MAT2_DECL(A);
+    SYN_MAT_DECL(b, 2, 1);
+    SYN_MAT_DECL(x, 2, 1);
+    SYN_MAT_DECL(b_check, 2, 1);
+
+    A.data[0] = Q16_FROM_INT(2); A.data[1] = Q16_FROM_INT(1);
+    A.data[2] = Q16_FROM_INT(5); A.data[3] = Q16_FROM_INT(7);
+
+    b.data[0] = Q16_FROM_INT(11);
+    b.data[1] = Q16_FROM_INT(13);
+
+    TEST_ASSERT_EQUAL(SYN_OK, syn_matrix_solve_lu(&A, &b, &x));
+
+    /* Verify A · x ≈ b */
+    syn_matrix_mul(&A, &x, &b_check);
+    ASSERT_Q16_NEAR(b.data[0], b_check.data[0], Q16_MAT_TOL);
+    ASSERT_Q16_NEAR(b.data[1], b_check.data[1], Q16_MAT_TOL);
+}
+
+static void test_mat_solve_cholesky(void)
+{
+    /* Symmetric positive-definite: A = [[4, 12], [12, 45]], b = [16, 57]
+     * Exact solution x = [1, 1] */
+    SYN_MAT2_DECL(A);
+    SYN_MAT_DECL(b, 2, 1);
+    SYN_MAT_DECL(x, 2, 1);
+
+    A.data[0] = Q16_FROM_INT(4);  A.data[1] = Q16_FROM_INT(12);
+    A.data[2] = Q16_FROM_INT(12); A.data[3] = Q16_FROM_INT(45);
+
+    b.data[0] = Q16_FROM_INT(16);
+    b.data[1] = Q16_FROM_INT(57);
+
+    TEST_ASSERT_EQUAL(SYN_OK, syn_matrix_solve_cholesky(&A, &b, &x));
+
+    ASSERT_Q16_NEAR(Q16_ONE, x.data[0], Q16_TOL);
+    ASSERT_Q16_NEAR(Q16_ONE, x.data[1], Q16_TOL);
+}
+
+static void test_mat_least_squares(void)
+{
+    /* Overdetermined 3×2 system fitting line y = c0 + c1*x to points (0,1), (1,2), (2,4)
+     * A = [[1, 0], [1, 1], [1, 2]], b = [1, 2, 4]
+     * Exact least-squares fit: c0 = 5/6 ≈ 0.8333, c1 = 1.5 */
+    SYN_MAT_DECL(A, 3, 2);
+    SYN_MAT_DECL(b, 3, 1);
+    SYN_MAT_DECL(x, 2, 1);
+
+    A.data[0] = Q16_ONE; A.data[1] = 0;
+    A.data[2] = Q16_ONE; A.data[3] = Q16_ONE;
+    A.data[4] = Q16_ONE; A.data[5] = Q16_FROM_INT(2);
+
+    b.data[0] = Q16_FROM_INT(1);
+    b.data[1] = Q16_FROM_INT(2);
+    b.data[2] = Q16_FROM_INT(4);
+
+    TEST_ASSERT_EQUAL(SYN_OK, syn_matrix_least_squares(&A, &b, &x));
+
+    q16_t c0_expected = Q16_FROM_FRAC(5, 6);
+    q16_t c1_expected = Q16_FROM_FRAC(3, 2);
+
+    ASSERT_Q16_NEAR(c0_expected, x.data[0], Q16_TOL * 2);
+    ASSERT_Q16_NEAR(c1_expected, x.data[1], Q16_TOL * 2);
+}
+
+/* ════════════════════════════════════════════════════════════════════════ */
 /*  Test runner                                                            */
 /* ════════════════════════════════════════════════════════════════════════ */
 
@@ -453,4 +525,10 @@ void run_matrix_tests(void)
     RUN_TEST(test_vec3_cross);
     RUN_TEST(test_vec_dot);
     RUN_TEST(test_vec_normalize);
+
+    /* Linear Solvers */
+    RUN_TEST(test_mat_solve_lu);
+    RUN_TEST(test_mat_solve_cholesky);
+    RUN_TEST(test_mat_least_squares);
 }
+

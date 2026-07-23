@@ -288,6 +288,48 @@ q16_t syn_vec_norm(const q16_t *v, uint8_t n);
  */
 SYN_Status syn_vec_normalize(const q16_t *v, q16_t *out, uint8_t n);
 
+/* ── Linear Solvers ─────────────────────────────────────────────────────── */
+
+/**
+ * @brief Solve general linear system A · x = b via LU decomposition.
+ *
+ * Uses Doolittle LU decomposition with partial pivoting (PA = LU).
+ * A must be a square N×N non-singular matrix. b and x must be N×1 vectors.
+ *
+ * @param A  Square system matrix (N×N).
+ * @param b  Right-hand side vector (N×1).
+ * @param x  Output solution vector (N×1). May alias b.
+ * @return SYN_OK on success, SYN_ERROR if A is singular or dimensions invalid.
+ */
+SYN_Status syn_matrix_solve_lu(const SYN_Matrix *A, const SYN_Matrix *b, SYN_Matrix *x);
+
+/**
+ * @brief Solve symmetric positive-definite system A · x = b via Cholesky.
+ *
+ * Decomposes A into L · Lᵀ where L is lower-triangular, then solves
+ * L · y = b and Lᵀ · x = y. Faster and more numerically stable than LU
+ * for symmetric positive-definite matrices (e.g. covariance or normal eqns).
+ *
+ * @param A  Symmetric positive-definite system matrix (N×N).
+ * @param b  Right-hand side vector (N×1).
+ * @param x  Output solution vector (N×1). May alias b.
+ * @return SYN_OK on success, SYN_ERROR if A is not positive-definite.
+ */
+SYN_Status syn_matrix_solve_cholesky(const SYN_Matrix *A, const SYN_Matrix *b, SYN_Matrix *x);
+
+/**
+ * @brief Solve overdetermined system A · x ≈ b via Normal Equations (Least Squares).
+ *
+ * Minimizes ||A·x − b||₂ for an M×N system (M ≥ N).
+ * Solves (Aᵀ · A) · x = Aᵀ · b using Cholesky or LU decomposition.
+ *
+ * @param A  Overdetermined system matrix (M×N, M ≥ N).
+ * @param b  Right-hand side measurement vector (M×1).
+ * @param x  Output solution parameter vector (N×1).
+ * @return SYN_OK on success, SYN_ERROR if AᵀA is singular.
+ */
+SYN_Status syn_matrix_least_squares(const SYN_Matrix *A, const SYN_Matrix *b, SYN_Matrix *x);
+
 #ifdef __cplusplus
 }
 #endif
