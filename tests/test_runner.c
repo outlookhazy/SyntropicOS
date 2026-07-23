@@ -69,6 +69,7 @@ void run_errlog_tests(void);
 void run_power_tests(void);
 void run_modbus_tests(void);
 void run_modbus_master_tests(void);
+void run_canopen_tests(void);
 void run_canvas_tests(void);
 void run_menu_tests(void);
 void run_imgui_tests(void);
@@ -177,12 +178,17 @@ int main(void)
     run_led_tests();
     run_soft_pwm_tests();
 
-    /* Motor */
-    run_servo_tests();
-    run_dc_motor_tests();
+    /* Modbus & CANopen */
+    run_modbus_tests();
+    run_modbus_master_tests();
+    run_canopen_tests();
     run_stepper_tests();
     run_motor_ctrl_tests();
     run_actuator_tests();
+
+    /* Motor */
+    run_servo_tests();
+    run_dc_motor_tests();
 
     /* Drivers */
     run_adc_tests();
@@ -194,7 +200,6 @@ int main(void)
 
     /* Protocol */
     run_cobs_tests();
-    run_modbus_tests();
 
     /* Storage / Config */
     run_param_tests();

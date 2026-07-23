@@ -37,6 +37,8 @@ static void loopback_transaction(SYN_ModbusMaster *m, SYN_Modbus *slave)
 static void test_modbus_master_read_holding(void)
 {
     mock_port_reset();
+    uint16_t holding_init[8] = { 100, 200, 300, 400, 500, 600, 700, 800 };
+    memcpy(slave_holding, holding_init, sizeof(slave_holding));
 
     SYN_Modbus slave;
     SYN_Modbus_Config slave_cfg = {

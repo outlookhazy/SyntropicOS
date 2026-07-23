@@ -7,6 +7,7 @@
 | COBS | `proto/syn_cobs.h` | `SYN_USE_COBS` | Consistent Overhead Byte Stuffing — packet framing with a streaming byte-at-a-time decoder. Zero-delimited packets over any byte stream. |
 | Modbus RTU Slave | `proto/syn_modbus.h` | `SYN_USE_MODBUS` | Modbus RTU slave implementation: function codes FC03 (Read Holding), FC04 (Read Input), FC06 (Write Single), FC07 (Read Exception Status), FC16 (Write Multiple), FC14 (Read File Record), FC15 (Write File Record), FC17 (Read/Write Multiple), FC43/14 (Read Device Identification). Uses `syn_crc16_modbus()` for frame integrity. |
 | Modbus RTU Master | `proto/syn_modbus_master.h` | `SYN_USE_MODBUS` | Non-blocking Modbus RTU Master / Client state machine supporting FC03, FC04, FC06, and FC16 queries, stream parsing, and tick-based timeout tracking. |
+| CANopen DS301 Slave | `proto/syn_canopen.h` | `SYN_USE_CANOPEN` | Zero-allocation CANopen DS301 slave protocol engine supporting Object Dictionary (OD) lookup, SDO Server (expedited download/upload, segmented SDO, SDO Aborts), up to 4 RPDOs & 4 TPDOs, Heartbeat Producer, Emergency (EMCY) alarms, and NMT state machine management. |
 
 ## Cooperative Network Stack
 
