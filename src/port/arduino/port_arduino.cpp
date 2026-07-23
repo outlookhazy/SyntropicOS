@@ -761,5 +761,303 @@ SYN_WEAK int syn_port_serial_read(uint8_t *buf, size_t max_len)
 }
 }
 
+/* ── Socket Port (Arduino Ethernet / W5500 / W5100 / ENC28J60) ───────────── */
+
+#if __has_include(<Ethernet.h>)
+
+#include <Ethernet.h>
+#include <EthernetUdp.h>
+#include "syntropic/port/syn_port_socket.h"
+
+enum SynSockType {
+    SYN_SOCK_FREE = 0,
+    SYN_SOCK_TCP_CLIENT,
+    SYN_SOCK_TCP_LISTEN,
+    SYN_SOCK_UDP
+};
+
+struct SynArduinoSocketSlot {
+    SynSockType type;
+    EthernetClient *client;
+    EthernetServer *server;
+    EthernetUDP *udp;
+};
+
+#ifndef SYN_ARDUINO_MAX_SOCKETS
+  #define SYN_ARDUINO_MAX_SOCKETS 4
+#endif
+
+static SynArduinoSocketSlot s_arduino_sockets[SYN_ARDUINO_MAX_SOCKETS];
+
+static int alloc_socket_slot(SynSockType type) {
+    for (int i = 0; i < SYN_ARDUINO_MAX_SOCKETS; i++) {
+        if (s_arduino_sockets[i].type == SYN_SOCK_FREE) {
+            s_arduino_sockets[i].type = type;
+            s_arduino_sockets[i].client = NULL;
+            s_arduino_sockets[i].server = NULL;
+            s_arduino_sockets[i].udp = NULL;
+            return i;
+        }
+    }
+    return SYN_SOCKET_INVALID;
+}
+
+extern "C" {
+
+SYN_Socket syn_port_sock_connect(const SYN_SockAddr *addr) {
+    if (!addr) return SYN_SOCKET_INVALID;
+    int slot = alloc_socket_slot(SYN_SOCK_TCP_CLIENT);
+    if (slot == SYN_SOCKET_INVALID) return SYN_SOCKET_INVALID;
+
+    s_arduino_sockets[slot].client = new EthernetClient();
+    if (!s_arduino_sockets[slot].client) {
+        s_arduino_sockets[slot].type = SYN_SOCK_FREE;
+        return SYN_SOCKET_INVALID;
+    }
+
+    IPAddress target_ip(addr->ip[0], addr->ip[1], addr->ip[2], addr->ip[3]);
+    if (s_arduino_sockets[slot].client->connect(target_ip, addr->port)) {
+        return slot;
+    }
+    delete s_arduino_sockets[slot].client;
+    s_arduino_sockets[slot].client = NULL;
+    s_arduino_sockets[slot].type = SYN_SOCK_FREE;
+    return SYN_SOCKET_INVALID;
+}
+
+SYN_Socket syn_port_sock_connect_host(const char *host, uint16_t port) {
+    if (!host) return SYN_SOCKET_INVALID;
+    int slot = alloc_socket_slot(SYN_SOCK_TCP_CLIENT);
+    if (slot == SYN_SOCKET_INVALID) return SYN_SOCKET_INVALID;
+
+    s_arduino_sockets[slot].client = new EthernetClient();
+    if (!s_arduino_sockets[slot].client) {
+        s_arduino_sockets[slot].type = SYN_SOCK_FREE;
+        return SYN_SOCKET_INVALID;
+    }
+
+    if (s_arduino_sockets[slot].client->connect(host, port)) {
+        return slot;
+    }
+    delete s_arduino_sockets[slot].client;
+    s_arduino_sockets[slot].client = NULL;
+    s_arduino_sockets[slot].type = SYN_SOCK_FREE;
+    return SYN_SOCKET_INVALID;
+}
+
+int syn_port_sock_send(SYN_Socket sock, const void *data, size_t len) {
+    if (sock < 0 || sock >= SYN_ARDUINO_MAX_SOCKETS || s_arduino_sockets[sock].type != SYN_SOCK_TCP_CLIENT) {
+        return -1;
+    }
+    EthernetClient *c = s_arduino_sockets[sock].client;
+    if (!c) return -1;
+    return (int)c->write((const uint8_t *)data, len);
+}
+
+int syn_port_sock_send_all(SYN_Socket sock, const void *data, size_t len) {
+    if (sock < 0 || sock >= SYN_ARDUINO_MAX_SOCKETS || s_arduino_sockets[sock].type != SYN_SOCK_TCP_CLIENT) {
+        return -1;
+    }
+    EthernetClient *c = s_arduino_sockets[sock].client;
+    if (!c) return -1;
+    size_t written = c->write((const uint8_t *)data, len);
+    return (written == len) ? (int)len : -1;
+}
+
+int syn_port_sock_recv(SYN_Socket sock, void *buf, size_t max_len, uint32_t timeout_ms) {
+    if (sock < 0 || sock >= SYN_ARDUINO_MAX_SOCKETS || s_arduino_sockets[sock].type != SYN_SOCK_TCP_CLIENT) {
+        return -1;
+    }
+    EthernetClient *c = s_arduino_sockets[sock].client;
+    if (!c) return -1;
+
+    if (!c->connected() && !c->available()) {
+        return 0; /* Connection closed */
+    }
+
+    uint32_t start = millis();
+    while (!c->available()) {
+        if (!c->connected()) return 0;
+        if (timeout_ms == 0 || (millis() - start) >= timeout_ms) {
+            return -1; /* Timeout / no data ready */
+        }
+        delay(1);
+    }
+
+    int avail = c->available();
+    if (avail <= 0) return -1;
+    size_t to_read = (size_t)avail < max_len ? (size_t)avail : max_len;
+    return c->read((uint8_t *)buf, to_read);
+}
+
+SYN_Socket syn_port_sock_listen(uint16_t port, int backlog) {
+    (void)backlog;
+    int slot = alloc_socket_slot(SYN_SOCK_TCP_LISTEN);
+    if (slot == SYN_SOCKET_INVALID) return SYN_SOCKET_INVALID;
+
+    /* Force reset any existing server_port binding for this port to ensure W5500 hardware listen is issued */
+    for (int i = 0; i < MAX_SOCK_NUM; i++) {
+        if (EthernetServer::server_port[i] == port) {
+            EthernetServer::server_port[i] = 0;
+        }
+    }
+
+    s_arduino_sockets[slot].server = new EthernetServer(port);
+    if (!s_arduino_sockets[slot].server) {
+        s_arduino_sockets[slot].type = SYN_SOCK_FREE;
+        return SYN_SOCKET_INVALID;
+    }
+    s_arduino_sockets[slot].server->begin();
+    Serial.print(F("[SOCK] Listening on port "));
+    Serial.println(port);
+    return slot;
+}
+
+SYN_Socket syn_port_sock_accept(SYN_Socket listener, uint32_t timeout_ms) {
+    if (listener < 0 || listener >= SYN_ARDUINO_MAX_SOCKETS || s_arduino_sockets[listener].type != SYN_SOCK_TCP_LISTEN) {
+        return SYN_SOCKET_INVALID;
+    }
+    EthernetServer *srv = s_arduino_sockets[listener].server;
+    if (!srv) return SYN_SOCKET_INVALID;
+
+    uint32_t start = millis();
+    do {
+        EthernetClient client = srv->accept();
+        if (client && (client.connected() || client.available() > 0)) {
+            uint8_t hw_sock = client.getSocketNumber();
+            bool already_tracked = false;
+            for (int i = 0; i < SYN_ARDUINO_MAX_SOCKETS; i++) {
+                if (s_arduino_sockets[i].type == SYN_SOCK_TCP_CLIENT &&
+                    s_arduino_sockets[i].client &&
+                    s_arduino_sockets[i].client->getSocketNumber() == hw_sock) {
+                    already_tracked = true;
+                    break;
+                }
+            }
+            if (already_tracked) {
+                if (timeout_ms > 0) delay(1);
+                continue;
+            }
+
+            int slot = alloc_socket_slot(SYN_SOCK_TCP_CLIENT);
+            if (slot == SYN_SOCKET_INVALID) {
+                client.stop();
+                return SYN_SOCKET_INVALID;
+            }
+            s_arduino_sockets[slot].client = new EthernetClient(client);
+            Serial.print(F("[SOCK] Accepted client connection on socket slot "));
+            Serial.println(slot);
+            return slot;
+        }
+
+        if (timeout_ms > 0) delay(1);
+    } while (timeout_ms > 0 && (millis() - start) < timeout_ms);
+
+    return SYN_SOCKET_INVALID;
+}
+
+
+
+SYN_Socket syn_port_udp_open(uint16_t port) {
+    int slot = alloc_socket_slot(SYN_SOCK_UDP);
+    if (slot == SYN_SOCKET_INVALID) return SYN_SOCKET_INVALID;
+
+    s_arduino_sockets[slot].udp = new EthernetUDP();
+    if (!s_arduino_sockets[slot].udp) {
+        s_arduino_sockets[slot].type = SYN_SOCK_FREE;
+        return SYN_SOCKET_INVALID;
+    }
+    if (s_arduino_sockets[slot].udp->begin(port) == 1) {
+        return slot;
+    }
+    delete s_arduino_sockets[slot].udp;
+    s_arduino_sockets[slot].udp = NULL;
+    s_arduino_sockets[slot].type = SYN_SOCK_FREE;
+    return SYN_SOCKET_INVALID;
+}
+
+int syn_port_udp_sendto(SYN_Socket sock, const void *data, size_t len, const SYN_SockAddr *to) {
+    if (sock < 0 || sock >= SYN_ARDUINO_MAX_SOCKETS || s_arduino_sockets[sock].type != SYN_SOCK_UDP || !to) {
+        return -1;
+    }
+    EthernetUDP *u = s_arduino_sockets[sock].udp;
+    if (!u) return -1;
+
+    IPAddress ip(to->ip[0], to->ip[1], to->ip[2], to->ip[3]);
+    if (u->beginPacket(ip, to->port) != 1) {
+        delay(10);
+        if (u->beginPacket(ip, to->port) != 1) return -1;
+    }
+    u->write((const uint8_t *)data, len);
+    return u->endPacket() == 1 ? (int)len : -1;
+}
+
+
+int syn_port_udp_recvfrom(SYN_Socket sock, void *buf, size_t max_len, SYN_SockAddr *from, uint32_t timeout_ms) {
+    if (sock < 0 || sock >= SYN_ARDUINO_MAX_SOCKETS || s_arduino_sockets[sock].type != SYN_SOCK_UDP) {
+        return -1;
+    }
+    EthernetUDP *u = s_arduino_sockets[sock].udp;
+    if (!u) return -1;
+
+    uint32_t start = millis();
+    int packetSize = 0;
+    do {
+        packetSize = u->parsePacket();
+        if (packetSize > 0) break;
+        if (timeout_ms == 0) return 0; /* Non-blocking poll */
+        delay(1);
+    } while ((millis() - start) < timeout_ms);
+
+    if (packetSize <= 0) return (timeout_ms == 0) ? 0 : -1;
+
+    size_t to_read = (size_t)packetSize < max_len ? (size_t)packetSize : max_len;
+    int read_bytes = u->read((uint8_t *)buf, to_read);
+    if (read_bytes > 0 && from) {
+        IPAddress remote = u->remoteIP();
+        from->ip[0] = remote[0];
+        from->ip[1] = remote[1];
+        from->ip[2] = remote[2];
+        from->ip[3] = remote[3];
+        from->port  = u->remotePort();
+    }
+    return read_bytes;
+}
+
+SYN_Status syn_port_udp_join_multicast(SYN_Socket sock, const char *multicast_ip) {
+    (void)sock;
+    (void)multicast_ip;
+    return SYN_NOT_IMPLEMENTED;
+}
+
+void syn_port_sock_close(SYN_Socket sock) {
+    if (sock < 0 || sock >= SYN_ARDUINO_MAX_SOCKETS) return;
+
+    if (s_arduino_sockets[sock].type == SYN_SOCK_TCP_CLIENT) {
+        if (s_arduino_sockets[sock].client) {
+            s_arduino_sockets[sock].client->stop();
+            delete s_arduino_sockets[sock].client;
+            s_arduino_sockets[sock].client = NULL;
+        }
+    } else if (s_arduino_sockets[sock].type == SYN_SOCK_TCP_LISTEN) {
+        if (s_arduino_sockets[sock].server) {
+            delete s_arduino_sockets[sock].server;
+            s_arduino_sockets[sock].server = NULL;
+        }
+    } else if (s_arduino_sockets[sock].type == SYN_SOCK_UDP) {
+        if (s_arduino_sockets[sock].udp) {
+            s_arduino_sockets[sock].udp->stop();
+            delete s_arduino_sockets[sock].udp;
+            s_arduino_sockets[sock].udp = NULL;
+        }
+    }
+    s_arduino_sockets[sock].type = SYN_SOCK_FREE;
+}
+
+} /* extern "C" */
+
+#endif /* Ethernet.h */
+
 #endif /* ARDUINO */
+
 

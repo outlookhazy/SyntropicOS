@@ -10,14 +10,17 @@
  */
 
 #include "syn_httpd.h"
+#include "../port/syn_port_system.h"
 #include "../util/syn_assert.h"
+
 
 #include <string.h>
 
 /* ── Constants ─────────────────────────────────────────────────────────── */
 
-#define HTTPD_ACCEPT_TIMEOUT_MS  100  /**< Accept poll timeout (ms)       */
+#define HTTPD_ACCEPT_TIMEOUT_MS  0    /**< Non-blocking accept poll (ms)   */
 #define HTTPD_RECV_TIMEOUT_MS    5000  /**< Receive timeout per request (ms) */
+
 
 /* ── Internal helpers ──────────────────────────────────────────────────── */
 
@@ -428,22 +431,17 @@ SYN_PT_Status syn_httpd_task(SYN_PT *pt, SYN_Task *task)
     PT_BEGIN(pt);
 
     for (;;) {
-        /* Yield until a client connects (non-blocking accept) */
-        PT_WAIT_UNTIL(pt,
-            srv->running &&
-            (syn_port_sock_accept(srv->listener, 0) != SYN_SOCKET_INVALID));
-
-        /* A client connected — handle the request synchronously.
-         * This is fine because request handling is fast (parse + dispatch).
-         * For long responses, handlers could be split into sub-protothreads. */
-        syn_httpd_step(srv);
-
-        /* Yield after handling to let other tasks run */
+        PT_WAIT_UNTIL(pt, srv->running && (syn_httpd_step(srv) == SYN_OK));
         PT_YIELD(pt);
     }
 
     PT_END(pt);
 }
+
+
+
+
+
 
 
 #endif /* SYN_USE_HTTPD */
