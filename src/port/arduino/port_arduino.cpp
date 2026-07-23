@@ -13,8 +13,14 @@
 #include "syntropic/port/syn_port_gpio.h"
 #include "syntropic/port/syn_port_uart.h"
 #include "syntropic/port/syn_port_adc.h"
+#include "syntropic/drivers/syn_rtc.h"
 
 #include <Arduino.h>
+
+#ifndef __placement_new_implicitly_defined
+  inline void* operator new(size_t, void* ptr) { return ptr; }
+#endif
+
 
 #if defined(ARDUINO_ARCH_AVR)
 #include <avr/wdt.h>
@@ -27,6 +33,21 @@
 
 static uint32_t critical_nesting = 0;
 static uint32_t critical_saved_state = 0;
+
+void syn_port_enter_critical(void);
+
+extern "C" {
+SYN_WEAK void syn_assert_failed(const char *file, int line)
+{
+    Serial.print(F("\r\n[ASSERT FAILED] "));
+    Serial.print(file);
+    Serial.print(F(":"));
+    Serial.println(line);
+    Serial.flush();
+    delay(100);
+    syn_port_system_reset();
+}
+}
 
 void syn_port_enter_critical(void)
 {
@@ -72,6 +93,8 @@ void syn_port_exit_critical(void)
         }
     }
 }
+
+extern "C" {
 
 uint32_t syn_port_get_tick_ms(void)
 {
@@ -766,8 +789,10 @@ SYN_WEAK int syn_port_serial_read(uint8_t *buf, size_t max_len)
 #if __has_include(<Ethernet.h>)
 
 #include <Ethernet.h>
+#include <utility/w5100.h>
 #include <EthernetUdp.h>
 #include "syntropic/port/syn_port_socket.h"
+
 
 enum SynSockType {
     SYN_SOCK_FREE = 0,
@@ -778,7 +803,8 @@ enum SynSockType {
 
 struct SynArduinoSocketSlot {
     SynSockType type;
-    EthernetClient *client;
+    uint16_t port;
+    uint8_t hw_sock;
     EthernetServer *server;
     EthernetUDP *udp;
 };
@@ -788,12 +814,15 @@ struct SynArduinoSocketSlot {
 #endif
 
 static SynArduinoSocketSlot s_arduino_sockets[SYN_ARDUINO_MAX_SOCKETS];
+static uint8_t s_udp_buf[SYN_ARDUINO_MAX_SOCKETS][sizeof(EthernetUDP)];
+static EthernetServer *s_srv = NULL;
 
 static int alloc_socket_slot(SynSockType type) {
     for (int i = 0; i < SYN_ARDUINO_MAX_SOCKETS; i++) {
         if (s_arduino_sockets[i].type == SYN_SOCK_FREE) {
             s_arduino_sockets[i].type = type;
-            s_arduino_sockets[i].client = NULL;
+            s_arduino_sockets[i].port = 0;
+            s_arduino_sockets[i].hw_sock = MAX_SOCK_NUM;
             s_arduino_sockets[i].server = NULL;
             s_arduino_sockets[i].udp = NULL;
             return i;
@@ -802,6 +831,7 @@ static int alloc_socket_slot(SynSockType type) {
     return SYN_SOCKET_INVALID;
 }
 
+
 extern "C" {
 
 SYN_Socket syn_port_sock_connect(const SYN_SockAddr *addr) {
@@ -809,18 +839,13 @@ SYN_Socket syn_port_sock_connect(const SYN_SockAddr *addr) {
     int slot = alloc_socket_slot(SYN_SOCK_TCP_CLIENT);
     if (slot == SYN_SOCKET_INVALID) return SYN_SOCKET_INVALID;
 
-    s_arduino_sockets[slot].client = new EthernetClient();
-    if (!s_arduino_sockets[slot].client) {
-        s_arduino_sockets[slot].type = SYN_SOCK_FREE;
-        return SYN_SOCKET_INVALID;
-    }
-
+    EthernetClient c;
     IPAddress target_ip(addr->ip[0], addr->ip[1], addr->ip[2], addr->ip[3]);
-    if (s_arduino_sockets[slot].client->connect(target_ip, addr->port)) {
+    if (c.connect(target_ip, addr->port)) {
+        s_arduino_sockets[slot].hw_sock = c.getSocketNumber();
         return slot;
     }
-    delete s_arduino_sockets[slot].client;
-    s_arduino_sockets[slot].client = NULL;
+
     s_arduino_sockets[slot].type = SYN_SOCK_FREE;
     return SYN_SOCKET_INVALID;
 }
@@ -830,17 +855,12 @@ SYN_Socket syn_port_sock_connect_host(const char *host, uint16_t port) {
     int slot = alloc_socket_slot(SYN_SOCK_TCP_CLIENT);
     if (slot == SYN_SOCKET_INVALID) return SYN_SOCKET_INVALID;
 
-    s_arduino_sockets[slot].client = new EthernetClient();
-    if (!s_arduino_sockets[slot].client) {
-        s_arduino_sockets[slot].type = SYN_SOCK_FREE;
-        return SYN_SOCKET_INVALID;
-    }
-
-    if (s_arduino_sockets[slot].client->connect(host, port)) {
+    EthernetClient c;
+    if (c.connect(host, port)) {
+        s_arduino_sockets[slot].hw_sock = c.getSocketNumber();
         return slot;
     }
-    delete s_arduino_sockets[slot].client;
-    s_arduino_sockets[slot].client = NULL;
+
     s_arduino_sockets[slot].type = SYN_SOCK_FREE;
     return SYN_SOCKET_INVALID;
 }
@@ -849,128 +869,115 @@ int syn_port_sock_send(SYN_Socket sock, const void *data, size_t len) {
     if (sock < 0 || sock >= SYN_ARDUINO_MAX_SOCKETS || s_arduino_sockets[sock].type != SYN_SOCK_TCP_CLIENT) {
         return -1;
     }
-    EthernetClient *c = s_arduino_sockets[sock].client;
-    if (!c) return -1;
-    return (int)c->write((const uint8_t *)data, len);
+    uint8_t hw = s_arduino_sockets[sock].hw_sock;
+    if (hw >= MAX_SOCK_NUM) return -1;
+
+    EthernetClient c(hw);
+    return (int)c.write((const uint8_t *)data, len);
 }
 
 int syn_port_sock_send_all(SYN_Socket sock, const void *data, size_t len) {
     if (sock < 0 || sock >= SYN_ARDUINO_MAX_SOCKETS || s_arduino_sockets[sock].type != SYN_SOCK_TCP_CLIENT) {
         return -1;
     }
-    EthernetClient *c = s_arduino_sockets[sock].client;
-    if (!c) return -1;
-    size_t written = c->write((const uint8_t *)data, len);
+    uint8_t hw = s_arduino_sockets[sock].hw_sock;
+    if (hw >= MAX_SOCK_NUM) return -1;
+
+    EthernetClient c(hw);
+    size_t written = c.write((const uint8_t *)data, len);
     return (written == len) ? (int)len : -1;
 }
 
 int syn_port_sock_recv(SYN_Socket sock, void *buf, size_t max_len, uint32_t timeout_ms) {
+    (void)timeout_ms;
     if (sock < 0 || sock >= SYN_ARDUINO_MAX_SOCKETS || s_arduino_sockets[sock].type != SYN_SOCK_TCP_CLIENT) {
         return -1;
     }
-    EthernetClient *c = s_arduino_sockets[sock].client;
-    if (!c) return -1;
+    uint8_t hw = s_arduino_sockets[sock].hw_sock;
+    if (hw >= MAX_SOCK_NUM) return 0;
 
-    if (!c->connected() && !c->available()) {
-        return 0; /* Connection closed */
+    EthernetClient c(hw);
+    int avail = c.available();
+    if (avail > 0) {
+        size_t to_read = (size_t)avail < max_len ? (size_t)avail : max_len;
+        int n = c.read((uint8_t *)buf, to_read);
+        Serial.print(F("[RECV]: Read "));
+        Serial.print(n);
+        Serial.println(F(" bytes"));
+        return n;
     }
 
-    uint32_t start = millis();
-    while (!c->available()) {
-        if (!c->connected()) return 0;
-        if (timeout_ms == 0 || (millis() - start) >= timeout_ms) {
-            return -1; /* Timeout / no data ready */
-        }
-        delay(1);
+    if (c.status() == SnSR::CLOSED || c.status() == SnSR::FIN_WAIT || c.status() == SnSR::TIME_WAIT || c.status() == SnSR::LAST_ACK || c.status() == SnSR::CLOSE_WAIT) {
+        return 0; /* Connection closed by peer */
     }
 
-    int avail = c->available();
-    if (avail <= 0) return -1;
-    size_t to_read = (size_t)avail < max_len ? (size_t)avail : max_len;
-    return c->read((uint8_t *)buf, to_read);
+    return -1; /* Connection alive, but no data available yet (WOULDBLOCK) */
 }
+
+static EthernetServer s_server_inst(8080);
 
 SYN_Socket syn_port_sock_listen(uint16_t port, int backlog) {
     (void)backlog;
     int slot = alloc_socket_slot(SYN_SOCK_TCP_LISTEN);
     if (slot == SYN_SOCKET_INVALID) return SYN_SOCKET_INVALID;
 
-    /* Force reset any existing server_port binding for this port to ensure W5500 hardware listen is issued */
-    for (int i = 0; i < MAX_SOCK_NUM; i++) {
-        if (EthernetServer::server_port[i] == port) {
-            EthernetServer::server_port[i] = 0;
-        }
-    }
+    s_arduino_sockets[slot].port = port;
 
-    s_arduino_sockets[slot].server = new EthernetServer(port);
-    if (!s_arduino_sockets[slot].server) {
-        s_arduino_sockets[slot].type = SYN_SOCK_FREE;
-        return SYN_SOCKET_INVALID;
-    }
+    s_srv = &s_server_inst;
+    s_arduino_sockets[slot].server = s_srv;
     s_arduino_sockets[slot].server->begin();
+
     Serial.print(F("[SOCK] Listening on port "));
     Serial.println(port);
+    
     return slot;
 }
 
 SYN_Socket syn_port_sock_accept(SYN_Socket listener, uint32_t timeout_ms) {
+    (void)timeout_ms;
     if (listener < 0 || listener >= SYN_ARDUINO_MAX_SOCKETS || s_arduino_sockets[listener].type != SYN_SOCK_TCP_LISTEN) {
         return SYN_SOCKET_INVALID;
     }
     EthernetServer *srv = s_arduino_sockets[listener].server;
     if (!srv) return SYN_SOCKET_INVALID;
 
-    uint32_t start = millis();
-    do {
-        EthernetClient client = srv->accept();
-        if (client && (client.connected() || client.available() > 0)) {
-            uint8_t hw_sock = client.getSocketNumber();
-            bool already_tracked = false;
-            for (int i = 0; i < SYN_ARDUINO_MAX_SOCKETS; i++) {
-                if (s_arduino_sockets[i].type == SYN_SOCK_TCP_CLIENT &&
-                    s_arduino_sockets[i].client &&
-                    s_arduino_sockets[i].client->getSocketNumber() == hw_sock) {
-                    already_tracked = true;
-                    break;
-                }
-            }
-            if (already_tracked) {
-                if (timeout_ms > 0) delay(1);
-                continue;
-            }
+    EthernetClient client = srv->accept();
 
-            int slot = alloc_socket_slot(SYN_SOCK_TCP_CLIENT);
-            if (slot == SYN_SOCKET_INVALID) {
-                client.stop();
-                return SYN_SOCKET_INVALID;
-            }
-            s_arduino_sockets[slot].client = new EthernetClient(client);
-            Serial.print(F("[SOCK] Accepted client connection on socket slot "));
-            Serial.println(slot);
-            return slot;
+    if (client) {
+        uint8_t hw_sock = client.getSocketNumber();
+        Serial.print(F("[ACCEPT SUCCESS] hw_sock: "));
+        Serial.println(hw_sock);
+        Serial.flush();
+        int slot = alloc_socket_slot(SYN_SOCK_TCP_CLIENT);
+        if (slot == SYN_SOCKET_INVALID) {
+            client.stop();
+            return SYN_SOCKET_INVALID;
         }
 
-        if (timeout_ms > 0) delay(1);
-    } while (timeout_ms > 0 && (millis() - start) < timeout_ms);
+        s_arduino_sockets[slot].hw_sock = hw_sock;
+
+        return slot;
+    }
 
     return SYN_SOCKET_INVALID;
 }
-
-
 
 SYN_Socket syn_port_udp_open(uint16_t port) {
     int slot = alloc_socket_slot(SYN_SOCK_UDP);
     if (slot == SYN_SOCKET_INVALID) return SYN_SOCKET_INVALID;
 
-    s_arduino_sockets[slot].udp = new EthernetUDP();
-    if (!s_arduino_sockets[slot].udp) {
-        s_arduino_sockets[slot].type = SYN_SOCK_FREE;
-        return SYN_SOCKET_INVALID;
-    }
-    if (s_arduino_sockets[slot].udp->begin(port) == 1) {
+    new (s_udp_buf[slot]) EthernetUDP();
+    s_arduino_sockets[slot].udp = (EthernetUDP *)s_udp_buf[slot];
+
+    s_arduino_sockets[slot].port = port;
+
+    SPI.beginTransaction(SPI_ETHERNET_SETTINGS);
+    int res = s_arduino_sockets[slot].udp->begin(port);
+    SPI.endTransaction();
+
+    if (res == 1) {
         return slot;
     }
-    delete s_arduino_sockets[slot].udp;
     s_arduino_sockets[slot].udp = NULL;
     s_arduino_sockets[slot].type = SYN_SOCK_FREE;
     return SYN_SOCKET_INVALID;
@@ -984,14 +991,21 @@ int syn_port_udp_sendto(SYN_Socket sock, const void *data, size_t len, const SYN
     if (!u) return -1;
 
     IPAddress ip(to->ip[0], to->ip[1], to->ip[2], to->ip[3]);
+    SPI.beginTransaction(SPI_ETHERNET_SETTINGS);
     if (u->beginPacket(ip, to->port) != 1) {
+        SPI.endTransaction();
         delay(10);
-        if (u->beginPacket(ip, to->port) != 1) return -1;
+        SPI.beginTransaction(SPI_ETHERNET_SETTINGS);
+        if (u->beginPacket(ip, to->port) != 1) {
+            SPI.endTransaction();
+            return -1;
+        }
     }
     u->write((const uint8_t *)data, len);
-    return u->endPacket() == 1 ? (int)len : -1;
+    int res = u->endPacket();
+    SPI.endTransaction();
+    return res == 1 ? (int)len : -1;
 }
-
 
 int syn_port_udp_recvfrom(SYN_Socket sock, void *buf, size_t max_len, SYN_SockAddr *from, uint32_t timeout_ms) {
     if (sock < 0 || sock >= SYN_ARDUINO_MAX_SOCKETS || s_arduino_sockets[sock].type != SYN_SOCK_UDP) {
@@ -1003,7 +1017,9 @@ int syn_port_udp_recvfrom(SYN_Socket sock, void *buf, size_t max_len, SYN_SockAd
     uint32_t start = millis();
     int packetSize = 0;
     do {
+        SPI.beginTransaction(SPI_ETHERNET_SETTINGS);
         packetSize = u->parsePacket();
+        SPI.endTransaction();
         if (packetSize > 0) break;
         if (timeout_ms == 0) return 0; /* Non-blocking poll */
         delay(1);
@@ -1012,51 +1028,156 @@ int syn_port_udp_recvfrom(SYN_Socket sock, void *buf, size_t max_len, SYN_SockAd
     if (packetSize <= 0) return (timeout_ms == 0) ? 0 : -1;
 
     size_t to_read = (size_t)packetSize < max_len ? (size_t)packetSize : max_len;
+
+    SPI.beginTransaction(SPI_ETHERNET_SETTINGS);
     int read_bytes = u->read((uint8_t *)buf, to_read);
+    IPAddress remote;
     if (read_bytes > 0 && from) {
-        IPAddress remote = u->remoteIP();
+        remote = u->remoteIP();
+        from->port = u->remotePort();
+    }
+    SPI.endTransaction();
+
+    if (read_bytes > 0 && from) {
         from->ip[0] = remote[0];
         from->ip[1] = remote[1];
         from->ip[2] = remote[2];
         from->ip[3] = remote[3];
-        from->port  = u->remotePort();
     }
     return read_bytes;
 }
 
 SYN_Status syn_port_udp_join_multicast(SYN_Socket sock, const char *multicast_ip) {
-    (void)sock;
-    (void)multicast_ip;
-    return SYN_NOT_IMPLEMENTED;
+    if (sock < 0 || sock >= SYN_ARDUINO_MAX_SOCKETS) return SYN_INVALID_PARAM;
+    if (s_arduino_sockets[sock].type != SYN_SOCK_UDP || !s_arduino_sockets[sock].udp) {
+        return SYN_INVALID_PARAM;
+    }
+    uint8_t m_ip[4];
+    if (sscanf(multicast_ip, "%hhu.%hhu.%hhu.%hhu", &m_ip[0], &m_ip[1], &m_ip[2], &m_ip[3]) != 4) {
+        return SYN_INVALID_PARAM;
+    }
+    IPAddress mcast(m_ip[0], m_ip[1], m_ip[2], m_ip[3]);
+    uint16_t local_port = s_arduino_sockets[sock].port;
+
+    s_arduino_sockets[sock].udp->stop();
+    if (s_arduino_sockets[sock].udp->beginMulticast(mcast, local_port) == 1) {
+        return SYN_OK;
+    }
+    return SYN_ERROR;
 }
 
 void syn_port_sock_close(SYN_Socket sock) {
     if (sock < 0 || sock >= SYN_ARDUINO_MAX_SOCKETS) return;
 
     if (s_arduino_sockets[sock].type == SYN_SOCK_TCP_CLIENT) {
-        if (s_arduino_sockets[sock].client) {
-            s_arduino_sockets[sock].client->stop();
-            delete s_arduino_sockets[sock].client;
-            s_arduino_sockets[sock].client = NULL;
+        uint8_t hw_sock = s_arduino_sockets[sock].hw_sock;
+        if (hw_sock < MAX_SOCK_NUM) {
+            EthernetClient c(hw_sock);
+            c.flush();
+            SPI.beginTransaction(SPI_ETHERNET_SETTINGS);
+            W5100.execCmdSn(hw_sock, Sock_DISCON);
+            SPI.endTransaction();
+            if (s_srv) s_srv->begin();
         }
+        s_arduino_sockets[sock].hw_sock = MAX_SOCK_NUM;
     } else if (s_arduino_sockets[sock].type == SYN_SOCK_TCP_LISTEN) {
-        if (s_arduino_sockets[sock].server) {
-            delete s_arduino_sockets[sock].server;
-            s_arduino_sockets[sock].server = NULL;
-        }
+        s_arduino_sockets[sock].server = NULL;
     } else if (s_arduino_sockets[sock].type == SYN_SOCK_UDP) {
         if (s_arduino_sockets[sock].udp) {
             s_arduino_sockets[sock].udp->stop();
-            delete s_arduino_sockets[sock].udp;
             s_arduino_sockets[sock].udp = NULL;
         }
     }
     s_arduino_sockets[sock].type = SYN_SOCK_FREE;
 }
 
-} /* extern "C" */
+
+
+
+
+/* ── RTC Port (Software RTC implementation on Arduino) ─────────────────── */
+
+static uint32_t s_rtc_base_epoch = 0;
+static uint32_t s_rtc_base_ms = 0;
+
+SYN_Status syn_port_rtc_init(void)
+{
+    s_rtc_base_epoch = 0;
+    s_rtc_base_ms = 0;
+    return SYN_OK;
+}
+
+SYN_Status syn_port_rtc_set(const SYN_RTC_DateTime *dt)
+{
+    if (!dt) return SYN_INVALID_PARAM;
+    s_rtc_base_epoch = syn_rtc_to_epoch(dt);
+    s_rtc_base_ms = millis();
+    return SYN_OK;
+}
+
+SYN_Status syn_port_rtc_get(SYN_RTC_DateTime *dt)
+{
+    if (!dt) return SYN_INVALID_PARAM;
+    if (s_rtc_base_epoch == 0) return SYN_ERROR;
+
+    uint32_t elapsed_s = (millis() - s_rtc_base_ms) / 1000u;
+    syn_rtc_from_epoch(s_rtc_base_epoch + elapsed_s, dt);
+    return SYN_OK;
+}
 
 #endif /* Ethernet.h */
+
+/* ── Flash / EEPROM Port Implementation ────────────────────────────────────── */
+
+#include "syntropic/port/syn_port_flash.h"
+#if defined(ARDUINO_ARCH_AVR)
+#include <avr/eeprom.h>
+#endif
+
+#define SYN_ARDUINO_SECTOR_SIZE  64  /* 64-byte sector pages */
+
+uint32_t syn_port_flash_sector_size(uint32_t addr)
+{
+    (void)addr;
+    return SYN_ARDUINO_SECTOR_SIZE;
+}
+
+SYN_Status syn_port_flash_read(uint32_t addr, void *buf, size_t len)
+{
+    if (!buf) return SYN_INVALID_PARAM;
+#if defined(ARDUINO_ARCH_AVR)
+    eeprom_read_block(buf, (const void *)(uintptr_t)addr, len);
+    return SYN_OK;
+#else
+    memset(buf, 0xFF, len);
+    return SYN_OK;
+#endif
+}
+
+SYN_Status syn_port_flash_write(uint32_t addr, const void *buf, size_t len)
+{
+    if (!buf) return SYN_INVALID_PARAM;
+#if defined(ARDUINO_ARCH_AVR)
+    eeprom_update_block(buf, (void *)(uintptr_t)addr, len);
+    return SYN_OK;
+#else
+    return SYN_OK;
+#endif
+}
+
+SYN_Status syn_port_flash_erase(uint32_t addr)
+{
+#if defined(ARDUINO_ARCH_AVR)
+    uint8_t erased[SYN_ARDUINO_SECTOR_SIZE];
+    memset(erased, 0xFF, sizeof(erased));
+    eeprom_update_block(erased, (void *)(uintptr_t)addr, SYN_ARDUINO_SECTOR_SIZE);
+    return SYN_OK;
+#else
+    return SYN_OK;
+#endif
+}
+
+} /* extern "C" */
 
 #endif /* ARDUINO */
 

@@ -40,10 +40,12 @@ static void cli_builtin_tasks(const SYN_CLI *cli);
 /* Runtime-configured singletons (set via syn_cli_set_*) */
 #if SYN_CLI_CMD_ERRORS
 struct SYN_ErrLog;
+/** @brief Global error log singleton reference for CLI diagnostics. */
 static struct SYN_ErrLog *s_cli_errlog = NULL;
 #endif
 #if SYN_CLI_CMD_TASKS
 struct SYN_Sched;
+/** @brief Global scheduler singleton reference for CLI task listing. */
 static struct SYN_Sched  *s_cli_sched  = NULL;
 #endif
 

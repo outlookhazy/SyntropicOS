@@ -6,7 +6,7 @@
 
 /**
  * @file syn_mqtt.c
- * @brief Lightweight MQTT 3.1.1 client implementation.
+ * @brief Lightweight MQTT 3.1.1 client implementation — fully non-blocking.
  */
 
 #include "syn_mqtt.h"
@@ -14,7 +14,7 @@
 #include "../port/syn_port_system.h"
 #include <string.h>
 
-#define MQTT_RECV_TIMEOUT_MS  500   /**< Default receive timeout (ms).   */
+#define MQTT_RECV_TIMEOUT_MS  5000  /**< Timeout for incomplete packet reception (ms). */
 #define MQTT_ACK_TIMEOUT_MS   5000  /**< Timeout for ACK responses (ms). */
 
 /* ── Remaining Length Helper ────────────────────────────────────────────── */
@@ -35,47 +35,6 @@ static size_t encode_remaining_len(uint8_t *buf, uint32_t len)
         buf[bytes++] = d;
     } while (len > 0);
     return bytes;
-}
-
-/**
- * @brief Read exactly @p len bytes from socket.
- * @param sock        Socket.
- * @param buf         Output buffer.
- * @param len         Bytes to read.
- * @param timeout_ms  Timeout per recv call.
- * @return Total bytes read, or -1 on error.
- */
-static int read_all(SYN_Socket sock, uint8_t *buf, size_t len, uint32_t timeout_ms)
-{
-    size_t total = 0;
-    while (total < len) {
-        int n = syn_port_sock_recv(sock, buf + total, len - total, timeout_ms);
-        if (n <= 0) return -1;
-        total += (size_t)n;
-    }
-    return (int)total;
-}
-
-/**
- * @brief Read MQTT variable-length "remaining length" field from socket.
- * @param sock        Socket.
- * @param len_out     [out] Decoded length.
- * @param timeout_ms  Timeout.
- * @return 0 on success, -1 on error.
- */
-static int read_remaining_len(SYN_Socket sock, uint32_t *len_out, uint32_t timeout_ms)
-{
-    uint32_t multiplier = 1;
-    uint32_t value = 0;
-    uint8_t encodedByte;
-    do {
-        if (read_all(sock, &encodedByte, 1, timeout_ms) != 1) return -1;
-        value += (encodedByte & 127) * multiplier;
-        if (multiplier > 128UL * 128UL * 128UL) return -1;
-        multiplier *= 128;
-    } while ((encodedByte & 128) != 0);
-    *len_out = value;
-    return 0;
 }
 
 /* ── Connection Packets ─────────────────────────────────────────────────── */
@@ -158,7 +117,7 @@ static void handle_publish(SYN_MqttClient *c, const uint8_t *payload, uint32_t l
     uint16_t topic_len = (uint16_t)(((uint16_t)payload[0] << 8) | payload[1]);
     if ((uint32_t)(2 + topic_len) > len) return;
 
-    /* Extract topic string dynamically without modification to payload (null-terminate on the fly or copy) */
+    /* Extract topic string dynamically */
     char topic[64];
     size_t to_copy = topic_len < sizeof(topic) - 1 ? topic_len : sizeof(topic) - 1;
     memcpy(topic, payload + 2, to_copy);
@@ -182,6 +141,173 @@ static void handle_publish(SYN_MqttClient *c, const uint8_t *payload, uint32_t l
     if (qos == 1) {
         const uint8_t puback[] = { 0x40, 0x02, (uint8_t)(packet_id >> 8), (uint8_t)(packet_id & 255) };
         syn_port_sock_send_all(c->sock, puback, 4);
+    }
+}
+
+/**
+ * @brief Dispatch a fully received MQTT packet.
+ * @param c  MQTT client context.
+ */
+static void process_packet(SYN_MqttClient *c)
+{
+    uint8_t type = c->rx_header & 0xF0;
+    uint32_t rem_len = c->rx_rem_len;
+
+    if (type == 0x20) {
+        /* CONNACK */
+        if (rem_len >= 2 && c->rx_buf[1] == 0) {
+            c->state = SYN_MQTT_CONNECTED;
+        } else {
+            syn_port_sock_close(c->sock);
+            c->sock = SYN_SOCKET_INVALID;
+            c->state = SYN_MQTT_DISCONNECTED;
+            c->rx_phase = SYN_MQTT_RX_IDLE;
+        }
+    } else if (type == 0x30) {
+        /* PUBLISH */
+        handle_publish(c, c->rx_buf, rem_len, c->rx_header & 0x0F);
+    } else if (type == 0x40) {
+        /* PUBACK */
+        if (rem_len >= 2) {
+            uint16_t pid = (uint16_t)(((uint16_t)c->rx_buf[0] << 8) | c->rx_buf[1]);
+            if (pid == c->pending_puback_id) {
+                c->pending_puback_id = 0;
+            }
+        }
+    } else if (type == 0xD0) {
+        /* PINGRESP — reset keep alive activity timer */
+    }
+}
+
+/**
+ * @brief Non-blocking receive state machine poll.
+ *
+ * Reads available bytes with timeout=0. Advances through RX phases:
+ *   IDLE → REMAINING_LEN → PAYLOAD / DISCARD → IDLE
+ *
+ * @param c  MQTT client.
+ */
+static void poll_rx(SYN_MqttClient *c)
+{
+    if (c->sock == SYN_SOCKET_INVALID) return;
+
+    for (;;) {
+        /* Non-blocking deadline check for mid-packet stalling */
+        if (c->rx_phase != SYN_MQTT_RX_IDLE) {
+            if ((int32_t)(syn_port_get_tick_ms() - c->rx_deadline) >= 0) {
+                syn_port_sock_close(c->sock);
+                c->sock = SYN_SOCKET_INVALID;
+                c->state = SYN_MQTT_DISCONNECTED;
+                c->rx_phase = SYN_MQTT_RX_IDLE;
+                return;
+            }
+        }
+
+        switch (c->rx_phase) {
+        case SYN_MQTT_RX_IDLE: {
+            uint8_t header;
+            int n = syn_port_sock_recv(c->sock, &header, 1, 0);
+            if (n < 0) return; /* No data ready */
+            if (n == 0) {
+                /* Connection closed by server */
+                syn_port_sock_close(c->sock);
+                c->sock = SYN_SOCKET_INVALID;
+                c->state = SYN_MQTT_DISCONNECTED;
+                return;
+            }
+            c->last_activity_ms = syn_port_get_tick_ms();
+            c->rx_header  = header;
+            c->rx_rem_len = 0;
+            c->rx_mult    = 1;
+            c->rx_phase   = SYN_MQTT_RX_REMAINING_LEN;
+            c->rx_deadline= syn_port_get_tick_ms() + MQTT_RECV_TIMEOUT_MS;
+            break;
+        }
+
+        case SYN_MQTT_RX_REMAINING_LEN: {
+            uint8_t b;
+            int n = syn_port_sock_recv(c->sock, &b, 1, 0);
+            if (n < 0) return; /* No data ready */
+            if (n == 0) {
+                /* Connection closed during packet header */
+                syn_port_sock_close(c->sock);
+                c->sock = SYN_SOCKET_INVALID;
+                c->state = SYN_MQTT_DISCONNECTED;
+                c->rx_phase = SYN_MQTT_RX_IDLE;
+                return;
+            }
+            c->last_activity_ms = syn_port_get_tick_ms();
+            c->rx_rem_len += (uint32_t)(b & 127) * c->rx_mult;
+            if (c->rx_mult > 128UL * 128UL * 128UL) {
+                /* Multiplier overflow error */
+                syn_port_sock_close(c->sock);
+                c->sock = SYN_SOCKET_INVALID;
+                c->state = SYN_MQTT_DISCONNECTED;
+                c->rx_phase = SYN_MQTT_RX_IDLE;
+                return;
+            }
+            c->rx_mult *= 128;
+
+            if ((b & 128) == 0) {
+                /* Varint remaining length decoded */
+                c->rx_pos = 0;
+                if (c->rx_rem_len == 0) {
+                    process_packet(c);
+                    c->rx_phase = SYN_MQTT_RX_IDLE;
+                } else if (c->rx_rem_len <= c->rx_buf_size) {
+                    c->rx_phase = SYN_MQTT_RX_PAYLOAD;
+                } else {
+                    /* Oversized packet — discard payload */
+                    c->rx_phase = SYN_MQTT_RX_DISCARD;
+                }
+            }
+            break;
+        }
+
+        case SYN_MQTT_RX_PAYLOAD: {
+            size_t space = c->rx_rem_len - c->rx_pos;
+            int n = syn_port_sock_recv(c->sock, c->rx_buf + c->rx_pos, space, 0);
+            if (n < 0) return; /* No data ready */
+            if (n == 0) {
+                /* Connection closed during payload */
+                syn_port_sock_close(c->sock);
+                c->sock = SYN_SOCKET_INVALID;
+                c->state = SYN_MQTT_DISCONNECTED;
+                c->rx_phase = SYN_MQTT_RX_IDLE;
+                return;
+            }
+            c->last_activity_ms = syn_port_get_tick_ms();
+            c->rx_pos += (size_t)n;
+            if (c->rx_pos == c->rx_rem_len) {
+                process_packet(c);
+                c->rx_phase = SYN_MQTT_RX_IDLE;
+            }
+            break;
+        }
+
+        case SYN_MQTT_RX_DISCARD: {
+            uint8_t drop_buf[64];
+            size_t space = c->rx_rem_len - c->rx_pos;
+            if (space > sizeof(drop_buf)) space = sizeof(drop_buf);
+
+            int n = syn_port_sock_recv(c->sock, drop_buf, space, 0);
+            if (n < 0) return; /* No data ready */
+            if (n == 0) {
+                /* Connection closed during discard */
+                syn_port_sock_close(c->sock);
+                c->sock = SYN_SOCKET_INVALID;
+                c->state = SYN_MQTT_DISCONNECTED;
+                c->rx_phase = SYN_MQTT_RX_IDLE;
+                return;
+            }
+            c->last_activity_ms = syn_port_get_tick_ms();
+            c->rx_pos += (size_t)n;
+            if (c->rx_pos == c->rx_rem_len) {
+                c->rx_phase = SYN_MQTT_RX_IDLE;
+            }
+            break;
+        }
+        }
     }
 }
 
@@ -212,6 +338,7 @@ SYN_Status syn_mqtt_init(SYN_MqttClient *client, const char *host, uint16_t port
     client->tx_buf_size = tx_buf_size;
     client->sock = SYN_SOCKET_INVALID;
     client->state = SYN_MQTT_DISCONNECTED;
+    client->rx_phase = SYN_MQTT_RX_IDLE;
 
     return SYN_OK;
 }
@@ -314,6 +441,7 @@ SYN_PT_Status syn_mqtt_task(SYN_PT *pt, SYN_Task *task)
                 continue;
             }
             c->state = SYN_MQTT_CONNECTING;
+            c->rx_phase = SYN_MQTT_RX_IDLE;
             if (!send_mqtt_connect(c)) {
                 syn_port_sock_close(c->sock);
                 c->sock = SYN_SOCKET_INVALID;
@@ -339,69 +467,8 @@ SYN_PT_Status syn_mqtt_task(SYN_PT *pt, SYN_Task *task)
                 }
             }
 
-            /* Poll socket for incoming packets (non-blocking peek of first byte) */
-            uint8_t header;
-            int n = syn_port_sock_recv(c->sock, &header, 1, 0);
-            if (n > 0) {
-                c->last_activity_ms = syn_port_get_tick_ms();
-                uint8_t type = header & 0xF0;
-                
-                uint32_t rem_len = 0;
-                if (read_remaining_len(c->sock, &rem_len, MQTT_RECV_TIMEOUT_MS) == 0) {
-                    if (rem_len <= c->rx_buf_size) {
-                        int read_len = read_all(c->sock, c->rx_buf, rem_len, MQTT_RECV_TIMEOUT_MS);
-                        if (read_len == (int)rem_len) {
-                            if (type == 0x20) {
-                                /* CONNACK */
-                                if (rem_len >= 2 && c->rx_buf[1] == 0) {
-                                    c->state = SYN_MQTT_CONNECTED;
-                                } else {
-                                    syn_port_sock_close(c->sock);
-                                    c->sock = SYN_SOCKET_INVALID;
-                                    c->state = SYN_MQTT_DISCONNECTED;
-                                }
-                            } else if (type == 0x30) {
-                                /* PUBLISH */
-                                handle_publish(c, c->rx_buf, rem_len, header & 0x0F);
-                            } else if (type == 0x40) {
-                                /* PUBACK */
-                                if (rem_len >= 2) {
-                                    uint16_t pid = (uint16_t)(((uint16_t)c->rx_buf[0] << 8) | c->rx_buf[1]);
-                                    if (pid == c->pending_puback_id) {
-                                        c->pending_puback_id = 0;
-                                    }
-                                }
-                            } else if (type == 0xD0) {
-                                /* PINGRESP - do nothing, keep alive reset */
-                            }
-                        } else {
-                            syn_port_sock_close(c->sock);
-                            c->sock = SYN_SOCKET_INVALID;
-                            c->state = SYN_MQTT_DISCONNECTED;
-                        }
-                    } else {
-                        /* Packet too large, skip it */
-                        uint32_t dropped = 0;
-                        while (dropped < rem_len) {
-                            uint8_t drop_buf[64];
-                            uint32_t to_read = rem_len - dropped;
-                            if (to_read > sizeof(drop_buf)) to_read = sizeof(drop_buf);
-                            int r = read_all(c->sock, drop_buf, to_read, MQTT_RECV_TIMEOUT_MS);
-                            if (r <= 0) break;
-                            dropped += (uint32_t)r;
-                        }
-                    }
-                } else {
-                    syn_port_sock_close(c->sock);
-                    c->sock = SYN_SOCKET_INVALID;
-                    c->state = SYN_MQTT_DISCONNECTED;
-                }
-            } else if (n == 0) {
-                /* Connection closed */
-                syn_port_sock_close(c->sock);
-                c->sock = SYN_SOCKET_INVALID;
-                c->state = SYN_MQTT_DISCONNECTED;
-            }
+            /* Poll socket for incoming packets (non-blocking state machine) */
+            poll_rx(c);
 
             /* Keep alive timer */
             uint32_t now = syn_port_get_tick_ms();
@@ -413,11 +480,12 @@ SYN_PT_Status syn_mqtt_task(SYN_PT *pt, SYN_Task *task)
                         syn_port_sock_close(c->sock);
                         c->sock = SYN_SOCKET_INVALID;
                         c->state = SYN_MQTT_DISCONNECTED;
+                        c->rx_phase = SYN_MQTT_RX_IDLE;
                     }
                 }
             }
         }
-        PT_YIELD(pt);
+        PT_DEFER(pt, task);
     }
 
     PT_END(pt);

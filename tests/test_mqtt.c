@@ -439,7 +439,11 @@ static void test_mqtt_state_machine_failures(void)
 
 static void test_mqtt_payload_skip_logic(void)
 {
-    /* 1. read_all fails (short read on valid remaining length) */
+    SYN_PT pt;
+    PT_INIT(&pt);
+    SYN_Task task;
+
+    /* 1. read_all fails (socket EOF on valid remaining length) */
     mock_port_reset();
     SYN_MqttClient c;
     uint8_t rx[32];
@@ -447,18 +451,16 @@ static void test_mqtt_payload_skip_logic(void)
     syn_mqtt_init(&c, "broker.hivemq.com", 1883, "myclient", NULL, NULL, 60, rx, sizeof(rx), tx, sizeof(tx));
     c.state = SYN_MQTT_CONNECTED;
     c.sock = 11;
-    mock_sock_connected = true;
-
-    SYN_PT pt;
-    PT_INIT(&pt);
-    SYN_Task task;
     task.user_data = &c;
+    mock_sock_connected = true;
+    mock_sock_eof_on_empty = true;
 
     /* Rem Len = 10, but only 5 bytes provided */
     uint8_t short_packet[] = { 0x30, 10, 'a', 'b', 'c', 'd', 'e' };
     mock_sock_set_response(short_packet, sizeof(short_packet));
     syn_mqtt_task(&pt, &task);
-    /* Should disconnect because read_all returns -1 */
+
+    /* Should disconnect because socket closed (EOF) before payload complete */
     TEST_ASSERT_EQUAL(SYN_MQTT_DISCONNECTED, c.state);
     TEST_ASSERT_EQUAL(SYN_SOCKET_INVALID, c.sock);
 
@@ -468,6 +470,7 @@ static void test_mqtt_payload_skip_logic(void)
     syn_mqtt_init(&c, "broker.hivemq.com", 1883, "myclient", NULL, NULL, 60, rx, sizeof(rx), tx, sizeof(tx));
     c.state = SYN_MQTT_CONNECTED;
     c.sock = 11;
+    task.user_data = &c;
     mock_sock_connected = true;
 
     /* rx_buf_size is 32. We send rem_len = 100.
@@ -482,12 +485,13 @@ static void test_mqtt_payload_skip_logic(void)
     TEST_ASSERT_EQUAL(SYN_MQTT_CONNECTED, c.state);
     TEST_ASSERT_EQUAL_INT(102, mock_sock_rx_pos); // read all bytes
 
-    /* 3. Failed skip logic (packet exceeds rx_buf_size, but socket fails/ends early) */
+    /* 3. Partial oversized packet (packet exceeds rx_buf_size, but socket fails/ends early) */
     mock_port_reset();
     PT_INIT(&pt);
     syn_mqtt_init(&c, "broker.hivemq.com", 1883, "myclient", NULL, NULL, 60, rx, sizeof(rx), tx, sizeof(tx));
     c.state = SYN_MQTT_CONNECTED;
     c.sock = 11;
+    task.user_data = &c;
     mock_sock_connected = true;
 
     /* rx_buf_size is 32. We send rem_len = 100, but only provide 50 bytes of payload */
@@ -497,25 +501,29 @@ static void test_mqtt_payload_skip_logic(void)
     memset(partial_oversized + 2, 'X', 50);
     mock_sock_set_response(partial_oversized, sizeof(partial_oversized));
     syn_mqtt_task(&pt, &task);
-    /* Loop breaks because r <= 0. Client stays connected (according to production logic, falls out of skip loop). */
+    /* Client stays connected while waiting for remaining bytes */
     TEST_ASSERT_EQUAL(SYN_MQTT_CONNECTED, c.state);
 
-    /* 4. read_remaining_len fails */
+    /* 4. read_remaining_len fails (EOF before length bytes) */
     mock_port_reset();
     PT_INIT(&pt);
     syn_mqtt_init(&c, "broker.hivemq.com", 1883, "myclient", NULL, NULL, 60, rx, sizeof(rx), tx, sizeof(tx));
     c.state = SYN_MQTT_CONNECTED;
     c.sock = 11;
+    task.user_data = &c;
     mock_sock_connected = true;
+    mock_sock_eof_on_empty = true;
 
     /* Header 0x30, but no length bytes follow */
     uint8_t header_only[] = { 0x30 };
     mock_sock_set_response(header_only, sizeof(header_only));
     syn_mqtt_task(&pt, &task);
-    /* Should close socket and disconnect */
+    /* Should close socket and disconnect on EOF */
     TEST_ASSERT_EQUAL(SYN_MQTT_DISCONNECTED, c.state);
     TEST_ASSERT_EQUAL(SYN_SOCKET_INVALID, c.sock);
+
 }
+
 
 static void test_mqtt_ping_and_mismatch(void)
 {

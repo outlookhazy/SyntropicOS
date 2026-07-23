@@ -51,6 +51,12 @@ SYN_Status syn_port_rtc_get(SYN_RTC_DateTime *dt);
  */
 SYN_Status syn_port_rtc_set(const SYN_RTC_DateTime *dt);
 
+/**
+ * @brief Set the hardware/software RTC clock drift compensation in PPM.
+ * @param drift_ppm  Drift in Parts-Per-Million (+ = fast, - = slow).
+ */
+void syn_port_rtc_set_drift_ppm(int32_t drift_ppm);
+
 #ifdef __cplusplus
 }
 #endif

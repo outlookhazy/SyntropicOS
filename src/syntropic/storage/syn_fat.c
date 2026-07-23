@@ -629,13 +629,13 @@ const SYN_VfsOps *syn_fat_get_ops(void)
 SYN_Status syn_fat_init(uint8_t spi_bus, SYN_GPIO_Pin cs)
 {
     if (syn_sd_init(&g_sd, spi_bus, cs) != SYN_OK) {
-        SYN_LOG_E(TAG, "syn_sd_init failed");
+        SYN_LOG_E(TAG, "%s", "syn_sd_init failed");
         return SYN_ERROR;
     }
 
     uint8_t sector0[512];
     if (syn_sd_read(&g_sd, 0, sector0) != SYN_OK) {
-        SYN_LOG_E(TAG, "Failed to read Sector 0");
+        SYN_LOG_E(TAG, "%s", "Failed to read Sector 0");
         return SYN_ERROR;
     }
 
@@ -645,7 +645,7 @@ SYN_Status syn_fat_init(uint8_t spi_bus, SYN_GPIO_Pin cs)
     if (part_start != 0) {
         SYN_LOG_I(TAG, "FAT partition found starting at sector %u", (unsigned)part_start);
         if (syn_sd_read(&g_sd, part_start, bpb_buf) != SYN_OK) {
-            SYN_LOG_E(TAG, "Failed to read partition Boot Sector");
+            SYN_LOG_E(TAG, "%s", "Failed to read partition Boot Sector");
             return SYN_ERROR;
         }
     } else {
@@ -653,7 +653,7 @@ SYN_Status syn_fat_init(uint8_t spi_bus, SYN_GPIO_Pin cs)
     }
 
     if (!fat_parse_bpb(&g_vol, bpb_buf, part_start)) {
-        SYN_LOG_E(TAG, "Invalid Boot Sector BPB format");
+        SYN_LOG_E(TAG, "%s", "Invalid Boot Sector BPB format");
         return SYN_ERROR;
     }
 
@@ -665,7 +665,7 @@ SYN_Status syn_fat_init(uint8_t spi_bus, SYN_GPIO_Pin cs)
     memset(g_fat_files, 0, sizeof(g_fat_files));
 
     if (syn_vfs_mount("/sd", &g_fat_vfs_ops, NULL) != SYN_OK) {
-        SYN_LOG_E(TAG, "VFS mount /sd failed");
+        SYN_LOG_E(TAG, "%s", "VFS mount /sd failed");
         return SYN_ERROR;
     }
 

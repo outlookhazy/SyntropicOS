@@ -300,7 +300,7 @@ SYN_PT_Status syn_http_client_task(SYN_PT *pt, SYN_Task *task)
                     c->status = SYN_TIMEOUT;
                     PT_EXIT(pt);
                 }
-                PT_YIELD(pt);
+                PT_DEFER(pt, task);
                 continue;
             }
 
@@ -522,7 +522,7 @@ SYN_PT_Status syn_http_client_task(SYN_PT *pt, SYN_Task *task)
                                     c->status = SYN_TIMEOUT;
                                     PT_EXIT(pt);
                                 }
-                                PT_YIELD(pt);
+                                PT_DEFER(pt, task);
                             }
                         }
                     }
@@ -548,7 +548,7 @@ SYN_PT_Status syn_http_client_task(SYN_PT *pt, SYN_Task *task)
                                 c->status = SYN_TIMEOUT;
                                 PT_EXIT(pt);
                             }
-                            PT_YIELD(pt);
+                            PT_DEFER(pt, task);
                         }
                     }
                 }
@@ -611,7 +611,7 @@ SYN_PT_Status syn_http_client_task(SYN_PT *pt, SYN_Task *task)
                         c->status = SYN_TIMEOUT;
                         PT_EXIT(pt);
                     }
-                    PT_YIELD(pt);
+                    PT_DEFER(pt, task);
                 }
             }
         }

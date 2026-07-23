@@ -57,15 +57,37 @@ bool syn_rtc_is_valid(const SYN_RTC_DateTime *dt)
     return true;
 }
 
+/** @brief Calibrated clock drift compensation in parts-per-million (PPM). */
+static int32_t s_drift_ppm = 0;
+
 SYN_Status syn_rtc_init(void)
 {
+    s_drift_ppm = 0;
     return syn_port_rtc_init();
+}
+
+void syn_rtc_set_drift_ppm(int32_t drift_ppm)
+{
+    s_drift_ppm = drift_ppm;
+    /* Forward to port layer if port provides hardware calibration support */
+#if defined(SYN_PORT_HAS_RTC_DRIFT)
+    syn_port_rtc_set_drift_ppm(drift_ppm);
+#endif
 }
 
 SYN_Status syn_rtc_get(SYN_RTC_DateTime *dt)
 {
     SYN_ASSERT(dt != NULL);
-    return syn_port_rtc_get(dt);
+    SYN_Status status = syn_port_rtc_get(dt);
+    if (status != SYN_OK) return status;
+
+    if (s_drift_ppm != 0) {
+        uint32_t epoch = syn_rtc_to_epoch(dt);
+        /* Apply cross-platform PPM scaling formula */
+        int64_t comp_s = (int64_t)epoch * 1000000LL / (1000000LL + (int64_t)s_drift_ppm);
+        syn_rtc_from_epoch((uint32_t)comp_s, dt);
+    }
+    return SYN_OK;
 }
 
 SYN_Status syn_rtc_set(const SYN_RTC_DateTime *dt)

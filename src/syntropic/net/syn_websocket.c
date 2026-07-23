@@ -12,6 +12,7 @@
 #include "syn_websocket.h"
 #include "../util/syn_assert.h"
 #include <string.h>
+#include <stdio.h>
 
 /* ── SHA-1 ──────────────────────────────────────────────────────────────── */
 
@@ -245,13 +246,16 @@ SYN_Status syn_websocket_upgrade(const SYN_HttpdRequest *req, SYN_HttpdResponse 
     char accept_key[32];
     base64_encode(digest, 20, accept_key);
 
-    /* Send response headers */
-    syn_port_sock_send_all(resp->sock, "HTTP/1.1 101 Switching Protocols\r\n", 34);
-    syn_port_sock_send_all(resp->sock, "Upgrade: websocket\r\n", 20);
-    syn_port_sock_send_all(resp->sock, "Connection: Upgrade\r\n", 21);
-    syn_port_sock_send_all(resp->sock, "Sec-WebSocket-Accept: ", 22);
-    syn_port_sock_send_all(resp->sock, accept_key, strlen(accept_key));
-    syn_port_sock_send_all(resp->sock, "\r\n\r\n", 4);
+    /* Send response headers in a single TCP frame */
+    char resp_buf[160];
+    int rlen = snprintf(resp_buf, sizeof(resp_buf),
+                        "HTTP/1.1 101 Switching Protocols\r\n"
+                        "Upgrade: websocket\r\n"
+                        "Connection: Upgrade\r\n"
+                        "Sec-WebSocket-Accept: %s\r\n\r\n", accept_key);
+    if (rlen > 0) {
+        syn_port_sock_send_all(resp->sock, resp_buf, (size_t)rlen);
+    }
 
     /* Configure session */
     memset(ws, 0, sizeof(*ws));
@@ -391,7 +395,7 @@ SYN_PT_Status syn_websocket_task(SYN_PT *pt, SYN_Task *task)
                 ws->state = SYN_WS_STATE_CLOSED;
             }
         }
-        PT_YIELD(pt);
+        PT_DEFER(pt, task);
     }
 
     PT_END(pt);

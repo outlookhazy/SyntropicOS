@@ -44,6 +44,7 @@
 #include "../pt/syn_pt.h"
 #include "../sched/syn_task.h"
 #include "../util/syn_backoff.h"
+#include "../dsp/syn_filter.h"
 
 #include <stdbool.h>
 
@@ -86,6 +87,11 @@ typedef struct {
     bool         synced;            /**< true after first successful sync   */
     uint32_t     recv_deadline;     /**< Tick deadline for non-blocking recv */
     SYN_Backoff  backoff;           /**< Retry backoff state                */
+
+    int32_t      drift_ppm;         /**< Calculated & filtered clock drift in PPM (+ = fast, - = slow) */
+    SYN_FilterEMA drift_filter;     /**< EMA filter for clock drift PPM smoothing */
+    uint32_t     prev_sync_epoch;   /**< Epoch at previous sync for PPM calculation */
+    uint32_t     prev_sync_tick_ms; /**< Local tick at previous sync for PPM calculation */
 } SYN_SNTP;
 
 /* ── API ────────────────────────────────────────────────────────────────── */
@@ -144,6 +150,17 @@ uint32_t syn_sntp_get_epoch_s(const SYN_SNTP *sntp);
  * @return Nanoseconds (0–999999999), or 0 if unsynced.
  */
 uint32_t syn_sntp_get_epoch_ns(const SYN_SNTP *sntp);
+
+/**
+ * @brief Get the calculated hardware clock drift in Parts-Per-Million (PPM).
+ *
+ * Calculated automatically on subsequent NTP syncs by comparing network
+ * time elapsed against local hardware timer elapsed.
+ *
+ * @param sntp  Client context.
+ * @return Calculated drift in PPM (+ = local clock runs fast, - = slow).
+ */
+int32_t syn_sntp_get_drift_ppm(const SYN_SNTP *sntp);
 
 /**
  * @brief Check if the client has successfully synced at least once.

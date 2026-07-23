@@ -87,9 +87,10 @@ static void send_response(SYN_Modbus *mb, uint16_t len)
         return; /* Do not respond to broadcast */
     }
     append_crc(mb->buf, len);
-    syn_port_uart_transmit(mb->cfg.uart, mb->buf, len + 2, 100);
+    syn_port_uart_transmit(mb->cfg.uart, mb->buf, len + 2, 0);
     mb->frames_tx++;
 }
+
 
 /**
  * @brief Send a Modbus exception response.

@@ -288,7 +288,7 @@ SYN_PT_Status syn_coap_request_task(SYN_PT *pt, SYN_Task *task)
                     break;
                 }
             }
-            PT_YIELD(pt);
+            PT_DEFER(pt, task);
         }
 
         if (r->status == SYN_OK) break;

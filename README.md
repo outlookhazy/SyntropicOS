@@ -11,12 +11,24 @@ SyntropicOS is a zero-overhead, production-grade C99 framework designed for deep
 
 ## Features
 
-- **2-byte cooperative threads** — Priority round-robin scheduler with protothreads
+- **Stackless cooperative threads** — Protothread coroutines (2 bytes RAM continuation; ~16–28 bytes per scheduled task)
 - **Zero heap allocation** — All state is caller-owned or static
-- **60+ modules** — Drivers, DSP, control loops, networking, graphics, CLI, logging, and more
+- **60+ native modules** — Drivers, DSP, control loops, networking, graphics, CLI, logging, and more
+- **Cooperative-by-design** — All modules use non-blocking state machines built specifically for coroutines
 - **Pure C99** — GCC, Clang, Keil, IAR — any C99 compiler
 - **Integer-only math** — No floating point, no `libm.a`
 - **Pay for what you use** — Every module toggleable via `#define`
+
+## Architectural Philosophy: Why SyntropicOS?
+
+Many embedded frameworks try to combine a coroutine scheduler with third-party libraries (e.g. LWIP, MQTT, micro-DSP). However, standard third-party libraries rely on **blocking loops** (`while (!ready) delay();`) or require **heavy preemptive threads with multi-kilobyte stacks** (e.g., 512B–4KB stack per task in FreeRTOS or Zephyr). Wrapping these libraries in a cooperative scheduler creates a severe impedance mismatch: opaque internal blocking calls starve other tasks and destroy non-preemptive concurrency.
+
+SyntropicOS takes a **batteries-included, cooperative-by-design** approach:
+
+1. **Native Non-Blocking State Machines**: All 60+ modules — including networking (MQTT, HTTP, WebSocket, DNS, SNTP), DSP (FFT, Biquad IIR, PID), protocols (NMEA, Modbus), and GUI engine — are built natively from the ground up as explicit state machines. During wait states (network handshakes, hardware I/O, sensor sampling), modules defer control back to the scheduler (`PT_DEFER` / `PT_WAIT_UNTIL`) rather than blocking CPU execution.
+2. **Zero Heap Allocation**: 100% of state is caller-owned or statically allocated (`SYN_MAILBOX_DEFINE`, fixed Q16.16 math). Eliminates dynamic allocation (`malloc`/`free`), fragmentation, and memory leaks over indefinite runtimes.
+3. **Stackless & Lightweight Footprint**: Tasks run as stackless coroutines — bare protothreads cost just **2 bytes of RAM** (`uint16_t lc`), while full scheduled tasks with priority, timer delay, and event blocking cost only **~16–28 bytes per task descriptor** (compared to 1KB+ stack per thread in traditional RTOSs). The entire OS, networking stack, and DSP pipeline execute deterministically on small 8-bit MCUs (AVR Mega 8KB RAM) up to dual-core 32-bit platforms (RP2040, STM32).
+4. **Ecosystem Harmonization**: Every module shares the exact same concurrency model, timer ticks, logging primitives (`SYN_LOG`), and error handling — eliminating competing event loops or conflicting threading paradigms.
 
 ## Quick Start
 

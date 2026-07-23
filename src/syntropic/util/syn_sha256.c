@@ -182,12 +182,12 @@ void syn_sha256_update(SYN_SHA256 *ctx, const void *data, size_t len)
     const uint8_t *p = (const uint8_t *)data;
 
     /* Track total length in bits (split into hi/lo for >4GB messages) */
-    uint32_t len_bits_lo = (uint32_t)(len << 3);
+    uint32_t len_bits_lo = (uint32_t)((uint64_t)len << 3);
     ctx->total_len_lo += len_bits_lo;
     if (ctx->total_len_lo < len_bits_lo) {
         ctx->total_len_hi++;  /* carry */
     }
-    ctx->total_len_hi += (uint32_t)(len >> 29);
+    ctx->total_len_hi += (uint32_t)((uint64_t)len >> 29);
 
     /* Fill partial buffer first */
     if (ctx->buf_len > 0) {

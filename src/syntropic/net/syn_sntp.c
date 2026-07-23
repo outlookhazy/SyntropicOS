@@ -50,6 +50,8 @@ void syn_sntp_init(SYN_SNTP *sntp, const SYN_SockAddr *server,
 
     /* Initialize backoff: 1s base, 60s max, factor 2, max_retries */
     syn_backoff_init(&sntp->backoff, 1000, 60000, 2, SYN_SNTP_MAX_RETRIES);
+    /* Initialize EMA drift filter: alpha=64 (~0.25 smoothing factor for network jitter rejection) */
+    syn_filter_ema_init(&sntp->drift_filter, 64);
     sntp->udp_sock        = SYN_SOCKET_INVALID;
 }
 
@@ -75,10 +77,30 @@ static SYN_Status sntp_parse_packet(SYN_SNTP *sntp, const uint8_t *pkt, size_t l
 
     if (ntp_s < SYN_SNTP_EPOCH_OFFSET) return SYN_ERROR;
 
-    sntp->epoch_s      = ntp_s - SYN_SNTP_EPOCH_OFFSET;
-    sntp->epoch_frac   = ntp_frac;
-    sntp->sync_tick_ms = syn_port_get_tick_ms();
-    sntp->synced       = true;
+    uint32_t new_epoch   = ntp_s - SYN_SNTP_EPOCH_OFFSET;
+    uint32_t new_tick_ms = syn_port_get_tick_ms();
+
+    /* Calculate clock drift in PPM if we have a previous sync baseline */
+    if (sntp->synced && sntp->prev_sync_epoch != 0) {
+        uint32_t ntp_elapsed_s   = new_epoch - sntp->prev_sync_epoch;
+        uint32_t tick_elapsed_ms = new_tick_ms - sntp->prev_sync_tick_ms;
+
+        if (ntp_elapsed_s >= 5) {
+            int64_t expected_ms = (int64_t)ntp_elapsed_s * 1000LL;
+            int64_t diff_ms     = (int64_t)tick_elapsed_ms - expected_ms;
+            int16_t raw_ppm     = (int16_t)((diff_ms * 1000000LL) / expected_ms);
+            
+            /* Apply SyntropicOS Exponential Moving Average Filter (SYN_FilterEMA) */
+            sntp->drift_ppm     = (int32_t)syn_filter_ema_update(&sntp->drift_filter, raw_ppm);
+        }
+    }
+
+    sntp->prev_sync_epoch   = new_epoch;
+    sntp->prev_sync_tick_ms = new_tick_ms;
+    sntp->epoch_s           = new_epoch;
+    sntp->epoch_frac        = ntp_frac;
+    sntp->sync_tick_ms      = new_tick_ms;
+    sntp->synced            = true;
 
     return SYN_OK;
 }
@@ -122,6 +144,12 @@ uint32_t syn_sntp_get_epoch_ns(const SYN_SNTP *sntp)
     uint32_t sub_s_ms   = elapsed_ms % 1000u;
 
     return sub_s_ms * 1000000u;  /* ms → ns */
+}
+
+int32_t syn_sntp_get_drift_ppm(const SYN_SNTP *sntp)
+{
+    if (!sntp) return 0;
+    return sntp->drift_ppm;
 }
 
 /* ── Non-blocking helpers (for protothread task) ───────────────────────── */

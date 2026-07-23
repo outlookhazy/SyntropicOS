@@ -1,6 +1,6 @@
 # Cooperative Multitasking
 
-SyntropicOS provides a cooperative multitasking kernel built on protothreads — stackless coroutines that cost **2 bytes of RAM per thread**.
+SyntropicOS provides a cooperative multitasking kernel built on protothreads — stackless coroutines where raw continuation state costs **2 bytes of RAM** (`uint16_t lc`), and full scheduled tasks with priority, delays, and event-blocking cost only **~16–28 bytes per task descriptor** (with zero per-task stack allocation).
 
 ## Protothreads
 

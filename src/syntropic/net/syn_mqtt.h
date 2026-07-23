@@ -26,6 +26,16 @@ typedef enum {
 } SYN_MqttState;
 
 /**
+ * @brief Non-blocking packet reception states.
+ */
+typedef enum {
+    SYN_MQTT_RX_IDLE,             /**< Waiting for fixed header opcode byte */
+    SYN_MQTT_RX_REMAINING_LEN,    /**< Decoding variable-length packet size */
+    SYN_MQTT_RX_PAYLOAD,          /**< Accumulating packet payload into rx_buf */
+    SYN_MQTT_RX_DISCARD,          /**< Discarding bytes of an oversized packet */
+} SYN_MqttRxPhase;
+
+/**
  * @brief MQTT client context structure.
  */
 typedef struct {
@@ -60,7 +70,16 @@ typedef struct {
     uint32_t         pending_puback_ms; /**< Timeout timer for pending puback confirmation */
     uint8_t          retransmit_buf[128]; /**< Buffer for storing unacknowledged QoS 1 packet */
     size_t           retransmit_len;    /**< Length of packet in retransmit_buf */
+
+    /* ── Non-blocking RX State Machine ─────────────────────────────────── */
+    SYN_MqttRxPhase  rx_phase;       /**< Current RX state machine phase */
+    uint8_t          rx_header;      /**< Opcode byte of current packet */
+    uint32_t         rx_rem_len;     /**< Total remaining length of current packet */
+    uint32_t         rx_mult;        /**< Multiplier for decoding varint remaining len */
+    size_t           rx_pos;         /**< Bytes read into rx_buf or discarded so far */
+    uint32_t         rx_deadline;    /**< Tick deadline for incomplete packet RX */
 } SYN_MqttClient;
+
 
 /**
  * @brief Initialize the MQTT client.

@@ -82,6 +82,12 @@ uint32_t syn_rtc_to_epoch(const SYN_RTC_DateTime *dt);
  */
 void syn_rtc_from_epoch(uint32_t epoch, SYN_RTC_DateTime *dt);
 
+/**
+ * @brief Set the RTC clock drift compensation in Parts-Per-Million (PPM).
+ * @param drift_ppm  Drift in Parts-Per-Million (+ = fast, - = slow).
+ */
+void syn_rtc_set_drift_ppm(int32_t drift_ppm);
+
 #ifdef __cplusplus
 }
 #endif

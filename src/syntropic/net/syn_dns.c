@@ -332,7 +332,7 @@ SYN_PT_Status syn_mdns_task(SYN_PT *pt, SYN_Task *task)
                 }
             }
         }
-        PT_YIELD(pt);
+        PT_DEFER(pt, task);
     }
 
     PT_END(pt);

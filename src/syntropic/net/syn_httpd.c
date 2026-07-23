@@ -6,21 +6,27 @@
 
 /**
  * @file syn_httpd.c
- * @brief Minimal HTTP/1.1 server implementation.
+ * @brief Minimal HTTP/1.1 server — fully non-blocking implementation.
+ *
+ * Designed around the cooperative scheduler: every call to syn_httpd_step()
+ * does a bounded amount of work and returns immediately. Socket I/O uses
+ * timeout=0 exclusively. Stale connections are timed out via the tick clock.
  */
 
 #include "syn_httpd.h"
 #include "../port/syn_port_system.h"
 #include "../util/syn_assert.h"
 
-
 #include <string.h>
 
 /* ── Constants ─────────────────────────────────────────────────────────── */
 
-#define HTTPD_ACCEPT_TIMEOUT_MS  0    /**< Non-blocking accept poll (ms)   */
-#define HTTPD_RECV_TIMEOUT_MS    5000  /**< Receive timeout per request (ms) */
-
+/**
+ * Maximum time (ms) to wait for a client to send complete headers after
+ * connecting. Enforced non-blockingly via the tick clock — not passed to
+ * any socket recv call.
+ */
+#define HTTPD_CLIENT_TIMEOUT_MS  5000
 
 /* ── Internal helpers ──────────────────────────────────────────────────── */
 
@@ -85,39 +91,27 @@ static uint32_t parse_uint(const char *s)
 }
 
 /**
- * @brief Read and parse the HTTP request line + headers.
- * @param sock      Client socket.
+ * @brief Parse request line + headers from already-buffered data.
+ *
+ * This is a pure parsing function — no socket I/O. The caller guarantees
+ * that buf contains a complete header block ending with "\r\n\r\n".
+ *
+ * @param sock      Client socket (stored in req for body reads).
  * @param req       [out] Parsed request.
- * @param buf       Work buffer for receiving data.
- * @param buf_size  Size of work buffer.
- * @return 0 on success, -1 on error.
+ * @param buf       Work buffer containing the raw request.
+ * @param total     Number of valid bytes in buf.
+ * @return 0 on success, -1 on parse error.
  */
-static int parse_request(SYN_Socket sock, SYN_HttpdRequest *req,
-                          uint8_t *buf, size_t buf_size)
+static int parse_headers_from_buf(SYN_Socket sock, SYN_HttpdRequest *req,
+                                   uint8_t *buf, size_t total)
 {
-    size_t total = 0;
-    bool headers_done = false;
-    char *end_of_headers = NULL;
-
     memset(req, 0, sizeof(*req));
     req->client_sock = sock;
 
-    /* Read until \r\n\r\n */
-    while (!headers_done && total < buf_size - 1) {
-        int n = syn_port_sock_recv(sock, buf + total,
-                                    buf_size - 1 - total,
-                                    HTTPD_RECV_TIMEOUT_MS);
-        if (n <= 0) return -1;
-        total += (size_t)n;
-        buf[total] = '\0';
+    buf[total] = '\0';
 
-        end_of_headers = strstr((const char *)buf, "\r\n\r\n");
-        if (end_of_headers != NULL) {
-            headers_done = true;
-        }
-    }
-
-    if (!headers_done) return -1;
+    char *end_of_headers = strstr((const char *)buf, "\r\n\r\n");
+    if (end_of_headers == NULL) return -1;
 
     /* Parse request line: "GET /path?query HTTP/1.1\r\n" */
     char *line = (char *)buf;
@@ -146,7 +140,9 @@ static int parse_request(SYN_Socket sock, SYN_HttpdRequest *req,
         req->headers = hdr_start;
     }
 
-    while (hdr_start && *hdr_start != '\r') {
+    while (hdr_start && *hdr_start != '\r' && *hdr_start != '\n') {
+        char *next_line = strstr(hdr_start, "\r\n");
+
         if (prefix_icase(hdr_start, "content-length:")) {
             const char *val = hdr_start + 15;
             while (*val == ' ') val++;
@@ -155,18 +151,15 @@ static int parse_request(SYN_Socket sock, SYN_HttpdRequest *req,
             char *val = hdr_start + 13;
             while (*val == ' ') val++;
             req->content_type = val;
-            /* Null-terminate at \r */
-            char *cr = strchr(val, '\r');
-            if (cr) *cr = '\0';
+            /* Null-terminate Content-Type value at end of line */
+            if (next_line) *next_line = '\0';
         }
 
-        hdr_start = strstr(hdr_start, "\r\n");
-        if (hdr_start) hdr_start += 2;
+        if (!next_line) break;
+        hdr_start = next_line + 2;
     }
 
-    /* Calculate buffered body — use the pointer captured before any
-     * null-termination (path/header parsing inserts '\0' into buf,
-     * which would break a strstr re-scan). */
+    /* Calculate buffered body */
     if (end_of_headers) {
         size_t header_len = (size_t)(end_of_headers + 4 - (char *)buf);
         if (total > header_len) {
@@ -229,6 +222,20 @@ static void send_error(SYN_Socket sock, int code, const char *reason)
     sock_write(sock, "\r\nConnection: close\r\nContent-Length: 0\r\n\r\n");
 }
 
+/**
+ * @brief Drop the active client and reset to IDLE.
+ * @param srv  Server instance.
+ */
+static void drop_client(SYN_Httpd *srv)
+{
+    if (srv->client != SYN_SOCKET_INVALID) {
+        syn_port_sock_close(srv->client);
+        srv->client = SYN_SOCKET_INVALID;
+    }
+    srv->state    = SYN_HTTPD_IDLE;
+    srv->rx_total = 0;
+}
+
 /* ── Server API ────────────────────────────────────────────────────────── */
 
 SYN_Status syn_httpd_init(SYN_Httpd *srv, uint16_t port,
@@ -246,6 +253,8 @@ SYN_Status syn_httpd_init(SYN_Httpd *srv, uint16_t port,
     srv->work_buf = work_buf;
     srv->work_buf_size = work_buf_size;
     srv->port = port;
+    srv->client = SYN_SOCKET_INVALID;
+    srv->state  = SYN_HTTPD_IDLE;
 
     srv->listener = syn_port_sock_listen(port, 2);
     if (srv->listener == SYN_SOCKET_INVALID) {
@@ -256,33 +265,37 @@ SYN_Status syn_httpd_init(SYN_Httpd *srv, uint16_t port,
     return SYN_OK;
 }
 
-
 /**
- * @brief Handle a single accepted client connection.
- * @param srv     Server instance.
- * @param client  Accepted client socket.
+ * @brief Handle the DISPATCHING phase — parse, route, respond, close.
+ *
+ * Called once when headers are fully buffered. Runs synchronously but
+ * all data is already in work_buf — no blocking socket reads needed
+ * for headers.
+ *
+ * @param srv  Server instance with complete headers in work_buf.
  */
-static void handle_client(SYN_Httpd *srv, SYN_Socket client)
+static void dispatch_request(SYN_Httpd *srv)
 {
-    /* Parse request */
+    /* Parse request from buffered data */
     SYN_HttpdRequest req;
-    if (parse_request(client, &req, srv->work_buf, srv->work_buf_size) != 0) {
-        send_error(client, 400, "Bad Request");
-        syn_port_sock_close(client);
+    if (parse_headers_from_buf(srv->client, &req,
+                                srv->work_buf, srv->rx_total) != 0) {
+        send_error(srv->client, 400, "Bad Request");
+        drop_client(srv);
         return;
     }
 
     /* Match route */
     const SYN_HttpdRoute *route = match_route(srv, &req);
     if (route == NULL) {
-        send_error(client, 404, "Not Found");
-        syn_port_sock_close(client);
+        send_error(srv->client, 404, "Not Found");
+        drop_client(srv);
         return;
     }
 
     /* Dispatch to handler */
     SYN_HttpdResponse resp;
-    resp.sock = client;
+    resp.sock = srv->client;
     resp.buf = srv->work_buf;
     resp.buf_size = srv->work_buf_size;
     resp.headers_sent = false;
@@ -292,11 +305,16 @@ static void handle_client(SYN_Httpd *srv, SYN_Socket client)
 
     /* If handler didn't send anything, send 204 */
     if (!resp.headers_sent && !resp.upgraded) {
-        send_error(client, 204, "No Content");
+        send_error(srv->client, 204, "No Content");
     }
 
     if (!resp.upgraded) {
-        syn_port_sock_close(client);
+        drop_client(srv);
+    } else {
+        /* Upgraded connection (e.g. WebSocket) — don't close, just reset state */
+        srv->client   = SYN_SOCKET_INVALID;
+        srv->state    = SYN_HTTPD_IDLE;
+        srv->rx_total = 0;
     }
 }
 
@@ -305,19 +323,87 @@ SYN_Status syn_httpd_step(SYN_Httpd *srv)
     SYN_ASSERT(srv != NULL);
     if (!srv->running) return SYN_ERROR;
 
-    SYN_Socket client = syn_port_sock_accept(srv->listener,
-                                              HTTPD_ACCEPT_TIMEOUT_MS);
-    if (client == SYN_SOCKET_INVALID) {
+    switch (srv->state) {
+
+    /* ── IDLE: poll for new client (non-blocking) ──────────────────── */
+    case SYN_HTTPD_IDLE: {
+        SYN_Socket client = syn_port_sock_accept(srv->listener, 0);
+        if (client == SYN_SOCKET_INVALID) {
+            return SYN_TIMEOUT; /* No client — caller should yield */
+        }
+        /* Client connected — start reading headers */
+        srv->client        = client;
+        srv->rx_total      = 0;
+        srv->recv_deadline = syn_port_get_tick_ms() + HTTPD_CLIENT_TIMEOUT_MS;
+        srv->state         = SYN_HTTPD_READING_HEADERS;
+        /* Fall through — attempt first recv in the same tick */
+    }
+    /* fallthrough */
+
+    /* ── READING_HEADERS: non-blocking recv, accumulate in work_buf ─ */
+    case SYN_HTTPD_READING_HEADERS: {
+        /* Check deadline — drop stale connections without blocking */
+        if ((int32_t)(syn_port_get_tick_ms() - srv->recv_deadline) >= 0) {
+            send_error(srv->client, 408, "Request Timeout");
+            drop_client(srv);
+            return SYN_TIMEOUT;
+        }
+
+        /* Non-blocking recv (timeout=0) */
+        size_t space = srv->work_buf_size - 1 - srv->rx_total;
+        if (space == 0) {
+            /* Buffer full without finding \r\n\r\n — reject */
+            send_error(srv->client, 413, "Request Too Large");
+            drop_client(srv);
+            return SYN_ERROR;
+        }
+
+        int n = syn_port_sock_recv(srv->client,
+                                    srv->work_buf + srv->rx_total,
+                                    space, 0);
+        if (n < 0) {
+            /* No data available this tick — yield and retry next tick */
+            return SYN_TIMEOUT;
+        }
+        if (n == 0) {
+            /* Connection closed before headers were complete */
+            send_error(srv->client, 400, "Bad Request");
+            drop_client(srv);
+            return SYN_ERROR;
+        }
+
+
+        srv->rx_total += (size_t)n;
+        srv->work_buf[srv->rx_total] = '\0';
+
+        /* Check for complete headers */
+        if (strstr((const char *)srv->work_buf, "\r\n\r\n") != NULL) {
+            srv->state = SYN_HTTPD_DISPATCHING;
+            /* Fall through to dispatch immediately */
+            dispatch_request(srv);
+            return SYN_OK;
+        }
+
+        /* Headers incomplete — yield, try again next tick */
         return SYN_TIMEOUT;
     }
 
-    handle_client(srv, client);
-    return SYN_OK;
+    /* ── DISPATCHING: parse + route + respond ──────────────────────── */
+    case SYN_HTTPD_DISPATCHING:
+        dispatch_request(srv);
+        return SYN_OK;
+
+    default:
+        srv->state = SYN_HTTPD_IDLE;
+        return SYN_ERROR;
+    }
 }
 
 void syn_httpd_stop(SYN_Httpd *srv)
 {
     SYN_ASSERT(srv != NULL);
+    /* Drop any in-progress client */
+    drop_client(srv);
     if (srv->listener != SYN_SOCKET_INVALID) {
         syn_port_sock_close(srv->listener);
         srv->listener = SYN_SOCKET_INVALID;
@@ -414,8 +500,8 @@ int syn_httpd_read_body(const SYN_HttpdRequest *req,
         return (int)consume;
     }
 
-    int n = syn_port_sock_recv(resp->sock, buf, to_read,
-                                HTTPD_RECV_TIMEOUT_MS);
+    /* Non-blocking read — timeout=0, never stalls the scheduler */
+    int n = syn_port_sock_recv(resp->sock, buf, to_read, 0);
     if (n > 0) {
         rw->body_consumed += (size_t)n;
     }
@@ -431,17 +517,17 @@ SYN_PT_Status syn_httpd_task(SYN_PT *pt, SYN_Task *task)
     PT_BEGIN(pt);
 
     for (;;) {
-        PT_WAIT_UNTIL(pt, srv->running && (syn_httpd_step(srv) == SYN_OK));
+        /* Non-blocking step — always returns immediately */
+        if (srv->running) {
+            SYN_Status st = syn_httpd_step(srv);
+            if (st == SYN_TIMEOUT) {
+                PT_TASK_DELAY_MS(pt, task, 1);
+            }
+        }
         PT_YIELD(pt);
     }
 
     PT_END(pt);
 }
-
-
-
-
-
-
 
 #endif /* SYN_USE_HTTPD */

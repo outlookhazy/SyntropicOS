@@ -6,13 +6,19 @@ SyntropicOS is a zero-overhead, production-grade C99 framework designed for deep
 
 ## Why SyntropicOS?
 
-- **Cooperative OS & Kernel** — Priority round-robin scheduler (`syn_sched`) and protothreads (`syn_pt`) provide lightweight execution threads using as little as **2 bytes of RAM per task**.
-- **Zero dynamic allocation** — 100% of state is caller-owned or static. No heap allocation, safe for critical systems.
+### The Cooperative-by-Design Architecture
+
+Most embedded frameworks pair a lightweight coroutine scheduler with third-party libraries (for networking, DSP, GUI, or protocols). However, standard third-party libraries rely on **blocking synchronous loops** (`while (!ready) delay();`) or require **heavy preemptive threads with multi-kilobyte stacks** (e.g. FreeRTOS/Zephyr). Wrapping external libraries in a cooperative scheduler creates a severe mismatch: opaque internal blocking calls starve other tasks and break non-preemptive concurrency.
+
+SyntropicOS takes a **batteries-included, cooperative-by-design** approach — building and reimplementing all functionality natively from the ground up:
+
+- **Native Non-Blocking State Machines** — All 60+ modules (MQTT, HTTP, WebSocket, DNS, SNTP, Modbus, NMEA, FFT, Biquad IIR, PID, GUI engine) are written as explicit state machines. During wait states (network handshakes, hardware I/O, sensor conversion), modules cooperatively defer control back to the scheduler (`PT_DEFER` / `PT_WAIT_UNTIL`) instead of blocking CPU execution.
+- **Stackless Lightweight Threads** — Protothreads (`syn_pt`) cost just **2 bytes of RAM** for continuation state; full scheduled task descriptors (`syn_task`) with priority, timer delay, and event blocking cost only **~16–28 bytes per task** (versus 512B–4KB per-thread stack in traditional RTOSs).
+- **Zero Heap Allocation** — 100% of state is caller-owned or statically allocated (`SYN_MAILBOX_DEFINE`, fixed Q16.16 math). No dynamic allocation (`malloc`/`free`), avoiding heap fragmentation and memory leaks over indefinite runtimes.
 - **Embedded Graphics Engine** — Hardware-independent pixel canvas (`syn_canvas`) and a zero-allocation immediate-mode GUI (`syn_imgui`) supporting button, encoder, and touchscreen inputs.
 - **Rich System Services** — Interactive CLI shell, severity-filtered logger, persistent wear-leveled parameter store, error log registry, and crash-loop recovery boot manager.
-- **Digital Control & DSP** — Hardware-agnostic PID loops, stepper/servo/DC motor controllers, digital filters, and fixed-point math lookup tables.
 - **Pure C99 & Low Overhead** — Compiles with any C99 compiler (GCC, Clang, Keil, IAR). Every module is individually toggleable via compile switches — only compile and link what you use.
-- **No floating point** — Integer-only math throughout. No `libm.a` dependencies, saving flash and execution ticks.
+- **Integer-only Math** — Fixed-point math throughout. No floating-point overhead, no `libm.a` dependencies, saving flash and execution ticks.
 
 ## Quick Start
 

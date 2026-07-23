@@ -37,7 +37,7 @@
 static const uint8_t WG_CONSTRUCTION[] = "Noise_IKpsk2_25519_ChaChaPoly_BLAKE2s"; /**< Noise construction string */
 static const uint8_t WG_IDENTIFIER[]   = "WireGuard v1 zx2c4 Jason@zx2c4.com";    /**< Protocol identifier string */
 static const uint8_t WG_LABEL_MAC1[]   = "mac1----";                              /**< MAC1 label                */
-static const uint8_t WG_LABEL_COOKIE[] = "cookie--";                              /**< Cookie label              */
+static const uint8_t WG_LABEL_COOKIE[] SYN_UNUSED = "cookie--";                    /**< Cookie label              */
 /** @} */
 
 /* ═══════════════════════════════════════════════════════════════════════════

@@ -41,6 +41,12 @@
  * @defgroup syn_dsp DSP & Filters
  * @brief Signal filters, FFT, and data structures.
  *
+ * @defgroup syn_crypto Cryptography
+ * @brief SHA256, ChaCha20Poly1305, Curve25519, and Blake2s primitives.
+ *
+ * @defgroup syn_util Utilities
+ * @brief String, math, metrics, and helper utilities.
+ *
  * @defgroup syn_debug Debug & Diagnostics
  * @brief Logging, profiler, runtime tracing, and CLI commands.
  */
@@ -77,6 +83,7 @@ extern "C" {
 #include "util/syn_pingpong.h"
 #include "util/syn_change_filter.h"
 #include "util/syn_pack.h"
+#include "util/syn_str.h"
 
 /* ── Utilities — conditional ────────────────────────────────────────────── */
 
@@ -272,6 +279,10 @@ extern "C" {
 
 #if !defined(SYN_USE_MODBUS) || SYN_USE_MODBUS
   #include "proto/syn_modbus.h"
+#endif
+
+#if !defined(SYN_USE_NMEA) || SYN_USE_NMEA
+  #include "proto/syn_nmea.h"
 #endif
 
 /* ── Storage ────────────────────────────────────────────────────────────── */

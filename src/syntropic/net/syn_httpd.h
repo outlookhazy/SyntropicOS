@@ -114,6 +114,18 @@ typedef struct {
 /* ── Server instance ───────────────────────────────────────────────────── */
 
 /**
+ * @brief Processing phase for the non-blocking request state machine.
+ *
+ * syn_httpd_step() advances through these phases without blocking:
+ *   IDLE → READING_HEADERS → DISPATCHING → IDLE
+ */
+typedef enum {
+    SYN_HTTPD_IDLE,              /**< Polling for new client connection   */
+    SYN_HTTPD_READING_HEADERS,   /**< Accumulating header bytes (non-blocking) */
+    SYN_HTTPD_DISPATCHING,       /**< Headers complete — parse, route, respond */
+} SYN_HttpdState;
+
+/**
  * @brief HTTP server context structure.
  */
 typedef struct {
@@ -124,7 +136,14 @@ typedef struct {
     uint16_t              port;      /**< Listening TCP port number */
     SYN_Socket            listener;  /**< Bound listener socket handle */
     bool                  running;   /**< Server state active flag */
+
+    /* ── Connection state (non-blocking request pipeline) ──────────── */
+    SYN_HttpdState        state;          /**< Current processing phase    */
+    SYN_Socket            client;         /**< Active client socket        */
+    size_t                rx_total;       /**< Bytes accumulated in work_buf */
+    uint32_t              recv_deadline;  /**< Tick deadline for header recv */
 } SYN_Httpd;
+
 
 /* ── Server API ────────────────────────────────────────────────────────── */
 

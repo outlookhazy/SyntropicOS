@@ -396,17 +396,23 @@ void test_httpd_bad_request(void)
 {
     setup_server();
 
-    /* Malformed HTTP — recv returns error (mock EOF on empty buffer) */
+    /* Malformed HTTP — recv returns garbage then EOF */
     mock_sock_eof_on_empty = true;
     /* Load garbage without \r\n\r\n */
     const char *garbage = "GARBAGE REQUEST NO HEADERS";
     mock_sock_set_response(garbage, strlen(garbage));
 
+    /* First step: accepts client, reads garbage, no \r\n\r\n found */
+    syn_httpd_step(&srv);
+    TEST_ASSERT_FALSE(handler_called);
+
+    /* Second step: recv returns 0 (EOF) → sends 400 */
     syn_httpd_step(&srv);
     TEST_ASSERT_FALSE(handler_called);
     /* Should have sent 400 */
     TEST_ASSERT_NOT_NULL(strstr((char *)mock_sock_tx_buf, "400"));
 }
+
 
 /** Handler sends nothing → 204 No Content */
 void test_httpd_no_content_response(void)
@@ -559,7 +565,7 @@ void test_httpd_read_body_socket_recv_consumed(void)
     TEST_ASSERT_EQUAL_INT(5, n); /* socket recv returned 5 */
     TEST_ASSERT_EQUAL_INT(5, (int)req.body_consumed); /* line 414 executed */
 }
-/** httpd_task protothread — exercises lines 421-442 */
+/** httpd_task protothread — non-blocking step + yield */
 static void test_httpd_task_protothread(void)
 {
     setup_server();
@@ -575,18 +581,18 @@ static void test_httpd_task_protothread(void)
     SYN_Task task;
     task.user_data = &srv;
 
-    /* First call: PT_WAIT_UNTIL fires (accept succeeds), step processes request,
+    /* First call: step() accepts + recvs + dispatches (fall-through),
      * then PT_YIELD returns PT_YIELDED */
     SYN_PT_Status st = syn_httpd_task(&pt, &task);
     TEST_ASSERT_EQUAL(PT_YIELDED, st);
     TEST_ASSERT_TRUE(handler_called);
 
-    /* Second call: PT_YIELD returns, loops back to PT_WAIT_UNTIL.
-     * No client → condition false → returns PT_WAITING */
-    mock_sock_accept_ok = false; /* no new client */
+    /* Second call: no client → step returns SYN_TIMEOUT, task yields */
+    mock_sock_accept_ok = false;
     st = syn_httpd_task(&pt, &task);
-    TEST_ASSERT_EQUAL(PT_WAITING, st);
+    TEST_ASSERT_EQUAL(PT_YIELDED, st);
 }
+
 
 /* ── Test group ────────────────────────────────────────────────────────── */
 
