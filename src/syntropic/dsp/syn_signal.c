@@ -11,6 +11,7 @@
 
 #include "syn_signal.h"
 #include "../util/syn_assert.h"
+#include "../util/syn_qmath.h"
 
 #include <string.h>
 #include <limits.h>
@@ -176,6 +177,45 @@ int32_t syn_signal_delta(const SYN_Signal *sig)
     size_t prev_idx   = (latest_idx == 0) ? sig->capacity - 1 : latest_idx - 1;
 
     return sig->buf[latest_idx] - sig->buf[prev_idx];
+}
+
+/* ── RMS & Standard Deviation ──────────────────────────────────────────── */
+
+int32_t syn_signal_rms_q16(const SYN_Signal *sig)
+{
+    if (sig->count == 0) return 0;
+
+    /* RMS = sqrt( sum(x^2) / N )
+     * Accumulate x^2 in 64-bit, then divide by N, shift to Q16, sqrt. */
+    int64_t sum_sq = 0;
+    size_t start;
+    if (sig->count < sig->capacity) {
+        start = 0;
+    } else {
+        start = sig->head;
+    }
+
+    size_t i;
+    for (i = 0; i < sig->count; i++) {
+        size_t idx = (start + i) % sig->capacity;
+        int64_t v = (int64_t)sig->buf[idx];
+        sum_sq += v * v;
+    }
+
+    /* mean_sq = sum_sq / N, then convert to Q16.16 */
+    int64_t mean_sq_q16 = (sum_sq << 16) / (int64_t)sig->count;
+
+    /* Clamp to int32_t range for q16_sqrt input */
+    if (mean_sq_q16 > INT32_MAX) mean_sq_q16 = INT32_MAX;
+
+    return q16_sqrt((q16_t)mean_sq_q16);
+}
+
+int32_t syn_signal_std_dev_q16(const SYN_Signal *sig)
+{
+    int32_t var = syn_signal_variance_q16(sig);
+    if (var <= 0) return 0;
+    return q16_sqrt(var);
 }
 
 #endif /* SYN_USE_SIGNAL */

@@ -118,6 +118,9 @@ void run_sntp_tests(void);
 void run_control_stats_tests(void);
 void run_settings_tests(void);
 void run_stream_tests(void);
+void run_matrix_tests(void);
+void run_kalman_tests(void);
+void run_foc_tests(void);
 
 /* ── Main ───────────────────────────────────────────────────────────────── */
 
@@ -264,6 +267,15 @@ int main(void)
 
     /* Streams */
     run_stream_tests();
+
+    /* Fixed-point math & matrix */
+    run_matrix_tests();
+
+    /* Kalman filter */
+    run_kalman_tests();
+
+    /* FOC transforms */
+    run_foc_tests();
 
     return UNITY_END();
 }

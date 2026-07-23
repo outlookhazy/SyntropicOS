@@ -91,4 +91,92 @@ void syn_filter_biquad_lowpass(SYN_FilterBiquad *f, q16_t fc, q16_t fs)
     syn_filter_biquad_reset(f);
 }
 
+void syn_filter_biquad_highpass(SYN_FilterBiquad *f, q16_t fc, q16_t fs)
+{
+    SYN_ASSERT(f != NULL);
+    SYN_ASSERT(fs > 0);
+
+    q16_t omega = q16_div(q16_mul(Q16_2_PI, fc), fs);
+    q16_t sin_w = q16_sin(omega);
+    q16_t cos_w = q16_cos(omega);
+
+    /* Butterworth Q = 1/sqrt(2) */
+    q16_t q_val = 46341; /* 0.70710678 in Q16.16 */
+    q16_t alpha = q16_mul(sin_w, q_val);
+
+    q16_t a0 = Q16_ONE + alpha;
+    q16_t one_plus_cos = Q16_ONE + cos_w;
+    q16_t b0 = q16_div(one_plus_cos, Q16_FROM_INT(2));
+    q16_t b1 = -(Q16_ONE + cos_w);
+    q16_t b2 = b0;
+    q16_t a1 = -q16_mul(Q16_FROM_INT(2), cos_w);
+    q16_t a2 = Q16_ONE - alpha;
+
+    f->b0 = q16_div(b0, a0);
+    f->b1 = q16_div(b1, a0);
+    f->b2 = q16_div(b2, a0);
+    f->a1 = q16_div(a1, a0);
+    f->a2 = q16_div(a2, a0);
+
+    syn_filter_biquad_reset(f);
+}
+
+void syn_filter_biquad_bandpass(SYN_FilterBiquad *f, q16_t fc, q16_t fs, q16_t q)
+{
+    SYN_ASSERT(f != NULL);
+    SYN_ASSERT(fs > 0);
+    SYN_ASSERT(q > 0);
+
+    q16_t omega = q16_div(q16_mul(Q16_2_PI, fc), fs);
+    q16_t sin_w = q16_sin(omega);
+    q16_t cos_w = q16_cos(omega);
+
+    /* alpha = sin(w) / (2*Q) */
+    q16_t alpha = q16_div(sin_w, q16_mul(Q16_FROM_INT(2), q));
+
+    q16_t a0 = Q16_ONE + alpha;
+    q16_t b0 = alpha;            /* Peak gain = 1.0 */
+    q16_t b1 = 0;
+    q16_t b2 = -alpha;
+    q16_t a1 = -q16_mul(Q16_FROM_INT(2), cos_w);
+    q16_t a2 = Q16_ONE - alpha;
+
+    f->b0 = q16_div(b0, a0);
+    f->b1 = q16_div(b1, a0);
+    f->b2 = q16_div(b2, a0);
+    f->a1 = q16_div(a1, a0);
+    f->a2 = q16_div(a2, a0);
+
+    syn_filter_biquad_reset(f);
+}
+
+void syn_filter_biquad_notch(SYN_FilterBiquad *f, q16_t fc, q16_t fs, q16_t q)
+{
+    SYN_ASSERT(f != NULL);
+    SYN_ASSERT(fs > 0);
+    SYN_ASSERT(q > 0);
+
+    q16_t omega = q16_div(q16_mul(Q16_2_PI, fc), fs);
+    q16_t sin_w = q16_sin(omega);
+    q16_t cos_w = q16_cos(omega);
+
+    /* alpha = sin(w) / (2*Q) */
+    q16_t alpha = q16_div(sin_w, q16_mul(Q16_FROM_INT(2), q));
+
+    q16_t a0 = Q16_ONE + alpha;
+    q16_t b0 = Q16_ONE;
+    q16_t b1 = -q16_mul(Q16_FROM_INT(2), cos_w);
+    q16_t b2 = Q16_ONE;
+    q16_t a1 = b1;               /* Same as b1 for notch */
+    q16_t a2 = Q16_ONE - alpha;
+
+    f->b0 = q16_div(b0, a0);
+    f->b1 = q16_div(b1, a0);
+    f->b2 = q16_div(b2, a0);
+    f->a1 = q16_div(a1, a0);
+    f->a2 = q16_div(a2, a0);
+
+    syn_filter_biquad_reset(f);
+}
+
 #endif /* SYN_USE_BIQUAD */

@@ -1,6 +1,6 @@
 /**
  * @file syn_signal.h
- * @brief Signal statistics — sliding window min/max/mean/variance.
+ * @brief Signal statistics — sliding window min/max/mean/variance/RMS.
  *
  * Maintains a circular buffer of samples and computes statistics
  * incrementally. Designed for sensor data conditioning.
@@ -181,6 +181,26 @@ int32_t syn_signal_at(const SYN_Signal *sig, size_t index);
  * @return Delta between last two samples.
  */
 int32_t syn_signal_delta(const SYN_Signal *sig);
+
+/**
+ * @brief Root-Mean-Square in Q16.16: sqrt(Σ(x²) / N).
+ *
+ * Returns 0 if the window is empty.
+ *
+ * @param sig  Signal instance.
+ * @return RMS value in Q16.16.
+ */
+int32_t syn_signal_rms_q16(const SYN_Signal *sig);
+
+/**
+ * @brief Standard deviation in Q16.16: sqrt(variance).
+ *
+ * Returns 0 if fewer than 2 samples.
+ *
+ * @param sig  Signal instance.
+ * @return Standard deviation in Q16.16.
+ */
+int32_t syn_signal_std_dev_q16(const SYN_Signal *sig);
 
 #ifdef __cplusplus
 }

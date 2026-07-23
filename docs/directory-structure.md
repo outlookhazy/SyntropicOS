@@ -32,14 +32,14 @@ SyntropicOS/                          ← this repo (add as submodule or Arduino
 │   │   ├── log/                   ← logging, data logger
 │   │   ├── cli/                   ← command-line interface (with built-in diagnostics)
 │   │   ├── util/                  ← ring buffer, stream, assert, bits, events, CRC, FSM, timeout,
-│   │   │                            hysteresis, LUT, Q-math, rate limit, ping-pong, fmt
+│   │   │                            hysteresis, LUT, Q-math, matrix algebra, rate limit, ping-pong, fmt
 │   │   ├── input/                 ← button debouncer, rotary encoder
 │   │   ├── output/                ← LED controller, soft PWM
 │   │   ├── display/               ← hardware-independent canvas, shape primitives & bitmap drawing
 │   │   ├── ui/                    ← interactive menu layouts & zero-allocation IMGUI framework
 │   │   ├── control/               ← PID controller, auto-tuner
-│   │   ├── motor/                 ← motor output abstraction, stepper, servo, DC motor, closed-loop motor ctrl, actuator
-│   │   ├── dsp/                   ← digital filters, signal statistics, biquad, FFT
+│   │   ├── motor/                 ← motor output abstraction, stepper, servo, DC motor, closed-loop motor ctrl, actuator, FOC
+│   │   ├── dsp/                   ← digital filters, signal statistics, biquad, FFT, Kalman filter
 │   │   ├── proto/                 ← COBS framing, Modbus RTU
 │   │   ├── net/                   ← cooperative network stack (HTTP, WebSockets, MQTT, DNS, mDNS, CoAP)
 │   │   ├── sensor/                ← sensor polling framework (with signal stats integration)

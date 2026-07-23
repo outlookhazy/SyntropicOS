@@ -75,7 +75,8 @@ syn_stream_write(&log_stream, msg, msg_len);
 |---|---|---|
 | Bits | `util/syn_bits.h` | Bit set/clear/toggle/test macros |
 | CRC | `util/syn_crc.h` | CRC-8, CRC-16 (CCITT and Modbus variants), CRC-32 |
-| Q-Math | `util/syn_qmath.h` | Q16.16 fixed-point multiply, divide, square root, and trigonometry — no floating point |
+| Q-Math | `util/syn_qmath.h` | Q16.16 fixed-point math library — no floating point, no `libm.a`. Inline fast arithmetic (mul, div, abs, lerp, clamp, saturating ops) plus compiled transcendentals: sin, cos, tan, atan2, asin, acos, sqrt, hypot, exp, log, pow, and zero-allocation string I/O (`q16_to_str` / `q16_from_str`). |
+| Matrix | `util/syn_matrix.h` | Fixed-point matrix algebra — compile-time arbitrary dimensions via `SYN_MAT_DECL(name, rows, cols)`. Matrix multiply (int64 accumulator), transpose, determinant, inverse (2×2, 3×3, 4×4), 2D/3D homogeneous transforms, vector dot/cross/normalize. Zero heap — all storage is caller-owned. |
 | LUT | `util/syn_lut.h` | Interpolated lookup table with forward and reverse lookup |
 
 ## Timing & Thresholds

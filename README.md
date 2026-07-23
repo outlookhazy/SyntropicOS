@@ -13,10 +13,10 @@ SyntropicOS is a zero-overhead, production-grade C99 framework designed for deep
 
 - **Stackless cooperative threads** — Protothread coroutines (2 bytes RAM continuation; ~16–28 bytes per scheduled task)
 - **Zero heap allocation** — All state is caller-owned or static
-- **60+ native modules** — Drivers, DSP, control loops, networking, graphics, CLI, logging, and more
+- **70+ native modules** — Drivers, DSP, fixed-point math, Kalman filter, FOC motor control, networking, graphics, CLI, logging, and more
 - **Cooperative-by-design** — All modules use non-blocking state machines built specifically for coroutines
 - **Pure C99** — GCC, Clang, Keil, IAR — any C99 compiler
-- **Integer-only math** — No floating point, no `libm.a`
+- **Integer-only math** — Full Q16.16 fixed-point library: trigonometry, sqrt, exp/log, matrix algebra, and string I/O — no floating point, no `libm.a`
 - **Pay for what you use** — Every module toggleable via `#define`
 
 ## Architectural Philosophy: Why SyntropicOS?
@@ -25,7 +25,7 @@ Many embedded frameworks try to combine a coroutine scheduler with third-party l
 
 SyntropicOS takes a **batteries-included, cooperative-by-design** approach:
 
-1. **Native Non-Blocking State Machines**: All 60+ modules — including networking (MQTT, HTTP, WebSocket, DNS, SNTP), DSP (FFT, Biquad IIR, PID), protocols (NMEA, Modbus), and GUI engine — are built natively from the ground up as explicit state machines. During wait states (network handshakes, hardware I/O, sensor sampling), modules defer control back to the scheduler (`PT_DEFER` / `PT_WAIT_UNTIL`) rather than blocking CPU execution.
+1. **Native Non-Blocking State Machines**: All 70+ modules — including networking (MQTT, HTTP, WebSocket, DNS, SNTP), DSP (FFT, Biquad IIR, Kalman filter), motor control (PID, FOC, SVPWM), protocols (NMEA, Modbus), and GUI engine — are built natively from the ground up as explicit state machines. During wait states (network handshakes, hardware I/O, sensor sampling), modules defer control back to the scheduler (`PT_DEFER` / `PT_WAIT_UNTIL`) rather than blocking CPU execution.
 2. **Zero Heap Allocation**: 100% of state is caller-owned or statically allocated (`SYN_MAILBOX_DEFINE`, fixed Q16.16 math). Eliminates dynamic allocation (`malloc`/`free`), fragmentation, and memory leaks over indefinite runtimes.
 3. **Stackless & Lightweight Footprint**: Tasks run as stackless coroutines — bare protothreads cost just **2 bytes of RAM** (`uint16_t lc`), while full scheduled tasks with priority, timer delay, and event blocking cost only **~16–28 bytes per task descriptor** (compared to 1KB+ stack per thread in traditional RTOSs). The entire OS, networking stack, and DSP pipeline execute deterministically on small 8-bit MCUs (AVR Mega 8KB RAM) up to dual-core 32-bit platforms (RP2040, STM32).
 4. **Ecosystem Harmonization**: Every module shares the exact same concurrency model, timer ticks, logging primitives (`SYN_LOG`), and error handling — eliminating competing event loops or conflicting threading paradigms.
@@ -76,6 +76,36 @@ int main(void) {
     syn_sched_run_forever(&sched);
 }
 ```
+
+## Fixed-Point Math & DSP
+
+SyntropicOS includes a comprehensive Q16.16 fixed-point math library — no floating point, no `libm.a`, no heap allocation. All operations use `int64_t` intermediates for full precision.
+
+### Q16.16 Math (`syn_qmath`)
+- **Arithmetic**: add, sub, mul, div, abs, lerp, clamp, saturating variants
+- **Trigonometry**: sin, cos, tan, atan2, asin, acos
+- **Algebraic**: sqrt, hypot
+- **Exponential**: exp, log, pow
+- **String I/O**: `q16_to_str` / `q16_from_str` — zero-allocation decimal formatting
+
+### Matrix Algebra (`syn_matrix`)
+- **Compile-time-arbitrary dimensions** — declare any size via `SYN_MAT_DECL(name, rows, cols)`, compiler constant-folds loop bounds
+- **Operations**: multiply, transpose, determinant, inverse (2×2, 3×3, 4×4), trace
+- **Transforms**: 2D/3D rotation, translation, scaling (homogeneous matrices)
+- **Vector**: dot product, cross product, normalize
+- **Zero heap**: all storage is caller-owned stack/static arrays
+
+### DSP
+- **Biquad IIR filters**: lowpass, highpass, bandpass, notch — Butterworth design with configurable Q
+- **FFT**: fixed-point radix-2 with cooperative protothread support
+- **Signal statistics**: sliding-window min/max/mean/variance/RMS/stddev
+- **Kalman filter** (`syn_kalman`): general-purpose, arbitrary-dimension state estimation using `syn_matrix`
+
+### Field-Oriented Control (`syn_foc`)
+- **Clarke transform**: 3-phase (a,b,c) → 2-phase stationary (α,β)
+- **Park transform**: stationary (α,β) → rotating (d,q) frame
+- **Inverse transforms** for voltage command generation
+- **SVPWM**: space-vector PWM duty cycle computation
 
 ## Documentation
 

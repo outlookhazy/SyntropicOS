@@ -23,6 +23,38 @@ The **Auto-Tune** module provides automatic PID gain tuning and feedforward iden
 | Servo | `motor/syn_servo.h` | `SYN_USE_SERVO` | Hobby servo positioning via pulse-width control, with smooth move support |
 | Motor Ctrl | `motor/syn_motor_ctrl.h` | `SYN_USE_MOTOR_CTRL` | Closed-loop position/velocity controller with PID, feedforward, open-loop mode, and built-in trapezoid profiling. Stall and limit events auto-record to `syn_errlog` if configured. |
 | Actuator | `motor/syn_actuator.h` | `SYN_USE_ACTUATOR` | Linear actuator controller (requires DC Motor + Motor Ctrl) |
+| FOC | `motor/syn_foc.h` | `SYN_USE_FOC` | Field-Oriented Control transforms for BLDC/PMSM motors: Clarke, Park, inverse transforms, and Space Vector PWM (SVPWM). All Q16.16 fixed-point. |
+
+### FOC (Field-Oriented Control)
+
+The FOC module provides the mathematical transforms for sinusoidal BLDC/PMSM motor control:
+
+- **Clarke**: 3-phase (a,b,c) → 2-phase stationary (α,β)
+- **Park**: stationary (α,β) → rotating (d,q) using rotor angle θ
+- **Inverse Park/Clarke**: for voltage command generation
+- **SVPWM**: Space Vector PWM duty cycle computation for maximum DC bus utilization
+
+```c
+SYN_FOC_ABC phase_currents = { ia, ib, ic };
+SYN_FOC_AB  ab;
+SYN_FOC_DQ  dq;
+q16_t theta = electrical_angle;  // from encoder or observer
+
+// Forward: measure → control frame
+syn_foc_clarke(&phase_currents, &ab);
+syn_foc_park(&ab, theta, &dq);
+
+// dq.d = flux current, dq.q = torque current
+// Run PID controllers on dq...
+SYN_FOC_DQ dq_cmd = { id_pid_output, iq_pid_output };
+
+// Inverse: control frame → PWM
+SYN_FOC_AB ab_cmd;
+syn_foc_inv_park(&dq_cmd, theta, &ab_cmd);
+
+q16_t duty_a, duty_b, duty_c;
+syn_foc_svpwm(&ab_cmd, v_bus, &duty_a, &duty_b, &duty_c);
+```
 
 ### Motor Output Abstraction
 

@@ -1,10 +1,14 @@
 /**
  * @file syn_qmath.h
- * @brief Fixed-point Q16.16 arithmetic — header-only, no floating point.
+ * @brief Fixed-point Q16.16 arithmetic — no floating point.
  *
  * All operations use signed 32-bit values with 16 integer bits and
  * 16 fractional bits. Multiply/divide use 64-bit intermediates to
  * avoid overflow.
+ *
+ * Basic arithmetic (add, sub, mul, div, lerp, clamp) is inline in this
+ * header. Transcendental functions (sin, cos, sqrt, atan2, exp, log)
+ * and string I/O are compiled in syn_qmath.c.
  *
  * @par Usage
  * @code
@@ -21,6 +25,7 @@
 #define SYN_QMATH_H
 
 #include <stdint.h>
+#include <stddef.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -34,6 +39,15 @@ typedef int32_t q16_t;
 #define Q16_SHIFT    16                               /**< Fractional bit count       */
 #define Q16_ONE      ((q16_t)(1L << Q16_SHIFT))        /**< 1.0 in Q16.16              */
 #define Q16_HALF     ((q16_t)(1L << (Q16_SHIFT - 1)))  /**< 0.5 in Q16.16              */
+
+/* ── Constants ──────────────────────────────────────────────────────────── */
+
+#define Q16_PI          205887  /**< 3.14159265 in Q16.16 */
+#define Q16_PI_2        102944  /**< 1.57079633 in Q16.16 */
+#define Q16_2_PI        411775  /**< 6.28318531 in Q16.16 */
+#define Q16_E           178145  /**< 2.71828183 in Q16.16 */
+#define Q16_LN2          45426  /**< 0.69314718 in Q16.16 */
+#define Q16_SQRT2        92682  /**< 1.41421356 in Q16.16 */
 
 /* ── Conversion macros ──────────────────────────────────────────────────── */
 
@@ -55,7 +69,10 @@ typedef int32_t q16_t;
 /** Fractional part as 0–999 (for printf: "%d.%03d"). */
 #define Q16_FRAC_1000(q)      ((int32_t)((((q) & 0xFFFF) * 1000L) >> Q16_SHIFT))
 
-/* ── Arithmetic ─────────────────────────────────────────────────────────── */
+/** Fractional part as 0–9999 (for printf: "%d.%04d"). */
+#define Q16_FRAC_10000(q)     ((int32_t)((((q) & 0xFFFF) * 10000L) >> Q16_SHIFT))
+
+/* ── Inline arithmetic ──────────────────────────────────────────────────── */
 
 /**
  * @brief Multiply two Q16 values.
@@ -165,48 +182,114 @@ static inline q16_t q16_clamp(q16_t val, q16_t lo, q16_t hi)
     return val;
 }
 
-#define Q16_PI          205887  /**< 3.14159 in Q16.16 */
-#define Q16_PI_2        102944  /**< 1.57079 in Q16.16 */
-#define Q16_2_PI        411775  /**< 6.28318 in Q16.16 */
+/* ── Transcendental functions (compiled in syn_qmath.c) ─────────────────── */
 
 /**
- * @brief Sine approximation using 5th-order Taylor series.
+ * @brief Sine approximation (5th-order Taylor series).
  * @param x  Angle in Q16 radians.
  * @return sin(x) in Q16.
  */
-static inline q16_t q16_sin(q16_t x)
-{
-    /* Normalize x to [-PI, PI] */
-    while (x > Q16_PI)  x -= Q16_2_PI;
-    while (x < -Q16_PI) x += Q16_2_PI;
-
-    /* Map to [-PI/2, PI/2] */
-    if (x > Q16_PI_2) {
-        x = Q16_PI - x;
-    } else if (x < -Q16_PI_2) {
-        x = -Q16_PI - x;
-    }
-
-    /* Taylor series: sin(x) ≈ x - x^3/6 + x^5/120 */
-    int64_t x_sq = ((int64_t)x * x) >> 16;
-    int64_t x_cube = (x_sq * x) >> 16;
-    int64_t x_five = (((x_cube * x) >> 16) * x) >> 16;
-
-    int64_t term3 = x_cube / 6;
-    int64_t term5 = x_five / 120;
-
-    return (q16_t)(x - term3 + term5);
-}
+q16_t q16_sin(q16_t x);
 
 /**
- * @brief Cosine approximation via sin(x + PI/2).
+ * @brief Cosine approximation via sin(x + π/2).
  * @param x  Angle in Q16 radians.
  * @return cos(x) in Q16.
  */
-static inline q16_t q16_cos(q16_t x)
-{
-    return q16_sin(x + Q16_PI_2);
-}
+q16_t q16_cos(q16_t x);
+
+/**
+ * @brief Tangent: sin(x) / cos(x).
+ * @param x  Angle in Q16 radians. Must not be near ±π/2.
+ * @return tan(x) in Q16.
+ */
+q16_t q16_tan(q16_t x);
+
+/**
+ * @brief Four-quadrant arctangent (minimax polynomial).
+ * @param y  Y coordinate in Q16.
+ * @param x  X coordinate in Q16.
+ * @return Angle in Q16 radians [−π, π].
+ */
+q16_t q16_atan2(q16_t y, q16_t x);
+
+/**
+ * @brief Arc-sine (5th-order Chebyshev polynomial).
+ * @param x  Input in Q16, must be in [−1.0, 1.0].
+ * @return Angle in Q16 radians [−π/2, π/2].
+ */
+q16_t q16_asin(q16_t x);
+
+/**
+ * @brief Arc-cosine: π/2 − asin(x).
+ * @param x  Input in Q16, must be in [−1.0, 1.0].
+ * @return Angle in Q16 radians [0, π].
+ */
+q16_t q16_acos(q16_t x);
+
+/**
+ * @brief Fixed-point square root (binary restoring algorithm).
+ * @param x  Input in Q16 (must be ≥ 0).
+ * @return √x in Q16.
+ */
+q16_t q16_sqrt(q16_t x);
+
+/**
+ * @brief Overflow-safe hypotenuse: √(x² + y²).
+ * @param x  First coordinate in Q16.
+ * @param y  Second coordinate in Q16.
+ * @return Magnitude in Q16.
+ */
+q16_t q16_hypot(q16_t x, q16_t y);
+
+/**
+ * @brief Fixed-point exponential e^x (range reduction + minimax polynomial).
+ * @param x  Exponent in Q16.
+ * @return e^x in Q16. Returns INT32_MAX on overflow.
+ */
+q16_t q16_exp(q16_t x);
+
+/**
+ * @brief Fixed-point natural logarithm ln(x) (CLZ + minimax polynomial).
+ * @param x  Input in Q16 (must be > 0).
+ * @return ln(x) in Q16.
+ */
+q16_t q16_log(q16_t x);
+
+/**
+ * @brief Fixed-point power: base^exp = exp(exp * log(base)).
+ * @param base  Base in Q16 (must be > 0).
+ * @param exp   Exponent in Q16.
+ * @return base^exp in Q16.
+ */
+q16_t q16_pow(q16_t base, q16_t exp);
+
+/* ── String I/O (compiled in syn_qmath.c) ───────────────────────────────── */
+
+/**
+ * @brief Format a Q16 value as a decimal string (e.g. "-12.345").
+ *
+ * No heap allocation. The caller provides the output buffer.
+ *
+ * @param val       Value to format.
+ * @param buf       Output buffer (must be large enough).
+ * @param buf_len   Size of output buffer in bytes.
+ * @param decimals  Number of fractional digits (0–4).
+ * @return Number of characters written (excluding NUL), or 0 on error.
+ */
+size_t q16_to_str(q16_t val, char *buf, size_t buf_len, uint8_t decimals);
+
+/**
+ * @brief Parse a decimal string (e.g. "-3.1415") into Q16.
+ *
+ * Handles optional sign, integer part, optional decimal point and
+ * fractional digits. Stops at first non-numeric character.
+ *
+ * @param str  Input string (NUL-terminated).
+ * @param out  Output Q16 value.
+ * @return Number of characters consumed, or 0 on parse error.
+ */
+size_t q16_from_str(const char *str, q16_t *out);
 
 #ifdef __cplusplus
 }

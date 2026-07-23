@@ -67,6 +67,41 @@ q16_t syn_filter_biquad_update(SYN_FilterBiquad *f, q16_t sample);
  */
 void syn_filter_biquad_lowpass(SYN_FilterBiquad *f, q16_t fc, q16_t fs);
 
+/**
+ * @brief Initialize a biquad highpass filter.
+ *
+ * Computes standard Butterworth highpass coefficients in Q16.16.
+ *
+ * @param f      Filter instance.
+ * @param fc     Cutoff frequency (Hz) in Q16.16.
+ * @param fs     Sample rate (Hz) in Q16.16.
+ */
+void syn_filter_biquad_highpass(SYN_FilterBiquad *f, q16_t fc, q16_t fs);
+
+/**
+ * @brief Initialize a biquad bandpass filter.
+ *
+ * Constant-skirt-gain bandpass. Peak gain = 1.0 at center frequency.
+ *
+ * @param f      Filter instance.
+ * @param fc     Center frequency (Hz) in Q16.16.
+ * @param fs     Sample rate (Hz) in Q16.16.
+ * @param q      Quality factor in Q16.16 (higher = narrower band).
+ */
+void syn_filter_biquad_bandpass(SYN_FilterBiquad *f, q16_t fc, q16_t fs, q16_t q);
+
+/**
+ * @brief Initialize a biquad notch (band-reject) filter.
+ *
+ * Rejects frequencies near fc, passes all others.
+ *
+ * @param f      Filter instance.
+ * @param fc     Notch center frequency (Hz) in Q16.16.
+ * @param fs     Sample rate (Hz) in Q16.16.
+ * @param q      Quality factor in Q16.16 (higher = narrower notch).
+ */
+void syn_filter_biquad_notch(SYN_FilterBiquad *f, q16_t fc, q16_t fs, q16_t q);
+
 #ifdef __cplusplus
 }
 #endif
