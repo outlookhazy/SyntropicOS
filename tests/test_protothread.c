@@ -238,11 +238,61 @@ static void test_spawn(void)
     TEST_ASSERT_EQUAL(PT_EXITED, s);
 }
 
+static int rollover_done = 0;
+
+static SYN_PT_Status pt_rollover_func(SYN_PT *pt, SYN_Task *task)
+{
+    PT_BEGIN(pt);
+
+    PT_TASK_DELAY_MS(pt, task, 100);
+    rollover_done = 1;
+
+    PT_END(pt);
+}
+
+/**
+ * Validates the tick-rollover fix in PT_DELAY_MS.
+ *
+ * Starting near UINT32_MAX, the deadline wraps past 0.
+ * With the old unsigned '>=' comparison this would stall forever.
+ * With the signed-difference check it should fire after 100 ms.
+ */
+static void test_delay_ms_rollover(void)
+{
+    SYN_Task task;
+    syn_task_create(&task, "roll_test", pt_rollover_func, 0, NULL);
+    rollover_done = 0;
+
+    /* Start 50 ms before the 32-bit tick wraps */
+    mock_tick_ms = UINT32_MAX - 50;
+
+    SYN_PT_Status s;
+
+    /* First call: sets deadline = (UINT32_MAX - 50) + 100 = 49 (wrapped) */
+    s = task.func(&task.pt, &task);
+    TEST_ASSERT_EQUAL(PT_WAITING, s);
+    TEST_ASSERT_EQUAL_INT(0, rollover_done);
+
+    /* Advance 60 ms → tick wraps to 9.  Deadline is 49 → not reached yet */
+    mock_tick_advance(60);
+    TEST_ASSERT_TRUE(mock_tick_ms < 100); /* sanity: we wrapped */
+    s = task.func(&task.pt, &task);
+    TEST_ASSERT_EQUAL(PT_WAITING, s);
+    TEST_ASSERT_EQUAL_INT(0, rollover_done);
+
+    /* Advance 50 more ms → tick = 59.  Total elapsed = 110 > 100 ms */
+    mock_tick_advance(50);
+    s = task.func(&task.pt, &task);
+    TEST_ASSERT_EQUAL(PT_EXITED, s);
+    TEST_ASSERT_EQUAL_INT(1, rollover_done);
+}
+
 void run_protothread_tests(void)
 {
     RUN_TEST(test_basic_protothread);
     RUN_TEST(test_wait_until);
     RUN_TEST(test_delay_ms);
+    RUN_TEST(test_delay_ms_rollover);
     RUN_TEST(test_semaphore);
     RUN_TEST(test_event_flags);
     RUN_TEST(test_spawn);

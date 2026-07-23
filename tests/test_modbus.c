@@ -492,6 +492,61 @@ static void test_modbus_polling_reset(void)
     TEST_ASSERT_EQUAL_INT(0, mb.rx_len); /* processed and cleared */
 }
 
+/**
+ * Validates configurable inter-frame silence gap via silence_ms.
+ *
+ * With silence_ms = 20, the default 5ms gap should NOT trigger
+ * a frame timeout, but 20ms should.
+ */
+static void test_modbus_custom_silence(void)
+{
+    static uint8_t mb_buf[64];
+
+    SYN_Modbus mb;
+    SYN_Modbus_Config cfg = {
+        .slave_addr  = 1,
+        .silence_ms  = 20,  /* Custom: 20ms instead of default 5ms */
+    };
+    syn_modbus_init(&mb, &cfg, mb_buf, sizeof(mb_buf));
+
+    /* Feed two bytes at t=0 */
+    mock_tick_ms = 0;
+    syn_modbus_feed(&mb, 0xAA);
+    syn_modbus_feed(&mb, 0xBB);
+    TEST_ASSERT_EQUAL_INT(2, mb.rx_len);
+
+    /* Advance 10 ms — past the default MB_SILENCE_MS (5ms) but below
+     * our custom 20ms.  Feed should accumulate, not reset. */
+    mock_tick_advance(10);
+    syn_modbus_feed(&mb, 0xCC);
+    TEST_ASSERT_EQUAL_INT(3, mb.rx_len);  /* still accumulating */
+
+    /* Advance to 25 ms total — now past our custom silence gap.
+     * Next feed should detect the gap and start a new frame. */
+    mock_tick_advance(25);
+    syn_modbus_feed(&mb, 0xDD);
+    /* The 3-byte runt was discarded (< MB_MIN_FRAME_LEN), rx_len reset */
+    TEST_ASSERT_EQUAL_INT(0, mb.rx_len);
+
+    /* B. Zero silence_ms (default fallback) should use MB_SILENCE_MS */
+    SYN_Modbus mb2;
+    SYN_Modbus_Config cfg2 = {
+        .slave_addr  = 1,
+        .silence_ms  = 0,  /* Should fall back to default 5ms */
+    };
+    syn_modbus_init(&mb2, &cfg2, mb_buf, sizeof(mb_buf));
+
+    mock_tick_ms = 0;
+    syn_modbus_feed(&mb2, 0x01);
+    syn_modbus_feed(&mb2, 0x02);
+    TEST_ASSERT_EQUAL_INT(2, mb2.rx_len);
+
+    /* 6ms gap — exceeds default 5ms, should trigger reset */
+    mock_tick_advance(6);
+    syn_modbus_feed(&mb2, 0x03);
+    TEST_ASSERT_EQUAL_INT(0, mb2.rx_len);  /* runt discarded */
+}
+
 void run_modbus_tests(void)
 {
     RUN_TEST(test_modbus_basic);
@@ -500,5 +555,6 @@ void run_modbus_tests(void)
     RUN_TEST(test_modbus_broadcast);
     RUN_TEST(test_modbus_feed_timeout);
     RUN_TEST(test_modbus_polling_reset);
+    RUN_TEST(test_modbus_custom_silence);
 }
 

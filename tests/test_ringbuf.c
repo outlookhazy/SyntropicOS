@@ -288,6 +288,76 @@ static void test_ringbuf_peek_n_wraparound(void)
     TEST_ASSERT_EQUAL_size_t(6, syn_ringbuf_count(&rb));
 }
 
+/**
+ * Validates that acquire/release barriers are actually invoked
+ * during ring buffer operations (compiled with SYN_USE_MULTICORE=1).
+ *
+ * This ensures the barrier instrumentation is wired up correctly —
+ * not just that the functional behavior is unchanged.
+ */
+static void test_ringbuf_barriers_invoked(void)
+{
+#if defined(SYN_USE_MULTICORE) && SYN_USE_MULTICORE
+    extern uint32_t mock_barrier_count;
+
+    uint8_t buf[8];
+    SYN_RingBuf rb;
+
+    /* init should use STORE_RELEASE for head and tail */
+    mock_barrier_count = 0;
+    syn_ringbuf_init(&rb, buf, sizeof(buf));
+    TEST_ASSERT_TRUE(mock_barrier_count > 0);
+
+    /* put should invoke barriers for head/tail access */
+    mock_barrier_count = 0;
+    syn_ringbuf_put(&rb, 0xAA);
+    TEST_ASSERT_TRUE(mock_barrier_count > 0);
+
+    /* get should invoke barriers for head/tail access */
+    mock_barrier_count = 0;
+    uint8_t val;
+    syn_ringbuf_get(&rb, &val);
+    TEST_ASSERT_TRUE(mock_barrier_count > 0);
+    TEST_ASSERT_EQUAL_HEX8(0xAA, val);
+
+    /* empty/full/count should invoke barriers */
+    mock_barrier_count = 0;
+    (void)syn_ringbuf_empty(&rb);
+    TEST_ASSERT_TRUE(mock_barrier_count > 0);
+
+    mock_barrier_count = 0;
+    (void)syn_ringbuf_full(&rb);
+    TEST_ASSERT_TRUE(mock_barrier_count > 0);
+
+    mock_barrier_count = 0;
+    (void)syn_ringbuf_count(&rb);
+    TEST_ASSERT_TRUE(mock_barrier_count > 0);
+
+    /* peek should invoke barriers */
+    syn_ringbuf_put(&rb, 0xBB);
+    mock_barrier_count = 0;
+    (void)syn_ringbuf_peek(&rb, &val);
+    TEST_ASSERT_TRUE(mock_barrier_count > 0);
+
+    /* peek_n should invoke barriers (this was the missed function) */
+    uint8_t out[4];
+    mock_barrier_count = 0;
+    (void)syn_ringbuf_peek_n(&rb, out, sizeof(out));
+    TEST_ASSERT_TRUE(mock_barrier_count > 0);
+
+    /* bulk write/read should invoke barriers */
+    syn_ringbuf_reset(&rb);
+    uint8_t data[] = {1, 2, 3};
+    mock_barrier_count = 0;
+    syn_ringbuf_write(&rb, data, 3);
+    TEST_ASSERT_TRUE(mock_barrier_count > 0);
+
+    mock_barrier_count = 0;
+    syn_ringbuf_read(&rb, out, 3);
+    TEST_ASSERT_TRUE(mock_barrier_count > 0);
+#endif
+}
+
 void run_ringbuf_tests(void)
 {
     RUN_TEST(test_ringbuf_init_empty);
@@ -307,4 +377,7 @@ void run_ringbuf_tests(void)
     RUN_TEST(test_ringbuf_read_empty);
     RUN_TEST(test_ringbuf_peek_n);
     RUN_TEST(test_ringbuf_peek_n_wraparound);
+    /* Barrier validation */
+    RUN_TEST(test_ringbuf_barriers_invoked);
 }
+

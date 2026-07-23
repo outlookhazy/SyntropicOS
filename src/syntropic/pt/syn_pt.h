@@ -224,10 +224,10 @@ typedef enum {
  * @param target   Pointer to a uint32_t that will hold the deadline tick.
  * @param ms       Delay duration in milliseconds.
  */
-#define PT_DELAY_MS(pt, target, ms)                           \
-    do {                                                       \
-        *(target) = syn_port_get_tick_ms() + (uint32_t)(ms);  \
-        PT_WAIT_UNTIL(pt, syn_port_get_tick_ms() >= *(target)); \
+#define PT_DELAY_MS(pt, target, ms)                                             \
+    do {                                                                        \
+        *(target) = syn_port_get_tick_ms() + (uint32_t)(ms);                   \
+        PT_WAIT_UNTIL(pt, (int32_t)(syn_port_get_tick_ms() - *(target)) >= 0); \
     } while (0)
 
 /**

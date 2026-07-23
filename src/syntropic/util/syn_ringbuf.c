@@ -5,6 +5,7 @@
 
 #include "syn_ringbuf.h"
 #include "../util/syn_assert.h"
+#include "../common/syn_barrier.h"
 #include <string.h>
 
 /* ── Helpers ────────────────────────────────────────────────────────────── */
@@ -31,28 +32,30 @@ void syn_ringbuf_init(SYN_RingBuf *rb, uint8_t *buf, size_t size)
 
     rb->buf  = buf;
     rb->size = size;
-    rb->head = 0;
-    rb->tail = 0;
+    SYN_STORE_RELEASE(&rb->head, 0);
+    SYN_STORE_RELEASE(&rb->tail, 0);
 }
 
 void syn_ringbuf_reset(SYN_RingBuf *rb)
 {
     SYN_ASSERT(rb != NULL);
-    rb->head = 0;
-    rb->tail = 0;
+    SYN_STORE_RELEASE(&rb->head, 0);
+    SYN_STORE_RELEASE(&rb->tail, 0);
 }
 
 bool syn_ringbuf_put(SYN_RingBuf *rb, uint8_t byte)
 {
     SYN_ASSERT(rb != NULL);
 
-    size_t next_head = advance(rb->head, rb->size);
-    if (next_head == rb->tail) {
+    size_t head = SYN_LOAD_ACQUIRE(&rb->head);
+    size_t tail = SYN_LOAD_ACQUIRE(&rb->tail);
+    size_t next_head = advance(head, rb->size);
+    if (next_head == tail) {
         return false; /* full */
     }
 
-    rb->buf[rb->head] = byte;
-    rb->head = next_head;
+    rb->buf[head] = byte;
+    SYN_STORE_RELEASE(&rb->head, next_head);
     return true;
 }
 
@@ -61,12 +64,14 @@ bool syn_ringbuf_get(SYN_RingBuf *rb, uint8_t *byte)
     SYN_ASSERT(rb != NULL);
     SYN_ASSERT(byte != NULL);
 
-    if (rb->head == rb->tail) {
+    size_t head = SYN_LOAD_ACQUIRE(&rb->head);
+    size_t tail = SYN_LOAD_ACQUIRE(&rb->tail);
+    if (head == tail) {
         return false; /* empty */
     }
 
-    *byte = rb->buf[rb->tail];
-    rb->tail = advance(rb->tail, rb->size);
+    *byte = rb->buf[tail];
+    SYN_STORE_RELEASE(&rb->tail, advance(tail, rb->size));
     return true;
 }
 
@@ -75,32 +80,38 @@ bool syn_ringbuf_peek(const SYN_RingBuf *rb, uint8_t *byte)
     SYN_ASSERT(rb != NULL);
     SYN_ASSERT(byte != NULL);
 
-    if (rb->head == rb->tail) {
+    size_t head = SYN_LOAD_ACQUIRE(&rb->head);
+    size_t tail = SYN_LOAD_ACQUIRE(&rb->tail);
+    if (head == tail) {
         return false;
     }
 
-    *byte = rb->buf[rb->tail];
+    *byte = rb->buf[tail];
     return true;
 }
 
 bool syn_ringbuf_full(const SYN_RingBuf *rb)
 {
     SYN_ASSERT(rb != NULL);
-    return advance(rb->head, rb->size) == rb->tail;
+    size_t head = SYN_LOAD_ACQUIRE(&rb->head);
+    size_t tail = SYN_LOAD_ACQUIRE(&rb->tail);
+    return advance(head, rb->size) == tail;
 }
 
 bool syn_ringbuf_empty(const SYN_RingBuf *rb)
 {
     SYN_ASSERT(rb != NULL);
-    return rb->head == rb->tail;
+    size_t head = SYN_LOAD_ACQUIRE(&rb->head);
+    size_t tail = SYN_LOAD_ACQUIRE(&rb->tail);
+    return head == tail;
 }
 
 size_t syn_ringbuf_count(const SYN_RingBuf *rb)
 {
     SYN_ASSERT(rb != NULL);
 
-    size_t h = rb->head;
-    size_t t = rb->tail;
+    size_t h = SYN_LOAD_ACQUIRE(&rb->head);
+    size_t t = SYN_LOAD_ACQUIRE(&rb->tail);
 
     if (h >= t) {
         return h - t;
@@ -128,7 +139,7 @@ size_t syn_ringbuf_write(SYN_RingBuf *rb, const uint8_t *data, size_t len)
         return 0;
     }
 
-    size_t head = rb->head;
+    size_t head = SYN_LOAD_ACQUIRE(&rb->head);
 
     /* Bytes from head to end of backing array */
     size_t to_end = rb->size - head;
@@ -143,7 +154,7 @@ size_t syn_ringbuf_write(SYN_RingBuf *rb, const uint8_t *data, size_t len)
     }
 
     size_t new_head = head + len;
-    rb->head = (new_head >= rb->size) ? new_head - rb->size : new_head;
+    SYN_STORE_RELEASE(&rb->head, (new_head >= rb->size) ? new_head - rb->size : new_head);
     return len;
 }
 
@@ -160,7 +171,7 @@ size_t syn_ringbuf_read(SYN_RingBuf *rb, uint8_t *data, size_t len)
         return 0;
     }
 
-    size_t tail = rb->tail;
+    size_t tail = SYN_LOAD_ACQUIRE(&rb->tail);
 
     /* Bytes from tail to end of backing array */
     size_t to_end = rb->size - tail;
@@ -175,7 +186,7 @@ size_t syn_ringbuf_read(SYN_RingBuf *rb, uint8_t *data, size_t len)
     }
 
     size_t new_tail = tail + len;
-    rb->tail = (new_tail >= rb->size) ? new_tail - rb->size : new_tail;
+    SYN_STORE_RELEASE(&rb->tail, (new_tail >= rb->size) ? new_tail - rb->size : new_tail);
     return len;
 }
 
@@ -192,7 +203,7 @@ size_t syn_ringbuf_peek_n(const SYN_RingBuf *rb, uint8_t *data, size_t len)
         return 0;
     }
 
-    size_t tail = rb->tail;
+    size_t tail = SYN_LOAD_ACQUIRE(&rb->tail);
 
     /* Bytes from tail to end of backing array */
     size_t to_end = rb->size - tail;

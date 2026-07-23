@@ -110,6 +110,7 @@ typedef struct {
     /* Optional */
     SYN_Modbus_WriteCallback on_write;    /**< Write pre-check callback   */
     void            *on_write_ctx;        /**< Context for on_write       */
+    uint32_t         silence_ms;          /**< Custom inter-frame silence gap in ms (0 = default 5ms) */
 } SYN_Modbus_Config;
 
 /* ── Modbus instance ────────────────────────────────────────────────────── */

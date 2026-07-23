@@ -232,9 +232,10 @@ void syn_modbus_feed(SYN_Modbus *mb, uint8_t byte)
     SYN_ASSERT(mb != NULL);
 
     uint32_t now = syn_port_get_tick_ms();
+    uint32_t silence_gap = (mb->cfg.silence_ms > 0) ? mb->cfg.silence_ms : MB_SILENCE_MS;
 
     /* Detect inter-frame gap (3.5 char times) */
-    if (mb->rx_len > 0 && (now - mb->last_byte_tick) >= MB_SILENCE_MS) {
+    if (mb->rx_len > 0 && (now - mb->last_byte_tick) >= silence_gap) {
         /* Previous frame timed out — start fresh */
         mb->frame_ready = (mb->rx_len >= MB_MIN_FRAME_LEN);
         if (!mb->frame_ready) {
