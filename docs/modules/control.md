@@ -24,8 +24,9 @@ The **Auto-Tune** module provides automatic PID gain tuning and feedforward iden
 | Motor Ctrl | `motor/syn_motor_ctrl.h` | `SYN_USE_MOTOR_CTRL` | Closed-loop position/velocity controller with PID, feedforward, open-loop mode, and built-in trapezoid profiling. Stall and limit events auto-record to `syn_errlog` if configured. |
 | Actuator | `motor/syn_actuator.h` | `SYN_USE_ACTUATOR` | Linear actuator controller (requires DC Motor + Motor Ctrl) |
 | FOC | `motor/syn_foc.h` | `SYN_USE_FOC` | Field-Oriented Control transforms for BLDC/PMSM motors: Clarke, Park, inverse transforms, and Space Vector PWM (SVPWM). All Q16.16 fixed-point. |
+| FOC Observer | `motor/syn_foc_observer.h` | `SYN_USE_FOC_OBSERVER` | Sensorless FOC Rotor Position & Speed Sliding Mode Observer (SMO) with software PLL phase/speed tracking. |
 
-### FOC (Field-Oriented Control)
+### FOC (Field-Oriented Control) & Observer
 
 The FOC module provides the mathematical transforms for sinusoidal BLDC/PMSM motor control:
 
@@ -33,6 +34,25 @@ The FOC module provides the mathematical transforms for sinusoidal BLDC/PMSM mot
 - **Park**: stationary (α,β) → rotating (d,q) using rotor angle θ
 - **Inverse Park/Clarke**: for voltage command generation
 - **SVPWM**: Space Vector PWM duty cycle computation for maximum DC bus utilization
+- **Sliding Mode Observer (SMO)**: Sensorless estimation of rotor position ($\hat{\theta}_e$) and speed ($\hat{\omega}_e$) from phase voltage and current measurements in Q16.16 fixed-point.
+
+```c
+SYN_FOCObserver obs;
+SYN_FOCObserverConfig obs_cfg = {
+    .R = Q16_HALF,                // 0.5 Ohm phase resistance
+    .L = Q16_FROM_FLOAT(0.001),   // 1 mH phase inductance
+    .G = Q16_FROM_INT(10),        // Sliding mode gain
+    .dt = Q16_FROM_FLOAT(0.0001), // 10 kHz sample time
+    .Kp_pll = Q16_FROM_INT(150),  // Software PLL proportional gain
+    .Ki_pll = Q16_FROM_INT(6000)  // Software PLL integral gain
+};
+syn_foc_observer_init(&obs, &obs_cfg);
+
+// In 10 kHz FOC interrupt loop:
+syn_foc_observer_update(&obs, v_alpha, v_beta, i_alpha, i_beta);
+q16_t est_angle = syn_foc_observer_get_angle(&obs); // Estimated theta_e [0, 2pi)
+q16_t est_speed = syn_foc_observer_get_speed(&obs); // Estimated omega_e (rad/s)
+```
 
 ```c
 SYN_FOC_ABC phase_currents = { ia, ib, ic };
