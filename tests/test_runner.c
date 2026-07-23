@@ -99,6 +99,8 @@ void run_lfs_tests(void);
 void run_coap_tests(void);
 void run_biquad_tests(void);
 void run_fft_tests(void);
+void run_filter_design_tests(void);
+void run_foc_tests(void);
 void run_fault_tests(void);
 void run_autotune_tests(void);
 
@@ -281,6 +283,9 @@ int main(void)
 
     /* IMU Sensor Fusion */
     run_sensor_fusion_tests();
+
+    /* Filter Design Generator */
+    run_filter_design_tests();
 
     /* Modbus Master */
     run_modbus_master_tests();
