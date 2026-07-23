@@ -91,6 +91,7 @@ SyntropicOS includes a comprehensive Q16.16 fixed-point math library — no floa
 ### Matrix Algebra (`syn_matrix`)
 - **Compile-time-arbitrary dimensions** — declare any size via `SYN_MAT_DECL(name, rows, cols)`, compiler constant-folds loop bounds
 - **Operations**: multiply, transpose, determinant, inverse (2×2, 3×3, 4×4), trace
+- **Linear Solvers**: LU decomposition with partial pivoting (`syn_matrix_solve_lu`), Cholesky decomposition (`syn_matrix_solve_cholesky`), overdetermined least-squares (`syn_matrix_least_squares`)
 - **Transforms**: 2D/3D rotation, translation, scaling (homogeneous matrices)
 - **Vector**: dot product, cross product, normalize
 - **Zero heap**: all storage is caller-owned stack/static arrays
