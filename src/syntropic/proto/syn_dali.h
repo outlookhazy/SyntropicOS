@@ -90,6 +90,10 @@ typedef struct {
     bool                  lamp_failure;         /**< Lamp failure flag */
     bool                  control_gear_failure; /**< Gear failure flag */
     bool                  lamp_on;              /**< Lamp status flag */
+    uint8_t               dtr0;                 /**< Data Transfer Register 0 */
+    uint8_t               dtr1;                 /**< Data Transfer Register 1 */
+    uint8_t               dtr2;                 /**< Data Transfer Register 2 */
+    bool                  write_mem_enabled;    /**< True when write memory enabled */
 } SYN_DALI_SlaveState;
 
 /* ── Standard DALI Command Definitions (IEC 62386-102) ─────────────────── */
@@ -105,17 +109,46 @@ typedef struct {
 #define SYN_DALI_CMD_ON_AND_STEP_UP              0x08U
 #define SYN_DALI_CMD_GO_TO_SCENE_BASE            0x10U /* 0x10..0x1F */
 
+#define SYN_DALI_CMD_RESET                       0x20U
+#define SYN_DALI_CMD_STORE_ACTUAL_LEVEL_IN_DTR   0x21U
+#define SYN_DALI_CMD_STORE_DTR_AS_MAX_LEVEL      0x2AU
+#define SYN_DALI_CMD_STORE_DTR_AS_MIN_LEVEL      0x2BU
+#define SYN_DALI_CMD_STORE_DTR_AS_SYS_FAIL_LEVEL 0x2CU
+#define SYN_DALI_CMD_STORE_DTR_AS_POWER_ON_LEVEL 0x2DU
+#define SYN_DALI_CMD_STORE_DTR_AS_FADE_TIME      0x2EU
+#define SYN_DALI_CMD_STORE_DTR_AS_FADE_RATE      0x2FU
+
+#define SYN_DALI_CMD_STORE_DTR_AS_SCENE_BASE     0x40U /* 0x40..0x4F */
+#define SYN_DALI_CMD_REMOVE_FROM_SCENE_BASE      0x50U /* 0x50..0x5F */
+#define SYN_DALI_CMD_ADD_TO_GROUP_BASE           0x60U /* 0x60..0x6F */
+#define SYN_DALI_CMD_REMOVE_FROM_GROUP_BASE      0x70U /* 0x70..0x7F */
+#define SYN_DALI_CMD_STORE_DTR_AS_SHORT_ADDR     0x80U
+#define SYN_DALI_CMD_ENABLE_WRITE_MEMORY         0x81U
+
 #define SYN_DALI_CMD_QUERY_STATUS                0x90U
 #define SYN_DALI_CMD_QUERY_CONTROL_GEAR          0x91U
 #define SYN_DALI_CMD_QUERY_LAMP_FAILURE          0x92U
 #define SYN_DALI_CMD_QUERY_LAMP_POWER_ON         0x93U
+#define SYN_DALI_CMD_QUERY_CONTENT_DTR           0x98U
+#define SYN_DALI_CMD_QUERY_DEVICE_TYPE           0x99U
+#define SYN_DALI_CMD_QUERY_PHYSICAL_MIN_LEVEL    0x9AU
+#define SYN_DALI_CMD_QUERY_CONTENT_DTR1          0x9CU
+#define SYN_DALI_CMD_QUERY_CONTENT_DTR2          0x9DU
 #define SYN_DALI_CMD_QUERY_ACTUAL_LEVEL          0xA0U
 #define SYN_DALI_CMD_QUERY_MAX_LEVEL             0xA1U
 #define SYN_DALI_CMD_QUERY_MIN_LEVEL             0xA2U
 #define SYN_DALI_CMD_QUERY_POWER_ON_LEVEL        0xA3U
 #define SYN_DALI_CMD_QUERY_SYS_FAIL_LEVEL        0xA4U
 
+#define SYN_DALI_CMD_QUERY_GROUPS_0_7            0xC0U
+#define SYN_DALI_CMD_QUERY_GROUPS_8_15           0xC1U
+#define SYN_DALI_CMD_QUERY_RANDOM_ADDR_H         0xC2U
+#define SYN_DALI_CMD_QUERY_RANDOM_ADDR_M         0xC3U
+#define SYN_DALI_CMD_QUERY_RANDOM_ADDR_L         0xC4U
+
 /* Special / Configuration Commands */
+#define SYN_DALI_SPEC_TERMINATE                  0x00U
+#define SYN_DALI_SPEC_DTR0                       0xA3U
 #define SYN_DALI_SPEC_INITIALISE                 0x01U
 #define SYN_DALI_SPEC_RANDOMISE                  0x02U
 #define SYN_DALI_SPEC_COMPARE                    0x03U
@@ -126,6 +159,8 @@ typedef struct {
 #define SYN_DALI_SPEC_PROGRAM_SHORT_ADDR         0x08U
 #define SYN_DALI_SPEC_VERIFY_SHORT_ADDR          0x09U
 #define SYN_DALI_SPEC_QUERY_SHORT_ADDR           0x0AU
+#define SYN_DALI_SPEC_DTR1                       0xC3U
+#define SYN_DALI_SPEC_DTR2                       0xC5U
 
 /* ── API Functions ──────────────────────────────────────────────────────── */
 

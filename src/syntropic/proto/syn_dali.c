@@ -184,6 +184,47 @@ SYN_Status syn_dali_slave_process(SYN_DALI_SlaveState *slave,
             slave->lamp_on = true;
             break;
 
+        case SYN_DALI_CMD_RESET:
+            slave->actual_level = slave->cfg.power_on_level;
+            slave->lamp_on = (slave->actual_level > 0);
+            break;
+
+        case SYN_DALI_CMD_STORE_ACTUAL_LEVEL_IN_DTR:
+            slave->dtr0 = slave->actual_level;
+            break;
+
+        case SYN_DALI_CMD_STORE_DTR_AS_MAX_LEVEL:
+            slave->cfg.max_level = slave->dtr0;
+            break;
+
+        case SYN_DALI_CMD_STORE_DTR_AS_MIN_LEVEL:
+            slave->cfg.min_level = slave->dtr0;
+            break;
+
+        case SYN_DALI_CMD_STORE_DTR_AS_SYS_FAIL_LEVEL:
+            slave->cfg.system_failure_level = slave->dtr0;
+            break;
+
+        case SYN_DALI_CMD_STORE_DTR_AS_POWER_ON_LEVEL:
+            slave->cfg.power_on_level = slave->dtr0;
+            break;
+
+        case SYN_DALI_CMD_STORE_DTR_AS_FADE_TIME:
+            slave->cfg.fade_time = slave->dtr0;
+            break;
+
+        case SYN_DALI_CMD_STORE_DTR_AS_FADE_RATE:
+            slave->cfg.fade_rate = slave->dtr0;
+            break;
+
+        case SYN_DALI_CMD_STORE_DTR_AS_SHORT_ADDR:
+            slave->cfg.short_address = (slave->dtr0 >> 1) & 0x3FU;
+            break;
+
+        case SYN_DALI_CMD_ENABLE_WRITE_MEMORY:
+            slave->write_mem_enabled = true;
+            break;
+
         case SYN_DALI_CMD_QUERY_STATUS: {
             uint8_t status = 0;
             if (slave->control_gear_failure) status |= (1U << 0);
@@ -194,6 +235,46 @@ SYN_Status syn_dali_slave_process(SYN_DALI_SlaveState *slave,
             *has_resp = true;
             break;
         }
+
+        case SYN_DALI_CMD_QUERY_CONTENT_DTR:
+            *resp_data = slave->dtr0;
+            *has_resp = true;
+            break;
+
+        case SYN_DALI_CMD_QUERY_CONTENT_DTR1:
+            *resp_data = slave->dtr1;
+            *has_resp = true;
+            break;
+
+        case SYN_DALI_CMD_QUERY_CONTENT_DTR2:
+            *resp_data = slave->dtr2;
+            *has_resp = true;
+            break;
+
+        case SYN_DALI_CMD_QUERY_GROUPS_0_7:
+            *resp_data = (uint8_t)(slave->cfg.group_mask & 0xFFU);
+            *has_resp = true;
+            break;
+
+        case SYN_DALI_CMD_QUERY_GROUPS_8_15:
+            *resp_data = (uint8_t)((slave->cfg.group_mask >> 8) & 0xFFU);
+            *has_resp = true;
+            break;
+
+        case SYN_DALI_CMD_QUERY_RANDOM_ADDR_H:
+            *resp_data = (uint8_t)((slave->random_address >> 16) & 0xFFU);
+            *has_resp = true;
+            break;
+
+        case SYN_DALI_CMD_QUERY_RANDOM_ADDR_M:
+            *resp_data = (uint8_t)((slave->random_address >> 8) & 0xFFU);
+            *has_resp = true;
+            break;
+
+        case SYN_DALI_CMD_QUERY_RANDOM_ADDR_L:
+            *resp_data = (uint8_t)(slave->random_address & 0xFFU);
+            *has_resp = true;
+            break;
 
         case SYN_DALI_CMD_QUERY_ACTUAL_LEVEL:
             *resp_data = slave->actual_level;
@@ -228,6 +309,14 @@ SYN_Status syn_dali_slave_process(SYN_DALI_SlaveState *slave,
                     slave->actual_level = scene_lvl;
                     slave->lamp_on = (scene_lvl > 0);
                 }
+            } else if (cmd >= SYN_DALI_CMD_STORE_DTR_AS_SCENE_BASE && cmd <= (SYN_DALI_CMD_STORE_DTR_AS_SCENE_BASE + 15U)) {
+                slave->scenes[cmd - SYN_DALI_CMD_STORE_DTR_AS_SCENE_BASE] = slave->dtr0;
+            } else if (cmd >= SYN_DALI_CMD_REMOVE_FROM_SCENE_BASE && cmd <= (SYN_DALI_CMD_REMOVE_FROM_SCENE_BASE + 15U)) {
+                slave->scenes[cmd - SYN_DALI_CMD_REMOVE_FROM_SCENE_BASE] = SYN_DALI_MASK_LEVEL;
+            } else if (cmd >= SYN_DALI_CMD_ADD_TO_GROUP_BASE && cmd <= (SYN_DALI_CMD_ADD_TO_GROUP_BASE + 15U)) {
+                slave->cfg.group_mask |= (1U << (cmd - SYN_DALI_CMD_ADD_TO_GROUP_BASE));
+            } else if (cmd >= SYN_DALI_CMD_REMOVE_FROM_GROUP_BASE && cmd <= (SYN_DALI_CMD_REMOVE_FROM_GROUP_BASE + 15U)) {
+                slave->cfg.group_mask &= ~(1U << (cmd - SYN_DALI_CMD_REMOVE_FROM_GROUP_BASE));
             }
             break;
         }
@@ -239,6 +328,22 @@ SYN_Status syn_dali_slave_process(SYN_DALI_SlaveState *slave,
         uint8_t spec_data = req->data_cmd;
 
         switch (spec_code) {
+        case SYN_DALI_SPEC_TERMINATE:
+            slave->initialise_active = false;
+            break;
+
+        case SYN_DALI_SPEC_DTR0:
+            slave->dtr0 = spec_data;
+            break;
+
+        case SYN_DALI_SPEC_DTR1:
+            slave->dtr1 = spec_data;
+            break;
+
+        case SYN_DALI_SPEC_DTR2:
+            slave->dtr2 = spec_data;
+            break;
+
         case SYN_DALI_SPEC_INITIALISE:
             slave->initialise_active = true;
             break;
@@ -247,6 +352,18 @@ SYN_Status syn_dali_slave_process(SYN_DALI_SlaveState *slave,
             if (slave->initialise_active) {
                 slave->random_address = ((uint32_t)spec_data << 16) | 0x1234U;
             }
+            break;
+
+        case SYN_DALI_SPEC_SEARCHADDRH:
+            slave->search_address = (slave->search_address & 0x00FFFFU) | ((uint32_t)spec_data << 16);
+            break;
+
+        case SYN_DALI_SPEC_SEARCHADDRM:
+            slave->search_address = (slave->search_address & 0xFF00FFU) | ((uint32_t)spec_data << 8);
+            break;
+
+        case SYN_DALI_SPEC_SEARCHADDRL:
+            slave->search_address = (slave->search_address & 0xFFFF00U) | (uint32_t)spec_data;
             break;
 
         case SYN_DALI_SPEC_COMPARE:

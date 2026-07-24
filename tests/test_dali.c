@@ -101,6 +101,40 @@ static void test_dali_slave_commands(void)
     TEST_ASSERT_EQUAL(SYN_OK, syn_dali_slave_process(&slave, &req, &resp_data, &has_resp));
     TEST_ASSERT_TRUE(has_resp);
     TEST_ASSERT_EQUAL(254, resp_data);
+
+    /* DTR0 store & query */
+    raw_cmd = syn_dali_encode_forward(SYN_DALI_SPEC_DTR0, 180);
+    syn_dali_decode_forward(raw_cmd, &req);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_dali_slave_process(&slave, &req, &resp_data, &has_resp));
+    TEST_ASSERT_EQUAL(180, slave.dtr0);
+
+    /* Store DTR as MAX level */
+    raw_cmd = syn_dali_encode_forward((5 << 1) | 1, SYN_DALI_CMD_STORE_DTR_AS_MAX_LEVEL);
+    syn_dali_decode_forward(raw_cmd, &req);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_dali_slave_process(&slave, &req, &resp_data, &has_resp));
+    TEST_ASSERT_EQUAL(180, slave.cfg.max_level);
+
+    /* Group Add & Remove */
+    raw_cmd = syn_dali_encode_forward((5 << 1) | 1, SYN_DALI_CMD_ADD_TO_GROUP_BASE + 3);
+    syn_dali_decode_forward(raw_cmd, &req);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_dali_slave_process(&slave, &req, &resp_data, &has_resp));
+    TEST_ASSERT_TRUE((slave.cfg.group_mask & (1U << 3)) != 0);
+
+    raw_cmd = syn_dali_encode_forward((5 << 1) | 1, SYN_DALI_CMD_REMOVE_FROM_GROUP_BASE + 3);
+    syn_dali_decode_forward(raw_cmd, &req);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_dali_slave_process(&slave, &req, &resp_data, &has_resp));
+    TEST_ASSERT_FALSE((slave.cfg.group_mask & (1U << 3)) != 0);
+
+    /* Scene Store & Recall */
+    raw_cmd = syn_dali_encode_forward((5 << 1) | 1, SYN_DALI_CMD_STORE_DTR_AS_SCENE_BASE + 1);
+    syn_dali_decode_forward(raw_cmd, &req);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_dali_slave_process(&slave, &req, &resp_data, &has_resp));
+    TEST_ASSERT_EQUAL(180, slave.scenes[1]);
+
+    raw_cmd = syn_dali_encode_forward((5 << 1) | 1, SYN_DALI_CMD_GO_TO_SCENE_BASE + 1);
+    syn_dali_decode_forward(raw_cmd, &req);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_dali_slave_process(&slave, &req, &resp_data, &has_resp));
+    TEST_ASSERT_EQUAL(180, slave.actual_level);
 }
 
 static void test_dali_manchester_codec(void)
