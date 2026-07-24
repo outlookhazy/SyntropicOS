@@ -310,6 +310,10 @@ extern "C" {
 #include "proto/syn_cia303.h"
 #include "proto/syn_cia418.h"
 
+#if !defined(SYN_USE_DMX512) || SYN_USE_DMX512
+  #include "proto/syn_dmx512.h"
+#endif
+
 /* ── Storage ────────────────────────────────────────────────────────────── */
 
 #if !defined(SYN_USE_PARAM) || SYN_USE_PARAM
