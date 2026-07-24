@@ -11,6 +11,7 @@
 
 #include "syn_imgui.h"
 #include "../util/syn_assert.h"
+#include "../util/syn_fmt.h"
 
 #include <string.h>
 
@@ -1676,12 +1677,9 @@ void syn_imgui_progress_bar_ex(SYN_IMGUI_Context *ctx, int32_t value,
         if (text == NULL && max > min) {
             /* Auto-generate "XX%" */
             int32_t pct = SYN_CLAMP(((value - min) * 100) / (max - min), 0, 100);
-            uint8_t i = 0;
-            if (pct >= 100) { auto_buf[i++] = '1'; auto_buf[i++] = '0'; auto_buf[i++] = '0'; }
-            else if (pct >= 10) { auto_buf[i++] = (char)('0' + pct / 10); auto_buf[i++] = (char)('0' + pct % 10); }
-            else { auto_buf[i++] = (char)('0' + pct); }
-            auto_buf[i++] = '%';
-            auto_buf[i] = '\0';
+            size_t len = syn_fmt_int(auto_buf, sizeof(auto_buf) - 2, pct);
+            auto_buf[len++] = '%';
+            auto_buf[len] = '\0';
             text = auto_buf;
         }
         if (text != NULL && text[0] != '\0') {
