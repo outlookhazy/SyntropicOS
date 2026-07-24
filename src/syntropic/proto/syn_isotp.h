@@ -3,8 +3,11 @@
  * @brief ISO 15765-2 (DoCAN / ISO-TP) Multi-Frame CAN Transport Protocol.
  *
  * Implements non-blocking, zero-malloc ISO 15765-2 segmentation & reassembly
- * for multi-byte CAN payload transmission (1 to 4095 bytes) with Single Frame (SF),
+ * for multi-byte CAN payload transmission with Single Frame (SF),
  * First Frame (FF), Consecutive Frame (CF), and Flow Control (FC) support.
+ *
+ * Support for CAN FD (64-byte payload frames & ISO 15765-2:2016 extended length)
+ * is opt-in via #define SYN_USE_CAN_FD 1.
  */
 
 #ifndef SYN_ISOTP_H
@@ -16,13 +19,22 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <sys/types.h>
+#if defined(__AVR__) && !defined(_SSIZE_T_DEFINED_)
+typedef int ssize_t;
+#define _SSIZE_T_DEFINED_
+#endif
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 /** @brief ISO-TP Protocol Constants */
-#define SYN_ISOTP_MAX_PAYLOAD             4095U
+#if defined(SYN_USE_CAN_FD) && SYN_USE_CAN_FD
+#define SYN_ISOTP_MAX_PAYLOAD             0xFFFFFFFFU /**< 32-bit extended length (ISO 15765-2:2016) */
+#else
+#define SYN_ISOTP_MAX_PAYLOAD             4095U       /**< Standard 12-bit max payload (Classic CAN) */
+#endif
+
 #define SYN_ISOTP_PCI_SF                  0x00U /**< Single Frame              */
 #define SYN_ISOTP_PCI_FF                  0x10U /**< First Frame               */
 #define SYN_ISOTP_PCI_CF                  0x20U /**< Consecutive Frame         */
@@ -51,9 +63,12 @@ typedef enum {
 
 /** @brief ISO 15765-2 Link Handle */
 typedef struct {
-    /* Addressing */
+    /* Addressing & Mode */
     uint32_t            rx_id;          /**< Expected CAN Rx ID         */
     uint32_t            tx_id;          /**< Transmit CAN Tx ID         */
+#if defined(SYN_USE_CAN_FD) && SYN_USE_CAN_FD
+    bool                is_fd;          /**< true = CAN FD mode (64B)   */
+#endif
 
     /* Tx Channel */
     uint8_t            *tx_buf;         /**< Tx payload buffer          */
@@ -65,7 +80,7 @@ typedef struct {
     uint8_t             tx_bs;          /**< Active block size limit    */
     uint8_t             tx_bs_count;    /**< Sent block frame counter   */
     uint8_t             tx_st_min;      /**< STmin from receiver        */
-    uint32_t            tx_st_timer;    /**< STmin timer accumulator    */
+    uint32_t            tx_st_timer_us; /**< STmin timer (microseconds) */
 
     /* Rx Channel */
     uint8_t            *rx_buf;         /**< Rx assembly buffer         */
@@ -79,7 +94,7 @@ typedef struct {
 } SYN_ISOTP_Link;
 
 /**
- * @brief Initialize ISO-TP Link.
+ * @brief Initialize ISO-TP Link in Classic CAN mode (8-byte frames).
  * @param link         Link handle.
  * @param rx_id        Incoming CAN identifier.
  * @param tx_id        Outgoing CAN identifier.
@@ -92,11 +107,28 @@ void syn_isotp_init(SYN_ISOTP_Link *link, uint32_t rx_id, uint32_t tx_id,
                     uint8_t *rx_buf, size_t rx_buf_size,
                     uint8_t *tx_buf, size_t tx_buf_size);
 
+#if defined(SYN_USE_CAN_FD) && SYN_USE_CAN_FD
+/**
+ * @brief Initialize ISO-TP Link with explicit CAN or CAN FD mode.
+ * @param link         Link handle.
+ * @param rx_id        Incoming CAN identifier.
+ * @param tx_id        Outgoing CAN identifier.
+ * @param rx_buf       Receive assembly buffer.
+ * @param rx_buf_size  Receive buffer capacity.
+ * @param tx_buf       Transmit buffer.
+ * @param tx_buf_size  Transmit buffer capacity.
+ * @param is_fd        true = CAN FD mode (up to 64-byte payload frames).
+ */
+void syn_isotp_init_fd(SYN_ISOTP_Link *link, uint32_t rx_id, uint32_t tx_id,
+                       uint8_t *rx_buf, size_t rx_buf_size,
+                       uint8_t *tx_buf, size_t tx_buf_size, bool is_fd);
+#endif
+
 /**
  * @brief Initiate transmission of a multi-byte payload.
  * @param link         Link handle.
  * @param payload      Payload buffer.
- * @param payload_len  Length of payload (1..4095 bytes).
+ * @param payload_len  Length of payload (1 to max buffer capacity).
  * @return SYN_OK on success, error code on busy/invalid params.
  */
 SYN_Status syn_isotp_send(SYN_ISOTP_Link *link, const uint8_t *payload, size_t payload_len);
@@ -126,11 +158,18 @@ void syn_isotp_process_rx_frame(SYN_ISOTP_Link *link, const SYN_CAN_Frame *frame
 ssize_t syn_isotp_receive(SYN_ISOTP_Link *link, uint8_t *out_buf, size_t max_len);
 
 /**
- * @brief Step ISO-TP timers (e.g. STmin separation time).
+ * @brief Step ISO-TP timers (milliseconds).
  * @param link   Link handle.
  * @param dt_ms  Elapsed time in milliseconds.
  */
 void syn_isotp_step(SYN_ISOTP_Link *link, uint32_t dt_ms);
+
+/**
+ * @brief Step ISO-TP timers (microseconds for fine STmin pacing).
+ * @param link   Link handle.
+ * @param dt_us  Elapsed time in microseconds.
+ */
+void syn_isotp_step_us(SYN_ISOTP_Link *link, uint32_t dt_us);
 
 #ifdef __cplusplus
 }

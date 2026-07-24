@@ -35,6 +35,7 @@ void run_ramp_tests(void);
 void run_pubsub_tests(void);
 void run_pack_tests(void);
 void run_cobs_tests(void);
+void run_lin_tests(void);
 void run_timer_tests(void);
 void run_timer_wheel_tests(void);
 void run_netbuf_tests(void);
@@ -227,6 +228,7 @@ int main(void)
 
     /* Protocol */
     run_cobs_tests();
+    run_lin_tests();
 
     /* Storage / Config */
     run_param_tests();

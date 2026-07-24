@@ -33,15 +33,24 @@
 extern "C" {
 #endif
 
-/* ── CAN frame ──────────────────────────────────────────────────────────── */
+#if defined(SYN_USE_CAN_FD) && SYN_USE_CAN_FD
+#define SYN_CAN_MAX_DATA_LEN  64U  /**< Maximum CAN FD payload size (64 bytes) */
+#else
+#define SYN_CAN_MAX_DATA_LEN  8U   /**< Standard CAN payload size (8 bytes)    */
+#endif
 
-/** @brief CAN bus frame — standard or extended. */
+/** @brief CAN bus frame — standard/extended ID, classic CAN or CAN FD. */
 typedef struct {
-    uint32_t id;            /**< 11-bit or 29-bit identifier             */
-    uint8_t  data[8];       /**< Frame data                              */
-    uint8_t  dlc;           /**< Data length code (0-8)                  */
-    bool     extended;      /**< true = 29-bit ID                        */
-    bool     rtr;           /**< Remote transmission request             */
+    uint32_t id;                        /**< 11-bit or 29-bit identifier             */
+    uint8_t  data[SYN_CAN_MAX_DATA_LEN]; /**< Frame data                             */
+    uint8_t  dlc;                       /**< Data length in bytes                   */
+    bool     extended;                  /**< true = 29-bit ID                        */
+    bool     rtr;                       /**< Remote transmission request             */
+#if defined(SYN_USE_CAN_FD) && SYN_USE_CAN_FD
+    bool     is_fd;                     /**< true = CAN FD frame                     */
+    bool     brs;                       /**< true = Bit Rate Switch (CAN FD)         */
+    bool     esi;                       /**< true = Error State Indicator (CAN FD)   */
+#endif
 } SYN_CAN_Frame;
 
 /* ── Callback ───────────────────────────────────────────────────────────── */

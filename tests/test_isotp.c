@@ -13,6 +13,110 @@ static uint8_t tx_buf_a[512];
 static uint8_t rx_buf_b[512];
 static uint8_t tx_buf_b[512];
 
+#if defined(SYN_USE_CAN_FD) && SYN_USE_CAN_FD
+static void test_isotp_canfd_single_frame(void)
+{
+    SYN_ISOTP_Link node_a, node_b;
+    syn_isotp_init_fd(&node_a, 0x7E8, 0x7E0, rx_buf_a, sizeof(rx_buf_a), tx_buf_a, sizeof(tx_buf_a), true);
+    syn_isotp_init_fd(&node_b, 0x7E0, 0x7E8, rx_buf_b, sizeof(rx_buf_b), tx_buf_b, sizeof(tx_buf_b), true);
+
+    uint8_t payload[32];
+    for (size_t i = 0; i < sizeof(payload); i++) {
+        payload[i] = (uint8_t)(0xA0 + i);
+    }
+
+    TEST_ASSERT_EQUAL(SYN_OK, syn_isotp_send(&node_a, payload, sizeof(payload)));
+
+    SYN_CAN_Frame frame;
+    TEST_ASSERT_TRUE(syn_isotp_get_tx_frame(&node_a, &frame));
+    TEST_ASSERT_TRUE(frame.is_fd);
+    TEST_ASSERT_EQUAL(0x7E0, frame.id);
+    TEST_ASSERT_EQUAL(0x00, frame.data[0]); /* SF Escape */
+    TEST_ASSERT_EQUAL(32, frame.data[1]);   /* SF_DL = 32 */
+    TEST_ASSERT_EQUAL_MEMORY(payload, &frame.data[2], 32);
+
+    /* Ingest into node B */
+    syn_isotp_process_rx_frame(&node_b, &frame);
+
+    uint8_t out[64];
+    TEST_ASSERT_EQUAL(32, syn_isotp_receive(&node_b, out, sizeof(out)));
+    TEST_ASSERT_EQUAL_MEMORY(payload, out, 32);
+}
+
+static void test_isotp_canfd_multi_frame(void)
+{
+    SYN_ISOTP_Link sender, receiver;
+    syn_isotp_init_fd(&sender, 0x7E8, 0x7E0, rx_buf_a, sizeof(rx_buf_a), tx_buf_a, sizeof(tx_buf_a), true);
+    syn_isotp_init_fd(&receiver, 0x7E0, 0x7E8, rx_buf_b, sizeof(rx_buf_b), tx_buf_b, sizeof(tx_buf_b), true);
+
+    uint8_t large_fd_payload[120];
+    for (size_t i = 0; i < sizeof(large_fd_payload); i++) {
+        large_fd_payload[i] = (uint8_t)(i + 1);
+    }
+
+    TEST_ASSERT_EQUAL(SYN_OK, syn_isotp_send(&sender, large_fd_payload, sizeof(large_fd_payload)));
+
+    /* 1. Sender produces CAN FD First Frame (64 bytes frame, 62 bytes payload) */
+    SYN_CAN_Frame ff_frame;
+    TEST_ASSERT_TRUE(syn_isotp_get_tx_frame(&sender, &ff_frame));
+    TEST_ASSERT_TRUE(ff_frame.is_fd);
+    TEST_ASSERT_EQUAL(64, ff_frame.dlc);
+    TEST_ASSERT_EQUAL(0x10, ff_frame.data[0] & 0xF0); /* FF */
+    TEST_ASSERT_EQUAL(120, ff_frame.data[1]);
+
+    syn_isotp_process_rx_frame(&receiver, &ff_frame);
+
+    /* 2. Receiver produces Flow Control (FC) frame */
+    SYN_CAN_Frame fc_frame;
+    TEST_ASSERT_TRUE(syn_isotp_get_tx_frame(&receiver, &fc_frame));
+    TEST_ASSERT_EQUAL(0x30, fc_frame.data[0]);
+
+    syn_isotp_process_rx_frame(&sender, &fc_frame);
+
+    /* 3. Sender produces CAN FD Consecutive Frame (CF 1 with 58 bytes remaining) */
+    SYN_CAN_Frame cf_frame;
+    TEST_ASSERT_TRUE(syn_isotp_get_tx_frame(&sender, &cf_frame));
+    TEST_ASSERT_TRUE(cf_frame.is_fd);
+    TEST_ASSERT_EQUAL(0x21, cf_frame.data[0]); /* CF, seq = 1 */
+
+    syn_isotp_process_rx_frame(&receiver, &cf_frame);
+
+    /* Receiver reads assembled 120-byte payload */
+    uint8_t received[256];
+    ssize_t res = syn_isotp_receive(&receiver, received, sizeof(received));
+    TEST_ASSERT_EQUAL(120, res);
+static uint8_t large_tx_buf[5000];
+static uint8_t large_rx_buf[5000];
+
+static void test_isotp_canfd_extended_first_frame(void)
+{
+    SYN_ISOTP_Link sender, receiver;
+    syn_isotp_init_fd(&sender, 0x7E8, 0x7E0, large_rx_buf, sizeof(large_rx_buf), large_tx_buf, sizeof(large_tx_buf), true);
+    syn_isotp_init_fd(&receiver, 0x7E0, 0x7E8, large_rx_buf, sizeof(large_rx_buf), large_tx_buf, sizeof(large_tx_buf), true);
+
+    large_tx_buf[0] = 0xAA;
+    large_tx_buf[4999] = 0x55;
+
+    /* 5000 bytes payload triggers 32-bit Extended First Frame (> 4095) */
+    TEST_ASSERT_EQUAL(SYN_OK, syn_isotp_send(&sender, large_tx_buf, 5000));
+
+    SYN_CAN_Frame ff_frame;
+    TEST_ASSERT_TRUE(syn_isotp_get_tx_frame(&sender, &ff_frame));
+    TEST_ASSERT_EQUAL(0x10, ff_frame.data[0]); /* FF Escape */
+    TEST_ASSERT_EQUAL(0x00, ff_frame.data[1]);
+    uint32_t ext_len = ((uint32_t)ff_frame.data[2] << 24) |
+                       ((uint32_t)ff_frame.data[3] << 16) |
+                       ((uint32_t)ff_frame.data[4] << 8)  |
+                       (uint32_t)ff_frame.data[5];
+    TEST_ASSERT_EQUAL_UINT32(5000, ext_len);
+
+    /* Ingest 32-bit Extended FF into receiver */
+    syn_isotp_process_rx_frame(&receiver, &ff_frame);
+    TEST_ASSERT_TRUE(receiver.rx_fc_pending);
+    TEST_ASSERT_EQUAL(SYN_ISOTP_FC_CTS, receiver.rx_fc_status);
+}
+#endif
+
 static void test_isotp_single_frame(void)
 {
     SYN_ISOTP_Link node_a, node_b;
@@ -138,11 +242,11 @@ static void test_isotp_errors_and_edge_cases(void)
     TEST_ASSERT_EQUAL(SYN_ISOTP_TX_IDLE, link.tx_state);
 
     /* STmin separation timer step */
-    link.tx_st_timer = 20;
+    link.tx_st_timer_us = 20000;
     syn_isotp_step(&link, 5);
-    TEST_ASSERT_EQUAL(15, link.tx_st_timer);
+    TEST_ASSERT_EQUAL(15000, link.tx_st_timer_us);
     syn_isotp_step(&link, 20);
-    TEST_ASSERT_EQUAL(0, link.tx_st_timer);
+    TEST_ASSERT_EQUAL(0, link.tx_st_timer_us);
 
     /* Block Size limit (BS = 1) */
     syn_isotp_send(&link, (const uint8_t*)"1234567890123456", 16);
@@ -160,4 +264,9 @@ void run_isotp_tests(void)
     RUN_TEST(test_isotp_single_frame);
     RUN_TEST(test_isotp_multi_frame_flow);
     RUN_TEST(test_isotp_errors_and_edge_cases);
+#if defined(SYN_USE_CAN_FD) && SYN_USE_CAN_FD
+    RUN_TEST(test_isotp_canfd_single_frame);
+    RUN_TEST(test_isotp_canfd_multi_frame);
+    RUN_TEST(test_isotp_canfd_extended_first_frame);
+#endif
 }

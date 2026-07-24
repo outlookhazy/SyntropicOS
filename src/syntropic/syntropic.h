@@ -291,6 +291,10 @@ extern "C" {
   #include "proto/syn_cobs.h"
 #endif
 
+#if !defined(SYN_USE_LIN) || SYN_USE_LIN
+  #include "proto/syn_lin.h"
+#endif
+
 #if !defined(SYN_USE_MODBUS) || SYN_USE_MODBUS
   #include "proto/syn_modbus.h"
 #endif
