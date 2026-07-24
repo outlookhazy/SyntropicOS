@@ -111,6 +111,24 @@ static inline void syn_pack_i32(uint8_t *buf, size_t *pos, int32_t val)
 }
 
 /**
+ * @brief Pack a uint64_t value (Big Endian).
+ * @param buf Target buffer.
+ * @param pos Cursor position (auto-advanced).
+ * @param val Value to pack.
+ */
+static inline void syn_pack_u64(uint8_t *buf, size_t *pos, uint64_t val)
+{
+    buf[(*pos)++] = (uint8_t)(val >> 56);
+    buf[(*pos)++] = (uint8_t)(val >> 48);
+    buf[(*pos)++] = (uint8_t)(val >> 40);
+    buf[(*pos)++] = (uint8_t)(val >> 32);
+    buf[(*pos)++] = (uint8_t)(val >> 24);
+    buf[(*pos)++] = (uint8_t)(val >> 16);
+    buf[(*pos)++] = (uint8_t)(val >> 8);
+    buf[(*pos)++] = (uint8_t)(val);
+}
+
+/**
  * @brief Pack a raw byte array.
  * @param buf  Target buffer.
  * @param pos  Cursor position (auto-advanced).
@@ -201,6 +219,26 @@ static inline int32_t syn_unpack_i32(const uint8_t *buf, size_t *pos)
 }
 
 /**
+ * @brief Unpack a uint64_t value (Big Endian).
+ * @param buf Source buffer.
+ * @param pos Cursor position (auto-advanced).
+ * @return Unpacked value.
+ */
+static inline uint64_t syn_unpack_u64(const uint8_t *buf, size_t *pos)
+{
+    uint64_t val = ((uint64_t)buf[*pos]     << 56) |
+                   ((uint64_t)buf[*pos + 1] << 48) |
+                   ((uint64_t)buf[*pos + 2] << 40) |
+                   ((uint64_t)buf[*pos + 3] << 32) |
+                   ((uint64_t)buf[*pos + 4] << 24) |
+                   ((uint64_t)buf[*pos + 5] << 16) |
+                   ((uint64_t)buf[*pos + 6] << 8)  |
+                   ((uint64_t)buf[*pos + 7]);
+    *pos += 8;
+    return val;
+}
+
+/**
  * @brief Unpack a raw byte array.
  * @param buf Source buffer.
  * @param pos Cursor position (auto-advanced).
@@ -264,6 +302,24 @@ static inline void syn_pack_i32_le(uint8_t *buf, size_t *pos, int32_t val)
     syn_pack_u32_le(buf, pos, (uint32_t)val);
 }
 
+/**
+ * @brief Pack a uint64_t value (Little Endian).
+ * @param buf Target buffer.
+ * @param pos Cursor position (auto-advanced).
+ * @param val Value to pack.
+ */
+static inline void syn_pack_u64_le(uint8_t *buf, size_t *pos, uint64_t val)
+{
+    buf[(*pos)++] = (uint8_t)(val);
+    buf[(*pos)++] = (uint8_t)(val >> 8);
+    buf[(*pos)++] = (uint8_t)(val >> 16);
+    buf[(*pos)++] = (uint8_t)(val >> 24);
+    buf[(*pos)++] = (uint8_t)(val >> 32);
+    buf[(*pos)++] = (uint8_t)(val >> 40);
+    buf[(*pos)++] = (uint8_t)(val >> 48);
+    buf[(*pos)++] = (uint8_t)(val >> 56);
+}
+
 /* ── Little-endian unpack ───────────────────────────────────────────────── */
 
 /**
@@ -316,6 +372,26 @@ static inline uint32_t syn_unpack_u32_le(const uint8_t *buf, size_t *pos)
 static inline int32_t syn_unpack_i32_le(const uint8_t *buf, size_t *pos)
 {
     return (int32_t)syn_unpack_u32_le(buf, pos);
+}
+
+/**
+ * @brief Unpack a uint64_t value (Little Endian).
+ * @param buf Source buffer.
+ * @param pos Cursor position (auto-advanced).
+ * @return Unpacked value.
+ */
+static inline uint64_t syn_unpack_u64_le(const uint8_t *buf, size_t *pos)
+{
+    uint64_t val = ((uint64_t)buf[*pos])          |
+                   ((uint64_t)buf[*pos + 1] << 8) |
+                   ((uint64_t)buf[*pos + 2] << 16) |
+                   ((uint64_t)buf[*pos + 3] << 24) |
+                   ((uint64_t)buf[*pos + 4] << 32) |
+                   ((uint64_t)buf[*pos + 5] << 40) |
+                   ((uint64_t)buf[*pos + 6] << 48) |
+                   ((uint64_t)buf[*pos + 7] << 56);
+    *pos += 8;
+    return val;
 }
 
 /* ── Peek (read without advancing position) ─────────────────────────────── */

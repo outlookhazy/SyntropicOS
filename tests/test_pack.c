@@ -54,6 +54,20 @@ static void test_pack(void)
     pos = 0;
     syn_pack_u16(buf, &pos, 0xBEEF);
     TEST_ASSERT_EQUAL_HEX16(0xBEEF, syn_peek_u16(buf, 0));
+
+    /* 64-bit Big-endian and Little-endian */
+    pos = 0;
+    uint64_t val64 = 0x1122334455667788ULL;
+    syn_pack_u64(buf, &pos, val64);
+    TEST_ASSERT_EQUAL_size_t(8, pos);
+    pos = 0;
+    TEST_ASSERT_EQUAL_HEX64(val64, syn_unpack_u64(buf, &pos));
+
+    pos = 0;
+    syn_pack_u64_le(buf, &pos, val64);
+    TEST_ASSERT_EQUAL_size_t(8, pos);
+    pos = 0;
+    TEST_ASSERT_EQUAL_HEX64(val64, syn_unpack_u64_le(buf, &pos));
 }
 
 void run_pack_tests(void)

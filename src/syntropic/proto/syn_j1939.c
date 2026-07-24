@@ -5,6 +5,7 @@
 
 #include "syn_j1939.h"
 #include "../util/syn_assert.h"
+#include "../util/syn_pack.h"
 #include <string.h>
 
 uint32_t syn_j1939_calc_pgn(uint8_t dp, uint8_t pf, uint8_t ps)
@@ -73,9 +74,8 @@ void syn_j1939_name_encode(const SYN_J1939_Name *name, uint8_t buf[8])
     n |= ((uint64_t)(name->industry_group & 0x07U)) << 60;
     n |= ((uint64_t)(name->arbitrary_addr_cap ? 1U : 0U)) << 63;
 
-    for (int i = 0; i < 8; i++) {
-        buf[i] = (uint8_t)((n >> (i * 8)) & 0xFFU);
-    }
+    size_t pos = 0;
+    syn_pack_u64_le(buf, &pos, n);
 }
 
 void syn_j1939_name_decode(const uint8_t buf[8], SYN_J1939_Name *name)
@@ -83,10 +83,8 @@ void syn_j1939_name_decode(const uint8_t buf[8], SYN_J1939_Name *name)
     if (!name || !buf) return;
     memset(name, 0, sizeof(*name));
 
-    uint64_t n = 0;
-    for (int i = 0; i < 8; i++) {
-        n |= ((uint64_t)buf[i]) << (i * 8);
-    }
+    size_t pos = 0;
+    uint64_t n = syn_unpack_u64_le(buf, &pos);
 
     name->identity_number    = (uint32_t)(n & 0x1FFFFFU);
     name->manufacturer_code  = (uint16_t)((n >> 21) & 0x7FFU);

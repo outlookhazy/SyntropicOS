@@ -4,6 +4,7 @@
  */
 
 #include "syntropic/proto/syn_canopen.h"
+#include "syntropic/util/syn_pack.h"
 #include <string.h>
 
 /**
@@ -60,14 +61,11 @@ static const SYN_CANOpenODEntry *canopen_find_od(const SYN_CANOpenNode *node, ui
 static void canopen_send_sdo_abort(SYN_CANOpenNode *node, uint16_t index, uint8_t subindex, uint32_t abort_code)
 {
     uint8_t payload[8];
-    payload[0] = 0x80U;
-    payload[1] = (uint8_t)(index & 0xFFU);
-    payload[2] = (uint8_t)((index >> 8) & 0xFFU);
-    payload[3] = subindex;
-    payload[4] = (uint8_t)(abort_code & 0xFFU);
-    payload[5] = (uint8_t)((abort_code >> 8) & 0xFFU);
-    payload[6] = (uint8_t)((abort_code >> 16) & 0xFFU);
-    payload[7] = (uint8_t)((abort_code >> 24) & 0xFFU);
+    size_t pos = 0;
+    syn_pack_u8(payload, &pos, 0x80U);
+    syn_pack_u16_le(payload, &pos, index);
+    syn_pack_u8(payload, &pos, subindex);
+    syn_pack_u32_le(payload, &pos, abort_code);
 
     canopen_queue_tx(node, 0x580U + node->node_id, payload, 8);
 }
@@ -198,9 +196,10 @@ SYN_Status syn_canopen_process_rx(SYN_CANOpenNode *node,
 
     /* 2. SDO Request Server: COB-ID = 0x600 + NodeID */
     if (cob_id == (0x600U + node->node_id) && len == 8) {
-        uint8_t cmd = data[0];
-        uint16_t index = (uint16_t)data[1] | ((uint16_t)data[2] << 8);
-        uint8_t subindex = data[3];
+        size_t sdo_pos = 0;
+        uint8_t cmd = syn_unpack_u8(data, &sdo_pos);
+        uint16_t index = syn_unpack_u16_le(data, &sdo_pos);
+        uint8_t subindex = syn_unpack_u8(data, &sdo_pos);
 
         /* SDO Download (Write Request) */
         if ((cmd & 0xE0U) == 0x20U) {

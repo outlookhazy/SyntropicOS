@@ -4,6 +4,7 @@
  */
 
 #include "syn_n2k.h"
+#include "../util/syn_pack.h"
 #include <string.h>
 
 SYN_Status syn_n2k_encode_position_rapid(uint8_t sa, const SYN_N2K_PositionRapid *pos, SYN_CAN_Frame *frame)
@@ -14,18 +15,9 @@ SYN_Status syn_n2k_encode_position_rapid(uint8_t sa, const SYN_N2K_PositionRapid
     frame->dlc = 8;
     frame->extended = true;
 
-    uint32_t lat = (uint32_t)pos->latitude_1e7;
-    uint32_t lon = (uint32_t)pos->longitude_1e7;
-
-    frame->data[0] = (uint8_t)(lat & 0xFFU);
-    frame->data[1] = (uint8_t)((lat >> 8) & 0xFFU);
-    frame->data[2] = (uint8_t)((lat >> 16) & 0xFFU);
-    frame->data[3] = (uint8_t)((lat >> 24) & 0xFFU);
-
-    frame->data[4] = (uint8_t)(lon & 0xFFU);
-    frame->data[5] = (uint8_t)((lon >> 8) & 0xFFU);
-    frame->data[6] = (uint8_t)((lon >> 16) & 0xFFU);
-    frame->data[7] = (uint8_t)((lon >> 24) & 0xFFU);
+    size_t pos_idx = 0;
+    syn_pack_u32_le(frame->data, &pos_idx, (uint32_t)pos->latitude_1e7);
+    syn_pack_u32_le(frame->data, &pos_idx, (uint32_t)pos->longitude_1e7);
 
     return SYN_OK;
 }
@@ -34,18 +26,9 @@ SYN_Status syn_n2k_decode_position_rapid(const SYN_CAN_Frame *frame, SYN_N2K_Pos
 {
     if (!frame || !pos || frame->dlc < 8) return SYN_INVALID_PARAM;
 
-    uint32_t lat = (uint32_t)frame->data[0] |
-                  ((uint32_t)frame->data[1] << 8) |
-                  ((uint32_t)frame->data[2] << 16) |
-                  ((uint32_t)frame->data[3] << 24);
-
-    uint32_t lon = (uint32_t)frame->data[4] |
-                  ((uint32_t)frame->data[5] << 8) |
-                  ((uint32_t)frame->data[6] << 16) |
-                  ((uint32_t)frame->data[7] << 24);
-
-    pos->latitude_1e7  = (int32_t)lat;
-    pos->longitude_1e7 = (int32_t)lon;
+    size_t pos_idx = 0;
+    pos->latitude_1e7  = (int32_t)syn_unpack_u32_le(frame->data, &pos_idx);
+    pos->longitude_1e7 = (int32_t)syn_unpack_u32_le(frame->data, &pos_idx);
 
     return SYN_OK;
 }
@@ -58,14 +41,13 @@ SYN_Status syn_n2k_encode_cog_sog_rapid(uint8_t sa, const SYN_N2K_CogSogRapid *c
     frame->dlc = 8;
     frame->extended = true;
 
-    frame->data[0] = cog_sog->sid;
-    frame->data[1] = (uint8_t)(cog_sog->cog_ref & 0x03U) | 0xFCU;
-    frame->data[2] = (uint8_t)(cog_sog->cog_rad_1e4 & 0xFFU);
-    frame->data[3] = (uint8_t)((cog_sog->cog_rad_1e4 >> 8) & 0xFFU);
-    frame->data[4] = (uint8_t)(cog_sog->sog_m_s_1e2 & 0xFFU);
-    frame->data[5] = (uint8_t)((cog_sog->sog_m_s_1e2 >> 8) & 0xFFU);
-    frame->data[6] = 0xFFU; /* Reserved */
-    frame->data[7] = 0xFFU; /* Reserved */
+    size_t pos_idx = 0;
+    syn_pack_u8(frame->data, &pos_idx, cog_sog->sid);
+    syn_pack_u8(frame->data, &pos_idx, (uint8_t)(cog_sog->cog_ref & 0x03U) | 0xFCU);
+    syn_pack_u16_le(frame->data, &pos_idx, cog_sog->cog_rad_1e4);
+    syn_pack_u16_le(frame->data, &pos_idx, cog_sog->sog_m_s_1e2);
+    syn_pack_u8(frame->data, &pos_idx, 0xFFU); /* Reserved */
+    syn_pack_u8(frame->data, &pos_idx, 0xFFU); /* Reserved */
 
     return SYN_OK;
 }
@@ -74,10 +56,11 @@ SYN_Status syn_n2k_decode_cog_sog_rapid(const SYN_CAN_Frame *frame, SYN_N2K_CogS
 {
     if (!frame || !cog_sog || frame->dlc < 6) return SYN_INVALID_PARAM;
 
-    cog_sog->sid           = frame->data[0];
-    cog_sog->cog_ref       = frame->data[1] & 0x03U;
-    cog_sog->cog_rad_1e4   = (uint16_t)frame->data[2] | ((uint16_t)frame->data[3] << 8);
-    cog_sog->sog_m_s_1e2   = (uint16_t)frame->data[4] | ((uint16_t)frame->data[5] << 8);
+    size_t pos_idx = 0;
+    cog_sog->sid           = syn_unpack_u8(frame->data, &pos_idx);
+    cog_sog->cog_ref       = syn_unpack_u8(frame->data, &pos_idx) & 0x03U;
+    cog_sog->cog_rad_1e4   = syn_unpack_u16_le(frame->data, &pos_idx);
+    cog_sog->sog_m_s_1e2   = syn_unpack_u16_le(frame->data, &pos_idx);
 
     return SYN_OK;
 }
@@ -90,14 +73,12 @@ SYN_Status syn_n2k_encode_heading(uint8_t sa, const SYN_N2K_VesselHeading *headi
     frame->dlc = 8;
     frame->extended = true;
 
-    frame->data[0] = heading->sid;
-    frame->data[1] = (uint8_t)(heading->heading_rad_1e4 & 0xFFU);
-    frame->data[2] = (uint8_t)((heading->heading_rad_1e4 >> 8) & 0xFFU);
-    frame->data[3] = (uint8_t)((uint16_t)heading->deviation_rad_1e4 & 0xFFU);
-    frame->data[4] = (uint8_t)(((uint16_t)heading->deviation_rad_1e4 >> 8) & 0xFFU);
-    frame->data[5] = (uint8_t)((uint16_t)heading->variation_rad_1e4 & 0xFFU);
-    frame->data[6] = (uint8_t)(((uint16_t)heading->variation_rad_1e4 >> 8) & 0xFFU);
-    frame->data[7] = (uint8_t)(heading->heading_ref & 0x03U) | 0xFCU;
+    size_t pos_idx = 0;
+    syn_pack_u8(frame->data, &pos_idx, heading->sid);
+    syn_pack_u16_le(frame->data, &pos_idx, heading->heading_rad_1e4);
+    syn_pack_u16_le(frame->data, &pos_idx, (uint16_t)heading->deviation_rad_1e4);
+    syn_pack_u16_le(frame->data, &pos_idx, (uint16_t)heading->variation_rad_1e4);
+    syn_pack_u8(frame->data, &pos_idx, (uint8_t)(heading->heading_ref & 0x03U) | 0xFCU);
 
     return SYN_OK;
 }
@@ -106,11 +87,12 @@ SYN_Status syn_n2k_decode_heading(const SYN_CAN_Frame *frame, SYN_N2K_VesselHead
 {
     if (!frame || !heading || frame->dlc < 8) return SYN_INVALID_PARAM;
 
-    heading->sid               = frame->data[0];
-    heading->heading_rad_1e4   = (uint16_t)frame->data[1] | ((uint16_t)frame->data[2] << 8);
-    heading->deviation_rad_1e4 = (int16_t)((uint16_t)frame->data[3] | ((uint16_t)frame->data[4] << 8));
-    heading->variation_rad_1e4 = (int16_t)((uint16_t)frame->data[5] | ((uint16_t)frame->data[6] << 8));
-    heading->heading_ref       = frame->data[7] & 0x03U;
+    size_t pos_idx = 0;
+    heading->sid               = syn_unpack_u8(frame->data, &pos_idx);
+    heading->heading_rad_1e4   = syn_unpack_u16_le(frame->data, &pos_idx);
+    heading->deviation_rad_1e4 = syn_unpack_i16_le(frame->data, &pos_idx);
+    heading->variation_rad_1e4 = syn_unpack_i16_le(frame->data, &pos_idx);
+    heading->heading_ref       = syn_unpack_u8(frame->data, &pos_idx) & 0x03U;
 
     return SYN_OK;
 }
@@ -123,14 +105,12 @@ SYN_Status syn_n2k_encode_battery(uint8_t sa, const SYN_N2K_BatteryStatus *batte
     frame->dlc = 8;
     frame->extended = true;
 
-    frame->data[0] = battery->instance;
-    frame->data[1] = (uint8_t)(battery->voltage_1e2 & 0xFFU);
-    frame->data[2] = (uint8_t)((battery->voltage_1e2 >> 8) & 0xFFU);
-    frame->data[3] = (uint8_t)((uint16_t)battery->current_1e1 & 0xFFU);
-    frame->data[4] = (uint8_t)(((uint16_t)battery->current_1e1 >> 8) & 0xFFU);
-    frame->data[5] = (uint8_t)(battery->temperature_1e1 & 0xFFU);
-    frame->data[6] = (uint8_t)((battery->temperature_1e1 >> 8) & 0xFFU);
-    frame->data[7] = battery->sid;
+    size_t pos_idx = 0;
+    syn_pack_u8(frame->data, &pos_idx, battery->instance);
+    syn_pack_u16_le(frame->data, &pos_idx, battery->voltage_1e2);
+    syn_pack_u16_le(frame->data, &pos_idx, (uint16_t)battery->current_1e1);
+    syn_pack_u16_le(frame->data, &pos_idx, battery->temperature_1e1);
+    syn_pack_u8(frame->data, &pos_idx, battery->sid);
 
     return SYN_OK;
 }
@@ -139,11 +119,12 @@ SYN_Status syn_n2k_decode_battery(const SYN_CAN_Frame *frame, SYN_N2K_BatterySta
 {
     if (!frame || !battery || frame->dlc < 8) return SYN_INVALID_PARAM;
 
-    battery->instance        = frame->data[0];
-    battery->voltage_1e2     = (uint16_t)frame->data[1] | ((uint16_t)frame->data[2] << 8);
-    battery->current_1e1     = (int16_t)((uint16_t)frame->data[3] | ((uint16_t)frame->data[4] << 8));
-    battery->temperature_1e1 = (uint16_t)frame->data[5] | ((uint16_t)frame->data[6] << 8);
-    battery->sid             = frame->data[7];
+    size_t pos_idx = 0;
+    battery->instance        = syn_unpack_u8(frame->data, &pos_idx);
+    battery->voltage_1e2     = syn_unpack_u16_le(frame->data, &pos_idx);
+    battery->current_1e1     = syn_unpack_i16_le(frame->data, &pos_idx);
+    battery->temperature_1e1 = syn_unpack_u16_le(frame->data, &pos_idx);
+    battery->sid             = syn_unpack_u8(frame->data, &pos_idx);
 
     return SYN_OK;
 }
@@ -156,14 +137,14 @@ SYN_Status syn_n2k_encode_dc_detailed(uint8_t sa, const SYN_N2K_DcDetailedStatus
     frame->dlc = 8;
     frame->extended = true;
 
-    frame->data[0] = dc->sid;
-    frame->data[1] = dc->instance;
-    frame->data[2] = dc->dc_type;
-    frame->data[3] = dc->state_of_charge;
-    frame->data[4] = dc->state_of_health;
-    frame->data[5] = (uint8_t)(dc->time_to_go_min & 0xFFU);
-    frame->data[6] = (uint8_t)((dc->time_to_go_min >> 8) & 0xFFU);
-    frame->data[7] = (uint8_t)(dc->capacity_ah_1e1 & 0xFFU);
+    size_t pos_idx = 0;
+    syn_pack_u8(frame->data, &pos_idx, dc->sid);
+    syn_pack_u8(frame->data, &pos_idx, dc->instance);
+    syn_pack_u8(frame->data, &pos_idx, dc->dc_type);
+    syn_pack_u8(frame->data, &pos_idx, dc->state_of_charge);
+    syn_pack_u8(frame->data, &pos_idx, dc->state_of_health);
+    syn_pack_u16_le(frame->data, &pos_idx, dc->time_to_go_min);
+    syn_pack_u8(frame->data, &pos_idx, (uint8_t)dc->capacity_ah_1e1);
 
     return SYN_OK;
 }
@@ -172,13 +153,14 @@ SYN_Status syn_n2k_decode_dc_detailed(const SYN_CAN_Frame *frame, SYN_N2K_DcDeta
 {
     if (!frame || !dc || frame->dlc < 8) return SYN_INVALID_PARAM;
 
-    dc->sid             = frame->data[0];
-    dc->instance        = frame->data[1];
-    dc->dc_type         = frame->data[2];
-    dc->state_of_charge = frame->data[3];
-    dc->state_of_health = frame->data[4];
-    dc->time_to_go_min  = (uint16_t)frame->data[5] | ((uint16_t)frame->data[6] << 8);
-    dc->capacity_ah_1e1 = (uint16_t)frame->data[7];
+    size_t pos_idx = 0;
+    dc->sid             = syn_unpack_u8(frame->data, &pos_idx);
+    dc->instance        = syn_unpack_u8(frame->data, &pos_idx);
+    dc->dc_type         = syn_unpack_u8(frame->data, &pos_idx);
+    dc->state_of_charge = syn_unpack_u8(frame->data, &pos_idx);
+    dc->state_of_health = syn_unpack_u8(frame->data, &pos_idx);
+    dc->time_to_go_min  = syn_unpack_u16_le(frame->data, &pos_idx);
+    dc->capacity_ah_1e1 = (uint16_t)syn_unpack_u8(frame->data, &pos_idx);
 
     return SYN_OK;
 }
@@ -191,14 +173,12 @@ SYN_Status syn_n2k_encode_environment(uint8_t sa, const SYN_N2K_EnvParams *env, 
     frame->dlc = 8;
     frame->extended = true;
 
-    frame->data[0] = env->sid;
-    frame->data[1] = (uint8_t)(env->water_temp_1e2 & 0xFFU);
-    frame->data[2] = (uint8_t)((env->water_temp_1e2 >> 8) & 0xFFU);
-    frame->data[3] = (uint8_t)(env->air_temp_1e2 & 0xFFU);
-    frame->data[4] = (uint8_t)((env->air_temp_1e2 >> 8) & 0xFFU);
-    frame->data[5] = (uint8_t)(env->pressure_pa_1e2 & 0xFFU);
-    frame->data[6] = (uint8_t)((env->pressure_pa_1e2 >> 8) & 0xFFU);
-    frame->data[7] = 0xFFU; /* Reserved */
+    size_t pos_idx = 0;
+    syn_pack_u8(frame->data, &pos_idx, env->sid);
+    syn_pack_u16_le(frame->data, &pos_idx, env->water_temp_1e2);
+    syn_pack_u16_le(frame->data, &pos_idx, env->air_temp_1e2);
+    syn_pack_u16_le(frame->data, &pos_idx, env->pressure_pa_1e2);
+    syn_pack_u8(frame->data, &pos_idx, 0xFFU); /* Reserved */
 
     return SYN_OK;
 }
@@ -207,10 +187,11 @@ SYN_Status syn_n2k_decode_environment(const SYN_CAN_Frame *frame, SYN_N2K_EnvPar
 {
     if (!frame || !env || frame->dlc < 7) return SYN_INVALID_PARAM;
 
-    env->sid            = frame->data[0];
-    env->water_temp_1e2 = (uint16_t)frame->data[1] | ((uint16_t)frame->data[2] << 8);
-    env->air_temp_1e2   = (uint16_t)frame->data[3] | ((uint16_t)frame->data[4] << 8);
-    env->pressure_pa_1e2= (uint16_t)frame->data[5] | ((uint16_t)frame->data[6] << 8);
+    size_t pos_idx = 0;
+    env->sid            = syn_unpack_u8(frame->data, &pos_idx);
+    env->water_temp_1e2 = syn_unpack_u16_le(frame->data, &pos_idx);
+    env->air_temp_1e2   = syn_unpack_u16_le(frame->data, &pos_idx);
+    env->pressure_pa_1e2= syn_unpack_u16_le(frame->data, &pos_idx);
 
     return SYN_OK;
 }
