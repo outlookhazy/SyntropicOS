@@ -29,8 +29,10 @@ typedef struct SYN_NetBuf {
     uint8_t  *data;          /**< Pointer to current payload start         */
     uint8_t  *tail;          /**< Pointer to end of valid payload          */
     uint8_t  *end;           /**< Pointer to end of raw memory buffer      */
+    struct SYN_NetBuf *next_free; /**< Pointer to next free buffer in pool */
     volatile uint16_t ref_count; /**< Reference counter                    */
     uint16_t  flags;         /**< Internal buffer flags                    */
+    void     *pool;          /**< Pointer back to owning pool              */
 } SYN_NetBuf;
 
 /**
@@ -39,6 +41,7 @@ typedef struct SYN_NetBuf {
 typedef struct {
     SYN_NetBuf *bufs;        /**< Array of buffer descriptors              */
     uint8_t    *raw_mem;     /**< Array of raw data storage blocks         */
+    SYN_NetBuf *free_list;   /**< O(1) Freelist head pointer               */
     size_t      buf_count;   /**< Total buffer count in pool               */
     size_t      buf_size;    /**< Raw storage block size in bytes          */
     size_t      free_count;  /**< Number of currently available buffers    */
