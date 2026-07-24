@@ -293,6 +293,10 @@ extern "C" {
   #include "proto/syn_j1939.h"
 #endif
 
+#if !defined(SYN_USE_N2K) || SYN_USE_N2K
+  #include "proto/syn_n2k.h"
+#endif
+
 /* ── Storage ────────────────────────────────────────────────────────────── */
 
 #if !defined(SYN_USE_PARAM) || SYN_USE_PARAM

@@ -14,6 +14,7 @@
 | CANopen CiA 305 LSS | `proto/syn_lss.h` | `SYN_USE_CANOPEN` | Layer Setting Services (LSS) master and slave protocol engines for dynamic Node-ID allocation, bit-timing baud rate selection, fastscan, and non-volatile configuration store. |
 | CANopen CiA 302 Manager | `proto/syn_canopen_mgr.h` | `SYN_USE_CANOPEN` | Network Manager, NMT Master, non-blocking SDO Client (expedited read/write), and 128-node heartbeat monitoring engine. |
 | SAE J1939 Heavy-Duty | `proto/syn_j1939.h` | `SYN_USE_J1939` | SAE J1939 CAN protocol engine for commercial vehicles, heavy equipment, and battery management systems (BMS). 29-bit CAN ID parsing/packing, Transport Protocol (TP.CM BAM & RTS/CTS up to 1785 bytes), Address Claiming (J1939-81), and Active DM1 Diagnostic Trouble Codes. |
+| NMEA 2000 Marine CAN | `proto/syn_n2k.h` | `SYN_USE_N2K` | NMEA 2000 (IEC 61162-3) marine CAN bus protocol stack: Fast-Packet multi-frame transport reassembly up to 223 bytes, integer fixed-point encoders/decoders for Position Rapid (129025), COG/SOG Rapid (129026), Vessel Heading (127250), Battery Status (127508), and Environmental Parameters (130310). |
 
 ## Cooperative Network Stack
 
