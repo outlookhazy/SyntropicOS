@@ -92,14 +92,25 @@ typedef struct SYN_Metric {
 /** @brief Initialize metrics module. */
 void syn_metrics_init(void);
 
-/** @brief Set the router instance for telemetry transmission. */
+/** 
+ * @brief Set the router instance for telemetry transmission.
+ * @param r Router instance.
+ */
 struct SYN_Router;
 void syn_metrics_set_router(struct SYN_Router *r);
 
-/** @brief Record a gauge metric via router (StatsD format). */
+/** 
+ * @brief Record a gauge metric via router (StatsD format).
+ * @param name Metric identifier string.
+ * @param value Floating-point gauge value.
+ */
 void syn_metrics_record(const char *name, float value);
 
-/** @brief Record a counter metric via router (StatsD format). */
+/** 
+ * @brief Record a counter metric via router (StatsD format).
+ * @param name Metric identifier string.
+ * @param delta Integer counter increment.
+ */
 void syn_metrics_count(const char *name, int32_t delta);
 
 /** 

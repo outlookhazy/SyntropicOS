@@ -101,16 +101,16 @@ typedef enum {
  * @brief J1939 Transport Protocol Rx Re-assembly Buffer.
  */
 typedef struct {
-    bool     active;
-    bool     is_bam;
-    uint8_t  sa;
-    uint8_t  da;
-    uint32_t pgn;
-    uint16_t total_bytes;
-    uint8_t  total_packets;
-    uint8_t  next_seq;
-    uint8_t  received_packets;
-    uint8_t  data[1785];
+    bool     active;           /**< Active reception session flag */
+    bool     is_bam;           /**< Broadcast Announce Message session flag */
+    uint8_t  sa;               /**< Sender Source Address */
+    uint8_t  da;               /**< Destination Address */
+    uint32_t pgn;              /**< Reassembled Parameter Group Number */
+    uint16_t total_bytes;      /**< Total payload length in bytes */
+    uint8_t  total_packets;    /**< Total packet count */
+    uint8_t  next_seq;         /**< Next expected sequence number (1..255) */
+    uint8_t  received_packets; /**< Currently received packet count */
+    uint8_t  data[1785];       /**< Maximum 1785-byte payload buffer */
 } SYN_J1939_TpRxSession;
 
 /**

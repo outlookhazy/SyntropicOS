@@ -32,9 +32,9 @@ typedef enum {
 
 /** @brief 3D Vector position in steps or user units */
 typedef struct {
-    float x;
-    float y;
-    float z;
+    float x; /**< X-axis position coordinate */
+    float y; /**< Y-axis position coordinate */
+    float z; /**< Z-axis position coordinate */
 } SYN_Vector3F;
 
 /** @brief Multi-Axis Interpolator configuration and state machine */

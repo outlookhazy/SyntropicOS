@@ -29,8 +29,8 @@ extern "C" {
 #define SYN_CIA401_OD_ANALOG_INPUT_LIMIT_H 0x6425U /**< Analog Input High Limit Alarm */
 
 /** @brief Maximum channel capacities for CiA 401 instance */
-#define SYN_CIA401_MAX_DIGITAL_8BIT 4
-#define SYN_CIA401_MAX_ANALOG_16BIT  8
+#define SYN_CIA401_MAX_DIGITAL_8BIT 4  /**< Maximum 8-bit digital I/O ports */
+#define SYN_CIA401_MAX_ANALOG_16BIT 8  /**< Maximum 16-bit analog I/O channels */
 
 /**
  * @brief CiA 401 Generic I/O Device State Instance.

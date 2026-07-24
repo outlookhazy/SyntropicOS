@@ -1,7 +1,7 @@
 /**
  * @file syn_port_dma.h
  * @brief Hardware port abstraction interface for DMA controller.
- * @ingroup syn_port
+ * @ingroup syn_drivers
  */
 
 #ifndef SYN_PORT_DMA_H
