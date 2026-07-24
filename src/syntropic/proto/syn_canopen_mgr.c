@@ -5,6 +5,7 @@
 
 #include "syn_canopen_mgr.h"
 #include "../util/syn_assert.h"
+#include "../util/syn_pack.h"
 #include <string.h>
 
 void syn_canopen_mgr_init(SYN_CANOpenManager *mgr)
@@ -44,8 +45,7 @@ SYN_Status syn_canopen_mgr_sdo_read_init(SYN_CANOpenManager *mgr, SYN_CAN_Frame 
     frame->id = 0x600U + node_id; /* SDO Request COB-ID */
     frame->dlc = 8;
     frame->data[0] = 0x40U; /* Initiate Upload Request */
-    frame->data[1] = (uint8_t)(index);
-    frame->data[2] = (uint8_t)(index >> 8);
+    syn_poke_u16_le(index, frame->data, 1);
     frame->data[3] = subindex;
 
     return SYN_OK;
@@ -77,8 +77,7 @@ SYN_Status syn_canopen_mgr_sdo_write_init(SYN_CANOpenManager *mgr, SYN_CAN_Frame
     /* Command byte for expedited download: CS=1 (0x20), e=1, s=1, n=(4-len) */
     uint8_t cs = 0x23U | ((uint8_t)(4 - len) << 2);
     frame->data[0] = cs;
-    frame->data[1] = (uint8_t)(index);
-    frame->data[2] = (uint8_t)(index >> 8);
+    syn_poke_u16_le(index, frame->data, 1);
     frame->data[3] = subindex;
     memcpy(&frame->data[4], data, len);
 
@@ -108,10 +107,7 @@ void syn_canopen_mgr_process_frame(SYN_CANOpenManager *mgr, const SYN_CAN_Frame 
             /* Check Abort Domain Transfer (0x80) */
             if (cs == 0x80U) {
                 mgr->sdo_client.state = SYN_SDO_CLIENT_STATE_ERROR;
-                mgr->sdo_client.abort_code = (uint32_t)frame->data[4] |
-                                             ((uint32_t)frame->data[5] << 8) |
-                                             ((uint32_t)frame->data[6] << 16) |
-                                             ((uint32_t)frame->data[7] << 24);
+                mgr->sdo_client.abort_code = syn_peek_u32_le(frame->data, 4);
                 return;
             }
 
