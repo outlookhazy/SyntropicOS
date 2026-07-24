@@ -19,12 +19,14 @@ static size_t stream_find_delimiter(const SYN_Stream *s)
 {
     const SYN_RingBuf *rb = &s->rb;
     const size_t count = syn_ringbuf_count(rb);
-    size_t tail = rb->tail;
+    size_t idx = rb->tail;
 
     for (size_t i = 0; i < count; i++) {
-        if (rb->buf[(tail + i) % rb->size] == s->delimiter) {
+        if (rb->buf[idx] == s->delimiter) {
             return i + 1;  /* 1-based position (byte count including delim) */
         }
+        idx++;
+        if (idx >= rb->size) idx = 0;
     }
     return 0;
 }

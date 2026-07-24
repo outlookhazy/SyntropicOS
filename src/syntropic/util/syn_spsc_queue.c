@@ -7,6 +7,16 @@
 #include "../common/syn_barrier.h"
 #include <string.h>
 
+/* ── Helpers ────────────────────────────────────────────────────────────── */
+
+static inline size_t spsc_advance(size_t idx, size_t capacity)
+{
+    size_t next = idx + 1;
+    return (next >= capacity) ? 0 : next;
+}
+
+/* ── API ────────────────────────────────────────────────────────────────── */
+
 SYN_Status syn_spsc_queue_init(SYN_SPSC_Queue *q, void *elem_buf, size_t elem_size, size_t capacity)
 {
     if (!q || !elem_buf || elem_size == 0 || capacity == 0) return SYN_INVALID_PARAM;
@@ -29,7 +39,7 @@ bool syn_spsc_queue_is_empty(const SYN_SPSC_Queue *q)
 bool syn_spsc_queue_is_full(const SYN_SPSC_Queue *q)
 {
     if (!q) return false;
-    size_t next_head = (q->head + 1) % q->capacity;
+    size_t next_head = spsc_advance(q->head, q->capacity);
     return (next_head == SYN_LOAD_ACQUIRE(&q->tail));
 }
 
@@ -49,7 +59,7 @@ SYN_Status syn_spsc_queue_push(SYN_SPSC_Queue *q, const void *item)
     if (!q || !item) return SYN_INVALID_PARAM;
 
     size_t current_head = q->head;
-    size_t next_head = (current_head + 1) % q->capacity;
+    size_t next_head = spsc_advance(current_head, q->capacity);
 
     if (next_head == SYN_LOAD_ACQUIRE(&q->tail)) {
         return SYN_BUSY; /* Queue full */
@@ -73,7 +83,7 @@ SYN_Status syn_spsc_queue_pop(SYN_SPSC_Queue *q, void *out_item)
     }
 
     memcpy(out_item, q->buffer + (current_tail * q->elem_size), q->elem_size);
-    size_t next_tail = (current_tail + 1) % q->capacity;
+    size_t next_tail = spsc_advance(current_tail, q->capacity);
     SYN_STORE_RELEASE(&q->tail, next_tail);
 
     return SYN_OK;
