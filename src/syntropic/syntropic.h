@@ -307,6 +307,7 @@ extern "C" {
   #include "proto/syn_n2k.h"
 #endif
 
+#include "proto/syn_cia303.h"
 #include "proto/syn_cia418.h"
 
 /* ── Storage ────────────────────────────────────────────────────────────── */

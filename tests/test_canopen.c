@@ -306,6 +306,51 @@ static void test_canopen_invalid_params(void)
     TEST_ASSERT_EQUAL(SYN_INVALID_PARAM, syn_canopen_od_write(&node, 0x2001, 1, dummy_buf, 1));
 }
 
+#include "syntropic/proto/syn_cia303.h"
+
+static void test_cia303_indicators(void)
+{
+    SYN_LED run_led, err_led;
+    syn_led_init(&run_led, 1, SYN_LED_ACTIVE_HIGH);
+    syn_led_init(&err_led, 2, SYN_LED_ACTIVE_HIGH);
+
+    SYN_CiA303_Indicator ind;
+    syn_cia303_init(&ind, &run_led, &err_led);
+
+    TEST_ASSERT_EQUAL(SYN_CIA303_RUN_OFF, ind.run_state);
+    TEST_ASSERT_EQUAL(SYN_CIA303_ERR_OFF, ind.err_state);
+
+    /* Test NMT Operational -> Solid ON */
+    syn_cia303_set_nmt_state(&ind, 0x05U);
+    TEST_ASSERT_EQUAL(SYN_CIA303_RUN_SOLID_ON, ind.run_state);
+    TEST_ASSERT_TRUE(run_led.lit);
+
+    /* Test NMT Pre-Op -> Blinking */
+    syn_cia303_set_nmt_state(&ind, 0x7FU);
+    TEST_ASSERT_EQUAL(SYN_CIA303_RUN_BLINKING, ind.run_state);
+
+    /* Test NMT Stopped -> Single Flash */
+    syn_cia303_set_nmt_state(&ind, 0x04U);
+    TEST_ASSERT_EQUAL(SYN_CIA303_RUN_SINGLE_FLASH, ind.run_state);
+
+    /* Test Error states */
+    syn_cia303_set_error_state(&ind, SYN_CIA303_ERR_SOLID_ON);
+    TEST_ASSERT_EQUAL(SYN_CIA303_ERR_SOLID_ON, ind.err_state);
+    TEST_ASSERT_TRUE(err_led.lit);
+
+    syn_cia303_set_error_state(&ind, SYN_CIA303_ERR_SINGLE_FLASH);
+    TEST_ASSERT_EQUAL(SYN_CIA303_ERR_SINGLE_FLASH, ind.err_state);
+
+    syn_cia303_set_error_state(&ind, SYN_CIA303_ERR_DOUBLE_FLASH);
+    TEST_ASSERT_EQUAL(SYN_CIA303_ERR_DOUBLE_FLASH, ind.err_state);
+
+    syn_cia303_set_error_state(&ind, SYN_CIA303_ERR_TRIPLE_FLASH);
+    TEST_ASSERT_EQUAL(SYN_CIA303_ERR_TRIPLE_FLASH, ind.err_state);
+
+    /* Step simulation */
+    syn_cia303_step(&ind);
+}
+
 void run_canopen_tests(void)
 {
     RUN_TEST(test_canopen_init_and_bootup);
@@ -314,4 +359,5 @@ void run_canopen_tests(void)
     RUN_TEST(test_canopen_sdo_abort_codes);
     RUN_TEST(test_canopen_rpdo_tpdo_emcy);
     RUN_TEST(test_canopen_invalid_params);
+    RUN_TEST(test_cia303_indicators);
 }
