@@ -10,6 +10,7 @@
  */
 
 #include "syn_led.h"
+#include "../drivers/syn_gpio.h"
 #include "../util/syn_assert.h"
 
 #include <string.h>
@@ -30,7 +31,7 @@ static void led_set_output(SYN_LED *led, bool on)
     } else {
         level = on ? SYN_GPIO_HIGH : SYN_GPIO_LOW;
     }
-    syn_port_gpio_write(led->pin, level);
+    syn_gpio_write(led->pin, level);
 }
 
 /* ── API ────────────────────────────────────────────────────────────────── */
@@ -44,7 +45,7 @@ void syn_led_init(SYN_LED *led, SYN_GPIO_Pin pin, SYN_LEDPolarity polarity)
     led->polarity = (uint8_t)polarity;
     led->mode     = (uint8_t)SYN_LED_MODE_OFF;
     led->lit      = false;
-    syn_port_gpio_init(pin, SYN_GPIO_OUTPUT);
+    syn_gpio_init(pin, SYN_GPIO_OUTPUT);
     led_set_output(led, false);
 }
 

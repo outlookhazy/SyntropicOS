@@ -13,15 +13,17 @@
  */
 
 #include "syn_encoder.h"
+#include "../drivers/syn_gpio.h"
 #include "../util/syn_assert.h"
 
 #include <string.h>
 
 /**
- * @brief Quadrature state machine lookup table.
+ * @brief Quadrature state transition table.
  *
- * Index = (prev_state << 2) | new_state.
- * Value = direction: +1 = CW, -1 = CCW, 0 = invalid/no change.
+ * 16 entries: (old_state << 2) | new_state.
+ * Index = (old_A<<3 | old_B<<2 | new_A<<1 | new_B).
+ * Value: +1 for clockwise, -1 for counter-clockwise, 0 for invalid/no-change.
  */
 static const int8_t quad_table[16] = {
     /*          new: 00  01  10  11 */
@@ -31,9 +33,7 @@ static const int8_t quad_table[16] = {
     /* prev 11 */  0, +1, -1,  0,
 };
 
-void syn_encoder_init(SYN_Encoder *enc,
-                       SYN_GPIO_Pin pin_a,
-                       SYN_GPIO_Pin pin_b)
+void syn_encoder_init(SYN_Encoder *enc, SYN_GPIO_Pin pin_a, SYN_GPIO_Pin pin_b)
 {
     SYN_ASSERT(enc != NULL);
 
@@ -43,8 +43,8 @@ void syn_encoder_init(SYN_Encoder *enc,
     enc->steps_per_detent = 1;
 
     /* Read initial state */
-    uint8_t a = (syn_port_gpio_read(pin_a) == SYN_GPIO_HIGH) ? 1 : 0;
-    uint8_t b = (syn_port_gpio_read(pin_b) == SYN_GPIO_HIGH) ? 1 : 0;
+    uint8_t a = (syn_gpio_read(pin_a) == SYN_GPIO_HIGH) ? 1 : 0;
+    uint8_t b = (syn_gpio_read(pin_b) == SYN_GPIO_HIGH) ? 1 : 0;
     enc->last_state = (uint8_t)((a << 1) | b);
 }
 
@@ -60,8 +60,8 @@ void syn_encoder_update(SYN_Encoder *enc)
 {
     SYN_ASSERT(enc != NULL);
 
-    uint8_t a = (syn_port_gpio_read(enc->pin_a) == SYN_GPIO_HIGH) ? 1 : 0;
-    uint8_t b = (syn_port_gpio_read(enc->pin_b) == SYN_GPIO_HIGH) ? 1 : 0;
+    uint8_t a = (syn_gpio_read(enc->pin_a) == SYN_GPIO_HIGH) ? 1 : 0;
+    uint8_t b = (syn_gpio_read(enc->pin_b) == SYN_GPIO_HIGH) ? 1 : 0;
     uint8_t new_state = (uint8_t)((a << 1) | b);
 
     if (new_state == enc->last_state) return;

@@ -10,6 +10,7 @@
  */
 
 #include "syn_soft_pwm.h"
+#include "../drivers/syn_gpio.h"
 #include "../util/syn_assert.h"
 
 #include <string.h>
@@ -27,7 +28,7 @@ void syn_soft_pwm_init(SYN_SoftPWM *pwm, SYN_GPIO_Pin pin,
     pwm->counter     = 0;
     pwm->active_high = true;
 
-    syn_port_gpio_write(pin, SYN_GPIO_LOW);
+    syn_gpio_write(pin, SYN_GPIO_LOW);
 }
 
 void syn_soft_pwm_set_duty(SYN_SoftPWM *pwm, uint16_t duty)
@@ -69,7 +70,7 @@ void syn_soft_pwm_tick(SYN_SoftPWM *pwm)
     } else {
         level = on ? SYN_GPIO_LOW : SYN_GPIO_HIGH;
     }
-    syn_port_gpio_write(pwm->pin, level);
+    syn_gpio_write(pwm->pin, level);
 
     pwm->counter++;
     if (pwm->counter >= pwm->resolution) {

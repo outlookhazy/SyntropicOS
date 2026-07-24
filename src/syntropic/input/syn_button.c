@@ -14,6 +14,7 @@
  */
 
 #include "syn_button.h"
+#include "../drivers/syn_gpio.h"
 #include "../util/syn_assert.h"
 
 #include <string.h>
@@ -36,7 +37,7 @@ enum {
  */
 static bool button_read_raw(const SYN_Button *btn)
 {
-    SYN_GPIO_State level = syn_port_gpio_read(btn->pin);
+    SYN_GPIO_State level = syn_gpio_read(btn->pin);
     if (btn->polarity == (uint8_t)SYN_BUTTON_ACTIVE_LOW) {
         return level == SYN_GPIO_LOW;
     }
