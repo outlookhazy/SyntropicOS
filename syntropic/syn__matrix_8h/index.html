@@ -1,0 +1,2785 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Modular cooperative OS & application framework for microcontrollers">
+      
+      
+      
+        <link rel="canonical" href="https://outlookhazy.github.io/SyntropicOS/syntropic/syn__matrix_8h/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>File syn_matrix.h - SyntropicOS</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="cyan">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#file-syn_matrixh" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="SyntropicOS" class="md-header__button md-logo" aria-label="SyntropicOS" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SyntropicOS
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              File syn_matrix.h
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="cyan"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="cyan"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/outlookhazy/SyntropicOS" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    outlookhazy/SyntropicOS
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="SyntropicOS" class="md-nav__button md-logo" aria-label="SyntropicOS" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SyntropicOS
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/outlookhazy/SyntropicOS" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    outlookhazy/SyntropicOS
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../arduino/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Arduino Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Modules
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Modules
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../modules/core/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Core & Utilities
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../modules/drivers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Drivers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../modules/multitasking/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Multitasking
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../modules/services/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../modules/io/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Input / Output
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../modules/display/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Display & UI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../modules/control/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Control & Motor
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../modules/dsp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DSP & Filters
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../modules/communication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Communication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../modules/crypto/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Crypto & VPN
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../modules/storage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Storage
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../modules/system/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    System
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../modules/debug/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Debug
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../modules/integration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Cross-Module Integration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../group__syn__core/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Core & Utilities
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../group__syn__sched/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scheduling
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../group__syn__drivers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Drivers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../group__syn__io/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Input / Output
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../group__syn__motor/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Motor & Control
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../group__syn__display/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Display & UI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../group__syn__net/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Networking
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../group__syn__protocol/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Protocols
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../group__syn__storage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Storage
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../group__syn__system/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    System
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../group__syn__dsp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DSP & Filters
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../group__syn__debug/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Debug & Diagnostics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../files/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    All Files
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../annotated/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    All Structs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../porting-guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Porting Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../testing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../directory-structure/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Directory Structure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#classes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Classes
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#public-functions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Public Functions
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#macros" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Macros
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#detailed-description" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Detailed Description
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#public-functions-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Public Functions Documentation
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Public Functions Documentation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_matrix_add" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_matrix_add
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_matrix_copy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_matrix_copy
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_matrix_det" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_matrix_det
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_matrix_eigen_sym2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_matrix_eigen_sym2
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_matrix_eigen_sym3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_matrix_eigen_sym3
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_matrix_get_block" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_matrix_get_block
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_matrix_identity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_matrix_identity
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_matrix_inv" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_matrix_inv
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_matrix_least_squares" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_matrix_least_squares
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_matrix_mul" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_matrix_mul
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_matrix_mul_vec" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_matrix_mul_vec
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_matrix_outer_product" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_matrix_outer_product
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_matrix_qr" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_matrix_qr
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_matrix_rotate_2d" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_matrix_rotate_2d
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_matrix_rotate_x" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_matrix_rotate_x
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_matrix_rotate_y" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_matrix_rotate_y
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_matrix_rotate_z" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_matrix_rotate_z
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_matrix_scale" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_matrix_scale
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_matrix_scale_2d" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_matrix_scale_2d
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_matrix_set_block" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_matrix_set_block
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_matrix_solve_cholesky" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_matrix_solve_cholesky
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_matrix_solve_lu" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_matrix_solve_lu
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_matrix_sub" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_matrix_sub
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_matrix_trace" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_matrix_trace
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_matrix_translate_2d" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_matrix_translate_2d
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_matrix_translate_3d" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_matrix_translate_3d
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_matrix_transpose" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_matrix_transpose
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_matrix_zero" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_matrix_zero
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_vec3_cross" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_vec3_cross
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_vec_dot" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_vec_dot
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_vec_norm" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_vec_norm
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_vec_normalize" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_vec_normalize
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#macro-definition-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Macro Definition Documentation
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Macro Definition Documentation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#define-syn_mat2_decl" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        define SYN_MAT2_DECL
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#define-syn_mat3_decl" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        define SYN_MAT3_DECL
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#define-syn_mat4_decl" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        define SYN_MAT4_DECL
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#define-syn_mat_at" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        define SYN_MAT_AT
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#define-syn_mat_decl" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        define SYN_MAT_DECL
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#define-syn_mat_init" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        define SYN_MAT_INIT
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#define-syn_mat_static" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        define SYN_MAT_STATIC
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="file-syn_matrixh">File syn_matrix.h<a class="headerlink" href="#file-syn_matrixh" title="Permanent link">&para;</a></h1>
+<p><a href="../files/"><strong>FileList</strong></a> <strong>&gt;</strong> <a href="../dir_68267d1309a1af8e8297ef4c3efbcdba/"><strong>src</strong></a> <strong>&gt;</strong> <a href="../dir_d9e327fea148db8a6993543717219dae/"><strong>syntropic</strong></a> <strong>&gt;</strong> <a href="../dir_2b7a0faa62b8c8b128527d3a000d1ad9/"><strong>util</strong></a> <strong>&gt;</strong> <a href="./"><strong>syn_matrix.h</strong></a></p>
+<p><a href="../syn__matrix_8h_source/">Go to the source code of this file</a></p>
+<p><em>Fixed-point Q16.16 matrix operations — zero heap allocation.</em> <a href="#detailed-description">More...</a></p>
+<ul>
+<li><code>#include "syn_qmath.h"</code></li>
+<li><code>#include "../common/syn_defs.h"</code></li>
+<li><code>#include &lt;stdint.h&gt;</code></li>
+<li><code>#include &lt;stdbool.h&gt;</code></li>
+</ul>
+<h2 id="classes">Classes<a class="headerlink" href="#classes" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: right;">Type</th>
+<th style="text-align: left;">Name</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">struct</td>
+<td style="text-align: left;"><a href="../structSYN__Matrix/"><strong>SYN_Matrix</strong></a> <br><em>Fixed-point matrix descriptor (non-owning view).</em></td>
+</tr>
+</tbody>
+</table>
+<h2 id="public-functions">Public Functions<a class="headerlink" href="#public-functions" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: right;">Type</th>
+<th style="text-align: left;">Name</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">void</td>
+<td style="text-align: left;"><a href="#function-syn_matrix_add"><strong>syn_matrix_add</strong></a> (const <a href="../structSYN__Matrix/"><strong>SYN_Matrix</strong></a> * a, const <a href="../structSYN__Matrix/"><strong>SYN_Matrix</strong></a> * b, <a href="../structSYN__Matrix/"><strong>SYN_Matrix</strong></a> * out) <br><em>Element-wise addition: out = A + B.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;">void</td>
+<td style="text-align: left;"><a href="#function-syn_matrix_copy"><strong>syn_matrix_copy</strong></a> (<a href="../structSYN__Matrix/"><strong>SYN_Matrix</strong></a> * dst, const <a href="../structSYN__Matrix/"><strong>SYN_Matrix</strong></a> * src) <br><em>Copy matrix contents.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;"><a href="../syn__qmath_8h/#typedef-q16_t"><strong>q16_t</strong></a></td>
+<td style="text-align: left;"><a href="#function-syn_matrix_det"><strong>syn_matrix_det</strong></a> (const <a href="../structSYN__Matrix/"><strong>SYN_Matrix</strong></a> * m) <br><em>Determinant of a square matrix.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;"><a href="../syn__defs_8h/#enum-syn_status"><strong>SYN_Status</strong></a></td>
+<td style="text-align: left;"><a href="#function-syn_matrix_eigen_sym2"><strong>syn_matrix_eigen_sym2</strong></a> (const <a href="../structSYN__Matrix/"><strong>SYN_Matrix</strong></a> * A, <a href="../syn__qmath_8h/#typedef-q16_t"><strong>q16_t</strong></a> evals, <a href="../structSYN__Matrix/"><strong>SYN_Matrix</strong></a> * E) <br><em>Compute eigenvalues and eigenvectors of a symmetric 2×2 matrix A.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;"><a href="../syn__defs_8h/#enum-syn_status"><strong>SYN_Status</strong></a></td>
+<td style="text-align: left;"><a href="#function-syn_matrix_eigen_sym3"><strong>syn_matrix_eigen_sym3</strong></a> (const <a href="../structSYN__Matrix/"><strong>SYN_Matrix</strong></a> * A, <a href="../syn__qmath_8h/#typedef-q16_t"><strong>q16_t</strong></a> evals, <a href="../structSYN__Matrix/"><strong>SYN_Matrix</strong></a> * E) <br><em>Compute eigenvalues and eigenvectors of a symmetric 3×3 matrix A via Jacobi rotations.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;"><a href="../syn__defs_8h/#enum-syn_status"><strong>SYN_Status</strong></a></td>
+<td style="text-align: left;"><a href="#function-syn_matrix_get_block"><strong>syn_matrix_get_block</strong></a> (const <a href="../structSYN__Matrix/"><strong>SYN_Matrix</strong></a> * src, uint8_t r0, uint8_t c0, <a href="../structSYN__Matrix/"><strong>SYN_Matrix</strong></a> * dst) <br><em>Extract a submatrix block from src into dst.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;">void</td>
+<td style="text-align: left;"><a href="#function-syn_matrix_identity"><strong>syn_matrix_identity</strong></a> (<a href="../structSYN__Matrix/"><strong>SYN_Matrix</strong></a> * m) <br><em>Set matrix to identity.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;"><a href="../syn__defs_8h/#enum-syn_status"><strong>SYN_Status</strong></a></td>
+<td style="text-align: left;"><a href="#function-syn_matrix_inv"><strong>syn_matrix_inv</strong></a> (const <a href="../structSYN__Matrix/"><strong>SYN_Matrix</strong></a> * m, <a href="../structSYN__Matrix/"><strong>SYN_Matrix</strong></a> * out) <br><em>Matrix inverse: out = M⁻¹.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;"><a href="../syn__defs_8h/#enum-syn_status"><strong>SYN_Status</strong></a></td>
+<td style="text-align: left;"><a href="#function-syn_matrix_least_squares"><strong>syn_matrix_least_squares</strong></a> (const <a href="../structSYN__Matrix/"><strong>SYN_Matrix</strong></a> * A, const <a href="../structSYN__Matrix/"><strong>SYN_Matrix</strong></a> * b, <a href="../structSYN__Matrix/"><strong>SYN_Matrix</strong></a> * x) <br><em>Solve overdetermined system A · x ≈ b via Normal Equations (Least Squares).</em></td>
+</tr>
+<tr>
+<td style="text-align: right;">void</td>
+<td style="text-align: left;"><a href="#function-syn_matrix_mul"><strong>syn_matrix_mul</strong></a> (const <a href="../structSYN__Matrix/"><strong>SYN_Matrix</strong></a> * a, const <a href="../structSYN__Matrix/"><strong>SYN_Matrix</strong></a> * b, <a href="../structSYN__Matrix/"><strong>SYN_Matrix</strong></a> * out) <br><em>Matrix multiply: out = A × B.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;">void</td>
+<td style="text-align: left;"><a href="#function-syn_matrix_mul_vec"><strong>syn_matrix_mul_vec</strong></a> (const <a href="../structSYN__Matrix/"><strong>SYN_Matrix</strong></a> * m, const <a href="../syn__qmath_8h/#typedef-q16_t"><strong>q16_t</strong></a> * v_in, <a href="../syn__qmath_8h/#typedef-q16_t"><strong>q16_t</strong></a> * v_out, uint8_t n_in) <br><em>Matrix–vector multiply: out = M × v.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;"><a href="../syn__defs_8h/#enum-syn_status"><strong>SYN_Status</strong></a></td>
+<td style="text-align: left;"><a href="#function-syn_matrix_outer_product"><strong>syn_matrix_outer_product</strong></a> (const <a href="../syn__qmath_8h/#typedef-q16_t"><strong>q16_t</strong></a> * u, uint8_t rows, const <a href="../syn__qmath_8h/#typedef-q16_t"><strong>q16_t</strong></a> * v, uint8_t cols, <a href="../structSYN__Matrix/"><strong>SYN_Matrix</strong></a> * out) <br><em>Vector outer product: out = u · vᵀ (rows(u) × cols(v)).</em></td>
+</tr>
+<tr>
+<td style="text-align: right;"><a href="../syn__defs_8h/#enum-syn_status"><strong>SYN_Status</strong></a></td>
+<td style="text-align: left;"><a href="#function-syn_matrix_qr"><strong>syn_matrix_qr</strong></a> (const <a href="../structSYN__Matrix/"><strong>SYN_Matrix</strong></a> * A, <a href="../structSYN__Matrix/"><strong>SYN_Matrix</strong></a> * Q, <a href="../structSYN__Matrix/"><strong>SYN_Matrix</strong></a> * R) <br><em>QR Decomposition: A = Q · R via Modified Gram-Schmidt process.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;">void</td>
+<td style="text-align: left;"><a href="#function-syn_matrix_rotate_2d"><strong>syn_matrix_rotate_2d</strong></a> (<a href="../structSYN__Matrix/"><strong>SYN_Matrix</strong></a> * out, <a href="../syn__qmath_8h/#typedef-q16_t"><strong>q16_t</strong></a> angle) <br><em>Set 3×3 matrix to a 2D rotation.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;">void</td>
+<td style="text-align: left;"><a href="#function-syn_matrix_rotate_x"><strong>syn_matrix_rotate_x</strong></a> (<a href="../structSYN__Matrix/"><strong>SYN_Matrix</strong></a> * out, <a href="../syn__qmath_8h/#typedef-q16_t"><strong>q16_t</strong></a> angle) <br><em>Set 4×4 matrix to a rotation around the X axis.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;">void</td>
+<td style="text-align: left;"><a href="#function-syn_matrix_rotate_y"><strong>syn_matrix_rotate_y</strong></a> (<a href="../structSYN__Matrix/"><strong>SYN_Matrix</strong></a> * out, <a href="../syn__qmath_8h/#typedef-q16_t"><strong>q16_t</strong></a> angle) <br><em>Set 4×4 matrix to a rotation around the Y axis.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;">void</td>
+<td style="text-align: left;"><a href="#function-syn_matrix_rotate_z"><strong>syn_matrix_rotate_z</strong></a> (<a href="../structSYN__Matrix/"><strong>SYN_Matrix</strong></a> * out, <a href="../syn__qmath_8h/#typedef-q16_t"><strong>q16_t</strong></a> angle) <br><em>Set 4×4 matrix to a rotation around the Z axis.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;">void</td>
+<td style="text-align: left;"><a href="#function-syn_matrix_scale"><strong>syn_matrix_scale</strong></a> (const <a href="../structSYN__Matrix/"><strong>SYN_Matrix</strong></a> * a, <a href="../syn__qmath_8h/#typedef-q16_t"><strong>q16_t</strong></a> scalar, <a href="../structSYN__Matrix/"><strong>SYN_Matrix</strong></a> * out) <br><em>Scalar multiply: out = A × scalar.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;">void</td>
+<td style="text-align: left;"><a href="#function-syn_matrix_scale_2d"><strong>syn_matrix_scale_2d</strong></a> (<a href="../structSYN__Matrix/"><strong>SYN_Matrix</strong></a> * out, <a href="../syn__qmath_8h/#typedef-q16_t"><strong>q16_t</strong></a> sx, <a href="../syn__qmath_8h/#typedef-q16_t"><strong>q16_t</strong></a> sy) <br><em>Set 3×3 matrix to a 2D scale.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;"><a href="../syn__defs_8h/#enum-syn_status"><strong>SYN_Status</strong></a></td>
+<td style="text-align: left;"><a href="#function-syn_matrix_set_block"><strong>syn_matrix_set_block</strong></a> (<a href="../structSYN__Matrix/"><strong>SYN_Matrix</strong></a> * dst, uint8_t r0, uint8_t c0, const <a href="../structSYN__Matrix/"><strong>SYN_Matrix</strong></a> * src) <br><em>Embed a submatrix block src into dst at position (r0, c0).</em></td>
+</tr>
+<tr>
+<td style="text-align: right;"><a href="../syn__defs_8h/#enum-syn_status"><strong>SYN_Status</strong></a></td>
+<td style="text-align: left;"><a href="#function-syn_matrix_solve_cholesky"><strong>syn_matrix_solve_cholesky</strong></a> (const <a href="../structSYN__Matrix/"><strong>SYN_Matrix</strong></a> * A, const <a href="../structSYN__Matrix/"><strong>SYN_Matrix</strong></a> * b, <a href="../structSYN__Matrix/"><strong>SYN_Matrix</strong></a> * x) <br><em>Solve symmetric positive-definite system A · x = b via Cholesky.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;"><a href="../syn__defs_8h/#enum-syn_status"><strong>SYN_Status</strong></a></td>
+<td style="text-align: left;"><a href="#function-syn_matrix_solve_lu"><strong>syn_matrix_solve_lu</strong></a> (const <a href="../structSYN__Matrix/"><strong>SYN_Matrix</strong></a> * A, const <a href="../structSYN__Matrix/"><strong>SYN_Matrix</strong></a> * b, <a href="../structSYN__Matrix/"><strong>SYN_Matrix</strong></a> * x) <br><em>Solve general linear system A · x = b via LU decomposition.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;">void</td>
+<td style="text-align: left;"><a href="#function-syn_matrix_sub"><strong>syn_matrix_sub</strong></a> (const <a href="../structSYN__Matrix/"><strong>SYN_Matrix</strong></a> * a, const <a href="../structSYN__Matrix/"><strong>SYN_Matrix</strong></a> * b, <a href="../structSYN__Matrix/"><strong>SYN_Matrix</strong></a> * out) <br><em>Element-wise subtraction: out = A − B.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;"><a href="../syn__qmath_8h/#typedef-q16_t"><strong>q16_t</strong></a></td>
+<td style="text-align: left;"><a href="#function-syn_matrix_trace"><strong>syn_matrix_trace</strong></a> (const <a href="../structSYN__Matrix/"><strong>SYN_Matrix</strong></a> * m) <br><em>Trace (sum of diagonal elements).</em></td>
+</tr>
+<tr>
+<td style="text-align: right;">void</td>
+<td style="text-align: left;"><a href="#function-syn_matrix_translate_2d"><strong>syn_matrix_translate_2d</strong></a> (<a href="../structSYN__Matrix/"><strong>SYN_Matrix</strong></a> * out, <a href="../syn__qmath_8h/#typedef-q16_t"><strong>q16_t</strong></a> tx, <a href="../syn__qmath_8h/#typedef-q16_t"><strong>q16_t</strong></a> ty) <br><em>Set 3×3 matrix to a 2D translation.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;">void</td>
+<td style="text-align: left;"><a href="#function-syn_matrix_translate_3d"><strong>syn_matrix_translate_3d</strong></a> (<a href="../structSYN__Matrix/"><strong>SYN_Matrix</strong></a> * out, <a href="../syn__qmath_8h/#typedef-q16_t"><strong>q16_t</strong></a> tx, <a href="../syn__qmath_8h/#typedef-q16_t"><strong>q16_t</strong></a> ty, <a href="../syn__qmath_8h/#typedef-q16_t"><strong>q16_t</strong></a> tz) <br><em>Set 4×4 matrix to a 3D translation.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;">void</td>
+<td style="text-align: left;"><a href="#function-syn_matrix_transpose"><strong>syn_matrix_transpose</strong></a> (const <a href="../structSYN__Matrix/"><strong>SYN_Matrix</strong></a> * a, <a href="../structSYN__Matrix/"><strong>SYN_Matrix</strong></a> * out) <br><em>Transpose: out = Aᵀ.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;">void</td>
+<td style="text-align: left;"><a href="#function-syn_matrix_zero"><strong>syn_matrix_zero</strong></a> (<a href="../structSYN__Matrix/"><strong>SYN_Matrix</strong></a> * m) <br><em>Set all elements to zero.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;">void</td>
+<td style="text-align: left;"><a href="#function-syn_vec3_cross"><strong>syn_vec3_cross</strong></a> (const <a href="../syn__qmath_8h/#typedef-q16_t"><strong>q16_t</strong></a> * a, const <a href="../syn__qmath_8h/#typedef-q16_t"><strong>q16_t</strong></a> * b, <a href="../syn__qmath_8h/#typedef-q16_t"><strong>q16_t</strong></a> * out) <br><em>Cross product of two 3-element Q16 vectors.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;"><a href="../syn__qmath_8h/#typedef-q16_t"><strong>q16_t</strong></a></td>
+<td style="text-align: left;"><a href="#function-syn_vec_dot"><strong>syn_vec_dot</strong></a> (const <a href="../syn__qmath_8h/#typedef-q16_t"><strong>q16_t</strong></a> * a, const <a href="../syn__qmath_8h/#typedef-q16_t"><strong>q16_t</strong></a> * b, uint8_t n) <br><em>Dot product of two n-element Q16 vectors.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;"><a href="../syn__qmath_8h/#typedef-q16_t"><strong>q16_t</strong></a></td>
+<td style="text-align: left;"><a href="#function-syn_vec_norm"><strong>syn_vec_norm</strong></a> (const <a href="../syn__qmath_8h/#typedef-q16_t"><strong>q16_t</strong></a> * v, uint8_t n) <br><em>Magnitude (Euclidean norm) of an n-element Q16 vector.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;"><a href="../syn__defs_8h/#enum-syn_status"><strong>SYN_Status</strong></a></td>
+<td style="text-align: left;"><a href="#function-syn_vec_normalize"><strong>syn_vec_normalize</strong></a> (const <a href="../syn__qmath_8h/#typedef-q16_t"><strong>q16_t</strong></a> * v, <a href="../syn__qmath_8h/#typedef-q16_t"><strong>q16_t</strong></a> * out, uint8_t n) <br><em>Normalize a vector to unit length.</em></td>
+</tr>
+</tbody>
+</table>
+<h2 id="macros">Macros<a class="headerlink" href="#macros" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: right;">Type</th>
+<th style="text-align: left;">Name</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">define</td>
+<td style="text-align: left;"><a href="./#define-syn_mat2_decl"><strong>SYN_MAT2_DECL</strong></a> (name) <code>[**SYN\_MAT\_DECL**](syn__matrix_8h.md#define-syn_mat_decl)(name, 2, 2)</code><br><em>Shorthand for 2×2.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;">define</td>
+<td style="text-align: left;"><a href="./#define-syn_mat3_decl"><strong>SYN_MAT3_DECL</strong></a> (name) <code>[**SYN\_MAT\_DECL**](syn__matrix_8h.md#define-syn_mat_decl)(name, 3, 3)</code><br><em>Shorthand for 3×3.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;">define</td>
+<td style="text-align: left;"><a href="./#define-syn_mat4_decl"><strong>SYN_MAT4_DECL</strong></a> (name) <code>[**SYN\_MAT\_DECL**](syn__matrix_8h.md#define-syn_mat_decl)(name, 4, 4)</code><br><em>Shorthand for 4×4.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;">define</td>
+<td style="text-align: left;"><a href="./#define-syn_mat_at"><strong>SYN_MAT_AT</strong></a> (m, r, c) <code>((m)-&amp;gt;data[(r) \* (m)-&amp;gt;cols + (c)])</code><br><em>Element access (row, col) — evaluates to an lvalue.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;">define</td>
+<td style="text-align: left;"><a href="./#define-syn_mat_decl"><strong>SYN_MAT_DECL</strong></a> (name, R, C) <code>/* multi line expression */</code><br><em>Declare a matrix with automatic (stack) storage.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;">define</td>
+<td style="text-align: left;"><a href="./#define-syn_mat_init"><strong>SYN_MAT_INIT</strong></a> (name, storage, R, C) <code>[**SYN\_Matrix**](structSYN__Matrix.md) name = { (storage), (R), (C) }</code><br><em>Initialize a matrix view over existing storage.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;">define</td>
+<td style="text-align: left;"><a href="./#define-syn_mat_static"><strong>SYN_MAT_STATIC</strong></a> (name, R, C) <code>/* multi line expression */</code><br><em>Declare a matrix with static storage (zero-initialized).</em></td>
+</tr>
+</tbody>
+</table>
+<h2 id="detailed-description">Detailed Description<a class="headerlink" href="#detailed-description" title="Permanent link">&para;</a></h2>
+<p>Supports compile-time-arbitrary matrix dimensions. Callers supply all storage via stack or static arrays. The compiler constant-folds dimension parameters and unrolls loops when sizes are compile-time constants.</p>
+<p>**
+**</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1">// Declare three 3×3 matrices on the stack</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="n">SYN_MAT_DECL</span><span class="p">(</span><span class="n">A</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">);</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="n">SYN_MAT_DECL</span><span class="p">(</span><span class="n">B</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">);</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="n">SYN_MAT_DECL</span><span class="p">(</span><span class="n">C</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">);</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="n">syn_matrix_identity</span><span class="p">(</span><span class="o">&amp;</span><span class="n">A</span><span class="p">);</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="n">syn_matrix_rotate_2d</span><span class="p">(</span><span class="o">&amp;</span><span class="n">B</span><span class="p">,</span><span class="w"> </span><span class="n">Q16_PI_2</span><span class="p">);</span><span class="w">  </span><span class="c1">// 90° rotation</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="n">syn_matrix_mul</span><span class="p">(</span><span class="o">&amp;</span><span class="n">A</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">B</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">C</span><span class="p">);</span><span class="w">          </span><span class="c1">// C = A × B</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="c1">// Non-square multiply: 2×3 × 3×4 = 2×4</span>
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="n">SYN_MAT_DECL</span><span class="p">(</span><span class="n">M</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">);</span>
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="n">SYN_MAT_DECL</span><span class="p">(</span><span class="n">N</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">);</span>
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="n">SYN_MAT_DECL</span><span class="p">(</span><span class="n">P</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">);</span>
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="n">syn_matrix_mul</span><span class="p">(</span><span class="o">&amp;</span><span class="n">M</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">N</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">P</span><span class="p">);</span>
+<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>
+<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a><span class="c1">// Element access</span>
+<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a><span class="n">SYN_MAT_AT</span><span class="p">(</span><span class="o">&amp;</span><span class="n">A</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Q16_FROM_INT</span><span class="p">(</span><span class="mi">42</span><span class="p">);</span>
+</code></pre></div>
+<h2 id="public-functions-documentation">Public Functions Documentation<a class="headerlink" href="#public-functions-documentation" title="Permanent link">&para;</a></h2>
+<h3 id="function-syn_matrix_add">function syn_matrix_add<a class="headerlink" href="#function-syn_matrix_add" title="Permanent link">&para;</a></h3>
+<p><em>Element-wise addition: out = A + B.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kt">void</span><span class="w"> </span><span class="n">syn_matrix_add</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">SYN_Matrix</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">a</span><span class="p">,</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">SYN_Matrix</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">b</span><span class="p">,</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">    </span><span class="n">SYN_Matrix</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">out</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>a</code> First operand. </li>
+<li><code>b</code> Second operand (same dimensions as a). </li>
+<li><code>out</code> Result (same dimensions as a). </li>
+</ul>
+<hr>
+
+<h3 id="function-syn_matrix_copy">function syn_matrix_copy<a class="headerlink" href="#function-syn_matrix_copy" title="Permanent link">&para;</a></h3>
+<p><em>Copy matrix contents.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kt">void</span><span class="w"> </span><span class="n">syn_matrix_copy</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">    </span><span class="n">SYN_Matrix</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">dst</span><span class="p">,</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">SYN_Matrix</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">src</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>dst</code> Destination (must match src dimensions). </li>
+<li><code>src</code> Source matrix. </li>
+</ul>
+<hr>
+
+<h3 id="function-syn_matrix_det">function syn_matrix_det<a class="headerlink" href="#function-syn_matrix_det" title="Permanent link">&para;</a></h3>
+<p><em>Determinant of a square matrix.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="n">q16_t</span><span class="w"> </span><span class="n">syn_matrix_det</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">SYN_Matrix</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">m</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p>Supports 2×2, 3×3, and 4×4. Uses cofactor expansion for 2×2/3×3 and LU decomposition for 4×4.</p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>m</code> Square matrix. </li>
+</ul>
+<p><strong>Returns:</strong></p>
+<p>Determinant in Q16. </p>
+<hr>
+
+<h3 id="function-syn_matrix_eigen_sym2">function syn_matrix_eigen_sym2<a class="headerlink" href="#function-syn_matrix_eigen_sym2" title="Permanent link">&para;</a></h3>
+<p><em>Compute eigenvalues and eigenvectors of a symmetric 2×2 matrix A.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="n">SYN_Status</span><span class="w"> </span><span class="n">syn_matrix_eigen_sym2</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">SYN_Matrix</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">A</span><span class="p">,</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">    </span><span class="n">q16_t</span><span class="w"> </span><span class="n">evals</span><span class="p">,</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">    </span><span class="n">SYN_Matrix</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">E</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>A</code> Symmetric 2×2 matrix. </li>
+<li><code>evals</code> Output array of 2 eigenvalues (sorted descending). </li>
+<li><code>E</code> Output 2×2 matrix whose columns are the normalized eigenvectors. </li>
+</ul>
+<p><strong>Returns:</strong></p>
+<p>SYN_OK on success, SYN_INVALID_PARAM on invalid inputs. </p>
+<hr>
+
+<h3 id="function-syn_matrix_eigen_sym3">function syn_matrix_eigen_sym3<a class="headerlink" href="#function-syn_matrix_eigen_sym3" title="Permanent link">&para;</a></h3>
+<p><em>Compute eigenvalues and eigenvectors of a symmetric 3×3 matrix A via Jacobi rotations.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="n">SYN_Status</span><span class="w"> </span><span class="n">syn_matrix_eigen_sym3</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">SYN_Matrix</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">A</span><span class="p">,</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">    </span><span class="n">q16_t</span><span class="w"> </span><span class="n">evals</span><span class="p">,</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">    </span><span class="n">SYN_Matrix</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">E</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>A</code> Symmetric 3×3 matrix. </li>
+<li><code>evals</code> Output array of 3 eigenvalues (sorted descending). </li>
+<li><code>E</code> Output 3×3 matrix whose columns are the normalized eigenvectors. </li>
+</ul>
+<p><strong>Returns:</strong></p>
+<p>SYN_OK on success, SYN_INVALID_PARAM on invalid inputs. </p>
+<hr>
+
+<h3 id="function-syn_matrix_get_block">function syn_matrix_get_block<a class="headerlink" href="#function-syn_matrix_get_block" title="Permanent link">&para;</a></h3>
+<p><em>Extract a submatrix block from src into dst.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="n">SYN_Status</span><span class="w"> </span><span class="n">syn_matrix_get_block</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">SYN_Matrix</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">src</span><span class="p">,</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">    </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">r0</span><span class="p">,</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="w">    </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">c0</span><span class="p">,</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="w">    </span><span class="n">SYN_Matrix</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">dst</span>
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>src</code> Source matrix (M×N). </li>
+<li><code>r0</code> Starting row index in src. </li>
+<li><code>c0</code> Starting column index in src. </li>
+<li><code>dst</code> Destination matrix (R×C). Must fit within src bounds from (r0, c0). </li>
+</ul>
+<p><strong>Returns:</strong></p>
+<p>SYN_OK on success, SYN_INVALID_PARAM on out-of-bounds. </p>
+<hr>
+
+<h3 id="function-syn_matrix_identity">function syn_matrix_identity<a class="headerlink" href="#function-syn_matrix_identity" title="Permanent link">&para;</a></h3>
+<p><em>Set matrix to identity.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="kt">void</span><span class="w"> </span><span class="n">syn_matrix_identity</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">    </span><span class="n">SYN_Matrix</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">m</span>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>m</code> Square matrix. </li>
+</ul>
+<hr>
+
+<h3 id="function-syn_matrix_inv">function syn_matrix_inv<a class="headerlink" href="#function-syn_matrix_inv" title="Permanent link">&para;</a></h3>
+<p><em>Matrix inverse: out = M⁻¹.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="n">SYN_Status</span><span class="w"> </span><span class="n">syn_matrix_inv</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">SYN_Matrix</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">m</span><span class="p">,</span>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="w">    </span><span class="n">SYN_Matrix</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">out</span>
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p>Supports 2×2, 3×3, and 4×4 square matrices. Returns SYN_ERROR if the matrix is singular (determinant ≈ 0).</p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>m</code> Input square matrix. </li>
+<li><code>out</code> Output inverse (same dimensions). Must not alias m. </li>
+</ul>
+<p><strong>Returns:</strong></p>
+<p>SYN_OK on success, SYN_ERROR if singular. </p>
+<hr>
+
+<h3 id="function-syn_matrix_least_squares">function syn_matrix_least_squares<a class="headerlink" href="#function-syn_matrix_least_squares" title="Permanent link">&para;</a></h3>
+<p><em>Solve overdetermined system A · x ≈ b via Normal Equations (Least Squares).</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="n">SYN_Status</span><span class="w"> </span><span class="n">syn_matrix_least_squares</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">SYN_Matrix</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">A</span><span class="p">,</span>
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">SYN_Matrix</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">b</span><span class="p">,</span>
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="w">    </span><span class="n">SYN_Matrix</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">x</span>
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p>Minimizes ||A·x − b||₂ for an M×N system (M ≥ N). Solves (Aᵀ · A) · x = Aᵀ · b using Cholesky or LU decomposition.</p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>A</code> Overdetermined system matrix (M×N, M ≥ N). </li>
+<li><code>b</code> Right-hand side measurement vector (M×1). </li>
+<li><code>x</code> Output solution parameter vector (N×1). </li>
+</ul>
+<p><strong>Returns:</strong></p>
+<p>SYN_OK on success, SYN_ERROR if AᵀA is singular. </p>
+<hr>
+
+<h3 id="function-syn_matrix_mul">function syn_matrix_mul<a class="headerlink" href="#function-syn_matrix_mul" title="Permanent link">&para;</a></h3>
+<p><em>Matrix multiply: out = A × B.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="kt">void</span><span class="w"> </span><span class="n">syn_matrix_mul</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">SYN_Matrix</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">a</span><span class="p">,</span>
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">SYN_Matrix</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">b</span><span class="p">,</span>
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="w">    </span><span class="n">SYN_Matrix</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">out</span>
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p>Requires: A.cols == B.rows, out is A.rows × B.cols. Uses int64_t accumulator for full Q16 precision.</p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>a</code> Left operand (R₁ × C₁). </li>
+<li><code>b</code> Right operand (C₁ × C₂). </li>
+<li><code>out</code> Result (R₁ × C₂). Must not alias a or b. </li>
+</ul>
+<hr>
+
+<h3 id="function-syn_matrix_mul_vec">function syn_matrix_mul_vec<a class="headerlink" href="#function-syn_matrix_mul_vec" title="Permanent link">&para;</a></h3>
+<p><em>Matrix–vector multiply: out = M × v.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="kt">void</span><span class="w"> </span><span class="n">syn_matrix_mul_vec</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">SYN_Matrix</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">m</span><span class="p">,</span>
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">q16_t</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">v_in</span><span class="p">,</span>
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="w">    </span><span class="n">q16_t</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">v_out</span><span class="p">,</span>
+<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a><span class="w">    </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">n_in</span>
+<a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>m</code> Square or rectangular matrix (R × C). </li>
+<li><code>v_in</code> Input vector (C elements). </li>
+<li><code>v_out</code> Output vector (R elements). Must not alias v_in. </li>
+<li><code>n_in</code> Length of input vector (must equal m-&gt;cols). </li>
+</ul>
+<hr>
+
+<h3 id="function-syn_matrix_outer_product">function syn_matrix_outer_product<a class="headerlink" href="#function-syn_matrix_outer_product" title="Permanent link">&para;</a></h3>
+<p><em>Vector outer product: out = u · vᵀ (rows(u) × cols(v)).</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="n">SYN_Status</span><span class="w"> </span><span class="n">syn_matrix_outer_product</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">q16_t</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">u</span><span class="p">,</span>
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="w">    </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">rows</span><span class="p">,</span>
+<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">q16_t</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">v</span><span class="p">,</span>
+<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a><span class="w">    </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">cols</span><span class="p">,</span>
+<a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a><span class="w">    </span><span class="n">SYN_Matrix</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">out</span>
+<a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>u</code> Column vector elements (R elements). </li>
+<li><code>rows</code> Number of rows (R). </li>
+<li><code>v</code> Row vector elements (C elements). </li>
+<li><code>cols</code> Number of columns (C). </li>
+<li><code>out</code> Output matrix (R×C). </li>
+</ul>
+<p><strong>Returns:</strong></p>
+<p>SYN_OK on success, SYN_INVALID_PARAM if NULL or invalid dimensions. </p>
+<hr>
+
+<h3 id="function-syn_matrix_qr">function syn_matrix_qr<a class="headerlink" href="#function-syn_matrix_qr" title="Permanent link">&para;</a></h3>
+<p><em>QR Decomposition: A = Q · R via Modified Gram-Schmidt process.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="n">SYN_Status</span><span class="w"> </span><span class="n">syn_matrix_qr</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">SYN_Matrix</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">A</span><span class="p">,</span>
+<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a><span class="w">    </span><span class="n">SYN_Matrix</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">Q</span><span class="p">,</span>
+<a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a><span class="w">    </span><span class="n">SYN_Matrix</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">R</span>
+<a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p>Decomposes an M×N matrix A (M ≥ N) into orthogonal M×N matrix Q (QᵀQ = I) and upper-triangular N×N matrix R.</p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>A</code> Input matrix (M×N, M ≥ N). </li>
+<li><code>Q</code> Output orthogonal matrix (M×N). </li>
+<li><code>R</code> Output upper-triangular matrix (N×N). </li>
+</ul>
+<p><strong>Returns:</strong></p>
+<p>SYN_OK on success, SYN_ERROR if A is linearly dependent / singular. </p>
+<hr>
+
+<h3 id="function-syn_matrix_rotate_2d">function syn_matrix_rotate_2d<a class="headerlink" href="#function-syn_matrix_rotate_2d" title="Permanent link">&para;</a></h3>
+<p><em>Set 3×3 matrix to a 2D rotation.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="kt">void</span><span class="w"> </span><span class="n">syn_matrix_rotate_2d</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="w">    </span><span class="n">SYN_Matrix</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">out</span><span class="p">,</span>
+<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a><span class="w">    </span><span class="n">q16_t</span><span class="w"> </span><span class="n">angle</span>
+<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>out</code> Output 3×3 matrix. </li>
+<li><code>angle</code> Rotation angle in Q16 radians (counter-clockwise). </li>
+</ul>
+<hr>
+
+<h3 id="function-syn_matrix_rotate_x">function syn_matrix_rotate_x<a class="headerlink" href="#function-syn_matrix_rotate_x" title="Permanent link">&para;</a></h3>
+<p><em>Set 4×4 matrix to a rotation around the X axis.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="kt">void</span><span class="w"> </span><span class="n">syn_matrix_rotate_x</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a><span class="w">    </span><span class="n">SYN_Matrix</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">out</span><span class="p">,</span>
+<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a><span class="w">    </span><span class="n">q16_t</span><span class="w"> </span><span class="n">angle</span>
+<a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>out</code> Output 4×4 matrix. </li>
+<li><code>angle</code> Rotation angle in Q16 radians. </li>
+</ul>
+<hr>
+
+<h3 id="function-syn_matrix_rotate_y">function syn_matrix_rotate_y<a class="headerlink" href="#function-syn_matrix_rotate_y" title="Permanent link">&para;</a></h3>
+<p><em>Set 4×4 matrix to a rotation around the Y axis.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="kt">void</span><span class="w"> </span><span class="n">syn_matrix_rotate_y</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a><span class="w">    </span><span class="n">SYN_Matrix</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">out</span><span class="p">,</span>
+<a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a><span class="w">    </span><span class="n">q16_t</span><span class="w"> </span><span class="n">angle</span>
+<a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>out</code> Output 4×4 matrix. </li>
+<li><code>angle</code> Rotation angle in Q16 radians. </li>
+</ul>
+<hr>
+
+<h3 id="function-syn_matrix_rotate_z">function syn_matrix_rotate_z<a class="headerlink" href="#function-syn_matrix_rotate_z" title="Permanent link">&para;</a></h3>
+<p><em>Set 4×4 matrix to a rotation around the Z axis.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="kt">void</span><span class="w"> </span><span class="n">syn_matrix_rotate_z</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a><span class="w">    </span><span class="n">SYN_Matrix</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">out</span><span class="p">,</span>
+<a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a><span class="w">    </span><span class="n">q16_t</span><span class="w"> </span><span class="n">angle</span>
+<a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>out</code> Output 4×4 matrix. </li>
+<li><code>angle</code> Rotation angle in Q16 radians. </li>
+</ul>
+<hr>
+
+<h3 id="function-syn_matrix_scale">function syn_matrix_scale<a class="headerlink" href="#function-syn_matrix_scale" title="Permanent link">&para;</a></h3>
+<p><em>Scalar multiply: out = A × scalar.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="kt">void</span><span class="w"> </span><span class="n">syn_matrix_scale</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">SYN_Matrix</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">a</span><span class="p">,</span>
+<a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a><span class="w">    </span><span class="n">q16_t</span><span class="w"> </span><span class="n">scalar</span><span class="p">,</span>
+<a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a><span class="w">    </span><span class="n">SYN_Matrix</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">out</span>
+<a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>a</code> Input matrix. </li>
+<li><code>scalar</code> Q16 scalar multiplier. </li>
+<li><code>out</code> Result (same dimensions as a). </li>
+</ul>
+<hr>
+
+<h3 id="function-syn_matrix_scale_2d">function syn_matrix_scale_2d<a class="headerlink" href="#function-syn_matrix_scale_2d" title="Permanent link">&para;</a></h3>
+<p><em>Set 3×3 matrix to a 2D scale.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="kt">void</span><span class="w"> </span><span class="n">syn_matrix_scale_2d</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a><span class="w">    </span><span class="n">SYN_Matrix</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">out</span><span class="p">,</span>
+<a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a><span class="w">    </span><span class="n">q16_t</span><span class="w"> </span><span class="n">sx</span><span class="p">,</span>
+<a id="__codelineno-19-4" name="__codelineno-19-4" href="#__codelineno-19-4"></a><span class="w">    </span><span class="n">q16_t</span><span class="w"> </span><span class="n">sy</span>
+<a id="__codelineno-19-5" name="__codelineno-19-5" href="#__codelineno-19-5"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>out</code> Output 3×3 matrix. </li>
+<li><code>sx</code> X scale factor in Q16. </li>
+<li><code>sy</code> Y scale factor in Q16. </li>
+</ul>
+<hr>
+
+<h3 id="function-syn_matrix_set_block">function syn_matrix_set_block<a class="headerlink" href="#function-syn_matrix_set_block" title="Permanent link">&para;</a></h3>
+<p><em>Embed a submatrix block src into dst at position (r0, c0).</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="n">SYN_Status</span><span class="w"> </span><span class="n">syn_matrix_set_block</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a><span class="w">    </span><span class="n">SYN_Matrix</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">dst</span><span class="p">,</span>
+<a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a><span class="w">    </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">r0</span><span class="p">,</span>
+<a id="__codelineno-20-4" name="__codelineno-20-4" href="#__codelineno-20-4"></a><span class="w">    </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">c0</span><span class="p">,</span>
+<a id="__codelineno-20-5" name="__codelineno-20-5" href="#__codelineno-20-5"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">SYN_Matrix</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">src</span>
+<a id="__codelineno-20-6" name="__codelineno-20-6" href="#__codelineno-20-6"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>dst</code> Destination matrix (M×N). </li>
+<li><code>r0</code> Starting row index in dst. </li>
+<li><code>c0</code> Starting column index in dst. </li>
+<li><code>src</code> Source submatrix block (R×C). </li>
+</ul>
+<p><strong>Returns:</strong></p>
+<p>SYN_OK on success, SYN_INVALID_PARAM on out-of-bounds. </p>
+<hr>
+
+<h3 id="function-syn_matrix_solve_cholesky">function syn_matrix_solve_cholesky<a class="headerlink" href="#function-syn_matrix_solve_cholesky" title="Permanent link">&para;</a></h3>
+<p><em>Solve symmetric positive-definite system A · x = b via Cholesky.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="n">SYN_Status</span><span class="w"> </span><span class="n">syn_matrix_solve_cholesky</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">SYN_Matrix</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">A</span><span class="p">,</span>
+<a id="__codelineno-21-3" name="__codelineno-21-3" href="#__codelineno-21-3"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">SYN_Matrix</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">b</span><span class="p">,</span>
+<a id="__codelineno-21-4" name="__codelineno-21-4" href="#__codelineno-21-4"></a><span class="w">    </span><span class="n">SYN_Matrix</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">x</span>
+<a id="__codelineno-21-5" name="__codelineno-21-5" href="#__codelineno-21-5"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p>Decomposes A into L · Lᵀ where L is lower-triangular, then solves L · y = b and Lᵀ · x = y. Faster and more numerically stable than LU for symmetric positive-definite matrices (e.g. covariance or normal eqns).</p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>A</code> Symmetric positive-definite system matrix (N×N). </li>
+<li><code>b</code> Right-hand side vector (N×1). </li>
+<li><code>x</code> Output solution vector (N×1). May alias b. </li>
+</ul>
+<p><strong>Returns:</strong></p>
+<p>SYN_OK on success, SYN_ERROR if A is not positive-definite. </p>
+<hr>
+
+<h3 id="function-syn_matrix_solve_lu">function syn_matrix_solve_lu<a class="headerlink" href="#function-syn_matrix_solve_lu" title="Permanent link">&para;</a></h3>
+<p><em>Solve general linear system A · x = b via LU decomposition.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a><span class="n">SYN_Status</span><span class="w"> </span><span class="n">syn_matrix_solve_lu</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">SYN_Matrix</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">A</span><span class="p">,</span>
+<a id="__codelineno-22-3" name="__codelineno-22-3" href="#__codelineno-22-3"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">SYN_Matrix</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">b</span><span class="p">,</span>
+<a id="__codelineno-22-4" name="__codelineno-22-4" href="#__codelineno-22-4"></a><span class="w">    </span><span class="n">SYN_Matrix</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">x</span>
+<a id="__codelineno-22-5" name="__codelineno-22-5" href="#__codelineno-22-5"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p>Uses Doolittle LU decomposition with partial pivoting (PA = LU). A must be a square N×N non-singular matrix. b and x must be N×1 vectors.</p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>A</code> Square system matrix (N×N). </li>
+<li><code>b</code> Right-hand side vector (N×1). </li>
+<li><code>x</code> Output solution vector (N×1). May alias b. </li>
+</ul>
+<p><strong>Returns:</strong></p>
+<p>SYN_OK on success, SYN_ERROR if A is singular or dimensions invalid. </p>
+<hr>
+
+<h3 id="function-syn_matrix_sub">function syn_matrix_sub<a class="headerlink" href="#function-syn_matrix_sub" title="Permanent link">&para;</a></h3>
+<p><em>Element-wise subtraction: out = A − B.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a><span class="kt">void</span><span class="w"> </span><span class="n">syn_matrix_sub</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-23-2" name="__codelineno-23-2" href="#__codelineno-23-2"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">SYN_Matrix</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">a</span><span class="p">,</span>
+<a id="__codelineno-23-3" name="__codelineno-23-3" href="#__codelineno-23-3"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">SYN_Matrix</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">b</span><span class="p">,</span>
+<a id="__codelineno-23-4" name="__codelineno-23-4" href="#__codelineno-23-4"></a><span class="w">    </span><span class="n">SYN_Matrix</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">out</span>
+<a id="__codelineno-23-5" name="__codelineno-23-5" href="#__codelineno-23-5"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>a</code> Minuend. </li>
+<li><code>b</code> Subtrahend (same dimensions as a). </li>
+<li><code>out</code> Result (same dimensions as a). </li>
+</ul>
+<hr>
+
+<h3 id="function-syn_matrix_trace">function syn_matrix_trace<a class="headerlink" href="#function-syn_matrix_trace" title="Permanent link">&para;</a></h3>
+<p><em>Trace (sum of diagonal elements).</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a><span class="n">q16_t</span><span class="w"> </span><span class="n">syn_matrix_trace</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-24-2" name="__codelineno-24-2" href="#__codelineno-24-2"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">SYN_Matrix</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">m</span>
+<a id="__codelineno-24-3" name="__codelineno-24-3" href="#__codelineno-24-3"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>m</code> Square matrix. </li>
+</ul>
+<p><strong>Returns:</strong></p>
+<p>Trace in Q16. </p>
+<hr>
+
+<h3 id="function-syn_matrix_translate_2d">function syn_matrix_translate_2d<a class="headerlink" href="#function-syn_matrix_translate_2d" title="Permanent link">&para;</a></h3>
+<p><em>Set 3×3 matrix to a 2D translation.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a><span class="kt">void</span><span class="w"> </span><span class="n">syn_matrix_translate_2d</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-25-2" name="__codelineno-25-2" href="#__codelineno-25-2"></a><span class="w">    </span><span class="n">SYN_Matrix</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">out</span><span class="p">,</span>
+<a id="__codelineno-25-3" name="__codelineno-25-3" href="#__codelineno-25-3"></a><span class="w">    </span><span class="n">q16_t</span><span class="w"> </span><span class="n">tx</span><span class="p">,</span>
+<a id="__codelineno-25-4" name="__codelineno-25-4" href="#__codelineno-25-4"></a><span class="w">    </span><span class="n">q16_t</span><span class="w"> </span><span class="n">ty</span>
+<a id="__codelineno-25-5" name="__codelineno-25-5" href="#__codelineno-25-5"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>out</code> Output 3×3 matrix. </li>
+<li><code>tx</code> X translation in Q16. </li>
+<li><code>ty</code> Y translation in Q16. </li>
+</ul>
+<hr>
+
+<h3 id="function-syn_matrix_translate_3d">function syn_matrix_translate_3d<a class="headerlink" href="#function-syn_matrix_translate_3d" title="Permanent link">&para;</a></h3>
+<p><em>Set 4×4 matrix to a 3D translation.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a><span class="kt">void</span><span class="w"> </span><span class="n">syn_matrix_translate_3d</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-26-2" name="__codelineno-26-2" href="#__codelineno-26-2"></a><span class="w">    </span><span class="n">SYN_Matrix</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">out</span><span class="p">,</span>
+<a id="__codelineno-26-3" name="__codelineno-26-3" href="#__codelineno-26-3"></a><span class="w">    </span><span class="n">q16_t</span><span class="w"> </span><span class="n">tx</span><span class="p">,</span>
+<a id="__codelineno-26-4" name="__codelineno-26-4" href="#__codelineno-26-4"></a><span class="w">    </span><span class="n">q16_t</span><span class="w"> </span><span class="n">ty</span><span class="p">,</span>
+<a id="__codelineno-26-5" name="__codelineno-26-5" href="#__codelineno-26-5"></a><span class="w">    </span><span class="n">q16_t</span><span class="w"> </span><span class="n">tz</span>
+<a id="__codelineno-26-6" name="__codelineno-26-6" href="#__codelineno-26-6"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>out</code> Output 4×4 matrix. </li>
+<li><code>tx</code> X translation in Q16. </li>
+<li><code>ty</code> Y translation in Q16. </li>
+<li><code>tz</code> Z translation in Q16. </li>
+</ul>
+<hr>
+
+<h3 id="function-syn_matrix_transpose">function syn_matrix_transpose<a class="headerlink" href="#function-syn_matrix_transpose" title="Permanent link">&para;</a></h3>
+<p><em>Transpose: out = Aᵀ.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a><span class="kt">void</span><span class="w"> </span><span class="n">syn_matrix_transpose</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-27-2" name="__codelineno-27-2" href="#__codelineno-27-2"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">SYN_Matrix</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">a</span><span class="p">,</span>
+<a id="__codelineno-27-3" name="__codelineno-27-3" href="#__codelineno-27-3"></a><span class="w">    </span><span class="n">SYN_Matrix</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">out</span>
+<a id="__codelineno-27-4" name="__codelineno-27-4" href="#__codelineno-27-4"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>a</code> Input (R × C). </li>
+<li><code>out</code> Output (C × R). Must not alias a. </li>
+</ul>
+<hr>
+
+<h3 id="function-syn_matrix_zero">function syn_matrix_zero<a class="headerlink" href="#function-syn_matrix_zero" title="Permanent link">&para;</a></h3>
+<p><em>Set all elements to zero.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a><span class="kt">void</span><span class="w"> </span><span class="n">syn_matrix_zero</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-28-2" name="__codelineno-28-2" href="#__codelineno-28-2"></a><span class="w">    </span><span class="n">SYN_Matrix</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">m</span>
+<a id="__codelineno-28-3" name="__codelineno-28-3" href="#__codelineno-28-3"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>m</code> Matrix to clear. </li>
+</ul>
+<hr>
+
+<h3 id="function-syn_vec3_cross">function syn_vec3_cross<a class="headerlink" href="#function-syn_vec3_cross" title="Permanent link">&para;</a></h3>
+<p><em>Cross product of two 3-element Q16 vectors.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-29-1" name="__codelineno-29-1" href="#__codelineno-29-1"></a><span class="kt">void</span><span class="w"> </span><span class="n">syn_vec3_cross</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-29-2" name="__codelineno-29-2" href="#__codelineno-29-2"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">q16_t</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">a</span><span class="p">,</span>
+<a id="__codelineno-29-3" name="__codelineno-29-3" href="#__codelineno-29-3"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">q16_t</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">b</span><span class="p">,</span>
+<a id="__codelineno-29-4" name="__codelineno-29-4" href="#__codelineno-29-4"></a><span class="w">    </span><span class="n">q16_t</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">out</span>
+<a id="__codelineno-29-5" name="__codelineno-29-5" href="#__codelineno-29-5"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>a</code> First vector (3 elements). </li>
+<li><code>b</code> Second vector (3 elements). </li>
+<li><code>out</code> Output vector (3 elements). Must not alias a or b. </li>
+</ul>
+<hr>
+
+<h3 id="function-syn_vec_dot">function syn_vec_dot<a class="headerlink" href="#function-syn_vec_dot" title="Permanent link">&para;</a></h3>
+<p><em>Dot product of two n-element Q16 vectors.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-30-1" name="__codelineno-30-1" href="#__codelineno-30-1"></a><span class="n">q16_t</span><span class="w"> </span><span class="n">syn_vec_dot</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-30-2" name="__codelineno-30-2" href="#__codelineno-30-2"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">q16_t</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">a</span><span class="p">,</span>
+<a id="__codelineno-30-3" name="__codelineno-30-3" href="#__codelineno-30-3"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">q16_t</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">b</span><span class="p">,</span>
+<a id="__codelineno-30-4" name="__codelineno-30-4" href="#__codelineno-30-4"></a><span class="w">    </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">n</span>
+<a id="__codelineno-30-5" name="__codelineno-30-5" href="#__codelineno-30-5"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>a</code> First vector. </li>
+<li><code>b</code> Second vector. </li>
+<li><code>n</code> Number of elements. </li>
+</ul>
+<p><strong>Returns:</strong></p>
+<p>Dot product in Q16. </p>
+<hr>
+
+<h3 id="function-syn_vec_norm">function syn_vec_norm<a class="headerlink" href="#function-syn_vec_norm" title="Permanent link">&para;</a></h3>
+<p><em>Magnitude (Euclidean norm) of an n-element Q16 vector.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-31-1" name="__codelineno-31-1" href="#__codelineno-31-1"></a><span class="n">q16_t</span><span class="w"> </span><span class="n">syn_vec_norm</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-31-2" name="__codelineno-31-2" href="#__codelineno-31-2"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">q16_t</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">v</span><span class="p">,</span>
+<a id="__codelineno-31-3" name="__codelineno-31-3" href="#__codelineno-31-3"></a><span class="w">    </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">n</span>
+<a id="__codelineno-31-4" name="__codelineno-31-4" href="#__codelineno-31-4"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>v</code> Vector. </li>
+<li><code>n</code> Number of elements. </li>
+</ul>
+<p><strong>Returns:</strong></p>
+<p>|v| in Q16. </p>
+<hr>
+
+<h3 id="function-syn_vec_normalize">function syn_vec_normalize<a class="headerlink" href="#function-syn_vec_normalize" title="Permanent link">&para;</a></h3>
+<p><em>Normalize a vector to unit length.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-32-1" name="__codelineno-32-1" href="#__codelineno-32-1"></a><span class="n">SYN_Status</span><span class="w"> </span><span class="n">syn_vec_normalize</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-32-2" name="__codelineno-32-2" href="#__codelineno-32-2"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">q16_t</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">v</span><span class="p">,</span>
+<a id="__codelineno-32-3" name="__codelineno-32-3" href="#__codelineno-32-3"></a><span class="w">    </span><span class="n">q16_t</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">out</span><span class="p">,</span>
+<a id="__codelineno-32-4" name="__codelineno-32-4" href="#__codelineno-32-4"></a><span class="w">    </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">n</span>
+<a id="__codelineno-32-5" name="__codelineno-32-5" href="#__codelineno-32-5"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>v</code> Input vector (n elements). </li>
+<li><code>out</code> Output unit vector (n elements). May alias v. </li>
+<li><code>n</code> Number of elements. </li>
+</ul>
+<p><strong>Returns:</strong></p>
+<p>SYN_OK on success, SYN_ERROR if zero-length vector. </p>
+<hr>
+<h2 id="macro-definition-documentation">Macro Definition Documentation<a class="headerlink" href="#macro-definition-documentation" title="Permanent link">&para;</a></h2>
+<h3 id="define-syn_mat2_decl">define SYN_MAT2_DECL<a class="headerlink" href="#define-syn_mat2_decl" title="Permanent link">&para;</a></h3>
+<p><em>Shorthand for 2×2.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-33-1" name="__codelineno-33-1" href="#__codelineno-33-1"></a><span class="cp">#define SYN_MAT2_DECL (</span>
+<a id="__codelineno-33-2" name="__codelineno-33-2" href="#__codelineno-33-2"></a><span class="w">    </span><span class="n">name</span>
+<a id="__codelineno-33-3" name="__codelineno-33-3" href="#__codelineno-33-3"></a><span class="p">)</span><span class="w"> </span><span class="err">`</span><span class="n">SYN_MAT_DECL</span><span class="w"> </span><span class="p">(</span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="err">`</span>
+</code></pre></div></p>
+<hr>
+
+<h3 id="define-syn_mat3_decl">define SYN_MAT3_DECL<a class="headerlink" href="#define-syn_mat3_decl" title="Permanent link">&para;</a></h3>
+<p><em>Shorthand for 3×3.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-34-1" name="__codelineno-34-1" href="#__codelineno-34-1"></a><span class="cp">#define SYN_MAT3_DECL (</span>
+<a id="__codelineno-34-2" name="__codelineno-34-2" href="#__codelineno-34-2"></a><span class="w">    </span><span class="n">name</span>
+<a id="__codelineno-34-3" name="__codelineno-34-3" href="#__codelineno-34-3"></a><span class="p">)</span><span class="w"> </span><span class="err">`</span><span class="n">SYN_MAT_DECL</span><span class="w"> </span><span class="p">(</span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">)</span><span class="err">`</span>
+</code></pre></div></p>
+<hr>
+
+<h3 id="define-syn_mat4_decl">define SYN_MAT4_DECL<a class="headerlink" href="#define-syn_mat4_decl" title="Permanent link">&para;</a></h3>
+<p><em>Shorthand for 4×4.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-35-1" name="__codelineno-35-1" href="#__codelineno-35-1"></a><span class="cp">#define SYN_MAT4_DECL (</span>
+<a id="__codelineno-35-2" name="__codelineno-35-2" href="#__codelineno-35-2"></a><span class="w">    </span><span class="n">name</span>
+<a id="__codelineno-35-3" name="__codelineno-35-3" href="#__codelineno-35-3"></a><span class="p">)</span><span class="w"> </span><span class="err">`</span><span class="n">SYN_MAT_DECL</span><span class="w"> </span><span class="p">(</span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">)</span><span class="err">`</span>
+</code></pre></div></p>
+<hr>
+
+<h3 id="define-syn_mat_at">define SYN_MAT_AT<a class="headerlink" href="#define-syn_mat_at" title="Permanent link">&para;</a></h3>
+<p><em>Element access (row, col) — evaluates to an lvalue.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-36-1" name="__codelineno-36-1" href="#__codelineno-36-1"></a><span class="cp">#define SYN_MAT_AT (</span>
+<a id="__codelineno-36-2" name="__codelineno-36-2" href="#__codelineno-36-2"></a><span class="w">    </span><span class="n">m</span><span class="p">,</span>
+<a id="__codelineno-36-3" name="__codelineno-36-3" href="#__codelineno-36-3"></a><span class="w">    </span><span class="n">r</span><span class="p">,</span>
+<a id="__codelineno-36-4" name="__codelineno-36-4" href="#__codelineno-36-4"></a><span class="w">    </span><span class="n">c</span>
+<a id="__codelineno-36-5" name="__codelineno-36-5" href="#__codelineno-36-5"></a><span class="p">)</span><span class="w"> </span><span class="err">`</span><span class="p">((</span><span class="n">m</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">data</span><span class="p">[(</span><span class="n">r</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="n">m</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">cols</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="p">(</span><span class="n">c</span><span class="p">)])</span><span class="err">`</span>
+</code></pre></div></p>
+<hr>
+
+<h3 id="define-syn_mat_decl">define SYN_MAT_DECL<a class="headerlink" href="#define-syn_mat_decl" title="Permanent link">&para;</a></h3>
+<p><em>Declare a matrix with automatic (stack) storage.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-37-1" name="__codelineno-37-1" href="#__codelineno-37-1"></a><span class="cp">#define SYN_MAT_DECL (</span>
+<a id="__codelineno-37-2" name="__codelineno-37-2" href="#__codelineno-37-2"></a><span class="w">    </span><span class="n">name</span><span class="p">,</span>
+<a id="__codelineno-37-3" name="__codelineno-37-3" href="#__codelineno-37-3"></a><span class="w">    </span><span class="n">R</span><span class="p">,</span>
+<a id="__codelineno-37-4" name="__codelineno-37-4" href="#__codelineno-37-4"></a><span class="w">    </span><span class="n">C</span>
+<a id="__codelineno-37-5" name="__codelineno-37-5" href="#__codelineno-37-5"></a><span class="p">)</span><span class="w"> </span><span class="err">`</span><span class="n">q16_t</span><span class="w"> </span><span class="n">name</span><span class="err">##</span><span class="n">_store</span><span class="p">[(</span><span class="n">R</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="n">C</span><span class="p">)];</span><span class="w">                              </span><span class="err">\</span><span class="w"> </span><span class="n">SYN_Matrix</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">name</span><span class="err">##</span><span class="n">_store</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="n">R</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="n">C</span><span class="p">)</span><span class="w"> </span><span class="p">}</span><span class="err">`</span>
+</code></pre></div></p>
+<hr>
+
+<h3 id="define-syn_mat_init">define SYN_MAT_INIT<a class="headerlink" href="#define-syn_mat_init" title="Permanent link">&para;</a></h3>
+<p><em>Initialize a matrix view over existing storage.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-38-1" name="__codelineno-38-1" href="#__codelineno-38-1"></a><span class="cp">#define SYN_MAT_INIT (</span>
+<a id="__codelineno-38-2" name="__codelineno-38-2" href="#__codelineno-38-2"></a><span class="w">    </span><span class="n">name</span><span class="p">,</span>
+<a id="__codelineno-38-3" name="__codelineno-38-3" href="#__codelineno-38-3"></a><span class="w">    </span><span class="n">storage</span><span class="p">,</span>
+<a id="__codelineno-38-4" name="__codelineno-38-4" href="#__codelineno-38-4"></a><span class="w">    </span><span class="n">R</span><span class="p">,</span>
+<a id="__codelineno-38-5" name="__codelineno-38-5" href="#__codelineno-38-5"></a><span class="w">    </span><span class="n">C</span>
+<a id="__codelineno-38-6" name="__codelineno-38-6" href="#__codelineno-38-6"></a><span class="p">)</span><span class="w"> </span><span class="err">`</span><span class="n">SYN_Matrix</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">(</span><span class="n">storage</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="n">R</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="n">C</span><span class="p">)</span><span class="w"> </span><span class="p">}</span><span class="err">`</span>
+</code></pre></div></p>
+<hr>
+
+<h3 id="define-syn_mat_static">define SYN_MAT_STATIC<a class="headerlink" href="#define-syn_mat_static" title="Permanent link">&para;</a></h3>
+<p><em>Declare a matrix with static storage (zero-initialized).</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-39-1" name="__codelineno-39-1" href="#__codelineno-39-1"></a><span class="cp">#define SYN_MAT_STATIC (</span>
+<a id="__codelineno-39-2" name="__codelineno-39-2" href="#__codelineno-39-2"></a><span class="w">    </span><span class="n">name</span><span class="p">,</span>
+<a id="__codelineno-39-3" name="__codelineno-39-3" href="#__codelineno-39-3"></a><span class="w">    </span><span class="n">R</span><span class="p">,</span>
+<a id="__codelineno-39-4" name="__codelineno-39-4" href="#__codelineno-39-4"></a><span class="w">    </span><span class="n">C</span>
+<a id="__codelineno-39-5" name="__codelineno-39-5" href="#__codelineno-39-5"></a><span class="p">)</span><span class="w"> </span><span class="err">`</span><span class="cm">/* multi line expression */</span><span class="err">`</span>
+</code></pre></div></p>
+<hr>
+
+<hr />
+<p>The documentation for this class was generated from the following file <code>src/syntropic/util/syn_matrix.h</code></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.expand", "navigation.top", "search.highlight", "content.code.copy", "content.code.annotate"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>

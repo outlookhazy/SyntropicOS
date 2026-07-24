@@ -1,0 +1,487 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__netbuf_8h" kind="file" language="C++">
+    <compoundname>syn_netbuf.h</compoundname>
+    <includes refid="syn__defs_8h" local="yes">../common/syn_defs.h</includes>
+    <includes local="no">stdint.h</includes>
+    <includes local="no">stddef.h</includes>
+    <includes local="no">stdbool.h</includes>
+    <includedby refid="syntropic_8h" local="yes">src/syntropic/syntropic.h</includedby>
+    <includedby refid="syn__netbuf_8c" local="yes">src/syntropic/util/syn_netbuf.c</includedby>
+    <incdepgraph>
+      <node id="2">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/util/syn_netbuf.h</label>
+        <link refid="syn__netbuf_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>stdbool.h</label>
+      </node>
+      <node id="4">
+        <label>stddef.h</label>
+      </node>
+      <node id="3">
+        <label>stdint.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="2">
+        <label>src/syntropic/syntropic.h</label>
+        <link refid="syntropic_8h"/>
+      </node>
+      <node id="3">
+        <label>src/syntropic/util/syn_netbuf.c</label>
+        <link refid="syn__netbuf_8c"/>
+      </node>
+      <node id="1">
+        <label>src/syntropic/util/syn_netbuf.h</label>
+        <link refid="syn__netbuf_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="structSYN__NetBuf" prot="public">SYN_NetBuf</innerclass>
+    <innerclass refid="structSYN__NetBufPool" prot="public">SYN_NetBufPool</innerclass>
+    <sectiondef kind="define">
+      <memberdef kind="define" id="syn__netbuf_8h_1a8e8470b074d140b713ce280258ce071e" prot="public" static="no">
+        <name>SYN_NETBUF_HEADROOM_DEFAULT</name>
+        <initializer>32U</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_netbuf.h" line="22" column="9" bodyfile="src/syntropic/util/syn_netbuf.h" bodystart="22" bodyend="-1"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__netbuf_8h_1ad283169e6163be0f7d5ea2ca607058d4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_netbuf_pool_init</definition>
+        <argsstring>(SYN_NetBufPool *pool, SYN_NetBuf *bufs, uint8_t *raw_mem, size_t buf_count, size_t buf_size)</argsstring>
+        <name>syn_netbuf_pool_init</name>
+        <param>
+          <type><ref refid="structSYN__NetBufPool" kindref="compound">SYN_NetBufPool</ref> *</type>
+          <declname>pool</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__NetBuf" kindref="compound">SYN_NetBuf</ref> *</type>
+          <declname>bufs</declname>
+        </param>
+        <param>
+          <type>uint8_t *</type>
+          <declname>raw_mem</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>buf_count</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>buf_size</declname>
+        </param>
+        <briefdescription>
+<para>Initialize a packet buffer pool. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>pool</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to pool descriptor. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>bufs</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Array of buffer descriptors. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>raw_mem</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Raw memory block storage. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>buf_count</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of buffers in pool. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>buf_size</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Size of each buffer block in bytes. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_netbuf.h" line="59" column="12" bodyfile="src/syntropic/util/syn_netbuf.c" bodystart="9" bodyend="36" declfile="src/syntropic/util/syn_netbuf.h" declline="59" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__netbuf_8h_1aeeda021888274eb51a120bc953b64b2f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="structSYN__NetBuf" kindref="compound">SYN_NetBuf</ref> *</type>
+        <definition>SYN_NetBuf * syn_netbuf_alloc</definition>
+        <argsstring>(SYN_NetBufPool *pool, size_t headroom)</argsstring>
+        <name>syn_netbuf_alloc</name>
+        <param>
+          <type><ref refid="structSYN__NetBufPool" kindref="compound">SYN_NetBufPool</ref> *</type>
+          <declname>pool</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>headroom</declname>
+        </param>
+        <briefdescription>
+<para>Allocate a packet buffer from the pool. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>pool</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to pool descriptor. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>headroom</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Initial headroom bytes reserved for network headers. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Allocated <ref refid="structSYN__NetBuf" kindref="compound">SYN_NetBuf</ref> pointer, or NULL if pool is exhausted. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_netbuf.h" line="67" column="12" bodyfile="src/syntropic/util/syn_netbuf.c" bodystart="38" bodyend="54" declfile="src/syntropic/util/syn_netbuf.h" declline="67" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__netbuf_8h_1a0e6531a4738dfee378fa039a0a436803" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_netbuf_ref</definition>
+        <argsstring>(SYN_NetBuf *buf)</argsstring>
+        <name>syn_netbuf_ref</name>
+        <param>
+          <type><ref refid="structSYN__NetBuf" kindref="compound">SYN_NetBuf</ref> *</type>
+          <declname>buf</declname>
+        </param>
+        <briefdescription>
+<para>Increment the reference counter of a packet buffer. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to packet buffer. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_netbuf.h" line="73" column="6" bodyfile="src/syntropic/util/syn_netbuf.c" bodystart="56" bodyend="60" declfile="src/syntropic/util/syn_netbuf.h" declline="73" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__netbuf_8h_1a43db294b301dd86da2da71a00ca7315e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_netbuf_free</definition>
+        <argsstring>(SYN_NetBufPool *pool, SYN_NetBuf *buf)</argsstring>
+        <name>syn_netbuf_free</name>
+        <param>
+          <type><ref refid="structSYN__NetBufPool" kindref="compound">SYN_NetBufPool</ref> *</type>
+          <declname>pool</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__NetBuf" kindref="compound">SYN_NetBuf</ref> *</type>
+          <declname>buf</declname>
+        </param>
+        <briefdescription>
+<para>Decrement reference counter and free buffer if count reaches 0. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>pool</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to pool descriptor. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to packet buffer. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_netbuf.h" line="80" column="6" bodyfile="src/syntropic/util/syn_netbuf.c" bodystart="62" bodyend="78" declfile="src/syntropic/util/syn_netbuf.h" declline="80" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__netbuf_8h_1a3a0134cf94c4e65679ae5fdc91d78441" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint8_t *</type>
+        <definition>uint8_t * syn_netbuf_push</definition>
+        <argsstring>(SYN_NetBuf *buf, size_t len)</argsstring>
+        <name>syn_netbuf_push</name>
+        <param>
+          <type><ref refid="structSYN__NetBuf" kindref="compound">SYN_NetBuf</ref> *</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>len</declname>
+        </param>
+        <briefdescription>
+<para>Prepend header space before payload data. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to packet buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Bytes to prepend. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Pointer to new payload start, or NULL if headroom insufficient. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_netbuf.h" line="88" column="9" bodyfile="src/syntropic/util/syn_netbuf.c" bodystart="80" bodyend="87" declfile="src/syntropic/util/syn_netbuf.h" declline="88" declcolumn="9"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__netbuf_8h_1a3b496438de9eca2eda98d53e7b58f45e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint8_t *</type>
+        <definition>uint8_t * syn_netbuf_pull</definition>
+        <argsstring>(SYN_NetBuf *buf, size_t len)</argsstring>
+        <name>syn_netbuf_pull</name>
+        <param>
+          <type><ref refid="structSYN__NetBuf" kindref="compound">SYN_NetBuf</ref> *</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>len</declname>
+        </param>
+        <briefdescription>
+<para>Strip header bytes from start of payload. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to packet buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Bytes to strip. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Pointer to new payload start, or NULL if payload shorter than len. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_netbuf.h" line="96" column="9" bodyfile="src/syntropic/util/syn_netbuf.c" bodystart="89" bodyend="96" declfile="src/syntropic/util/syn_netbuf.h" declline="96" declcolumn="9"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__netbuf_8h_1a56de24ceb6a070068a1d1c4385af5dbc" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint8_t *</type>
+        <definition>uint8_t * syn_netbuf_put</definition>
+        <argsstring>(SYN_NetBuf *buf, size_t len)</argsstring>
+        <name>syn_netbuf_put</name>
+        <param>
+          <type><ref refid="structSYN__NetBuf" kindref="compound">SYN_NetBuf</ref> *</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>len</declname>
+        </param>
+        <briefdescription>
+<para>Append payload bytes to end of buffer. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to packet buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Bytes to append. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Pointer to start of appended bytes, or NULL if tailroom insufficient. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_netbuf.h" line="104" column="9" bodyfile="src/syntropic/util/syn_netbuf.c" bodystart="98" bodyend="106" declfile="src/syntropic/util/syn_netbuf.h" declline="104" declcolumn="9"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__netbuf_8h_1ab2fc1a20eb83cf901da09db17b35df8b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>size_t</type>
+        <definition>size_t syn_netbuf_len</definition>
+        <argsstring>(const SYN_NetBuf *buf)</argsstring>
+        <name>syn_netbuf_len</name>
+        <param>
+          <type>const <ref refid="structSYN__NetBuf" kindref="compound">SYN_NetBuf</ref> *</type>
+          <declname>buf</declname>
+        </param>
+        <briefdescription>
+<para>Get payload length in bytes. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to packet buffer. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Payload length in bytes. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_netbuf.h" line="111" column="8" bodyfile="src/syntropic/util/syn_netbuf.c" bodystart="108" bodyend="112" declfile="src/syntropic/util/syn_netbuf.h" declline="111" declcolumn="8"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Zero-Copy Packet Buffer Pool. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Provides a fixed-block memory pool manager for network/CAN packet buffers supporting reference counting, zero-copy header push/pull, and slicing. </para>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_NETBUF_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_NETBUF_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../common/syn_defs.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stddef.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_NETBUF_HEADROOM_DEFAULT<sp/>32U</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight></codeline>
+<codeline lineno="27" refid="structSYN__NetBuf" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structSYN__NetBuf" kindref="compound">SYN_NetBuf</ref><sp/>{</highlight></codeline>
+<codeline lineno="28" refid="structSYN__NetBuf_1aec0f355f59e61d56d1da7050d289a063" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/>*<ref refid="structSYN__NetBuf_1aec0f355f59e61d56d1da7050d289a063" kindref="member">head</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="29" refid="structSYN__NetBuf_1a238a786b0527f2e33d07d3a1b55fcf5f" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/>*<ref refid="structSYN__NetBuf_1a238a786b0527f2e33d07d3a1b55fcf5f" kindref="member">data</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="30" refid="structSYN__NetBuf_1a818935c8de2857108f99bcd190066f6c" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/>*<ref refid="structSYN__NetBuf_1a818935c8de2857108f99bcd190066f6c" kindref="member">tail</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="31" refid="structSYN__NetBuf_1a27914e492e60d0736dbb33d437cc655f" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/>*<ref refid="structSYN__NetBuf_1a27914e492e60d0736dbb33d437cc655f" kindref="member">end</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="32" refid="structSYN__NetBuf_1abd95615fa4055611a5c79d195cabd32f" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structSYN__NetBuf" kindref="compound">SYN_NetBuf</ref><sp/>*<ref refid="structSYN__NetBuf_1abd95615fa4055611a5c79d195cabd32f" kindref="member">next_free</ref>;<sp/></highlight></codeline>
+<codeline lineno="33" refid="structSYN__NetBuf_1a982d65bdea8e9838dc85b899f5742fb0" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">volatile</highlight><highlight class="normal"><sp/>uint16_t<sp/><ref refid="structSYN__NetBuf_1a982d65bdea8e9838dc85b899f5742fb0" kindref="member">ref_count</ref>;<sp/></highlight></codeline>
+<codeline lineno="34" refid="structSYN__NetBuf_1a227c700c5fa9e133b0f3e8456c17e362" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/><sp/><ref refid="structSYN__NetBuf_1a227c700c5fa9e133b0f3e8456c17e362" kindref="member">flags</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="35" refid="structSYN__NetBuf_1a45f3f619511350b8e42d5f3a87f031e9" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/>*<ref refid="structSYN__NetBuf_1a45f3f619511350b8e42d5f3a87f031e9" kindref="member">pool</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="36"><highlight class="normal">}<sp/><ref refid="structSYN__NetBuf" kindref="compound">SYN_NetBuf</ref>;</highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight></codeline>
+<codeline lineno="41" refid="structSYN__NetBufPool" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="42" refid="structSYN__NetBufPool_1a621184a607698f594ef4da737505f9d3" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structSYN__NetBuf" kindref="compound">SYN_NetBuf</ref><sp/>*<ref refid="structSYN__NetBufPool_1a621184a607698f594ef4da737505f9d3" kindref="member">bufs</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="43" refid="structSYN__NetBufPool_1a6042f184433edfffa13801452f43a40b" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/><sp/><sp/>*<ref refid="structSYN__NetBufPool_1a6042f184433edfffa13801452f43a40b" kindref="member">raw_mem</ref>;<sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="44" refid="structSYN__NetBufPool_1af97fd5aeae778a410a7563e043473d31" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structSYN__NetBuf" kindref="compound">SYN_NetBuf</ref><sp/>*<ref refid="structSYN__NetBufPool_1af97fd5aeae778a410a7563e043473d31" kindref="member">free_list</ref>;<sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="45" refid="structSYN__NetBufPool_1a1f3b84e472cd66abb177a911b705f2a5" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__NetBufPool_1a1f3b84e472cd66abb177a911b705f2a5" kindref="member">buf_count</ref>;<sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="46" refid="structSYN__NetBufPool_1a81ad947c3e30bd01d2c683b657f4efbf" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__NetBufPool_1a81ad947c3e30bd01d2c683b657f4efbf" kindref="member">buf_size</ref>;<sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="47" refid="structSYN__NetBufPool_1a10a615c91f4c7644aa2e56edf2450ff7" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__NetBufPool_1a10a615c91f4c7644aa2e56edf2450ff7" kindref="member">free_count</ref>;<sp/><sp/></highlight></codeline>
+<codeline lineno="48"><highlight class="normal">}<sp/><ref refid="structSYN__NetBufPool" kindref="compound">SYN_NetBufPool</ref>;</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"></highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__netbuf_8h_1ad283169e6163be0f7d5ea2ca607058d4" kindref="member">syn_netbuf_pool_init</ref>(<ref refid="structSYN__NetBufPool" kindref="compound">SYN_NetBufPool</ref><sp/>*pool,<sp/><ref refid="structSYN__NetBuf" kindref="compound">SYN_NetBuf</ref><sp/>*bufs,<sp/>uint8_t<sp/>*raw_mem,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>buf_count,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>buf_size);</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"></highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><ref refid="structSYN__NetBuf" kindref="compound">SYN_NetBuf</ref><sp/>*<ref refid="syn__netbuf_8h_1aeeda021888274eb51a120bc953b64b2f" kindref="member">syn_netbuf_alloc</ref>(<ref refid="structSYN__NetBufPool" kindref="compound">SYN_NetBufPool</ref><sp/>*pool,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>headroom);</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"></highlight></codeline>
+<codeline lineno="73"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__netbuf_8h_1a0e6531a4738dfee378fa039a0a436803" kindref="member">syn_netbuf_ref</ref>(<ref refid="structSYN__NetBuf" kindref="compound">SYN_NetBuf</ref><sp/>*buf);</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"></highlight></codeline>
+<codeline lineno="80"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__netbuf_8h_1a43db294b301dd86da2da71a00ca7315e" kindref="member">syn_netbuf_free</ref>(<ref refid="structSYN__NetBufPool" kindref="compound">SYN_NetBufPool</ref><sp/>*pool,<sp/><ref refid="structSYN__NetBuf" kindref="compound">SYN_NetBuf</ref><sp/>*buf);</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"></highlight></codeline>
+<codeline lineno="88"><highlight class="normal">uint8_t<sp/>*<ref refid="syn__netbuf_8h_1a3a0134cf94c4e65679ae5fdc91d78441" kindref="member">syn_netbuf_push</ref>(<ref refid="structSYN__NetBuf" kindref="compound">SYN_NetBuf</ref><sp/>*buf,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>len);</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"></highlight></codeline>
+<codeline lineno="96"><highlight class="normal">uint8_t<sp/>*<ref refid="syn__netbuf_8h_1a3b496438de9eca2eda98d53e7b58f45e" kindref="member">syn_netbuf_pull</ref>(<ref refid="structSYN__NetBuf" kindref="compound">SYN_NetBuf</ref><sp/>*buf,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>len);</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"></highlight></codeline>
+<codeline lineno="104"><highlight class="normal">uint8_t<sp/>*<ref refid="syn__netbuf_8h_1a56de24ceb6a070068a1d1c4385af5dbc" kindref="member">syn_netbuf_put</ref>(<ref refid="structSYN__NetBuf" kindref="compound">SYN_NetBuf</ref><sp/>*buf,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>len);</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"></highlight></codeline>
+<codeline lineno="111"><highlight class="normal"></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="syn__netbuf_8h_1ab2fc1a20eb83cf901da09db17b35df8b" kindref="member">syn_netbuf_len</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__NetBuf" kindref="compound">SYN_NetBuf</ref><sp/>*buf);</highlight></codeline>
+<codeline lineno="112"><highlight class="normal"></highlight></codeline>
+<codeline lineno="113"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="114"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="115"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="116"><highlight class="normal"></highlight></codeline>
+<codeline lineno="117"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_NETBUF_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/util/syn_netbuf.h"/>
+  </compounddef>
+</doxygen>

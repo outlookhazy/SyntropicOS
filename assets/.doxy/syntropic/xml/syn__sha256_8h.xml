@@ -1,0 +1,336 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__sha256_8h" kind="file" language="C++">
+    <compoundname>syn_sha256.h</compoundname>
+    <includes local="no">stdint.h</includes>
+    <includes local="no">stddef.h</includes>
+    <includedby refid="syntropic_8h" local="yes">src/syntropic/syntropic.h</includedby>
+    <includedby refid="syn__hmac_8h" local="yes">src/syntropic/util/syn_hmac.h</includedby>
+    <includedby refid="syn__sha256_8c" local="yes">src/syntropic/util/syn_sha256.c</includedby>
+    <incdepgraph>
+      <node id="1">
+        <label>src/syntropic/util/syn_sha256.h</label>
+        <link refid="syn__sha256_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>stddef.h</label>
+      </node>
+      <node id="2">
+        <label>stdint.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="2">
+        <label>src/syntropic/syntropic.h</label>
+        <link refid="syntropic_8h"/>
+      </node>
+      <node id="3">
+        <label>src/syntropic/util/syn_hmac.h</label>
+        <link refid="syn__hmac_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>src/syntropic/util/syn_sha256.c</label>
+        <link refid="syn__sha256_8c"/>
+      </node>
+      <node id="1">
+        <label>src/syntropic/util/syn_sha256.h</label>
+        <link refid="syn__sha256_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="structSYN__SHA256" prot="public">SYN_SHA256</innerclass>
+    <sectiondef kind="define">
+      <memberdef kind="define" id="syn__sha256_8h_1a1bc25b6c24baf84a400cc8e51842a3bb" prot="public" static="no">
+        <name>SYN_SHA256_DIGEST_SIZE</name>
+        <initializer>32</initializer>
+        <briefdescription>
+<para>SHA-256 digest size in bytes. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_sha256.h" line="44" column="9" bodyfile="src/syntropic/util/syn_sha256.h" bodystart="44" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__sha256_8h_1a6145475e29a5444c1e71f34b60a6819d" prot="public" static="no">
+        <name>SYN_SHA256_BLOCK_SIZE</name>
+        <initializer>64</initializer>
+        <briefdescription>
+<para>SHA-256 block size in bytes. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_sha256.h" line="47" column="9" bodyfile="src/syntropic/util/syn_sha256.h" bodystart="47" bodyend="-1"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__sha256_8h_1ac64650c12d9cdd0e278e09086ddae7b6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_sha256_init</definition>
+        <argsstring>(SYN_SHA256 *ctx)</argsstring>
+        <name>syn_sha256_init</name>
+        <param>
+          <type><ref refid="structSYN__SHA256" kindref="compound">SYN_SHA256</ref> *</type>
+          <declname>ctx</declname>
+        </param>
+        <briefdescription>
+<para>Initialize a SHA-256 context. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ctx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Context to initialize. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_sha256.h" line="70" column="6" bodyfile="src/syntropic/util/syn_sha256.c" bodystart="168" bodyend="175" declfile="src/syntropic/util/syn_sha256.h" declline="70" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__sha256_8h_1ae5d5f928109f942592d41ca545158f02" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_sha256_update</definition>
+        <argsstring>(SYN_SHA256 *ctx, const void *data, size_t len)</argsstring>
+        <name>syn_sha256_update</name>
+        <param>
+          <type><ref refid="structSYN__SHA256" kindref="compound">SYN_SHA256</ref> *</type>
+          <declname>ctx</declname>
+        </param>
+        <param>
+          <type>const void *</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>len</declname>
+        </param>
+        <briefdescription>
+<para>Feed data into the hash. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Can be called repeatedly with arbitrary chunk sizes.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ctx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>SHA-256 context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>data</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Data to hash. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Length in bytes. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_sha256.h" line="81" column="6" bodyfile="src/syntropic/util/syn_sha256.c" bodystart="177" bodyend="219" declfile="src/syntropic/util/syn_sha256.h" declline="81" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__sha256_8h_1a03f691b9ec17b2fcbd6224252b7b1ff6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_sha256_final</definition>
+        <argsstring>(SYN_SHA256 *ctx, uint8_t hash[SYN_SHA256_DIGEST_SIZE])</argsstring>
+        <name>syn_sha256_final</name>
+        <param>
+          <type><ref refid="structSYN__SHA256" kindref="compound">SYN_SHA256</ref> *</type>
+          <declname>ctx</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>hash</declname>
+          <array>[SYN_SHA256_DIGEST_SIZE]</array>
+        </param>
+        <briefdescription>
+<para>Finalize the hash and produce the 32-byte digest. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>After calling this, the context must be re-initialized before reuse.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ctx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>SHA-256 context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>hash</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output buffer (must be at least 32 bytes). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_sha256.h" line="91" column="6" bodyfile="src/syntropic/util/syn_sha256.c" bodystart="221" bodyend="260" declfile="src/syntropic/util/syn_sha256.h" declline="91" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__sha256_8h_1a26ebdfb51601b7ce315872c4131ca23b" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void syn_sha256</definition>
+        <argsstring>(const void *data, size_t len, uint8_t hash[SYN_SHA256_DIGEST_SIZE])</argsstring>
+        <name>syn_sha256</name>
+        <param>
+          <type>const void *</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>len</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>hash</declname>
+          <array>[SYN_SHA256_DIGEST_SIZE]</array>
+        </param>
+        <briefdescription>
+<para>Compute SHA-256 of a complete buffer (one-shot convenience). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>data</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Data to hash. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Length in bytes. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>hash</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output buffer (must be at least 32 bytes). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_sha256.h" line="99" column="20" bodyfile="src/syntropic/util/syn_sha256.h" bodystart="99" bodyend="106"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>SHA-256 cryptographic hash — pure C99, zero dependencies. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Follows the same streaming pattern as <ref refid="syn__crc_8h" kindref="compound">syn_crc.h</ref>: init → update (repeated) → final</para>
+<para>The context struct is caller-owned (~112 bytes on 32-bit targets). No heap allocation, no floating point, no external libraries.</para>
+<para><simplesect kind="par"><title>Usage</title><para><programlisting><codeline><highlight class="comment">//<sp/>One-shot:</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal">uint8_t<sp/>hash[32];</highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__sha256_8h_1a26ebdfb51601b7ce315872c4131ca23b" kindref="member">syn_sha256</ref>(</highlight><highlight class="stringliteral">&quot;abc&quot;</highlight><highlight class="normal">,<sp/>3,<sp/>hash);</highlight></codeline>
+<codeline><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="comment">//<sp/>Streaming:</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"><ref refid="structSYN__SHA256" kindref="compound">SYN_SHA256</ref><sp/>ctx;</highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__sha256_8c_1ac64650c12d9cdd0e278e09086ddae7b6" kindref="member">syn_sha256_init</ref>(&amp;ctx);</highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__sha256_8c_1ae5d5f928109f942592d41ca545158f02" kindref="member">syn_sha256_update</ref>(&amp;ctx,<sp/>chunk1,<sp/>len1);</highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__sha256_8c_1ae5d5f928109f942592d41ca545158f02" kindref="member">syn_sha256_update</ref>(&amp;ctx,<sp/>chunk2,<sp/>len2);</highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__sha256_8c_1a03f691b9ec17b2fcbd6224252b7b1ff6" kindref="member">syn_sha256_final</ref>(&amp;ctx,<sp/>hash);</highlight></codeline>
+</programlisting> </para>
+</simplesect>
+</para>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_SHA256_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_SHA256_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>__has_include(&quot;syn_config.h&quot;)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/>#include<sp/>&quot;syn_config.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>!defined(SYN_USE_SHA256)<sp/>||<sp/>SYN_USE_SHA256</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stddef.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight></codeline>
+<codeline lineno="44" refid="syn__sha256_8h_1a1bc25b6c24baf84a400cc8e51842a3bb" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_SHA256_DIGEST_SIZE<sp/><sp/>32</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight></codeline>
+<codeline lineno="47" refid="syn__sha256_8h_1a6145475e29a5444c1e71f34b60a6819d" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_SHA256_BLOCK_SIZE<sp/><sp/><sp/>64</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="48"><highlight class="normal"></highlight></codeline>
+<codeline lineno="49"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Context<sp/>──────────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="50"><highlight class="normal"></highlight></codeline>
+<codeline lineno="56" refid="structSYN__SHA256" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="57" refid="structSYN__SHA256_1ad7b7f27a0dd70af9bf232be82c2085d8" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/>state[8];<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="58" refid="structSYN__SHA256_1a70eb510df16845a186514a3865d26ebc" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/>buf[<ref refid="syn__sha256_8h_1a6145475e29a5444c1e71f34b60a6819d" kindref="member">SYN_SHA256_BLOCK_SIZE</ref>];<sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="59" refid="structSYN__SHA256_1a59fa1272d2ed55db1065e1af604e1d90" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structSYN__SHA256_1a59fa1272d2ed55db1065e1af604e1d90" kindref="member">buf_len</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="60" refid="structSYN__SHA256_1a299cd8d6cb068823c456fccfa784fadc" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structSYN__SHA256_1a299cd8d6cb068823c456fccfa784fadc" kindref="member">total_len_lo</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="61" refid="structSYN__SHA256_1a758fcf0c25968706adaaa1a1ea6fc824" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structSYN__SHA256_1a758fcf0c25968706adaaa1a1ea6fc824" kindref="member">total_len_hi</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="62"><highlight class="normal">}<sp/><ref refid="structSYN__SHA256" kindref="compound">SYN_SHA256</ref>;</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"></highlight></codeline>
+<codeline lineno="64"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>API<sp/>──────────────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="65"><highlight class="normal"></highlight></codeline>
+<codeline lineno="70"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__sha256_8h_1ac64650c12d9cdd0e278e09086ddae7b6" kindref="member">syn_sha256_init</ref>(<ref refid="structSYN__SHA256" kindref="compound">SYN_SHA256</ref><sp/>*ctx);</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"></highlight></codeline>
+<codeline lineno="81"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__sha256_8h_1ae5d5f928109f942592d41ca545158f02" kindref="member">syn_sha256_update</ref>(<ref refid="structSYN__SHA256" kindref="compound">SYN_SHA256</ref><sp/>*ctx,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*data,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>len);</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"></highlight></codeline>
+<codeline lineno="91"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__sha256_8h_1a03f691b9ec17b2fcbd6224252b7b1ff6" kindref="member">syn_sha256_final</ref>(<ref refid="structSYN__SHA256" kindref="compound">SYN_SHA256</ref><sp/>*ctx,<sp/>uint8_t<sp/>hash[<ref refid="syn__sha256_8h_1a1bc25b6c24baf84a400cc8e51842a3bb" kindref="member">SYN_SHA256_DIGEST_SIZE</ref>]);</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"></highlight></codeline>
+<codeline lineno="99" refid="syn__sha256_8h_1a26ebdfb51601b7ce315872c4131ca23b" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__sha256_8h_1a26ebdfb51601b7ce315872c4131ca23b" kindref="member">syn_sha256</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*data,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>len,</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>hash[<ref refid="syn__sha256_8h_1a1bc25b6c24baf84a400cc8e51842a3bb" kindref="member">SYN_SHA256_DIGEST_SIZE</ref>])</highlight></codeline>
+<codeline lineno="101"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structSYN__SHA256" kindref="compound">SYN_SHA256</ref><sp/>ctx;</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__sha256_8h_1ac64650c12d9cdd0e278e09086ddae7b6" kindref="member">syn_sha256_init</ref>(&amp;ctx);</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__sha256_8h_1ae5d5f928109f942592d41ca545158f02" kindref="member">syn_sha256_update</ref>(&amp;ctx,<sp/>data,<sp/>len);</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__sha256_8h_1a03f691b9ec17b2fcbd6224252b7b1ff6" kindref="member">syn_sha256_final</ref>(&amp;ctx,<sp/>hash);</highlight></codeline>
+<codeline lineno="106"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"></highlight></codeline>
+<codeline lineno="108"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="109"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="110"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="111"><highlight class="normal"></highlight></codeline>
+<codeline lineno="112"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_USE_SHA256<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="113"><highlight class="normal"></highlight></codeline>
+<codeline lineno="114"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_SHA256_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/util/syn_sha256.h"/>
+  </compounddef>
+</doxygen>

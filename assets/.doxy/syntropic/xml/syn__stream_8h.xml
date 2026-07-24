@@ -1,0 +1,730 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__stream_8h" kind="file" language="C++">
+    <compoundname>syn_stream.h</compoundname>
+    <includes refid="syn__ringbuf_8h" local="yes">../util/syn_ringbuf.h</includes>
+    <includes refid="syn__pt_8h" local="yes">../pt/syn_pt.h</includes>
+    <includes local="no">stdbool.h</includes>
+    <includes local="no">stddef.h</includes>
+    <includes local="no">stdint.h</includes>
+    <includedby refid="syntropic_8h" local="yes">src/syntropic/syntropic.h</includedby>
+    <includedby refid="syn__stream_8c" local="yes">src/syntropic/util/syn_stream.c</includedby>
+    <incdepgraph>
+      <node id="8">
+        <label>../common/syn_compiler.h</label>
+        <link refid="syn__compiler_8h"/>
+      </node>
+      <node id="7">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>../pt/syn_pt.h</label>
+        <link refid="syn__pt_8h"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>../util/syn_ringbuf.h</label>
+        <link refid="syn__ringbuf_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/util/syn_stream.h</label>
+        <link refid="syn__stream_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>stdbool.h</label>
+      </node>
+      <node id="4">
+        <label>stddef.h</label>
+      </node>
+      <node id="3">
+        <label>stdint.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="2">
+        <label>src/syntropic/syntropic.h</label>
+        <link refid="syntropic_8h"/>
+      </node>
+      <node id="3">
+        <label>src/syntropic/util/syn_stream.c</label>
+        <link refid="syn__stream_8c"/>
+      </node>
+      <node id="1">
+        <label>src/syntropic/util/syn_stream.h</label>
+        <link refid="syn__stream_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="structSYN__Stream" prot="public">SYN_Stream</innerclass>
+    <sectiondef kind="define">
+      <memberdef kind="define" id="syn__stream_8h_1ae80b40b03cc51333d9e96a2d1eba982d" prot="public" static="no">
+        <name>PT_STREAM_WAIT</name>
+        <param><defname>pt</defname></param>
+        <param><defname>stream</defname></param>
+        <initializer>    <ref refid="syn__pt_8h_1a0a7f29e2a1e2caaf5bcc343412eef273" kindref="member">PT_WAIT_UNTIL</ref>(pt, <ref refid="syn__stream_8c_1a3da22588df5426dffd3df78873159d79" kindref="member">syn_stream_readable</ref>(stream))</initializer>
+        <briefdescription>
+<para>Wait until the stream is readable (mode-aware). </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Yields the protothread until <ref refid="syn__stream_8h_1a3da22588df5426dffd3df78873159d79" kindref="member">syn_stream_readable()</ref> returns true.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>pt</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Protothread context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>stream</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to <ref refid="structSYN__Stream" kindref="compound">SYN_Stream</ref>. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_stream.h" line="224" column="9" bodyfile="src/syntropic/util/syn_stream.h" bodystart="224" bodyend="225"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__stream_8h_1a42a4bdbff4c3ef345942185da06c2c63" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_stream_init</definition>
+        <argsstring>(SYN_Stream *s, uint8_t *buf, size_t size)</argsstring>
+        <name>syn_stream_init</name>
+        <param>
+          <type><ref refid="structSYN__Stream" kindref="compound">SYN_Stream</ref> *</type>
+          <declname>s</declname>
+        </param>
+        <param>
+          <type>uint8_t *</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>size</declname>
+        </param>
+        <briefdescription>
+<para>Initialize a stream with a caller-owned backing buffer. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>s</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Stream instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Backing array (caller-owned, must outlive the stream). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>size</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Size of backing array. Usable capacity is size - 1. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_stream.h" line="84" column="6" bodyfile="src/syntropic/util/syn_stream.c" bodystart="36" bodyend="42" declfile="src/syntropic/util/syn_stream.h" declline="84" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__stream_8h_1aa8896f75a350f019196c721581332e50" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_stream_set_threshold</definition>
+        <argsstring>(SYN_Stream *s, size_t n)</argsstring>
+        <name>syn_stream_set_threshold</name>
+        <param>
+          <type><ref refid="structSYN__Stream" kindref="compound">SYN_Stream</ref> *</type>
+          <declname>s</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Set the byte threshold for readability. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>When set to N &gt; 0, <ref refid="syn__stream_8h_1a3da22588df5426dffd3df78873159d79" kindref="member">syn_stream_readable()</ref> returns true only when at least N bytes are in the buffer. Set to 0 to revert to default (readable when any bytes are available).</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>s</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Stream instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>n</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Byte threshold (0 = any). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_stream.h" line="96" column="6" bodyfile="src/syntropic/util/syn_stream.c" bodystart="44" bodyend="47" declfile="src/syntropic/util/syn_stream.h" declline="96" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__stream_8h_1ae0737d8b0e519018e70d3b755f13da2f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_stream_set_delimiter</definition>
+        <argsstring>(SYN_Stream *s, uint8_t delim)</argsstring>
+        <name>syn_stream_set_delimiter</name>
+        <param>
+          <type><ref refid="structSYN__Stream" kindref="compound">SYN_Stream</ref> *</type>
+          <declname>s</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>delim</declname>
+        </param>
+        <briefdescription>
+<para>Enable delimiter mode. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>When enabled, <ref refid="syn__stream_8h_1a3da22588df5426dffd3df78873159d79" kindref="member">syn_stream_readable()</ref> returns true only when the delimiter byte is present in the buffer. Pair with <ref refid="syn__stream_8h_1a332316e94f1615abe30f73cecbb7ba9f" kindref="member">syn_stream_read_line()</ref> to consume one delimited chunk at a time.</para>
+<para>Delimiter mode takes precedence over threshold mode.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>s</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Stream instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>delim</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Delimiter byte (e.g. &apos;\n&apos;). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_stream.h" line="110" column="6" bodyfile="src/syntropic/util/syn_stream.c" bodystart="49" bodyend="53" declfile="src/syntropic/util/syn_stream.h" declline="110" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__stream_8h_1ab6a3d38c9a564383714819abce014043" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_stream_clear_delimiter</definition>
+        <argsstring>(SYN_Stream *s)</argsstring>
+        <name>syn_stream_clear_delimiter</name>
+        <param>
+          <type><ref refid="structSYN__Stream" kindref="compound">SYN_Stream</ref> *</type>
+          <declname>s</declname>
+        </param>
+        <briefdescription>
+<para>Disable delimiter mode, reverting to default or threshold mode. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>s</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Stream instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_stream.h" line="116" column="6" bodyfile="src/syntropic/util/syn_stream.c" bodystart="55" bodyend="58" declfile="src/syntropic/util/syn_stream.h" declline="116" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__stream_8h_1a1dbb6ffac353914bde85f819b451b2c9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>size_t</type>
+        <definition>size_t syn_stream_write</definition>
+        <argsstring>(SYN_Stream *s, const uint8_t *data, size_t len)</argsstring>
+        <name>syn_stream_write</name>
+        <param>
+          <type><ref refid="structSYN__Stream" kindref="compound">SYN_Stream</ref> *</type>
+          <declname>s</declname>
+        </param>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>len</declname>
+        </param>
+        <briefdescription>
+<para>Write bytes into the stream. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>ISR-safe (single-producer). Writes up to <computeroutput>len</computeroutput> bytes. Returns the number actually written (may be less if the buffer fills up).</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>s</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Stream instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>data</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Source data. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of bytes to write. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Number of bytes actually written. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_stream.h" line="131" column="8" bodyfile="src/syntropic/util/syn_stream.c" bodystart="62" bodyend="65" declfile="src/syntropic/util/syn_stream.h" declline="131" declcolumn="8"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__stream_8h_1adc55dcbcafdfa856a4e6003cbd0b3ca7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_stream_put</definition>
+        <argsstring>(SYN_Stream *s, uint8_t byte)</argsstring>
+        <name>syn_stream_put</name>
+        <param>
+          <type><ref refid="structSYN__Stream" kindref="compound">SYN_Stream</ref> *</type>
+          <declname>s</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>byte</declname>
+        </param>
+        <briefdescription>
+<para>Put a single byte into the stream. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>ISR-safe convenience wrapper around <ref refid="syn__stream_8h_1a1dbb6ffac353914bde85f819b451b2c9" kindref="member">syn_stream_write()</ref>.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>s</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Stream instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>byte</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Byte to store. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if the byte was stored, false if the buffer is full. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_stream.h" line="142" column="6" bodyfile="src/syntropic/util/syn_stream.c" bodystart="67" bodyend="70" declfile="src/syntropic/util/syn_stream.h" declline="142" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__stream_8h_1a3da22588df5426dffd3df78873159d79" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_stream_readable</definition>
+        <argsstring>(const SYN_Stream *s)</argsstring>
+        <name>syn_stream_readable</name>
+        <param>
+          <type>const <ref refid="structSYN__Stream" kindref="compound">SYN_Stream</ref> *</type>
+          <declname>s</declname>
+        </param>
+        <briefdescription>
+<para>Check if the stream is readable (mode-aware). </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Behavior depends on configured mode:<itemizedlist>
+<listitem><para><bold>Delimiter mode</bold>: true if the delimiter byte is in the buffer.</para>
+</listitem><listitem><para><bold>Threshold mode</bold>: true if count &gt;= threshold.</para>
+</listitem><listitem><para><bold>Default</bold>: true if any bytes are available.</para>
+</listitem></itemizedlist>
+</para>
+<para>Delimiter mode takes precedence over threshold mode.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>s</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Stream instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if the stream has data meeting the readability criteria. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_stream.h" line="159" column="6" bodyfile="src/syntropic/util/syn_stream.c" bodystart="74" bodyend="93" declfile="src/syntropic/util/syn_stream.h" declline="159" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__stream_8h_1a93f3f95335f877a2948142aa5c85398d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>size_t</type>
+        <definition>size_t syn_stream_read</definition>
+        <argsstring>(SYN_Stream *s, uint8_t *buf, size_t max_len)</argsstring>
+        <name>syn_stream_read</name>
+        <param>
+          <type><ref refid="structSYN__Stream" kindref="compound">SYN_Stream</ref> *</type>
+          <declname>s</declname>
+        </param>
+        <param>
+          <type>uint8_t *</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>max_len</declname>
+        </param>
+        <briefdescription>
+<para>Read up to <computeroutput>max_len</computeroutput> bytes from the stream. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Non-blocking — returns 0 if the buffer is empty. Does not respect threshold or delimiter; reads whatever is available.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>s</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Stream instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Destination buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>max_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Maximum bytes to read. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Number of bytes actually read. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_stream.h" line="172" column="8" bodyfile="src/syntropic/util/syn_stream.c" bodystart="95" bodyend="98" declfile="src/syntropic/util/syn_stream.h" declline="172" declcolumn="8"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__stream_8h_1a332316e94f1615abe30f73cecbb7ba9f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>size_t</type>
+        <definition>size_t syn_stream_read_line</definition>
+        <argsstring>(SYN_Stream *s, uint8_t *buf, size_t max_len)</argsstring>
+        <name>syn_stream_read_line</name>
+        <param>
+          <type><ref refid="structSYN__Stream" kindref="compound">SYN_Stream</ref> *</type>
+          <declname>s</declname>
+        </param>
+        <param>
+          <type>uint8_t *</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>max_len</declname>
+        </param>
+        <briefdescription>
+<para>Read up to and including the next delimiter byte. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Reads bytes from the stream into <computeroutput>buf</computeroutput>, stopping after the first delimiter byte (which is included in the output). If no delimiter is found in the buffer, returns 0 and reads nothing.</para>
+<para>Pair with PT_STREAM_WAIT in delimiter mode to wait for a complete line: <programlisting><codeline><highlight class="normal">PT_STREAM_WAIT(pt,<sp/>&amp;stream);</highlight></codeline>
+<codeline><highlight class="normal">n<sp/>=<sp/>syn_stream_read_line(&amp;stream,<sp/>buf,<sp/>sizeof(buf));</highlight></codeline>
+</programlisting></para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>s</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Stream instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Destination buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>max_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Maximum bytes to read (including delimiter). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Number of bytes read (0 if no delimiter found or empty). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_stream.h" line="192" column="8" bodyfile="src/syntropic/util/syn_stream.c" bodystart="100" bodyend="116" declfile="src/syntropic/util/syn_stream.h" declline="192" declcolumn="8"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__stream_8h_1a6f35dbb9db24aef9cdc0ffd015345b8b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>size_t</type>
+        <definition>size_t syn_stream_count</definition>
+        <argsstring>(const SYN_Stream *s)</argsstring>
+        <name>syn_stream_count</name>
+        <param>
+          <type>const <ref refid="structSYN__Stream" kindref="compound">SYN_Stream</ref> *</type>
+          <declname>s</declname>
+        </param>
+        <briefdescription>
+<para>Return the number of bytes currently in the stream. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>s</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Stream instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Byte count. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_stream.h" line="199" column="8" bodyfile="src/syntropic/util/syn_stream.c" bodystart="118" bodyend="121" declfile="src/syntropic/util/syn_stream.h" declline="199" declcolumn="8"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__stream_8h_1a2815d2a9b4492bb0b80c0cff9e7c2756" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>size_t</type>
+        <definition>size_t syn_stream_free</definition>
+        <argsstring>(const SYN_Stream *s)</argsstring>
+        <name>syn_stream_free</name>
+        <param>
+          <type>const <ref refid="structSYN__Stream" kindref="compound">SYN_Stream</ref> *</type>
+          <declname>s</declname>
+        </param>
+        <briefdescription>
+<para>Return the number of free bytes available for writing. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>s</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Stream instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Free byte count. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_stream.h" line="206" column="8" bodyfile="src/syntropic/util/syn_stream.c" bodystart="123" bodyend="126" declfile="src/syntropic/util/syn_stream.h" declline="206" declcolumn="8"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__stream_8h_1a0b0a62cd78a66fe3d8a74ba33573827e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_stream_flush</definition>
+        <argsstring>(SYN_Stream *s)</argsstring>
+        <name>syn_stream_flush</name>
+        <param>
+          <type><ref refid="structSYN__Stream" kindref="compound">SYN_Stream</ref> *</type>
+          <declname>s</declname>
+        </param>
+        <briefdescription>
+<para>Discard all data in the stream. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>s</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Stream instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_stream.h" line="212" column="6" bodyfile="src/syntropic/util/syn_stream.c" bodystart="128" bodyend="131" declfile="src/syntropic/util/syn_stream.h" declline="212" declcolumn="6"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Cooperative byte stream — protothread-aware ringbuf wrapper. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Composes <ref refid="structSYN__RingBuf" kindref="compound">SYN_RingBuf</ref> with readability awareness for cooperative tasks. Three readability modes:<itemizedlist>
+<listitem><para><bold>Default</bold>: readable when any bytes are available.</para>
+</listitem><listitem><para><bold>Threshold</bold>: readable when N+ bytes are available (frame protocols).</para>
+</listitem><listitem><para><bold>Delimiter</bold>: readable when a delimiter byte is in the buffer (line protocols).</para>
+</listitem></itemizedlist>
+</para>
+<para>Producer side is ISR-safe (single-producer / single-consumer). Consumer side integrates with protothreads via PT_STREAM_WAIT.</para>
+<para><simplesect kind="par"><title>Usage — Line-buffered UART reader</title><para><programlisting><codeline><highlight class="keyword">static</highlight><highlight class="normal"><sp/>uint8_t<sp/>backing[128];</highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/><ref refid="structSYN__Stream" kindref="compound">SYN_Stream</ref><sp/>uart_rx;</highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__stream_8c_1a42a4bdbff4c3ef345942185da06c2c63" kindref="member">syn_stream_init</ref>(&amp;uart_rx,<sp/>backing,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(backing));</highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__stream_8c_1ae0737d8b0e519018e70d3b755f13da2f" kindref="member">syn_stream_set_delimiter</ref>(&amp;uart_rx,<sp/></highlight><highlight class="charliteral">&apos;\n&apos;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="comment">//<sp/>ISR<sp/>fills<sp/>the<sp/>stream:</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__stream_8c_1adc55dcbcafdfa856a4e6003cbd0b3ca7" kindref="member">syn_stream_put</ref>(&amp;uart_rx,<sp/></highlight><highlight class="keywordtype">byte</highlight><highlight class="normal">);</highlight></codeline>
+<codeline><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="comment">//<sp/>Protothread<sp/>consumes<sp/>complete<sp/>lines:</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__pt_8h_1a837fcf03fa24b6b73d66bb133b95d79e" kindref="member">SYN_PT_Status</ref><sp/>my_task(<ref refid="structSYN__PT" kindref="compound">SYN_PT</ref><sp/>*pt,<sp/><ref refid="structSYN__Task" kindref="compound">SYN_Task</ref><sp/>*task)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/>uint8_t<sp/>line[80];</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><sp/>n;</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__pt_8h_1a2ffbb9e554e08a343ae2f9de4bedfdfc" kindref="member">PT_BEGIN</ref>(pt);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(;;)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__stream_8h_1ae80b40b03cc51333d9e96a2d1eba982d" kindref="member">PT_STREAM_WAIT</ref>(pt,<sp/>&amp;uart_rx);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>n<sp/>=<sp/><ref refid="syn__stream_8c_1a332316e94f1615abe30f73cecbb7ba9f" kindref="member">syn_stream_read_line</ref>(&amp;uart_rx,<sp/>line,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(line));</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>process_line(line,<sp/>n);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__pt_8h_1a7b04a0035bef29d905496c23bae066d2" kindref="member">PT_END</ref>(pt);</highlight></codeline>
+<codeline><highlight class="normal">}</highlight></codeline>
+</programlisting></para>
+</simplesect>
+<simplesect kind="par"><title>Usage — Threshold-based frame reader</title><para><programlisting><codeline><highlight class="normal"><ref refid="syn__stream_8c_1aa8896f75a350f019196c721581332e50" kindref="member">syn_stream_set_threshold</ref>(&amp;adc_stream,<sp/>64);<sp/><sp/></highlight><highlight class="comment">//<sp/>wait<sp/>for<sp/>64<sp/>bytes</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__stream_8h_1ae80b40b03cc51333d9e96a2d1eba982d" kindref="member">PT_STREAM_WAIT</ref>(pt,<sp/>&amp;adc_stream);</highlight></codeline>
+<codeline><highlight class="normal">n<sp/>=<sp/><ref refid="syn__stream_8c_1a93f3f95335f877a2948142aa5c85398d" kindref="member">syn_stream_read</ref>(&amp;adc_stream,<sp/>frame,<sp/>64);</highlight></codeline>
+</programlisting> </para>
+</simplesect>
+</para>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="47"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_STREAM_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="48"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_STREAM_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="49"><highlight class="normal"></highlight></codeline>
+<codeline lineno="50"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../util/syn_ringbuf.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="51"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../pt/syn_pt.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="52"><highlight class="normal"></highlight></codeline>
+<codeline lineno="53"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="54"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stddef.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="55"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="56"><highlight class="normal"></highlight></codeline>
+<codeline lineno="57"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="58"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="60"><highlight class="normal"></highlight></codeline>
+<codeline lineno="61"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Stream<sp/>instance<sp/>──────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="62"><highlight class="normal"></highlight></codeline>
+<codeline lineno="68" refid="structSYN__Stream" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="69" refid="structSYN__Stream_1a8211abb229a61690efca4f0ea934c19d" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structSYN__RingBuf" kindref="compound">SYN_RingBuf</ref><sp/><sp/><ref refid="structSYN__Stream_1a8211abb229a61690efca4f0ea934c19d" kindref="member">rb</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="70" refid="structSYN__Stream_1aadaf682832be01a6eb09dd1499e155e0" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__Stream_1aadaf682832be01a6eb09dd1499e155e0" kindref="member">threshold</ref>;<sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="71" refid="structSYN__Stream_1a6a423d83c4afc53ec4157ed955ce6cd9" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__Stream_1a6a423d83c4afc53ec4157ed955ce6cd9" kindref="member">delimiter</ref>;<sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="72" refid="structSYN__Stream_1a2eb34f6044d5521ed5cf7e87864bf99c" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__Stream_1a2eb34f6044d5521ed5cf7e87864bf99c" kindref="member">delim_en</ref>;<sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="73"><highlight class="normal">}<sp/><ref refid="structSYN__Stream" kindref="compound">SYN_Stream</ref>;</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"></highlight></codeline>
+<codeline lineno="75"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Init<sp/>/<sp/>config<sp/>────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="76"><highlight class="normal"></highlight></codeline>
+<codeline lineno="84"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__stream_8h_1a42a4bdbff4c3ef345942185da06c2c63" kindref="member">syn_stream_init</ref>(<ref refid="structSYN__Stream" kindref="compound">SYN_Stream</ref><sp/>*s,<sp/>uint8_t<sp/>*buf,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>size);</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"></highlight></codeline>
+<codeline lineno="96"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__stream_8h_1aa8896f75a350f019196c721581332e50" kindref="member">syn_stream_set_threshold</ref>(<ref refid="structSYN__Stream" kindref="compound">SYN_Stream</ref><sp/>*s,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>n);</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"></highlight></codeline>
+<codeline lineno="110"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__stream_8h_1ae0737d8b0e519018e70d3b755f13da2f" kindref="member">syn_stream_set_delimiter</ref>(<ref refid="structSYN__Stream" kindref="compound">SYN_Stream</ref><sp/>*s,<sp/>uint8_t<sp/>delim);</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"></highlight></codeline>
+<codeline lineno="116"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__stream_8h_1ab6a3d38c9a564383714819abce014043" kindref="member">syn_stream_clear_delimiter</ref>(<ref refid="structSYN__Stream" kindref="compound">SYN_Stream</ref><sp/>*s);</highlight></codeline>
+<codeline lineno="117"><highlight class="normal"></highlight></codeline>
+<codeline lineno="118"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Producer<sp/>(ISR-safe,<sp/>never<sp/>blocks)<sp/>────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="119"><highlight class="normal"></highlight></codeline>
+<codeline lineno="131"><highlight class="normal"></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="syn__stream_8h_1a1dbb6ffac353914bde85f819b451b2c9" kindref="member">syn_stream_write</ref>(<ref refid="structSYN__Stream" kindref="compound">SYN_Stream</ref><sp/>*s,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*data,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>len);</highlight></codeline>
+<codeline lineno="132"><highlight class="normal"></highlight></codeline>
+<codeline lineno="142"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__stream_8h_1adc55dcbcafdfa856a4e6003cbd0b3ca7" kindref="member">syn_stream_put</ref>(<ref refid="structSYN__Stream" kindref="compound">SYN_Stream</ref><sp/>*s,<sp/>uint8_t<sp/></highlight><highlight class="keywordtype">byte</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="143"><highlight class="normal"></highlight></codeline>
+<codeline lineno="144"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Consumer<sp/>─────────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="145"><highlight class="normal"></highlight></codeline>
+<codeline lineno="159"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__stream_8h_1a3da22588df5426dffd3df78873159d79" kindref="member">syn_stream_readable</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__Stream" kindref="compound">SYN_Stream</ref><sp/>*s);</highlight></codeline>
+<codeline lineno="160"><highlight class="normal"></highlight></codeline>
+<codeline lineno="172"><highlight class="normal"></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="syn__stream_8h_1a93f3f95335f877a2948142aa5c85398d" kindref="member">syn_stream_read</ref>(<ref refid="structSYN__Stream" kindref="compound">SYN_Stream</ref><sp/>*s,<sp/>uint8_t<sp/>*buf,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>max_len);</highlight></codeline>
+<codeline lineno="173"><highlight class="normal"></highlight></codeline>
+<codeline lineno="192"><highlight class="normal"></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="syn__stream_8h_1a332316e94f1615abe30f73cecbb7ba9f" kindref="member">syn_stream_read_line</ref>(<ref refid="structSYN__Stream" kindref="compound">SYN_Stream</ref><sp/>*s,<sp/>uint8_t<sp/>*buf,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>max_len);</highlight></codeline>
+<codeline lineno="193"><highlight class="normal"></highlight></codeline>
+<codeline lineno="199"><highlight class="normal"></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="syn__stream_8h_1a6f35dbb9db24aef9cdc0ffd015345b8b" kindref="member">syn_stream_count</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__Stream" kindref="compound">SYN_Stream</ref><sp/>*s);</highlight></codeline>
+<codeline lineno="200"><highlight class="normal"></highlight></codeline>
+<codeline lineno="206"><highlight class="normal"></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="syn__stream_8h_1a2815d2a9b4492bb0b80c0cff9e7c2756" kindref="member">syn_stream_free</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__Stream" kindref="compound">SYN_Stream</ref><sp/>*s);</highlight></codeline>
+<codeline lineno="207"><highlight class="normal"></highlight></codeline>
+<codeline lineno="212"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__stream_8h_1a0b0a62cd78a66fe3d8a74ba33573827e" kindref="member">syn_stream_flush</ref>(<ref refid="structSYN__Stream" kindref="compound">SYN_Stream</ref><sp/>*s);</highlight></codeline>
+<codeline lineno="213"><highlight class="normal"></highlight></codeline>
+<codeline lineno="214"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Protothread<sp/>integration<sp/>──────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="215"><highlight class="normal"></highlight></codeline>
+<codeline lineno="224" refid="syn__stream_8h_1ae80b40b03cc51333d9e96a2d1eba982d" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>PT_STREAM_WAIT(pt,<sp/>stream)<sp/><sp/>\</highlight></codeline>
+<codeline lineno="225"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>PT_WAIT_UNTIL(pt,<sp/>syn_stream_readable(stream))</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="226"><highlight class="normal"></highlight></codeline>
+<codeline lineno="227"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="228"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="229"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="230"><highlight class="normal"></highlight></codeline>
+<codeline lineno="231"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_STREAM_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/util/syn_stream.h"/>
+  </compounddef>
+</doxygen>

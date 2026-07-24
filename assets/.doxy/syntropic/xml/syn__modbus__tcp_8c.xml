@@ -1,0 +1,620 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__modbus__tcp_8c" kind="file" language="C++">
+    <compoundname>syn_modbus_tcp.c</compoundname>
+    <includes refid="syn__modbus__tcp_8h" local="yes">syn_modbus_tcp.h</includes>
+    <includes refid="syn__assert_8h" local="yes">../util/syn_assert.h</includes>
+    <includes refid="syn__pack_8h" local="yes">../util/syn_pack.h</includes>
+    <includes local="no">string.h</includes>
+    <incdepgraph>
+      <node id="13">
+        <label>../common/syn_compiler.h</label>
+        <link refid="syn__compiler_8h"/>
+      </node>
+      <node id="3">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>../drivers/syn_uart.h</label>
+        <link refid="syn__uart_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+      </node>
+      <node id="12">
+        <label>../port/syn_port_system.h</label>
+        <link refid="syn__port__system_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+      </node>
+      <node id="10">
+        <label>../port/syn_port_uart.h</label>
+        <link refid="syn__port__uart_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>syn_modbus.h</label>
+        <link refid="syn__modbus_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="14">
+        <label>syn_modbus_master.h</label>
+        <link refid="syn__modbus__master_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/proto/syn_modbus_tcp.c</label>
+        <link refid="syn__modbus__tcp_8c"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="15" relation="include">
+        </childnode>
+        <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>syn_modbus_tcp.h</label>
+        <link refid="syn__modbus__tcp_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="15">
+        <label>../util/syn_assert.h</label>
+        <link refid="syn__assert_8h"/>
+        <childnode refid="13" relation="include">
+        </childnode>
+      </node>
+      <node id="11">
+        <label>../util/syn_crc.h</label>
+        <link refid="syn__crc_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="16">
+        <label>../util/syn_pack.h</label>
+        <link refid="syn__pack_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>../util/syn_ringbuf.h</label>
+        <link refid="syn__ringbuf_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="9">
+        <label>stdbool.h</label>
+      </node>
+      <node id="5">
+        <label>stddef.h</label>
+      </node>
+      <node id="4">
+        <label>stdint.h</label>
+      </node>
+      <node id="17">
+        <label>string.h</label>
+      </node>
+    </incdepgraph>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__modbus__tcp_8c_1ad54309d191b24c7db12661004cc22f90" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_mbap_encode_header</definition>
+        <argsstring>(const SYN_MBAP_Header *hdr, uint8_t *buf)</argsstring>
+        <name>syn_mbap_encode_header</name>
+        <param>
+          <type>const <ref refid="structSYN__MBAP__Header" kindref="compound">SYN_MBAP_Header</ref> *</type>
+          <declname>hdr</declname>
+        </param>
+        <param>
+          <type>uint8_t *</type>
+          <declname>buf</declname>
+        </param>
+        <briefdescription>
+<para>Encode an MBAP header into a byte buffer. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>hdr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to MBAP header structure. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output byte buffer (must be at least 7 bytes). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_modbus_tcp.c" line="18" column="6" bodyfile="src/syntropic/proto/syn_modbus_tcp.c" bodystart="18" bodyend="28"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__modbus__tcp_8c_1abbff68ae508e4bda92f02f044cd7b864" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_mbap_decode_header</definition>
+        <argsstring>(const uint8_t *buf, SYN_MBAP_Header *hdr)</argsstring>
+        <name>syn_mbap_decode_header</name>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__MBAP__Header" kindref="compound">SYN_MBAP_Header</ref> *</type>
+          <declname>hdr</declname>
+        </param>
+        <briefdescription>
+<para>Decode an MBAP header from a byte buffer. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Input byte buffer (must be at least 7 bytes). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>hdr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to destination MBAP header structure. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if valid Modbus protocol ID (0x0000). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_modbus_tcp.c" line="30" column="6" bodyfile="src/syntropic/proto/syn_modbus_tcp.c" bodystart="30" bodyend="42"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__modbus__tcp_8c_1a00afafa388e6418d9f05c3eae9ea18fe" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint16_t</type>
+        <definition>static uint16_t get_response_pdu_len</definition>
+        <argsstring>(const uint8_t *buf)</argsstring>
+        <name>get_response_pdu_len</name>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>buf</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_modbus_tcp.c" line="44" column="17" bodyfile="src/syntropic/proto/syn_modbus_tcp.c" bodystart="44" bodyend="74"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__modbus__tcp_8c_1a5b990e346975f6c7c76ec2bd60b933a8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_modbus_tcp_process_slave</definition>
+        <argsstring>(SYN_Modbus *mb, const uint8_t *req_adu, uint16_t req_len, uint8_t *resp_adu, uint16_t resp_max, uint16_t *resp_len)</argsstring>
+        <name>syn_modbus_tcp_process_slave</name>
+        <param>
+          <type><ref refid="structSYN__Modbus" kindref="compound">SYN_Modbus</ref> *</type>
+          <declname>mb</declname>
+        </param>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>req_adu</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>req_len</declname>
+        </param>
+        <param>
+          <type>uint8_t *</type>
+          <declname>resp_adu</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>resp_max</declname>
+        </param>
+        <param>
+          <type>uint16_t *</type>
+          <declname>resp_len</declname>
+        </param>
+        <briefdescription>
+<para>Process an incoming Modbus TCP ADU frame on a Modbus Slave instance. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Takes a full Modbus TCP ADU (MBAP header + PDU), processes the PDU using the Modbus slave engine, and builds the corresponding Modbus TCP response ADU.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>mb</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Modbus RTU/PDU slave instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>req_adu</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Input Modbus TCP request ADU buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>req_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Length of request ADU in bytes. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>resp_adu</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output Modbus TCP response ADU buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>resp_max</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Capacity of response ADU buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>resp_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Out: Length of generated response ADU in bytes. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if response ADU generated, false if no response (or invalid ADU). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_modbus_tcp.c" line="76" column="6" bodyfile="src/syntropic/proto/syn_modbus_tcp.c" bodystart="76" bodyend="146"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__modbus__tcp_8c_1a28ccee5ef39f40acb4b78059e00e8068" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_modbus_tcp_build_client_adu</definition>
+        <argsstring>(uint16_t transaction_id, uint8_t unit_id, const uint8_t *pdu, uint16_t pdu_len, uint8_t *req_adu, uint16_t req_max, uint16_t *req_len)</argsstring>
+        <name>syn_modbus_tcp_build_client_adu</name>
+        <param>
+          <type>uint16_t</type>
+          <declname>transaction_id</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>unit_id</declname>
+        </param>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>pdu</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>pdu_len</declname>
+        </param>
+        <param>
+          <type>uint8_t *</type>
+          <declname>req_adu</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>req_max</declname>
+        </param>
+        <param>
+          <type>uint16_t *</type>
+          <declname>req_len</declname>
+        </param>
+        <briefdescription>
+<para>Build a Modbus TCP Master request ADU. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>transaction_id</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Transaction sequence number. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>unit_id</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Target Unit ID (slave address). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>pdu</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Raw PDU bytes (Function Code + Data). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>pdu_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>PDU length in bytes. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>req_adu</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output buffer for complete Modbus TCP ADU. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>req_max</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output buffer capacity. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>req_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Out: Total ADU length (7 + pdu_len). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_NO_MEMORY if buffer too small. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_modbus_tcp.c" line="148" column="12" bodyfile="src/syntropic/proto/syn_modbus_tcp.c" bodystart="148" bodyend="173"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Modbus TCP ADU (MBAP) framing implementation. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#if<sp/>__has_include(&quot;syn_config.h&quot;)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/>#include<sp/>&quot;syn_config.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="4"><highlight class="normal"></highlight></codeline>
+<codeline lineno="5"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>!defined(SYN_USE_MODBUS)<sp/>||<sp/>SYN_USE_MODBUS</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__modbus__tcp_8h" kindref="compound">syn_modbus_tcp.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../util/syn_assert.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../util/syn_pack.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;string.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__modbus__tcp_8c_1ad54309d191b24c7db12661004cc22f90" kindref="member">syn_mbap_encode_header</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__MBAP__Header" kindref="compound">SYN_MBAP_Header</ref><sp/>*hdr,<sp/>uint8_t<sp/>*buf)</highlight></codeline>
+<codeline lineno="19"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="20"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(hdr<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="21"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(buf<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>pos<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="24"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__pack_8h_1ab9a6a2d222c1fc7200a31ca996f5da03" kindref="member">syn_pack_u16</ref>(buf,<sp/>&amp;pos,<sp/>hdr-&gt;<ref refid="structSYN__MBAP__Header_1aa294416cb17c492e1d4725a2aef2389c" kindref="member">transaction_id</ref>);</highlight></codeline>
+<codeline lineno="25"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__pack_8h_1ab9a6a2d222c1fc7200a31ca996f5da03" kindref="member">syn_pack_u16</ref>(buf,<sp/>&amp;pos,<sp/>hdr-&gt;<ref refid="structSYN__MBAP__Header_1aa83766867109b191697f9eba5336b619" kindref="member">protocol_id</ref>);</highlight></codeline>
+<codeline lineno="26"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__pack_8h_1ab9a6a2d222c1fc7200a31ca996f5da03" kindref="member">syn_pack_u16</ref>(buf,<sp/>&amp;pos,<sp/>hdr-&gt;<ref refid="structSYN__MBAP__Header_1afad0f2d899fc1dfa7a240a4cd98c800c" kindref="member">length</ref>);</highlight></codeline>
+<codeline lineno="27"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__pack_8h_1aac40f9b22618ee05925bb28b93f1cc6d" kindref="member">syn_pack_u8</ref>(buf,<sp/>&amp;pos,<sp/>hdr-&gt;<ref refid="structSYN__MBAP__Header_1a4ec8c5b52f2e761b31cc5096ea7cbfb9" kindref="member">unit_id</ref>);</highlight></codeline>
+<codeline lineno="28"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__modbus__tcp_8c_1abbff68ae508e4bda92f02f044cd7b864" kindref="member">syn_mbap_decode_header</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*buf,<sp/><ref refid="structSYN__MBAP__Header" kindref="compound">SYN_MBAP_Header</ref><sp/>*hdr)</highlight></codeline>
+<codeline lineno="31"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="32"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(buf<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="33"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(hdr<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>pos<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="36"><highlight class="normal"><sp/><sp/><sp/><sp/>hdr-&gt;<ref refid="structSYN__MBAP__Header_1aa294416cb17c492e1d4725a2aef2389c" kindref="member">transaction_id</ref><sp/>=<sp/><ref refid="syn__pack_8h_1a4868cb667aa8793300a3d89bed13b306" kindref="member">syn_unpack_u16</ref>(buf,<sp/>&amp;pos);</highlight></codeline>
+<codeline lineno="37"><highlight class="normal"><sp/><sp/><sp/><sp/>hdr-&gt;<ref refid="structSYN__MBAP__Header_1aa83766867109b191697f9eba5336b619" kindref="member">protocol_id</ref><sp/><sp/><sp/><sp/>=<sp/><ref refid="syn__pack_8h_1a4868cb667aa8793300a3d89bed13b306" kindref="member">syn_unpack_u16</ref>(buf,<sp/>&amp;pos);</highlight></codeline>
+<codeline lineno="38"><highlight class="normal"><sp/><sp/><sp/><sp/>hdr-&gt;<ref refid="structSYN__MBAP__Header_1afad0f2d899fc1dfa7a240a4cd98c800c" kindref="member">length</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/><ref refid="syn__pack_8h_1a4868cb667aa8793300a3d89bed13b306" kindref="member">syn_unpack_u16</ref>(buf,<sp/>&amp;pos);</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"><sp/><sp/><sp/><sp/>hdr-&gt;<ref refid="structSYN__MBAP__Header_1a4ec8c5b52f2e761b31cc5096ea7cbfb9" kindref="member">unit_id</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/><ref refid="syn__pack_8h_1abc721915156bfc4d32591812796f3797" kindref="member">syn_unpack_u8</ref>(buf,<sp/>&amp;pos);</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(hdr-&gt;<ref refid="structSYN__MBAP__Header_1aa83766867109b191697f9eba5336b619" kindref="member">protocol_id</ref><sp/>==<sp/>0x0000);</highlight></codeline>
+<codeline lineno="42"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/>uint16_t<sp/>get_response_pdu_len(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*buf)</highlight></codeline>
+<codeline lineno="45"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>fc<sp/>=<sp/>buf[1];</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(fc<sp/>&amp;<sp/>0x80)<sp/>{</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>2;<sp/></highlight><highlight class="comment">/*<sp/>Function<sp/>Code<sp/>+<sp/>Exception<sp/>Code<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"></highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">switch</highlight><highlight class="normal"><sp/>(fc)<sp/>{</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__modbus_8h_1ac24540a0ad1997252be98473ade5a1d5" kindref="member">SYN_MB_FC_READ_COILS</ref>:</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__modbus_8h_1a66aea7e4db2c783aefd9b25a748ccabe" kindref="member">SYN_MB_FC_READ_DISCRETE_INPUTS</ref>:</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__modbus_8h_1aaf2727467ff1f8c42965d845e95c054d" kindref="member">SYN_MB_FC_READ_HOLDING</ref>:</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__modbus_8h_1a6209843d8b3151181000c443e618ebd7" kindref="member">SYN_MB_FC_READ_INPUT</ref>:</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__modbus_8h_1a95217857ab28ca5144728d03bd251c71" kindref="member">SYN_MB_FC_REPORT_SERVER_ID</ref>:</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(uint16_t)(2<sp/>+<sp/>buf[2]);</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"></highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__modbus_8h_1a5248f4b320581b48ae5d78911e270bbb" kindref="member">SYN_MB_FC_WRITE_SINGLE_COIL</ref>:</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__modbus_8h_1a96db561a7df6ecf8a911d9d8950c3b11" kindref="member">SYN_MB_FC_WRITE_SINGLE</ref>:</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__modbus_8h_1ac636cdfc559e43fa90719c872bc99fb6" kindref="member">SYN_MB_FC_WRITE_MULTIPLE_COILS</ref>:</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__modbus_8h_1a30e175c0ac841f41d6d135ced62f2607" kindref="member">SYN_MB_FC_WRITE_MULTIPLE</ref>:</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>5;</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"></highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__modbus_8h_1a15d7ac5f5bc05b1b7c22faf851a2bf53" kindref="member">SYN_MB_FC_READ_EXCEPTION_STATUS</ref>:</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>2;</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"></highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__modbus_8h_1a52c84a87fe2cd34732518b829343562e" kindref="member">SYN_MB_FC_MASK_WRITE_REGISTER</ref>:</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>7;</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"></highlight></codeline>
+<codeline lineno="71"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">default</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(uint16_t)(2<sp/>+<sp/>buf[2]);</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="74"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"></highlight></codeline>
+<codeline lineno="76"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__modbus__tcp_8c_1a5b990e346975f6c7c76ec2bd60b933a8" kindref="member">syn_modbus_tcp_process_slave</ref>(<ref refid="structSYN__Modbus" kindref="compound">SYN_Modbus</ref><sp/>*mb,</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*req_adu,<sp/>uint16_t<sp/>req_len,</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>*resp_adu,<sp/>uint16_t<sp/>resp_max,</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint16_t<sp/>*resp_len)</highlight></codeline>
+<codeline lineno="80"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(mb<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(req_adu<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(resp_adu<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(resp_len<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"></highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/><sp/><sp/>*resp_len<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"></highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(req_len<sp/>&lt;<sp/><ref refid="syn__modbus__tcp_8h_1a5f4047aa5850069c91da224b13c30c7d" kindref="member">SYN_MBAP_HEADER_LEN</ref><sp/>+<sp/>1)<sp/>{</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;<sp/></highlight><highlight class="comment">/*<sp/>ADU<sp/>too<sp/>short<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="90"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"></highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structSYN__MBAP__Header" kindref="compound">SYN_MBAP_Header</ref><sp/>req_hdr;</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!<ref refid="syn__modbus__tcp_8c_1abbff68ae508e4bda92f02f044cd7b864" kindref="member">syn_mbap_decode_header</ref>(req_adu,<sp/>&amp;req_hdr))<sp/>{</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;<sp/></highlight><highlight class="comment">/*<sp/>Not<sp/>Modbus<sp/>TCP<sp/>protocol<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"></highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/>expected_payload_len<sp/>=<sp/>req_hdr.<ref refid="structSYN__MBAP__Header_1afad0f2d899fc1dfa7a240a4cd98c800c" kindref="member">length</ref>;</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(expected_payload_len<sp/>&lt;<sp/>2<sp/>||<sp/>req_len<sp/>&lt;<sp/><ref refid="syn__modbus__tcp_8h_1a5f4047aa5850069c91da224b13c30c7d" kindref="member">SYN_MBAP_HEADER_LEN</ref><sp/>-<sp/>1<sp/>+<sp/>expected_payload_len)<sp/>{</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;<sp/></highlight><highlight class="comment">/*<sp/>Length<sp/>mismatch<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"></highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/>pdu_len<sp/>=<sp/>expected_payload_len<sp/>-<sp/>1;<sp/></highlight><highlight class="comment">/*<sp/>Unit<sp/>ID<sp/>is<sp/>1<sp/>byte<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="103"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(pdu_len<sp/>&gt;<sp/>mb-&gt;<ref refid="structSYN__Modbus_1a08166f2dffa3902420c6e482c8c8c225" kindref="member">buf_size</ref><sp/>-<sp/>3)<sp/>{</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"></highlight></codeline>
+<codeline lineno="107"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Unit<sp/>ID<sp/>check:<sp/>Accept<sp/>if<sp/>matching<sp/>slave<sp/>address<sp/>or<sp/>unit_id<sp/>==<sp/>0<sp/>or<sp/>255<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="108"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(req_hdr.<ref refid="structSYN__MBAP__Header_1a4ec8c5b52f2e761b31cc5096ea7cbfb9" kindref="member">unit_id</ref><sp/>!=<sp/>mb-&gt;<ref refid="structSYN__Modbus_1ae2cc8db5a1f45e8cdbb2cf73177c3d07" kindref="member">cfg</ref>.<ref refid="structSYN__Modbus__Config_1a7d2394814354182b824edabf70e6cfc8" kindref="member">slave_addr</ref><sp/>&amp;&amp;<sp/>req_hdr.<ref refid="structSYN__MBAP__Header_1a4ec8c5b52f2e761b31cc5096ea7cbfb9" kindref="member">unit_id</ref><sp/>!=<sp/>0<sp/>&amp;&amp;<sp/>req_hdr.<ref refid="structSYN__MBAP__Header_1a4ec8c5b52f2e761b31cc5096ea7cbfb9" kindref="member">unit_id</ref><sp/>!=<sp/>0xFF)<sp/>{</highlight></codeline>
+<codeline lineno="109"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="110"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"></highlight></codeline>
+<codeline lineno="112"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Copy<sp/>Unit<sp/>ID<sp/>and<sp/>PDU<sp/>into<sp/>slave<sp/>buffer,<sp/>then<sp/>append<sp/>CRC<sp/>for<sp/>syn_modbus_process<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="113"><highlight class="normal"><sp/><sp/><sp/><sp/>mb-&gt;<ref refid="structSYN__Modbus_1a5d0454ec16f1860e4bc862660e7b386e" kindref="member">buf</ref>[0]<sp/>=<sp/>req_hdr.<ref refid="structSYN__MBAP__Header_1a4ec8c5b52f2e761b31cc5096ea7cbfb9" kindref="member">unit_id</ref>;</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"><sp/><sp/><sp/><sp/>memcpy(&amp;mb-&gt;<ref refid="structSYN__Modbus_1a5d0454ec16f1860e4bc862660e7b386e" kindref="member">buf</ref>[1],<sp/>&amp;req_adu[<ref refid="syn__modbus__tcp_8h_1a5f4047aa5850069c91da224b13c30c7d" kindref="member">SYN_MBAP_HEADER_LEN</ref>],<sp/>pdu_len);</highlight></codeline>
+<codeline lineno="115"><highlight class="normal"></highlight></codeline>
+<codeline lineno="116"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/>crc<sp/>=<sp/><ref refid="syn__crc_8h_1aaca1b84c65ac5075a33e906be74dbc3c" kindref="member">syn_crc16_modbus</ref>(mb-&gt;<ref refid="structSYN__Modbus_1a5d0454ec16f1860e4bc862660e7b386e" kindref="member">buf</ref>,<sp/>1<sp/>+<sp/>pdu_len);</highlight></codeline>
+<codeline lineno="117"><highlight class="normal"><sp/><sp/><sp/><sp/>mb-&gt;<ref refid="structSYN__Modbus_1a5d0454ec16f1860e4bc862660e7b386e" kindref="member">buf</ref>[1<sp/>+<sp/>pdu_len]<sp/>=<sp/>(uint8_t)(crc<sp/>&amp;<sp/>0xFF);</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"><sp/><sp/><sp/><sp/>mb-&gt;<ref refid="structSYN__Modbus_1a5d0454ec16f1860e4bc862660e7b386e" kindref="member">buf</ref>[2<sp/>+<sp/>pdu_len]<sp/>=<sp/>(uint8_t)((crc<sp/>&gt;&gt;<sp/>8)<sp/>&amp;<sp/>0xFF);</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"><sp/><sp/><sp/><sp/>mb-&gt;<ref refid="structSYN__Modbus_1acf0bc24e1298938b2f94d134b8794433" kindref="member">rx_len</ref><sp/>=<sp/>3<sp/>+<sp/>pdu_len;</highlight></codeline>
+<codeline lineno="120"><highlight class="normal"></highlight></codeline>
+<codeline lineno="121"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Process<sp/>PDU<sp/>using<sp/>slave<sp/>dispatcher<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="122"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>has_response<sp/>=<sp/><ref refid="syn__modbus_8c_1afeccc6e587393c47feedda49b79e086e" kindref="member">syn_modbus_process</ref>(mb);</highlight></codeline>
+<codeline lineno="123"><highlight class="normal"></highlight></codeline>
+<codeline lineno="124"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Broadcast<sp/>or<sp/>exception<sp/>without<sp/>response<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="125"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!has_response<sp/>||<sp/>mb-&gt;<ref refid="structSYN__Modbus_1a5d0454ec16f1860e4bc862660e7b386e" kindref="member">buf</ref>[0]<sp/>==<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="126"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="127"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="128"><highlight class="normal"></highlight></codeline>
+<codeline lineno="129"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/>resp_pdu_len<sp/>=<sp/>get_response_pdu_len(mb-&gt;<ref refid="structSYN__Modbus_1a5d0454ec16f1860e4bc862660e7b386e" kindref="member">buf</ref>);</highlight></codeline>
+<codeline lineno="130"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/>total_resp_adu_len<sp/>=<sp/><ref refid="syn__modbus__tcp_8h_1a5f4047aa5850069c91da224b13c30c7d" kindref="member">SYN_MBAP_HEADER_LEN</ref><sp/>+<sp/>resp_pdu_len;</highlight></codeline>
+<codeline lineno="131"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(total_resp_adu_len<sp/>&gt;<sp/>resp_max)<sp/>{</highlight></codeline>
+<codeline lineno="132"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="133"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="134"><highlight class="normal"></highlight></codeline>
+<codeline lineno="135"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structSYN__MBAP__Header" kindref="compound">SYN_MBAP_Header</ref><sp/>resp_hdr;</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"><sp/><sp/><sp/><sp/>resp_hdr.<ref refid="structSYN__MBAP__Header_1aa294416cb17c492e1d4725a2aef2389c" kindref="member">transaction_id</ref><sp/>=<sp/>req_hdr.<ref refid="structSYN__MBAP__Header_1aa294416cb17c492e1d4725a2aef2389c" kindref="member">transaction_id</ref>;</highlight></codeline>
+<codeline lineno="137"><highlight class="normal"><sp/><sp/><sp/><sp/>resp_hdr.<ref refid="structSYN__MBAP__Header_1aa83766867109b191697f9eba5336b619" kindref="member">protocol_id</ref><sp/><sp/><sp/><sp/>=<sp/>0x0000;</highlight></codeline>
+<codeline lineno="138"><highlight class="normal"><sp/><sp/><sp/><sp/>resp_hdr.<ref refid="structSYN__MBAP__Header_1afad0f2d899fc1dfa7a240a4cd98c800c" kindref="member">length</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>(uint16_t)(1<sp/>+<sp/>resp_pdu_len);<sp/></highlight><highlight class="comment">/*<sp/>Unit<sp/>ID<sp/>(1)<sp/>+<sp/>PDU<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="139"><highlight class="normal"><sp/><sp/><sp/><sp/>resp_hdr.<ref refid="structSYN__MBAP__Header_1a4ec8c5b52f2e761b31cc5096ea7cbfb9" kindref="member">unit_id</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>req_hdr.<ref refid="structSYN__MBAP__Header_1a4ec8c5b52f2e761b31cc5096ea7cbfb9" kindref="member">unit_id</ref>;</highlight></codeline>
+<codeline lineno="140"><highlight class="normal"></highlight></codeline>
+<codeline lineno="141"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__modbus__tcp_8c_1ad54309d191b24c7db12661004cc22f90" kindref="member">syn_mbap_encode_header</ref>(&amp;resp_hdr,<sp/>resp_adu);</highlight></codeline>
+<codeline lineno="142"><highlight class="normal"><sp/><sp/><sp/><sp/>memcpy(&amp;resp_adu[<ref refid="syn__modbus__tcp_8h_1a5f4047aa5850069c91da224b13c30c7d" kindref="member">SYN_MBAP_HEADER_LEN</ref>],<sp/>&amp;mb-&gt;<ref refid="structSYN__Modbus_1a5d0454ec16f1860e4bc862660e7b386e" kindref="member">buf</ref>[1],<sp/>resp_pdu_len);</highlight></codeline>
+<codeline lineno="143"><highlight class="normal"></highlight></codeline>
+<codeline lineno="144"><highlight class="normal"><sp/><sp/><sp/><sp/>*resp_len<sp/>=<sp/>total_resp_adu_len;</highlight></codeline>
+<codeline lineno="145"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="146"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="147"><highlight class="normal"></highlight></codeline>
+<codeline lineno="148"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__modbus__tcp_8c_1a28ccee5ef39f40acb4b78059e00e8068" kindref="member">syn_modbus_tcp_build_client_adu</ref>(uint16_t<sp/>transaction_id,<sp/>uint8_t<sp/>unit_id,</highlight></codeline>
+<codeline lineno="149"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*pdu,<sp/>uint16_t<sp/>pdu_len,</highlight></codeline>
+<codeline lineno="150"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>*req_adu,<sp/>uint16_t<sp/>req_max,</highlight></codeline>
+<codeline lineno="151"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint16_t<sp/>*req_len)</highlight></codeline>
+<codeline lineno="152"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="153"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(pdu<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="154"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(req_adu<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="155"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(req_len<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="156"><highlight class="normal"></highlight></codeline>
+<codeline lineno="157"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(pdu_len<sp/>==<sp/>0<sp/>||<sp/>pdu_len<sp/>&gt;<sp/>253)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="158"><highlight class="normal"></highlight></codeline>
+<codeline lineno="159"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/>total_len<sp/>=<sp/><ref refid="syn__modbus__tcp_8h_1a5f4047aa5850069c91da224b13c30c7d" kindref="member">SYN_MBAP_HEADER_LEN</ref><sp/>+<sp/>pdu_len;</highlight></codeline>
+<codeline lineno="160"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(total_len<sp/>&gt;<sp/>req_max)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="161"><highlight class="normal"></highlight></codeline>
+<codeline lineno="162"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structSYN__MBAP__Header" kindref="compound">SYN_MBAP_Header</ref><sp/>hdr;</highlight></codeline>
+<codeline lineno="163"><highlight class="normal"><sp/><sp/><sp/><sp/>hdr.<ref refid="structSYN__MBAP__Header_1aa294416cb17c492e1d4725a2aef2389c" kindref="member">transaction_id</ref><sp/>=<sp/>transaction_id;</highlight></codeline>
+<codeline lineno="164"><highlight class="normal"><sp/><sp/><sp/><sp/>hdr.<ref refid="structSYN__MBAP__Header_1aa83766867109b191697f9eba5336b619" kindref="member">protocol_id</ref><sp/><sp/><sp/><sp/>=<sp/>0x0000;</highlight></codeline>
+<codeline lineno="165"><highlight class="normal"><sp/><sp/><sp/><sp/>hdr.<ref refid="structSYN__MBAP__Header_1afad0f2d899fc1dfa7a240a4cd98c800c" kindref="member">length</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>(uint16_t)(1<sp/>+<sp/>pdu_len);</highlight></codeline>
+<codeline lineno="166"><highlight class="normal"><sp/><sp/><sp/><sp/>hdr.<ref refid="structSYN__MBAP__Header_1a4ec8c5b52f2e761b31cc5096ea7cbfb9" kindref="member">unit_id</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>unit_id;</highlight></codeline>
+<codeline lineno="167"><highlight class="normal"></highlight></codeline>
+<codeline lineno="168"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__modbus__tcp_8c_1ad54309d191b24c7db12661004cc22f90" kindref="member">syn_mbap_encode_header</ref>(&amp;hdr,<sp/>req_adu);</highlight></codeline>
+<codeline lineno="169"><highlight class="normal"><sp/><sp/><sp/><sp/>memcpy(&amp;req_adu[<ref refid="syn__modbus__tcp_8h_1a5f4047aa5850069c91da224b13c30c7d" kindref="member">SYN_MBAP_HEADER_LEN</ref>],<sp/>pdu,<sp/>pdu_len);</highlight></codeline>
+<codeline lineno="170"><highlight class="normal"></highlight></codeline>
+<codeline lineno="171"><highlight class="normal"><sp/><sp/><sp/><sp/>*req_len<sp/>=<sp/>total_len;</highlight></codeline>
+<codeline lineno="172"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="173"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="174"><highlight class="normal"></highlight></codeline>
+<codeline lineno="175"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_USE_MODBUS<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/proto/syn_modbus_tcp.c"/>
+  </compounddef>
+</doxygen>

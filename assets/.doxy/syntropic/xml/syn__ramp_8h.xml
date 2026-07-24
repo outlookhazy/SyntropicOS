@@ -1,0 +1,599 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__ramp_8h" kind="file" language="C++">
+    <compoundname>syn_ramp.h</compoundname>
+    <includes refid="syn__defs_8h" local="yes">../common/syn_defs.h</includes>
+    <includes local="no">stdbool.h</includes>
+    <includedby refid="syn__dc__motor_8c" local="yes">src/syntropic/motor/syn_dc_motor.c</includedby>
+    <includedby refid="syn__dc__motor_8h" local="yes">src/syntropic/motor/syn_dc_motor.h</includedby>
+    <includedby refid="syn__motor__ctrl_8h" local="yes">src/syntropic/motor/syn_motor_ctrl.h</includedby>
+    <includedby refid="syntropic_8h" local="yes">src/syntropic/syntropic.h</includedby>
+    <includedby refid="syn__ramp_8c" local="yes">src/syntropic/util/syn_ramp.c</includedby>
+    <incdepgraph>
+      <node id="2">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/util/syn_ramp.h</label>
+        <link refid="syn__ramp_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>stdbool.h</label>
+      </node>
+      <node id="4">
+        <label>stddef.h</label>
+      </node>
+      <node id="3">
+        <label>stdint.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="8">
+        <label>src/syntropic/control/syn_autotune.h</label>
+        <link refid="syn__autotune_8h"/>
+      </node>
+      <node id="4">
+        <label>src/syntropic/motor/syn_actuator.c</label>
+        <link refid="syn__actuator_8c"/>
+      </node>
+      <node id="5">
+        <label>src/syntropic/motor/syn_actuator.h</label>
+        <link refid="syn__actuator_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>src/syntropic/motor/syn_dc_motor.c</label>
+        <link refid="syn__dc__motor_8c"/>
+      </node>
+      <node id="3">
+        <label>src/syntropic/motor/syn_dc_motor.h</label>
+        <link refid="syn__dc__motor_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="9">
+        <label>src/syntropic/motor/syn_motor_ctrl.c</label>
+        <link refid="syn__motor__ctrl_8c"/>
+      </node>
+      <node id="7">
+        <label>src/syntropic/motor/syn_motor_ctrl.h</label>
+        <link refid="syn__motor__ctrl_8h"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>src/syntropic/syntropic.h</label>
+        <link refid="syntropic_8h"/>
+      </node>
+      <node id="10">
+        <label>src/syntropic/util/syn_ramp.c</label>
+        <link refid="syn__ramp_8c"/>
+      </node>
+      <node id="1">
+        <label>src/syntropic/util/syn_ramp.h</label>
+        <link refid="syn__ramp_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="structSYN__Ramp" prot="public">SYN_Ramp</innerclass>
+    <sectiondef kind="enum">
+      <memberdef kind="enum" id="syn__ramp_8h_1a2aaba84749ac16f6023a3bf0097e6f0e" prot="public" static="no" strong="no">
+        <type></type>
+        <name>SYN_RampMode</name>
+        <enumvalue id="syn__ramp_8h_1a2aaba84749ac16f6023a3bf0097e6f0ea741d3a230c36cc4f7a689465cfc1a75c" prot="public">
+          <name>SYN_RAMP_LINEAR</name>
+          <initializer>= 0</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Constant rate <linebreak/>
+ </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__ramp_8h_1a2aaba84749ac16f6023a3bf0097e6f0ea1d43416ab800a098edc22df14ca9235d" prot="public">
+          <name>SYN_RAMP_TRAPEZOID</name>
+          <initializer>= 1</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Smooth acceleration/deceleration <linebreak/>
+ </para>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>Ramp profile mode. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_ramp.h" line="43" column="1" bodyfile="src/syntropic/util/syn_ramp.h" bodystart="43" bodyend="46"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__ramp_8h_1a52d1c828ac89b45a17be1736863bfc04" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_ramp_init</definition>
+        <argsstring>(SYN_Ramp *ramp, int32_t initial)</argsstring>
+        <name>syn_ramp_init</name>
+        <param>
+          <type><ref refid="structSYN__Ramp" kindref="compound">SYN_Ramp</ref> *</type>
+          <declname>ramp</declname>
+        </param>
+        <param>
+          <type>int32_t</type>
+          <declname>initial</declname>
+        </param>
+        <briefdescription>
+<para>Initialize ramp generator. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ramp</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Ramp instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>initial</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Starting value. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_ramp.h" line="71" column="6" bodyfile="src/syntropic/util/syn_ramp.c" bodystart="17" bodyend="25" declfile="src/syntropic/util/syn_ramp.h" declline="71" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__ramp_8h_1ab37da99a5fb59848009175e850fa596d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_ramp_set_target</definition>
+        <argsstring>(SYN_Ramp *ramp, int32_t target, int32_t rate)</argsstring>
+        <name>syn_ramp_set_target</name>
+        <param>
+          <type><ref refid="structSYN__Ramp" kindref="compound">SYN_Ramp</ref> *</type>
+          <declname>ramp</declname>
+        </param>
+        <param>
+          <type>int32_t</type>
+          <declname>target</declname>
+        </param>
+        <param>
+          <type>int32_t</type>
+          <declname>rate</declname>
+        </param>
+        <briefdescription>
+<para>Set new target with linear ramp. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ramp</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Ramp instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>target</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Desired final value. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>rate</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Max change per update call (always positive). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_ramp.h" line="80" column="6" bodyfile="src/syntropic/util/syn_ramp.c" bodystart="27" bodyend="38" declfile="src/syntropic/util/syn_ramp.h" declline="80" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__ramp_8h_1a37d9bdcbd18f15e057dce2637651c2d2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_ramp_set_target_trapezoid</definition>
+        <argsstring>(SYN_Ramp *ramp, int32_t target, int32_t max_rate, int32_t accel)</argsstring>
+        <name>syn_ramp_set_target_trapezoid</name>
+        <param>
+          <type><ref refid="structSYN__Ramp" kindref="compound">SYN_Ramp</ref> *</type>
+          <declname>ramp</declname>
+        </param>
+        <param>
+          <type>int32_t</type>
+          <declname>target</declname>
+        </param>
+        <param>
+          <type>int32_t</type>
+          <declname>max_rate</declname>
+        </param>
+        <param>
+          <type>int32_t</type>
+          <declname>accel</declname>
+        </param>
+        <briefdescription>
+<para>Set new target with trapezoidal ramp (acceleration/deceleration). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ramp</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Ramp instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>target</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Desired final value. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>max_rate</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Max velocity (units/tick). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>accel</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Acceleration (units/tick²). Controls smoothness. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_ramp.h" line="90" column="6" bodyfile="src/syntropic/util/syn_ramp.c" bodystart="40" bodyend="55" declfile="src/syntropic/util/syn_ramp.h" declline="90" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__ramp_8h_1a6cf8bcdc5048165203390d4cc51cdc20" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_ramp_set_target_trapezoid_fp</definition>
+        <argsstring>(SYN_Ramp *ramp, int32_t target, int32_t max_rate, int32_t accel, uint8_t frac_bits)</argsstring>
+        <name>syn_ramp_set_target_trapezoid_fp</name>
+        <param>
+          <type><ref refid="structSYN__Ramp" kindref="compound">SYN_Ramp</ref> *</type>
+          <declname>ramp</declname>
+        </param>
+        <param>
+          <type>int32_t</type>
+          <declname>target</declname>
+        </param>
+        <param>
+          <type>int32_t</type>
+          <declname>max_rate</declname>
+        </param>
+        <param>
+          <type>int32_t</type>
+          <declname>accel</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>frac_bits</declname>
+        </param>
+        <briefdescription>
+<para>Set new target with fixed-point trapezoidal ramp. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Like <ref refid="syn__ramp_8h_1a37d9bdcbd18f15e057dce2637651c2d2" kindref="member">syn_ramp_set_target_trapezoid()</ref>, but velocity and acceleration are in Q<computeroutput>frac_bits</computeroutput> fixed-point. This allows sub-unit-per-tick resolution for smooth motion at high update rates.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ramp</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Ramp instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>target</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Desired final value (integer, not fixed-point). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>max_rate</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Max velocity in Q<computeroutput>frac_bits</computeroutput> (e.g., Q8). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>accel</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Acceleration in Q<computeroutput>frac_bits</computeroutput>. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>frac_bits</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of fractional bits (e.g., 8 for Q8). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_ramp.h" line="106" column="6" bodyfile="src/syntropic/util/syn_ramp.c" bodystart="57" bodyend="74" declfile="src/syntropic/util/syn_ramp.h" declline="106" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__ramp_8h_1a03caa503aa8f8dfbb8e680e259a600ec" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int32_t</type>
+        <definition>int32_t syn_ramp_update</definition>
+        <argsstring>(SYN_Ramp *ramp)</argsstring>
+        <name>syn_ramp_update</name>
+        <param>
+          <type><ref refid="structSYN__Ramp" kindref="compound">SYN_Ramp</ref> *</type>
+          <declname>ramp</declname>
+        </param>
+        <briefdescription>
+<para>Update the ramp — call once per tick. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ramp</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Ramp instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Current output value. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_ramp.h" line="116" column="9" bodyfile="src/syntropic/util/syn_ramp.c" bodystart="181" bodyend="193" declfile="src/syntropic/util/syn_ramp.h" declline="116" declcolumn="9"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__ramp_8h_1a23da637a557edc06f31c881ce3f25b9f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_ramp_jump</definition>
+        <argsstring>(SYN_Ramp *ramp, int32_t value)</argsstring>
+        <name>syn_ramp_jump</name>
+        <param>
+          <type><ref refid="structSYN__Ramp" kindref="compound">SYN_Ramp</ref> *</type>
+          <declname>ramp</declname>
+        </param>
+        <param>
+          <type>int32_t</type>
+          <declname>value</declname>
+        </param>
+        <briefdescription>
+<para>Jump immediately to a value (no ramp). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ramp</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Ramp instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>value</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Value to jump to. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_ramp.h" line="123" column="6" bodyfile="src/syntropic/util/syn_ramp.c" bodystart="195" bodyend="203" declfile="src/syntropic/util/syn_ramp.h" declline="123" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__ramp_8h_1a1b8e3a61a9ee41b4936b0e1f886d4d9c" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>static bool syn_ramp_done</definition>
+        <argsstring>(const SYN_Ramp *ramp)</argsstring>
+        <name>syn_ramp_done</name>
+        <param>
+          <type>const <ref refid="structSYN__Ramp" kindref="compound">SYN_Ramp</ref> *</type>
+          <declname>ramp</declname>
+        </param>
+        <briefdescription>
+<para>Check if ramp has reached its target. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ramp</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Ramp instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if done. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_ramp.h" line="130" column="20" bodyfile="src/syntropic/util/syn_ramp.h" bodystart="130" bodyend="133"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__ramp_8h_1ae63080e0e13a3b9a337479be54f386dc" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>int32_t</type>
+        <definition>static int32_t syn_ramp_value</definition>
+        <argsstring>(const SYN_Ramp *ramp)</argsstring>
+        <name>syn_ramp_value</name>
+        <param>
+          <type>const <ref refid="structSYN__Ramp" kindref="compound">SYN_Ramp</ref> *</type>
+          <declname>ramp</declname>
+        </param>
+        <briefdescription>
+<para>Get current value without updating. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ramp</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Ramp instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Current value. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_ramp.h" line="140" column="23" bodyfile="src/syntropic/util/syn_ramp.h" bodystart="140" bodyend="143"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Ramp / motion profile generator. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Generates smooth setpoint transitions for any controlled variable (valves, lights, temperature, motor speed, etc.).</para>
+<para>Supports two modes:<itemizedlist>
+<listitem><para>LINEAR: constant slew rate</para>
+</listitem><listitem><para>TRAPEZOID: acceleration/deceleration (trapezoidal velocity profile)</para>
+</listitem></itemizedlist>
+</para>
+<para>The trapezoid mode supports optional fixed-point velocity/acceleration via <computeroutput><ref refid="syn__ramp_8h_1a6cf8bcdc5048165203390d4cc51cdc20" kindref="member">syn_ramp_set_target_trapezoid_fp()</ref></computeroutput>. This allows sub-unit-per-tick resolution — critical when converting from per-second to per-tick at high update rates where integer truncation would lose precision.</para>
+<para>Usage: <programlisting><codeline><highlight class="keyword">static</highlight><highlight class="normal"><sp/><ref refid="structSYN__Ramp" kindref="compound">SYN_Ramp</ref><sp/>ramp;</highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__ramp_8c_1a52d1c828ac89b45a17be1736863bfc04" kindref="member">syn_ramp_init</ref>(&amp;ramp,<sp/>0);</highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__ramp_8c_1ab37da99a5fb59848009175e850fa596d" kindref="member">syn_ramp_set_target</ref>(&amp;ramp,<sp/>1000,<sp/>10);<sp/><sp/></highlight><highlight class="comment">//<sp/>ramp<sp/>to<sp/>1000<sp/>at<sp/>10/tick</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="comment">//<sp/>In<sp/>your<sp/>update<sp/>loop:</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal">int32_t<sp/>output<sp/>=<sp/><ref refid="syn__ramp_8c_1a03caa503aa8f8dfbb8e680e259a600ec" kindref="member">syn_ramp_update</ref>(&amp;ramp);</highlight></codeline>
+</programlisting> </para>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_RAMP_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_RAMP_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../common/syn_defs.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Ramp<sp/>mode<sp/>────────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight></codeline>
+<codeline lineno="43" refid="syn__ramp_8h_1a2aaba84749ac16f6023a3bf0097e6f0e" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="44" refid="syn__ramp_8h_1a2aaba84749ac16f6023a3bf0097e6f0ea741d3a230c36cc4f7a689465cfc1a75c" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__ramp_8h_1a2aaba84749ac16f6023a3bf0097e6f0ea741d3a230c36cc4f7a689465cfc1a75c" kindref="member">SYN_RAMP_LINEAR</ref><sp/><sp/><sp/><sp/>=<sp/>0,<sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="45" refid="syn__ramp_8h_1a2aaba84749ac16f6023a3bf0097e6f0ea1d43416ab800a098edc22df14ca9235d" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__ramp_8h_1a2aaba84749ac16f6023a3bf0097e6f0ea1d43416ab800a098edc22df14ca9235d" kindref="member">SYN_RAMP_TRAPEZOID</ref><sp/>=<sp/>1,<sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="46"><highlight class="normal">}<sp/><ref refid="syn__ramp_8h_1a2aaba84749ac16f6023a3bf0097e6f0e" kindref="member">SYN_RampMode</ref>;</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"></highlight></codeline>
+<codeline lineno="48"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Ramp<sp/>instance<sp/>────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="49"><highlight class="normal"></highlight></codeline>
+<codeline lineno="51" refid="structSYN__Ramp" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="52" refid="structSYN__Ramp_1a9ccbd0588d83cf2010353e9ef868d44b" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>int32_t<sp/><sp/><ref refid="structSYN__Ramp_1a9ccbd0588d83cf2010353e9ef868d44b" kindref="member">current</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="53" refid="structSYN__Ramp_1ac3c331c25369d82914c900651614ac64" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>int32_t<sp/><sp/><ref refid="structSYN__Ramp_1ac3c331c25369d82914c900651614ac64" kindref="member">target</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="54" refid="structSYN__Ramp_1a35f839d78461bfd22e4aa6b804439a4b" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>int32_t<sp/><sp/><ref refid="structSYN__Ramp_1a35f839d78461bfd22e4aa6b804439a4b" kindref="member">rate</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="55" refid="structSYN__Ramp_1a842176ad7f191c0a8700009716d44695" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>int32_t<sp/><sp/><ref refid="structSYN__Ramp_1a842176ad7f191c0a8700009716d44695" kindref="member">velocity</ref>;<sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="56" refid="structSYN__Ramp_1ad7073b224a25e9f04c353743c7393570" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>int32_t<sp/><sp/><ref refid="structSYN__Ramp_1ad7073b224a25e9f04c353743c7393570" kindref="member">accel</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="57" refid="structSYN__Ramp_1a2d974c80cfde52ceddba593e97c09afb" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>int32_t<sp/><sp/><ref refid="structSYN__Ramp_1a2d974c80cfde52ceddba593e97c09afb" kindref="member">frac_accum</ref>;<sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="58" refid="structSYN__Ramp_1a0383e5c91f936ccaad76608edada707f" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/><ref refid="structSYN__Ramp_1a0383e5c91f936ccaad76608edada707f" kindref="member">frac_bits</ref>;<sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="59" refid="structSYN__Ramp_1a3a95c03f41b0fc8ad432f1fedb2f6299" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/><ref refid="structSYN__Ramp_1a3a95c03f41b0fc8ad432f1fedb2f6299" kindref="member">mode</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="60" refid="structSYN__Ramp_1ae5b51a850cf6384569a483277fea1ccb" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__Ramp_1ae5b51a850cf6384569a483277fea1ccb" kindref="member">done</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="61"><highlight class="normal">}<sp/><ref refid="structSYN__Ramp" kindref="compound">SYN_Ramp</ref>;</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"></highlight></codeline>
+<codeline lineno="63"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>API<sp/>──────────────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="64"><highlight class="normal"></highlight></codeline>
+<codeline lineno="71"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__ramp_8h_1a52d1c828ac89b45a17be1736863bfc04" kindref="member">syn_ramp_init</ref>(<ref refid="structSYN__Ramp" kindref="compound">SYN_Ramp</ref><sp/>*ramp,<sp/>int32_t<sp/>initial);</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"></highlight></codeline>
+<codeline lineno="80"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__ramp_8h_1ab37da99a5fb59848009175e850fa596d" kindref="member">syn_ramp_set_target</ref>(<ref refid="structSYN__Ramp" kindref="compound">SYN_Ramp</ref><sp/>*ramp,<sp/>int32_t<sp/>target,<sp/>int32_t<sp/>rate);</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"></highlight></codeline>
+<codeline lineno="90"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__ramp_8h_1a37d9bdcbd18f15e057dce2637651c2d2" kindref="member">syn_ramp_set_target_trapezoid</ref>(<ref refid="structSYN__Ramp" kindref="compound">SYN_Ramp</ref><sp/>*ramp,<sp/>int32_t<sp/>target,</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int32_t<sp/>max_rate,<sp/>int32_t<sp/>accel);</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"></highlight></codeline>
+<codeline lineno="106"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__ramp_8h_1a6cf8bcdc5048165203390d4cc51cdc20" kindref="member">syn_ramp_set_target_trapezoid_fp</ref>(<ref refid="structSYN__Ramp" kindref="compound">SYN_Ramp</ref><sp/>*ramp,<sp/>int32_t<sp/>target,</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int32_t<sp/>max_rate,<sp/>int32_t<sp/>accel,</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>frac_bits);</highlight></codeline>
+<codeline lineno="109"><highlight class="normal"></highlight></codeline>
+<codeline lineno="116"><highlight class="normal">int32_t<sp/><ref refid="syn__ramp_8h_1a03caa503aa8f8dfbb8e680e259a600ec" kindref="member">syn_ramp_update</ref>(<ref refid="structSYN__Ramp" kindref="compound">SYN_Ramp</ref><sp/>*ramp);</highlight></codeline>
+<codeline lineno="117"><highlight class="normal"></highlight></codeline>
+<codeline lineno="123"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__ramp_8h_1a23da637a557edc06f31c881ce3f25b9f" kindref="member">syn_ramp_jump</ref>(<ref refid="structSYN__Ramp" kindref="compound">SYN_Ramp</ref><sp/>*ramp,<sp/>int32_t<sp/>value);</highlight></codeline>
+<codeline lineno="124"><highlight class="normal"></highlight></codeline>
+<codeline lineno="130" refid="syn__ramp_8h_1a1b8e3a61a9ee41b4936b0e1f886d4d9c" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__ramp_8h_1a1b8e3a61a9ee41b4936b0e1f886d4d9c" kindref="member">syn_ramp_done</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__Ramp" kindref="compound">SYN_Ramp</ref><sp/>*ramp)</highlight></codeline>
+<codeline lineno="131"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="132"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>ramp-&gt;<ref refid="structSYN__Ramp_1ae5b51a850cf6384569a483277fea1ccb" kindref="member">done</ref>;</highlight></codeline>
+<codeline lineno="133"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="134"><highlight class="normal"></highlight></codeline>
+<codeline lineno="140" refid="syn__ramp_8h_1ae63080e0e13a3b9a337479be54f386dc" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>int32_t<sp/><ref refid="syn__ramp_8h_1ae63080e0e13a3b9a337479be54f386dc" kindref="member">syn_ramp_value</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__Ramp" kindref="compound">SYN_Ramp</ref><sp/>*ramp)</highlight></codeline>
+<codeline lineno="141"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="142"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>ramp-&gt;<ref refid="structSYN__Ramp_1a9ccbd0588d83cf2010353e9ef868d44b" kindref="member">current</ref>;</highlight></codeline>
+<codeline lineno="143"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="144"><highlight class="normal"></highlight></codeline>
+<codeline lineno="145"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="146"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="147"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="148"><highlight class="normal"></highlight></codeline>
+<codeline lineno="149"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_RAMP_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/util/syn_ramp.h"/>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,738 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__stream_8c" kind="file" language="C++">
+    <compoundname>syn_stream.c</compoundname>
+    <includes refid="syn__stream_8h" local="yes">syn_stream.h</includes>
+    <includes refid="syn__ringbuf_8h" local="yes">syn_ringbuf.h</includes>
+    <includes local="no">string.h</includes>
+    <incdepgraph>
+      <node id="9">
+        <label>../common/syn_compiler.h</label>
+        <link refid="syn__compiler_8h"/>
+      </node>
+      <node id="8">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>../pt/syn_pt.h</label>
+        <link refid="syn__pt_8h"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>../util/syn_ringbuf.h</label>
+        <link refid="syn__ringbuf_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/util/syn_stream.c</label>
+        <link refid="syn__stream_8c"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>syn_stream.h</label>
+        <link refid="syn__stream_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>stdbool.h</label>
+      </node>
+      <node id="5">
+        <label>stddef.h</label>
+      </node>
+      <node id="4">
+        <label>stdint.h</label>
+      </node>
+      <node id="10">
+        <label>string.h</label>
+      </node>
+    </incdepgraph>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__stream_8c_1a3a2a3d4291e3dbf105acf91b35166bfa" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>size_t</type>
+        <definition>static size_t stream_find_delimiter</definition>
+        <argsstring>(const SYN_Stream *s)</argsstring>
+        <name>stream_find_delimiter</name>
+        <param>
+          <type>const <ref refid="structSYN__Stream" kindref="compound">SYN_Stream</ref> *</type>
+          <declname>s</declname>
+        </param>
+        <briefdescription>
+<para>Scan the ringbuf for the delimiter byte. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>s</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Stream to scan. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>1-based position of the first delimiter, or 0 if not found. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_stream.c" line="18" column="15" bodyfile="src/syntropic/util/syn_stream.c" bodystart="18" bodyend="32"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__stream_8c_1a42a4bdbff4c3ef345942185da06c2c63" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_stream_init</definition>
+        <argsstring>(SYN_Stream *s, uint8_t *buf, size_t size)</argsstring>
+        <name>syn_stream_init</name>
+        <param>
+          <type><ref refid="structSYN__Stream" kindref="compound">SYN_Stream</ref> *</type>
+          <declname>s</declname>
+        </param>
+        <param>
+          <type>uint8_t *</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>size</declname>
+        </param>
+        <briefdescription>
+<para>Initialize a stream with a caller-owned backing buffer. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>s</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Stream instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Backing array (caller-owned, must outlive the stream). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>size</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Size of backing array. Usable capacity is size - 1. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_stream.c" line="36" column="6" bodyfile="src/syntropic/util/syn_stream.c" bodystart="36" bodyend="42"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__stream_8c_1aa8896f75a350f019196c721581332e50" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_stream_set_threshold</definition>
+        <argsstring>(SYN_Stream *s, size_t n)</argsstring>
+        <name>syn_stream_set_threshold</name>
+        <param>
+          <type><ref refid="structSYN__Stream" kindref="compound">SYN_Stream</ref> *</type>
+          <declname>s</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Set the byte threshold for readability. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>When set to N &gt; 0, <ref refid="syn__stream_8h_1a3da22588df5426dffd3df78873159d79" kindref="member">syn_stream_readable()</ref> returns true only when at least N bytes are in the buffer. Set to 0 to revert to default (readable when any bytes are available).</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>s</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Stream instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>n</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Byte threshold (0 = any). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_stream.c" line="44" column="6" bodyfile="src/syntropic/util/syn_stream.c" bodystart="44" bodyend="47"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__stream_8c_1ae0737d8b0e519018e70d3b755f13da2f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_stream_set_delimiter</definition>
+        <argsstring>(SYN_Stream *s, uint8_t delim)</argsstring>
+        <name>syn_stream_set_delimiter</name>
+        <param>
+          <type><ref refid="structSYN__Stream" kindref="compound">SYN_Stream</ref> *</type>
+          <declname>s</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>delim</declname>
+        </param>
+        <briefdescription>
+<para>Enable delimiter mode. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>When enabled, <ref refid="syn__stream_8h_1a3da22588df5426dffd3df78873159d79" kindref="member">syn_stream_readable()</ref> returns true only when the delimiter byte is present in the buffer. Pair with <ref refid="syn__stream_8h_1a332316e94f1615abe30f73cecbb7ba9f" kindref="member">syn_stream_read_line()</ref> to consume one delimited chunk at a time.</para>
+<para>Delimiter mode takes precedence over threshold mode.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>s</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Stream instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>delim</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Delimiter byte (e.g. &apos;\n&apos;). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_stream.c" line="49" column="6" bodyfile="src/syntropic/util/syn_stream.c" bodystart="49" bodyend="53"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__stream_8c_1ab6a3d38c9a564383714819abce014043" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_stream_clear_delimiter</definition>
+        <argsstring>(SYN_Stream *s)</argsstring>
+        <name>syn_stream_clear_delimiter</name>
+        <param>
+          <type><ref refid="structSYN__Stream" kindref="compound">SYN_Stream</ref> *</type>
+          <declname>s</declname>
+        </param>
+        <briefdescription>
+<para>Disable delimiter mode, reverting to default or threshold mode. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>s</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Stream instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_stream.c" line="55" column="6" bodyfile="src/syntropic/util/syn_stream.c" bodystart="55" bodyend="58"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__stream_8c_1a1dbb6ffac353914bde85f819b451b2c9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>size_t</type>
+        <definition>size_t syn_stream_write</definition>
+        <argsstring>(SYN_Stream *s, const uint8_t *data, size_t len)</argsstring>
+        <name>syn_stream_write</name>
+        <param>
+          <type><ref refid="structSYN__Stream" kindref="compound">SYN_Stream</ref> *</type>
+          <declname>s</declname>
+        </param>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>len</declname>
+        </param>
+        <briefdescription>
+<para>Write bytes into the stream. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>ISR-safe (single-producer). Writes up to <computeroutput>len</computeroutput> bytes. Returns the number actually written (may be less if the buffer fills up).</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>s</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Stream instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>data</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Source data. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of bytes to write. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Number of bytes actually written. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_stream.c" line="62" column="8" bodyfile="src/syntropic/util/syn_stream.c" bodystart="62" bodyend="65"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__stream_8c_1adc55dcbcafdfa856a4e6003cbd0b3ca7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_stream_put</definition>
+        <argsstring>(SYN_Stream *s, uint8_t byte)</argsstring>
+        <name>syn_stream_put</name>
+        <param>
+          <type><ref refid="structSYN__Stream" kindref="compound">SYN_Stream</ref> *</type>
+          <declname>s</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>byte</declname>
+        </param>
+        <briefdescription>
+<para>Put a single byte into the stream. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>ISR-safe convenience wrapper around <ref refid="syn__stream_8h_1a1dbb6ffac353914bde85f819b451b2c9" kindref="member">syn_stream_write()</ref>.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>s</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Stream instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>byte</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Byte to store. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if the byte was stored, false if the buffer is full. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_stream.c" line="67" column="6" bodyfile="src/syntropic/util/syn_stream.c" bodystart="67" bodyend="70"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__stream_8c_1a3da22588df5426dffd3df78873159d79" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_stream_readable</definition>
+        <argsstring>(const SYN_Stream *s)</argsstring>
+        <name>syn_stream_readable</name>
+        <param>
+          <type>const <ref refid="structSYN__Stream" kindref="compound">SYN_Stream</ref> *</type>
+          <declname>s</declname>
+        </param>
+        <briefdescription>
+<para>Check if the stream is readable (mode-aware). </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Behavior depends on configured mode:<itemizedlist>
+<listitem><para><bold>Delimiter mode</bold>: true if the delimiter byte is in the buffer.</para>
+</listitem><listitem><para><bold>Threshold mode</bold>: true if count &gt;= threshold.</para>
+</listitem><listitem><para><bold>Default</bold>: true if any bytes are available.</para>
+</listitem></itemizedlist>
+</para>
+<para>Delimiter mode takes precedence over threshold mode.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>s</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Stream instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if the stream has data meeting the readability criteria. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_stream.c" line="74" column="6" bodyfile="src/syntropic/util/syn_stream.c" bodystart="74" bodyend="93"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__stream_8c_1a93f3f95335f877a2948142aa5c85398d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>size_t</type>
+        <definition>size_t syn_stream_read</definition>
+        <argsstring>(SYN_Stream *s, uint8_t *buf, size_t max_len)</argsstring>
+        <name>syn_stream_read</name>
+        <param>
+          <type><ref refid="structSYN__Stream" kindref="compound">SYN_Stream</ref> *</type>
+          <declname>s</declname>
+        </param>
+        <param>
+          <type>uint8_t *</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>max_len</declname>
+        </param>
+        <briefdescription>
+<para>Read up to <computeroutput>max_len</computeroutput> bytes from the stream. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Non-blocking — returns 0 if the buffer is empty. Does not respect threshold or delimiter; reads whatever is available.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>s</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Stream instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Destination buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>max_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Maximum bytes to read. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Number of bytes actually read. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_stream.c" line="95" column="8" bodyfile="src/syntropic/util/syn_stream.c" bodystart="95" bodyend="98"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__stream_8c_1a332316e94f1615abe30f73cecbb7ba9f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>size_t</type>
+        <definition>size_t syn_stream_read_line</definition>
+        <argsstring>(SYN_Stream *s, uint8_t *buf, size_t max_len)</argsstring>
+        <name>syn_stream_read_line</name>
+        <param>
+          <type><ref refid="structSYN__Stream" kindref="compound">SYN_Stream</ref> *</type>
+          <declname>s</declname>
+        </param>
+        <param>
+          <type>uint8_t *</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>max_len</declname>
+        </param>
+        <briefdescription>
+<para>Read up to and including the next delimiter byte. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Reads bytes from the stream into <computeroutput>buf</computeroutput>, stopping after the first delimiter byte (which is included in the output). If no delimiter is found in the buffer, returns 0 and reads nothing.</para>
+<para>Pair with PT_STREAM_WAIT in delimiter mode to wait for a complete line: <programlisting><codeline><highlight class="normal">PT_STREAM_WAIT(pt,<sp/>&amp;stream);</highlight></codeline>
+<codeline><highlight class="normal">n<sp/>=<sp/>syn_stream_read_line(&amp;stream,<sp/>buf,<sp/>sizeof(buf));</highlight></codeline>
+</programlisting></para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>s</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Stream instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Destination buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>max_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Maximum bytes to read (including delimiter). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Number of bytes read (0 if no delimiter found or empty). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_stream.c" line="100" column="8" bodyfile="src/syntropic/util/syn_stream.c" bodystart="100" bodyend="116"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__stream_8c_1a6f35dbb9db24aef9cdc0ffd015345b8b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>size_t</type>
+        <definition>size_t syn_stream_count</definition>
+        <argsstring>(const SYN_Stream *s)</argsstring>
+        <name>syn_stream_count</name>
+        <param>
+          <type>const <ref refid="structSYN__Stream" kindref="compound">SYN_Stream</ref> *</type>
+          <declname>s</declname>
+        </param>
+        <briefdescription>
+<para>Return the number of bytes currently in the stream. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>s</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Stream instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Byte count. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_stream.c" line="118" column="8" bodyfile="src/syntropic/util/syn_stream.c" bodystart="118" bodyend="121"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__stream_8c_1a2815d2a9b4492bb0b80c0cff9e7c2756" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>size_t</type>
+        <definition>size_t syn_stream_free</definition>
+        <argsstring>(const SYN_Stream *s)</argsstring>
+        <name>syn_stream_free</name>
+        <param>
+          <type>const <ref refid="structSYN__Stream" kindref="compound">SYN_Stream</ref> *</type>
+          <declname>s</declname>
+        </param>
+        <briefdescription>
+<para>Return the number of free bytes available for writing. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>s</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Stream instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Free byte count. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_stream.c" line="123" column="8" bodyfile="src/syntropic/util/syn_stream.c" bodystart="123" bodyend="126"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__stream_8c_1a0b0a62cd78a66fe3d8a74ba33573827e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_stream_flush</definition>
+        <argsstring>(SYN_Stream *s)</argsstring>
+        <name>syn_stream_flush</name>
+        <param>
+          <type><ref refid="structSYN__Stream" kindref="compound">SYN_Stream</ref> *</type>
+          <declname>s</declname>
+        </param>
+        <briefdescription>
+<para>Discard all data in the stream. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>s</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Stream instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_stream.c" line="128" column="6" bodyfile="src/syntropic/util/syn_stream.c" bodystart="128" bodyend="131"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Cooperative byte stream implementation. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__stream_8h" kindref="compound">syn_stream.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__ringbuf_8h" kindref="compound">syn_ringbuf.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;string.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Internal:<sp/>delimiter<sp/>scan<sp/>────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="syn__stream_8c_1a3a2a3d4291e3dbf105acf91b35166bfa" kindref="member">stream_find_delimiter</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__Stream" kindref="compound">SYN_Stream</ref><sp/>*s)</highlight></codeline>
+<codeline lineno="19"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="20"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__RingBuf" kindref="compound">SYN_RingBuf</ref><sp/>*rb<sp/>=<sp/>&amp;s-&gt;<ref refid="structSYN__Stream_1a8211abb229a61690efca4f0ea934c19d" kindref="member">rb</ref>;</highlight></codeline>
+<codeline lineno="21"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>count<sp/>=<sp/><ref refid="syn__ringbuf_8c_1a9fd254d962f847f53f80086f211f699e" kindref="member">syn_ringbuf_count</ref>(rb);</highlight></codeline>
+<codeline lineno="22"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>idx<sp/>=<sp/>rb-&gt;<ref refid="structSYN__RingBuf_1a88771e9b1be86542fb6f9e3a54026520" kindref="member">tail</ref>;</highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>count;<sp/>i++)<sp/>{</highlight></codeline>
+<codeline lineno="25"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(rb-&gt;<ref refid="structSYN__RingBuf_1a8ff3e6638e0aa930f3f80077fb7a1220" kindref="member">buf</ref>[idx]<sp/>==<sp/>s-&gt;<ref refid="structSYN__Stream_1a6a423d83c4afc53ec4157ed955ce6cd9" kindref="member">delimiter</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="26"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>i<sp/>+<sp/>1;<sp/><sp/></highlight><highlight class="comment">/*<sp/>1-based<sp/>position<sp/>(byte<sp/>count<sp/>including<sp/>delim)<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="28"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>idx++;</highlight></codeline>
+<codeline lineno="29"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(idx<sp/>&gt;=<sp/>rb-&gt;<ref refid="structSYN__RingBuf_1a250ab6d10a30dda826b457b878145c3b" kindref="member">size</ref>)<sp/>idx<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="30"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="31"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0;</highlight></codeline>
+<codeline lineno="32"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Init<sp/>/<sp/>config<sp/>───────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__stream_8c_1a42a4bdbff4c3ef345942185da06c2c63" kindref="member">syn_stream_init</ref>(<ref refid="structSYN__Stream" kindref="compound">SYN_Stream</ref><sp/>*s,<sp/>uint8_t<sp/>*buf,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>size)</highlight></codeline>
+<codeline lineno="37"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="38"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__ringbuf_8c_1aa4a7f4a7b74e7c07a3a199086f0cbeec" kindref="member">syn_ringbuf_init</ref>(&amp;s-&gt;<ref refid="structSYN__Stream_1a8211abb229a61690efca4f0ea934c19d" kindref="member">rb</ref>,<sp/>buf,<sp/>size);</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"><sp/><sp/><sp/><sp/>s-&gt;<ref refid="structSYN__Stream_1aadaf682832be01a6eb09dd1499e155e0" kindref="member">threshold</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"><sp/><sp/><sp/><sp/>s-&gt;<ref refid="structSYN__Stream_1a6a423d83c4afc53ec4157ed955ce6cd9" kindref="member">delimiter</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"><sp/><sp/><sp/><sp/>s-&gt;<ref refid="structSYN__Stream_1a2eb34f6044d5521ed5cf7e87864bf99c" kindref="member">delim_en</ref><sp/><sp/>=<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="42"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__stream_8c_1aa8896f75a350f019196c721581332e50" kindref="member">syn_stream_set_threshold</ref>(<ref refid="structSYN__Stream" kindref="compound">SYN_Stream</ref><sp/>*s,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>n)</highlight></codeline>
+<codeline lineno="45"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/><sp/><sp/>s-&gt;<ref refid="structSYN__Stream_1aadaf682832be01a6eb09dd1499e155e0" kindref="member">threshold</ref><sp/>=<sp/>n;</highlight></codeline>
+<codeline lineno="47"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"></highlight></codeline>
+<codeline lineno="49"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__stream_8c_1ae0737d8b0e519018e70d3b755f13da2f" kindref="member">syn_stream_set_delimiter</ref>(<ref refid="structSYN__Stream" kindref="compound">SYN_Stream</ref><sp/>*s,<sp/>uint8_t<sp/>delim)</highlight></codeline>
+<codeline lineno="50"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><sp/><sp/><sp/><sp/>s-&gt;<ref refid="structSYN__Stream_1a6a423d83c4afc53ec4157ed955ce6cd9" kindref="member">delimiter</ref><sp/>=<sp/>delim;</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/><sp/><sp/>s-&gt;<ref refid="structSYN__Stream_1a2eb34f6044d5521ed5cf7e87864bf99c" kindref="member">delim_en</ref><sp/><sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="53"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"></highlight></codeline>
+<codeline lineno="55"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__stream_8c_1ab6a3d38c9a564383714819abce014043" kindref="member">syn_stream_clear_delimiter</ref>(<ref refid="structSYN__Stream" kindref="compound">SYN_Stream</ref><sp/>*s)</highlight></codeline>
+<codeline lineno="56"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/><sp/><sp/>s-&gt;<ref refid="structSYN__Stream_1a2eb34f6044d5521ed5cf7e87864bf99c" kindref="member">delim_en</ref><sp/>=<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="58"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"></highlight></codeline>
+<codeline lineno="60"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Producer<sp/>────────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="61"><highlight class="normal"></highlight></codeline>
+<codeline lineno="62"><highlight class="normal"></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="syn__stream_8c_1a1dbb6ffac353914bde85f819b451b2c9" kindref="member">syn_stream_write</ref>(<ref refid="structSYN__Stream" kindref="compound">SYN_Stream</ref><sp/>*s,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*data,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>len)</highlight></codeline>
+<codeline lineno="63"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__ringbuf_8c_1abb5bce664333d07db34b1ae0cbf2a8d6" kindref="member">syn_ringbuf_write</ref>(&amp;s-&gt;<ref refid="structSYN__Stream_1a8211abb229a61690efca4f0ea934c19d" kindref="member">rb</ref>,<sp/>data,<sp/>len);</highlight></codeline>
+<codeline lineno="65"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"></highlight></codeline>
+<codeline lineno="67"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__stream_8c_1adc55dcbcafdfa856a4e6003cbd0b3ca7" kindref="member">syn_stream_put</ref>(<ref refid="structSYN__Stream" kindref="compound">SYN_Stream</ref><sp/>*s,<sp/>uint8_t<sp/></highlight><highlight class="keywordtype">byte</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="68"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__ringbuf_8c_1ac1b45c7cbbe0ff518d04e28c960fa2bb" kindref="member">syn_ringbuf_put</ref>(&amp;s-&gt;<ref refid="structSYN__Stream_1a8211abb229a61690efca4f0ea934c19d" kindref="member">rb</ref>,<sp/></highlight><highlight class="keywordtype">byte</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="70"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"></highlight></codeline>
+<codeline lineno="72"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Consumer<sp/>────────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="73"><highlight class="normal"></highlight></codeline>
+<codeline lineno="74"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__stream_8c_1a3da22588df5426dffd3df78873159d79" kindref="member">syn_stream_readable</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__Stream" kindref="compound">SYN_Stream</ref><sp/>*s)</highlight></codeline>
+<codeline lineno="75"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>count<sp/>=<sp/><ref refid="syn__ringbuf_8c_1a9fd254d962f847f53f80086f211f699e" kindref="member">syn_ringbuf_count</ref>(&amp;s-&gt;<ref refid="structSYN__Stream_1a8211abb229a61690efca4f0ea934c19d" kindref="member">rb</ref>);</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(count<sp/>==<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"></highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Delimiter<sp/>mode<sp/>takes<sp/>precedence<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(s-&gt;<ref refid="structSYN__Stream_1a2eb34f6044d5521ed5cf7e87864bf99c" kindref="member">delim_en</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__stream_8c_1a3a2a3d4291e3dbf105acf91b35166bfa" kindref="member">stream_find_delimiter</ref>(s)<sp/>&gt;<sp/>0;</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"></highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Threshold<sp/>mode<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(s-&gt;<ref refid="structSYN__Stream_1aadaf682832be01a6eb09dd1499e155e0" kindref="member">threshold</ref><sp/>&gt;<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>count<sp/>&gt;=<sp/>s-&gt;<ref refid="structSYN__Stream_1aadaf682832be01a6eb09dd1499e155e0" kindref="member">threshold</ref>;</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"></highlight></codeline>
+<codeline lineno="91"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Default:<sp/>any<sp/>bytes<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="93"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"></highlight></codeline>
+<codeline lineno="95"><highlight class="normal"></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="syn__stream_8c_1a93f3f95335f877a2948142aa5c85398d" kindref="member">syn_stream_read</ref>(<ref refid="structSYN__Stream" kindref="compound">SYN_Stream</ref><sp/>*s,<sp/>uint8_t<sp/>*buf,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>max_len)</highlight></codeline>
+<codeline lineno="96"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__ringbuf_8c_1acc9c5b927850ee951bb2b7b2906f83d0" kindref="member">syn_ringbuf_read</ref>(&amp;s-&gt;<ref refid="structSYN__Stream_1a8211abb229a61690efca4f0ea934c19d" kindref="member">rb</ref>,<sp/>buf,<sp/>max_len);</highlight></codeline>
+<codeline lineno="98"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"></highlight></codeline>
+<codeline lineno="100"><highlight class="normal"></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="syn__stream_8c_1a332316e94f1615abe30f73cecbb7ba9f" kindref="member">syn_stream_read_line</ref>(<ref refid="structSYN__Stream" kindref="compound">SYN_Stream</ref><sp/>*s,<sp/>uint8_t<sp/>*buf,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>max_len)</highlight></codeline>
+<codeline lineno="101"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!s-&gt;<ref refid="structSYN__Stream_1a2eb34f6044d5521ed5cf7e87864bf99c" kindref="member">delim_en</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>No<sp/>delimiter<sp/>mode<sp/>—<sp/>behave<sp/>like<sp/>plain<sp/>read<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__ringbuf_8c_1acc9c5b927850ee951bb2b7b2906f83d0" kindref="member">syn_ringbuf_read</ref>(&amp;s-&gt;<ref refid="structSYN__Stream_1a8211abb229a61690efca4f0ea934c19d" kindref="member">rb</ref>,<sp/>buf,<sp/>max_len);</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"></highlight></codeline>
+<codeline lineno="107"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Find<sp/>delimiter<sp/>position<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="108"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>delim_pos<sp/>=<sp/><ref refid="syn__stream_8c_1a3a2a3d4291e3dbf105acf91b35166bfa" kindref="member">stream_find_delimiter</ref>(s);</highlight></codeline>
+<codeline lineno="109"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(delim_pos<sp/>==<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="110"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0;<sp/><sp/></highlight><highlight class="comment">/*<sp/>No<sp/>delimiter<sp/>found<sp/>—<sp/>don&apos;t<sp/>consume<sp/>anything<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="111"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="112"><highlight class="normal"></highlight></codeline>
+<codeline lineno="113"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Read<sp/>up<sp/>to<sp/>delimiter<sp/>(inclusive),<sp/>capped<sp/>by<sp/>max_len<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="114"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>to_read<sp/>=<sp/>(delim_pos<sp/>&lt;<sp/>max_len)<sp/>?<sp/>delim_pos<sp/>:<sp/>max_len;</highlight></codeline>
+<codeline lineno="115"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__ringbuf_8c_1acc9c5b927850ee951bb2b7b2906f83d0" kindref="member">syn_ringbuf_read</ref>(&amp;s-&gt;<ref refid="structSYN__Stream_1a8211abb229a61690efca4f0ea934c19d" kindref="member">rb</ref>,<sp/>buf,<sp/>to_read);</highlight></codeline>
+<codeline lineno="116"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="117"><highlight class="normal"></highlight></codeline>
+<codeline lineno="118"><highlight class="normal"></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="syn__stream_8c_1a6f35dbb9db24aef9cdc0ffd015345b8b" kindref="member">syn_stream_count</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__Stream" kindref="compound">SYN_Stream</ref><sp/>*s)</highlight></codeline>
+<codeline lineno="119"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="120"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__ringbuf_8c_1a9fd254d962f847f53f80086f211f699e" kindref="member">syn_ringbuf_count</ref>(&amp;s-&gt;<ref refid="structSYN__Stream_1a8211abb229a61690efca4f0ea934c19d" kindref="member">rb</ref>);</highlight></codeline>
+<codeline lineno="121"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="122"><highlight class="normal"></highlight></codeline>
+<codeline lineno="123"><highlight class="normal"></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="syn__stream_8c_1a2815d2a9b4492bb0b80c0cff9e7c2756" kindref="member">syn_stream_free</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__Stream" kindref="compound">SYN_Stream</ref><sp/>*s)</highlight></codeline>
+<codeline lineno="124"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__ringbuf_8c_1ada70bac7c55186376d3db23b6a217f52" kindref="member">syn_ringbuf_free</ref>(&amp;s-&gt;<ref refid="structSYN__Stream_1a8211abb229a61690efca4f0ea934c19d" kindref="member">rb</ref>);</highlight></codeline>
+<codeline lineno="126"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="127"><highlight class="normal"></highlight></codeline>
+<codeline lineno="128"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__stream_8c_1a0b0a62cd78a66fe3d8a74ba33573827e" kindref="member">syn_stream_flush</ref>(<ref refid="structSYN__Stream" kindref="compound">SYN_Stream</ref><sp/>*s)</highlight></codeline>
+<codeline lineno="129"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="130"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__ringbuf_8c_1a67704e92917d22a143eb1878fd10df6a" kindref="member">syn_ringbuf_reset</ref>(&amp;s-&gt;<ref refid="structSYN__Stream_1a8211abb229a61690efca4f0ea934c19d" kindref="member">rb</ref>);</highlight></codeline>
+<codeline lineno="131"><highlight class="normal">}</highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/util/syn_stream.c"/>
+  </compounddef>
+</doxygen>

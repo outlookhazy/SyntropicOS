@@ -1,0 +1,760 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__stepper_8h" kind="file" language="C++">
+    <compoundname>syn_stepper.h</compoundname>
+    <includes refid="syn__defs_8h" local="yes">../common/syn_defs.h</includes>
+    <includes refid="syn__gpio_8h" local="yes">../drivers/syn_gpio.h</includes>
+    <includes refid="syn__motor__output_8h" local="yes">../motor/syn_motor_output.h</includes>
+    <includes refid="syn__port__system_8h" local="yes">../port/syn_port_system.h</includes>
+    <includes local="no">stdbool.h</includes>
+    <includedby refid="syn__stepper_8c" local="yes">src/syntropic/motor/syn_stepper.c</includedby>
+    <includedby refid="syntropic_8h" local="yes">src/syntropic/syntropic.h</includedby>
+    <incdepgraph>
+      <node id="9">
+        <label>../common/syn_compiler.h</label>
+        <link refid="syn__compiler_8h"/>
+      </node>
+      <node id="2">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>../drivers/syn_gpio.h</label>
+        <link refid="syn__gpio_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>../motor/syn_motor_output.h</label>
+        <link refid="syn__motor__output_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/motor/syn_stepper.h</label>
+        <link refid="syn__stepper_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>../port/syn_port_gpio.h</label>
+        <link refid="syn__port__gpio_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>../port/syn_port_system.h</label>
+        <link refid="syn__port__system_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="10">
+        <label>stdbool.h</label>
+      </node>
+      <node id="4">
+        <label>stddef.h</label>
+      </node>
+      <node id="3">
+        <label>stdint.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="2">
+        <label>src/syntropic/motor/syn_stepper.c</label>
+        <link refid="syn__stepper_8c"/>
+      </node>
+      <node id="1">
+        <label>src/syntropic/motor/syn_stepper.h</label>
+        <link refid="syn__stepper_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>src/syntropic/syntropic.h</label>
+        <link refid="syntropic_8h"/>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="structSYN__Stepper" prot="public">SYN_Stepper</innerclass>
+    <sectiondef kind="enum">
+      <memberdef kind="enum" id="syn__stepper_8h_1a576129d9bf267eae4b0bb6901dfc5351" prot="public" static="no" strong="no">
+        <type></type>
+        <name>SYN_StepperState</name>
+        <enumvalue id="syn__stepper_8h_1a576129d9bf267eae4b0bb6901dfc5351a8f54fb2c092e642028178b020cffcc80" prot="public">
+          <name>SYN_STEPPER_IDLE</name>
+          <initializer>= 0</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Motor is stopped </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__stepper_8h_1a576129d9bf267eae4b0bb6901dfc5351a370b02e989e7bbf4655dae165bea149c" prot="public">
+          <name>SYN_STEPPER_ACCEL</name>
+          <initializer>= 1</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Motor is accelerating </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__stepper_8h_1a576129d9bf267eae4b0bb6901dfc5351a07b90b33ed12e80efd3ec394c98fac9c" prot="public">
+          <name>SYN_STEPPER_CRUISE</name>
+          <initializer>= 2</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Motor is running at maximum velocity </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__stepper_8h_1a576129d9bf267eae4b0bb6901dfc5351a00c0018a8db04ae2a392712f0f8825f7" prot="public">
+          <name>SYN_STEPPER_DECEL</name>
+          <initializer>= 3</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Motor is decelerating to stop </para>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>Stepper motor operational states for the ramp generator. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/motor/syn_stepper.h" line="41" column="1" bodyfile="src/syntropic/motor/syn_stepper.h" bodystart="41" bodyend="46"/>
+      </memberdef>
+      <memberdef kind="enum" id="syn__stepper_8h_1afeaccab388d4ccea5d4ffad027e27d74" prot="public" static="no" strong="no">
+        <type></type>
+        <name>SYN_StepperDir</name>
+        <enumvalue id="syn__stepper_8h_1afeaccab388d4ccea5d4ffad027e27d74a44ea84b87d6ca2008a8ab06a6a1fb0a7" prot="public">
+          <name>SYN_STEPPER_CW</name>
+          <initializer>= 0</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Clockwise / forward <linebreak/>
+ </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__stepper_8h_1afeaccab388d4ccea5d4ffad027e27d74a5bdc1249657bf6673ec21a41962692d2" prot="public">
+          <name>SYN_STEPPER_CCW</name>
+          <initializer>= 1</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Counter-clockwise / reverse </para>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>Stepper motor direction. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/motor/syn_stepper.h" line="49" column="1" bodyfile="src/syntropic/motor/syn_stepper.h" bodystart="49" bodyend="52"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__stepper_8h_1a5a9ab57403f83790e3b9e515629e92f7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_stepper_init</definition>
+        <argsstring>(SYN_Stepper *s, SYN_GPIO_Pin step_pin, SYN_GPIO_Pin dir_pin)</argsstring>
+        <name>syn_stepper_init</name>
+        <param>
+          <type><ref refid="structSYN__Stepper" kindref="compound">SYN_Stepper</ref> *</type>
+          <declname>s</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref></type>
+          <declname>step_pin</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref></type>
+          <declname>dir_pin</declname>
+        </param>
+        <briefdescription>
+<para>Initialize stepper motor driver. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>s</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Stepper instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>step_pin</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Step pulse GPIO. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dir_pin</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Direction GPIO. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/motor/syn_stepper.h" line="92" column="6" bodyfile="src/syntropic/motor/syn_stepper.c" bodystart="35" bodyend="49" declfile="src/syntropic/motor/syn_stepper.h" declline="92" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__stepper_8h_1aa861e1fa538da31493cc24c16ae24d68" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_stepper_set_enable_pin</definition>
+        <argsstring>(SYN_Stepper *s, SYN_GPIO_Pin pin, bool active_low)</argsstring>
+        <name>syn_stepper_set_enable_pin</name>
+        <param>
+          <type><ref refid="structSYN__Stepper" kindref="compound">SYN_Stepper</ref> *</type>
+          <declname>s</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref></type>
+          <declname>pin</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+          <declname>active_low</declname>
+        </param>
+        <briefdescription>
+<para>Set optional enable pin. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>s</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Stepper instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>pin</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Enable signal GPIO pin. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>active_low</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>True if enabling requires driving pin LOW. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/motor/syn_stepper.h" line="103" column="6" bodyfile="src/syntropic/motor/syn_stepper.c" bodystart="51" bodyend="57" declfile="src/syntropic/motor/syn_stepper.h" declline="103" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__stepper_8h_1a188931a88677a89700c2477902e6120a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_stepper_set_speed</definition>
+        <argsstring>(SYN_Stepper *s, uint32_t max_sps, uint32_t accel_sps2)</argsstring>
+        <name>syn_stepper_set_speed</name>
+        <param>
+          <type><ref refid="structSYN__Stepper" kindref="compound">SYN_Stepper</ref> *</type>
+          <declname>s</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>max_sps</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>accel_sps2</declname>
+        </param>
+        <briefdescription>
+<para>Set maximum speed and acceleration. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>s</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Stepper. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>max_sps</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Maximum speed in steps per second. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>accel_sps2</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Acceleration in steps per second². </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/motor/syn_stepper.h" line="113" column="6" bodyfile="src/syntropic/motor/syn_stepper.c" bodystart="59" bodyend="68" declfile="src/syntropic/motor/syn_stepper.h" declline="113" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__stepper_8h_1a3115ef7a4ddf7ae4de5ec9226739db7a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_stepper_move</definition>
+        <argsstring>(SYN_Stepper *s, int32_t steps)</argsstring>
+        <name>syn_stepper_move</name>
+        <param>
+          <type><ref refid="structSYN__Stepper" kindref="compound">SYN_Stepper</ref> *</type>
+          <declname>s</declname>
+        </param>
+        <param>
+          <type>int32_t</type>
+          <declname>steps</declname>
+        </param>
+        <briefdescription>
+<para>Start a relative move. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>s</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Stepper handle. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>steps</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of steps (positive = forward, negative = reverse). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/motor/syn_stepper.h" line="122" column="6" bodyfile="src/syntropic/motor/syn_stepper.c" bodystart="70" bodyend="102" declfile="src/syntropic/motor/syn_stepper.h" declline="122" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__stepper_8h_1a4b7747f4196673ae4c0bf5c5dae81146" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_stepper_move_to</definition>
+        <argsstring>(SYN_Stepper *s, int32_t position)</argsstring>
+        <name>syn_stepper_move_to</name>
+        <param>
+          <type><ref refid="structSYN__Stepper" kindref="compound">SYN_Stepper</ref> *</type>
+          <declname>s</declname>
+        </param>
+        <param>
+          <type>int32_t</type>
+          <declname>position</declname>
+        </param>
+        <briefdescription>
+<para>Start a move to an absolute position. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>s</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Stepper. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>position</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Target absolute position in steps. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/motor/syn_stepper.h" line="129" column="6" bodyfile="src/syntropic/motor/syn_stepper.c" bodystart="104" bodyend="107" declfile="src/syntropic/motor/syn_stepper.h" declline="129" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__stepper_8h_1a479efea3851eaf93fce99b3050f514c3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_stepper_tick</definition>
+        <argsstring>(SYN_Stepper *s)</argsstring>
+        <name>syn_stepper_tick</name>
+        <param>
+          <type><ref refid="structSYN__Stepper" kindref="compound">SYN_Stepper</ref> *</type>
+          <declname>s</declname>
+        </param>
+        <briefdescription>
+<para>Advance the stepper state machine by one tick. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Call from a timer ISR or high-frequency loop. The tick rate should be at least 2× the maximum step rate for proper pulse generation.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>s</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Stepper instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/motor/syn_stepper.h" line="139" column="6" bodyfile="src/syntropic/motor/syn_stepper.c" bodystart="109" bodyend="184" declfile="src/syntropic/motor/syn_stepper.h" declline="139" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__stepper_8h_1a471031d1d983737bb85e7b0a686df94d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_stepper_stop</definition>
+        <argsstring>(SYN_Stepper *s)</argsstring>
+        <name>syn_stepper_stop</name>
+        <param>
+          <type><ref refid="structSYN__Stepper" kindref="compound">SYN_Stepper</ref> *</type>
+          <declname>s</declname>
+        </param>
+        <briefdescription>
+<para>Emergency stop — immediately halt with no deceleration. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>s</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Stepper instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/motor/syn_stepper.h" line="145" column="6" bodyfile="src/syntropic/motor/syn_stepper.c" bodystart="186" bodyend="192" declfile="src/syntropic/motor/syn_stepper.h" declline="145" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__stepper_8h_1ad7e227b61053b87c68f902e977f89d31" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_stepper_enable</definition>
+        <argsstring>(const SYN_Stepper *s, bool enable)</argsstring>
+        <name>syn_stepper_enable</name>
+        <param>
+          <type>const <ref refid="structSYN__Stepper" kindref="compound">SYN_Stepper</ref> *</type>
+          <declname>s</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+          <declname>enable</declname>
+        </param>
+        <briefdescription>
+<para>Enable or disable the motor driver. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>s</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Stepper instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>enable</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>true to enable, false to disable. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/motor/syn_stepper.h" line="152" column="6" bodyfile="src/syntropic/motor/syn_stepper.c" bodystart="194" bodyend="204" declfile="src/syntropic/motor/syn_stepper.h" declline="152" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__stepper_8h_1afa6d8d21e87f4795d67f0425eb930792" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>static bool syn_stepper_is_moving</definition>
+        <argsstring>(const SYN_Stepper *s)</argsstring>
+        <name>syn_stepper_is_moving</name>
+        <param>
+          <type>const <ref refid="structSYN__Stepper" kindref="compound">SYN_Stepper</ref> *</type>
+          <declname>s</declname>
+        </param>
+        <briefdescription>
+<para>Is a move in progress? </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>s</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Stepper. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if moving. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/motor/syn_stepper.h" line="159" column="20" bodyfile="src/syntropic/motor/syn_stepper.h" bodystart="159" bodyend="162"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__stepper_8h_1ad1c888adbc6a25e546b86358a37a0d1e" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>int32_t</type>
+        <definition>static int32_t syn_stepper_position</definition>
+        <argsstring>(const SYN_Stepper *s)</argsstring>
+        <name>syn_stepper_position</name>
+        <param>
+          <type>const <ref refid="structSYN__Stepper" kindref="compound">SYN_Stepper</ref> *</type>
+          <declname>s</declname>
+        </param>
+        <briefdescription>
+<para>Get current position (steps). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>s</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Stepper. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Position in steps. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/motor/syn_stepper.h" line="169" column="23" bodyfile="src/syntropic/motor/syn_stepper.h" bodystart="169" bodyend="172"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__stepper_8h_1a4b7c48a00a227f881609d40843b03f65" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void syn_stepper_set_position</definition>
+        <argsstring>(SYN_Stepper *s, int32_t pos)</argsstring>
+        <name>syn_stepper_set_position</name>
+        <param>
+          <type><ref refid="structSYN__Stepper" kindref="compound">SYN_Stepper</ref> *</type>
+          <declname>s</declname>
+        </param>
+        <param>
+          <type>int32_t</type>
+          <declname>pos</declname>
+        </param>
+        <briefdescription>
+<para>Set current position without moving. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>s</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Stepper. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>pos</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>New position. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/motor/syn_stepper.h" line="179" column="20" bodyfile="src/syntropic/motor/syn_stepper.h" bodystart="179" bodyend="182"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__stepper_8h_1a38eeb9e349b6b57cb6a6a886df20a5e4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="structSYN__MotorOutput" kindref="compound">SYN_MotorOutput</ref></type>
+        <definition>SYN_MotorOutput syn_stepper_output</definition>
+        <argsstring>(SYN_Stepper *stepper)</argsstring>
+        <name>syn_stepper_output</name>
+        <param>
+          <type><ref refid="structSYN__Stepper" kindref="compound">SYN_Stepper</ref> *</type>
+          <declname>stepper</declname>
+        </param>
+        <briefdescription>
+<para>Create a <ref refid="structSYN__MotorOutput" kindref="compound">SYN_MotorOutput</ref> interface for this stepper. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>The set_output callback calls <ref refid="syn__stepper_8h_1a479efea3851eaf93fce99b3050f514c3" kindref="member">syn_stepper_tick()</ref>, coast/brake both call <ref refid="syn__stepper_8h_1a471031d1d983737bb85e7b0a686df94d" kindref="member">syn_stepper_stop()</ref>. The motor controller&apos;s output value is not used directly — stepper motion is driven by the stepper&apos;s own move/move_to commands.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>stepper</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Stepper instance (must outlive the returned output). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Motor output interface. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/motor/syn_stepper.h" line="195" column="17" bodyfile="src/syntropic/motor/syn_stepper.c" bodystart="238" bodyend="247" declfile="src/syntropic/motor/syn_stepper.h" declline="195" declcolumn="17"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Stepper motor driver — step/direction with acceleration ramps. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Generates step pulses for step/dir drivers (A4988, DRV8825, TMC2209, etc.). Supports trapezoidal acceleration profiles and non-blocking operation.</para>
+<para><simplesect kind="par"><title>Usage</title><para><programlisting><codeline><highlight class="keyword">static</highlight><highlight class="normal"><sp/><ref refid="structSYN__Stepper" kindref="compound">SYN_Stepper</ref><sp/>stepper;</highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__stepper_8c_1a5a9ab57403f83790e3b9e515629e92f7" kindref="member">syn_stepper_init</ref>(&amp;stepper,<sp/>STEP_PIN,<sp/>DIR_PIN);</highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__stepper_8c_1a188931a88677a89700c2477902e6120a" kindref="member">syn_stepper_set_speed</ref>(&amp;stepper,<sp/>1000,<sp/>500);<sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>max<sp/>1000<sp/>sps,<sp/>accel<sp/>500<sp/>sps²</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__stepper_8c_1a3115ef7a4ddf7ae4de5ec9226739db7a" kindref="member">syn_stepper_move</ref>(&amp;stepper,<sp/>2000);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>move<sp/>2000<sp/>steps<sp/>forward</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="comment">//<sp/>Call<sp/>periodically<sp/>(from<sp/>timer<sp/>ISR<sp/>or<sp/>fast<sp/>loop):</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__stepper_8c_1a479efea3851eaf93fce99b3050f514c3" kindref="member">syn_stepper_tick</ref>(&amp;stepper);</highlight></codeline>
+</programlisting> </para>
+</simplesect>
+</para>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_STEPPER_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_STEPPER_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../common/syn_defs.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../drivers/syn_gpio.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../motor/syn_motor_output.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../port/syn_port_system.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Stepper<sp/>state<sp/>────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight></codeline>
+<codeline lineno="41" refid="syn__stepper_8h_1a576129d9bf267eae4b0bb6901dfc5351" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="42" refid="syn__stepper_8h_1a576129d9bf267eae4b0bb6901dfc5351a8f54fb2c092e642028178b020cffcc80" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__stepper_8h_1a576129d9bf267eae4b0bb6901dfc5351a8f54fb2c092e642028178b020cffcc80" kindref="member">SYN_STEPPER_IDLE</ref><sp/><sp/><sp/><sp/>=<sp/>0,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="43" refid="syn__stepper_8h_1a576129d9bf267eae4b0bb6901dfc5351a370b02e989e7bbf4655dae165bea149c" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__stepper_8h_1a576129d9bf267eae4b0bb6901dfc5351a370b02e989e7bbf4655dae165bea149c" kindref="member">SYN_STEPPER_ACCEL</ref><sp/><sp/><sp/>=<sp/>1,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="44" refid="syn__stepper_8h_1a576129d9bf267eae4b0bb6901dfc5351a07b90b33ed12e80efd3ec394c98fac9c" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__stepper_8h_1a576129d9bf267eae4b0bb6901dfc5351a07b90b33ed12e80efd3ec394c98fac9c" kindref="member">SYN_STEPPER_CRUISE</ref><sp/><sp/>=<sp/>2,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="45" refid="syn__stepper_8h_1a576129d9bf267eae4b0bb6901dfc5351a00c0018a8db04ae2a392712f0f8825f7" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__stepper_8h_1a576129d9bf267eae4b0bb6901dfc5351a00c0018a8db04ae2a392712f0f8825f7" kindref="member">SYN_STEPPER_DECEL</ref><sp/><sp/><sp/>=<sp/>3,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="46"><highlight class="normal">}<sp/><ref refid="syn__stepper_8h_1a576129d9bf267eae4b0bb6901dfc5351" kindref="member">SYN_StepperState</ref>;</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"></highlight></codeline>
+<codeline lineno="49" refid="syn__stepper_8h_1afeaccab388d4ccea5d4ffad027e27d74" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="50" refid="syn__stepper_8h_1afeaccab388d4ccea5d4ffad027e27d74a44ea84b87d6ca2008a8ab06a6a1fb0a7" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__stepper_8h_1afeaccab388d4ccea5d4ffad027e27d74a44ea84b87d6ca2008a8ab06a6a1fb0a7" kindref="member">SYN_STEPPER_CW</ref><sp/><sp/>=<sp/>0,<sp/><sp/></highlight></codeline>
+<codeline lineno="51" refid="syn__stepper_8h_1afeaccab388d4ccea5d4ffad027e27d74a5bdc1249657bf6673ec21a41962692d2" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__stepper_8h_1afeaccab388d4ccea5d4ffad027e27d74a5bdc1249657bf6673ec21a41962692d2" kindref="member">SYN_STEPPER_CCW</ref><sp/>=<sp/>1,<sp/><sp/></highlight></codeline>
+<codeline lineno="52"><highlight class="normal">}<sp/><ref refid="syn__stepper_8h_1afeaccab388d4ccea5d4ffad027e27d74" kindref="member">SYN_StepperDir</ref>;</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"></highlight></codeline>
+<codeline lineno="54"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Stepper<sp/>descriptor<sp/>───────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="55"><highlight class="normal"></highlight></codeline>
+<codeline lineno="59" refid="structSYN__Stepper" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Configuration<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="61" refid="structSYN__Stepper_1aaa2af8387c21647fe5d2e7355e845907" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref><sp/><sp/><ref refid="structSYN__Stepper_1aaa2af8387c21647fe5d2e7355e845907" kindref="member">step_pin</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="62" refid="structSYN__Stepper_1a576b792a22b31efe061118a722f7f98e" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref><sp/><sp/><ref refid="structSYN__Stepper_1a576b792a22b31efe061118a722f7f98e" kindref="member">dir_pin</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="63" refid="structSYN__Stepper_1aeea9c94972f6be12db0aab11821e1c56" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref><sp/><sp/><ref refid="structSYN__Stepper_1aeea9c94972f6be12db0aab11821e1c56" kindref="member">enable_pin</ref>;<sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="64" refid="structSYN__Stepper_1a96009e8d9363a8dee174875b2e6fb052" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__Stepper_1a96009e8d9363a8dee174875b2e6fb052" kindref="member">dir_invert</ref>;<sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="65" refid="structSYN__Stepper_1a2f3a77527935c1002a49f4506198f5d9" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__Stepper_1a2f3a77527935c1002a49f4506198f5d9" kindref="member">enable_invert</ref>;<sp/><sp/></highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Motion<sp/>parameters<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="68" refid="structSYN__Stepper_1a888fefb8b9bf0ec55648a433998af181" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__Stepper_1a888fefb8b9bf0ec55648a433998af181" kindref="member">max_speed</ref>;<sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="69" refid="structSYN__Stepper_1aee225bbea691119f613ec1d5df34d6f9" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__Stepper_1aee225bbea691119f613ec1d5df34d6f9" kindref="member">accel</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="71"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Internal<sp/>state<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="72" refid="structSYN__Stepper_1a9b8a964aa056da7ec91a6d58d92c8412" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__Stepper_1a9b8a964aa056da7ec91a6d58d92c8412" kindref="member">state</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="73" refid="structSYN__Stepper_1a9f2368d66436c887bc4a8ad769e50226" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>int32_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__Stepper_1a9f2368d66436c887bc4a8ad769e50226" kindref="member">position</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="74" refid="structSYN__Stepper_1a051fd05758f8a21566da400b6f2fc03b" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>int32_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__Stepper_1a051fd05758f8a21566da400b6f2fc03b" kindref="member">target</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="75" refid="structSYN__Stepper_1a736ace4c6c6ab69dee4452983359849d" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__Stepper_1a736ace4c6c6ab69dee4452983359849d" kindref="member">speed</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="76" refid="structSYN__Stepper_1aaa0dbd6fc1f831b24734aad905895428" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__Stepper_1aaa0dbd6fc1f831b24734aad905895428" kindref="member">step_interval</ref>;<sp/><sp/></highlight></codeline>
+<codeline lineno="77" refid="structSYN__Stepper_1a289b90bd3b93454b2102411b708e0642" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__Stepper_1a289b90bd3b93454b2102411b708e0642" kindref="member">last_step_tick</ref>;<sp/></highlight></codeline>
+<codeline lineno="78" refid="structSYN__Stepper_1a512fa4d9c0e58bf77386c4f5458cd33d" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>int32_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__Stepper_1a512fa4d9c0e58bf77386c4f5458cd33d" kindref="member">steps_to_go</ref>;<sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="79" refid="structSYN__Stepper_1ab731bbe67e9fb1f806dec913cb057564" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>int32_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__Stepper_1ab731bbe67e9fb1f806dec913cb057564" kindref="member">decel_start</ref>;<sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="80" refid="structSYN__Stepper_1addbca369c8ad07342b989fc4049d0581" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__Stepper_1addbca369c8ad07342b989fc4049d0581" kindref="member">step_state</ref>;<sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="81"><highlight class="normal">}<sp/><ref refid="structSYN__Stepper" kindref="compound">SYN_Stepper</ref>;</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"></highlight></codeline>
+<codeline lineno="83"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>API<sp/>──────────────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="84"><highlight class="normal"></highlight></codeline>
+<codeline lineno="92"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__stepper_8h_1a5a9ab57403f83790e3b9e515629e92f7" kindref="member">syn_stepper_init</ref>(<ref refid="structSYN__Stepper" kindref="compound">SYN_Stepper</ref><sp/>*s,</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref><sp/>step_pin,</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref><sp/>dir_pin);</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"></highlight></codeline>
+<codeline lineno="103"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__stepper_8h_1aa861e1fa538da31493cc24c16ae24d68" kindref="member">syn_stepper_set_enable_pin</ref>(<ref refid="structSYN__Stepper" kindref="compound">SYN_Stepper</ref><sp/>*s,<sp/><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref><sp/>pin,</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>active_low);</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"></highlight></codeline>
+<codeline lineno="113"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__stepper_8h_1a188931a88677a89700c2477902e6120a" kindref="member">syn_stepper_set_speed</ref>(<ref refid="structSYN__Stepper" kindref="compound">SYN_Stepper</ref><sp/>*s,<sp/>uint32_t<sp/>max_sps,</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>accel_sps2);</highlight></codeline>
+<codeline lineno="115"><highlight class="normal"></highlight></codeline>
+<codeline lineno="122"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__stepper_8h_1a3115ef7a4ddf7ae4de5ec9226739db7a" kindref="member">syn_stepper_move</ref>(<ref refid="structSYN__Stepper" kindref="compound">SYN_Stepper</ref><sp/>*s,<sp/>int32_t<sp/>steps);</highlight></codeline>
+<codeline lineno="123"><highlight class="normal"></highlight></codeline>
+<codeline lineno="129"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__stepper_8h_1a4b7747f4196673ae4c0bf5c5dae81146" kindref="member">syn_stepper_move_to</ref>(<ref refid="structSYN__Stepper" kindref="compound">SYN_Stepper</ref><sp/>*s,<sp/>int32_t<sp/>position);</highlight></codeline>
+<codeline lineno="130"><highlight class="normal"></highlight></codeline>
+<codeline lineno="139"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__stepper_8h_1a479efea3851eaf93fce99b3050f514c3" kindref="member">syn_stepper_tick</ref>(<ref refid="structSYN__Stepper" kindref="compound">SYN_Stepper</ref><sp/>*s);</highlight></codeline>
+<codeline lineno="140"><highlight class="normal"></highlight></codeline>
+<codeline lineno="145"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__stepper_8h_1a471031d1d983737bb85e7b0a686df94d" kindref="member">syn_stepper_stop</ref>(<ref refid="structSYN__Stepper" kindref="compound">SYN_Stepper</ref><sp/>*s);</highlight></codeline>
+<codeline lineno="146"><highlight class="normal"></highlight></codeline>
+<codeline lineno="152"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__stepper_8h_1ad7e227b61053b87c68f902e977f89d31" kindref="member">syn_stepper_enable</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__Stepper" kindref="compound">SYN_Stepper</ref><sp/>*s,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>enable);</highlight></codeline>
+<codeline lineno="153"><highlight class="normal"></highlight></codeline>
+<codeline lineno="159" refid="syn__stepper_8h_1afa6d8d21e87f4795d67f0425eb930792" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__stepper_8h_1afa6d8d21e87f4795d67f0425eb930792" kindref="member">syn_stepper_is_moving</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__Stepper" kindref="compound">SYN_Stepper</ref><sp/>*s)</highlight></codeline>
+<codeline lineno="160"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="161"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>s-&gt;<ref refid="structSYN__Stepper_1a9b8a964aa056da7ec91a6d58d92c8412" kindref="member">state</ref><sp/>!=<sp/>(uint8_t)<ref refid="syn__stepper_8h_1a576129d9bf267eae4b0bb6901dfc5351a8f54fb2c092e642028178b020cffcc80" kindref="member">SYN_STEPPER_IDLE</ref>;</highlight></codeline>
+<codeline lineno="162"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="163"><highlight class="normal"></highlight></codeline>
+<codeline lineno="169" refid="syn__stepper_8h_1ad1c888adbc6a25e546b86358a37a0d1e" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>int32_t<sp/><ref refid="syn__stepper_8h_1ad1c888adbc6a25e546b86358a37a0d1e" kindref="member">syn_stepper_position</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__Stepper" kindref="compound">SYN_Stepper</ref><sp/>*s)</highlight></codeline>
+<codeline lineno="170"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="171"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>s-&gt;<ref refid="structSYN__Stepper_1a9f2368d66436c887bc4a8ad769e50226" kindref="member">position</ref>;</highlight></codeline>
+<codeline lineno="172"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="173"><highlight class="normal"></highlight></codeline>
+<codeline lineno="179" refid="syn__stepper_8h_1a4b7c48a00a227f881609d40843b03f65" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__stepper_8h_1a4b7c48a00a227f881609d40843b03f65" kindref="member">syn_stepper_set_position</ref>(<ref refid="structSYN__Stepper" kindref="compound">SYN_Stepper</ref><sp/>*s,<sp/>int32_t<sp/>pos)</highlight></codeline>
+<codeline lineno="180"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="181"><highlight class="normal"><sp/><sp/><sp/><sp/>s-&gt;<ref refid="structSYN__Stepper_1a9f2368d66436c887bc4a8ad769e50226" kindref="member">position</ref><sp/>=<sp/>pos;</highlight></codeline>
+<codeline lineno="182"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="183"><highlight class="normal"></highlight></codeline>
+<codeline lineno="195"><highlight class="normal"><ref refid="structSYN__MotorOutput" kindref="compound">SYN_MotorOutput</ref><sp/><ref refid="syn__stepper_8h_1a38eeb9e349b6b57cb6a6a886df20a5e4" kindref="member">syn_stepper_output</ref>(<ref refid="structSYN__Stepper" kindref="compound">SYN_Stepper</ref><sp/>*stepper);</highlight></codeline>
+<codeline lineno="196"><highlight class="normal"></highlight></codeline>
+<codeline lineno="197"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="198"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="199"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="200"><highlight class="normal"></highlight></codeline>
+<codeline lineno="201"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_STEPPER_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/motor/syn_stepper.h"/>
+  </compounddef>
+</doxygen>

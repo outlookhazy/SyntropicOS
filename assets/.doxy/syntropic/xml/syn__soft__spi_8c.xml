@@ -1,0 +1,512 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__soft__spi_8c" kind="file" language="C++">
+    <compoundname>syn_soft_spi.c</compoundname>
+    <includes refid="syn__soft__spi_8h" local="yes">syn_soft_spi.h</includes>
+    <includes refid="syn__gpio_8h" local="yes">syn_gpio.h</includes>
+    <includes refid="syn__assert_8h" local="yes">../util/syn_assert.h</includes>
+    <incdepgraph>
+      <node id="10">
+        <label>../common/syn_compiler.h</label>
+        <link refid="syn__compiler_8h"/>
+      </node>
+      <node id="3">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>syn_gpio.h</label>
+        <link refid="syn__gpio_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/drivers/syn_soft_spi.c</label>
+        <link refid="syn__soft__spi_8c"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>syn_soft_spi.h</label>
+        <link refid="syn__soft__spi_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>../port/syn_port_gpio.h</label>
+        <link refid="syn__port__gpio_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="9">
+        <label>../util/syn_assert.h</label>
+        <link refid="syn__assert_8h"/>
+        <childnode refid="10" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>stdbool.h</label>
+      </node>
+      <node id="5">
+        <label>stddef.h</label>
+      </node>
+      <node id="4">
+        <label>stdint.h</label>
+      </node>
+    </incdepgraph>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__soft__spi_8c_1a248bc0b0d359e6af53ac1793cb1ce058" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void spi_delay</definition>
+        <argsstring>(const SYN_SoftSPI *spi)</argsstring>
+        <name>spi_delay</name>
+        <param>
+          <type>const <ref refid="structSYN__SoftSPI" kindref="compound">SYN_SoftSPI</ref> *</type>
+          <declname>spi</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_soft_spi.c" line="11" column="13" bodyfile="src/syntropic/drivers/syn_soft_spi.c" bodystart="11" bodyend="15"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__soft__spi_8c_1a47fa0d59625870ccd6a0459b4f6dffa6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_soft_spi_init</definition>
+        <argsstring>(SYN_SoftSPI *spi, SYN_GPIO_Pin sck, SYN_GPIO_Pin mosi, SYN_GPIO_Pin miso, SYN_SPIMode mode, uint32_t delay_loops)</argsstring>
+        <name>syn_soft_spi_init</name>
+        <param>
+          <type><ref refid="structSYN__SoftSPI" kindref="compound">SYN_SoftSPI</ref> *</type>
+          <declname>spi</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref></type>
+          <declname>sck</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref></type>
+          <declname>mosi</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref></type>
+          <declname>miso</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__soft__spi_8h_1a8f12ccea927ea4d704ab9fc02f0aa724" kindref="member">SYN_SPIMode</ref></type>
+          <declname>mode</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>delay_loops</declname>
+        </param>
+        <briefdescription>
+<para>Initialize the soft SPI pins. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>spi</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to SPI instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>sck</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>SCK pin. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>mosi</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>MOSI pin. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>miso</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>MISO pin. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>mode</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>SPI Mode (0-3). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>delay_loops</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of iterations for a half-clock delay. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_soft_spi.c" line="17" column="6" bodyfile="src/syntropic/drivers/syn_soft_spi.c" bodystart="17" bodyend="41"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__soft__spi_8c_1a6c66523ba419dcc2e89aa80d403bd66e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint8_t</type>
+        <definition>uint8_t syn_soft_spi_transfer</definition>
+        <argsstring>(const SYN_SoftSPI *spi, uint8_t data)</argsstring>
+        <name>syn_soft_spi_transfer</name>
+        <param>
+          <type>const <ref refid="structSYN__SoftSPI" kindref="compound">SYN_SoftSPI</ref> *</type>
+          <declname>spi</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>data</declname>
+        </param>
+        <briefdescription>
+<para>Transfer a single byte (read and write simultaneously). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>spi</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to SPI instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>data</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Byte to write out on MOSI. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Byte read in from MISO. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_soft_spi.c" line="43" column="9" bodyfile="src/syntropic/drivers/syn_soft_spi.c" bodystart="43" bodyend="75"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__soft__spi_8c_1a17210b7c95b7e3253ec63b6479ef1f51" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_soft_spi_transfer_bulk</definition>
+        <argsstring>(SYN_SoftSPI *spi, const uint8_t *tx, uint8_t *rx, size_t len)</argsstring>
+        <name>syn_soft_spi_transfer_bulk</name>
+        <param>
+          <type><ref refid="structSYN__SoftSPI" kindref="compound">SYN_SoftSPI</ref> *</type>
+          <declname>spi</declname>
+        </param>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>tx</declname>
+        </param>
+        <param>
+          <type>uint8_t *</type>
+          <declname>rx</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>len</declname>
+        </param>
+        <briefdescription>
+<para>Transfer multiple bytes. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>spi</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to SPI instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>tx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Buffer to transmit (can be NULL if rx-only). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>rx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Buffer to receive into (can be NULL if tx-only). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of bytes to transfer. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_soft_spi.c" line="77" column="6" bodyfile="src/syntropic/drivers/syn_soft_spi.c" bodystart="77" bodyend="88"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__soft__spi_8c_1ae46af7834c44f11e05c1523fb8f6fef3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_soft_spi_set_cs</definition>
+        <argsstring>(SYN_SoftSPI *spi, SYN_GPIO_Pin cs_pin, bool active_low)</argsstring>
+        <name>syn_soft_spi_set_cs</name>
+        <param>
+          <type><ref refid="structSYN__SoftSPI" kindref="compound">SYN_SoftSPI</ref> *</type>
+          <declname>spi</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref></type>
+          <declname>cs_pin</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+          <declname>active_low</declname>
+        </param>
+        <briefdescription>
+<para>Set an optional chip select pin. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>When set, syn_soft_spi_select/deselect can be used to assert/deassert CS.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>spi</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>SPI instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>cs_pin</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Chip select GPIO pin. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>active_low</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>true if CS is active-low (most common). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_soft_spi.c" line="90" column="6" bodyfile="src/syntropic/drivers/syn_soft_spi.c" bodystart="90" bodyend="97"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__soft__spi_8c_1ae63ede586b4c9c7a562ec1bc1e5053dd" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_soft_spi_select</definition>
+        <argsstring>(SYN_SoftSPI *spi)</argsstring>
+        <name>syn_soft_spi_select</name>
+        <param>
+          <type><ref refid="structSYN__SoftSPI" kindref="compound">SYN_SoftSPI</ref> *</type>
+          <declname>spi</declname>
+        </param>
+        <briefdescription>
+<para>Assert chip select (drive active). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>spi</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Soft SPI instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_soft_spi.c" line="99" column="6" bodyfile="src/syntropic/drivers/syn_soft_spi.c" bodystart="99" bodyend="103"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__soft__spi_8c_1a30445c296b58e262290b5b9bd1570696" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_soft_spi_deselect</definition>
+        <argsstring>(SYN_SoftSPI *spi)</argsstring>
+        <name>syn_soft_spi_deselect</name>
+        <param>
+          <type><ref refid="structSYN__SoftSPI" kindref="compound">SYN_SoftSPI</ref> *</type>
+          <declname>spi</declname>
+        </param>
+        <briefdescription>
+<para>Deassert chip select (drive inactive). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>spi</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Soft SPI instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_soft_spi.c" line="105" column="6" bodyfile="src/syntropic/drivers/syn_soft_spi.c" bodystart="105" bodyend="109"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#if<sp/>__has_include(&quot;syn_config.h&quot;)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/>#include<sp/>&quot;syn_config.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="4"><highlight class="normal"></highlight></codeline>
+<codeline lineno="5"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>!defined(SYN_USE_SOFT_SPI)<sp/>||<sp/>SYN_USE_SOFT_SPI</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__soft__spi_8h" kindref="compound">syn_soft_spi.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__gpio_8h" kindref="compound">syn_gpio.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../util/syn_assert.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>spi_delay(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__SoftSPI" kindref="compound">SYN_SoftSPI</ref><sp/>*spi)<sp/>{</highlight></codeline>
+<codeline lineno="12"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keyword">volatile</highlight><highlight class="normal"><sp/>uint32_t<sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>spi-&gt;<ref refid="structSYN__SoftSPI_1a814411a3b98eeb1e0a60cb7bd00b3871" kindref="member">delay_loops</ref>;<sp/>i++)<sp/>{</highlight></codeline>
+<codeline lineno="13"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>NOP<sp/>loop</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="15"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>syn_soft_spi_init(<ref refid="structSYN__SoftSPI" kindref="compound">SYN_SoftSPI</ref><sp/>*spi,<sp/><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref><sp/>sck,<sp/><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref><sp/>mosi,<sp/><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref><sp/>miso,<sp/><ref refid="syn__soft__spi_8h_1a8f12ccea927ea4d704ab9fc02f0aa724" kindref="member">SYN_SPIMode</ref><sp/>mode,<sp/>uint32_t<sp/>delay_loops)<sp/>{</highlight></codeline>
+<codeline lineno="18"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(spi<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="19"><highlight class="normal"><sp/><sp/><sp/><sp/>spi-&gt;<ref refid="structSYN__SoftSPI_1a37df1491018c6a4bf8726ea85482fb02" kindref="member">sck</ref><sp/>=<sp/>sck;</highlight></codeline>
+<codeline lineno="20"><highlight class="normal"><sp/><sp/><sp/><sp/>spi-&gt;<ref refid="structSYN__SoftSPI_1a332b1af9723d25975f0eb89ba086723e" kindref="member">mosi</ref><sp/>=<sp/>mosi;</highlight></codeline>
+<codeline lineno="21"><highlight class="normal"><sp/><sp/><sp/><sp/>spi-&gt;<ref refid="structSYN__SoftSPI_1acc70316e1efa93f4fba54d3c36103c3e" kindref="member">miso</ref><sp/>=<sp/>miso;</highlight></codeline>
+<codeline lineno="22"><highlight class="normal"><sp/><sp/><sp/><sp/>spi-&gt;<ref refid="structSYN__SoftSPI_1a2f2a6838c5f007eb731d59bf8ddf9e3b" kindref="member">mode</ref><sp/>=<sp/>mode;</highlight></codeline>
+<codeline lineno="23"><highlight class="normal"><sp/><sp/><sp/><sp/>spi-&gt;<ref refid="structSYN__SoftSPI_1a814411a3b98eeb1e0a60cb7bd00b3871" kindref="member">delay_loops</ref><sp/>=<sp/>delay_loops;</highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__gpio_8h_1a3f5c2957b8fdc3a083d8c6802e2a3503" kindref="member">syn_gpio_init</ref>(spi-&gt;<ref refid="structSYN__SoftSPI_1a37df1491018c6a4bf8726ea85482fb02" kindref="member">sck</ref>,<sp/>SYN_GPIO_OUTPUT);</highlight></codeline>
+<codeline lineno="26"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__gpio_8h_1a3f5c2957b8fdc3a083d8c6802e2a3503" kindref="member">syn_gpio_init</ref>(spi-&gt;<ref refid="structSYN__SoftSPI_1a332b1af9723d25975f0eb89ba086723e" kindref="member">mosi</ref>,<sp/>SYN_GPIO_OUTPUT);</highlight></codeline>
+<codeline lineno="27"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__gpio_8h_1a3f5c2957b8fdc3a083d8c6802e2a3503" kindref="member">syn_gpio_init</ref>(spi-&gt;<ref refid="structSYN__SoftSPI_1acc70316e1efa93f4fba54d3c36103c3e" kindref="member">miso</ref>,<sp/>SYN_GPIO_INPUT);</highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>cpol<sp/>=<sp/>(spi-&gt;<ref refid="structSYN__SoftSPI_1a2f2a6838c5f007eb731d59bf8ddf9e3b" kindref="member">mode</ref><sp/>==<sp/><ref refid="syn__soft__spi_8h_1a8f12ccea927ea4d704ab9fc02f0aa724a6cc9184f29295638bcc53791b41971a6" kindref="member">SYN_SPI_MODE_2</ref><sp/>||<sp/>spi-&gt;<ref refid="structSYN__SoftSPI_1a2f2a6838c5f007eb731d59bf8ddf9e3b" kindref="member">mode</ref><sp/>==<sp/><ref refid="syn__soft__spi_8h_1a8f12ccea927ea4d704ab9fc02f0aa724ace1d78ea86d6b54c01cb360cce8a5778" kindref="member">SYN_SPI_MODE_3</ref>);</highlight></codeline>
+<codeline lineno="30"><highlight class="normal"><sp/><sp/><sp/><sp/>spi-&gt;<ref refid="structSYN__SoftSPI_1ad7c85c6ddaa53063d24991fb18104d48" kindref="member">cpha</ref><sp/>=<sp/>(spi-&gt;<ref refid="structSYN__SoftSPI_1a2f2a6838c5f007eb731d59bf8ddf9e3b" kindref="member">mode</ref><sp/>==<sp/><ref refid="syn__soft__spi_8h_1a8f12ccea927ea4d704ab9fc02f0aa724a1566db492887c23235cbf034acc54239" kindref="member">SYN_SPI_MODE_1</ref><sp/>||<sp/>spi-&gt;<ref refid="structSYN__SoftSPI_1a2f2a6838c5f007eb731d59bf8ddf9e3b" kindref="member">mode</ref><sp/>==<sp/><ref refid="syn__soft__spi_8h_1a8f12ccea927ea4d704ab9fc02f0aa724ace1d78ea86d6b54c01cb360cce8a5778" kindref="member">SYN_SPI_MODE_3</ref>);</highlight></codeline>
+<codeline lineno="31"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="32"><highlight class="normal"><sp/><sp/><sp/><sp/>spi-&gt;<ref refid="structSYN__SoftSPI_1a72292a4f608c05bd030df209de2c4f88" kindref="member">idle_state</ref><sp/>=<sp/>cpol<sp/>?<sp/>SYN_GPIO_HIGH<sp/>:<sp/>SYN_GPIO_LOW;</highlight></codeline>
+<codeline lineno="33"><highlight class="normal"><sp/><sp/><sp/><sp/>spi-&gt;<ref refid="structSYN__SoftSPI_1ad263b7383518865e69053bf3daa7010c" kindref="member">active_state</ref><sp/>=<sp/>cpol<sp/>?<sp/>SYN_GPIO_LOW<sp/>:<sp/>SYN_GPIO_HIGH;</highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Set<sp/>idle<sp/>clock<sp/>state<sp/>based<sp/>on<sp/>CPOL</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__gpio_8h_1a1df83ba3f60dd521135c2885b89622df" kindref="member">syn_gpio_write</ref>(spi-&gt;<ref refid="structSYN__SoftSPI_1a37df1491018c6a4bf8726ea85482fb02" kindref="member">sck</ref>,<sp/>spi-&gt;<ref refid="structSYN__SoftSPI_1a72292a4f608c05bd030df209de2c4f88" kindref="member">idle_state</ref>);</highlight></codeline>
+<codeline lineno="37"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__gpio_8h_1a1df83ba3f60dd521135c2885b89622df" kindref="member">syn_gpio_write</ref>(spi-&gt;<ref refid="structSYN__SoftSPI_1a332b1af9723d25975f0eb89ba086723e" kindref="member">mosi</ref>,<sp/>SYN_GPIO_LOW);</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"><sp/><sp/><sp/><sp/>spi-&gt;<ref refid="structSYN__SoftSPI_1a01cc4b8fba8b8762aa8aa5a5e0333c3c" kindref="member">cs_pin</ref><sp/>=<sp/>(<ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref>)-1;<sp/></highlight><highlight class="comment">/*<sp/>No<sp/>CS<sp/>by<sp/>default<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight></codeline>
+<codeline lineno="43"><highlight class="normal">uint8_t<sp/>syn_soft_spi_transfer(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__SoftSPI" kindref="compound">SYN_SoftSPI</ref><sp/>*spi,<sp/>uint8_t<sp/>data)<sp/>{</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>rx_data<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__defs_8h_1aaa3b9a5c8a9518fd3c3ca7bbe8b4de4a" kindref="member">SYN_GPIO_State</ref><sp/>idle<sp/>=<sp/>spi-&gt;<ref refid="structSYN__SoftSPI_1a72292a4f608c05bd030df209de2c4f88" kindref="member">idle_state</ref>;</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__defs_8h_1aaa3b9a5c8a9518fd3c3ca7bbe8b4de4a" kindref="member">SYN_GPIO_State</ref><sp/>active<sp/>=<sp/>spi-&gt;<ref refid="structSYN__SoftSPI_1ad263b7383518865e69053bf3daa7010c" kindref="member">active_state</ref>;</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"></highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(uint8_t<sp/>mask<sp/>=<sp/>0x80;<sp/>mask<sp/>!=<sp/>0;<sp/>mask<sp/>&gt;&gt;=<sp/>1)<sp/>{</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!spi-&gt;<ref refid="structSYN__SoftSPI_1ad7c85c6ddaa53063d24991fb18104d48" kindref="member">cpha</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Mode<sp/>0<sp/>or<sp/>2:<sp/>Set<sp/>data<sp/>on<sp/>idle-to-active<sp/>edge</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__gpio_8h_1a1df83ba3f60dd521135c2885b89622df" kindref="member">syn_gpio_write</ref>(spi-&gt;<ref refid="structSYN__SoftSPI_1a332b1af9723d25975f0eb89ba086723e" kindref="member">mosi</ref>,<sp/>(data<sp/>&amp;<sp/>mask)<sp/>?<sp/>SYN_GPIO_HIGH<sp/>:<sp/>SYN_GPIO_LOW);</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>spi_delay(spi);</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__gpio_8h_1a1df83ba3f60dd521135c2885b89622df" kindref="member">syn_gpio_write</ref>(spi-&gt;<ref refid="structSYN__SoftSPI_1a37df1491018c6a4bf8726ea85482fb02" kindref="member">sck</ref>,<sp/>active);</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>spi_delay(spi);</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="syn__gpio_8h_1a260341d3e162148be0b5539503118712" kindref="member">syn_gpio_read</ref>(spi-&gt;<ref refid="structSYN__SoftSPI_1acc70316e1efa93f4fba54d3c36103c3e" kindref="member">miso</ref>)<sp/>==<sp/>SYN_GPIO_HIGH)<sp/>{</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rx_data<sp/>|=<sp/>mask;</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__gpio_8h_1a1df83ba3f60dd521135c2885b89622df" kindref="member">syn_gpio_write</ref>(spi-&gt;<ref refid="structSYN__SoftSPI_1a37df1491018c6a4bf8726ea85482fb02" kindref="member">sck</ref>,<sp/>idle);</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>spi_delay(spi);</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Mode<sp/>1<sp/>or<sp/>3:<sp/>Set<sp/>data<sp/>on<sp/>active-to-idle<sp/>edge</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="63"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__gpio_8h_1a1df83ba3f60dd521135c2885b89622df" kindref="member">syn_gpio_write</ref>(spi-&gt;<ref refid="structSYN__SoftSPI_1a37df1491018c6a4bf8726ea85482fb02" kindref="member">sck</ref>,<sp/>active);</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__gpio_8h_1a1df83ba3f60dd521135c2885b89622df" kindref="member">syn_gpio_write</ref>(spi-&gt;<ref refid="structSYN__SoftSPI_1a332b1af9723d25975f0eb89ba086723e" kindref="member">mosi</ref>,<sp/>(data<sp/>&amp;<sp/>mask)<sp/>?<sp/>SYN_GPIO_HIGH<sp/>:<sp/>SYN_GPIO_LOW);</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>spi_delay(spi);</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__gpio_8h_1a1df83ba3f60dd521135c2885b89622df" kindref="member">syn_gpio_write</ref>(spi-&gt;<ref refid="structSYN__SoftSPI_1a37df1491018c6a4bf8726ea85482fb02" kindref="member">sck</ref>,<sp/>idle);</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>spi_delay(spi);</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="syn__gpio_8h_1a260341d3e162148be0b5539503118712" kindref="member">syn_gpio_read</ref>(spi-&gt;<ref refid="structSYN__SoftSPI_1acc70316e1efa93f4fba54d3c36103c3e" kindref="member">miso</ref>)<sp/>==<sp/>SYN_GPIO_HIGH)<sp/>{</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rx_data<sp/>|=<sp/>mask;</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>spi_delay(spi);</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>rx_data;</highlight></codeline>
+<codeline lineno="75"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"></highlight></codeline>
+<codeline lineno="77"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>syn_soft_spi_transfer_bulk(<ref refid="structSYN__SoftSPI" kindref="compound">SYN_SoftSPI</ref><sp/>*spi,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*tx,<sp/>uint8_t<sp/>*rx,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>len)<sp/>{</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(spi<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(tx<sp/>!=<sp/>NULL<sp/>||<sp/>rx<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>len;<sp/>i++)<sp/>{</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>tx_byte<sp/>=<sp/>tx<sp/>?<sp/>tx[i]<sp/>:<sp/>0xFF;</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>rx_byte<sp/>=<sp/>syn_soft_spi_transfer(spi,<sp/>tx_byte);</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(rx)<sp/>{</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rx[i]<sp/>=<sp/>rx_byte;</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="88"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"></highlight></codeline>
+<codeline lineno="90"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>syn_soft_spi_set_cs(<ref refid="structSYN__SoftSPI" kindref="compound">SYN_SoftSPI</ref><sp/>*spi,<sp/><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref><sp/>cs_pin,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>active_low)<sp/>{</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(spi<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/><sp/><sp/>spi-&gt;<ref refid="structSYN__SoftSPI_1a01cc4b8fba8b8762aa8aa5a5e0333c3c" kindref="member">cs_pin</ref><sp/>=<sp/>cs_pin;</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><sp/><sp/><sp/><sp/>spi-&gt;<ref refid="structSYN__SoftSPI_1a62fc5de7e441a00d53bc68d8f77c9f12" kindref="member">cs_active_low</ref><sp/>=<sp/>active_low;</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__gpio_8h_1a3f5c2957b8fdc3a083d8c6802e2a3503" kindref="member">syn_gpio_init</ref>(cs_pin,<sp/>SYN_GPIO_OUTPUT);</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Start<sp/>deasserted<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__gpio_8h_1a1df83ba3f60dd521135c2885b89622df" kindref="member">syn_gpio_write</ref>(cs_pin,<sp/>active_low<sp/>?<sp/>SYN_GPIO_HIGH<sp/>:<sp/>SYN_GPIO_LOW);</highlight></codeline>
+<codeline lineno="97"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"></highlight></codeline>
+<codeline lineno="99"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>syn_soft_spi_select(<ref refid="structSYN__SoftSPI" kindref="compound">SYN_SoftSPI</ref><sp/>*spi)<sp/>{</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(spi<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(spi-&gt;<ref refid="structSYN__SoftSPI_1a01cc4b8fba8b8762aa8aa5a5e0333c3c" kindref="member">cs_pin</ref><sp/>==<sp/>(<ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref>)-1)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__gpio_8h_1a1df83ba3f60dd521135c2885b89622df" kindref="member">syn_gpio_write</ref>(spi-&gt;<ref refid="structSYN__SoftSPI_1a01cc4b8fba8b8762aa8aa5a5e0333c3c" kindref="member">cs_pin</ref>,<sp/>spi-&gt;<ref refid="structSYN__SoftSPI_1a62fc5de7e441a00d53bc68d8f77c9f12" kindref="member">cs_active_low</ref><sp/>?<sp/>SYN_GPIO_LOW<sp/>:<sp/>SYN_GPIO_HIGH);</highlight></codeline>
+<codeline lineno="103"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"></highlight></codeline>
+<codeline lineno="105"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>syn_soft_spi_deselect(<ref refid="structSYN__SoftSPI" kindref="compound">SYN_SoftSPI</ref><sp/>*spi)<sp/>{</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(spi<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(spi-&gt;<ref refid="structSYN__SoftSPI_1a01cc4b8fba8b8762aa8aa5a5e0333c3c" kindref="member">cs_pin</ref><sp/>==<sp/>(<ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref>)-1)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__gpio_8h_1a1df83ba3f60dd521135c2885b89622df" kindref="member">syn_gpio_write</ref>(spi-&gt;<ref refid="structSYN__SoftSPI_1a01cc4b8fba8b8762aa8aa5a5e0333c3c" kindref="member">cs_pin</ref>,<sp/>spi-&gt;<ref refid="structSYN__SoftSPI_1a62fc5de7e441a00d53bc68d8f77c9f12" kindref="member">cs_active_low</ref><sp/>?<sp/>SYN_GPIO_HIGH<sp/>:<sp/>SYN_GPIO_LOW);</highlight></codeline>
+<codeline lineno="109"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="110"><highlight class="normal"></highlight></codeline>
+<codeline lineno="111"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_USE_SOFT_SPI<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/drivers/syn_soft_spi.c"/>
+  </compounddef>
+</doxygen>

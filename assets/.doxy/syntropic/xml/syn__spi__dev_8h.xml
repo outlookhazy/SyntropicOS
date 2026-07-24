@@ -1,0 +1,479 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__spi__dev_8h" kind="file" language="C++">
+    <compoundname>syn_spi_dev.h</compoundname>
+    <includes refid="syn__defs_8h" local="yes">../common/syn_defs.h</includes>
+    <includes refid="syn__port__spi_8h" local="yes">../port/syn_port_spi.h</includes>
+    <includes local="no">stdint.h</includes>
+    <includes local="no">stddef.h</includes>
+    <includes local="no">string.h</includes>
+    <includedby refid="syntropic_8h" local="yes">src/syntropic/syntropic.h</includedby>
+    <incdepgraph>
+      <node id="2">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/drivers/syn_spi_dev.h</label>
+        <link refid="syn__spi__dev_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>../port/syn_port_spi.h</label>
+        <link refid="syn__port__spi_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>stddef.h</label>
+      </node>
+      <node id="3">
+        <label>stdint.h</label>
+      </node>
+      <node id="6">
+        <label>string.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="1">
+        <label>src/syntropic/drivers/syn_spi_dev.h</label>
+        <link refid="syn__spi__dev_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>src/syntropic/syntropic.h</label>
+        <link refid="syntropic_8h"/>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="structSYN__SPIDev" prot="public">SYN_SPIDev</innerclass>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__spi__dev_8h_1a36dd548ba8666f1eed95b32212d74538" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void syn_spi_dev_init</definition>
+        <argsstring>(SYN_SPIDev *dev, uint8_t bus, uint8_t cs, uint8_t read_bit)</argsstring>
+        <name>syn_spi_dev_init</name>
+        <param>
+          <type><ref refid="structSYN__SPIDev" kindref="compound">SYN_SPIDev</ref> *</type>
+          <declname>dev</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>bus</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>cs</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>read_bit</declname>
+        </param>
+        <briefdescription>
+<para>Initialize an SPI device descriptor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>dev</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Device instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>bus</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>SPI bus number. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>cs</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Chip-select index. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>read_bit</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Bit OR&apos;d into register address for reads. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_spi_dev.h" line="51" column="20" bodyfile="src/syntropic/drivers/syn_spi_dev.h" bodystart="51" bodyend="58"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__spi__dev_8h_1a2379f4835db41ed58a079b5e9fbd22ea" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>uint8_t</type>
+        <definition>static uint8_t syn_spi_dev_read8</definition>
+        <argsstring>(const SYN_SPIDev *dev, uint8_t reg)</argsstring>
+        <name>syn_spi_dev_read8</name>
+        <param>
+          <type>const <ref refid="structSYN__SPIDev" kindref="compound">SYN_SPIDev</ref> *</type>
+          <declname>dev</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>reg</declname>
+        </param>
+        <briefdescription>
+<para>Read a single 8-bit register. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>dev</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>SPI device. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>reg</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Register address. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Register value. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_spi_dev.h" line="66" column="23" bodyfile="src/syntropic/drivers/syn_spi_dev.h" bodystart="66" bodyend="77"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__spi__dev_8h_1ad50373ac071fdd54ed7a7fc4fd190210" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>static SYN_Status syn_spi_dev_write8</definition>
+        <argsstring>(const SYN_SPIDev *dev, uint8_t reg, uint8_t val)</argsstring>
+        <name>syn_spi_dev_write8</name>
+        <param>
+          <type>const <ref refid="structSYN__SPIDev" kindref="compound">SYN_SPIDev</ref> *</type>
+          <declname>dev</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>reg</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>val</declname>
+        </param>
+        <briefdescription>
+<para>Write a single 8-bit register. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>dev</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>SPI device. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>reg</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Register address. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>val</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Value to write. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_spi_dev.h" line="86" column="26" bodyfile="src/syntropic/drivers/syn_spi_dev.h" bodystart="86" bodyend="96"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__spi__dev_8h_1a1b0a2c1c662addc3e7468c1eaa2932cc" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>static SYN_Status syn_spi_dev_read_burst</definition>
+        <argsstring>(const SYN_SPIDev *dev, uint8_t reg, uint8_t *buf, size_t len)</argsstring>
+        <name>syn_spi_dev_read_burst</name>
+        <param>
+          <type>const <ref refid="structSYN__SPIDev" kindref="compound">SYN_SPIDev</ref> *</type>
+          <declname>dev</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>reg</declname>
+        </param>
+        <param>
+          <type>uint8_t *</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>len</declname>
+        </param>
+        <briefdescription>
+<para>Burst-read multiple registers. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>dev</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>SPI device. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>reg</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Starting register address. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Buffer to read into. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of bytes to read. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_spi_dev.h" line="106" column="26" bodyfile="src/syntropic/drivers/syn_spi_dev.h" bodystart="106" bodyend="127"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__spi__dev_8h_1ab08e92ae810aae8d349e2e6c6210a001" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>static SYN_Status syn_spi_dev_write_burst</definition>
+        <argsstring>(const SYN_SPIDev *dev, uint8_t reg, const uint8_t *data, size_t len)</argsstring>
+        <name>syn_spi_dev_write_burst</name>
+        <param>
+          <type>const <ref refid="structSYN__SPIDev" kindref="compound">SYN_SPIDev</ref> *</type>
+          <declname>dev</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>reg</declname>
+        </param>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>len</declname>
+        </param>
+        <briefdescription>
+<para>Burst-write multiple registers. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>dev</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>SPI device. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>reg</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Starting register address. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>data</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Data to write. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of bytes. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_spi_dev.h" line="137" column="26" bodyfile="src/syntropic/drivers/syn_spi_dev.h" bodystart="137" bodyend="148"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>SPI device register helpers — thin layer over port SPI. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Provides register-level access for SPI devices. Handles CS assertion, register address framing, and read/write bit.</para>
+<para><simplesect kind="par"><title>Usage</title><para><programlisting><codeline><highlight class="normal"><ref refid="structSYN__SPIDev" kindref="compound">SYN_SPIDev</ref><sp/>mpu;</highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__spi__dev_8h_1a36dd548ba8666f1eed95b32212d74538" kindref="member">syn_spi_dev_init</ref>(&amp;mpu,<sp/>0,<sp/>0,<sp/>0x80);<sp/><sp/></highlight><highlight class="comment">//<sp/>bus<sp/>0,<sp/>CS<sp/>0,<sp/>read<sp/>bit<sp/>=<sp/>0x80</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal">uint8_t<sp/>who<sp/>=<sp/><ref refid="syn__spi__dev_8h_1a2379f4835db41ed58a079b5e9fbd22ea" kindref="member">syn_spi_dev_read8</ref>(&amp;mpu,<sp/>0x75);<sp/><sp/></highlight><highlight class="comment">//<sp/>WHO_AM_I</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__spi__dev_8h_1ad50373ac071fdd54ed7a7fc4fd190210" kindref="member">syn_spi_dev_write8</ref>(&amp;mpu,<sp/>0x6B,<sp/>0x00);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>wake<sp/>up</highlight></codeline>
+</programlisting> </para>
+</simplesect>
+</para>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_SPI_DEV_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_SPI_DEV_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../common/syn_defs.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../port/syn_port_spi.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stddef.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;string.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Device<sp/>descriptor<sp/>────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight></codeline>
+<codeline lineno="36" refid="structSYN__SPIDev" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="37" refid="structSYN__SPIDev_1ab0e792e6741e09b2f47d38575f8ba5f5" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/><ref refid="structSYN__SPIDev_1ab0e792e6741e09b2f47d38575f8ba5f5" kindref="member">bus</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="38" refid="structSYN__SPIDev_1a09a9b8fa5875e2ec7e8b232724d2297e" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/><ref refid="structSYN__SPIDev_1a09a9b8fa5875e2ec7e8b232724d2297e" kindref="member">cs</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="39" refid="structSYN__SPIDev_1a2dc6d54739e7f577ba20dca05b6b2609" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/><ref refid="structSYN__SPIDev_1a2dc6d54739e7f577ba20dca05b6b2609" kindref="member">read_bit</ref>;<sp/><sp/></highlight></codeline>
+<codeline lineno="40"><highlight class="normal">}<sp/><ref refid="structSYN__SPIDev" kindref="compound">SYN_SPIDev</ref>;</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>API<sp/>──────────────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight></codeline>
+<codeline lineno="51" refid="syn__spi__dev_8h_1a36dd548ba8666f1eed95b32212d74538" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__spi__dev_8h_1a36dd548ba8666f1eed95b32212d74538" kindref="member">syn_spi_dev_init</ref>(<ref refid="structSYN__SPIDev" kindref="compound">SYN_SPIDev</ref><sp/>*dev,</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>bus,<sp/>uint8_t<sp/>cs,</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>read_bit)</highlight></codeline>
+<codeline lineno="54"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/><sp/><sp/>dev-&gt;<ref refid="structSYN__SPIDev_1ab0e792e6741e09b2f47d38575f8ba5f5" kindref="member">bus</ref><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>bus;</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/><sp/><sp/>dev-&gt;<ref refid="structSYN__SPIDev_1a09a9b8fa5875e2ec7e8b232724d2297e" kindref="member">cs</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>cs;</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/><sp/><sp/>dev-&gt;<ref refid="structSYN__SPIDev_1a2dc6d54739e7f577ba20dca05b6b2609" kindref="member">read_bit</ref><sp/>=<sp/>read_bit;</highlight></codeline>
+<codeline lineno="58"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"></highlight></codeline>
+<codeline lineno="66" refid="syn__spi__dev_8h_1a2379f4835db41ed58a079b5e9fbd22ea" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>uint8_t<sp/><ref refid="syn__spi__dev_8h_1a2379f4835db41ed58a079b5e9fbd22ea" kindref="member">syn_spi_dev_read8</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__SPIDev" kindref="compound">SYN_SPIDev</ref><sp/>*dev,</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>reg)</highlight></codeline>
+<codeline lineno="68"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>tx[2]<sp/>=<sp/>{<sp/>(uint8_t)(reg<sp/>|<sp/>dev-&gt;<ref refid="structSYN__SPIDev_1a2dc6d54739e7f577ba20dca05b6b2609" kindref="member">read_bit</ref>),<sp/>0x00<sp/>};</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>rx[2]<sp/>=<sp/>{<sp/>0,<sp/>0<sp/>};</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"></highlight></codeline>
+<codeline lineno="72"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__port__spi_8h_1a2213e6b6d0afc0333155364f68b9279b" kindref="member">syn_port_spi_cs_assert</ref>(dev-&gt;<ref refid="structSYN__SPIDev_1ab0e792e6741e09b2f47d38575f8ba5f5" kindref="member">bus</ref>,<sp/>dev-&gt;<ref refid="structSYN__SPIDev_1a09a9b8fa5875e2ec7e8b232724d2297e" kindref="member">cs</ref>);</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__port__spi_8h_1a3c68a06f09f74bab0feedf7eb648d88d" kindref="member">syn_port_spi_transfer</ref>(dev-&gt;<ref refid="structSYN__SPIDev_1ab0e792e6741e09b2f47d38575f8ba5f5" kindref="member">bus</ref>,<sp/>tx,<sp/>rx,<sp/>2);</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__port__spi_8h_1ae85a64b16254319efe666eaa60fcd5db" kindref="member">syn_port_spi_cs_deassert</ref>(dev-&gt;<ref refid="structSYN__SPIDev_1ab0e792e6741e09b2f47d38575f8ba5f5" kindref="member">bus</ref>,<sp/>dev-&gt;<ref refid="structSYN__SPIDev_1a09a9b8fa5875e2ec7e8b232724d2297e" kindref="member">cs</ref>);</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"></highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>rx[1];</highlight></codeline>
+<codeline lineno="77"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"></highlight></codeline>
+<codeline lineno="86" refid="syn__spi__dev_8h_1ad50373ac071fdd54ed7a7fc4fd190210" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__spi__dev_8h_1ad50373ac071fdd54ed7a7fc4fd190210" kindref="member">syn_spi_dev_write8</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__SPIDev" kindref="compound">SYN_SPIDev</ref><sp/>*dev,</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>reg,<sp/>uint8_t<sp/>val)</highlight></codeline>
+<codeline lineno="88"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>tx[2]<sp/>=<sp/>{<sp/>reg,<sp/>val<sp/>};</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"></highlight></codeline>
+<codeline lineno="91"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__port__spi_8h_1a2213e6b6d0afc0333155364f68b9279b" kindref="member">syn_port_spi_cs_assert</ref>(dev-&gt;<ref refid="structSYN__SPIDev_1ab0e792e6741e09b2f47d38575f8ba5f5" kindref="member">bus</ref>,<sp/>dev-&gt;<ref refid="structSYN__SPIDev_1a09a9b8fa5875e2ec7e8b232724d2297e" kindref="member">cs</ref>);</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__port__spi_8h_1a3c68a06f09f74bab0feedf7eb648d88d" kindref="member">syn_port_spi_transfer</ref>(dev-&gt;<ref refid="structSYN__SPIDev_1ab0e792e6741e09b2f47d38575f8ba5f5" kindref="member">bus</ref>,<sp/>tx,<sp/>NULL,<sp/>2);</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__port__spi_8h_1ae85a64b16254319efe666eaa60fcd5db" kindref="member">syn_port_spi_cs_deassert</ref>(dev-&gt;<ref refid="structSYN__SPIDev_1ab0e792e6741e09b2f47d38575f8ba5f5" kindref="member">bus</ref>,<sp/>dev-&gt;<ref refid="structSYN__SPIDev_1a09a9b8fa5875e2ec7e8b232724d2297e" kindref="member">cs</ref>);</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"></highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="96"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"></highlight></codeline>
+<codeline lineno="106" refid="syn__spi__dev_8h_1a1b0a2c1c662addc3e7468c1eaa2932cc" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__spi__dev_8h_1a1b0a2c1c662addc3e7468c1eaa2932cc" kindref="member">syn_spi_dev_read_burst</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__SPIDev" kindref="compound">SYN_SPIDev</ref><sp/>*dev,</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>reg,</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>*buf,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>len)</highlight></codeline>
+<codeline lineno="109"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="110"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>tx_reg<sp/>=<sp/>(uint8_t)(reg<sp/>|<sp/>dev-&gt;<ref refid="structSYN__SPIDev_1a2dc6d54739e7f577ba20dca05b6b2609" kindref="member">read_bit</ref>);</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"></highlight></codeline>
+<codeline lineno="112"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__port__spi_8h_1a2213e6b6d0afc0333155364f68b9279b" kindref="member">syn_port_spi_cs_assert</ref>(dev-&gt;<ref refid="structSYN__SPIDev_1ab0e792e6741e09b2f47d38575f8ba5f5" kindref="member">bus</ref>,<sp/>dev-&gt;<ref refid="structSYN__SPIDev_1a09a9b8fa5875e2ec7e8b232724d2297e" kindref="member">cs</ref>);</highlight></codeline>
+<codeline lineno="113"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__port__spi_8h_1a3c68a06f09f74bab0feedf7eb648d88d" kindref="member">syn_port_spi_transfer</ref>(dev-&gt;<ref refid="structSYN__SPIDev_1ab0e792e6741e09b2f47d38575f8ba5f5" kindref="member">bus</ref>,<sp/>&amp;tx_reg,<sp/>NULL,<sp/>1);</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"></highlight></codeline>
+<codeline lineno="115"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Subsequent<sp/>clocks<sp/>to<sp/>read<sp/>data<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="116"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>zeros[32];</highlight></codeline>
+<codeline lineno="117"><highlight class="normal"><sp/><sp/><sp/><sp/>memset(zeros,<sp/>0,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(zeros));</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">while</highlight><highlight class="normal"><sp/>(len<sp/>&gt;<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>chunk<sp/>=<sp/>(len<sp/>&gt;<sp/>32)<sp/>?<sp/>32<sp/>:<sp/>len;</highlight></codeline>
+<codeline lineno="120"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__port__spi_8h_1a3c68a06f09f74bab0feedf7eb648d88d" kindref="member">syn_port_spi_transfer</ref>(dev-&gt;<ref refid="structSYN__SPIDev_1ab0e792e6741e09b2f47d38575f8ba5f5" kindref="member">bus</ref>,<sp/>zeros,<sp/>buf,<sp/>chunk);</highlight></codeline>
+<codeline lineno="121"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>buf<sp/>+=<sp/>chunk;</highlight></codeline>
+<codeline lineno="122"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>len<sp/>-=<sp/>chunk;</highlight></codeline>
+<codeline lineno="123"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="124"><highlight class="normal"></highlight></codeline>
+<codeline lineno="125"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__port__spi_8h_1ae85a64b16254319efe666eaa60fcd5db" kindref="member">syn_port_spi_cs_deassert</ref>(dev-&gt;<ref refid="structSYN__SPIDev_1ab0e792e6741e09b2f47d38575f8ba5f5" kindref="member">bus</ref>,<sp/>dev-&gt;<ref refid="structSYN__SPIDev_1a09a9b8fa5875e2ec7e8b232724d2297e" kindref="member">cs</ref>);</highlight></codeline>
+<codeline lineno="126"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="127"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="128"><highlight class="normal"></highlight></codeline>
+<codeline lineno="137" refid="syn__spi__dev_8h_1ab08e92ae810aae8d349e2e6c6210a001" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__spi__dev_8h_1ab08e92ae810aae8d349e2e6c6210a001" kindref="member">syn_spi_dev_write_burst</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__SPIDev" kindref="compound">SYN_SPIDev</ref><sp/>*dev,</highlight></codeline>
+<codeline lineno="138"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>reg,</highlight></codeline>
+<codeline lineno="139"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*data,</highlight></codeline>
+<codeline lineno="140"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>len)</highlight></codeline>
+<codeline lineno="141"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="142"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__port__spi_8h_1a2213e6b6d0afc0333155364f68b9279b" kindref="member">syn_port_spi_cs_assert</ref>(dev-&gt;<ref refid="structSYN__SPIDev_1ab0e792e6741e09b2f47d38575f8ba5f5" kindref="member">bus</ref>,<sp/>dev-&gt;<ref refid="structSYN__SPIDev_1a09a9b8fa5875e2ec7e8b232724d2297e" kindref="member">cs</ref>);</highlight></codeline>
+<codeline lineno="143"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__port__spi_8h_1a3c68a06f09f74bab0feedf7eb648d88d" kindref="member">syn_port_spi_transfer</ref>(dev-&gt;<ref refid="structSYN__SPIDev_1ab0e792e6741e09b2f47d38575f8ba5f5" kindref="member">bus</ref>,<sp/>&amp;reg,<sp/>NULL,<sp/>1);</highlight></codeline>
+<codeline lineno="144"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__port__spi_8h_1a3c68a06f09f74bab0feedf7eb648d88d" kindref="member">syn_port_spi_transfer</ref>(dev-&gt;<ref refid="structSYN__SPIDev_1ab0e792e6741e09b2f47d38575f8ba5f5" kindref="member">bus</ref>,<sp/>data,<sp/>NULL,<sp/>len);</highlight></codeline>
+<codeline lineno="145"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__port__spi_8h_1ae85a64b16254319efe666eaa60fcd5db" kindref="member">syn_port_spi_cs_deassert</ref>(dev-&gt;<ref refid="structSYN__SPIDev_1ab0e792e6741e09b2f47d38575f8ba5f5" kindref="member">bus</ref>,<sp/>dev-&gt;<ref refid="structSYN__SPIDev_1a09a9b8fa5875e2ec7e8b232724d2297e" kindref="member">cs</ref>);</highlight></codeline>
+<codeline lineno="146"><highlight class="normal"></highlight></codeline>
+<codeline lineno="147"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="148"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="149"><highlight class="normal"></highlight></codeline>
+<codeline lineno="150"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="151"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="152"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="153"><highlight class="normal"></highlight></codeline>
+<codeline lineno="154"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_SPI_DEV_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/drivers/syn_spi_dev.h"/>
+  </compounddef>
+</doxygen>

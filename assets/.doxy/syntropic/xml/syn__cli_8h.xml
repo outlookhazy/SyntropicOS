@@ -1,0 +1,683 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__cli_8h" kind="file" language="C++">
+    <compoundname>syn_cli.h</compoundname>
+    <includes refid="syn__defs_8h" local="yes">../common/syn_defs.h</includes>
+    <includes refid="syn__port__serial_8h" local="yes">../port/syn_port_serial.h</includes>
+    <includes local="no">stddef.h</includes>
+    <includes local="no">stdbool.h</includes>
+    <includedby refid="syn__cli_8c" local="yes">src/syntropic/cli/syn_cli.c</includedby>
+    <includedby refid="syntropic_8h" local="yes">src/syntropic/syntropic.h</includedby>
+    <incdepgraph>
+      <node id="1">
+        <label>src/syntropic/cli/syn_cli.h</label>
+        <link refid="syn__cli_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>../port/syn_port_serial.h</label>
+        <link refid="syn__port__serial_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>stdbool.h</label>
+      </node>
+      <node id="4">
+        <label>stddef.h</label>
+      </node>
+      <node id="3">
+        <label>stdint.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="2">
+        <label>src/syntropic/cli/syn_cli.c</label>
+        <link refid="syn__cli_8c"/>
+      </node>
+      <node id="1">
+        <label>src/syntropic/cli/syn_cli.h</label>
+        <link refid="syn__cli_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>src/syntropic/syntropic.h</label>
+        <link refid="syntropic_8h"/>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="structSYN__CLI__Command" prot="public">SYN_CLI_Command</innerclass>
+    <innerclass refid="structSYN__CLI" prot="public">SYN_CLI</innerclass>
+    <sectiondef kind="define">
+      <memberdef kind="define" id="syn__cli_8h_1aff8cd411fa2636d9dae8d4934c324638" prot="public" static="no">
+        <name>SYN_CLI_LINE_BUF_SIZE</name>
+        <initializer>128</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Maximum length of a single command line (including null terminator). </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/cli/syn_cli.h" line="57" column="11" bodyfile="src/syntropic/cli/syn_cli.h" bodystart="57" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__cli_8h_1a2d15833438aac3cb34d3adf3388c8a90" prot="public" static="no">
+        <name>SYN_CLI_MAX_ARGS</name>
+        <initializer>16</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Maximum number of arguments (including the command name). </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/cli/syn_cli.h" line="62" column="11" bodyfile="src/syntropic/cli/syn_cli.h" bodystart="62" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__cli_8h_1a09651a9df81fe4c6c745717238bddd18" prot="public" static="no">
+        <name>SYN_CLI_HISTORY_DEPTH</name>
+        <initializer>0</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Command history depth (0 = disabled). </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/cli/syn_cli.h" line="67" column="11" bodyfile="src/syntropic/cli/syn_cli.h" bodystart="67" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__cli_8h_1aa95c115e9dcfb6c0c24ca58b8e08fe61" prot="public" static="no">
+        <name>SYN_CLI_CMD_VERSION</name>
+        <initializer>1</initializer>
+        <briefdescription>
+<para>Register built-in diagnostic commands. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Adds framework-aware commands to the CLI. Each is individually guarded by a define (default: all enabled). The commands operate on the framework singletons you pass in.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>cli</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>CLI instance.</para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+Built-in commands (enable/disable via defines):<itemizedlist>
+<listitem><para><computeroutput>version</computeroutput> — print <ref refid="syn__version_8h_1a92b3ee58e36e7b821834aa46c6c9fde7" kindref="member">syn_version()</ref> info (SYN_CLI_CMD_VERSION, default 1)</para>
+</listitem><listitem><para><computeroutput>uptime</computeroutput> — print tick_ms uptime (SYN_CLI_CMD_UPTIME, default 1)</para>
+</listitem><listitem><para><computeroutput>errors</computeroutput> — dump errlog entries (SYN_CLI_CMD_ERRORS, default 1)</para>
+</listitem><listitem><para><computeroutput>tasks</computeroutput> — show scheduler task states (SYN_CLI_CMD_TASKS, default 1) </para>
+</listitem></itemizedlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/cli/syn_cli.h" line="208" column="9" bodyfile="src/syntropic/cli/syn_cli.h" bodystart="208" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__cli_8h_1ae5c946c54e93d3cd1f6585ef6d6b4152" prot="public" static="no">
+        <name>SYN_CLI_CMD_UPTIME</name>
+        <initializer>1</initializer>
+        <briefdescription>
+<para>Enable built-in &apos;uptime&apos; command. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/cli/syn_cli.h" line="212" column="9" bodyfile="src/syntropic/cli/syn_cli.h" bodystart="212" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__cli_8h_1ada62674cbecaaa5ac67802cd0a2c6b99" prot="public" static="no">
+        <name>SYN_CLI_CMD_ERRORS</name>
+        <initializer>1</initializer>
+        <briefdescription>
+<para>Enable built-in &apos;errors&apos; command. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/cli/syn_cli.h" line="216" column="9" bodyfile="src/syntropic/cli/syn_cli.h" bodystart="216" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__cli_8h_1a9d8975a5a88bbde53d3e511ac8b1a922" prot="public" static="no">
+        <name>SYN_CLI_CMD_TASKS</name>
+        <initializer>1</initializer>
+        <briefdescription>
+<para>Enable built-in &apos;tasks&apos; command. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/cli/syn_cli.h" line="220" column="9" bodyfile="src/syntropic/cli/syn_cli.h" bodystart="220" bodyend="-1"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="typedef">
+      <memberdef kind="typedef" id="syn__cli_8h_1afcc7a0f6cd87ca99df0e5d9d903c6211" prot="public" static="no">
+        <type>int(*</type>
+        <definition>typedef int(* SYN_CLI_Handler) (int argc, char *argv[])</definition>
+        <argsstring>)(int argc, char *argv[])</argsstring>
+        <name>SYN_CLI_Handler</name>
+        <briefdescription>
+<para>Command handler function. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>argc</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Argument count (including the command name). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>argv</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Argument vector. argv[0] is the command name. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>0 on success, or an application-defined error code. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/cli/syn_cli.h" line="79" column="9" bodyfile="src/syntropic/cli/syn_cli.h" bodystart="79" bodyend="-1"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__cli_8h_1a3e432e475c4e6a1f9fa4265fcd039379" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_cli_init</definition>
+        <argsstring>(SYN_CLI *cli, const SYN_CLI_Command *commands, size_t cmd_count, const char *prompt)</argsstring>
+        <name>syn_cli_init</name>
+        <param>
+          <type><ref refid="structSYN__CLI" kindref="compound">SYN_CLI</ref> *</type>
+          <declname>cli</declname>
+        </param>
+        <param>
+          <type>const <ref refid="structSYN__CLI__Command" kindref="compound">SYN_CLI_Command</ref> *</type>
+          <declname>commands</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>cmd_count</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>prompt</declname>
+        </param>
+        <briefdescription>
+<para>Initialize a CLI instance. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Output goes directly to syn_port_serial_write — no callback needed.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>cli</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>CLI instance to initialize. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>commands</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Array of command descriptors. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>cmd_count</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of commands. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>prompt</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Prompt string (e.g., &quot;&gt; &quot; or &quot;syntropic&gt; &quot;). Stored by pointer, not copied. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/cli/syn_cli.h" line="129" column="6" bodyfile="src/syntropic/cli/syn_cli.c" bodystart="252" bodyend="265" declfile="src/syntropic/cli/syn_cli.h" declline="129" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__cli_8h_1ad2bb94ee6af122926cd8c42d98982c9c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_cli_set_echo</definition>
+        <argsstring>(SYN_CLI *cli, bool echo)</argsstring>
+        <name>syn_cli_set_echo</name>
+        <param>
+          <type><ref refid="structSYN__CLI" kindref="compound">SYN_CLI</ref> *</type>
+          <declname>cli</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+          <declname>echo</declname>
+        </param>
+        <briefdescription>
+<para>Enable or disable local echo. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>When enabled (default), the CLI echoes each received character back to the terminal. Disable if the terminal handles its own echo.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>cli</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>CLI instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>echo</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>true to enable echo, false to disable. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/cli/syn_cli.h" line="143" column="6" bodyfile="src/syntropic/cli/syn_cli.c" bodystart="267" bodyend="271" declfile="src/syntropic/cli/syn_cli.h" declline="143" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__cli_8h_1ae3852b8b7c894fb68f56eed9c6685f14" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_cli_process_char</definition>
+        <argsstring>(SYN_CLI *cli, char ch)</argsstring>
+        <name>syn_cli_process_char</name>
+        <param>
+          <type><ref refid="structSYN__CLI" kindref="compound">SYN_CLI</ref> *</type>
+          <declname>cli</declname>
+        </param>
+        <param>
+          <type>char</type>
+          <declname>ch</declname>
+        </param>
+        <briefdescription>
+<para>Process a single received character. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Call this for each byte received from the input stream (UART RX ISR, polled read, etc.). The CLI handles line editing (backspace) and dispatches the command when a newline is received.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>cli</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>CLI instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>ch</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Received character. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/cli/syn_cli.h" line="155" column="6" bodyfile="src/syntropic/cli/syn_cli.c" bodystart="273" bodyend="386" declfile="src/syntropic/cli/syn_cli.h" declline="155" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__cli_8h_1a78c20e51b35335bb72525289d3810408" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_cli_process_line</definition>
+        <argsstring>(SYN_CLI *cli, const char *line)</argsstring>
+        <name>syn_cli_process_line</name>
+        <param>
+          <type><ref refid="structSYN__CLI" kindref="compound">SYN_CLI</ref> *</type>
+          <declname>cli</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>line</declname>
+        </param>
+        <briefdescription>
+<para>Process a complete null-terminated line. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Alternative to process_char when you already have a full line (e.g., from a buffered read). Does not echo or handle editing.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>cli</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>CLI instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>line</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Null-terminated command line. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/cli/syn_cli.h" line="166" column="6" bodyfile="src/syntropic/cli/syn_cli.c" bodystart="388" bodyend="399" declfile="src/syntropic/cli/syn_cli.h" declline="166" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__cli_8h_1a7e76c23e44f2be8642c5d627c5d972a7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_cli_print_prompt</definition>
+        <argsstring>(const SYN_CLI *cli)</argsstring>
+        <name>syn_cli_print_prompt</name>
+        <param>
+          <type>const <ref refid="structSYN__CLI" kindref="compound">SYN_CLI</ref> *</type>
+          <declname>cli</declname>
+        </param>
+        <briefdescription>
+<para>Print the prompt. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Called automatically after command execution. Can also be called manually (e.g., on startup to show the initial prompt).</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>cli</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>CLI instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/cli/syn_cli.h" line="176" column="6" bodyfile="src/syntropic/cli/syn_cli.c" bodystart="401" bodyend="405" declfile="src/syntropic/cli/syn_cli.h" declline="176" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__cli_8h_1a5d45d0f711d01338fc494b483b632b0a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_cli_printf</definition>
+        <argsstring>(const SYN_CLI *cli, const char *fmt,...)</argsstring>
+        <name>syn_cli_printf</name>
+        <param>
+          <type>const <ref refid="structSYN__CLI" kindref="compound">SYN_CLI</ref> *</type>
+          <declname>cli</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>fmt</declname>
+        </param>
+        <param>
+          <type>...</type>
+        </param>
+        <briefdescription>
+<para>Print formatted output through the CLI&apos;s output function. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Convenience function for command handlers that need printf-style output.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>cli</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>CLI instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>fmt</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Format string. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>...</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Arguments. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/cli/syn_cli.h" line="187" column="6" bodyfile="src/syntropic/cli/syn_cli.c" bodystart="408" bodyend="422" declfile="src/syntropic/cli/syn_cli.h" declline="187" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__cli_8h_1aee9dd6971eb94c7c7e139d314d864adf" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_cli_set_errlog</definition>
+        <argsstring>(struct SYN_ErrLog *errlog)</argsstring>
+        <name>syn_cli_set_errlog</name>
+        <param>
+          <type>struct <ref refid="structSYN__ErrLog" kindref="compound">SYN_ErrLog</ref> *</type>
+          <declname>errlog</declname>
+        </param>
+        <briefdescription>
+<para>Set errlog instance for the <computeroutput>errors</computeroutput> built-in command. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>errlog</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Error log instance (or NULL to detach). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/cli/syn_cli.h" line="231" column="6" bodyfile="src/syntropic/cli/syn_cli.c" bodystart="436" bodyend="436" declfile="src/syntropic/cli/syn_cli.h" declline="231" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__cli_8h_1ad2f9acf614e746e071409398fb465df4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_cli_set_scheduler</definition>
+        <argsstring>(struct SYN_Sched *sched)</argsstring>
+        <name>syn_cli_set_scheduler</name>
+        <param>
+          <type>struct <ref refid="structSYN__Sched" kindref="compound">SYN_Sched</ref> *</type>
+          <declname>sched</declname>
+        </param>
+        <briefdescription>
+<para>Set scheduler instance for the <computeroutput>tasks</computeroutput> built-in command. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>sched</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Scheduler instance (or NULL to detach). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/cli/syn_cli.h" line="239" column="6" bodyfile="src/syntropic/cli/syn_cli.c" bodystart="441" bodyend="441" declfile="src/syntropic/cli/syn_cli.h" declline="239" declcolumn="6"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Command-line interpreter for embedded systems. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Provides a lightweight interactive shell over UART (or any byte stream). Commands are registered as a static table — no dynamic allocation. Input is processed one character at a time, making it easy to feed from a UART ISR or polled loop.</para>
+<para><simplesect kind="par"><title>Features</title><para><itemizedlist>
+<listitem><para>Statically-registered command table (name + help + handler)</para>
+</listitem><listitem><para>Automatic argc/argv parsing (whitespace-delimited, with quoted strings)</para>
+</listitem><listitem><para>Built-in <computeroutput>help</computeroutput> command</para>
+</listitem><listitem><para>Backspace and line editing</para>
+</listitem><listitem><para>Configurable prompt</para>
+</listitem><listitem><para>Echo control (for terminals that don&apos;t echo locally)</para>
+</listitem><listitem><para>Command history (optional, configurable depth)</para>
+</listitem></itemizedlist>
+</para>
+</simplesect>
+<simplesect kind="par"><title>Usage</title><para><programlisting><codeline><highlight class="comment">//<sp/>Define<sp/>commands</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>cmd_led(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>argc,<sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*argv[]);</highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>cmd_reset(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>argc,<sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*argv[]);</highlight></codeline>
+<codeline><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__CLI__Command" kindref="compound">SYN_CLI_Command</ref><sp/>commands[]<sp/>=<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;led&quot;</highlight><highlight class="normal">,<sp/><sp/><sp/></highlight><highlight class="stringliteral">&quot;led<sp/>&lt;on|off&gt;<sp/><sp/>—<sp/>Control<sp/>the<sp/>LED&quot;</highlight><highlight class="normal">,<sp/><sp/>cmd_led<sp/><sp/><sp/>},</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>{<sp/></highlight><highlight class="stringliteral">&quot;reset&quot;</highlight><highlight class="normal">,<sp/></highlight><highlight class="stringliteral">&quot;reset<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>—<sp/>System<sp/>reset&quot;</highlight><highlight class="normal">,<sp/><sp/><sp/><sp/><sp/>cmd_reset<sp/>},</highlight></codeline>
+<codeline><highlight class="normal">};</highlight></codeline>
+<codeline><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="comment">//<sp/>Initialize</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/><ref refid="structSYN__CLI" kindref="compound">SYN_CLI</ref><sp/>cli;</highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__cli_8c_1a3e432e475c4e6a1f9fa4265fcd039379" kindref="member">syn_cli_init</ref>(&amp;cli,<sp/>commands,<sp/>2,<sp/>my_putchar,<sp/></highlight><highlight class="stringliteral">&quot;&gt;<sp/>&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="comment">//<sp/>In<sp/>main<sp/>loop<sp/>or<sp/>UART<sp/>RX<sp/>ISR:</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__cli_8c_1ae3852b8b7c894fb68f56eed9c6685f14" kindref="member">syn_cli_process_char</ref>(&amp;cli,<sp/>received_byte);</highlight></codeline>
+</programlisting> </para>
+</simplesect>
+</para>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_CLI_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_CLI_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../common/syn_defs.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../port/syn_port_serial.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight></codeline>
+<codeline lineno="46"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stddef.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="47"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="48"><highlight class="normal"></highlight></codeline>
+<codeline lineno="49"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="50"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="52"><highlight class="normal"></highlight></codeline>
+<codeline lineno="53"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Configuration<sp/>────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="54"><highlight class="normal"></highlight></codeline>
+<codeline lineno="56"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_CLI_LINE_BUF_SIZE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="57" refid="syn__cli_8h_1aff8cd411fa2636d9dae8d4934c324638" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/>#define<sp/>SYN_CLI_LINE_BUF_SIZE<sp/><sp/><sp/>128</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="58"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="59"><highlight class="normal"></highlight></codeline>
+<codeline lineno="61"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_CLI_MAX_ARGS</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="62" refid="syn__cli_8h_1a2d15833438aac3cb34d3adf3388c8a90" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/>#define<sp/>SYN_CLI_MAX_ARGS<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>16</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="63"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="64"><highlight class="normal"></highlight></codeline>
+<codeline lineno="66"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_CLI_HISTORY_DEPTH</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="67" refid="syn__cli_8h_1a09651a9df81fe4c6c745717238bddd18" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/>#define<sp/>SYN_CLI_HISTORY_DEPTH<sp/><sp/><sp/><sp/>0</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="68"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="69"><highlight class="normal"></highlight></codeline>
+<codeline lineno="70"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Types<sp/>────────────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="71"><highlight class="normal"></highlight></codeline>
+<codeline lineno="79" refid="syn__cli_8h_1afcc7a0f6cd87ca99df0e5d9d903c6211" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>int<sp/>(*<ref refid="syn__cli_8h_1afcc7a0f6cd87ca99df0e5d9d903c6211" kindref="member">SYN_CLI_Handler</ref>)(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>argc,<sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*argv[]);</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"></highlight></codeline>
+<codeline lineno="86" refid="structSYN__CLI__Command" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="87" refid="structSYN__CLI__Command_1acc2d53ec9da693971aa7243edc7fe989" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<ref refid="structSYN__CLI__Command_1acc2d53ec9da693971aa7243edc7fe989" kindref="member">name</ref>;<sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="88" refid="structSYN__CLI__Command_1a506686422481d6b86f5df8d9286bea59" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<ref refid="structSYN__CLI__Command_1a506686422481d6b86f5df8d9286bea59" kindref="member">help</ref>;<sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="89" refid="structSYN__CLI__Command_1ab7cdfdc54aa610e4d11ae22bf3ac001b" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__cli_8h_1afcc7a0f6cd87ca99df0e5d9d903c6211" kindref="member">SYN_CLI_Handler</ref><sp/><sp/><ref refid="structSYN__CLI__Command_1ab7cdfdc54aa610e4d11ae22bf3ac001b" kindref="member">handler</ref>;<sp/><sp/></highlight></codeline>
+<codeline lineno="90"><highlight class="normal">}<sp/><ref refid="structSYN__CLI__Command" kindref="compound">SYN_CLI_Command</ref>;</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"></highlight></codeline>
+<codeline lineno="93" refid="structSYN__CLI" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Command<sp/>table<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="95" refid="structSYN__CLI_1aff4b3ed31a1719d8fcfb64aa624da67b" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__CLI__Command" kindref="compound">SYN_CLI_Command</ref><sp/>*<ref refid="structSYN__CLI_1aff4b3ed31a1719d8fcfb64aa624da67b" kindref="member">commands</ref>;<sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="96" refid="structSYN__CLI_1a2ae6902784c11276d17f244d010528ef" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__CLI_1a2ae6902784c11276d17f244d010528ef" kindref="member">command_count</ref>;<sp/></highlight></codeline>
+<codeline lineno="98"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Line<sp/>buffer<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="99" refid="structSYN__CLI_1ae638dbfb86d5127a5f2bdaa2379fbcee" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/><sp/><sp/><sp/>line_buf[<ref refid="syn__cli_8h_1aff8cd411fa2636d9dae8d4934c324638" kindref="member">SYN_CLI_LINE_BUF_SIZE</ref>];<sp/></highlight></codeline>
+<codeline lineno="100" refid="structSYN__CLI_1a6c03e0f4e5f846ef8a7146b54ffcccba" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><sp/><ref refid="structSYN__CLI_1a6c03e0f4e5f846ef8a7146b54ffcccba" kindref="member">line_pos</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Configuration<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="103" refid="structSYN__CLI_1a7a69cb463ed28431e8034b6161fd6687" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*<ref refid="structSYN__CLI_1a7a69cb463ed28431e8034b6161fd6687" kindref="member">prompt</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="104" refid="structSYN__CLI_1a33e2a7eb128a8976c016771b12df42ca" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__CLI_1a33e2a7eb128a8976c016771b12df42ca" kindref="member">echo</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="105" refid="structSYN__CLI_1a159bf680c6aa4a3186c478e3fa080c46" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__CLI_1a159bf680c6aa4a3186c478e3fa080c46" kindref="member">escape_state</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="107"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>History<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="108"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>SYN_CLI_HISTORY_DEPTH<sp/>&gt;<sp/>0</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="109"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/><sp/><sp/><sp/>history[<ref refid="syn__cli_8h_1a09651a9df81fe4c6c745717238bddd18" kindref="member">SYN_CLI_HISTORY_DEPTH</ref>][<ref refid="syn__cli_8h_1aff8cd411fa2636d9dae8d4934c324638" kindref="member">SYN_CLI_LINE_BUF_SIZE</ref>];<sp/></highlight></codeline>
+<codeline lineno="110"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><sp/>history_count;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="111"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><sp/>history_write;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="112"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><sp/>history_read;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="113"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="114"><highlight class="normal">}<sp/><ref refid="structSYN__CLI" kindref="compound">SYN_CLI</ref>;</highlight></codeline>
+<codeline lineno="115"><highlight class="normal"></highlight></codeline>
+<codeline lineno="116"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>API<sp/>──────────────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="117"><highlight class="normal"></highlight></codeline>
+<codeline lineno="129"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__cli_8h_1a3e432e475c4e6a1f9fa4265fcd039379" kindref="member">syn_cli_init</ref>(<ref refid="structSYN__CLI" kindref="compound">SYN_CLI</ref><sp/>*cli,</highlight></codeline>
+<codeline lineno="130"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__CLI__Command" kindref="compound">SYN_CLI_Command</ref><sp/>*commands,</highlight></codeline>
+<codeline lineno="131"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>cmd_count,</highlight></codeline>
+<codeline lineno="132"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*prompt);</highlight></codeline>
+<codeline lineno="133"><highlight class="normal"></highlight></codeline>
+<codeline lineno="143"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__cli_8h_1ad2bb94ee6af122926cd8c42d98982c9c" kindref="member">syn_cli_set_echo</ref>(<ref refid="structSYN__CLI" kindref="compound">SYN_CLI</ref><sp/>*cli,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>echo);</highlight></codeline>
+<codeline lineno="144"><highlight class="normal"></highlight></codeline>
+<codeline lineno="155"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__cli_8h_1ae3852b8b7c894fb68f56eed9c6685f14" kindref="member">syn_cli_process_char</ref>(<ref refid="structSYN__CLI" kindref="compound">SYN_CLI</ref><sp/>*cli,<sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/><ref refid="syn__sha256_8c_1a040629ce734f8c5b8c1b917ee7330a7b" kindref="member">ch</ref>);</highlight></codeline>
+<codeline lineno="156"><highlight class="normal"></highlight></codeline>
+<codeline lineno="166"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__cli_8h_1a78c20e51b35335bb72525289d3810408" kindref="member">syn_cli_process_line</ref>(<ref refid="structSYN__CLI" kindref="compound">SYN_CLI</ref><sp/>*cli,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*line);</highlight></codeline>
+<codeline lineno="167"><highlight class="normal"></highlight></codeline>
+<codeline lineno="176"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__cli_8h_1a7e76c23e44f2be8642c5d627c5d972a7" kindref="member">syn_cli_print_prompt</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__CLI" kindref="compound">SYN_CLI</ref><sp/>*cli);</highlight></codeline>
+<codeline lineno="177"><highlight class="normal"></highlight></codeline>
+<codeline lineno="187"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__cli_8h_1a5d45d0f711d01338fc494b483b632b0a" kindref="member">syn_cli_printf</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__CLI" kindref="compound">SYN_CLI</ref><sp/>*cli,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*fmt,<sp/>...);</highlight></codeline>
+<codeline lineno="188"><highlight class="normal"></highlight></codeline>
+<codeline lineno="189"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Built-in<sp/>commands<sp/>────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="190"><highlight class="normal"></highlight></codeline>
+<codeline lineno="207"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_CLI_CMD_VERSION</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="208" refid="syn__cli_8h_1aa95c115e9dcfb6c0c24ca58b8e08fe61" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_CLI_CMD_VERSION<sp/><sp/>1</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="209"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="210"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_CLI_CMD_UPTIME</highlight></codeline>
+<codeline lineno="212" refid="syn__cli_8h_1ae5c946c54e93d3cd1f6585ef6d6b4152" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_CLI_CMD_UPTIME<sp/><sp/><sp/>1</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="213"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="214"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_CLI_CMD_ERRORS</highlight></codeline>
+<codeline lineno="216" refid="syn__cli_8h_1ada62674cbecaaa5ac67802cd0a2c6b99" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_CLI_CMD_ERRORS<sp/><sp/><sp/>1</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="217"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="218"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_CLI_CMD_TASKS</highlight></codeline>
+<codeline lineno="220" refid="syn__cli_8h_1a9d8975a5a88bbde53d3e511ac8b1a922" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_CLI_CMD_TASKS<sp/><sp/><sp/><sp/>1</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="221"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="222"><highlight class="normal"></highlight></codeline>
+<codeline lineno="223"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structSYN__ErrLog" kindref="compound">SYN_ErrLog</ref>;</highlight></codeline>
+<codeline lineno="224"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structSYN__Sched" kindref="compound">SYN_Sched</ref>;</highlight></codeline>
+<codeline lineno="225"><highlight class="normal"></highlight></codeline>
+<codeline lineno="226"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>SYN_CLI_CMD_ERRORS</highlight></codeline>
+<codeline lineno="231"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__cli_8h_1aee9dd6971eb94c7c7e139d314d864adf" kindref="member">syn_cli_set_errlog</ref>(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structSYN__ErrLog" kindref="compound">SYN_ErrLog</ref><sp/>*errlog);</highlight></codeline>
+<codeline lineno="232"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="233"><highlight class="normal"></highlight></codeline>
+<codeline lineno="234"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>SYN_CLI_CMD_TASKS</highlight></codeline>
+<codeline lineno="239"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__cli_8h_1ad2f9acf614e746e071409398fb465df4" kindref="member">syn_cli_set_scheduler</ref>(</highlight><highlight class="keyword">struct</highlight><highlight class="normal"><sp/><ref refid="structSYN__Sched" kindref="compound">SYN_Sched</ref><sp/>*sched);</highlight></codeline>
+<codeline lineno="240"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="241"><highlight class="normal"></highlight></codeline>
+<codeline lineno="242"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="243"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="244"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="245"><highlight class="normal"></highlight></codeline>
+<codeline lineno="246"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_CLI_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/cli/syn_cli.h"/>
+  </compounddef>
+</doxygen>

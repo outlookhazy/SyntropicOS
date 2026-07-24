@@ -1,0 +1,753 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__sha256_8c" kind="file" language="C++">
+    <compoundname>syn_sha256.c</compoundname>
+    <includes refid="syn__sha256_8h" local="yes">syn_sha256.h</includes>
+    <includes refid="syn__assert_8h" local="yes">syn_assert.h</includes>
+    <includes local="no">string.h</includes>
+    <incdepgraph>
+      <node id="6">
+        <label>../common/syn_compiler.h</label>
+        <link refid="syn__compiler_8h"/>
+      </node>
+      <node id="5">
+        <label>syn_assert.h</label>
+        <link refid="syn__assert_8h"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/util/syn_sha256.c</label>
+        <link refid="syn__sha256_8c"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>syn_sha256.h</label>
+        <link refid="syn__sha256_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>stddef.h</label>
+      </node>
+      <node id="3">
+        <label>stdint.h</label>
+      </node>
+      <node id="7">
+        <label>string.h</label>
+      </node>
+    </incdepgraph>
+    <sectiondef kind="var">
+      <memberdef kind="variable" id="syn__sha256_8c_1a018a4c3e03df1427232911d6f30c9fae" prot="public" static="yes" mutable="no">
+        <type>const uint32_t</type>
+        <definition>const uint32_t H_INIT[8]</definition>
+        <argsstring>[8]</argsstring>
+        <name>H_INIT</name>
+        <initializer>= {
+    0x6a09e667u, 0xbb67ae85u, 0x3c6ef372u, 0xa54ff53au,
+    0x510e527fu, 0x9b05688cu, 0x1f83d9abu, 0x5be0cd19u
+}</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>FIPS 180-4 initial hash values (H0–H7). </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_sha256.c" line="23" column="23" bodyfile="src/syntropic/util/syn_sha256.c" bodystart="23" bodyend="26"/>
+      </memberdef>
+      <memberdef kind="variable" id="syn__sha256_8c_1a22c6551e88df4c5c42fce3d0641adb64" prot="public" static="yes" mutable="no">
+        <type>const uint32_t</type>
+        <definition>const uint32_t K[64]</definition>
+        <argsstring>[64]</argsstring>
+        <name>K</name>
+        <initializer>= {
+    0x428a2f98u, 0x71374491u, 0xb5c0fbcfu, 0xe9b5dba5u,
+    0x3956c25bu, 0x59f111f1u, 0x923f82a4u, 0xab1c5ed5u,
+    0xd807aa98u, 0x12835b01u, 0x243185beu, 0x550c7dc3u,
+    0x72be5d74u, 0x80deb1feu, 0x9bdc06a7u, 0xc19bf174u,
+    0xe49b69c1u, 0xefbe4786u, 0x0fc19dc6u, 0x240ca1ccu,
+    0x2de92c6fu, 0x4a7484aau, 0x5cb0a9dcu, 0x76f988dau,
+    0x983e5152u, 0xa831c66du, 0xb00327c8u, 0xbf597fc7u,
+    0xc6e00bf3u, 0xd5a79147u, 0x06ca6351u, 0x14292967u,
+    0x27b70a85u, 0x2e1b2138u, 0x4d2c6dfcu, 0x53380d13u,
+    0x650a7354u, 0x766a0abbu, 0x81c2c92eu, 0x92722c85u,
+    0xa2bfe8a1u, 0xa81a664bu, 0xc24b8b70u, 0xc76c51a3u,
+    0xd192e819u, 0xd6990624u, 0xf40e3585u, 0x106aa070u,
+    0x19a4c116u, 0x1e376c08u, 0x2748774cu, 0x34b0bcb5u,
+    0x391c0cb3u, 0x4ed8aa4au, 0x5b9cca4fu, 0x682e6ff3u,
+    0x748f82eeu, 0x78a5636fu, 0x84c87814u, 0x8cc70208u,
+    0x90befffau, 0xa4506cebu, 0xbef9a3f7u, 0xc67178f2u
+}</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>FIPS 180-4 round constants (K0–K63). </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_sha256.c" line="29" column="23" bodyfile="src/syntropic/util/syn_sha256.c" bodystart="29" bodyend="46"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__sha256_8c_1abe47185ce4da746ea9f018cc80a24069" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>static uint32_t rotr</definition>
+        <argsstring>(uint32_t x, unsigned n)</argsstring>
+        <name>rotr</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>unsigned</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Circular right rotate. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>x</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Value to rotate. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>n</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of bits to rotate. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Rotated value. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_sha256.c" line="56" column="24" bodyfile="src/syntropic/util/syn_sha256.c" bodystart="56" bodyend="59"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__sha256_8c_1a040629ce734f8c5b8c1b917ee7330a7b" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>static uint32_t ch</definition>
+        <argsstring>(uint32_t x, uint32_t y, uint32_t z)</argsstring>
+        <name>ch</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>y</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>z</declname>
+        </param>
+        <briefdescription>
+<para>Choice function: Ch(x,y,z) = (x ∧ y) ⊕ (¬x ∧ z). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>x</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>First input. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>y</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Second input. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>z</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Third input. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Ch(x, y, z). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_sha256.c" line="68" column="24" bodyfile="src/syntropic/util/syn_sha256.c" bodystart="68" bodyend="71"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__sha256_8c_1adf3fc35e01f72808b97bb5fbc8d525e1" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>static uint32_t maj</definition>
+        <argsstring>(uint32_t x, uint32_t y, uint32_t z)</argsstring>
+        <name>maj</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>y</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>z</declname>
+        </param>
+        <briefdescription>
+<para>Majority function: Maj(x,y,z) = (x ∧ y) ⊕ (x ∧ z) ⊕ (y ∧ z). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>x</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>First input. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>y</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Second input. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>z</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Third input. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Maj(x, y, z). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_sha256.c" line="80" column="24" bodyfile="src/syntropic/util/syn_sha256.c" bodystart="80" bodyend="83"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__sha256_8c_1ae0b65349d2ea71c9242a7d7f0a04a8eb" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>static uint32_t sigma0</definition>
+        <argsstring>(uint32_t x)</argsstring>
+        <name>sigma0</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+<para>Big Sigma-0: Σ₀(x) = ROTR²(x) ⊕ ROTR¹³(x) ⊕ ROTR²²(x). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>x</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Input word. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Σ₀(x). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_sha256.c" line="90" column="24" bodyfile="src/syntropic/util/syn_sha256.c" bodystart="90" bodyend="93"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__sha256_8c_1a2794bbbb1e99142998a4c1ba3b03231d" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>static uint32_t sigma1</definition>
+        <argsstring>(uint32_t x)</argsstring>
+        <name>sigma1</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+<para>Big Sigma-1: Σ₁(x) = ROTR⁶(x) ⊕ ROTR¹¹(x) ⊕ ROTR²⁵(x). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>x</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Input word. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Σ₁(x). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_sha256.c" line="100" column="24" bodyfile="src/syntropic/util/syn_sha256.c" bodystart="100" bodyend="103"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__sha256_8c_1aa707e9d8a325b50b436f577925b9f078" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>static uint32_t gamma0</definition>
+        <argsstring>(uint32_t x)</argsstring>
+        <name>gamma0</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+<para>Small sigma-0: σ₀(x) = ROTR⁷(x) ⊕ ROTR¹⁸(x) ⊕ SHR³(x). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>x</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Input word. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>σ₀(x). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_sha256.c" line="110" column="24" bodyfile="src/syntropic/util/syn_sha256.c" bodystart="110" bodyend="113"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__sha256_8c_1ad004d37f15c0b9feb95c993d7f5b4b63" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>static uint32_t gamma1</definition>
+        <argsstring>(uint32_t x)</argsstring>
+        <name>gamma1</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+<para>Small sigma-1: σ₁(x) = ROTR¹⁷(x) ⊕ ROTR¹⁹(x) ⊕ SHR¹⁰(x). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>x</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Input word. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>σ₁(x). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_sha256.c" line="120" column="24" bodyfile="src/syntropic/util/syn_sha256.c" bodystart="120" bodyend="123"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__sha256_8c_1aff30aeb7e0231f2e4a7b5902e947bc9f" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void sha256_transform</definition>
+        <argsstring>(uint32_t state[8], const uint8_t block[64])</argsstring>
+        <name>sha256_transform</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>state</declname>
+          <array>[8]</array>
+        </param>
+        <param>
+          <type>const uint8_t</type>
+          <declname>block</declname>
+          <array>[64]</array>
+        </param>
+        <briefdescription>
+<para>Process a single 64-byte block. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>state</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Running hash state (8 × uint32_t). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>block</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>64-byte input block. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_sha256.c" line="132" column="13" bodyfile="src/syntropic/util/syn_sha256.c" bodystart="132" bodyend="164"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__sha256_8c_1ac64650c12d9cdd0e278e09086ddae7b6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_sha256_init</definition>
+        <argsstring>(SYN_SHA256 *ctx)</argsstring>
+        <name>syn_sha256_init</name>
+        <param>
+          <type><ref refid="structSYN__SHA256" kindref="compound">SYN_SHA256</ref> *</type>
+          <declname>ctx</declname>
+        </param>
+        <briefdescription>
+<para>Initialize a SHA-256 context. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ctx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Context to initialize. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_sha256.c" line="168" column="6" bodyfile="src/syntropic/util/syn_sha256.c" bodystart="168" bodyend="175"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__sha256_8c_1ae5d5f928109f942592d41ca545158f02" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_sha256_update</definition>
+        <argsstring>(SYN_SHA256 *ctx, const void *data, size_t len)</argsstring>
+        <name>syn_sha256_update</name>
+        <param>
+          <type><ref refid="structSYN__SHA256" kindref="compound">SYN_SHA256</ref> *</type>
+          <declname>ctx</declname>
+        </param>
+        <param>
+          <type>const void *</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>len</declname>
+        </param>
+        <briefdescription>
+<para>Feed data into the hash. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Can be called repeatedly with arbitrary chunk sizes.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ctx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>SHA-256 context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>data</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Data to hash. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Length in bytes. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_sha256.c" line="177" column="6" bodyfile="src/syntropic/util/syn_sha256.c" bodystart="177" bodyend="219"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__sha256_8c_1a03f691b9ec17b2fcbd6224252b7b1ff6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_sha256_final</definition>
+        <argsstring>(SYN_SHA256 *ctx, uint8_t hash[SYN_SHA256_DIGEST_SIZE])</argsstring>
+        <name>syn_sha256_final</name>
+        <param>
+          <type><ref refid="structSYN__SHA256" kindref="compound">SYN_SHA256</ref> *</type>
+          <declname>ctx</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>hash</declname>
+          <array>[SYN_SHA256_DIGEST_SIZE]</array>
+        </param>
+        <briefdescription>
+<para>Finalize the hash and produce the 32-byte digest. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>After calling this, the context must be re-initialized before reuse.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ctx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>SHA-256 context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>hash</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output buffer (must be at least 32 bytes). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_sha256.c" line="221" column="6" bodyfile="src/syntropic/util/syn_sha256.c" bodystart="221" bodyend="260"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>SHA-256 implementation — FIPS 180-4 compliant, pure C99. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>No heap allocation, no floating point, no external dependencies. Static K[64] round constants table consumes ~256 bytes of ROM. </para>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#if<sp/>__has_include(&quot;syn_config.h&quot;)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/>#include<sp/>&quot;syn_config.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="4"><highlight class="normal"></highlight></codeline>
+<codeline lineno="5"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>!defined(SYN_USE_SHA256)<sp/>||<sp/>SYN_USE_SHA256</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__sha256_8h" kindref="compound">syn_sha256.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__assert_8h" kindref="compound">syn_assert.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;string.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Constants<sp/>────────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint32_t<sp/><ref refid="syn__sha256_8c_1a018a4c3e03df1427232911d6f30c9fae" kindref="member">H_INIT</ref>[8]<sp/>=<sp/>{</highlight></codeline>
+<codeline lineno="24"><highlight class="normal"><sp/><sp/><sp/><sp/>0x6a09e667u,<sp/>0xbb67ae85u,<sp/>0x3c6ef372u,<sp/>0xa54ff53au,</highlight></codeline>
+<codeline lineno="25"><highlight class="normal"><sp/><sp/><sp/><sp/>0x510e527fu,<sp/>0x9b05688cu,<sp/>0x1f83d9abu,<sp/>0x5be0cd19u</highlight></codeline>
+<codeline lineno="26"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint32_t<sp/><ref refid="syn__sha256_8c_1a22c6551e88df4c5c42fce3d0641adb64" kindref="member">K</ref>[64]<sp/>=<sp/>{</highlight></codeline>
+<codeline lineno="30"><highlight class="normal"><sp/><sp/><sp/><sp/>0x428a2f98u,<sp/>0x71374491u,<sp/>0xb5c0fbcfu,<sp/>0xe9b5dba5u,</highlight></codeline>
+<codeline lineno="31"><highlight class="normal"><sp/><sp/><sp/><sp/>0x3956c25bu,<sp/>0x59f111f1u,<sp/>0x923f82a4u,<sp/>0xab1c5ed5u,</highlight></codeline>
+<codeline lineno="32"><highlight class="normal"><sp/><sp/><sp/><sp/>0xd807aa98u,<sp/>0x12835b01u,<sp/>0x243185beu,<sp/>0x550c7dc3u,</highlight></codeline>
+<codeline lineno="33"><highlight class="normal"><sp/><sp/><sp/><sp/>0x72be5d74u,<sp/>0x80deb1feu,<sp/>0x9bdc06a7u,<sp/>0xc19bf174u,</highlight></codeline>
+<codeline lineno="34"><highlight class="normal"><sp/><sp/><sp/><sp/>0xe49b69c1u,<sp/>0xefbe4786u,<sp/>0x0fc19dc6u,<sp/>0x240ca1ccu,</highlight></codeline>
+<codeline lineno="35"><highlight class="normal"><sp/><sp/><sp/><sp/>0x2de92c6fu,<sp/>0x4a7484aau,<sp/>0x5cb0a9dcu,<sp/>0x76f988dau,</highlight></codeline>
+<codeline lineno="36"><highlight class="normal"><sp/><sp/><sp/><sp/>0x983e5152u,<sp/>0xa831c66du,<sp/>0xb00327c8u,<sp/>0xbf597fc7u,</highlight></codeline>
+<codeline lineno="37"><highlight class="normal"><sp/><sp/><sp/><sp/>0xc6e00bf3u,<sp/>0xd5a79147u,<sp/>0x06ca6351u,<sp/>0x14292967u,</highlight></codeline>
+<codeline lineno="38"><highlight class="normal"><sp/><sp/><sp/><sp/>0x27b70a85u,<sp/>0x2e1b2138u,<sp/>0x4d2c6dfcu,<sp/>0x53380d13u,</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"><sp/><sp/><sp/><sp/>0x650a7354u,<sp/>0x766a0abbu,<sp/>0x81c2c92eu,<sp/>0x92722c85u,</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"><sp/><sp/><sp/><sp/>0xa2bfe8a1u,<sp/>0xa81a664bu,<sp/>0xc24b8b70u,<sp/>0xc76c51a3u,</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"><sp/><sp/><sp/><sp/>0xd192e819u,<sp/>0xd6990624u,<sp/>0xf40e3585u,<sp/>0x106aa070u,</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"><sp/><sp/><sp/><sp/>0x19a4c116u,<sp/>0x1e376c08u,<sp/>0x2748774cu,<sp/>0x34b0bcb5u,</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"><sp/><sp/><sp/><sp/>0x391c0cb3u,<sp/>0x4ed8aa4au,<sp/>0x5b9cca4fu,<sp/>0x682e6ff3u,</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"><sp/><sp/><sp/><sp/>0x748f82eeu,<sp/>0x78a5636fu,<sp/>0x84c87814u,<sp/>0x8cc70208u,</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"><sp/><sp/><sp/><sp/>0x90befffau,<sp/>0xa4506cebu,<sp/>0xbef9a3f7u,<sp/>0xc67178f2u</highlight></codeline>
+<codeline lineno="46"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"></highlight></codeline>
+<codeline lineno="48"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Bit<sp/>operations<sp/>(FIPS<sp/>180-4<sp/>§4.1.2)<sp/>─────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="49"><highlight class="normal"></highlight></codeline>
+<codeline lineno="56"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>uint32_t<sp/><ref refid="syn__sha256_8c_1abe47185ce4da746ea9f018cc80a24069" kindref="member">rotr</ref>(uint32_t<sp/>x,<sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/>n)</highlight></codeline>
+<codeline lineno="57"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(x<sp/>&gt;&gt;<sp/>n)<sp/>|<sp/>(x<sp/>&lt;&lt;<sp/>(32u<sp/>-<sp/>n));</highlight></codeline>
+<codeline lineno="59"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"></highlight></codeline>
+<codeline lineno="68"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>uint32_t<sp/><ref refid="syn__sha256_8c_1a040629ce734f8c5b8c1b917ee7330a7b" kindref="member">ch</ref>(uint32_t<sp/>x,<sp/>uint32_t<sp/>y,<sp/>uint32_t<sp/>z)</highlight></codeline>
+<codeline lineno="69"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(x<sp/>&amp;<sp/>y)<sp/>^<sp/>(~x<sp/>&amp;<sp/>z);</highlight></codeline>
+<codeline lineno="71"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"></highlight></codeline>
+<codeline lineno="80"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>uint32_t<sp/><ref refid="syn__sha256_8c_1adf3fc35e01f72808b97bb5fbc8d525e1" kindref="member">maj</ref>(uint32_t<sp/>x,<sp/>uint32_t<sp/>y,<sp/>uint32_t<sp/>z)</highlight></codeline>
+<codeline lineno="81"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(x<sp/>&amp;<sp/>y)<sp/>^<sp/>(x<sp/>&amp;<sp/>z)<sp/>^<sp/>(y<sp/>&amp;<sp/>z);</highlight></codeline>
+<codeline lineno="83"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"></highlight></codeline>
+<codeline lineno="90"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>uint32_t<sp/><ref refid="syn__sha256_8c_1ae0b65349d2ea71c9242a7d7f0a04a8eb" kindref="member">sigma0</ref>(uint32_t<sp/>x)</highlight></codeline>
+<codeline lineno="91"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__sha256_8c_1abe47185ce4da746ea9f018cc80a24069" kindref="member">rotr</ref>(x,<sp/>2)<sp/>^<sp/><ref refid="syn__sha256_8c_1abe47185ce4da746ea9f018cc80a24069" kindref="member">rotr</ref>(x,<sp/>13)<sp/>^<sp/><ref refid="syn__sha256_8c_1abe47185ce4da746ea9f018cc80a24069" kindref="member">rotr</ref>(x,<sp/>22);</highlight></codeline>
+<codeline lineno="93"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"></highlight></codeline>
+<codeline lineno="100"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>uint32_t<sp/><ref refid="syn__sha256_8c_1a2794bbbb1e99142998a4c1ba3b03231d" kindref="member">sigma1</ref>(uint32_t<sp/>x)</highlight></codeline>
+<codeline lineno="101"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__sha256_8c_1abe47185ce4da746ea9f018cc80a24069" kindref="member">rotr</ref>(x,<sp/>6)<sp/>^<sp/><ref refid="syn__sha256_8c_1abe47185ce4da746ea9f018cc80a24069" kindref="member">rotr</ref>(x,<sp/>11)<sp/>^<sp/><ref refid="syn__sha256_8c_1abe47185ce4da746ea9f018cc80a24069" kindref="member">rotr</ref>(x,<sp/>25);</highlight></codeline>
+<codeline lineno="103"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"></highlight></codeline>
+<codeline lineno="110"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>uint32_t<sp/><ref refid="syn__sha256_8c_1aa707e9d8a325b50b436f577925b9f078" kindref="member">gamma0</ref>(uint32_t<sp/>x)</highlight></codeline>
+<codeline lineno="111"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="112"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__sha256_8c_1abe47185ce4da746ea9f018cc80a24069" kindref="member">rotr</ref>(x,<sp/>7)<sp/>^<sp/><ref refid="syn__sha256_8c_1abe47185ce4da746ea9f018cc80a24069" kindref="member">rotr</ref>(x,<sp/>18)<sp/>^<sp/>(x<sp/>&gt;&gt;<sp/>3);</highlight></codeline>
+<codeline lineno="113"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"></highlight></codeline>
+<codeline lineno="120"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>uint32_t<sp/><ref refid="syn__sha256_8c_1ad004d37f15c0b9feb95c993d7f5b4b63" kindref="member">gamma1</ref>(uint32_t<sp/>x)</highlight></codeline>
+<codeline lineno="121"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="122"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__sha256_8c_1abe47185ce4da746ea9f018cc80a24069" kindref="member">rotr</ref>(x,<sp/>17)<sp/>^<sp/><ref refid="syn__sha256_8c_1abe47185ce4da746ea9f018cc80a24069" kindref="member">rotr</ref>(x,<sp/>19)<sp/>^<sp/>(x<sp/>&gt;&gt;<sp/>10);</highlight></codeline>
+<codeline lineno="123"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="124"><highlight class="normal"></highlight></codeline>
+<codeline lineno="125"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Block<sp/>transform<sp/>──────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="126"><highlight class="normal"></highlight></codeline>
+<codeline lineno="132"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__sha256_8c_1aff30aeb7e0231f2e4a7b5902e947bc9f" kindref="member">sha256_transform</ref>(uint32_t<sp/>state[8],<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>block[64])</highlight></codeline>
+<codeline lineno="133"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="134"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/>W[64];</highlight></codeline>
+<codeline lineno="135"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/>a,<sp/>b,<sp/>c,<sp/>d,<sp/>e,<sp/>f,<sp/>g,<sp/>h;</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/>i;</highlight></codeline>
+<codeline lineno="137"><highlight class="normal"></highlight></codeline>
+<codeline lineno="138"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Prepare<sp/>message<sp/>schedule<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="139"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>16;<sp/>i++)<sp/>{</highlight></codeline>
+<codeline lineno="140"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>W[i]<sp/>=<sp/>((uint32_t)block[i<sp/>*<sp/>4<sp/>+<sp/>0]<sp/>&lt;&lt;<sp/>24)<sp/>|</highlight></codeline>
+<codeline lineno="141"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>((uint32_t)block[i<sp/>*<sp/>4<sp/>+<sp/>1]<sp/>&lt;&lt;<sp/>16)<sp/>|</highlight></codeline>
+<codeline lineno="142"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>((uint32_t)block[i<sp/>*<sp/>4<sp/>+<sp/>2]<sp/>&lt;&lt;<sp/><sp/>8)<sp/>|</highlight></codeline>
+<codeline lineno="143"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>((uint32_t)block[i<sp/>*<sp/>4<sp/>+<sp/>3]);</highlight></codeline>
+<codeline lineno="144"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="145"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(i<sp/>=<sp/>16;<sp/>i<sp/>&lt;<sp/>64;<sp/>i++)<sp/>{</highlight></codeline>
+<codeline lineno="146"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>W[i]<sp/>=<sp/><ref refid="syn__sha256_8c_1ad004d37f15c0b9feb95c993d7f5b4b63" kindref="member">gamma1</ref>(W[i<sp/>-<sp/>2])<sp/>+<sp/>W[i<sp/>-<sp/>7]<sp/>+<sp/><ref refid="syn__sha256_8c_1aa707e9d8a325b50b436f577925b9f078" kindref="member">gamma0</ref>(W[i<sp/>-<sp/>15])<sp/>+<sp/>W[i<sp/>-<sp/>16];</highlight></codeline>
+<codeline lineno="147"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="148"><highlight class="normal"></highlight></codeline>
+<codeline lineno="149"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Working<sp/>variables<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="150"><highlight class="normal"><sp/><sp/><sp/><sp/>a<sp/>=<sp/>state[0];<sp/>b<sp/>=<sp/>state[1];<sp/>c<sp/>=<sp/>state[2];<sp/>d<sp/>=<sp/>state[3];</highlight></codeline>
+<codeline lineno="151"><highlight class="normal"><sp/><sp/><sp/><sp/>e<sp/>=<sp/>state[4];<sp/>f<sp/>=<sp/>state[5];<sp/>g<sp/>=<sp/>state[6];<sp/>h<sp/>=<sp/>state[7];</highlight></codeline>
+<codeline lineno="152"><highlight class="normal"></highlight></codeline>
+<codeline lineno="153"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>64<sp/>rounds<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="154"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>64;<sp/>i++)<sp/>{</highlight></codeline>
+<codeline lineno="155"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>t1<sp/>=<sp/>h<sp/>+<sp/><ref refid="syn__sha256_8c_1a2794bbbb1e99142998a4c1ba3b03231d" kindref="member">sigma1</ref>(e)<sp/>+<sp/><ref refid="syn__sha256_8c_1a040629ce734f8c5b8c1b917ee7330a7b" kindref="member">ch</ref>(e,<sp/>f,<sp/>g)<sp/>+<sp/><ref refid="syn__sha256_8c_1a22c6551e88df4c5c42fce3d0641adb64" kindref="member">K</ref>[i]<sp/>+<sp/>W[i];</highlight></codeline>
+<codeline lineno="156"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>t2<sp/>=<sp/><ref refid="syn__sha256_8c_1ae0b65349d2ea71c9242a7d7f0a04a8eb" kindref="member">sigma0</ref>(a)<sp/>+<sp/><ref refid="syn__sha256_8c_1adf3fc35e01f72808b97bb5fbc8d525e1" kindref="member">maj</ref>(a,<sp/>b,<sp/>c);</highlight></codeline>
+<codeline lineno="157"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>h<sp/>=<sp/>g;<sp/>g<sp/>=<sp/>f;<sp/>f<sp/>=<sp/>e;<sp/>e<sp/>=<sp/>d<sp/>+<sp/>t1;</highlight></codeline>
+<codeline lineno="158"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>d<sp/>=<sp/>c;<sp/>c<sp/>=<sp/>b;<sp/>b<sp/>=<sp/>a;<sp/>a<sp/>=<sp/>t1<sp/>+<sp/>t2;</highlight></codeline>
+<codeline lineno="159"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="160"><highlight class="normal"></highlight></codeline>
+<codeline lineno="161"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Update<sp/>state<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="162"><highlight class="normal"><sp/><sp/><sp/><sp/>state[0]<sp/>+=<sp/>a;<sp/>state[1]<sp/>+=<sp/>b;<sp/>state[2]<sp/>+=<sp/>c;<sp/>state[3]<sp/>+=<sp/>d;</highlight></codeline>
+<codeline lineno="163"><highlight class="normal"><sp/><sp/><sp/><sp/>state[4]<sp/>+=<sp/>e;<sp/>state[5]<sp/>+=<sp/>f;<sp/>state[6]<sp/>+=<sp/>g;<sp/>state[7]<sp/>+=<sp/>h;</highlight></codeline>
+<codeline lineno="164"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="165"><highlight class="normal"></highlight></codeline>
+<codeline lineno="166"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>API<sp/>──────────────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="167"><highlight class="normal"></highlight></codeline>
+<codeline lineno="168"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__sha256_8c_1ac64650c12d9cdd0e278e09086ddae7b6" kindref="member">syn_sha256_init</ref>(<ref refid="structSYN__SHA256" kindref="compound">SYN_SHA256</ref><sp/>*ctx)</highlight></codeline>
+<codeline lineno="169"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="170"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(ctx<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="171"><highlight class="normal"><sp/><sp/><sp/><sp/>memcpy(ctx-&gt;<ref refid="structSYN__SHA256_1ad7b7f27a0dd70af9bf232be82c2085d8" kindref="member">state</ref>,<sp/><ref refid="syn__sha256_8c_1a018a4c3e03df1427232911d6f30c9fae" kindref="member">H_INIT</ref>,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(<ref refid="syn__sha256_8c_1a018a4c3e03df1427232911d6f30c9fae" kindref="member">H_INIT</ref>));</highlight></codeline>
+<codeline lineno="172"><highlight class="normal"><sp/><sp/><sp/><sp/>ctx-&gt;<ref refid="structSYN__SHA256_1a59fa1272d2ed55db1065e1af604e1d90" kindref="member">buf_len</ref><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="173"><highlight class="normal"><sp/><sp/><sp/><sp/>ctx-&gt;<ref refid="structSYN__SHA256_1a299cd8d6cb068823c456fccfa784fadc" kindref="member">total_len_lo</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="174"><highlight class="normal"><sp/><sp/><sp/><sp/>ctx-&gt;<ref refid="structSYN__SHA256_1a758fcf0c25968706adaaa1a1ea6fc824" kindref="member">total_len_hi</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="175"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="176"><highlight class="normal"></highlight></codeline>
+<codeline lineno="177"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__sha256_8c_1ae5d5f928109f942592d41ca545158f02" kindref="member">syn_sha256_update</ref>(<ref refid="structSYN__SHA256" kindref="compound">SYN_SHA256</ref><sp/>*ctx,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*data,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>len)</highlight></codeline>
+<codeline lineno="178"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="179"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(ctx<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="180"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(data<sp/>==<sp/>NULL<sp/>||<sp/>len<sp/>==<sp/>0)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="181"><highlight class="normal"></highlight></codeline>
+<codeline lineno="182"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*p<sp/>=<sp/>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*)data;</highlight></codeline>
+<codeline lineno="183"><highlight class="normal"></highlight></codeline>
+<codeline lineno="184"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Track<sp/>total<sp/>length<sp/>in<sp/>bits<sp/>(split<sp/>into<sp/>hi/lo<sp/>for<sp/>&gt;4GB<sp/>messages)<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="185"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/>len_bits_lo<sp/>=<sp/>(uint32_t)((uint64_t)len<sp/>&lt;&lt;<sp/>3);</highlight></codeline>
+<codeline lineno="186"><highlight class="normal"><sp/><sp/><sp/><sp/>ctx-&gt;<ref refid="structSYN__SHA256_1a299cd8d6cb068823c456fccfa784fadc" kindref="member">total_len_lo</ref><sp/>+=<sp/>len_bits_lo;</highlight></codeline>
+<codeline lineno="187"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(ctx-&gt;<ref refid="structSYN__SHA256_1a299cd8d6cb068823c456fccfa784fadc" kindref="member">total_len_lo</ref><sp/>&lt;<sp/>len_bits_lo)<sp/>{</highlight></codeline>
+<codeline lineno="188"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ctx-&gt;<ref refid="structSYN__SHA256_1a758fcf0c25968706adaaa1a1ea6fc824" kindref="member">total_len_hi</ref>++;<sp/><sp/></highlight><highlight class="comment">/*<sp/>carry<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="189"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="190"><highlight class="normal"><sp/><sp/><sp/><sp/>ctx-&gt;<ref refid="structSYN__SHA256_1a758fcf0c25968706adaaa1a1ea6fc824" kindref="member">total_len_hi</ref><sp/>+=<sp/>(uint32_t)((uint64_t)len<sp/>&gt;&gt;<sp/>29);</highlight></codeline>
+<codeline lineno="191"><highlight class="normal"></highlight></codeline>
+<codeline lineno="192"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Fill<sp/>partial<sp/>buffer<sp/>first<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="193"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(ctx-&gt;<ref refid="structSYN__SHA256_1a59fa1272d2ed55db1065e1af604e1d90" kindref="member">buf_len</ref><sp/>&gt;<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="194"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>space<sp/>=<sp/><ref refid="syn__sha256_8h_1a6145475e29a5444c1e71f34b60a6819d" kindref="member">SYN_SHA256_BLOCK_SIZE</ref><sp/>-<sp/>ctx-&gt;<ref refid="structSYN__SHA256_1a59fa1272d2ed55db1065e1af604e1d90" kindref="member">buf_len</ref>;</highlight></codeline>
+<codeline lineno="195"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>fill<sp/>=<sp/>(len<sp/>&lt;<sp/>space)<sp/>?<sp/>(uint32_t)len<sp/>:<sp/>space;</highlight></codeline>
+<codeline lineno="196"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>memcpy(ctx-&gt;<ref refid="structSYN__SHA256_1a70eb510df16845a186514a3865d26ebc" kindref="member">buf</ref><sp/>+<sp/>ctx-&gt;<ref refid="structSYN__SHA256_1a59fa1272d2ed55db1065e1af604e1d90" kindref="member">buf_len</ref>,<sp/>p,<sp/>fill);</highlight></codeline>
+<codeline lineno="197"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ctx-&gt;<ref refid="structSYN__SHA256_1a59fa1272d2ed55db1065e1af604e1d90" kindref="member">buf_len</ref><sp/>+=<sp/>fill;</highlight></codeline>
+<codeline lineno="198"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>p<sp/><sp/><sp/>+=<sp/>fill;</highlight></codeline>
+<codeline lineno="199"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>len<sp/>-=<sp/>fill;</highlight></codeline>
+<codeline lineno="200"><highlight class="normal"></highlight></codeline>
+<codeline lineno="201"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(ctx-&gt;<ref refid="structSYN__SHA256_1a59fa1272d2ed55db1065e1af604e1d90" kindref="member">buf_len</ref><sp/>==<sp/><ref refid="syn__sha256_8h_1a6145475e29a5444c1e71f34b60a6819d" kindref="member">SYN_SHA256_BLOCK_SIZE</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="202"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__sha256_8c_1aff30aeb7e0231f2e4a7b5902e947bc9f" kindref="member">sha256_transform</ref>(ctx-&gt;<ref refid="structSYN__SHA256_1ad7b7f27a0dd70af9bf232be82c2085d8" kindref="member">state</ref>,<sp/>ctx-&gt;<ref refid="structSYN__SHA256_1a70eb510df16845a186514a3865d26ebc" kindref="member">buf</ref>);</highlight></codeline>
+<codeline lineno="203"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ctx-&gt;<ref refid="structSYN__SHA256_1a59fa1272d2ed55db1065e1af604e1d90" kindref="member">buf_len</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="204"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="205"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="206"><highlight class="normal"></highlight></codeline>
+<codeline lineno="207"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Process<sp/>full<sp/>blocks<sp/>directly<sp/>from<sp/>input<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="208"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">while</highlight><highlight class="normal"><sp/>(len<sp/>&gt;=<sp/><ref refid="syn__sha256_8h_1a6145475e29a5444c1e71f34b60a6819d" kindref="member">SYN_SHA256_BLOCK_SIZE</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="209"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__sha256_8c_1aff30aeb7e0231f2e4a7b5902e947bc9f" kindref="member">sha256_transform</ref>(ctx-&gt;<ref refid="structSYN__SHA256_1ad7b7f27a0dd70af9bf232be82c2085d8" kindref="member">state</ref>,<sp/>p);</highlight></codeline>
+<codeline lineno="210"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>p<sp/><sp/><sp/>+=<sp/><ref refid="syn__sha256_8h_1a6145475e29a5444c1e71f34b60a6819d" kindref="member">SYN_SHA256_BLOCK_SIZE</ref>;</highlight></codeline>
+<codeline lineno="211"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>len<sp/>-=<sp/><ref refid="syn__sha256_8h_1a6145475e29a5444c1e71f34b60a6819d" kindref="member">SYN_SHA256_BLOCK_SIZE</ref>;</highlight></codeline>
+<codeline lineno="212"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="213"><highlight class="normal"></highlight></codeline>
+<codeline lineno="214"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Buffer<sp/>remaining<sp/>bytes<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="215"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(len<sp/>&gt;<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="216"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>memcpy(ctx-&gt;<ref refid="structSYN__SHA256_1a70eb510df16845a186514a3865d26ebc" kindref="member">buf</ref>,<sp/>p,<sp/>len);</highlight></codeline>
+<codeline lineno="217"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ctx-&gt;<ref refid="structSYN__SHA256_1a59fa1272d2ed55db1065e1af604e1d90" kindref="member">buf_len</ref><sp/>=<sp/>(uint32_t)len;</highlight></codeline>
+<codeline lineno="218"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="219"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="220"><highlight class="normal"></highlight></codeline>
+<codeline lineno="221"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__sha256_8c_1a03f691b9ec17b2fcbd6224252b7b1ff6" kindref="member">syn_sha256_final</ref>(<ref refid="structSYN__SHA256" kindref="compound">SYN_SHA256</ref><sp/>*ctx,<sp/>uint8_t<sp/>hash[<ref refid="syn__sha256_8h_1a1bc25b6c24baf84a400cc8e51842a3bb" kindref="member">SYN_SHA256_DIGEST_SIZE</ref>])</highlight></codeline>
+<codeline lineno="222"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="223"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(ctx<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="224"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(hash<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="225"><highlight class="normal"></highlight></codeline>
+<codeline lineno="226"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Pad:<sp/>append<sp/>0x80,<sp/>then<sp/>zeros,<sp/>then<sp/>64-bit<sp/>big-endian<sp/>length<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="227"><highlight class="normal"><sp/><sp/><sp/><sp/>ctx-&gt;<ref refid="structSYN__SHA256_1a70eb510df16845a186514a3865d26ebc" kindref="member">buf</ref>[ctx-&gt;<ref refid="structSYN__SHA256_1a59fa1272d2ed55db1065e1af604e1d90" kindref="member">buf_len</ref>++]<sp/>=<sp/>0x80;</highlight></codeline>
+<codeline lineno="228"><highlight class="normal"></highlight></codeline>
+<codeline lineno="229"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(ctx-&gt;<ref refid="structSYN__SHA256_1a59fa1272d2ed55db1065e1af604e1d90" kindref="member">buf_len</ref><sp/>&gt;<sp/>56)<sp/>{</highlight></codeline>
+<codeline lineno="230"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Not<sp/>enough<sp/>room<sp/>for<sp/>length<sp/>—<sp/>fill<sp/>this<sp/>block<sp/>and<sp/>process<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="231"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>memset(ctx-&gt;<ref refid="structSYN__SHA256_1a70eb510df16845a186514a3865d26ebc" kindref="member">buf</ref><sp/>+<sp/>ctx-&gt;<ref refid="structSYN__SHA256_1a59fa1272d2ed55db1065e1af604e1d90" kindref="member">buf_len</ref>,<sp/>0,</highlight></codeline>
+<codeline lineno="232"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__sha256_8h_1a6145475e29a5444c1e71f34b60a6819d" kindref="member">SYN_SHA256_BLOCK_SIZE</ref><sp/>-<sp/>ctx-&gt;<ref refid="structSYN__SHA256_1a59fa1272d2ed55db1065e1af604e1d90" kindref="member">buf_len</ref>);</highlight></codeline>
+<codeline lineno="233"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__sha256_8c_1aff30aeb7e0231f2e4a7b5902e947bc9f" kindref="member">sha256_transform</ref>(ctx-&gt;<ref refid="structSYN__SHA256_1ad7b7f27a0dd70af9bf232be82c2085d8" kindref="member">state</ref>,<sp/>ctx-&gt;<ref refid="structSYN__SHA256_1a70eb510df16845a186514a3865d26ebc" kindref="member">buf</ref>);</highlight></codeline>
+<codeline lineno="234"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ctx-&gt;<ref refid="structSYN__SHA256_1a59fa1272d2ed55db1065e1af604e1d90" kindref="member">buf_len</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="235"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="236"><highlight class="normal"></highlight></codeline>
+<codeline lineno="237"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Pad<sp/>with<sp/>zeros<sp/>up<sp/>to<sp/>byte<sp/>56<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="238"><highlight class="normal"><sp/><sp/><sp/><sp/>memset(ctx-&gt;<ref refid="structSYN__SHA256_1a70eb510df16845a186514a3865d26ebc" kindref="member">buf</ref><sp/>+<sp/>ctx-&gt;<ref refid="structSYN__SHA256_1a59fa1272d2ed55db1065e1af604e1d90" kindref="member">buf_len</ref>,<sp/>0,<sp/>56<sp/>-<sp/>ctx-&gt;<ref refid="structSYN__SHA256_1a59fa1272d2ed55db1065e1af604e1d90" kindref="member">buf_len</ref>);</highlight></codeline>
+<codeline lineno="239"><highlight class="normal"></highlight></codeline>
+<codeline lineno="240"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Append<sp/>64-bit<sp/>big-endian<sp/>total<sp/>length<sp/>in<sp/>bits<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="241"><highlight class="normal"><sp/><sp/><sp/><sp/>ctx-&gt;<ref refid="structSYN__SHA256_1a70eb510df16845a186514a3865d26ebc" kindref="member">buf</ref>[56]<sp/>=<sp/>(uint8_t)(ctx-&gt;<ref refid="structSYN__SHA256_1a758fcf0c25968706adaaa1a1ea6fc824" kindref="member">total_len_hi</ref><sp/>&gt;&gt;<sp/>24);</highlight></codeline>
+<codeline lineno="242"><highlight class="normal"><sp/><sp/><sp/><sp/>ctx-&gt;<ref refid="structSYN__SHA256_1a70eb510df16845a186514a3865d26ebc" kindref="member">buf</ref>[57]<sp/>=<sp/>(uint8_t)(ctx-&gt;<ref refid="structSYN__SHA256_1a758fcf0c25968706adaaa1a1ea6fc824" kindref="member">total_len_hi</ref><sp/>&gt;&gt;<sp/>16);</highlight></codeline>
+<codeline lineno="243"><highlight class="normal"><sp/><sp/><sp/><sp/>ctx-&gt;<ref refid="structSYN__SHA256_1a70eb510df16845a186514a3865d26ebc" kindref="member">buf</ref>[58]<sp/>=<sp/>(uint8_t)(ctx-&gt;<ref refid="structSYN__SHA256_1a758fcf0c25968706adaaa1a1ea6fc824" kindref="member">total_len_hi</ref><sp/>&gt;&gt;<sp/><sp/>8);</highlight></codeline>
+<codeline lineno="244"><highlight class="normal"><sp/><sp/><sp/><sp/>ctx-&gt;<ref refid="structSYN__SHA256_1a70eb510df16845a186514a3865d26ebc" kindref="member">buf</ref>[59]<sp/>=<sp/>(uint8_t)(ctx-&gt;<ref refid="structSYN__SHA256_1a758fcf0c25968706adaaa1a1ea6fc824" kindref="member">total_len_hi</ref>);</highlight></codeline>
+<codeline lineno="245"><highlight class="normal"><sp/><sp/><sp/><sp/>ctx-&gt;<ref refid="structSYN__SHA256_1a70eb510df16845a186514a3865d26ebc" kindref="member">buf</ref>[60]<sp/>=<sp/>(uint8_t)(ctx-&gt;<ref refid="structSYN__SHA256_1a299cd8d6cb068823c456fccfa784fadc" kindref="member">total_len_lo</ref><sp/>&gt;&gt;<sp/>24);</highlight></codeline>
+<codeline lineno="246"><highlight class="normal"><sp/><sp/><sp/><sp/>ctx-&gt;<ref refid="structSYN__SHA256_1a70eb510df16845a186514a3865d26ebc" kindref="member">buf</ref>[61]<sp/>=<sp/>(uint8_t)(ctx-&gt;<ref refid="structSYN__SHA256_1a299cd8d6cb068823c456fccfa784fadc" kindref="member">total_len_lo</ref><sp/>&gt;&gt;<sp/>16);</highlight></codeline>
+<codeline lineno="247"><highlight class="normal"><sp/><sp/><sp/><sp/>ctx-&gt;<ref refid="structSYN__SHA256_1a70eb510df16845a186514a3865d26ebc" kindref="member">buf</ref>[62]<sp/>=<sp/>(uint8_t)(ctx-&gt;<ref refid="structSYN__SHA256_1a299cd8d6cb068823c456fccfa784fadc" kindref="member">total_len_lo</ref><sp/>&gt;&gt;<sp/><sp/>8);</highlight></codeline>
+<codeline lineno="248"><highlight class="normal"><sp/><sp/><sp/><sp/>ctx-&gt;<ref refid="structSYN__SHA256_1a70eb510df16845a186514a3865d26ebc" kindref="member">buf</ref>[63]<sp/>=<sp/>(uint8_t)(ctx-&gt;<ref refid="structSYN__SHA256_1a299cd8d6cb068823c456fccfa784fadc" kindref="member">total_len_lo</ref>);</highlight></codeline>
+<codeline lineno="249"><highlight class="normal"></highlight></codeline>
+<codeline lineno="250"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__sha256_8c_1aff30aeb7e0231f2e4a7b5902e947bc9f" kindref="member">sha256_transform</ref>(ctx-&gt;<ref refid="structSYN__SHA256_1ad7b7f27a0dd70af9bf232be82c2085d8" kindref="member">state</ref>,<sp/>ctx-&gt;<ref refid="structSYN__SHA256_1a70eb510df16845a186514a3865d26ebc" kindref="member">buf</ref>);</highlight></codeline>
+<codeline lineno="251"><highlight class="normal"></highlight></codeline>
+<codeline lineno="252"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Produce<sp/>big-endian<sp/>digest<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="253"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">unsigned</highlight><highlight class="normal"><sp/>i;</highlight></codeline>
+<codeline lineno="254"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>8;<sp/>i++)<sp/>{</highlight></codeline>
+<codeline lineno="255"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>hash[i<sp/>*<sp/>4<sp/>+<sp/>0]<sp/>=<sp/>(uint8_t)(ctx-&gt;<ref refid="structSYN__SHA256_1ad7b7f27a0dd70af9bf232be82c2085d8" kindref="member">state</ref>[i]<sp/>&gt;&gt;<sp/>24);</highlight></codeline>
+<codeline lineno="256"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>hash[i<sp/>*<sp/>4<sp/>+<sp/>1]<sp/>=<sp/>(uint8_t)(ctx-&gt;<ref refid="structSYN__SHA256_1ad7b7f27a0dd70af9bf232be82c2085d8" kindref="member">state</ref>[i]<sp/>&gt;&gt;<sp/>16);</highlight></codeline>
+<codeline lineno="257"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>hash[i<sp/>*<sp/>4<sp/>+<sp/>2]<sp/>=<sp/>(uint8_t)(ctx-&gt;<ref refid="structSYN__SHA256_1ad7b7f27a0dd70af9bf232be82c2085d8" kindref="member">state</ref>[i]<sp/>&gt;&gt;<sp/><sp/>8);</highlight></codeline>
+<codeline lineno="258"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>hash[i<sp/>*<sp/>4<sp/>+<sp/>3]<sp/>=<sp/>(uint8_t)(ctx-&gt;<ref refid="structSYN__SHA256_1ad7b7f27a0dd70af9bf232be82c2085d8" kindref="member">state</ref>[i]);</highlight></codeline>
+<codeline lineno="259"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="260"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="261"><highlight class="normal"></highlight></codeline>
+<codeline lineno="262"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_USE_SHA256<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/util/syn_sha256.c"/>
+  </compounddef>
+</doxygen>

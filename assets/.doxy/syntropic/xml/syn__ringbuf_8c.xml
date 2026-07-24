@@ -1,0 +1,819 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__ringbuf_8c" kind="file" language="C++">
+    <compoundname>syn_ringbuf.c</compoundname>
+    <includes refid="syn__ringbuf_8h" local="yes">syn_ringbuf.h</includes>
+    <includes refid="syn__assert_8h" local="yes">../util/syn_assert.h</includes>
+    <includes refid="syn__barrier_8h" local="yes">../common/syn_barrier.h</includes>
+    <includes local="no">string.h</includes>
+    <incdepgraph>
+      <node id="8">
+        <label>../common/syn_barrier.h</label>
+        <link refid="syn__barrier_8h"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>../common/syn_compiler.h</label>
+        <link refid="syn__compiler_8h"/>
+      </node>
+      <node id="6">
+        <label>../util/syn_assert.h</label>
+        <link refid="syn__assert_8h"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/util/syn_ringbuf.c</label>
+        <link refid="syn__ringbuf_8c"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>syn_ringbuf.h</label>
+        <link refid="syn__ringbuf_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>stdbool.h</label>
+      </node>
+      <node id="4">
+        <label>stddef.h</label>
+      </node>
+      <node id="3">
+        <label>stdint.h</label>
+      </node>
+      <node id="9">
+        <label>string.h</label>
+      </node>
+    </incdepgraph>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__ringbuf_8c_1a6b3e0d935a20f22a9a244f867bcf2fba" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>size_t</type>
+        <definition>static size_t advance</definition>
+        <argsstring>(size_t idx, size_t size)</argsstring>
+        <name>advance</name>
+        <param>
+          <type>size_t</type>
+          <declname>idx</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>size</declname>
+        </param>
+        <briefdescription>
+<para>Advance a ring buffer index, wrapping at capacity. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>idx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Current index. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>size</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Buffer capacity. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Next index. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_ringbuf.c" line="19" column="22" bodyfile="src/syntropic/util/syn_ringbuf.c" bodystart="19" bodyend="23"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__ringbuf_8c_1aa4a7f4a7b74e7c07a3a199086f0cbeec" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_ringbuf_init</definition>
+        <argsstring>(SYN_RingBuf *rb, uint8_t *buf, size_t size)</argsstring>
+        <name>syn_ringbuf_init</name>
+        <param>
+          <type><ref refid="structSYN__RingBuf" kindref="compound">SYN_RingBuf</ref> *</type>
+          <declname>rb</declname>
+        </param>
+        <param>
+          <type>uint8_t *</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>size</declname>
+        </param>
+        <briefdescription>
+<para>Initialize a ring buffer. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>rb</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to the ring buffer control struct. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to the caller-provided backing array. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>size</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Size of the backing array in bytes. Must be &gt; 0. One byte is used as a sentinel, so usable capacity is size - 1. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_ringbuf.c" line="27" column="6" bodyfile="src/syntropic/util/syn_ringbuf.c" bodystart="27" bodyend="37"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__ringbuf_8c_1a67704e92917d22a143eb1878fd10df6a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_ringbuf_reset</definition>
+        <argsstring>(SYN_RingBuf *rb)</argsstring>
+        <name>syn_ringbuf_reset</name>
+        <param>
+          <type><ref refid="structSYN__RingBuf" kindref="compound">SYN_RingBuf</ref> *</type>
+          <declname>rb</declname>
+        </param>
+        <briefdescription>
+<para>Reset the ring buffer to empty. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>rb</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Ring buffer. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_ringbuf.c" line="39" column="6" bodyfile="src/syntropic/util/syn_ringbuf.c" bodystart="39" bodyend="44"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__ringbuf_8c_1ac1b45c7cbbe0ff518d04e28c960fa2bb" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_ringbuf_put</definition>
+        <argsstring>(SYN_RingBuf *rb, uint8_t byte)</argsstring>
+        <name>syn_ringbuf_put</name>
+        <param>
+          <type><ref refid="structSYN__RingBuf" kindref="compound">SYN_RingBuf</ref> *</type>
+          <declname>rb</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>byte</declname>
+        </param>
+        <briefdescription>
+<para>Put a byte into the ring buffer. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>rb</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Ring buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>byte</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Byte to store. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if the byte was stored, false if the buffer is full. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_ringbuf.c" line="46" column="6" bodyfile="src/syntropic/util/syn_ringbuf.c" bodystart="46" bodyend="60"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__ringbuf_8c_1a24d2361d16c53073a9bc4737ffd17fb8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_ringbuf_get</definition>
+        <argsstring>(SYN_RingBuf *rb, uint8_t *byte)</argsstring>
+        <name>syn_ringbuf_get</name>
+        <param>
+          <type><ref refid="structSYN__RingBuf" kindref="compound">SYN_RingBuf</ref> *</type>
+          <declname>rb</declname>
+        </param>
+        <param>
+          <type>uint8_t *</type>
+          <declname>byte</declname>
+        </param>
+        <briefdescription>
+<para>Get a byte from the ring buffer. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>rb</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Ring buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>byte</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>[out] The retrieved byte. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if a byte was available, false if the buffer is empty. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_ringbuf.c" line="62" column="6" bodyfile="src/syntropic/util/syn_ringbuf.c" bodystart="62" bodyend="76"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__ringbuf_8c_1a2ce3a6d017a9c14c990b464e9fe40830" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_ringbuf_peek</definition>
+        <argsstring>(const SYN_RingBuf *rb, uint8_t *byte)</argsstring>
+        <name>syn_ringbuf_peek</name>
+        <param>
+          <type>const <ref refid="structSYN__RingBuf" kindref="compound">SYN_RingBuf</ref> *</type>
+          <declname>rb</declname>
+        </param>
+        <param>
+          <type>uint8_t *</type>
+          <declname>byte</declname>
+        </param>
+        <briefdescription>
+<para>Peek at the next byte without removing it. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>rb</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Ring buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>byte</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>[out] The peeked byte. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if a byte was available, false if the buffer is empty. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_ringbuf.c" line="78" column="6" bodyfile="src/syntropic/util/syn_ringbuf.c" bodystart="78" bodyend="91"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__ringbuf_8c_1ab7186214896996d45ebf222a67e3ff0f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_ringbuf_full</definition>
+        <argsstring>(const SYN_RingBuf *rb)</argsstring>
+        <name>syn_ringbuf_full</name>
+        <param>
+          <type>const <ref refid="structSYN__RingBuf" kindref="compound">SYN_RingBuf</ref> *</type>
+          <declname>rb</declname>
+        </param>
+        <briefdescription>
+<para>Check if the ring buffer is full. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>rb</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Ring buffer. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if full. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_ringbuf.c" line="93" column="6" bodyfile="src/syntropic/util/syn_ringbuf.c" bodystart="93" bodyend="99"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__ringbuf_8c_1a086df8ee8ed916ab4a320756bb84b395" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_ringbuf_empty</definition>
+        <argsstring>(const SYN_RingBuf *rb)</argsstring>
+        <name>syn_ringbuf_empty</name>
+        <param>
+          <type>const <ref refid="structSYN__RingBuf" kindref="compound">SYN_RingBuf</ref> *</type>
+          <declname>rb</declname>
+        </param>
+        <briefdescription>
+<para>Check if the ring buffer is empty. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>rb</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Ring buffer. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if empty. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_ringbuf.c" line="101" column="6" bodyfile="src/syntropic/util/syn_ringbuf.c" bodystart="101" bodyend="107"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__ringbuf_8c_1a9fd254d962f847f53f80086f211f699e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>size_t</type>
+        <definition>size_t syn_ringbuf_count</definition>
+        <argsstring>(const SYN_RingBuf *rb)</argsstring>
+        <name>syn_ringbuf_count</name>
+        <param>
+          <type>const <ref refid="structSYN__RingBuf" kindref="compound">SYN_RingBuf</ref> *</type>
+          <declname>rb</declname>
+        </param>
+        <briefdescription>
+<para>Return the number of bytes currently stored in the buffer. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>rb</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Ring buffer. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Byte count. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_ringbuf.c" line="109" column="8" bodyfile="src/syntropic/util/syn_ringbuf.c" bodystart="109" bodyend="120"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__ringbuf_8c_1ada70bac7c55186376d3db23b6a217f52" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>size_t</type>
+        <definition>size_t syn_ringbuf_free</definition>
+        <argsstring>(const SYN_RingBuf *rb)</argsstring>
+        <name>syn_ringbuf_free</name>
+        <param>
+          <type>const <ref refid="structSYN__RingBuf" kindref="compound">SYN_RingBuf</ref> *</type>
+          <declname>rb</declname>
+        </param>
+        <briefdescription>
+<para>Return the number of free bytes available for writing. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>rb</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Ring buffer. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Free byte count. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_ringbuf.c" line="122" column="8" bodyfile="src/syntropic/util/syn_ringbuf.c" bodystart="122" bodyend="127"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__ringbuf_8c_1abb5bce664333d07db34b1ae0cbf2a8d6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>size_t</type>
+        <definition>size_t syn_ringbuf_write</definition>
+        <argsstring>(SYN_RingBuf *rb, const uint8_t *data, size_t len)</argsstring>
+        <name>syn_ringbuf_write</name>
+        <param>
+          <type><ref refid="structSYN__RingBuf" kindref="compound">SYN_RingBuf</ref> *</type>
+          <declname>rb</declname>
+        </param>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>len</declname>
+        </param>
+        <briefdescription>
+<para>Write multiple bytes into the ring buffer. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Writes up to <computeroutput>len</computeroutput> bytes from <computeroutput>data</computeroutput>. Returns the number of bytes actually written (may be less than <computeroutput>len</computeroutput> if the buffer fills up). Uses memcpy internally for efficiency across wrap boundaries.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>rb</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Ring buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>data</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Source data to write. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of bytes to write. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Number of bytes actually written. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_ringbuf.c" line="129" column="8" bodyfile="src/syntropic/util/syn_ringbuf.c" bodystart="129" bodyend="159"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__ringbuf_8c_1acc9c5b927850ee951bb2b7b2906f83d0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>size_t</type>
+        <definition>size_t syn_ringbuf_read</definition>
+        <argsstring>(SYN_RingBuf *rb, uint8_t *data, size_t len)</argsstring>
+        <name>syn_ringbuf_read</name>
+        <param>
+          <type><ref refid="structSYN__RingBuf" kindref="compound">SYN_RingBuf</ref> *</type>
+          <declname>rb</declname>
+        </param>
+        <param>
+          <type>uint8_t *</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>len</declname>
+        </param>
+        <briefdescription>
+<para>Read multiple bytes from the ring buffer. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Reads up to <computeroutput>len</computeroutput> bytes into <computeroutput>data</computeroutput>. Returns the number of bytes actually read (may be less than <computeroutput>len</computeroutput> if the buffer doesn&apos;t have enough). Uses memcpy internally for efficiency across wrap boundaries.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>rb</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Ring buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>data</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>[out] Destination buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Maximum number of bytes to read. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Number of bytes actually read. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_ringbuf.c" line="161" column="8" bodyfile="src/syntropic/util/syn_ringbuf.c" bodystart="161" bodyend="191"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__ringbuf_8c_1a11eef02620484b8e48fef6f1eeebeb8c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>size_t</type>
+        <definition>size_t syn_ringbuf_peek_n</definition>
+        <argsstring>(const SYN_RingBuf *rb, uint8_t *data, size_t len)</argsstring>
+        <name>syn_ringbuf_peek_n</name>
+        <param>
+          <type>const <ref refid="structSYN__RingBuf" kindref="compound">SYN_RingBuf</ref> *</type>
+          <declname>rb</declname>
+        </param>
+        <param>
+          <type>uint8_t *</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>len</declname>
+        </param>
+        <briefdescription>
+<para>Peek at up to <computeroutput>len</computeroutput> bytes without removing them. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Copies bytes starting from the read position into <computeroutput>data</computeroutput> without advancing the tail. Subsequent calls to syn_ringbuf_read will return the same bytes.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>rb</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Ring buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>data</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>[out] Destination buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Maximum number of bytes to peek. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Number of bytes actually copied (may be less than <computeroutput>len</computeroutput>). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_ringbuf.c" line="193" column="8" bodyfile="src/syntropic/util/syn_ringbuf.c" bodystart="193" bodyend="222"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Ring buffer implementation. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__ringbuf_8h" kindref="compound">syn_ringbuf.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../util/syn_assert.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../common/syn_barrier.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;string.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Helpers<sp/>──────────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="syn__ringbuf_8c_1a6b3e0d935a20f22a9a244f867bcf2fba" kindref="member">advance</ref>(</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>idx,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>size)</highlight></codeline>
+<codeline lineno="20"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="21"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>next<sp/>=<sp/>idx<sp/>+<sp/>1;</highlight></codeline>
+<codeline lineno="22"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(next<sp/>&gt;=<sp/>size)<sp/>?<sp/>0<sp/>:<sp/>next;</highlight></codeline>
+<codeline lineno="23"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>API<sp/>──────────────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__ringbuf_8c_1aa4a7f4a7b74e7c07a3a199086f0cbeec" kindref="member">syn_ringbuf_init</ref>(<ref refid="structSYN__RingBuf" kindref="compound">SYN_RingBuf</ref><sp/>*rb,<sp/>uint8_t<sp/>*buf,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>size)</highlight></codeline>
+<codeline lineno="28"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="29"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(rb<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="30"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(buf<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="31"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(size<sp/>&gt;<sp/>1);<sp/></highlight><highlight class="comment">/*<sp/>need<sp/>at<sp/>least<sp/>2<sp/>bytes<sp/>(1<sp/>usable<sp/>+<sp/>1<sp/>sentinel)<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"><sp/><sp/><sp/><sp/>rb-&gt;<ref refid="structSYN__RingBuf_1a8ff3e6638e0aa930f3f80077fb7a1220" kindref="member">buf</ref><sp/><sp/>=<sp/>buf;</highlight></codeline>
+<codeline lineno="34"><highlight class="normal"><sp/><sp/><sp/><sp/>rb-&gt;<ref refid="structSYN__RingBuf_1a250ab6d10a30dda826b457b878145c3b" kindref="member">size</ref><sp/>=<sp/>size;</highlight></codeline>
+<codeline lineno="35"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__barrier_8h_1a46c96e264c231fce46e1bafba6f0475a" kindref="member">SYN_STORE_RELEASE</ref>(&amp;rb-&gt;<ref refid="structSYN__RingBuf_1a313c6a3c07a89399e80f5830319fb2d0" kindref="member">head</ref>,<sp/>0);</highlight></codeline>
+<codeline lineno="36"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__barrier_8h_1a46c96e264c231fce46e1bafba6f0475a" kindref="member">SYN_STORE_RELEASE</ref>(&amp;rb-&gt;<ref refid="structSYN__RingBuf_1a88771e9b1be86542fb6f9e3a54026520" kindref="member">tail</ref>,<sp/>0);</highlight></codeline>
+<codeline lineno="37"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__ringbuf_8c_1a67704e92917d22a143eb1878fd10df6a" kindref="member">syn_ringbuf_reset</ref>(<ref refid="structSYN__RingBuf" kindref="compound">SYN_RingBuf</ref><sp/>*rb)</highlight></codeline>
+<codeline lineno="40"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(rb<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__barrier_8h_1a46c96e264c231fce46e1bafba6f0475a" kindref="member">SYN_STORE_RELEASE</ref>(&amp;rb-&gt;<ref refid="structSYN__RingBuf_1a313c6a3c07a89399e80f5830319fb2d0" kindref="member">head</ref>,<sp/>0);</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__barrier_8h_1a46c96e264c231fce46e1bafba6f0475a" kindref="member">SYN_STORE_RELEASE</ref>(&amp;rb-&gt;<ref refid="structSYN__RingBuf_1a88771e9b1be86542fb6f9e3a54026520" kindref="member">tail</ref>,<sp/>0);</highlight></codeline>
+<codeline lineno="44"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight></codeline>
+<codeline lineno="46"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__ringbuf_8c_1ac1b45c7cbbe0ff518d04e28c960fa2bb" kindref="member">syn_ringbuf_put</ref>(<ref refid="structSYN__RingBuf" kindref="compound">SYN_RingBuf</ref><sp/>*rb,<sp/>uint8_t<sp/></highlight><highlight class="keywordtype">byte</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="47"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(rb<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"></highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>head<sp/>=<sp/><ref refid="syn__barrier_8h_1a3910188c1e4ab3953dd7a9c2ff88e9e6" kindref="member">SYN_LOAD_ACQUIRE</ref>(&amp;rb-&gt;<ref refid="structSYN__RingBuf_1a313c6a3c07a89399e80f5830319fb2d0" kindref="member">head</ref>);</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>tail<sp/>=<sp/><ref refid="syn__barrier_8h_1a3910188c1e4ab3953dd7a9c2ff88e9e6" kindref="member">SYN_LOAD_ACQUIRE</ref>(&amp;rb-&gt;<ref refid="structSYN__RingBuf_1a88771e9b1be86542fb6f9e3a54026520" kindref="member">tail</ref>);</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>next_head<sp/>=<sp/><ref refid="syn__ringbuf_8c_1a6b3e0d935a20f22a9a244f867bcf2fba" kindref="member">advance</ref>(head,<sp/>rb-&gt;<ref refid="structSYN__RingBuf_1a250ab6d10a30dda826b457b878145c3b" kindref="member">size</ref>);</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(next_head<sp/>==<sp/>tail)<sp/>{</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;<sp/></highlight><highlight class="comment">/*<sp/>full<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"></highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/><sp/><sp/>rb-&gt;<ref refid="structSYN__RingBuf_1a8ff3e6638e0aa930f3f80077fb7a1220" kindref="member">buf</ref>[head]<sp/>=<sp/>byte;</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__barrier_8h_1a46c96e264c231fce46e1bafba6f0475a" kindref="member">SYN_STORE_RELEASE</ref>(&amp;rb-&gt;<ref refid="structSYN__RingBuf_1a313c6a3c07a89399e80f5830319fb2d0" kindref="member">head</ref>,<sp/>next_head);</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="60"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"></highlight></codeline>
+<codeline lineno="62"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__ringbuf_8c_1a24d2361d16c53073a9bc4737ffd17fb8" kindref="member">syn_ringbuf_get</ref>(<ref refid="structSYN__RingBuf" kindref="compound">SYN_RingBuf</ref><sp/>*rb,<sp/>uint8_t<sp/>*</highlight><highlight class="keywordtype">byte</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="63"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(rb<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(</highlight><highlight class="keywordtype">byte</highlight><highlight class="normal"><sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"></highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>head<sp/>=<sp/><ref refid="syn__barrier_8h_1a3910188c1e4ab3953dd7a9c2ff88e9e6" kindref="member">SYN_LOAD_ACQUIRE</ref>(&amp;rb-&gt;<ref refid="structSYN__RingBuf_1a313c6a3c07a89399e80f5830319fb2d0" kindref="member">head</ref>);</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>tail<sp/>=<sp/><ref refid="syn__barrier_8h_1a3910188c1e4ab3953dd7a9c2ff88e9e6" kindref="member">SYN_LOAD_ACQUIRE</ref>(&amp;rb-&gt;<ref refid="structSYN__RingBuf_1a88771e9b1be86542fb6f9e3a54026520" kindref="member">tail</ref>);</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(head<sp/>==<sp/>tail)<sp/>{</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;<sp/></highlight><highlight class="comment">/*<sp/>empty<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="71"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"></highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><sp/><sp/><sp/><sp/>*</highlight><highlight class="keywordtype">byte</highlight><highlight class="normal"><sp/>=<sp/>rb-&gt;<ref refid="structSYN__RingBuf_1a8ff3e6638e0aa930f3f80077fb7a1220" kindref="member">buf</ref>[tail];</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__barrier_8h_1a46c96e264c231fce46e1bafba6f0475a" kindref="member">SYN_STORE_RELEASE</ref>(&amp;rb-&gt;<ref refid="structSYN__RingBuf_1a88771e9b1be86542fb6f9e3a54026520" kindref="member">tail</ref>,<sp/><ref refid="syn__ringbuf_8c_1a6b3e0d935a20f22a9a244f867bcf2fba" kindref="member">advance</ref>(tail,<sp/>rb-&gt;<ref refid="structSYN__RingBuf_1a250ab6d10a30dda826b457b878145c3b" kindref="member">size</ref>));</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="76"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"></highlight></codeline>
+<codeline lineno="78"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__ringbuf_8c_1a2ce3a6d017a9c14c990b464e9fe40830" kindref="member">syn_ringbuf_peek</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__RingBuf" kindref="compound">SYN_RingBuf</ref><sp/>*rb,<sp/>uint8_t<sp/>*</highlight><highlight class="keywordtype">byte</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="79"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(rb<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(</highlight><highlight class="keywordtype">byte</highlight><highlight class="normal"><sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"></highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>head<sp/>=<sp/><ref refid="syn__barrier_8h_1a3910188c1e4ab3953dd7a9c2ff88e9e6" kindref="member">SYN_LOAD_ACQUIRE</ref>(&amp;rb-&gt;<ref refid="structSYN__RingBuf_1a313c6a3c07a89399e80f5830319fb2d0" kindref="member">head</ref>);</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>tail<sp/>=<sp/><ref refid="syn__barrier_8h_1a3910188c1e4ab3953dd7a9c2ff88e9e6" kindref="member">SYN_LOAD_ACQUIRE</ref>(&amp;rb-&gt;<ref refid="structSYN__RingBuf_1a88771e9b1be86542fb6f9e3a54026520" kindref="member">tail</ref>);</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(head<sp/>==<sp/>tail)<sp/>{</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"></highlight></codeline>
+<codeline lineno="89"><highlight class="normal"><sp/><sp/><sp/><sp/>*</highlight><highlight class="keywordtype">byte</highlight><highlight class="normal"><sp/>=<sp/>rb-&gt;<ref refid="structSYN__RingBuf_1a8ff3e6638e0aa930f3f80077fb7a1220" kindref="member">buf</ref>[tail];</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="91"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"></highlight></codeline>
+<codeline lineno="93"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__ringbuf_8c_1ab7186214896996d45ebf222a67e3ff0f" kindref="member">syn_ringbuf_full</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__RingBuf" kindref="compound">SYN_RingBuf</ref><sp/>*rb)</highlight></codeline>
+<codeline lineno="94"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(rb<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>head<sp/>=<sp/><ref refid="syn__barrier_8h_1a3910188c1e4ab3953dd7a9c2ff88e9e6" kindref="member">SYN_LOAD_ACQUIRE</ref>(&amp;rb-&gt;<ref refid="structSYN__RingBuf_1a313c6a3c07a89399e80f5830319fb2d0" kindref="member">head</ref>);</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>tail<sp/>=<sp/><ref refid="syn__barrier_8h_1a3910188c1e4ab3953dd7a9c2ff88e9e6" kindref="member">SYN_LOAD_ACQUIRE</ref>(&amp;rb-&gt;<ref refid="structSYN__RingBuf_1a88771e9b1be86542fb6f9e3a54026520" kindref="member">tail</ref>);</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__ringbuf_8c_1a6b3e0d935a20f22a9a244f867bcf2fba" kindref="member">advance</ref>(head,<sp/>rb-&gt;<ref refid="structSYN__RingBuf_1a250ab6d10a30dda826b457b878145c3b" kindref="member">size</ref>)<sp/>==<sp/>tail;</highlight></codeline>
+<codeline lineno="99"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"></highlight></codeline>
+<codeline lineno="101"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__ringbuf_8c_1a086df8ee8ed916ab4a320756bb84b395" kindref="member">syn_ringbuf_empty</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__RingBuf" kindref="compound">SYN_RingBuf</ref><sp/>*rb)</highlight></codeline>
+<codeline lineno="102"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(rb<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>head<sp/>=<sp/><ref refid="syn__barrier_8h_1a3910188c1e4ab3953dd7a9c2ff88e9e6" kindref="member">SYN_LOAD_ACQUIRE</ref>(&amp;rb-&gt;<ref refid="structSYN__RingBuf_1a313c6a3c07a89399e80f5830319fb2d0" kindref="member">head</ref>);</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>tail<sp/>=<sp/><ref refid="syn__barrier_8h_1a3910188c1e4ab3953dd7a9c2ff88e9e6" kindref="member">SYN_LOAD_ACQUIRE</ref>(&amp;rb-&gt;<ref refid="structSYN__RingBuf_1a88771e9b1be86542fb6f9e3a54026520" kindref="member">tail</ref>);</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>head<sp/>==<sp/>tail;</highlight></codeline>
+<codeline lineno="107"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"></highlight></codeline>
+<codeline lineno="109"><highlight class="normal"></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="syn__ringbuf_8c_1a9fd254d962f847f53f80086f211f699e" kindref="member">syn_ringbuf_count</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__RingBuf" kindref="compound">SYN_RingBuf</ref><sp/>*rb)</highlight></codeline>
+<codeline lineno="110"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(rb<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="112"><highlight class="normal"></highlight></codeline>
+<codeline lineno="113"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>h<sp/>=<sp/><ref refid="syn__barrier_8h_1a3910188c1e4ab3953dd7a9c2ff88e9e6" kindref="member">SYN_LOAD_ACQUIRE</ref>(&amp;rb-&gt;<ref refid="structSYN__RingBuf_1a313c6a3c07a89399e80f5830319fb2d0" kindref="member">head</ref>);</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>t<sp/>=<sp/><ref refid="syn__barrier_8h_1a3910188c1e4ab3953dd7a9c2ff88e9e6" kindref="member">SYN_LOAD_ACQUIRE</ref>(&amp;rb-&gt;<ref refid="structSYN__RingBuf_1a88771e9b1be86542fb6f9e3a54026520" kindref="member">tail</ref>);</highlight></codeline>
+<codeline lineno="115"><highlight class="normal"></highlight></codeline>
+<codeline lineno="116"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(h<sp/>&gt;=<sp/>t)<sp/>{</highlight></codeline>
+<codeline lineno="117"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>h<sp/>-<sp/>t;</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>rb-&gt;<ref refid="structSYN__RingBuf_1a250ab6d10a30dda826b457b878145c3b" kindref="member">size</ref><sp/>-<sp/>t<sp/>+<sp/>h;</highlight></codeline>
+<codeline lineno="120"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="121"><highlight class="normal"></highlight></codeline>
+<codeline lineno="122"><highlight class="normal"></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="syn__ringbuf_8c_1ada70bac7c55186376d3db23b6a217f52" kindref="member">syn_ringbuf_free</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__RingBuf" kindref="compound">SYN_RingBuf</ref><sp/>*rb)</highlight></codeline>
+<codeline lineno="123"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="124"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(rb<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Capacity<sp/>is<sp/>size<sp/>-<sp/>1<sp/>(one<sp/>slot<sp/>reserved<sp/>as<sp/>sentinel).<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="126"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(rb-&gt;<ref refid="structSYN__RingBuf_1a250ab6d10a30dda826b457b878145c3b" kindref="member">size</ref><sp/>-<sp/>1)<sp/>-<sp/><ref refid="syn__ringbuf_8c_1a9fd254d962f847f53f80086f211f699e" kindref="member">syn_ringbuf_count</ref>(rb);</highlight></codeline>
+<codeline lineno="127"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="128"><highlight class="normal"></highlight></codeline>
+<codeline lineno="129"><highlight class="normal"></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="syn__ringbuf_8c_1abb5bce664333d07db34b1ae0cbf2a8d6" kindref="member">syn_ringbuf_write</ref>(<ref refid="structSYN__RingBuf" kindref="compound">SYN_RingBuf</ref><sp/>*rb,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*data,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>len)</highlight></codeline>
+<codeline lineno="130"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="131"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(rb<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="132"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(data<sp/>!=<sp/>NULL<sp/>||<sp/>len<sp/>==<sp/>0);</highlight></codeline>
+<codeline lineno="133"><highlight class="normal"></highlight></codeline>
+<codeline lineno="134"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>avail<sp/>=<sp/><ref refid="syn__ringbuf_8c_1ada70bac7c55186376d3db23b6a217f52" kindref="member">syn_ringbuf_free</ref>(rb);</highlight></codeline>
+<codeline lineno="135"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(len<sp/>&gt;<sp/>avail)<sp/>{</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>len<sp/>=<sp/>avail;</highlight></codeline>
+<codeline lineno="137"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="138"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(len<sp/>==<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="139"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0;</highlight></codeline>
+<codeline lineno="140"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="141"><highlight class="normal"></highlight></codeline>
+<codeline lineno="142"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>head<sp/>=<sp/><ref refid="syn__barrier_8h_1a3910188c1e4ab3953dd7a9c2ff88e9e6" kindref="member">SYN_LOAD_ACQUIRE</ref>(&amp;rb-&gt;<ref refid="structSYN__RingBuf_1a313c6a3c07a89399e80f5830319fb2d0" kindref="member">head</ref>);</highlight></codeline>
+<codeline lineno="143"><highlight class="normal"></highlight></codeline>
+<codeline lineno="144"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Bytes<sp/>from<sp/>head<sp/>to<sp/>end<sp/>of<sp/>backing<sp/>array<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="145"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>to_end<sp/>=<sp/>rb-&gt;<ref refid="structSYN__RingBuf_1a250ab6d10a30dda826b457b878145c3b" kindref="member">size</ref><sp/>-<sp/>head;</highlight></codeline>
+<codeline lineno="146"><highlight class="normal"></highlight></codeline>
+<codeline lineno="147"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(len<sp/>&lt;=<sp/>to_end)<sp/>{</highlight></codeline>
+<codeline lineno="148"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>No<sp/>wrap<sp/>needed<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="149"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>memcpy(&amp;rb-&gt;<ref refid="structSYN__RingBuf_1a8ff3e6638e0aa930f3f80077fb7a1220" kindref="member">buf</ref>[head],<sp/>data,<sp/>len);</highlight></codeline>
+<codeline lineno="150"><highlight class="normal"><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="151"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Two-part<sp/>copy<sp/>across<sp/>the<sp/>wrap<sp/>boundary<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="152"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>memcpy(&amp;rb-&gt;<ref refid="structSYN__RingBuf_1a8ff3e6638e0aa930f3f80077fb7a1220" kindref="member">buf</ref>[head],<sp/>data,<sp/>to_end);</highlight></codeline>
+<codeline lineno="153"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>memcpy(&amp;rb-&gt;<ref refid="structSYN__RingBuf_1a8ff3e6638e0aa930f3f80077fb7a1220" kindref="member">buf</ref>[0],<sp/>data<sp/>+<sp/>to_end,<sp/>len<sp/>-<sp/>to_end);</highlight></codeline>
+<codeline lineno="154"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="155"><highlight class="normal"></highlight></codeline>
+<codeline lineno="156"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>new_head<sp/>=<sp/>head<sp/>+<sp/>len;</highlight></codeline>
+<codeline lineno="157"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__barrier_8h_1a46c96e264c231fce46e1bafba6f0475a" kindref="member">SYN_STORE_RELEASE</ref>(&amp;rb-&gt;<ref refid="structSYN__RingBuf_1a313c6a3c07a89399e80f5830319fb2d0" kindref="member">head</ref>,<sp/>(new_head<sp/>&gt;=<sp/>rb-&gt;<ref refid="structSYN__RingBuf_1a250ab6d10a30dda826b457b878145c3b" kindref="member">size</ref>)<sp/>?<sp/>new_head<sp/>-<sp/>rb-&gt;<ref refid="structSYN__RingBuf_1a250ab6d10a30dda826b457b878145c3b" kindref="member">size</ref><sp/>:<sp/>new_head);</highlight></codeline>
+<codeline lineno="158"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>len;</highlight></codeline>
+<codeline lineno="159"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="160"><highlight class="normal"></highlight></codeline>
+<codeline lineno="161"><highlight class="normal"></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="syn__ringbuf_8c_1acc9c5b927850ee951bb2b7b2906f83d0" kindref="member">syn_ringbuf_read</ref>(<ref refid="structSYN__RingBuf" kindref="compound">SYN_RingBuf</ref><sp/>*rb,<sp/>uint8_t<sp/>*data,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>len)</highlight></codeline>
+<codeline lineno="162"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="163"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(rb<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="164"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(data<sp/>!=<sp/>NULL<sp/>||<sp/>len<sp/>==<sp/>0);</highlight></codeline>
+<codeline lineno="165"><highlight class="normal"></highlight></codeline>
+<codeline lineno="166"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>avail<sp/>=<sp/><ref refid="syn__ringbuf_8c_1a9fd254d962f847f53f80086f211f699e" kindref="member">syn_ringbuf_count</ref>(rb);</highlight></codeline>
+<codeline lineno="167"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(len<sp/>&gt;<sp/>avail)<sp/>{</highlight></codeline>
+<codeline lineno="168"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>len<sp/>=<sp/>avail;</highlight></codeline>
+<codeline lineno="169"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="170"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(len<sp/>==<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="171"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0;</highlight></codeline>
+<codeline lineno="172"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="173"><highlight class="normal"></highlight></codeline>
+<codeline lineno="174"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>tail<sp/>=<sp/><ref refid="syn__barrier_8h_1a3910188c1e4ab3953dd7a9c2ff88e9e6" kindref="member">SYN_LOAD_ACQUIRE</ref>(&amp;rb-&gt;<ref refid="structSYN__RingBuf_1a88771e9b1be86542fb6f9e3a54026520" kindref="member">tail</ref>);</highlight></codeline>
+<codeline lineno="175"><highlight class="normal"></highlight></codeline>
+<codeline lineno="176"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Bytes<sp/>from<sp/>tail<sp/>to<sp/>end<sp/>of<sp/>backing<sp/>array<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="177"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>to_end<sp/>=<sp/>rb-&gt;<ref refid="structSYN__RingBuf_1a250ab6d10a30dda826b457b878145c3b" kindref="member">size</ref><sp/>-<sp/>tail;</highlight></codeline>
+<codeline lineno="178"><highlight class="normal"></highlight></codeline>
+<codeline lineno="179"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(len<sp/>&lt;=<sp/>to_end)<sp/>{</highlight></codeline>
+<codeline lineno="180"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>No<sp/>wrap<sp/>needed<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="181"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>memcpy(data,<sp/>&amp;rb-&gt;<ref refid="structSYN__RingBuf_1a8ff3e6638e0aa930f3f80077fb7a1220" kindref="member">buf</ref>[tail],<sp/>len);</highlight></codeline>
+<codeline lineno="182"><highlight class="normal"><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="183"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Two-part<sp/>copy<sp/>across<sp/>the<sp/>wrap<sp/>boundary<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="184"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>memcpy(data,<sp/>&amp;rb-&gt;<ref refid="structSYN__RingBuf_1a8ff3e6638e0aa930f3f80077fb7a1220" kindref="member">buf</ref>[tail],<sp/>to_end);</highlight></codeline>
+<codeline lineno="185"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>memcpy(data<sp/>+<sp/>to_end,<sp/>&amp;rb-&gt;<ref refid="structSYN__RingBuf_1a8ff3e6638e0aa930f3f80077fb7a1220" kindref="member">buf</ref>[0],<sp/>len<sp/>-<sp/>to_end);</highlight></codeline>
+<codeline lineno="186"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="187"><highlight class="normal"></highlight></codeline>
+<codeline lineno="188"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>new_tail<sp/>=<sp/>tail<sp/>+<sp/>len;</highlight></codeline>
+<codeline lineno="189"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__barrier_8h_1a46c96e264c231fce46e1bafba6f0475a" kindref="member">SYN_STORE_RELEASE</ref>(&amp;rb-&gt;<ref refid="structSYN__RingBuf_1a88771e9b1be86542fb6f9e3a54026520" kindref="member">tail</ref>,<sp/>(new_tail<sp/>&gt;=<sp/>rb-&gt;<ref refid="structSYN__RingBuf_1a250ab6d10a30dda826b457b878145c3b" kindref="member">size</ref>)<sp/>?<sp/>new_tail<sp/>-<sp/>rb-&gt;<ref refid="structSYN__RingBuf_1a250ab6d10a30dda826b457b878145c3b" kindref="member">size</ref><sp/>:<sp/>new_tail);</highlight></codeline>
+<codeline lineno="190"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>len;</highlight></codeline>
+<codeline lineno="191"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="192"><highlight class="normal"></highlight></codeline>
+<codeline lineno="193"><highlight class="normal"></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="syn__ringbuf_8c_1a11eef02620484b8e48fef6f1eeebeb8c" kindref="member">syn_ringbuf_peek_n</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__RingBuf" kindref="compound">SYN_RingBuf</ref><sp/>*rb,<sp/>uint8_t<sp/>*data,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>len)</highlight></codeline>
+<codeline lineno="194"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="195"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(rb<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="196"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(data<sp/>!=<sp/>NULL<sp/>||<sp/>len<sp/>==<sp/>0);</highlight></codeline>
+<codeline lineno="197"><highlight class="normal"></highlight></codeline>
+<codeline lineno="198"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>avail<sp/>=<sp/><ref refid="syn__ringbuf_8c_1a9fd254d962f847f53f80086f211f699e" kindref="member">syn_ringbuf_count</ref>(rb);</highlight></codeline>
+<codeline lineno="199"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(len<sp/>&gt;<sp/>avail)<sp/>{</highlight></codeline>
+<codeline lineno="200"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>len<sp/>=<sp/>avail;</highlight></codeline>
+<codeline lineno="201"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="202"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(len<sp/>==<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="203"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0;</highlight></codeline>
+<codeline lineno="204"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="205"><highlight class="normal"></highlight></codeline>
+<codeline lineno="206"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>tail<sp/>=<sp/><ref refid="syn__barrier_8h_1a3910188c1e4ab3953dd7a9c2ff88e9e6" kindref="member">SYN_LOAD_ACQUIRE</ref>(&amp;rb-&gt;<ref refid="structSYN__RingBuf_1a88771e9b1be86542fb6f9e3a54026520" kindref="member">tail</ref>);</highlight></codeline>
+<codeline lineno="207"><highlight class="normal"></highlight></codeline>
+<codeline lineno="208"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Bytes<sp/>from<sp/>tail<sp/>to<sp/>end<sp/>of<sp/>backing<sp/>array<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="209"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>to_end<sp/>=<sp/>rb-&gt;<ref refid="structSYN__RingBuf_1a250ab6d10a30dda826b457b878145c3b" kindref="member">size</ref><sp/>-<sp/>tail;</highlight></codeline>
+<codeline lineno="210"><highlight class="normal"></highlight></codeline>
+<codeline lineno="211"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(len<sp/>&lt;=<sp/>to_end)<sp/>{</highlight></codeline>
+<codeline lineno="212"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>No<sp/>wrap<sp/>needed<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="213"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>memcpy(data,<sp/>&amp;rb-&gt;<ref refid="structSYN__RingBuf_1a8ff3e6638e0aa930f3f80077fb7a1220" kindref="member">buf</ref>[tail],<sp/>len);</highlight></codeline>
+<codeline lineno="214"><highlight class="normal"><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="215"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Two-part<sp/>copy<sp/>across<sp/>the<sp/>wrap<sp/>boundary<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="216"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>memcpy(data,<sp/>&amp;rb-&gt;<ref refid="structSYN__RingBuf_1a8ff3e6638e0aa930f3f80077fb7a1220" kindref="member">buf</ref>[tail],<sp/>to_end);</highlight></codeline>
+<codeline lineno="217"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>memcpy(data<sp/>+<sp/>to_end,<sp/>&amp;rb-&gt;<ref refid="structSYN__RingBuf_1a8ff3e6638e0aa930f3f80077fb7a1220" kindref="member">buf</ref>[0],<sp/>len<sp/>-<sp/>to_end);</highlight></codeline>
+<codeline lineno="218"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="219"><highlight class="normal"></highlight></codeline>
+<codeline lineno="220"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Tail<sp/>is<sp/>NOT<sp/>advanced<sp/>—<sp/>this<sp/>is<sp/>a<sp/>peek,<sp/>not<sp/>a<sp/>consume<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="221"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>len;</highlight></codeline>
+<codeline lineno="222"><highlight class="normal">}</highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/util/syn_ringbuf.c"/>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,525 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__sensor__fusion_8c" kind="file" language="C++">
+    <compoundname>syn_sensor_fusion.c</compoundname>
+    <includes refid="syn__sensor__fusion_8h" local="yes">syn_sensor_fusion.h</includes>
+    <includes refid="syn__assert_8h" local="yes">../util/syn_assert.h</includes>
+    <includes refid="syn__matrix_8h" local="yes">../util/syn_matrix.h</includes>
+    <includes local="no">string.h</includes>
+    <incdepgraph>
+      <node id="8">
+        <label>../common/syn_compiler.h</label>
+        <link refid="syn__compiler_8h"/>
+      </node>
+      <node id="3">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/sensor/syn_sensor_fusion.c</label>
+        <link refid="syn__sensor__fusion_8c"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>syn_sensor_fusion.h</label>
+        <link refid="syn__sensor__fusion_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>../util/syn_assert.h</label>
+        <link refid="syn__assert_8h"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="9">
+        <label>../util/syn_matrix.h</label>
+        <link refid="syn__matrix_8h"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>../util/syn_qmath.h</label>
+        <link refid="syn__qmath_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="10">
+        <label>stdbool.h</label>
+      </node>
+      <node id="5">
+        <label>stddef.h</label>
+      </node>
+      <node id="4">
+        <label>stdint.h</label>
+      </node>
+      <node id="11">
+        <label>string.h</label>
+      </node>
+    </incdepgraph>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__sensor__fusion_8c_1a0b0de28bc580fd154c770f9867f55692" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_sensor_fusion_init</definition>
+        <argsstring>(SYN_SensorFusion *f, q16_t Kp, q16_t Ki, q16_t dt)</argsstring>
+        <name>syn_sensor_fusion_init</name>
+        <param>
+          <type><ref refid="structSYN__SensorFusion" kindref="compound">SYN_SensorFusion</ref> *</type>
+          <declname>f</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+          <declname>Kp</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+          <declname>Ki</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+          <declname>dt</declname>
+        </param>
+        <briefdescription>
+<para>Initialize the IMU sensor fusion filter. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>f</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Filter instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>Kp</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Proportional error gain (e.g., Q16_FROM_FLOAT(2.0)). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>Ki</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Integral error gain (e.g., Q16_FROM_FLOAT(0.005)). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dt</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Sampling interval in seconds (e.g., Q16_FROM_FLOAT(0.01) for 100 Hz). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/sensor/syn_sensor_fusion.c" line="11" column="6" bodyfile="src/syntropic/sensor/syn_sensor_fusion.c" bodystart="11" bodyend="24"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__sensor__fusion_8c_1aa1be597aba889cfe21d04b8db8249993" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_sensor_fusion_reset</definition>
+        <argsstring>(SYN_SensorFusion *f)</argsstring>
+        <name>syn_sensor_fusion_reset</name>
+        <param>
+          <type><ref refid="structSYN__SensorFusion" kindref="compound">SYN_SensorFusion</ref> *</type>
+          <declname>f</declname>
+        </param>
+        <briefdescription>
+<para>Reset filter state to initial identity orientation (q = [1, 0, 0, 0]). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>f</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Filter instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/sensor/syn_sensor_fusion.c" line="26" column="6" bodyfile="src/syntropic/sensor/syn_sensor_fusion.c" bodystart="26" bodyend="37"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__sensor__fusion_8c_1ab134c4aa730b51efc58d61cc147ae5ae" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_sensor_fusion_update</definition>
+        <argsstring>(SYN_SensorFusion *f, q16_t gx, q16_t gy, q16_t gz, q16_t ax, q16_t ay, q16_t az)</argsstring>
+        <name>syn_sensor_fusion_update</name>
+        <param>
+          <type><ref refid="structSYN__SensorFusion" kindref="compound">SYN_SensorFusion</ref> *</type>
+          <declname>f</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+          <declname>gx</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+          <declname>gy</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+          <declname>gz</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+          <declname>ax</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+          <declname>ay</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+          <declname>az</declname>
+        </param>
+        <briefdescription>
+<para>Update orientation estimate using 6-axis IMU sample. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>f</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Filter instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>gx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Gyroscope X rate in rad/s (Q16.16). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>gy</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Gyroscope Y rate in rad/s (Q16.16). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>gz</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Gyroscope Z rate in rad/s (Q16.16). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>ax</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Accelerometer X acceleration in g or m/s² (Q16.16). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>ay</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Accelerometer Y acceleration in g or m/s² (Q16.16). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>az</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Accelerometer Z acceleration in g or m/s² (Q16.16). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_INVALID_PARAM if NULL. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/sensor/syn_sensor_fusion.c" line="39" column="12" bodyfile="src/syntropic/sensor/syn_sensor_fusion.c" bodystart="39" bodyend="126"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__sensor__fusion_8c_1a43ddebd6753abe85ec67560f6d8ed810" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_sensor_fusion_get_quaternion</definition>
+        <argsstring>(const SYN_SensorFusion *f, SYN_Quaternion *q)</argsstring>
+        <name>syn_sensor_fusion_get_quaternion</name>
+        <param>
+          <type>const <ref refid="structSYN__SensorFusion" kindref="compound">SYN_SensorFusion</ref> *</type>
+          <declname>f</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__Quaternion" kindref="compound">SYN_Quaternion</ref> *</type>
+          <declname>q</declname>
+        </param>
+        <briefdescription>
+<para>Retrieve current quaternion orientation estimate. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>f</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Filter instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>q</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output quaternion pointer. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_INVALID_PARAM if NULL. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/sensor/syn_sensor_fusion.c" line="128" column="12" bodyfile="src/syntropic/sensor/syn_sensor_fusion.c" bodystart="128" bodyend="133"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__sensor__fusion_8c_1aba745a48742a5f9a95b73fe273981a56" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_sensor_fusion_get_euler</definition>
+        <argsstring>(const SYN_SensorFusion *f, SYN_EulerAngles *euler)</argsstring>
+        <name>syn_sensor_fusion_get_euler</name>
+        <param>
+          <type>const <ref refid="structSYN__SensorFusion" kindref="compound">SYN_SensorFusion</ref> *</type>
+          <declname>f</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__EulerAngles" kindref="compound">SYN_EulerAngles</ref> *</type>
+          <declname>euler</declname>
+        </param>
+        <briefdescription>
+<para>Retrieve current Euler attitude angles (Roll, Pitch, Yaw). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>f</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Filter instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>euler</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output Euler angles pointer. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_INVALID_PARAM if NULL. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/sensor/syn_sensor_fusion.c" line="135" column="12" bodyfile="src/syntropic/sensor/syn_sensor_fusion.c" bodystart="135" bodyend="159"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>6-DOF IMU Mahony Sensor Fusion &amp; AHRS Filter implementation. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__sensor__fusion_8h" kindref="compound">syn_sensor_fusion.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../util/syn_assert.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../util/syn_matrix.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;string.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__sensor__fusion_8c_1a0b0de28bc580fd154c770f9867f55692" kindref="member">syn_sensor_fusion_init</ref>(<ref refid="structSYN__SensorFusion" kindref="compound">SYN_SensorFusion</ref><sp/>*f,<sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>Kp,<sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>Ki,<sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>dt)</highlight></codeline>
+<codeline lineno="12"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="13"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(f<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"><sp/><sp/><sp/><sp/>memset(f,<sp/>0,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(*f));</highlight></codeline>
+<codeline lineno="16"><highlight class="normal"><sp/><sp/><sp/><sp/>f-&gt;<ref refid="structSYN__SensorFusion_1a5aeeefbd12b3ed65dbb0f782dbbd6a07" kindref="member">Kp</ref><sp/>=<sp/>Kp;</highlight></codeline>
+<codeline lineno="17"><highlight class="normal"><sp/><sp/><sp/><sp/>f-&gt;<ref refid="structSYN__SensorFusion_1a30beaa4e85b55632e3e4fc5152d9e875" kindref="member">Ki</ref><sp/>=<sp/>Ki;</highlight></codeline>
+<codeline lineno="18"><highlight class="normal"><sp/><sp/><sp/><sp/>f-&gt;<ref refid="structSYN__SensorFusion_1a42fa7bf2eb981534014cbaa1e1b087e7" kindref="member">dt</ref><sp/>=<sp/>(dt<sp/>&gt;<sp/>0)<sp/>?<sp/>dt<sp/>:<sp/><ref refid="syn__qmath_8h_1a6fb4c3fddeda3a2e145765b2e69af7fc" kindref="member">Q16_FROM_FLOAT</ref>(0.01);<sp/></highlight><highlight class="comment">/*<sp/>Default<sp/>100<sp/>Hz<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"><sp/><sp/><sp/><sp/>f-&gt;<ref refid="structSYN__SensorFusion_1a41d3b93a449fc0745e933a84b3bc7705" kindref="member">q</ref>.<ref refid="structSYN__Quaternion_1a86ce05e51a9e649c79aa69b6f1d11996" kindref="member">w</ref><sp/>=<sp/><ref refid="syn__qmath_8h_1a393bf569f282debd95081de04610eb4c" kindref="member">Q16_ONE</ref>;</highlight></codeline>
+<codeline lineno="21"><highlight class="normal"><sp/><sp/><sp/><sp/>f-&gt;<ref refid="structSYN__SensorFusion_1a41d3b93a449fc0745e933a84b3bc7705" kindref="member">q</ref>.<ref refid="structSYN__Quaternion_1a342bc8d41d620103ff3a181a54422338" kindref="member">x</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="22"><highlight class="normal"><sp/><sp/><sp/><sp/>f-&gt;<ref refid="structSYN__SensorFusion_1a41d3b93a449fc0745e933a84b3bc7705" kindref="member">q</ref>.<ref refid="structSYN__Quaternion_1a72c47dbb5280aaf1a028c4941a11a770" kindref="member">y</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="23"><highlight class="normal"><sp/><sp/><sp/><sp/>f-&gt;<ref refid="structSYN__SensorFusion_1a41d3b93a449fc0745e933a84b3bc7705" kindref="member">q</ref>.<ref refid="structSYN__Quaternion_1ab405c0de61b192cc87b4d2f828abe5c7" kindref="member">z</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="24"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__sensor__fusion_8c_1aa1be597aba889cfe21d04b8db8249993" kindref="member">syn_sensor_fusion_reset</ref>(<ref refid="structSYN__SensorFusion" kindref="compound">SYN_SensorFusion</ref><sp/>*f)</highlight></codeline>
+<codeline lineno="27"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="28"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(f<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"><sp/><sp/><sp/><sp/>f-&gt;<ref refid="structSYN__SensorFusion_1a41d3b93a449fc0745e933a84b3bc7705" kindref="member">q</ref>.<ref refid="structSYN__Quaternion_1a86ce05e51a9e649c79aa69b6f1d11996" kindref="member">w</ref><sp/>=<sp/><ref refid="syn__qmath_8h_1a393bf569f282debd95081de04610eb4c" kindref="member">Q16_ONE</ref>;</highlight></codeline>
+<codeline lineno="31"><highlight class="normal"><sp/><sp/><sp/><sp/>f-&gt;<ref refid="structSYN__SensorFusion_1a41d3b93a449fc0745e933a84b3bc7705" kindref="member">q</ref>.<ref refid="structSYN__Quaternion_1a342bc8d41d620103ff3a181a54422338" kindref="member">x</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="32"><highlight class="normal"><sp/><sp/><sp/><sp/>f-&gt;<ref refid="structSYN__SensorFusion_1a41d3b93a449fc0745e933a84b3bc7705" kindref="member">q</ref>.<ref refid="structSYN__Quaternion_1a72c47dbb5280aaf1a028c4941a11a770" kindref="member">y</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="33"><highlight class="normal"><sp/><sp/><sp/><sp/>f-&gt;<ref refid="structSYN__SensorFusion_1a41d3b93a449fc0745e933a84b3bc7705" kindref="member">q</ref>.<ref refid="structSYN__Quaternion_1ab405c0de61b192cc87b4d2f828abe5c7" kindref="member">z</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="34"><highlight class="normal"><sp/><sp/><sp/><sp/>f-&gt;<ref refid="structSYN__SensorFusion_1a544fd05788a9cb0907efe9ae9d66d331" kindref="member">e_int</ref>[0]<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="35"><highlight class="normal"><sp/><sp/><sp/><sp/>f-&gt;<ref refid="structSYN__SensorFusion_1a544fd05788a9cb0907efe9ae9d66d331" kindref="member">e_int</ref>[1]<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="36"><highlight class="normal"><sp/><sp/><sp/><sp/>f-&gt;<ref refid="structSYN__SensorFusion_1a544fd05788a9cb0907efe9ae9d66d331" kindref="member">e_int</ref>[2]<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="37"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__sensor__fusion_8c_1ab134c4aa730b51efc58d61cc147ae5ae" kindref="member">syn_sensor_fusion_update</ref>(<ref refid="structSYN__SensorFusion" kindref="compound">SYN_SensorFusion</ref><sp/>*f,<sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>gx,<sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>gy,<sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>gz,</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>ax,<sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>ay,<sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>az)</highlight></codeline>
+<codeline lineno="41"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(f<sp/>==<sp/>NULL)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>qw<sp/>=<sp/>f-&gt;<ref refid="structSYN__SensorFusion_1a41d3b93a449fc0745e933a84b3bc7705" kindref="member">q</ref>.<ref refid="structSYN__Quaternion_1a86ce05e51a9e649c79aa69b6f1d11996" kindref="member">w</ref>;</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>qx<sp/>=<sp/>f-&gt;<ref refid="structSYN__SensorFusion_1a41d3b93a449fc0745e933a84b3bc7705" kindref="member">q</ref>.<ref refid="structSYN__Quaternion_1a342bc8d41d620103ff3a181a54422338" kindref="member">x</ref>;</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>qy<sp/>=<sp/>f-&gt;<ref refid="structSYN__SensorFusion_1a41d3b93a449fc0745e933a84b3bc7705" kindref="member">q</ref>.<ref refid="structSYN__Quaternion_1a72c47dbb5280aaf1a028c4941a11a770" kindref="member">y</ref>;</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>qz<sp/>=<sp/>f-&gt;<ref refid="structSYN__SensorFusion_1a41d3b93a449fc0745e933a84b3bc7705" kindref="member">q</ref>.<ref refid="structSYN__Quaternion_1ab405c0de61b192cc87b4d2f828abe5c7" kindref="member">z</ref>;</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"></highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Compute<sp/>accelerometer<sp/>magnitude<sp/>squared<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/><sp/><sp/>int64_t<sp/>a_sq<sp/>=<sp/>((int64_t)ax<sp/>*<sp/>ax)<sp/>+<sp/>((int64_t)ay<sp/>*<sp/>ay)<sp/>+<sp/>((int64_t)az<sp/>*<sp/>az);</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><sp/><sp/><sp/><sp/>a_sq<sp/>&gt;&gt;=<sp/><ref refid="syn__qmath_8h_1a0a06e0f48f9cc549761d6ab0ea368627" kindref="member">Q16_SHIFT</ref>;</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"></highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(a_sq<sp/>&gt;<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>a_norm<sp/>=<sp/><ref refid="syn__qmath_8c_1adb640d74128466ba9249e34637389a30" kindref="member">q16_sqrt</ref>((<ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref>)a_sq);</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(a_norm<sp/>&gt;<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Normalize<sp/>accelerometer<sp/>measurements<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ax<sp/>=<sp/><ref refid="syn__qmath_8h_1a1103d3b63cffa202284e7a12eeada585" kindref="member">q16_div</ref>(ax,<sp/>a_norm);</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ay<sp/>=<sp/><ref refid="syn__qmath_8h_1a1103d3b63cffa202284e7a12eeada585" kindref="member">q16_div</ref>(ay,<sp/>a_norm);</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>az<sp/>=<sp/><ref refid="syn__qmath_8h_1a1103d3b63cffa202284e7a12eeada585" kindref="member">q16_div</ref>(az,<sp/>a_norm);</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"></highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Estimated<sp/>direction<sp/>of<sp/>gravity<sp/>vector<sp/>from<sp/>current<sp/>quaternion<sp/>state<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="62"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>vx<sp/>=<sp/>2*(qx*qz<sp/>-<sp/>qw*qy)<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="63"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>vx<sp/>=<sp/><ref refid="syn__qmath_8h_1a9c59677a95516b0b1f571520a670dfb0" kindref="member">q16_mul</ref>(<ref refid="syn__qmath_8h_1a403814e6ece6021eaba034176496dbae" kindref="member">Q16_FROM_INT</ref>(2),<sp/><ref refid="syn__qmath_8h_1a9c59677a95516b0b1f571520a670dfb0" kindref="member">q16_mul</ref>(qx,<sp/>qz)<sp/>-<sp/><ref refid="syn__qmath_8h_1a9c59677a95516b0b1f571520a670dfb0" kindref="member">q16_mul</ref>(qw,<sp/>qy));</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>vy<sp/>=<sp/>2*(qw*qx<sp/>+<sp/>qy*qz)<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>vy<sp/>=<sp/><ref refid="syn__qmath_8h_1a9c59677a95516b0b1f571520a670dfb0" kindref="member">q16_mul</ref>(<ref refid="syn__qmath_8h_1a403814e6ece6021eaba034176496dbae" kindref="member">Q16_FROM_INT</ref>(2),<sp/><ref refid="syn__qmath_8h_1a9c59677a95516b0b1f571520a670dfb0" kindref="member">q16_mul</ref>(qw,<sp/>qx)<sp/>+<sp/><ref refid="syn__qmath_8h_1a9c59677a95516b0b1f571520a670dfb0" kindref="member">q16_mul</ref>(qy,<sp/>qz));</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>vz<sp/>=<sp/>qw^2<sp/>-<sp/>qx^2<sp/>-<sp/>qy^2<sp/>+<sp/>qz^2<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>vz<sp/>=<sp/><ref refid="syn__qmath_8h_1a9c59677a95516b0b1f571520a670dfb0" kindref="member">q16_mul</ref>(qw,<sp/>qw)<sp/>-<sp/><ref refid="syn__qmath_8h_1a9c59677a95516b0b1f571520a670dfb0" kindref="member">q16_mul</ref>(qx,<sp/>qx)<sp/>-<sp/><ref refid="syn__qmath_8h_1a9c59677a95516b0b1f571520a670dfb0" kindref="member">q16_mul</ref>(qy,<sp/>qy)<sp/>+<sp/><ref refid="syn__qmath_8h_1a9c59677a95516b0b1f571520a670dfb0" kindref="member">q16_mul</ref>(qz,<sp/>qz);</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"></highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Cross<sp/>product<sp/>error<sp/>vector<sp/>e<sp/>=<sp/>a<sp/>x<sp/>v<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>a_vec[3]<sp/>=<sp/>{ax,<sp/>ay,<sp/>az};</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>v_vec[3]<sp/>=<sp/>{vx,<sp/>vy,<sp/>vz};</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>e_vec[3];</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__matrix_8c_1a34fec05e9d1ecc90504b26e4d2c3f8c4" kindref="member">syn_vec3_cross</ref>(a_vec,<sp/>v_vec,<sp/>e_vec);</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>ex<sp/>=<sp/>e_vec[0],<sp/>ey<sp/>=<sp/>e_vec[1],<sp/>ez<sp/>=<sp/>e_vec[2];</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"></highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Accumulate<sp/>integral<sp/>error<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(f-&gt;<ref refid="structSYN__SensorFusion_1a30beaa4e85b55632e3e4fc5152d9e875" kindref="member">Ki</ref><sp/>&gt;<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>f-&gt;<ref refid="structSYN__SensorFusion_1a544fd05788a9cb0907efe9ae9d66d331" kindref="member">e_int</ref>[0]<sp/>+=<sp/><ref refid="syn__qmath_8h_1a9c59677a95516b0b1f571520a670dfb0" kindref="member">q16_mul</ref>(ex,<sp/>f-&gt;<ref refid="structSYN__SensorFusion_1a42fa7bf2eb981534014cbaa1e1b087e7" kindref="member">dt</ref>);</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>f-&gt;<ref refid="structSYN__SensorFusion_1a544fd05788a9cb0907efe9ae9d66d331" kindref="member">e_int</ref>[1]<sp/>+=<sp/><ref refid="syn__qmath_8h_1a9c59677a95516b0b1f571520a670dfb0" kindref="member">q16_mul</ref>(ey,<sp/>f-&gt;<ref refid="structSYN__SensorFusion_1a42fa7bf2eb981534014cbaa1e1b087e7" kindref="member">dt</ref>);</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>f-&gt;<ref refid="structSYN__SensorFusion_1a544fd05788a9cb0907efe9ae9d66d331" kindref="member">e_int</ref>[2]<sp/>+=<sp/><ref refid="syn__qmath_8h_1a9c59677a95516b0b1f571520a670dfb0" kindref="member">q16_mul</ref>(ez,<sp/>f-&gt;<ref refid="structSYN__SensorFusion_1a42fa7bf2eb981534014cbaa1e1b087e7" kindref="member">dt</ref>);</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>gx<sp/>+=<sp/><ref refid="syn__qmath_8h_1a9c59677a95516b0b1f571520a670dfb0" kindref="member">q16_mul</ref>(f-&gt;<ref refid="structSYN__SensorFusion_1a30beaa4e85b55632e3e4fc5152d9e875" kindref="member">Ki</ref>,<sp/>f-&gt;<ref refid="structSYN__SensorFusion_1a544fd05788a9cb0907efe9ae9d66d331" kindref="member">e_int</ref>[0]);</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>gy<sp/>+=<sp/><ref refid="syn__qmath_8h_1a9c59677a95516b0b1f571520a670dfb0" kindref="member">q16_mul</ref>(f-&gt;<ref refid="structSYN__SensorFusion_1a30beaa4e85b55632e3e4fc5152d9e875" kindref="member">Ki</ref>,<sp/>f-&gt;<ref refid="structSYN__SensorFusion_1a544fd05788a9cb0907efe9ae9d66d331" kindref="member">e_int</ref>[1]);</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>gz<sp/>+=<sp/><ref refid="syn__qmath_8h_1a9c59677a95516b0b1f571520a670dfb0" kindref="member">q16_mul</ref>(f-&gt;<ref refid="structSYN__SensorFusion_1a30beaa4e85b55632e3e4fc5152d9e875" kindref="member">Ki</ref>,<sp/>f-&gt;<ref refid="structSYN__SensorFusion_1a544fd05788a9cb0907efe9ae9d66d331" kindref="member">e_int</ref>[2]);</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"></highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Apply<sp/>proportional<sp/>feedback<sp/>to<sp/>gyro<sp/>rates<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(f-&gt;<ref refid="structSYN__SensorFusion_1a5aeeefbd12b3ed65dbb0f782dbbd6a07" kindref="member">Kp</ref><sp/>&gt;<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>gx<sp/>+=<sp/><ref refid="syn__qmath_8h_1a9c59677a95516b0b1f571520a670dfb0" kindref="member">q16_mul</ref>(f-&gt;<ref refid="structSYN__SensorFusion_1a5aeeefbd12b3ed65dbb0f782dbbd6a07" kindref="member">Kp</ref>,<sp/>ex);</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>gy<sp/>+=<sp/><ref refid="syn__qmath_8h_1a9c59677a95516b0b1f571520a670dfb0" kindref="member">q16_mul</ref>(f-&gt;<ref refid="structSYN__SensorFusion_1a5aeeefbd12b3ed65dbb0f782dbbd6a07" kindref="member">Kp</ref>,<sp/>ey);</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>gz<sp/>+=<sp/><ref refid="syn__qmath_8h_1a9c59677a95516b0b1f571520a670dfb0" kindref="member">q16_mul</ref>(f-&gt;<ref refid="structSYN__SensorFusion_1a5aeeefbd12b3ed65dbb0f782dbbd6a07" kindref="member">Kp</ref>,<sp/>ez);</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"></highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Integrate<sp/>quaternion<sp/>rate<sp/>of<sp/>change:<sp/>q_dot<sp/>=<sp/>0.5<sp/>*<sp/>q<sp/>*<sp/>omega<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>half_dt<sp/>=<sp/>f-&gt;<ref refid="structSYN__SensorFusion_1a42fa7bf2eb981534014cbaa1e1b087e7" kindref="member">dt</ref><sp/>&gt;&gt;<sp/>1;</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"></highlight></codeline>
+<codeline lineno="98"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>dqw<sp/>=<sp/><ref refid="syn__qmath_8h_1a9c59677a95516b0b1f571520a670dfb0" kindref="member">q16_mul</ref>(-<ref refid="syn__qmath_8h_1a9c59677a95516b0b1f571520a670dfb0" kindref="member">q16_mul</ref>(qx,<sp/>gx)<sp/>-<sp/><ref refid="syn__qmath_8h_1a9c59677a95516b0b1f571520a670dfb0" kindref="member">q16_mul</ref>(qy,<sp/>gy)<sp/>-<sp/><ref refid="syn__qmath_8h_1a9c59677a95516b0b1f571520a670dfb0" kindref="member">q16_mul</ref>(qz,<sp/>gz),<sp/>half_dt);</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>dqx<sp/>=<sp/><ref refid="syn__qmath_8h_1a9c59677a95516b0b1f571520a670dfb0" kindref="member">q16_mul</ref>(<sp/><ref refid="syn__qmath_8h_1a9c59677a95516b0b1f571520a670dfb0" kindref="member">q16_mul</ref>(qw,<sp/>gx)<sp/>+<sp/><ref refid="syn__qmath_8h_1a9c59677a95516b0b1f571520a670dfb0" kindref="member">q16_mul</ref>(qy,<sp/>gz)<sp/>-<sp/><ref refid="syn__qmath_8h_1a9c59677a95516b0b1f571520a670dfb0" kindref="member">q16_mul</ref>(qz,<sp/>gy),<sp/>half_dt);</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>dqy<sp/>=<sp/><ref refid="syn__qmath_8h_1a9c59677a95516b0b1f571520a670dfb0" kindref="member">q16_mul</ref>(<sp/><ref refid="syn__qmath_8h_1a9c59677a95516b0b1f571520a670dfb0" kindref="member">q16_mul</ref>(qw,<sp/>gy)<sp/>-<sp/><ref refid="syn__qmath_8h_1a9c59677a95516b0b1f571520a670dfb0" kindref="member">q16_mul</ref>(qx,<sp/>gz)<sp/>+<sp/><ref refid="syn__qmath_8h_1a9c59677a95516b0b1f571520a670dfb0" kindref="member">q16_mul</ref>(qz,<sp/>gx),<sp/>half_dt);</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>dqz<sp/>=<sp/><ref refid="syn__qmath_8h_1a9c59677a95516b0b1f571520a670dfb0" kindref="member">q16_mul</ref>(<sp/><ref refid="syn__qmath_8h_1a9c59677a95516b0b1f571520a670dfb0" kindref="member">q16_mul</ref>(qw,<sp/>gz)<sp/>+<sp/><ref refid="syn__qmath_8h_1a9c59677a95516b0b1f571520a670dfb0" kindref="member">q16_mul</ref>(qx,<sp/>gy)<sp/>-<sp/><ref refid="syn__qmath_8h_1a9c59677a95516b0b1f571520a670dfb0" kindref="member">q16_mul</ref>(qy,<sp/>gx),<sp/>half_dt);</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"></highlight></codeline>
+<codeline lineno="103"><highlight class="normal"><sp/><sp/><sp/><sp/>qw<sp/>+=<sp/>dqw;</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/><sp/><sp/><sp/>qx<sp/>+=<sp/>dqx;</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><sp/><sp/><sp/><sp/>qy<sp/>+=<sp/>dqy;</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"><sp/><sp/><sp/><sp/>qz<sp/>+=<sp/>dqz;</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"></highlight></codeline>
+<codeline lineno="108"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Normalize<sp/>quaternion<sp/>to<sp/>preserve<sp/>unit<sp/>length<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="109"><highlight class="normal"><sp/><sp/><sp/><sp/>int64_t<sp/>q_sq<sp/>=<sp/>((int64_t)qw<sp/>*<sp/>qw)<sp/>+<sp/>((int64_t)qx<sp/>*<sp/>qx)<sp/>+<sp/>((int64_t)qy<sp/>*<sp/>qy)<sp/>+<sp/>((int64_t)qz<sp/>*<sp/>qz);</highlight></codeline>
+<codeline lineno="110"><highlight class="normal"><sp/><sp/><sp/><sp/>q_sq<sp/>&gt;&gt;=<sp/><ref refid="syn__qmath_8h_1a0a06e0f48f9cc549761d6ab0ea368627" kindref="member">Q16_SHIFT</ref>;</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>q_norm<sp/>=<sp/><ref refid="syn__qmath_8c_1adb640d74128466ba9249e34637389a30" kindref="member">q16_sqrt</ref>((<ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref>)q_sq);</highlight></codeline>
+<codeline lineno="112"><highlight class="normal"></highlight></codeline>
+<codeline lineno="113"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(q_norm<sp/>&gt;<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>qw<sp/>=<sp/><ref refid="syn__qmath_8h_1a1103d3b63cffa202284e7a12eeada585" kindref="member">q16_div</ref>(qw,<sp/>q_norm);</highlight></codeline>
+<codeline lineno="115"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>qx<sp/>=<sp/><ref refid="syn__qmath_8h_1a1103d3b63cffa202284e7a12eeada585" kindref="member">q16_div</ref>(qx,<sp/>q_norm);</highlight></codeline>
+<codeline lineno="116"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>qy<sp/>=<sp/><ref refid="syn__qmath_8h_1a1103d3b63cffa202284e7a12eeada585" kindref="member">q16_div</ref>(qy,<sp/>q_norm);</highlight></codeline>
+<codeline lineno="117"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>qz<sp/>=<sp/><ref refid="syn__qmath_8h_1a1103d3b63cffa202284e7a12eeada585" kindref="member">q16_div</ref>(qz,<sp/>q_norm);</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"></highlight></codeline>
+<codeline lineno="120"><highlight class="normal"><sp/><sp/><sp/><sp/>f-&gt;<ref refid="structSYN__SensorFusion_1a41d3b93a449fc0745e933a84b3bc7705" kindref="member">q</ref>.<ref refid="structSYN__Quaternion_1a86ce05e51a9e649c79aa69b6f1d11996" kindref="member">w</ref><sp/>=<sp/>qw;</highlight></codeline>
+<codeline lineno="121"><highlight class="normal"><sp/><sp/><sp/><sp/>f-&gt;<ref refid="structSYN__SensorFusion_1a41d3b93a449fc0745e933a84b3bc7705" kindref="member">q</ref>.<ref refid="structSYN__Quaternion_1a342bc8d41d620103ff3a181a54422338" kindref="member">x</ref><sp/>=<sp/>qx;</highlight></codeline>
+<codeline lineno="122"><highlight class="normal"><sp/><sp/><sp/><sp/>f-&gt;<ref refid="structSYN__SensorFusion_1a41d3b93a449fc0745e933a84b3bc7705" kindref="member">q</ref>.<ref refid="structSYN__Quaternion_1a72c47dbb5280aaf1a028c4941a11a770" kindref="member">y</ref><sp/>=<sp/>qy;</highlight></codeline>
+<codeline lineno="123"><highlight class="normal"><sp/><sp/><sp/><sp/>f-&gt;<ref refid="structSYN__SensorFusion_1a41d3b93a449fc0745e933a84b3bc7705" kindref="member">q</ref>.<ref refid="structSYN__Quaternion_1ab405c0de61b192cc87b4d2f828abe5c7" kindref="member">z</ref><sp/>=<sp/>qz;</highlight></codeline>
+<codeline lineno="124"><highlight class="normal"></highlight></codeline>
+<codeline lineno="125"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="126"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="127"><highlight class="normal"></highlight></codeline>
+<codeline lineno="128"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__sensor__fusion_8c_1a43ddebd6753abe85ec67560f6d8ed810" kindref="member">syn_sensor_fusion_get_quaternion</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__SensorFusion" kindref="compound">SYN_SensorFusion</ref><sp/>*f,<sp/><ref refid="structSYN__Quaternion" kindref="compound">SYN_Quaternion</ref><sp/>*q)</highlight></codeline>
+<codeline lineno="129"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="130"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(f<sp/>==<sp/>NULL<sp/>||<sp/>q<sp/>==<sp/>NULL)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="131"><highlight class="normal"><sp/><sp/><sp/><sp/>*q<sp/>=<sp/>f-&gt;<ref refid="structSYN__SensorFusion_1a41d3b93a449fc0745e933a84b3bc7705" kindref="member">q</ref>;</highlight></codeline>
+<codeline lineno="132"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="133"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="134"><highlight class="normal"></highlight></codeline>
+<codeline lineno="135"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__sensor__fusion_8c_1aba745a48742a5f9a95b73fe273981a56" kindref="member">syn_sensor_fusion_get_euler</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__SensorFusion" kindref="compound">SYN_SensorFusion</ref><sp/>*f,<sp/><ref refid="structSYN__EulerAngles" kindref="compound">SYN_EulerAngles</ref><sp/>*euler)</highlight></codeline>
+<codeline lineno="136"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="137"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(f<sp/>==<sp/>NULL<sp/>||<sp/>euler<sp/>==<sp/>NULL)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="138"><highlight class="normal"></highlight></codeline>
+<codeline lineno="139"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>qw<sp/>=<sp/>f-&gt;<ref refid="structSYN__SensorFusion_1a41d3b93a449fc0745e933a84b3bc7705" kindref="member">q</ref>.<ref refid="structSYN__Quaternion_1a86ce05e51a9e649c79aa69b6f1d11996" kindref="member">w</ref>;</highlight></codeline>
+<codeline lineno="140"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>qx<sp/>=<sp/>f-&gt;<ref refid="structSYN__SensorFusion_1a41d3b93a449fc0745e933a84b3bc7705" kindref="member">q</ref>.<ref refid="structSYN__Quaternion_1a342bc8d41d620103ff3a181a54422338" kindref="member">x</ref>;</highlight></codeline>
+<codeline lineno="141"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>qy<sp/>=<sp/>f-&gt;<ref refid="structSYN__SensorFusion_1a41d3b93a449fc0745e933a84b3bc7705" kindref="member">q</ref>.<ref refid="structSYN__Quaternion_1a72c47dbb5280aaf1a028c4941a11a770" kindref="member">y</ref>;</highlight></codeline>
+<codeline lineno="142"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>qz<sp/>=<sp/>f-&gt;<ref refid="structSYN__SensorFusion_1a41d3b93a449fc0745e933a84b3bc7705" kindref="member">q</ref>.<ref refid="structSYN__Quaternion_1ab405c0de61b192cc87b4d2f828abe5c7" kindref="member">z</ref>;</highlight></codeline>
+<codeline lineno="143"><highlight class="normal"></highlight></codeline>
+<codeline lineno="144"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Roll:<sp/>atan2(2*(qw*qx<sp/>+<sp/>qy*qz),<sp/>1<sp/>-<sp/>2*(qx^2<sp/>+<sp/>qy^2))<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="145"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>roll_num<sp/>=<sp/><ref refid="syn__qmath_8h_1a9c59677a95516b0b1f571520a670dfb0" kindref="member">q16_mul</ref>(<ref refid="syn__qmath_8h_1a403814e6ece6021eaba034176496dbae" kindref="member">Q16_FROM_INT</ref>(2),<sp/><ref refid="syn__qmath_8h_1a9c59677a95516b0b1f571520a670dfb0" kindref="member">q16_mul</ref>(qw,<sp/>qx)<sp/>+<sp/><ref refid="syn__qmath_8h_1a9c59677a95516b0b1f571520a670dfb0" kindref="member">q16_mul</ref>(qy,<sp/>qz));</highlight></codeline>
+<codeline lineno="146"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>roll_den<sp/>=<sp/><ref refid="syn__qmath_8h_1a393bf569f282debd95081de04610eb4c" kindref="member">Q16_ONE</ref><sp/>-<sp/><ref refid="syn__qmath_8h_1a9c59677a95516b0b1f571520a670dfb0" kindref="member">q16_mul</ref>(<ref refid="syn__qmath_8h_1a403814e6ece6021eaba034176496dbae" kindref="member">Q16_FROM_INT</ref>(2),<sp/><ref refid="syn__qmath_8h_1a9c59677a95516b0b1f571520a670dfb0" kindref="member">q16_mul</ref>(qx,<sp/>qx)<sp/>+<sp/><ref refid="syn__qmath_8h_1a9c59677a95516b0b1f571520a670dfb0" kindref="member">q16_mul</ref>(qy,<sp/>qy));</highlight></codeline>
+<codeline lineno="147"><highlight class="normal"><sp/><sp/><sp/><sp/>euler-&gt;<ref refid="structSYN__EulerAngles_1aba5e23f506dcbc064bbe02f97d10f315" kindref="member">roll_rad</ref><sp/>=<sp/><ref refid="syn__qmath_8c_1aaca7eaefac311fd8c7c7e23ae7ef5ba2" kindref="member">q16_atan2</ref>(roll_num,<sp/>roll_den);</highlight></codeline>
+<codeline lineno="148"><highlight class="normal"></highlight></codeline>
+<codeline lineno="149"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Pitch:<sp/>asin(2*(qw*qy<sp/>-<sp/>qz*qx))<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="150"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>pitch_sin<sp/>=<sp/><ref refid="syn__qmath_8h_1a9c59677a95516b0b1f571520a670dfb0" kindref="member">q16_mul</ref>(<ref refid="syn__qmath_8h_1a403814e6ece6021eaba034176496dbae" kindref="member">Q16_FROM_INT</ref>(2),<sp/><ref refid="syn__qmath_8h_1a9c59677a95516b0b1f571520a670dfb0" kindref="member">q16_mul</ref>(qw,<sp/>qy)<sp/>-<sp/><ref refid="syn__qmath_8h_1a9c59677a95516b0b1f571520a670dfb0" kindref="member">q16_mul</ref>(qz,<sp/>qx));</highlight></codeline>
+<codeline lineno="151"><highlight class="normal"><sp/><sp/><sp/><sp/>euler-&gt;<ref refid="structSYN__EulerAngles_1a1965d45adf9cd19475b8410972afd8d9" kindref="member">pitch_rad</ref><sp/>=<sp/><ref refid="syn__qmath_8c_1a26569b07c69a1b8ff54b7a2469f6887a" kindref="member">q16_asin</ref>(pitch_sin);</highlight></codeline>
+<codeline lineno="152"><highlight class="normal"></highlight></codeline>
+<codeline lineno="153"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Yaw:<sp/>atan2(2*(qw*qz<sp/>+<sp/>qx*qy),<sp/>1<sp/>-<sp/>2*(qy^2<sp/>+<sp/>qz^2))<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="154"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>yaw_num<sp/>=<sp/><ref refid="syn__qmath_8h_1a9c59677a95516b0b1f571520a670dfb0" kindref="member">q16_mul</ref>(<ref refid="syn__qmath_8h_1a403814e6ece6021eaba034176496dbae" kindref="member">Q16_FROM_INT</ref>(2),<sp/><ref refid="syn__qmath_8h_1a9c59677a95516b0b1f571520a670dfb0" kindref="member">q16_mul</ref>(qw,<sp/>qz)<sp/>+<sp/><ref refid="syn__qmath_8h_1a9c59677a95516b0b1f571520a670dfb0" kindref="member">q16_mul</ref>(qx,<sp/>qy));</highlight></codeline>
+<codeline lineno="155"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>yaw_den<sp/>=<sp/><ref refid="syn__qmath_8h_1a393bf569f282debd95081de04610eb4c" kindref="member">Q16_ONE</ref><sp/>-<sp/><ref refid="syn__qmath_8h_1a9c59677a95516b0b1f571520a670dfb0" kindref="member">q16_mul</ref>(<ref refid="syn__qmath_8h_1a403814e6ece6021eaba034176496dbae" kindref="member">Q16_FROM_INT</ref>(2),<sp/><ref refid="syn__qmath_8h_1a9c59677a95516b0b1f571520a670dfb0" kindref="member">q16_mul</ref>(qy,<sp/>qy)<sp/>+<sp/><ref refid="syn__qmath_8h_1a9c59677a95516b0b1f571520a670dfb0" kindref="member">q16_mul</ref>(qz,<sp/>qz));</highlight></codeline>
+<codeline lineno="156"><highlight class="normal"><sp/><sp/><sp/><sp/>euler-&gt;<ref refid="structSYN__EulerAngles_1a935cffa323900544d53c10a526181bd1" kindref="member">yaw_rad</ref><sp/>=<sp/><ref refid="syn__qmath_8c_1aaca7eaefac311fd8c7c7e23ae7ef5ba2" kindref="member">q16_atan2</ref>(yaw_num,<sp/>yaw_den);</highlight></codeline>
+<codeline lineno="157"><highlight class="normal"></highlight></codeline>
+<codeline lineno="158"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="159"><highlight class="normal">}</highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/sensor/syn_sensor_fusion.c"/>
+  </compounddef>
+</doxygen>

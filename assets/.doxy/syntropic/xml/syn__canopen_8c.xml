@@ -1,0 +1,1077 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__canopen_8c" kind="file" language="C++">
+    <compoundname>syn_canopen.c</compoundname>
+    <includes refid="syn__canopen_8h" local="yes">syntropic/proto/syn_canopen.h</includes>
+    <includes refid="syn__pack_8h" local="yes">syntropic/util/syn_pack.h</includes>
+    <includes local="no">string.h</includes>
+    <incdepgraph>
+      <node id="6">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>../drivers/syn_can.h</label>
+        <link refid="syn__can_8h"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>../port/syn_port_can.h</label>
+        <link refid="syn__port__can_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/proto/syn_canopen.c</label>
+        <link refid="syn__canopen_8c"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>syntropic/proto/syn_canopen.h</label>
+        <link refid="syn__canopen_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="9">
+        <label>syntropic/util/syn_pack.h</label>
+        <link refid="syn__pack_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>stdbool.h</label>
+      </node>
+      <node id="5">
+        <label>stddef.h</label>
+      </node>
+      <node id="3">
+        <label>stdint.h</label>
+      </node>
+      <node id="10">
+        <label>string.h</label>
+      </node>
+    </incdepgraph>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__canopen_8c_1a63c084525b5a6ca8da0d25b23c448f41" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void canopen_queue_tx</definition>
+        <argsstring>(SYN_CANOpenNode *node, uint32_t cob_id, const uint8_t *data, uint8_t len)</argsstring>
+        <name>canopen_queue_tx</name>
+        <param>
+          <type><ref refid="structSYN__CANOpenNode" kindref="compound">SYN_CANOpenNode</ref> *</type>
+          <declname>node</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>cob_id</declname>
+        </param>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>len</declname>
+        </param>
+        <briefdescription>
+<para>Helper function to queue a CAN transmit frame. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>node</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to node handle. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>cob_id</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>11-bit CAN COB-ID. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>data</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Payload data pointer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Payload length. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_canopen.c" line="18" column="13" bodyfile="src/syntropic/proto/syn_canopen.c" bodystart="18" bodyend="28"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__canopen_8c_1a55d1e4080dfb45abac6808bcaa568be8" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>const <ref refid="structSYN__CANOpenODEntry" kindref="compound">SYN_CANOpenODEntry</ref> *</type>
+        <definition>static const SYN_CANOpenODEntry * canopen_find_od</definition>
+        <argsstring>(const SYN_CANOpenNode *node, uint16_t index, uint8_t subindex)</argsstring>
+        <name>canopen_find_od</name>
+        <param>
+          <type>const <ref refid="structSYN__CANOpenNode" kindref="compound">SYN_CANOpenNode</ref> *</type>
+          <declname>node</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>index</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>subindex</declname>
+        </param>
+        <briefdescription>
+<para>Helper function to find an Object Dictionary entry. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>node</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to node handle. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>index</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>16-bit OD Index. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>subindex</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>8-bit OD Subindex. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Pointer to entry if found, NULL otherwise. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_canopen.c" line="38" column="33" bodyfile="src/syntropic/proto/syn_canopen.c" bodystart="38" bodyend="51"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__canopen_8c_1acbd6c4d439be90a8cc0c9721b0a3bb00" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void canopen_send_sdo_abort</definition>
+        <argsstring>(SYN_CANOpenNode *node, uint16_t index, uint8_t subindex, uint32_t abort_code)</argsstring>
+        <name>canopen_send_sdo_abort</name>
+        <param>
+          <type><ref refid="structSYN__CANOpenNode" kindref="compound">SYN_CANOpenNode</ref> *</type>
+          <declname>node</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>index</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>subindex</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>abort_code</declname>
+        </param>
+        <briefdescription>
+<para>Send an SDO Abort frame. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>node</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to node handle. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>index</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>16-bit OD Index. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>subindex</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>8-bit OD Subindex. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>abort_code</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>32-bit SDO Abort code. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_canopen.c" line="61" column="13" bodyfile="src/syntropic/proto/syn_canopen.c" bodystart="61" bodyend="71"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__canopen_8c_1ad32ac40001cd64a3e65ea787c0c92d19" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_canopen_init</definition>
+        <argsstring>(SYN_CANOpenNode *node, const SYN_CANOpenNodeConfig *cfg, const SYN_CANOpenODEntry *od_table, size_t od_count)</argsstring>
+        <name>syn_canopen_init</name>
+        <param>
+          <type><ref refid="structSYN__CANOpenNode" kindref="compound">SYN_CANOpenNode</ref> *</type>
+          <declname>node</declname>
+        </param>
+        <param>
+          <type>const <ref refid="structSYN__CANOpenNodeConfig" kindref="compound">SYN_CANOpenNodeConfig</ref> *</type>
+          <declname>cfg</declname>
+        </param>
+        <param>
+          <type>const <ref refid="structSYN__CANOpenODEntry" kindref="compound">SYN_CANOpenODEntry</ref> *</type>
+          <declname>od_table</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>od_count</declname>
+        </param>
+        <briefdescription>
+<para>Initialize a CANopen DS301 Node. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>node</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to node handle. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>cfg</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to node configuration. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>od_table</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Array of Object Dictionary entries. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>od_count</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of entries in od_table. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_INVALID_PARAM on invalid inputs. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_canopen.c" line="73" column="12" bodyfile="src/syntropic/proto/syn_canopen.c" bodystart="73" bodyend="98"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__canopen_8c_1a47674c7bd449ac22a236f3089ae914c7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_canopen_od_read</definition>
+        <argsstring>(SYN_CANOpenNode *node, uint16_t index, uint8_t subindex, void *buf, size_t buf_size, size_t *out_len)</argsstring>
+        <name>syn_canopen_od_read</name>
+        <param>
+          <type><ref refid="structSYN__CANOpenNode" kindref="compound">SYN_CANOpenNode</ref> *</type>
+          <declname>node</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>index</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>subindex</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>buf_size</declname>
+        </param>
+        <param>
+          <type>size_t *</type>
+          <declname>out_len</declname>
+        </param>
+        <briefdescription>
+<para>Directly read an entry from the Object Dictionary. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>node</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to node handle. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>index</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>16-bit OD Index. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>subindex</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>8-bit OD Subindex. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output buffer pointer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>buf_size</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Maximum buffer capacity. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to store read byte length. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, error code if not found or unauthorized. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_canopen.c" line="100" column="12" bodyfile="src/syntropic/proto/syn_canopen.c" bodystart="100" bodyend="128"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__canopen_8c_1a71ed1b2d60ba6affb38b0a877bcc0b72" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_canopen_od_write</definition>
+        <argsstring>(SYN_CANOpenNode *node, uint16_t index, uint8_t subindex, const void *data, size_t len)</argsstring>
+        <name>syn_canopen_od_write</name>
+        <param>
+          <type><ref refid="structSYN__CANOpenNode" kindref="compound">SYN_CANOpenNode</ref> *</type>
+          <declname>node</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>index</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>subindex</declname>
+        </param>
+        <param>
+          <type>const void *</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>len</declname>
+        </param>
+        <briefdescription>
+<para>Directly write an entry to the Object Dictionary. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>node</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to node handle. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>index</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>16-bit OD Index. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>subindex</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>8-bit OD Subindex. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>data</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Input data pointer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Input data length in bytes. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, error code if not found or unauthorized. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_canopen.c" line="130" column="12" bodyfile="src/syntropic/proto/syn_canopen.c" bodystart="130" bodyend="156"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__canopen_8c_1ae4d6a341b7d9ec4a07c0d61dd0bb0ae2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_canopen_process_rx</definition>
+        <argsstring>(SYN_CANOpenNode *node, uint32_t cob_id, const uint8_t *data, uint8_t len)</argsstring>
+        <name>syn_canopen_process_rx</name>
+        <param>
+          <type><ref refid="structSYN__CANOpenNode" kindref="compound">SYN_CANOpenNode</ref> *</type>
+          <declname>node</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>cob_id</declname>
+        </param>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>len</declname>
+        </param>
+        <briefdescription>
+<para>Process an incoming CAN frame. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>node</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to node handle. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>cob_id</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Received 11-bit CAN COB-ID. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>data</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Payload buffer (up to 8 bytes). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Payload length. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, error code on failure. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_canopen.c" line="158" column="12" bodyfile="src/syntropic/proto/syn_canopen.c" bodystart="158" bodyend="290"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__canopen_8c_1ac5134d7fa124c4b7ce33c2f75b434263" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_canopen_update</definition>
+        <argsstring>(SYN_CANOpenNode *node, uint32_t dt_ms)</argsstring>
+        <name>syn_canopen_update</name>
+        <param>
+          <type><ref refid="structSYN__CANOpenNode" kindref="compound">SYN_CANOpenNode</ref> *</type>
+          <declname>node</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>dt_ms</declname>
+        </param>
+        <briefdescription>
+<para>Periodic timer update (call from tick thread or loop). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>node</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to node handle. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dt_ms</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Elapsed time since last update in milliseconds. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_canopen.c" line="292" column="12" bodyfile="src/syntropic/proto/syn_canopen.c" bodystart="292" bodyend="324"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__canopen_8c_1a2c9a1846aefee98bf4bf2ded299517df" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_canopen_send_emcy</definition>
+        <argsstring>(SYN_CANOpenNode *node, uint16_t err_code, uint8_t err_reg)</argsstring>
+        <name>syn_canopen_send_emcy</name>
+        <param>
+          <type><ref refid="structSYN__CANOpenNode" kindref="compound">SYN_CANOpenNode</ref> *</type>
+          <declname>node</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>err_code</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>err_reg</declname>
+        </param>
+        <briefdescription>
+<para>Transmit an Emergency (EMCY) message. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>node</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to node handle. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>err_code</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>16-bit CANopen Emergency Error Code. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>err_reg</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>8-bit Error Register value (Index 0x1001). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_INVALID_PARAM on invalid parameters. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_canopen.c" line="326" column="12" bodyfile="src/syntropic/proto/syn_canopen.c" bodystart="326" bodyend="340"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__canopen_8c_1a9bb37f387484cec8815e54a3e1b0b3b2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_canopen_get_tx</definition>
+        <argsstring>(SYN_CANOpenNode *node, uint32_t *out_cob_id, uint8_t *out_data, uint8_t *out_len)</argsstring>
+        <name>syn_canopen_get_tx</name>
+        <param>
+          <type><ref refid="structSYN__CANOpenNode" kindref="compound">SYN_CANOpenNode</ref> *</type>
+          <declname>node</declname>
+        </param>
+        <param>
+          <type>uint32_t *</type>
+          <declname>out_cob_id</declname>
+        </param>
+        <param>
+          <type>uint8_t *</type>
+          <declname>out_data</declname>
+        </param>
+        <param>
+          <type>uint8_t *</type>
+          <declname>out_len</declname>
+        </param>
+        <briefdescription>
+<para>Retrieve pending transmit CAN frame. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>node</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to node handle. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out_cob_id</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output COB-ID pointer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out_data</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output 8-byte buffer pointer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output frame length pointer. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if a frame was popped, false if no frame pending. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_canopen.c" line="342" column="6" bodyfile="src/syntropic/proto/syn_canopen.c" bodystart="342" bodyend="364"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>CANopen DS301 Slave Protocol Engine implementation. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__canopen_8h" kindref="compound">syntropic/proto/syn_canopen.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__pack_8h" kindref="compound">syntropic/util/syn_pack.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;string.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__canopen_8c_1a63c084525b5a6ca8da0d25b23c448f41" kindref="member">canopen_queue_tx</ref>(<ref refid="structSYN__CANOpenNode" kindref="compound">SYN_CANOpenNode</ref><sp/>*node,<sp/>uint32_t<sp/>cob_id,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*data,<sp/>uint8_t<sp/>len)</highlight></codeline>
+<codeline lineno="19"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="20"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(node<sp/>==<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="21"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="22"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"><sp/><sp/><sp/><sp/>node-&gt;<ref refid="structSYN__CANOpenNode_1a27217d9bf2ff1358c2f3f986717e0ba7" kindref="member">tx_cob_id</ref><sp/>=<sp/>cob_id;</highlight></codeline>
+<codeline lineno="25"><highlight class="normal"><sp/><sp/><sp/><sp/>(void)memcpy(node-&gt;<ref refid="structSYN__CANOpenNode_1a27f944f8c7bce3271c674175ce385c30" kindref="member">tx_data</ref>,<sp/>data,<sp/>len);</highlight></codeline>
+<codeline lineno="26"><highlight class="normal"><sp/><sp/><sp/><sp/>node-&gt;<ref refid="structSYN__CANOpenNode_1ac2d8e197c5a98e9832ab6870d5a50967" kindref="member">tx_len</ref><sp/>=<sp/>len;</highlight></codeline>
+<codeline lineno="27"><highlight class="normal"><sp/><sp/><sp/><sp/>node-&gt;<ref refid="structSYN__CANOpenNode_1a5e3b23e4f42d7255d221037548d89e73" kindref="member">tx_pending</ref><sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="28"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__CANOpenODEntry" kindref="compound">SYN_CANOpenODEntry</ref><sp/>*<ref refid="syn__canopen_8c_1a55d1e4080dfb45abac6808bcaa568be8" kindref="member">canopen_find_od</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__CANOpenNode" kindref="compound">SYN_CANOpenNode</ref><sp/>*node,<sp/>uint16_t<sp/>index,<sp/>uint8_t<sp/>subindex)</highlight></codeline>
+<codeline lineno="39"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(node<sp/>==<sp/>NULL<sp/>||<sp/>node-&gt;<ref refid="structSYN__CANOpenNode_1a0c5fbcbf2ba43b8f92cc6a710e1ce19b" kindref="member">od_table</ref><sp/>==<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>NULL;</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>node-&gt;<ref refid="structSYN__CANOpenNode_1a046f549126b1bdf6a84fe3acf0ac5a67" kindref="member">od_count</ref>;<sp/>i++)<sp/>{</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(node-&gt;<ref refid="structSYN__CANOpenNode_1a0c5fbcbf2ba43b8f92cc6a710e1ce19b" kindref="member">od_table</ref>[i].<ref refid="structSYN__CANOpenODEntry_1ab3a00ec7718a478469e6ee0155f407a4" kindref="member">index</ref><sp/>==<sp/>index<sp/>&amp;&amp;<sp/>node-&gt;<ref refid="structSYN__CANOpenNode_1a0c5fbcbf2ba43b8f92cc6a710e1ce19b" kindref="member">od_table</ref>[i].<ref refid="structSYN__CANOpenODEntry_1ae36f13f52325002e4629e0ac551debb6" kindref="member">subindex</ref><sp/>==<sp/>subindex)<sp/>{</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>&amp;node-&gt;<ref refid="structSYN__CANOpenNode_1a0c5fbcbf2ba43b8f92cc6a710e1ce19b" kindref="member">od_table</ref>[i];</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"></highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>NULL;</highlight></codeline>
+<codeline lineno="51"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"></highlight></codeline>
+<codeline lineno="61"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__canopen_8c_1acbd6c4d439be90a8cc0c9721b0a3bb00" kindref="member">canopen_send_sdo_abort</ref>(<ref refid="structSYN__CANOpenNode" kindref="compound">SYN_CANOpenNode</ref><sp/>*node,<sp/>uint16_t<sp/>index,<sp/>uint8_t<sp/>subindex,<sp/>uint32_t<sp/>abort_code)</highlight></codeline>
+<codeline lineno="62"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>payload[8];</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>pos<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__pack_8h_1aac40f9b22618ee05925bb28b93f1cc6d" kindref="member">syn_pack_u8</ref>(payload,<sp/>&amp;pos,<sp/>0x80U);</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__pack_8h_1abfc3cc697bedf7605f54285824f4b99d" kindref="member">syn_pack_u16_le</ref>(payload,<sp/>&amp;pos,<sp/>index);</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__pack_8h_1aac40f9b22618ee05925bb28b93f1cc6d" kindref="member">syn_pack_u8</ref>(payload,<sp/>&amp;pos,<sp/>subindex);</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__pack_8h_1ae709f863d044ff4d6261b9ecf0d7ac1b" kindref="member">syn_pack_u32_le</ref>(payload,<sp/>&amp;pos,<sp/>abort_code);</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"></highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__canopen_8c_1a63c084525b5a6ca8da0d25b23c448f41" kindref="member">canopen_queue_tx</ref>(node,<sp/>0x580U<sp/>+<sp/>node-&gt;<ref refid="structSYN__CANOpenNode_1a291430f98c34d9b180ca97101a90b9ac" kindref="member">node_id</ref>,<sp/>payload,<sp/>8);</highlight></codeline>
+<codeline lineno="71"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"></highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__canopen_8c_1ad32ac40001cd64a3e65ea787c0c92d19" kindref="member">syn_canopen_init</ref>(<ref refid="structSYN__CANOpenNode" kindref="compound">SYN_CANOpenNode</ref><sp/>*node,</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__CANOpenNodeConfig" kindref="compound">SYN_CANOpenNodeConfig</ref><sp/>*cfg,</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__CANOpenODEntry" kindref="compound">SYN_CANOpenODEntry</ref><sp/>*od_table,</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>od_count)</highlight></codeline>
+<codeline lineno="77"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(node<sp/>==<sp/>NULL<sp/>||<sp/>cfg<sp/>==<sp/>NULL<sp/>||<sp/>od_table<sp/>==<sp/>NULL<sp/>||<sp/>od_count<sp/>==<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"></highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(cfg-&gt;<ref refid="structSYN__CANOpenNodeConfig_1aef30d151012e160b95f12e0d454fa4b1" kindref="member">node_id</ref><sp/>&lt;<sp/>1U<sp/>||<sp/>cfg-&gt;<ref refid="structSYN__CANOpenNodeConfig_1aef30d151012e160b95f12e0d454fa4b1" kindref="member">node_id</ref><sp/>&gt;<sp/>127U)<sp/>{</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"></highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/><sp/><sp/>(void)memset(node,<sp/>0,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(*node));</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/><sp/><sp/>node-&gt;<ref refid="structSYN__CANOpenNode_1a291430f98c34d9b180ca97101a90b9ac" kindref="member">node_id</ref><sp/>=<sp/>cfg-&gt;<ref refid="structSYN__CANOpenNodeConfig_1aef30d151012e160b95f12e0d454fa4b1" kindref="member">node_id</ref>;</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/><sp/><sp/>node-&gt;<ref refid="structSYN__CANOpenNode_1a8da59768a6325a610e235896e5244a29" kindref="member">cfg</ref><sp/>=<sp/>*cfg;</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"><sp/><sp/><sp/><sp/>node-&gt;<ref refid="structSYN__CANOpenNode_1a0c5fbcbf2ba43b8f92cc6a710e1ce19b" kindref="member">od_table</ref><sp/>=<sp/>od_table;</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"><sp/><sp/><sp/><sp/>node-&gt;<ref refid="structSYN__CANOpenNode_1a046f549126b1bdf6a84fe3acf0ac5a67" kindref="member">od_count</ref><sp/>=<sp/>od_count;</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"><sp/><sp/><sp/><sp/>node-&gt;<ref refid="structSYN__CANOpenNode_1a48492fe8c866f0f269349c1c04920224" kindref="member">nmt_state</ref><sp/>=<sp/><ref refid="syn__canopen_8h_1aa8ea75b3adc1f773be4bd97fe6f80ac8" kindref="member">SYN_CANOPEN_NMT_STATE_PREOP</ref>;</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"></highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Queue<sp/>Bootup<sp/>Message:<sp/>COB-ID<sp/>=<sp/>0x700<sp/>+<sp/>NodeID,<sp/>payload<sp/>=<sp/>0x00<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>boot_payload[1]<sp/>=<sp/>{<sp/>0x00U<sp/>};</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__canopen_8c_1a63c084525b5a6ca8da0d25b23c448f41" kindref="member">canopen_queue_tx</ref>(node,<sp/>0x700U<sp/>+<sp/>node-&gt;<ref refid="structSYN__CANOpenNode_1a291430f98c34d9b180ca97101a90b9ac" kindref="member">node_id</ref>,<sp/>boot_payload,<sp/>1);</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"></highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="98"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"></highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__canopen_8c_1a47674c7bd449ac22a236f3089ae914c7" kindref="member">syn_canopen_od_read</ref>(<ref refid="structSYN__CANOpenNode" kindref="compound">SYN_CANOpenNode</ref><sp/>*node,</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint16_t<sp/>index,</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>subindex,</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*buf,</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>buf_size,</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>*out_len)</highlight></codeline>
+<codeline lineno="106"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(node<sp/>==<sp/>NULL<sp/>||<sp/>buf<sp/>==<sp/>NULL<sp/>||<sp/>out_len<sp/>==<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="109"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="110"><highlight class="normal"></highlight></codeline>
+<codeline lineno="111"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__CANOpenODEntry" kindref="compound">SYN_CANOpenODEntry</ref><sp/>*entry<sp/>=<sp/><ref refid="syn__canopen_8c_1a55d1e4080dfb45abac6808bcaa568be8" kindref="member">canopen_find_od</ref>(node,<sp/>index,<sp/>subindex);</highlight></codeline>
+<codeline lineno="112"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(entry<sp/>==<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="113"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00acd5d2701b7cfa9fb446640ecbeb19fc9" kindref="member">SYN_ERROR</ref>;</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="115"><highlight class="normal"></highlight></codeline>
+<codeline lineno="116"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(entry-&gt;<ref refid="structSYN__CANOpenODEntry_1a4f0a2b35debad154315c5eb31369bb19" kindref="member">access</ref><sp/>==<sp/><ref refid="syn__canopen_8h_1a02d3252a68a90ec7151e601337a92bcf" kindref="member">SYN_CANOPEN_ACCESS_WO</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="117"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00acd5d2701b7cfa9fb446640ecbeb19fc9" kindref="member">SYN_ERROR</ref>;</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"></highlight></codeline>
+<codeline lineno="120"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(buf_size<sp/>&lt;<sp/>entry-&gt;size)<sp/>{</highlight></codeline>
+<codeline lineno="121"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="122"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="123"><highlight class="normal"></highlight></codeline>
+<codeline lineno="124"><highlight class="normal"><sp/><sp/><sp/><sp/>(void)memcpy(buf,<sp/>entry-&gt;<ref refid="structSYN__CANOpenODEntry_1ae0cb01c55089ca81c6e3666949773d9c" kindref="member">data_ptr</ref>,<sp/>entry-&gt;<ref refid="structSYN__CANOpenODEntry_1a9c94806ff03910c6382c6cd43b0f5c78" kindref="member">size</ref>);</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"><sp/><sp/><sp/><sp/>*out_len<sp/>=<sp/>entry-&gt;<ref refid="structSYN__CANOpenODEntry_1a9c94806ff03910c6382c6cd43b0f5c78" kindref="member">size</ref>;</highlight></codeline>
+<codeline lineno="126"><highlight class="normal"></highlight></codeline>
+<codeline lineno="127"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="128"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="129"><highlight class="normal"></highlight></codeline>
+<codeline lineno="130"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__canopen_8c_1a71ed1b2d60ba6affb38b0a877bcc0b72" kindref="member">syn_canopen_od_write</ref>(<ref refid="structSYN__CANOpenNode" kindref="compound">SYN_CANOpenNode</ref><sp/>*node,</highlight></codeline>
+<codeline lineno="131"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint16_t<sp/>index,</highlight></codeline>
+<codeline lineno="132"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>subindex,</highlight></codeline>
+<codeline lineno="133"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*data,</highlight></codeline>
+<codeline lineno="134"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>len)</highlight></codeline>
+<codeline lineno="135"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(node<sp/>==<sp/>NULL<sp/>||<sp/>data<sp/>==<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="137"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="138"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="139"><highlight class="normal"></highlight></codeline>
+<codeline lineno="140"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__CANOpenODEntry" kindref="compound">SYN_CANOpenODEntry</ref><sp/>*entry<sp/>=<sp/><ref refid="syn__canopen_8c_1a55d1e4080dfb45abac6808bcaa568be8" kindref="member">canopen_find_od</ref>(node,<sp/>index,<sp/>subindex);</highlight></codeline>
+<codeline lineno="141"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(entry<sp/>==<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="142"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00acd5d2701b7cfa9fb446640ecbeb19fc9" kindref="member">SYN_ERROR</ref>;</highlight></codeline>
+<codeline lineno="143"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="144"><highlight class="normal"></highlight></codeline>
+<codeline lineno="145"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(entry-&gt;<ref refid="structSYN__CANOpenODEntry_1a4f0a2b35debad154315c5eb31369bb19" kindref="member">access</ref><sp/>==<sp/><ref refid="syn__canopen_8h_1a16bff9681fe9a93958d41667c6f5b2a7" kindref="member">SYN_CANOPEN_ACCESS_RO</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="146"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00acd5d2701b7cfa9fb446640ecbeb19fc9" kindref="member">SYN_ERROR</ref>;</highlight></codeline>
+<codeline lineno="147"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="148"><highlight class="normal"></highlight></codeline>
+<codeline lineno="149"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(len<sp/>!=<sp/>entry-&gt;<ref refid="structSYN__CANOpenODEntry_1a9c94806ff03910c6382c6cd43b0f5c78" kindref="member">size</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="150"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="151"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="152"><highlight class="normal"></highlight></codeline>
+<codeline lineno="153"><highlight class="normal"><sp/><sp/><sp/><sp/>(void)memcpy(entry-&gt;<ref refid="structSYN__CANOpenODEntry_1ae0cb01c55089ca81c6e3666949773d9c" kindref="member">data_ptr</ref>,<sp/>data,<sp/>len);</highlight></codeline>
+<codeline lineno="154"><highlight class="normal"></highlight></codeline>
+<codeline lineno="155"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="156"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="157"><highlight class="normal"></highlight></codeline>
+<codeline lineno="158"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__canopen_8c_1ae4d6a341b7d9ec4a07c0d61dd0bb0ae2" kindref="member">syn_canopen_process_rx</ref>(<ref refid="structSYN__CANOpenNode" kindref="compound">SYN_CANOpenNode</ref><sp/>*node,</highlight></codeline>
+<codeline lineno="159"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>cob_id,</highlight></codeline>
+<codeline lineno="160"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*data,</highlight></codeline>
+<codeline lineno="161"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>len)</highlight></codeline>
+<codeline lineno="162"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="163"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(node<sp/>==<sp/>NULL<sp/>||<sp/>data<sp/>==<sp/>NULL<sp/>||<sp/>len<sp/>==<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="164"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="165"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="166"><highlight class="normal"></highlight></codeline>
+<codeline lineno="167"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>1.<sp/>NMT<sp/>Control<sp/>Message:<sp/>COB-ID<sp/>=<sp/>0x000<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="168"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(cob_id<sp/>==<sp/>0x000U<sp/>&amp;&amp;<sp/>len<sp/>&gt;=<sp/>2)<sp/>{</highlight></codeline>
+<codeline lineno="169"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>target_node<sp/>=<sp/>data[1];</highlight></codeline>
+<codeline lineno="170"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(target_node<sp/>==<sp/>0U<sp/>||<sp/>target_node<sp/>==<sp/>node-&gt;<ref refid="structSYN__CANOpenNode_1a291430f98c34d9b180ca97101a90b9ac" kindref="member">node_id</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="171"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>cmd<sp/>=<sp/>data[0];</highlight></codeline>
+<codeline lineno="172"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">switch</highlight><highlight class="normal"><sp/>(cmd)<sp/>{</highlight></codeline>
+<codeline lineno="173"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__canopen_8h_1aeb1b74166d8a10aef2f59a8ad35ef5fc" kindref="member">SYN_CANOPEN_NMT_CMD_START</ref>:</highlight></codeline>
+<codeline lineno="174"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>node-&gt;<ref refid="structSYN__CANOpenNode_1a48492fe8c866f0f269349c1c04920224" kindref="member">nmt_state</ref><sp/>=<sp/><ref refid="syn__canopen_8h_1a671366499f45818c95bd81ee246e9a7a" kindref="member">SYN_CANOPEN_NMT_STATE_OPERATIONAL</ref>;</highlight></codeline>
+<codeline lineno="175"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="176"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__canopen_8h_1a7054b12813809d09964b566135b954b5" kindref="member">SYN_CANOPEN_NMT_CMD_STOP</ref>:</highlight></codeline>
+<codeline lineno="177"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>node-&gt;<ref refid="structSYN__CANOpenNode_1a48492fe8c866f0f269349c1c04920224" kindref="member">nmt_state</ref><sp/>=<sp/><ref refid="syn__canopen_8h_1a74a01245ebf1ba437794462b060ef43d" kindref="member">SYN_CANOPEN_NMT_STATE_STOPPED</ref>;</highlight></codeline>
+<codeline lineno="178"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="179"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__canopen_8h_1a85c2c7b0d29e4cb4ee75a14540914ae9" kindref="member">SYN_CANOPEN_NMT_CMD_PREOP</ref>:</highlight></codeline>
+<codeline lineno="180"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>node-&gt;<ref refid="structSYN__CANOpenNode_1a48492fe8c866f0f269349c1c04920224" kindref="member">nmt_state</ref><sp/>=<sp/><ref refid="syn__canopen_8h_1aa8ea75b3adc1f773be4bd97fe6f80ac8" kindref="member">SYN_CANOPEN_NMT_STATE_PREOP</ref>;</highlight></codeline>
+<codeline lineno="181"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="182"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__canopen_8h_1a2bcf046163751b0458050b37331ab7a9" kindref="member">SYN_CANOPEN_NMT_CMD_RESET_NODE</ref>:</highlight></codeline>
+<codeline lineno="183"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__canopen_8h_1a4212c1840b30320ee147aff026ca78ec" kindref="member">SYN_CANOPEN_NMT_CMD_RESET_COMM</ref>:</highlight></codeline>
+<codeline lineno="184"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>node-&gt;<ref refid="structSYN__CANOpenNode_1a48492fe8c866f0f269349c1c04920224" kindref="member">nmt_state</ref><sp/>=<sp/><ref refid="syn__canopen_8h_1aa8ea75b3adc1f773be4bd97fe6f80ac8" kindref="member">SYN_CANOPEN_NMT_STATE_PREOP</ref>;</highlight></codeline>
+<codeline lineno="185"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="186"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>boot_payload[1]<sp/>=<sp/>{<sp/>0x00U<sp/>};</highlight></codeline>
+<codeline lineno="187"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__canopen_8c_1a63c084525b5a6ca8da0d25b23c448f41" kindref="member">canopen_queue_tx</ref>(node,<sp/>0x700U<sp/>+<sp/>node-&gt;<ref refid="structSYN__CANOpenNode_1a291430f98c34d9b180ca97101a90b9ac" kindref="member">node_id</ref>,<sp/>boot_payload,<sp/>1);</highlight></codeline>
+<codeline lineno="188"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="189"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="190"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">default</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="191"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="192"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="193"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="194"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="195"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="196"><highlight class="normal"></highlight></codeline>
+<codeline lineno="197"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>2.<sp/>SDO<sp/>Request<sp/>Server:<sp/>COB-ID<sp/>=<sp/>0x600<sp/>+<sp/>NodeID<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="198"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(cob_id<sp/>==<sp/>(0x600U<sp/>+<sp/>node-&gt;<ref refid="structSYN__CANOpenNode_1a291430f98c34d9b180ca97101a90b9ac" kindref="member">node_id</ref>)<sp/>&amp;&amp;<sp/>len<sp/>==<sp/>8)<sp/>{</highlight></codeline>
+<codeline lineno="199"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>sdo_pos<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="200"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>cmd<sp/>=<sp/><ref refid="syn__pack_8h_1abc721915156bfc4d32591812796f3797" kindref="member">syn_unpack_u8</ref>(data,<sp/>&amp;sdo_pos);</highlight></codeline>
+<codeline lineno="201"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint16_t<sp/>index<sp/>=<sp/><ref refid="syn__pack_8h_1ae4855adc140fc4dbd50792f7d637eb47" kindref="member">syn_unpack_u16_le</ref>(data,<sp/>&amp;sdo_pos);</highlight></codeline>
+<codeline lineno="202"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>subindex<sp/>=<sp/><ref refid="syn__pack_8h_1abc721915156bfc4d32591812796f3797" kindref="member">syn_unpack_u8</ref>(data,<sp/>&amp;sdo_pos);</highlight></codeline>
+<codeline lineno="203"><highlight class="normal"></highlight></codeline>
+<codeline lineno="204"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>SDO<sp/>Download<sp/>(Write<sp/>Request)<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="205"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>((cmd<sp/>&amp;<sp/>0xE0U)<sp/>==<sp/>0x20U)<sp/>{</highlight></codeline>
+<codeline lineno="206"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>write_len<sp/>=<sp/>4;</highlight></codeline>
+<codeline lineno="207"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>((cmd<sp/>&amp;<sp/>0x02U)<sp/>!=<sp/>0)<sp/>{<sp/></highlight><highlight class="comment">/*<sp/>Expedited<sp/>download<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="208"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>n<sp/>=<sp/>(cmd<sp/>&gt;&gt;<sp/>2)<sp/>&amp;<sp/>0x03U;</highlight></codeline>
+<codeline lineno="209"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>write_len<sp/>=<sp/>(size_t)(4<sp/>-<sp/>n);</highlight></codeline>
+<codeline lineno="210"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="211"><highlight class="normal"></highlight></codeline>
+<codeline lineno="212"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__CANOpenODEntry" kindref="compound">SYN_CANOpenODEntry</ref><sp/>*entry<sp/>=<sp/><ref refid="syn__canopen_8c_1a55d1e4080dfb45abac6808bcaa568be8" kindref="member">canopen_find_od</ref>(node,<sp/>index,<sp/>subindex);</highlight></codeline>
+<codeline lineno="213"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(entry<sp/>==<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="214"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__CANOpenODEntry" kindref="compound">SYN_CANOpenODEntry</ref><sp/>*entry_idx<sp/>=<sp/>NULL;</highlight></codeline>
+<codeline lineno="215"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>node-&gt;<ref refid="structSYN__CANOpenNode_1a046f549126b1bdf6a84fe3acf0ac5a67" kindref="member">od_count</ref>;<sp/>i++)<sp/>{</highlight></codeline>
+<codeline lineno="216"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(node-&gt;<ref refid="structSYN__CANOpenNode_1a0c5fbcbf2ba43b8f92cc6a710e1ce19b" kindref="member">od_table</ref>[i].<ref refid="structSYN__CANOpenODEntry_1ab3a00ec7718a478469e6ee0155f407a4" kindref="member">index</ref><sp/>==<sp/>index)<sp/>{</highlight></codeline>
+<codeline lineno="217"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>entry_idx<sp/>=<sp/>&amp;node-&gt;<ref refid="structSYN__CANOpenNode_1a0c5fbcbf2ba43b8f92cc6a710e1ce19b" kindref="member">od_table</ref>[i];</highlight></codeline>
+<codeline lineno="218"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="219"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="220"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="221"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(entry_idx<sp/>==<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="222"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__canopen_8c_1acbd6c4d439be90a8cc0c9721b0a3bb00" kindref="member">canopen_send_sdo_abort</ref>(node,<sp/>index,<sp/>subindex,<sp/><ref refid="syn__canopen_8h_1a63000b4c06b9c684cd856c78370e48ed" kindref="member">SYN_CANOPEN_SDO_ABORT_NOT_EXIST</ref>);</highlight></codeline>
+<codeline lineno="223"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="224"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__canopen_8c_1acbd6c4d439be90a8cc0c9721b0a3bb00" kindref="member">canopen_send_sdo_abort</ref>(node,<sp/>index,<sp/>subindex,<sp/><ref refid="syn__canopen_8h_1af399f66fbcf7dbb2a4e9fd9a56028d97" kindref="member">SYN_CANOPEN_SDO_ABORT_SUBINDEX_NOT_EXIST</ref>);</highlight></codeline>
+<codeline lineno="225"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="226"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(entry-&gt;<ref refid="structSYN__CANOpenODEntry_1a4f0a2b35debad154315c5eb31369bb19" kindref="member">access</ref><sp/>==<sp/><ref refid="syn__canopen_8h_1a16bff9681fe9a93958d41667c6f5b2a7" kindref="member">SYN_CANOPEN_ACCESS_RO</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="227"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__canopen_8c_1acbd6c4d439be90a8cc0c9721b0a3bb00" kindref="member">canopen_send_sdo_abort</ref>(node,<sp/>index,<sp/>subindex,<sp/><ref refid="syn__canopen_8h_1ac73fb9d43620e4dd3da4d7f8a755d6ef" kindref="member">SYN_CANOPEN_SDO_ABORT_READ_ONLY</ref>);</highlight></codeline>
+<codeline lineno="228"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(write_len<sp/>!=<sp/>entry-&gt;<ref refid="structSYN__CANOpenODEntry_1a9c94806ff03910c6382c6cd43b0f5c78" kindref="member">size</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="229"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__canopen_8c_1acbd6c4d439be90a8cc0c9721b0a3bb00" kindref="member">canopen_send_sdo_abort</ref>(node,<sp/>index,<sp/>subindex,<sp/><ref refid="syn__canopen_8h_1aaea79b807b0d84e28f3fa710968f0c8d" kindref="member">SYN_CANOPEN_SDO_ABORT_TYPE_MISMATCH</ref>);</highlight></codeline>
+<codeline lineno="230"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="231"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(void)<ref refid="syn__canopen_8c_1a71ed1b2d60ba6affb38b0a877bcc0b72" kindref="member">syn_canopen_od_write</ref>(node,<sp/>index,<sp/>subindex,<sp/>&amp;data[4],<sp/>write_len);</highlight></codeline>
+<codeline lineno="232"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>resp[8]<sp/>=<sp/>{<sp/>0x60U,<sp/>data[1],<sp/>data[2],<sp/>data[3],<sp/>0,<sp/>0,<sp/>0,<sp/>0<sp/>};</highlight></codeline>
+<codeline lineno="233"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__canopen_8c_1a63c084525b5a6ca8da0d25b23c448f41" kindref="member">canopen_queue_tx</ref>(node,<sp/>0x580U<sp/>+<sp/>node-&gt;<ref refid="structSYN__CANOpenNode_1a291430f98c34d9b180ca97101a90b9ac" kindref="member">node_id</ref>,<sp/>resp,<sp/>8);</highlight></codeline>
+<codeline lineno="234"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="235"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="236"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="237"><highlight class="normal"></highlight></codeline>
+<codeline lineno="238"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>SDO<sp/>Upload<sp/>(Read<sp/>Request)<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="239"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>((cmd<sp/>&amp;<sp/>0xE0U)<sp/>==<sp/>0x40U)<sp/>{</highlight></codeline>
+<codeline lineno="240"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__CANOpenODEntry" kindref="compound">SYN_CANOpenODEntry</ref><sp/>*entry<sp/>=<sp/><ref refid="syn__canopen_8c_1a55d1e4080dfb45abac6808bcaa568be8" kindref="member">canopen_find_od</ref>(node,<sp/>index,<sp/>subindex);</highlight></codeline>
+<codeline lineno="241"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(entry<sp/>==<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="242"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__CANOpenODEntry" kindref="compound">SYN_CANOpenODEntry</ref><sp/>*entry_idx<sp/>=<sp/>NULL;</highlight></codeline>
+<codeline lineno="243"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>node-&gt;<ref refid="structSYN__CANOpenNode_1a046f549126b1bdf6a84fe3acf0ac5a67" kindref="member">od_count</ref>;<sp/>i++)<sp/>{</highlight></codeline>
+<codeline lineno="244"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(node-&gt;<ref refid="structSYN__CANOpenNode_1a0c5fbcbf2ba43b8f92cc6a710e1ce19b" kindref="member">od_table</ref>[i].<ref refid="structSYN__CANOpenODEntry_1ab3a00ec7718a478469e6ee0155f407a4" kindref="member">index</ref><sp/>==<sp/>index)<sp/>{</highlight></codeline>
+<codeline lineno="245"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>entry_idx<sp/>=<sp/>&amp;node-&gt;<ref refid="structSYN__CANOpenNode_1a0c5fbcbf2ba43b8f92cc6a710e1ce19b" kindref="member">od_table</ref>[i];</highlight></codeline>
+<codeline lineno="246"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="247"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="248"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="249"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(entry_idx<sp/>==<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="250"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__canopen_8c_1acbd6c4d439be90a8cc0c9721b0a3bb00" kindref="member">canopen_send_sdo_abort</ref>(node,<sp/>index,<sp/>subindex,<sp/><ref refid="syn__canopen_8h_1a63000b4c06b9c684cd856c78370e48ed" kindref="member">SYN_CANOPEN_SDO_ABORT_NOT_EXIST</ref>);</highlight></codeline>
+<codeline lineno="251"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="252"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__canopen_8c_1acbd6c4d439be90a8cc0c9721b0a3bb00" kindref="member">canopen_send_sdo_abort</ref>(node,<sp/>index,<sp/>subindex,<sp/><ref refid="syn__canopen_8h_1af399f66fbcf7dbb2a4e9fd9a56028d97" kindref="member">SYN_CANOPEN_SDO_ABORT_SUBINDEX_NOT_EXIST</ref>);</highlight></codeline>
+<codeline lineno="253"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="254"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(entry-&gt;<ref refid="structSYN__CANOpenODEntry_1a4f0a2b35debad154315c5eb31369bb19" kindref="member">access</ref><sp/>==<sp/><ref refid="syn__canopen_8h_1a02d3252a68a90ec7151e601337a92bcf" kindref="member">SYN_CANOPEN_ACCESS_WO</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="255"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__canopen_8c_1acbd6c4d439be90a8cc0c9721b0a3bb00" kindref="member">canopen_send_sdo_abort</ref>(node,<sp/>index,<sp/>subindex,<sp/><ref refid="syn__canopen_8h_1a49f44664471b35b8c08517b79d750b04" kindref="member">SYN_CANOPEN_SDO_ABORT_WRITE_ONLY</ref>);</highlight></codeline>
+<codeline lineno="256"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="257"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>read_buf[4]<sp/>=<sp/>{<sp/>0<sp/>};</highlight></codeline>
+<codeline lineno="258"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>read_len<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="259"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="syn__canopen_8c_1a47674c7bd449ac22a236f3089ae914c7" kindref="member">syn_canopen_od_read</ref>(node,<sp/>index,<sp/>subindex,<sp/>read_buf,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(read_buf),<sp/>&amp;read_len)<sp/>==<sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref><sp/>&amp;&amp;<sp/>read_len<sp/>&lt;=<sp/>4)<sp/>{</highlight></codeline>
+<codeline lineno="260"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>n<sp/>=<sp/>(uint8_t)(4<sp/>-<sp/>read_len);</highlight></codeline>
+<codeline lineno="261"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>resp[8];</highlight></codeline>
+<codeline lineno="262"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>resp[0]<sp/>=<sp/>0x43U<sp/>|<sp/>(uint8_t)(n<sp/>&lt;&lt;<sp/>2);</highlight></codeline>
+<codeline lineno="263"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>resp[1]<sp/>=<sp/>data[1];</highlight></codeline>
+<codeline lineno="264"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>resp[2]<sp/>=<sp/>data[2];</highlight></codeline>
+<codeline lineno="265"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>resp[3]<sp/>=<sp/>data[3];</highlight></codeline>
+<codeline lineno="266"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(void)memcpy(&amp;resp[4],<sp/>read_buf,<sp/>read_len);</highlight></codeline>
+<codeline lineno="267"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(read_len<sp/>&lt;<sp/>4)<sp/>{</highlight></codeline>
+<codeline lineno="268"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(void)memset(&amp;resp[4<sp/>+<sp/>read_len],<sp/>0,<sp/>4<sp/>-<sp/>read_len);</highlight></codeline>
+<codeline lineno="269"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="270"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__canopen_8c_1a63c084525b5a6ca8da0d25b23c448f41" kindref="member">canopen_queue_tx</ref>(node,<sp/>0x580U<sp/>+<sp/>node-&gt;<ref refid="structSYN__CANOpenNode_1a291430f98c34d9b180ca97101a90b9ac" kindref="member">node_id</ref>,<sp/>resp,<sp/>8);</highlight></codeline>
+<codeline lineno="271"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="272"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__canopen_8c_1acbd6c4d439be90a8cc0c9721b0a3bb00" kindref="member">canopen_send_sdo_abort</ref>(node,<sp/>index,<sp/>subindex,<sp/><ref refid="syn__canopen_8h_1aaea79b807b0d84e28f3fa710968f0c8d" kindref="member">SYN_CANOPEN_SDO_ABORT_TYPE_MISMATCH</ref>);</highlight></codeline>
+<codeline lineno="273"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="274"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="275"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="276"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="277"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="278"><highlight class="normal"></highlight></codeline>
+<codeline lineno="279"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>3.<sp/>RPDO<sp/>Processing<sp/>(Operational<sp/>State<sp/>Only)<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="280"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(node-&gt;<ref refid="structSYN__CANOpenNode_1a48492fe8c866f0f269349c1c04920224" kindref="member">nmt_state</ref><sp/>==<sp/><ref refid="syn__canopen_8h_1a671366499f45818c95bd81ee246e9a7a" kindref="member">SYN_CANOPEN_NMT_STATE_OPERATIONAL</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="281"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>4;<sp/>i++)<sp/>{</highlight></codeline>
+<codeline lineno="282"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(node-&gt;<ref refid="structSYN__CANOpenNode_1a8da59768a6325a610e235896e5244a29" kindref="member">cfg</ref>.<ref refid="structSYN__CANOpenNodeConfig_1ae2e83df11518bea129d32a73a1459118" kindref="member">rpdo</ref>[i].<ref refid="structSYN__CANOpenPDOMap_1a491b4d5ba0a0dca59de7a85bdd6d60c4" kindref="member">enabled</ref><sp/>&amp;&amp;<sp/>node-&gt;<ref refid="structSYN__CANOpenNode_1a8da59768a6325a610e235896e5244a29" kindref="member">cfg</ref>.<ref refid="structSYN__CANOpenNodeConfig_1ae2e83df11518bea129d32a73a1459118" kindref="member">rpdo</ref>[i].<ref refid="structSYN__CANOpenPDOMap_1a67afcb05666d147e308f051557072cef" kindref="member">cob_id</ref><sp/>==<sp/>cob_id)<sp/>{</highlight></codeline>
+<codeline lineno="283"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(void)<ref refid="syn__canopen_8c_1a71ed1b2d60ba6affb38b0a877bcc0b72" kindref="member">syn_canopen_od_write</ref>(node,<sp/>node-&gt;<ref refid="structSYN__CANOpenNode_1a8da59768a6325a610e235896e5244a29" kindref="member">cfg</ref>.<ref refid="structSYN__CANOpenNodeConfig_1ae2e83df11518bea129d32a73a1459118" kindref="member">rpdo</ref>[i].<ref refid="structSYN__CANOpenPDOMap_1a6c05fdb632a16539c2a06941fa9d2fa7" kindref="member">od_index</ref>,<sp/>node-&gt;<ref refid="structSYN__CANOpenNode_1a8da59768a6325a610e235896e5244a29" kindref="member">cfg</ref>.<ref refid="structSYN__CANOpenNodeConfig_1ae2e83df11518bea129d32a73a1459118" kindref="member">rpdo</ref>[i].<ref refid="structSYN__CANOpenPDOMap_1a57fcb9bf9401f6d1484793b2eee791b8" kindref="member">od_subindex</ref>,<sp/>data,<sp/>len);</highlight></codeline>
+<codeline lineno="284"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="285"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="286"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="287"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="288"><highlight class="normal"></highlight></codeline>
+<codeline lineno="289"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="290"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="291"><highlight class="normal"></highlight></codeline>
+<codeline lineno="292"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__canopen_8c_1ac5134d7fa124c4b7ce33c2f75b434263" kindref="member">syn_canopen_update</ref>(<ref refid="structSYN__CANOpenNode" kindref="compound">SYN_CANOpenNode</ref><sp/>*node,<sp/>uint32_t<sp/>dt_ms)</highlight></codeline>
+<codeline lineno="293"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="294"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(node<sp/>==<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="295"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="296"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="297"><highlight class="normal"></highlight></codeline>
+<codeline lineno="298"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Periodic<sp/>Heartbeat<sp/>Producer<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="299"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(node-&gt;<ref refid="structSYN__CANOpenNode_1a8da59768a6325a610e235896e5244a29" kindref="member">cfg</ref>.<ref refid="structSYN__CANOpenNodeConfig_1ac9edae0d19cee2c25a8824dda0c13673" kindref="member">heartbeat_ms</ref><sp/>&gt;<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="300"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>node-&gt;<ref refid="structSYN__CANOpenNode_1aed243972b8c0fc447d5f5329837764b2" kindref="member">heartbeat_timer_ms</ref><sp/>+=<sp/>(uint16_t)dt_ms;</highlight></codeline>
+<codeline lineno="301"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(node-&gt;<ref refid="structSYN__CANOpenNode_1aed243972b8c0fc447d5f5329837764b2" kindref="member">heartbeat_timer_ms</ref><sp/>&gt;=<sp/>node-&gt;<ref refid="structSYN__CANOpenNode_1a8da59768a6325a610e235896e5244a29" kindref="member">cfg</ref>.<ref refid="structSYN__CANOpenNodeConfig_1ac9edae0d19cee2c25a8824dda0c13673" kindref="member">heartbeat_ms</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="302"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>node-&gt;<ref refid="structSYN__CANOpenNode_1aed243972b8c0fc447d5f5329837764b2" kindref="member">heartbeat_timer_ms</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="303"><highlight class="normal"></highlight></codeline>
+<codeline lineno="304"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>hb_payload[1];</highlight></codeline>
+<codeline lineno="305"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>hb_payload[0]<sp/>=<sp/>node-&gt;<ref refid="structSYN__CANOpenNode_1a48492fe8c866f0f269349c1c04920224" kindref="member">nmt_state</ref>;</highlight></codeline>
+<codeline lineno="306"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__canopen_8c_1a63c084525b5a6ca8da0d25b23c448f41" kindref="member">canopen_queue_tx</ref>(node,<sp/>0x700U<sp/>+<sp/>node-&gt;<ref refid="structSYN__CANOpenNode_1a291430f98c34d9b180ca97101a90b9ac" kindref="member">node_id</ref>,<sp/>hb_payload,<sp/>1);</highlight></codeline>
+<codeline lineno="307"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="308"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="309"><highlight class="normal"></highlight></codeline>
+<codeline lineno="310"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Periodic<sp/>TPDO<sp/>Transmission<sp/>(Operational<sp/>State<sp/>Only)<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="311"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(node-&gt;<ref refid="structSYN__CANOpenNode_1a48492fe8c866f0f269349c1c04920224" kindref="member">nmt_state</ref><sp/>==<sp/><ref refid="syn__canopen_8h_1a671366499f45818c95bd81ee246e9a7a" kindref="member">SYN_CANOPEN_NMT_STATE_OPERATIONAL</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="312"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>4;<sp/>i++)<sp/>{</highlight></codeline>
+<codeline lineno="313"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(node-&gt;<ref refid="structSYN__CANOpenNode_1a8da59768a6325a610e235896e5244a29" kindref="member">cfg</ref>.<ref refid="structSYN__CANOpenNodeConfig_1ac05f72fef0e2279d638b9a8ecc88f185" kindref="member">tpdo</ref>[i].<ref refid="structSYN__CANOpenPDOMap_1a491b4d5ba0a0dca59de7a85bdd6d60c4" kindref="member">enabled</ref><sp/>&amp;&amp;<sp/>!node-&gt;<ref refid="structSYN__CANOpenNode_1a5e3b23e4f42d7255d221037548d89e73" kindref="member">tx_pending</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="314"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>tpdo_buf[8]<sp/>=<sp/>{<sp/>0<sp/>};</highlight></codeline>
+<codeline lineno="315"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>tpdo_len<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="316"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="syn__canopen_8c_1a47674c7bd449ac22a236f3089ae914c7" kindref="member">syn_canopen_od_read</ref>(node,<sp/>node-&gt;<ref refid="structSYN__CANOpenNode_1a8da59768a6325a610e235896e5244a29" kindref="member">cfg</ref>.<ref refid="structSYN__CANOpenNodeConfig_1ac05f72fef0e2279d638b9a8ecc88f185" kindref="member">tpdo</ref>[i].<ref refid="structSYN__CANOpenPDOMap_1a6c05fdb632a16539c2a06941fa9d2fa7" kindref="member">od_index</ref>,<sp/>node-&gt;<ref refid="structSYN__CANOpenNode_1a8da59768a6325a610e235896e5244a29" kindref="member">cfg</ref>.<ref refid="structSYN__CANOpenNodeConfig_1ac05f72fef0e2279d638b9a8ecc88f185" kindref="member">tpdo</ref>[i].<ref refid="structSYN__CANOpenPDOMap_1a57fcb9bf9401f6d1484793b2eee791b8" kindref="member">od_subindex</ref>,<sp/>tpdo_buf,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(tpdo_buf),<sp/>&amp;tpdo_len)<sp/>==<sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="317"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__canopen_8c_1a63c084525b5a6ca8da0d25b23c448f41" kindref="member">canopen_queue_tx</ref>(node,<sp/>node-&gt;<ref refid="structSYN__CANOpenNode_1a8da59768a6325a610e235896e5244a29" kindref="member">cfg</ref>.<ref refid="structSYN__CANOpenNodeConfig_1ac05f72fef0e2279d638b9a8ecc88f185" kindref="member">tpdo</ref>[i].<ref refid="structSYN__CANOpenPDOMap_1a67afcb05666d147e308f051557072cef" kindref="member">cob_id</ref>,<sp/>tpdo_buf,<sp/>(uint8_t)tpdo_len);</highlight></codeline>
+<codeline lineno="318"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="319"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="320"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="321"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="322"><highlight class="normal"></highlight></codeline>
+<codeline lineno="323"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="324"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="325"><highlight class="normal"></highlight></codeline>
+<codeline lineno="326"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__canopen_8c_1a2c9a1846aefee98bf4bf2ded299517df" kindref="member">syn_canopen_send_emcy</ref>(<ref refid="structSYN__CANOpenNode" kindref="compound">SYN_CANOpenNode</ref><sp/>*node,<sp/>uint16_t<sp/>err_code,<sp/>uint8_t<sp/>err_reg)</highlight></codeline>
+<codeline lineno="327"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="328"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(node<sp/>==<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="329"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="330"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="331"><highlight class="normal"></highlight></codeline>
+<codeline lineno="332"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>payload[8]<sp/>=<sp/>{<sp/>0<sp/>};</highlight></codeline>
+<codeline lineno="333"><highlight class="normal"><sp/><sp/><sp/><sp/>payload[0]<sp/>=<sp/>(uint8_t)(err_code<sp/>&amp;<sp/>0xFFU);</highlight></codeline>
+<codeline lineno="334"><highlight class="normal"><sp/><sp/><sp/><sp/>payload[1]<sp/>=<sp/>(uint8_t)((err_code<sp/>&gt;&gt;<sp/>8)<sp/>&amp;<sp/>0xFFU);</highlight></codeline>
+<codeline lineno="335"><highlight class="normal"><sp/><sp/><sp/><sp/>payload[2]<sp/>=<sp/>err_reg;</highlight></codeline>
+<codeline lineno="336"><highlight class="normal"></highlight></codeline>
+<codeline lineno="337"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__canopen_8c_1a63c084525b5a6ca8da0d25b23c448f41" kindref="member">canopen_queue_tx</ref>(node,<sp/>0x080U<sp/>+<sp/>node-&gt;<ref refid="structSYN__CANOpenNode_1a291430f98c34d9b180ca97101a90b9ac" kindref="member">node_id</ref>,<sp/>payload,<sp/>8);</highlight></codeline>
+<codeline lineno="338"><highlight class="normal"></highlight></codeline>
+<codeline lineno="339"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="340"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="341"><highlight class="normal"></highlight></codeline>
+<codeline lineno="342"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__canopen_8c_1a9bb37f387484cec8815e54a3e1b0b3b2" kindref="member">syn_canopen_get_tx</ref>(<ref refid="structSYN__CANOpenNode" kindref="compound">SYN_CANOpenNode</ref><sp/>*node,</highlight></codeline>
+<codeline lineno="343"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>*out_cob_id,</highlight></codeline>
+<codeline lineno="344"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>*out_data,</highlight></codeline>
+<codeline lineno="345"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>*out_len)</highlight></codeline>
+<codeline lineno="346"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="347"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(node<sp/>==<sp/>NULL<sp/>||<sp/>!node-&gt;<ref refid="structSYN__CANOpenNode_1a5e3b23e4f42d7255d221037548d89e73" kindref="member">tx_pending</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="348"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="349"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="350"><highlight class="normal"></highlight></codeline>
+<codeline lineno="351"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(out_cob_id<sp/>!=<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="352"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*out_cob_id<sp/>=<sp/>node-&gt;<ref refid="structSYN__CANOpenNode_1a27217d9bf2ff1358c2f3f986717e0ba7" kindref="member">tx_cob_id</ref>;</highlight></codeline>
+<codeline lineno="353"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="354"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(out_data<sp/>!=<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="355"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(void)memcpy(out_data,<sp/>node-&gt;<ref refid="structSYN__CANOpenNode_1a27f944f8c7bce3271c674175ce385c30" kindref="member">tx_data</ref>,<sp/>node-&gt;<ref refid="structSYN__CANOpenNode_1ac2d8e197c5a98e9832ab6870d5a50967" kindref="member">tx_len</ref>);</highlight></codeline>
+<codeline lineno="356"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="357"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(out_len<sp/>!=<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="358"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*out_len<sp/>=<sp/>node-&gt;<ref refid="structSYN__CANOpenNode_1ac2d8e197c5a98e9832ab6870d5a50967" kindref="member">tx_len</ref>;</highlight></codeline>
+<codeline lineno="359"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="360"><highlight class="normal"></highlight></codeline>
+<codeline lineno="361"><highlight class="normal"><sp/><sp/><sp/><sp/>node-&gt;<ref refid="structSYN__CANOpenNode_1a5e3b23e4f42d7255d221037548d89e73" kindref="member">tx_pending</ref><sp/>=<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="362"><highlight class="normal"></highlight></codeline>
+<codeline lineno="363"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="364"><highlight class="normal">}</highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/proto/syn_canopen.c"/>
+  </compounddef>
+</doxygen>

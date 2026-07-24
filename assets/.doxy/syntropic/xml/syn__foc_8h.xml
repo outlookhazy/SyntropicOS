@@ -1,0 +1,407 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__foc_8h" kind="file" language="C++">
+    <compoundname>syn_foc.h</compoundname>
+    <includes refid="syn__qmath_8h" local="yes">../util/syn_qmath.h</includes>
+    <includes refid="syn__defs_8h" local="yes">../common/syn_defs.h</includes>
+    <includedby refid="syn__foc_8c" local="yes">src/syntropic/motor/syn_foc.c</includedby>
+    <incdepgraph>
+      <node id="5">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/motor/syn_foc.h</label>
+        <link refid="syn__foc_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>../util/syn_qmath.h</label>
+        <link refid="syn__qmath_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>stddef.h</label>
+      </node>
+      <node id="3">
+        <label>stdint.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="2">
+        <label>src/syntropic/motor/syn_foc.c</label>
+        <link refid="syn__foc_8c"/>
+      </node>
+      <node id="1">
+        <label>src/syntropic/motor/syn_foc.h</label>
+        <link refid="syn__foc_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="structSYN__FOC__ABC" prot="public">SYN_FOC_ABC</innerclass>
+    <innerclass refid="structSYN__FOC__AB" prot="public">SYN_FOC_AB</innerclass>
+    <innerclass refid="structSYN__FOC__DQ" prot="public">SYN_FOC_DQ</innerclass>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__foc_8h_1a5ecde996274bf4a49e0f8098e3f9f80e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_foc_clarke</definition>
+        <argsstring>(const SYN_FOC_ABC *abc, SYN_FOC_AB *ab)</argsstring>
+        <name>syn_foc_clarke</name>
+        <param>
+          <type>const <ref refid="structSYN__FOC__ABC" kindref="compound">SYN_FOC_ABC</ref> *</type>
+          <declname>abc</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__FOC__AB" kindref="compound">SYN_FOC_AB</ref> *</type>
+          <declname>ab</declname>
+        </param>
+        <briefdescription>
+<para>Clarke transform: 3-phase (a,b,c) → 2-phase (α,β). </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Power-invariant form: α = a β = (a + 2b) / √3</para>
+<para>Assumes balanced 3-phase: a + b + c = 0.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>abc</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Input 3-phase values. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>ab</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output (α, β). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/motor/syn_foc.h" line="78" column="6" bodyfile="src/syntropic/motor/syn_foc.c" bodystart="33" bodyend="44" declfile="src/syntropic/motor/syn_foc.h" declline="78" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__foc_8h_1ac29987cfb9f8af8d03c97464df248e79" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_foc_inv_clarke</definition>
+        <argsstring>(const SYN_FOC_AB *ab, SYN_FOC_ABC *abc)</argsstring>
+        <name>syn_foc_inv_clarke</name>
+        <param>
+          <type>const <ref refid="structSYN__FOC__AB" kindref="compound">SYN_FOC_AB</ref> *</type>
+          <declname>ab</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__FOC__ABC" kindref="compound">SYN_FOC_ABC</ref> *</type>
+          <declname>abc</declname>
+        </param>
+        <briefdescription>
+<para>Inverse Clarke: 2-phase (α,β) → 3-phase (a,b,c). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ab</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Input (α, β). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>abc</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output 3-phase values. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/motor/syn_foc.h" line="86" column="6" bodyfile="src/syntropic/motor/syn_foc.c" bodystart="46" bodyend="62" declfile="src/syntropic/motor/syn_foc.h" declline="86" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__foc_8h_1afb61f4a48e4490dafd08d306b6d41f23" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_foc_park</definition>
+        <argsstring>(const SYN_FOC_AB *ab, q16_t theta, SYN_FOC_DQ *dq)</argsstring>
+        <name>syn_foc_park</name>
+        <param>
+          <type>const <ref refid="structSYN__FOC__AB" kindref="compound">SYN_FOC_AB</ref> *</type>
+          <declname>ab</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+          <declname>theta</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__FOC__DQ" kindref="compound">SYN_FOC_DQ</ref> *</type>
+          <declname>dq</declname>
+        </param>
+        <briefdescription>
+<para>Park transform: stationary (α,β) → rotating (d,q). </para>
+        </briefdescription>
+        <detaileddescription>
+<para>d = α·cos(θ) + β·sin(θ) q = −α·sin(θ) + β·cos(θ)</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ab</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Input stationary-frame values. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>theta</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Electrical rotor angle in Q16 radians. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dq</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output rotating-frame values. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/motor/syn_foc.h" line="100" column="6" bodyfile="src/syntropic/motor/syn_foc.c" bodystart="66" bodyend="79" declfile="src/syntropic/motor/syn_foc.h" declline="100" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__foc_8h_1a9c35f7a8f7271a3f2efaa612a99e76a7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_foc_inv_park</definition>
+        <argsstring>(const SYN_FOC_DQ *dq, q16_t theta, SYN_FOC_AB *ab)</argsstring>
+        <name>syn_foc_inv_park</name>
+        <param>
+          <type>const <ref refid="structSYN__FOC__DQ" kindref="compound">SYN_FOC_DQ</ref> *</type>
+          <declname>dq</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+          <declname>theta</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__FOC__AB" kindref="compound">SYN_FOC_AB</ref> *</type>
+          <declname>ab</declname>
+        </param>
+        <briefdescription>
+<para>Inverse Park: rotating (d,q) → stationary (α,β). </para>
+        </briefdescription>
+        <detaileddescription>
+<para>α = d·cos(θ) − q·sin(θ) β = d·sin(θ) + q·cos(θ)</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>dq</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Input rotating-frame values. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>theta</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Electrical rotor angle in Q16 radians. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>ab</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output stationary-frame values. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/motor/syn_foc.h" line="112" column="6" bodyfile="src/syntropic/motor/syn_foc.c" bodystart="81" bodyend="94" declfile="src/syntropic/motor/syn_foc.h" declline="112" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__foc_8h_1a5c4f41c9ac6321fe9e3adf994320cd21" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_foc_svpwm</definition>
+        <argsstring>(const SYN_FOC_AB *ab, q16_t v_bus, q16_t *duty_a, q16_t *duty_b, q16_t *duty_c)</argsstring>
+        <name>syn_foc_svpwm</name>
+        <param>
+          <type>const <ref refid="structSYN__FOC__AB" kindref="compound">SYN_FOC_AB</ref> *</type>
+          <declname>ab</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+          <declname>v_bus</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref> *</type>
+          <declname>duty_a</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref> *</type>
+          <declname>duty_b</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref> *</type>
+          <declname>duty_c</declname>
+        </param>
+        <briefdescription>
+<para>Compute Space Vector PWM duty cycles from (α, β). </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Maps (α, β) voltages to three-phase PWM duty cycles in the range [0, Q16_ONE]. Uses standard 7-segment SVPWM pattern.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ab</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Input (α, β) voltage commands (Q16). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>v_bus</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>DC bus voltage in Q16 (for normalization). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>duty_a</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output duty cycle for phase A [0, Q16_ONE]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>duty_b</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output duty cycle for phase B [0, Q16_ONE]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>duty_c</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output duty cycle for phase C [0, Q16_ONE]. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/motor/syn_foc.h" line="128" column="6" bodyfile="src/syntropic/motor/syn_foc.c" bodystart="98" bodyend="136" declfile="src/syntropic/motor/syn_foc.h" declline="128" declcolumn="6"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Fixed-point Field-Oriented Control transforms (Clarke &amp; Park). </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Provides the mathematical transforms needed for BLDC/PMSM motor control:</para>
+<para><itemizedlist>
+<listitem><para><bold>Clarke transform</bold>: 3-phase (a, b, c) → 2-phase stationary (α, β)</para>
+</listitem><listitem><para><bold>Inverse Clarke</bold>: (α, β) → (a, b, c)</para>
+</listitem><listitem><para><bold>Park transform</bold>: Stationary (α, β) → rotating (d, q) using rotor angle θ</para>
+</listitem><listitem><para><bold>Inverse Park</bold>: Rotating (d, q) → stationary (α, β)</para>
+</listitem></itemizedlist>
+</para>
+<para>All values are Q16.16 fixed-point. No floating point, no heap allocation.</para>
+<para><simplesect kind="par"><title>Usage — FOC current loop</title><para><programlisting><codeline><highlight class="normal"><ref refid="structSYN__FOC__AB" kindref="compound">SYN_FOC_AB</ref><sp/><sp/>ab;</highlight></codeline>
+<codeline><highlight class="normal"><ref refid="structSYN__FOC__DQ" kindref="compound">SYN_FOC_DQ</ref><sp/><sp/>dq;</highlight></codeline>
+<codeline><highlight class="normal"><ref refid="structSYN__FOC__ABC" kindref="compound">SYN_FOC_ABC</ref><sp/>phase_currents<sp/>=<sp/>{<sp/>ia,<sp/>ib,<sp/>ic<sp/>};<sp/><sp/></highlight><highlight class="comment">//<sp/>measured<sp/>currents</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>theta<sp/>=<sp/>electrical_angle;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>rotor<sp/>angle</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="comment">//<sp/>Forward:<sp/>ABC<sp/>→<sp/>αβ<sp/>→<sp/>dq</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__foc_8c_1a5ecde996274bf4a49e0f8098e3f9f80e" kindref="member">syn_foc_clarke</ref>(&amp;phase_currents,<sp/>&amp;ab);</highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__foc_8c_1afb61f4a48e4490dafd08d306b6d41f23" kindref="member">syn_foc_park</ref>(&amp;ab,<sp/>theta,<sp/>&amp;dq);</highlight></codeline>
+<codeline><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="comment">//<sp/>Now<sp/>dq.d<sp/>and<sp/>dq.q<sp/>are<sp/>the<sp/>field-aligned<sp/>currents.</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="comment">//<sp/>Run<sp/>PID<sp/>on<sp/>dq,<sp/>then<sp/>inverse<sp/>transform<sp/>for<sp/>PWM:</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__foc_8c_1a9c35f7a8f7271a3f2efaa612a99e76a7" kindref="member">syn_foc_inv_park</ref>(&amp;dq_cmd,<sp/>theta,<sp/>&amp;ab);</highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__foc_8c_1ac29987cfb9f8af8d03c97464df248e79" kindref="member">syn_foc_inv_clarke</ref>(&amp;ab,<sp/>&amp;phase_voltages);</highlight></codeline>
+</programlisting> </para>
+</simplesect>
+</para>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_FOC_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_FOC_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../util/syn_qmath.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../common/syn_defs.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Types<sp/>────────────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight></codeline>
+<codeline lineno="46" refid="structSYN__FOC__ABC" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="47" refid="structSYN__FOC__ABC_1a949803287b59231ec308aa92b041a085" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/><ref refid="structSYN__FOC__ABC_1a949803287b59231ec308aa92b041a085" kindref="member">a</ref>;<sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="48" refid="structSYN__FOC__ABC_1a7c7c10a79c8c56538ce0678cc5bde943" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/><ref refid="structSYN__FOC__ABC_1a7c7c10a79c8c56538ce0678cc5bde943" kindref="member">b</ref>;<sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="49" refid="structSYN__FOC__ABC_1ab3d09f073560ec15ea44cef66cdd2cc5" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/><ref refid="structSYN__FOC__ABC_1ab3d09f073560ec15ea44cef66cdd2cc5" kindref="member">c</ref>;<sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="50"><highlight class="normal">}<sp/><ref refid="structSYN__FOC__ABC" kindref="compound">SYN_FOC_ABC</ref>;</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"></highlight></codeline>
+<codeline lineno="53" refid="structSYN__FOC__AB" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="54" refid="structSYN__FOC__AB_1aee6e126c8758e5839a5a268bfbc384ee" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/><ref refid="structSYN__FOC__AB_1aee6e126c8758e5839a5a268bfbc384ee" kindref="member">alpha</ref>;<sp/><sp/></highlight></codeline>
+<codeline lineno="55" refid="structSYN__FOC__AB_1aa1429750872793185e8cde11116c5f19" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/><ref refid="structSYN__FOC__AB_1aa1429750872793185e8cde11116c5f19" kindref="member">beta</ref>;<sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="56"><highlight class="normal">}<sp/><ref refid="structSYN__FOC__AB" kindref="compound">SYN_FOC_AB</ref>;</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"></highlight></codeline>
+<codeline lineno="59" refid="structSYN__FOC__DQ" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="60" refid="structSYN__FOC__DQ_1a5bb9f8dcad3e033b5bf3814608d57058" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/><ref refid="structSYN__FOC__DQ_1a5bb9f8dcad3e033b5bf3814608d57058" kindref="member">d</ref>;<sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="61" refid="structSYN__FOC__DQ_1aee2ab1f2de77328509256f214e2e40c1" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/><ref refid="structSYN__FOC__DQ_1aee2ab1f2de77328509256f214e2e40c1" kindref="member">q</ref>;<sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="62"><highlight class="normal">}<sp/><ref refid="structSYN__FOC__DQ" kindref="compound">SYN_FOC_DQ</ref>;</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"></highlight></codeline>
+<codeline lineno="64"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Clarke<sp/>transform<sp/>─────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="65"><highlight class="normal"></highlight></codeline>
+<codeline lineno="78"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__foc_8h_1a5ecde996274bf4a49e0f8098e3f9f80e" kindref="member">syn_foc_clarke</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__FOC__ABC" kindref="compound">SYN_FOC_ABC</ref><sp/>*abc,<sp/><ref refid="structSYN__FOC__AB" kindref="compound">SYN_FOC_AB</ref><sp/>*ab);</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"></highlight></codeline>
+<codeline lineno="86"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__foc_8h_1ac29987cfb9f8af8d03c97464df248e79" kindref="member">syn_foc_inv_clarke</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__FOC__AB" kindref="compound">SYN_FOC_AB</ref><sp/>*ab,<sp/><ref refid="structSYN__FOC__ABC" kindref="compound">SYN_FOC_ABC</ref><sp/>*abc);</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"></highlight></codeline>
+<codeline lineno="88"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Park<sp/>transform<sp/>───────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="89"><highlight class="normal"></highlight></codeline>
+<codeline lineno="100"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__foc_8h_1afb61f4a48e4490dafd08d306b6d41f23" kindref="member">syn_foc_park</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__FOC__AB" kindref="compound">SYN_FOC_AB</ref><sp/>*ab,<sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>theta,<sp/><ref refid="structSYN__FOC__DQ" kindref="compound">SYN_FOC_DQ</ref><sp/>*dq);</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"></highlight></codeline>
+<codeline lineno="112"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__foc_8h_1a9c35f7a8f7271a3f2efaa612a99e76a7" kindref="member">syn_foc_inv_park</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__FOC__DQ" kindref="compound">SYN_FOC_DQ</ref><sp/>*dq,<sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>theta,<sp/><ref refid="structSYN__FOC__AB" kindref="compound">SYN_FOC_AB</ref><sp/>*ab);</highlight></codeline>
+<codeline lineno="113"><highlight class="normal"></highlight></codeline>
+<codeline lineno="114"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Utility<sp/>──────────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="115"><highlight class="normal"></highlight></codeline>
+<codeline lineno="128"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__foc_8h_1a5c4f41c9ac6321fe9e3adf994320cd21" kindref="member">syn_foc_svpwm</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__FOC__AB" kindref="compound">SYN_FOC_AB</ref><sp/>*ab,<sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>v_bus,</highlight></codeline>
+<codeline lineno="129"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>*duty_a,<sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>*duty_b,<sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>*duty_c);</highlight></codeline>
+<codeline lineno="130"><highlight class="normal"></highlight></codeline>
+<codeline lineno="131"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="132"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="133"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="134"><highlight class="normal"></highlight></codeline>
+<codeline lineno="135"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_FOC_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/motor/syn_foc.h"/>
+  </compounddef>
+</doxygen>

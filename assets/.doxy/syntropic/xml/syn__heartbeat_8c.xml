@@ -1,0 +1,665 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__heartbeat_8c" kind="file" language="C++">
+    <compoundname>syn_heartbeat.c</compoundname>
+    <includes refid="syn__heartbeat_8h" local="yes">syn_heartbeat.h</includes>
+    <includes refid="syn__assert_8h" local="yes">../util/syn_assert.h</includes>
+    <includes local="no">string.h</includes>
+    <incdepgraph>
+      <node id="10">
+        <label>../common/syn_compiler.h</label>
+        <link refid="syn__compiler_8h"/>
+      </node>
+      <node id="3">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/net/syn_heartbeat.c</label>
+        <link refid="syn__heartbeat_8c"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>syn_heartbeat.h</label>
+        <link refid="syn__heartbeat_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>syn_router.h</label>
+        <link refid="syn__router_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>syn_transport.h</label>
+        <link refid="syn__transport_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="9">
+        <label>../port/syn_port_system.h</label>
+        <link refid="syn__port__system_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+      </node>
+      <node id="11">
+        <label>../system/syn_errlog.h</label>
+        <link refid="syn__errlog_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="12">
+        <label>../util/syn_assert.h</label>
+        <link refid="syn__assert_8h"/>
+        <childnode refid="10" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>stdbool.h</label>
+      </node>
+      <node id="5">
+        <label>stddef.h</label>
+      </node>
+      <node id="4">
+        <label>stdint.h</label>
+      </node>
+      <node id="13">
+        <label>string.h</label>
+      </node>
+    </incdepgraph>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__heartbeat_8c_1ab501d7e3639c0d1ddb4352007c851c6f" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void hb_rx_handler</definition>
+        <argsstring>(const SYN_Packet *pkt, void *ctx)</argsstring>
+        <name>hb_rx_handler</name>
+        <param>
+          <type>const <ref refid="structSYN__Packet" kindref="compound">SYN_Packet</ref> *</type>
+          <declname>pkt</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>ctx</declname>
+        </param>
+        <briefdescription>
+<para>Router callback for incoming heartbeat packets. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>pkt</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Received packet. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>ctx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Heartbeat context (<ref refid="structSYN__Heartbeat" kindref="compound">SYN_Heartbeat</ref> *). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/net/syn_heartbeat.c" line="24" column="13" bodyfile="src/syntropic/net/syn_heartbeat.c" bodystart="24" bodyend="50"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__heartbeat_8c_1a40ab11f580d8dae1b0db69de7fbca3ed" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_heartbeat_init</definition>
+        <argsstring>(SYN_Heartbeat *hb, SYN_Router *router, SYN_HB_Peer *peers, uint8_t peer_cap, uint32_t interval_ms, uint32_t timeout_ms)</argsstring>
+        <name>syn_heartbeat_init</name>
+        <param>
+          <type><ref refid="structSYN__Heartbeat" kindref="compound">SYN_Heartbeat</ref> *</type>
+          <declname>hb</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__Router" kindref="compound">SYN_Router</ref> *</type>
+          <declname>router</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__HB__Peer" kindref="compound">SYN_HB_Peer</ref> *</type>
+          <declname>peers</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>peer_cap</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>interval_ms</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>timeout_ms</declname>
+        </param>
+        <briefdescription>
+<para>Initialize heartbeat system. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Automatically registers a handler for SYN_MSG_HEARTBEAT on the router.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>hb</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Heartbeat instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>router</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Packet router. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>peers</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Caller-owned peer array. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>peer_cap</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Array capacity. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>interval_ms</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>How often to send our heartbeat. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>timeout_ms</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>How long before a peer is &quot;dead&quot;. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/net/syn_heartbeat.c" line="54" column="6" bodyfile="src/syntropic/net/syn_heartbeat.c" bodystart="54" bodyend="74"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__heartbeat_8c_1a8071166a17d1526e3eef685f11e3c213" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_heartbeat_add_peer</definition>
+        <argsstring>(SYN_Heartbeat *hb, uint8_t node_id)</argsstring>
+        <name>syn_heartbeat_add_peer</name>
+        <param>
+          <type><ref refid="structSYN__Heartbeat" kindref="compound">SYN_Heartbeat</ref> *</type>
+          <declname>hb</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>node_id</declname>
+        </param>
+        <briefdescription>
+<para>Add a peer to monitor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>hb</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Heartbeat instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>node_id</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Peer node ID. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if added, false if peer table is full. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/net/syn_heartbeat.c" line="76" column="6" bodyfile="src/syntropic/net/syn_heartbeat.c" bodystart="76" bodyend="100"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__heartbeat_8c_1a4689246ee26d9018dceb6d036755e1ca" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_heartbeat_update</definition>
+        <argsstring>(SYN_Heartbeat *hb)</argsstring>
+        <name>syn_heartbeat_update</name>
+        <param>
+          <type><ref refid="structSYN__Heartbeat" kindref="compound">SYN_Heartbeat</ref> *</type>
+          <declname>hb</declname>
+        </param>
+        <briefdescription>
+<para>Update — send heartbeat + check peers. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Call from your main loop.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>hb</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Heartbeat instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/net/syn_heartbeat.c" line="102" column="6" bodyfile="src/syntropic/net/syn_heartbeat.c" bodystart="102" bodyend="133"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__heartbeat_8c_1ad286c36d5632b150c2397576eb30945b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_heartbeat_on_peer_lost</definition>
+        <argsstring>(SYN_Heartbeat *hb, SYN_HB_Callback cb, void *ctx)</argsstring>
+        <name>syn_heartbeat_on_peer_lost</name>
+        <param>
+          <type><ref refid="structSYN__Heartbeat" kindref="compound">SYN_Heartbeat</ref> *</type>
+          <declname>hb</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__heartbeat_8h_1a5fd8bdd4a561f50a32a981ceb8c130c3" kindref="member">SYN_HB_Callback</ref></type>
+          <declname>cb</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>ctx</declname>
+        </param>
+        <briefdescription>
+<para>Register peer-lost callback. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>hb</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Heartbeat instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>cb</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Callback function. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>ctx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>User context. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/net/syn_heartbeat.c" line="135" column="6" bodyfile="src/syntropic/net/syn_heartbeat.c" bodystart="135" bodyend="141"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__heartbeat_8c_1a51147d18477d518ab7b95156144aeada" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_heartbeat_on_peer_found</definition>
+        <argsstring>(SYN_Heartbeat *hb, SYN_HB_Callback cb, void *ctx)</argsstring>
+        <name>syn_heartbeat_on_peer_found</name>
+        <param>
+          <type><ref refid="structSYN__Heartbeat" kindref="compound">SYN_Heartbeat</ref> *</type>
+          <declname>hb</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__heartbeat_8h_1a5fd8bdd4a561f50a32a981ceb8c130c3" kindref="member">SYN_HB_Callback</ref></type>
+          <declname>cb</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>ctx</declname>
+        </param>
+        <briefdescription>
+<para>Register peer-found callback. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>hb</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Heartbeat instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>cb</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Callback function. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>ctx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>User context. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/net/syn_heartbeat.c" line="143" column="6" bodyfile="src/syntropic/net/syn_heartbeat.c" bodystart="143" bodyend="150"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__heartbeat_8c_1a3e407fa695c1398b3afa6ce2498c7409" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_heartbeat_peer_alive</definition>
+        <argsstring>(const SYN_Heartbeat *hb, uint8_t node_id)</argsstring>
+        <name>syn_heartbeat_peer_alive</name>
+        <param>
+          <type>const <ref refid="structSYN__Heartbeat" kindref="compound">SYN_Heartbeat</ref> *</type>
+          <declname>hb</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>node_id</declname>
+        </param>
+        <briefdescription>
+<para>Check if a specific peer is alive. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>hb</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Heartbeat instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>node_id</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Peer node ID. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if the peer is alive. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/net/syn_heartbeat.c" line="152" column="6" bodyfile="src/syntropic/net/syn_heartbeat.c" bodystart="152" bodyend="162"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__heartbeat_8c_1ae54ae1dbdfb71ac0eb4b8551f28c84ee" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_heartbeat_set_errlog</definition>
+        <argsstring>(SYN_Heartbeat *hb, SYN_ErrLog *errlog)</argsstring>
+        <name>syn_heartbeat_set_errlog</name>
+        <param>
+          <type><ref refid="structSYN__Heartbeat" kindref="compound">SYN_Heartbeat</ref> *</type>
+          <declname>hb</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__ErrLog" kindref="compound">SYN_ErrLog</ref> *</type>
+          <declname>errlog</declname>
+        </param>
+        <briefdescription>
+<para>Attach error log for peer-lost/found events. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>hb</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Heartbeat instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>errlog</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Error log instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/net/syn_heartbeat.c" line="164" column="6" bodyfile="src/syntropic/net/syn_heartbeat.c" bodystart="164" bodyend="168"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Heartbeat / keep-alive implementation. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#if<sp/>__has_include(&quot;syn_config.h&quot;)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/>#include<sp/>&quot;syn_config.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="4"><highlight class="normal"></highlight></codeline>
+<codeline lineno="5"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>!defined(SYN_USE_HEARTBEAT)<sp/>||<sp/>SYN_USE_HEARTBEAT</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__heartbeat_8h" kindref="compound">syn_heartbeat.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../util/syn_assert.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;string.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Internal<sp/>heartbeat<sp/>handler<sp/>───────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__heartbeat_8c_1ab501d7e3639c0d1ddb4352007c851c6f" kindref="member">hb_rx_handler</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__Packet" kindref="compound">SYN_Packet</ref><sp/>*pkt,<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*ctx)</highlight></codeline>
+<codeline lineno="25"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="26"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structSYN__Heartbeat" kindref="compound">SYN_Heartbeat</ref><sp/>*hb<sp/>=<sp/>(<ref refid="structSYN__Heartbeat" kindref="compound">SYN_Heartbeat</ref><sp/>*)ctx;</highlight></codeline>
+<codeline lineno="27"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/>now<sp/>=<sp/><ref refid="syn__port__system_8h_1a6c7d98587814b2c0d9c09da02d318873" kindref="member">syn_port_get_tick_ms</ref>();</highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Find<sp/>or<sp/>auto-register<sp/>this<sp/>peer<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(uint8_t<sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>hb-&gt;<ref refid="structSYN__Heartbeat_1ae0de45382b8c88030c96791720edbb1b" kindref="member">peer_capacity</ref>;<sp/>i++)<sp/>{</highlight></codeline>
+<codeline lineno="31"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__HB__Peer" kindref="compound">SYN_HB_Peer</ref><sp/>*p<sp/>=<sp/>&amp;hb-&gt;<ref refid="structSYN__Heartbeat_1a34d09219f7238aa34c24f3e06466f75e" kindref="member">peers</ref>[i];</highlight></codeline>
+<codeline lineno="32"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(p-&gt;<ref refid="structSYN__HB__Peer_1a66b1896b4dfd52733ac5d1d076d4021a" kindref="member">used</ref><sp/>&amp;&amp;<sp/>p-&gt;<ref refid="structSYN__HB__Peer_1a4eecfc11fde17904330d80a6b2b32add" kindref="member">node_id</ref><sp/>==<sp/>pkt-&gt;<ref refid="structSYN__Packet_1a02aff18e99836e84deb66b1e6d22ed99" kindref="member">src</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="33"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>was_dead<sp/>=<sp/>!p-&gt;<ref refid="structSYN__HB__Peer_1a677eb53ff2db6531804323de06a2ae2a" kindref="member">alive</ref>;</highlight></codeline>
+<codeline lineno="34"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>p-&gt;<ref refid="structSYN__HB__Peer_1a7380c1910da84e5a4fd3acd9e05f0deb" kindref="member">last_seen</ref><sp/>=<sp/>now;</highlight></codeline>
+<codeline lineno="35"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>p-&gt;<ref refid="structSYN__HB__Peer_1a677eb53ff2db6531804323de06a2ae2a" kindref="member">alive</ref><sp/><sp/><sp/><sp/><sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(was_dead)<sp/>{</highlight></codeline>
+<codeline lineno="38"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Peer<sp/>came<sp/>back!<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(hb-&gt;<ref refid="structSYN__Heartbeat_1ad459f930ab88415b314037d0cbbc7429" kindref="member">errlog</ref><sp/>!=<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__errlog_8c_1a3d982c5a6ca2ded81a16b87cc139f30f" kindref="member">syn_errlog_record</ref>(hb-&gt;<ref refid="structSYN__Heartbeat_1ad459f930ab88415b314037d0cbbc7429" kindref="member">errlog</ref>,<sp/><ref refid="syn__heartbeat_8h_1a3222c6fb2d4cdaab0333f96b571c2fe3" kindref="member">SYN_HB_ERR_PEER_FOUND</ref>,</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__errlog_8h_1aedfaf77999e34bb2ed005704ccc91933a3250a056e33b0fd4c8934f4d6d2649c6" kindref="member">SYN_ERR_INFO</ref>,<sp/>(uint32_t)pkt-&gt;<ref refid="structSYN__Packet_1a02aff18e99836e84deb66b1e6d22ed99" kindref="member">src</ref>);</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(hb-&gt;<ref refid="structSYN__Heartbeat_1a26d99da4beb4a7349cbf6abd39208075" kindref="member">on_peer_found</ref><sp/>!=<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>hb-&gt;<ref refid="structSYN__Heartbeat_1a26d99da4beb4a7349cbf6abd39208075" kindref="member">on_peer_found</ref>(pkt-&gt;<ref refid="structSYN__Packet_1a02aff18e99836e84deb66b1e6d22ed99" kindref="member">src</ref>,<sp/>hb-&gt;<ref refid="structSYN__Heartbeat_1a8fcb2560ee6ae065e3ca77081ee29f22" kindref="member">cb_ctx</ref>);</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="50"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"></highlight></codeline>
+<codeline lineno="52"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>API<sp/>──────────────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="53"><highlight class="normal"></highlight></codeline>
+<codeline lineno="54"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__heartbeat_8c_1a40ab11f580d8dae1b0db69de7fbca3ed" kindref="member">syn_heartbeat_init</ref>(<ref refid="structSYN__Heartbeat" kindref="compound">SYN_Heartbeat</ref><sp/>*hb,<sp/><ref refid="structSYN__Router" kindref="compound">SYN_Router</ref><sp/>*router,</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__HB__Peer" kindref="compound">SYN_HB_Peer</ref><sp/>*peers,<sp/>uint8_t<sp/>peer_cap,</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>interval_ms,<sp/>uint32_t<sp/>timeout_ms)</highlight></codeline>
+<codeline lineno="57"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(hb<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(router<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(peers<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"></highlight></codeline>
+<codeline lineno="62"><highlight class="normal"><sp/><sp/><sp/><sp/>memset(hb,<sp/>0,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(*hb));</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"><sp/><sp/><sp/><sp/>hb-&gt;<ref refid="structSYN__Heartbeat_1a51a3df4b568fa79e5b13d027019cc87d" kindref="member">router</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>router;</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/><sp/><sp/>hb-&gt;<ref refid="structSYN__Heartbeat_1a34d09219f7238aa34c24f3e06466f75e" kindref="member">peers</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>peers;</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/><sp/><sp/>hb-&gt;<ref refid="structSYN__Heartbeat_1ae0de45382b8c88030c96791720edbb1b" kindref="member">peer_capacity</ref><sp/>=<sp/>peer_cap;</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/><sp/><sp/>hb-&gt;<ref refid="structSYN__Heartbeat_1af2ce3078a8033da643086719723c5495" kindref="member">interval_ms</ref><sp/><sp/><sp/>=<sp/>interval_ms;</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/><sp/><sp/>hb-&gt;<ref refid="structSYN__Heartbeat_1aed5a2f9379272b1f343813a6b2b9b057" kindref="member">timeout_ms</ref><sp/><sp/><sp/><sp/>=<sp/>timeout_ms;</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/><sp/><sp/>hb-&gt;<ref refid="structSYN__Heartbeat_1ac6b17c2c31d82cc337ac8b1a1b410ab1" kindref="member">last_tx_tick</ref><sp/><sp/>=<sp/><ref refid="syn__port__system_8h_1a6c7d98587814b2c0d9c09da02d318873" kindref="member">syn_port_get_tick_ms</ref>();</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"></highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/><sp/><sp/>memset(peers,<sp/>0,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(<ref refid="structSYN__HB__Peer" kindref="compound">SYN_HB_Peer</ref>)<sp/>*<sp/>peer_cap);</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"></highlight></codeline>
+<codeline lineno="72"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Register<sp/>heartbeat<sp/>handler<sp/>on<sp/>the<sp/>router<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__router_8c_1aa74e4aa05980c16cc9f567808331c452" kindref="member">syn_router_register</ref>(router,<sp/><ref refid="syn__router_8h_1a39f9300d6fdfab9d6421d2dc34619304" kindref="member">SYN_MSG_HEARTBEAT</ref>,<sp/><ref refid="syn__heartbeat_8c_1ab501d7e3639c0d1ddb4352007c851c6f" kindref="member">hb_rx_handler</ref>,<sp/>hb);</highlight></codeline>
+<codeline lineno="74"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"></highlight></codeline>
+<codeline lineno="76"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__heartbeat_8c_1a8071166a17d1526e3eef685f11e3c213" kindref="member">syn_heartbeat_add_peer</ref>(<ref refid="structSYN__Heartbeat" kindref="compound">SYN_Heartbeat</ref><sp/>*hb,<sp/>uint8_t<sp/>node_id)</highlight></codeline>
+<codeline lineno="77"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(hb<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"></highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Check<sp/>for<sp/>duplicate<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(uint8_t<sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>hb-&gt;<ref refid="structSYN__Heartbeat_1ae0de45382b8c88030c96791720edbb1b" kindref="member">peer_capacity</ref>;<sp/>i++)<sp/>{</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(hb-&gt;<ref refid="structSYN__Heartbeat_1a34d09219f7238aa34c24f3e06466f75e" kindref="member">peers</ref>[i].<ref refid="structSYN__HB__Peer_1a66b1896b4dfd52733ac5d1d076d4021a" kindref="member">used</ref><sp/>&amp;&amp;<sp/>hb-&gt;<ref refid="structSYN__Heartbeat_1a34d09219f7238aa34c24f3e06466f75e" kindref="member">peers</ref>[i].<ref refid="structSYN__HB__Peer_1a4eecfc11fde17904330d80a6b2b32add" kindref="member">node_id</ref><sp/>==<sp/>node_id)<sp/>{</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;<sp/><sp/></highlight><highlight class="comment">/*<sp/>already<sp/>tracked<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"></highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Find<sp/>empty<sp/>slot<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(uint8_t<sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>hb-&gt;<ref refid="structSYN__Heartbeat_1ae0de45382b8c88030c96791720edbb1b" kindref="member">peer_capacity</ref>;<sp/>i++)<sp/>{</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!hb-&gt;<ref refid="structSYN__Heartbeat_1a34d09219f7238aa34c24f3e06466f75e" kindref="member">peers</ref>[i].<ref refid="structSYN__HB__Peer_1a66b1896b4dfd52733ac5d1d076d4021a" kindref="member">used</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>hb-&gt;<ref refid="structSYN__Heartbeat_1a34d09219f7238aa34c24f3e06466f75e" kindref="member">peers</ref>[i].<ref refid="structSYN__HB__Peer_1a4eecfc11fde17904330d80a6b2b32add" kindref="member">node_id</ref><sp/><sp/><sp/>=<sp/>node_id;</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>hb-&gt;<ref refid="structSYN__Heartbeat_1a34d09219f7238aa34c24f3e06466f75e" kindref="member">peers</ref>[i].<ref refid="structSYN__HB__Peer_1a7380c1910da84e5a4fd3acd9e05f0deb" kindref="member">last_seen</ref><sp/>=<sp/><ref refid="syn__port__system_8h_1a6c7d98587814b2c0d9c09da02d318873" kindref="member">syn_port_get_tick_ms</ref>();</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>hb-&gt;<ref refid="structSYN__Heartbeat_1a34d09219f7238aa34c24f3e06466f75e" kindref="member">peers</ref>[i].<ref refid="structSYN__HB__Peer_1a677eb53ff2db6531804323de06a2ae2a" kindref="member">alive</ref><sp/><sp/><sp/><sp/><sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>hb-&gt;<ref refid="structSYN__Heartbeat_1a34d09219f7238aa34c24f3e06466f75e" kindref="member">peers</ref>[i].<ref refid="structSYN__HB__Peer_1a66b1896b4dfd52733ac5d1d076d4021a" kindref="member">used</ref><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>hb-&gt;<ref refid="structSYN__Heartbeat_1ace9446d0ece4d3f7c3edc0f722d05dc5" kindref="member">peer_count</ref>++;</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"></highlight></codeline>
+<codeline lineno="99"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;<sp/><sp/></highlight><highlight class="comment">/*<sp/>table<sp/>full<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="100"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"></highlight></codeline>
+<codeline lineno="102"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__heartbeat_8c_1a4689246ee26d9018dceb6d036755e1ca" kindref="member">syn_heartbeat_update</ref>(<ref refid="structSYN__Heartbeat" kindref="compound">SYN_Heartbeat</ref><sp/>*hb)</highlight></codeline>
+<codeline lineno="103"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(hb<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"></highlight></codeline>
+<codeline lineno="106"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/>now<sp/>=<sp/><ref refid="syn__port__system_8h_1a6c7d98587814b2c0d9c09da02d318873" kindref="member">syn_port_get_tick_ms</ref>();</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"></highlight></codeline>
+<codeline lineno="108"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Send<sp/>our<sp/>heartbeat<sp/>(broadcast)<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="109"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>((now<sp/>-<sp/>hb-&gt;<ref refid="structSYN__Heartbeat_1ac6b17c2c31d82cc337ac8b1a1b410ab1" kindref="member">last_tx_tick</ref>)<sp/>&gt;=<sp/>hb-&gt;<ref refid="structSYN__Heartbeat_1af2ce3078a8033da643086719723c5495" kindref="member">interval_ms</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="110"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__router_8c_1a3af1249db4c838daed8853e6ccebb456" kindref="member">syn_router_send</ref>(hb-&gt;<ref refid="structSYN__Heartbeat_1a51a3df4b568fa79e5b13d027019cc87d" kindref="member">router</ref>,<sp/>0xFF,<sp/><ref refid="syn__router_8h_1a39f9300d6fdfab9d6421d2dc34619304" kindref="member">SYN_MSG_HEARTBEAT</ref>,</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>NULL,<sp/>0,<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="112"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>hb-&gt;<ref refid="structSYN__Heartbeat_1ac6b17c2c31d82cc337ac8b1a1b410ab1" kindref="member">last_tx_tick</ref><sp/>=<sp/>now;</highlight></codeline>
+<codeline lineno="113"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"></highlight></codeline>
+<codeline lineno="115"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Check<sp/>peer<sp/>timeouts<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="116"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(uint8_t<sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>hb-&gt;<ref refid="structSYN__Heartbeat_1ae0de45382b8c88030c96791720edbb1b" kindref="member">peer_capacity</ref>;<sp/>i++)<sp/>{</highlight></codeline>
+<codeline lineno="117"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__HB__Peer" kindref="compound">SYN_HB_Peer</ref><sp/>*p<sp/>=<sp/>&amp;hb-&gt;<ref refid="structSYN__Heartbeat_1a34d09219f7238aa34c24f3e06466f75e" kindref="member">peers</ref>[i];</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!p-&gt;<ref refid="structSYN__HB__Peer_1a66b1896b4dfd52733ac5d1d076d4021a" kindref="member">used</ref>)<sp/></highlight><highlight class="keywordflow">continue</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"></highlight></codeline>
+<codeline lineno="120"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>elapsed<sp/>=<sp/>now<sp/>-<sp/>p-&gt;<ref refid="structSYN__HB__Peer_1a7380c1910da84e5a4fd3acd9e05f0deb" kindref="member">last_seen</ref>;</highlight></codeline>
+<codeline lineno="121"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(p-&gt;<ref refid="structSYN__HB__Peer_1a677eb53ff2db6531804323de06a2ae2a" kindref="member">alive</ref><sp/>&amp;&amp;<sp/>elapsed<sp/>&gt;=<sp/>hb-&gt;<ref refid="structSYN__Heartbeat_1aed5a2f9379272b1f343813a6b2b9b057" kindref="member">timeout_ms</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="122"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>p-&gt;<ref refid="structSYN__HB__Peer_1a677eb53ff2db6531804323de06a2ae2a" kindref="member">alive</ref><sp/>=<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="123"><highlight class="normal"></highlight></codeline>
+<codeline lineno="124"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(hb-&gt;<ref refid="structSYN__Heartbeat_1ad459f930ab88415b314037d0cbbc7429" kindref="member">errlog</ref><sp/>!=<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__errlog_8c_1a3d982c5a6ca2ded81a16b87cc139f30f" kindref="member">syn_errlog_record</ref>(hb-&gt;<ref refid="structSYN__Heartbeat_1ad459f930ab88415b314037d0cbbc7429" kindref="member">errlog</ref>,<sp/><ref refid="syn__heartbeat_8h_1a54970a396c5b07142aab36884b595c87" kindref="member">SYN_HB_ERR_PEER_LOST</ref>,</highlight></codeline>
+<codeline lineno="126"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__errlog_8h_1aedfaf77999e34bb2ed005704ccc91933ab4fed99f37b22b019af71738cb22dc3d" kindref="member">SYN_ERR_WARNING</ref>,<sp/>(uint32_t)p-&gt;<ref refid="structSYN__HB__Peer_1a4eecfc11fde17904330d80a6b2b32add" kindref="member">node_id</ref>);</highlight></codeline>
+<codeline lineno="127"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="128"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(hb-&gt;<ref refid="structSYN__Heartbeat_1abf30a31531940128dfb6709cb8123b32" kindref="member">on_peer_lost</ref><sp/>!=<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="129"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>hb-&gt;<ref refid="structSYN__Heartbeat_1abf30a31531940128dfb6709cb8123b32" kindref="member">on_peer_lost</ref>(p-&gt;<ref refid="structSYN__HB__Peer_1a4eecfc11fde17904330d80a6b2b32add" kindref="member">node_id</ref>,<sp/>hb-&gt;<ref refid="structSYN__Heartbeat_1a8fcb2560ee6ae065e3ca77081ee29f22" kindref="member">cb_ctx</ref>);</highlight></codeline>
+<codeline lineno="130"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="131"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="132"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="133"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="134"><highlight class="normal"></highlight></codeline>
+<codeline lineno="135"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__heartbeat_8c_1ad286c36d5632b150c2397576eb30945b" kindref="member">syn_heartbeat_on_peer_lost</ref>(<ref refid="structSYN__Heartbeat" kindref="compound">SYN_Heartbeat</ref><sp/>*hb,</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__heartbeat_8h_1a5fd8bdd4a561f50a32a981ceb8c130c3" kindref="member">SYN_HB_Callback</ref><sp/>cb,<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*ctx)</highlight></codeline>
+<codeline lineno="137"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="138"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(hb<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="139"><highlight class="normal"><sp/><sp/><sp/><sp/>hb-&gt;<ref refid="structSYN__Heartbeat_1abf30a31531940128dfb6709cb8123b32" kindref="member">on_peer_lost</ref><sp/>=<sp/>cb;</highlight></codeline>
+<codeline lineno="140"><highlight class="normal"><sp/><sp/><sp/><sp/>hb-&gt;<ref refid="structSYN__Heartbeat_1a8fcb2560ee6ae065e3ca77081ee29f22" kindref="member">cb_ctx</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>ctx;</highlight></codeline>
+<codeline lineno="141"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="142"><highlight class="normal"></highlight></codeline>
+<codeline lineno="143"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__heartbeat_8c_1a51147d18477d518ab7b95156144aeada" kindref="member">syn_heartbeat_on_peer_found</ref>(<ref refid="structSYN__Heartbeat" kindref="compound">SYN_Heartbeat</ref><sp/>*hb,</highlight></codeline>
+<codeline lineno="144"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__heartbeat_8h_1a5fd8bdd4a561f50a32a981ceb8c130c3" kindref="member">SYN_HB_Callback</ref><sp/>cb,<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*ctx)</highlight></codeline>
+<codeline lineno="145"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="146"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(hb<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="147"><highlight class="normal"><sp/><sp/><sp/><sp/>hb-&gt;<ref refid="structSYN__Heartbeat_1a26d99da4beb4a7349cbf6abd39208075" kindref="member">on_peer_found</ref><sp/>=<sp/>cb;</highlight></codeline>
+<codeline lineno="148"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Note:<sp/>shares<sp/>cb_ctx<sp/>with<sp/>on_peer_lost<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="149"><highlight class="normal"><sp/><sp/><sp/><sp/>hb-&gt;<ref refid="structSYN__Heartbeat_1a8fcb2560ee6ae065e3ca77081ee29f22" kindref="member">cb_ctx</ref><sp/>=<sp/>ctx;</highlight></codeline>
+<codeline lineno="150"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="151"><highlight class="normal"></highlight></codeline>
+<codeline lineno="152"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__heartbeat_8c_1a3e407fa695c1398b3afa6ce2498c7409" kindref="member">syn_heartbeat_peer_alive</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__Heartbeat" kindref="compound">SYN_Heartbeat</ref><sp/>*hb,<sp/>uint8_t<sp/>node_id)</highlight></codeline>
+<codeline lineno="153"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="154"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(hb<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="155"><highlight class="normal"></highlight></codeline>
+<codeline lineno="156"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(uint8_t<sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>hb-&gt;<ref refid="structSYN__Heartbeat_1ae0de45382b8c88030c96791720edbb1b" kindref="member">peer_capacity</ref>;<sp/>i++)<sp/>{</highlight></codeline>
+<codeline lineno="157"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(hb-&gt;<ref refid="structSYN__Heartbeat_1a34d09219f7238aa34c24f3e06466f75e" kindref="member">peers</ref>[i].<ref refid="structSYN__HB__Peer_1a66b1896b4dfd52733ac5d1d076d4021a" kindref="member">used</ref><sp/>&amp;&amp;<sp/>hb-&gt;<ref refid="structSYN__Heartbeat_1a34d09219f7238aa34c24f3e06466f75e" kindref="member">peers</ref>[i].<ref refid="structSYN__HB__Peer_1a4eecfc11fde17904330d80a6b2b32add" kindref="member">node_id</ref><sp/>==<sp/>node_id)<sp/>{</highlight></codeline>
+<codeline lineno="158"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>hb-&gt;<ref refid="structSYN__Heartbeat_1a34d09219f7238aa34c24f3e06466f75e" kindref="member">peers</ref>[i].<ref refid="structSYN__HB__Peer_1a677eb53ff2db6531804323de06a2ae2a" kindref="member">alive</ref>;</highlight></codeline>
+<codeline lineno="159"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="160"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="161"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="162"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="163"><highlight class="normal"></highlight></codeline>
+<codeline lineno="164"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__heartbeat_8c_1ae54ae1dbdfb71ac0eb4b8551f28c84ee" kindref="member">syn_heartbeat_set_errlog</ref>(<ref refid="structSYN__Heartbeat" kindref="compound">SYN_Heartbeat</ref><sp/>*hb,<sp/><ref refid="structSYN__ErrLog" kindref="compound">SYN_ErrLog</ref><sp/>*errlog)</highlight></codeline>
+<codeline lineno="165"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="166"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(hb<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="167"><highlight class="normal"><sp/><sp/><sp/><sp/>hb-&gt;<ref refid="structSYN__Heartbeat_1ad459f930ab88415b314037d0cbbc7429" kindref="member">errlog</ref><sp/>=<sp/>errlog;</highlight></codeline>
+<codeline lineno="168"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="169"><highlight class="normal"></highlight></codeline>
+<codeline lineno="170"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_USE_HEARTBEAT<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/net/syn_heartbeat.c"/>
+  </compounddef>
+</doxygen>

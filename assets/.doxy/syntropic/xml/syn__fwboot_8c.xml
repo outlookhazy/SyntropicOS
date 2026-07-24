@@ -1,0 +1,512 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__fwboot_8c" kind="file" language="C++">
+    <compoundname>syn_fwboot.c</compoundname>
+    <includes refid="syn__fwboot_8h" local="yes">syn_fwboot.h</includes>
+    <includes refid="syn__fwimage_8h" local="yes">syn_fwimage.h</includes>
+    <includes refid="syn__assert_8h" local="yes">../util/syn_assert.h</includes>
+    <includes refid="syn__port__flash_8h" local="yes">../port/syn_port_flash.h</includes>
+    <includes local="no">string.h</includes>
+    <incdepgraph>
+      <node id="10">
+        <label>../common/syn_compiler.h</label>
+        <link refid="syn__compiler_8h"/>
+      </node>
+      <node id="3">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="11">
+        <label>../port/syn_port_flash.h</label>
+        <link refid="syn__port__flash_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/system/syn_fwboot.c</label>
+        <link refid="syn__fwboot_8c"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>syn_fwboot.h</label>
+        <link refid="syn__fwboot_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>syn_fwimage.h</label>
+        <link refid="syn__fwimage_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="9">
+        <label>../util/syn_assert.h</label>
+        <link refid="syn__assert_8h"/>
+        <childnode refid="10" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>../util/syn_crc.h</label>
+        <link refid="syn__crc_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>stdbool.h</label>
+      </node>
+      <node id="5">
+        <label>stddef.h</label>
+      </node>
+      <node id="4">
+        <label>stdint.h</label>
+      </node>
+      <node id="12">
+        <label>string.h</label>
+      </node>
+    </incdepgraph>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__fwboot_8c_1ade5d6eab8410c0c00489d098a370b2c2" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>static SYN_Status read_header</definition>
+        <argsstring>(uint32_t addr, SYN_FwImageHeader *hdr)</argsstring>
+        <name>read_header</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>addr</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__FwImageHeader" kindref="compound">SYN_FwImageHeader</ref> *</type>
+          <declname>hdr</declname>
+        </param>
+        <briefdescription>
+<para>Read a firmware image header from flash. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>addr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Flash address. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>hdr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>[out] Header struct. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/system/syn_fwboot.c" line="27" column="19" bodyfile="src/syntropic/system/syn_fwboot.c" bodystart="27" bodyend="30"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__fwboot_8c_1af34c3d41295176a2523d52ad47441643" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>static SYN_Status write_state</definition>
+        <argsstring>(uint32_t addr, const SYN_FwImageHeader *hdr, uint8_t new_state)</argsstring>
+        <name>write_state</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>addr</declname>
+        </param>
+        <param>
+          <type>const <ref refid="structSYN__FwImageHeader" kindref="compound">SYN_FwImageHeader</ref> *</type>
+          <declname>hdr</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>new_state</declname>
+        </param>
+        <briefdescription>
+<para>Write a new state to a firmware header (erase + rewrite). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>addr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Flash address of the header. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>hdr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Current header. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>new_state</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>New state value. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/system/syn_fwboot.c" line="39" column="19" bodyfile="src/syntropic/system/syn_fwboot.c" bodystart="39" bodyend="51"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__fwboot_8c_1a6fc4bd1ee1c8b3d78bb4a0a03337f146" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_fwboot_init</definition>
+        <argsstring>(SYN_FwBootManager *mgr, uint32_t slot_a, uint32_t slot_b)</argsstring>
+        <name>syn_fwboot_init</name>
+        <param>
+          <type><ref refid="structSYN__FwBootManager" kindref="compound">SYN_FwBootManager</ref> *</type>
+          <declname>mgr</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>slot_a</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>slot_b</declname>
+        </param>
+        <briefdescription>
+<para>Initialize the boot manager. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Reads image headers from both slots.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>mgr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Boot manager instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>slot_a</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Flash base address of slot A. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>slot_b</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Flash base address of slot B. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/system/syn_fwboot.c" line="55" column="12" bodyfile="src/syntropic/system/syn_fwboot.c" bodystart="55" bodyend="71"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__fwboot_8c_1afa400f2573b5ceca49ad303453c153bd" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint8_t</type>
+        <definition>uint8_t syn_fwboot_select</definition>
+        <argsstring>(SYN_FwBootManager *mgr, bool rollback)</argsstring>
+        <name>syn_fwboot_select</name>
+        <param>
+          <type><ref refid="structSYN__FwBootManager" kindref="compound">SYN_FwBootManager</ref> *</type>
+          <declname>mgr</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+          <declname>rollback</declname>
+        </param>
+        <briefdescription>
+<para>Select the best slot to boot. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Priority:<orderedlist>
+<listitem><para>TESTING slot (continue testing a new image)</para>
+</listitem><listitem><para>NEW slot (first boot of a new image — marks as TESTING)</para>
+</listitem><listitem><para>CONFIRMED slot with highest version</para>
+</listitem><listitem><para>Any CONFIRMED slot</para>
+</listitem></orderedlist>
+</para>
+<para>If a TESTING slot failed (called with rollback=true), it&apos;s marked INVALID and the other CONFIRMED slot is selected.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>mgr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Boot manager. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>rollback</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>true if the previous boot was unhealthy (trigger rollback). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Slot index (SYN_FW_SLOT_A or SYN_FW_SLOT_B), or SYN_FW_SLOT_NONE. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/system/syn_fwboot.c" line="73" column="9" bodyfile="src/syntropic/system/syn_fwboot.c" bodystart="73" bodyend="129"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__fwboot_8c_1aa63abcc69a5cf468f5fbd6686c0db161" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_fwboot_confirm</definition>
+        <argsstring>(SYN_FwBootManager *mgr)</argsstring>
+        <name>syn_fwboot_confirm</name>
+        <param>
+          <type><ref refid="structSYN__FwBootManager" kindref="compound">SYN_FwBootManager</ref> *</type>
+          <declname>mgr</declname>
+        </param>
+        <briefdescription>
+<para>Confirm the currently active slot as good. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Promotes state from TESTING to CONFIRMED. Call after the application has started successfully (after syn_boot_mark_healthy).</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>mgr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Boot manager. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK if confirmed, SYN_ERROR if not in TESTING state. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/system/syn_fwboot.c" line="131" column="12" bodyfile="src/syntropic/system/syn_fwboot.c" bodystart="131" bodyend="147"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__fwboot_8c_1ac9cef61055d3ce675f3b54b14a07676f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_fwboot_refresh</definition>
+        <argsstring>(SYN_FwBootManager *mgr)</argsstring>
+        <name>syn_fwboot_refresh</name>
+        <param>
+          <type><ref refid="structSYN__FwBootManager" kindref="compound">SYN_FwBootManager</ref> *</type>
+          <declname>mgr</declname>
+        </param>
+        <briefdescription>
+<para>Reload slot headers from flash. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Call after an OTA update to refresh the cached state.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>mgr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Boot manager. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/system/syn_fwboot.c" line="149" column="12" bodyfile="src/syntropic/system/syn_fwboot.c" bodystart="149" bodyend="156"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>A/B firmware boot manager implementation. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#if<sp/>__has_include(&quot;syn_config.h&quot;)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/>#include<sp/>&quot;syn_config.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="4"><highlight class="normal"></highlight></codeline>
+<codeline lineno="5"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>!defined(SYN_USE_BOOT)<sp/>||<sp/>SYN_USE_BOOT</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__fwboot_8h" kindref="compound">syn_fwboot.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__fwimage_8h" kindref="compound">syn_fwimage.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../util/syn_assert.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../port/syn_port_flash.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;string.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Helpers<sp/>──────────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__fwboot_8c_1ade5d6eab8410c0c00489d098a370b2c2" kindref="member">read_header</ref>(uint32_t<sp/>addr,<sp/><ref refid="structSYN__FwImageHeader" kindref="compound">SYN_FwImageHeader</ref><sp/>*hdr)</highlight></codeline>
+<codeline lineno="28"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="29"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__port__flash_8h_1adc72e69daabcea01a91710bbfa51e1b3" kindref="member">syn_port_flash_read</ref>(addr,<sp/>hdr,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(*hdr));</highlight></codeline>
+<codeline lineno="30"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__fwboot_8c_1af34c3d41295176a2523d52ad47441643" kindref="member">write_state</ref>(uint32_t<sp/>addr,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__FwImageHeader" kindref="compound">SYN_FwImageHeader</ref><sp/>*hdr,</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>new_state)</highlight></codeline>
+<codeline lineno="41"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structSYN__FwImageHeader" kindref="compound">SYN_FwImageHeader</ref><sp/>updated<sp/>=<sp/>*hdr;</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"><sp/><sp/><sp/><sp/>updated.<ref refid="structSYN__FwImageHeader_1a5370a279a613d369d15f866205639fdf" kindref="member">state</ref><sp/>=<sp/>new_state;</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__fwimage_8h_1a5b14953c26ff467be092bd8ca7f2e25c" kindref="member">syn_fwimage_seal_header</ref>(&amp;updated);</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Erase<sp/>sector<sp/>containing<sp/>the<sp/>header<sp/>and<sp/>rewrite<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/>st<sp/>=<sp/><ref refid="syn__port__flash_8h_1a2b4ec48702be2b4d90a5726954d6b8be" kindref="member">syn_port_flash_erase</ref>(addr);</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(st<sp/>!=<sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>st;</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"></highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__port__flash_8h_1ac0bcab8a87b5aa6462e8a548a7554dad" kindref="member">syn_port_flash_write</ref>(addr,<sp/>&amp;updated,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(updated));</highlight></codeline>
+<codeline lineno="51"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"></highlight></codeline>
+<codeline lineno="53"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>API<sp/>──────────────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="54"><highlight class="normal"></highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__fwboot_8c_1a6fc4bd1ee1c8b3d78bb4a0a03337f146" kindref="member">syn_fwboot_init</ref>(<ref refid="structSYN__FwBootManager" kindref="compound">SYN_FwBootManager</ref><sp/>*mgr,</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>slot_a,<sp/>uint32_t<sp/>slot_b)</highlight></codeline>
+<codeline lineno="57"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(mgr<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"></highlight></codeline>
+<codeline lineno="60"><highlight class="normal"><sp/><sp/><sp/><sp/>memset(mgr,<sp/>0,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(*mgr));</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/><sp/><sp/>mgr-&gt;<ref refid="structSYN__FwBootManager_1a4a19a82eac51800223ba47040947925c" kindref="member">slot_addr</ref>[0]<sp/>=<sp/>slot_a;</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"><sp/><sp/><sp/><sp/>mgr-&gt;<ref refid="structSYN__FwBootManager_1a4a19a82eac51800223ba47040947925c" kindref="member">slot_addr</ref>[1]<sp/>=<sp/>slot_b;</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"><sp/><sp/><sp/><sp/>mgr-&gt;<ref refid="structSYN__FwBootManager_1aa435244af10e836930d0415cd6503cf9" kindref="member">active_slot</ref><sp/><sp/>=<sp/><ref refid="syn__fwboot_8h_1a9a1dbc6f1205b4216bd8dd14de51ff0c" kindref="member">SYN_FW_SLOT_NONE</ref>;</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"></highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Read<sp/>headers<sp/>from<sp/>flash<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__fwboot_8c_1ade5d6eab8410c0c00489d098a370b2c2" kindref="member">read_header</ref>(slot_a,<sp/>&amp;mgr-&gt;<ref refid="structSYN__FwBootManager_1ac0a81d44bd514e2b3470bdd2c8e34986" kindref="member">slot_hdr</ref>[0]);</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__fwboot_8c_1ade5d6eab8410c0c00489d098a370b2c2" kindref="member">read_header</ref>(slot_b,<sp/>&amp;mgr-&gt;<ref refid="structSYN__FwBootManager_1ac0a81d44bd514e2b3470bdd2c8e34986" kindref="member">slot_hdr</ref>[1]);</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"></highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/>mgr-&gt;<ref refid="structSYN__FwBootManager_1a40658a40535922ab98a56bfd11a8aca9" kindref="member">initialized</ref><sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="71"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"></highlight></codeline>
+<codeline lineno="73"><highlight class="normal">uint8_t<sp/><ref refid="syn__fwboot_8c_1afa400f2573b5ceca49ad303453c153bd" kindref="member">syn_fwboot_select</ref>(<ref refid="structSYN__FwBootManager" kindref="compound">SYN_FwBootManager</ref><sp/>*mgr,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>rollback)</highlight></codeline>
+<codeline lineno="74"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(mgr<sp/>!=<sp/>NULL<sp/>&amp;&amp;<sp/>mgr-&gt;<ref refid="structSYN__FwBootManager_1a40658a40535922ab98a56bfd11a8aca9" kindref="member">initialized</ref>);</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"></highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>valid[2];</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/><sp/><sp/>valid[0]<sp/>=<sp/><ref refid="syn__fwimage_8h_1a03059edc4ba73c992dedc1773015c413" kindref="member">syn_fwimage_header_valid</ref>(&amp;mgr-&gt;<ref refid="structSYN__FwBootManager_1ac0a81d44bd514e2b3470bdd2c8e34986" kindref="member">slot_hdr</ref>[0]);</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/><sp/><sp/>valid[1]<sp/>=<sp/><ref refid="syn__fwimage_8h_1a03059edc4ba73c992dedc1773015c413" kindref="member">syn_fwimage_header_valid</ref>(&amp;mgr-&gt;<ref refid="structSYN__FwBootManager_1ac0a81d44bd514e2b3470bdd2c8e34986" kindref="member">slot_hdr</ref>[1]);</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"></highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Handle<sp/>rollback:<sp/>if<sp/>a<sp/>slot<sp/>is<sp/>TESTING,<sp/>mark<sp/>it<sp/>INVALID<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(rollback)<sp/>{</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>2;<sp/>i++)<sp/>{</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(valid[i]<sp/>&amp;&amp;<sp/>mgr-&gt;<ref refid="structSYN__FwBootManager_1ac0a81d44bd514e2b3470bdd2c8e34986" kindref="member">slot_hdr</ref>[i].<ref refid="structSYN__FwImageHeader_1a5370a279a613d369d15f866205639fdf" kindref="member">state</ref><sp/>==<sp/><ref refid="syn__fwimage_8h_1ac7b9ccf9f3eb2ecbddcb78b87acdef9fa0d97ea88a25e0e0df425a8ccbeeb3ec4" kindref="member">SYN_FW_STATE_TESTING</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__fwboot_8c_1af34c3d41295176a2523d52ad47441643" kindref="member">write_state</ref>(mgr-&gt;<ref refid="structSYN__FwBootManager_1a4a19a82eac51800223ba47040947925c" kindref="member">slot_addr</ref>[i],<sp/>&amp;mgr-&gt;<ref refid="structSYN__FwBootManager_1ac0a81d44bd514e2b3470bdd2c8e34986" kindref="member">slot_hdr</ref>[i],</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__fwimage_8h_1ac7b9ccf9f3eb2ecbddcb78b87acdef9faccc24d79cd3c7e9119f49c300a30bb49" kindref="member">SYN_FW_STATE_INVALID</ref>);</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>mgr-&gt;<ref refid="structSYN__FwBootManager_1ac0a81d44bd514e2b3470bdd2c8e34986" kindref="member">slot_hdr</ref>[i].<ref refid="structSYN__FwImageHeader_1a5370a279a613d369d15f866205639fdf" kindref="member">state</ref><sp/>=<sp/><ref refid="syn__fwimage_8h_1ac7b9ccf9f3eb2ecbddcb78b87acdef9faccc24d79cd3c7e9119f49c300a30bb49" kindref="member">SYN_FW_STATE_INVALID</ref>;</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__fwimage_8h_1a5b14953c26ff467be092bd8ca7f2e25c" kindref="member">syn_fwimage_seal_header</ref>(&amp;mgr-&gt;<ref refid="structSYN__FwBootManager_1ac0a81d44bd514e2b3470bdd2c8e34986" kindref="member">slot_hdr</ref>[i]);</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>valid[i]<sp/>=<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;<sp/></highlight><highlight class="comment">/*<sp/>No<sp/>longer<sp/>bootable<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="90"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"></highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Priority<sp/>1:<sp/>TESTING<sp/>slot<sp/>(resume<sp/>testing)<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>2;<sp/>i++)<sp/>{</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(valid[i]<sp/>&amp;&amp;<sp/>mgr-&gt;<ref refid="structSYN__FwBootManager_1ac0a81d44bd514e2b3470bdd2c8e34986" kindref="member">slot_hdr</ref>[i].<ref refid="structSYN__FwImageHeader_1a5370a279a613d369d15f866205639fdf" kindref="member">state</ref><sp/>==<sp/><ref refid="syn__fwimage_8h_1ac7b9ccf9f3eb2ecbddcb78b87acdef9fa0d97ea88a25e0e0df425a8ccbeeb3ec4" kindref="member">SYN_FW_STATE_TESTING</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>mgr-&gt;<ref refid="structSYN__FwBootManager_1aa435244af10e836930d0415cd6503cf9" kindref="member">active_slot</ref><sp/>=<sp/>(uint8_t)i;</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(uint8_t)i;</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"></highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Priority<sp/>2:<sp/>NEW<sp/>slot<sp/>(first<sp/>boot<sp/>of<sp/>update<sp/>—<sp/>promote<sp/>to<sp/>TESTING)<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="103"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>2;<sp/>i++)<sp/>{</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(valid[i]<sp/>&amp;&amp;<sp/>mgr-&gt;<ref refid="structSYN__FwBootManager_1ac0a81d44bd514e2b3470bdd2c8e34986" kindref="member">slot_hdr</ref>[i].<ref refid="structSYN__FwImageHeader_1a5370a279a613d369d15f866205639fdf" kindref="member">state</ref><sp/>==<sp/><ref refid="syn__fwimage_8h_1ac7b9ccf9f3eb2ecbddcb78b87acdef9fa803c0a4cc0519e6b0ea15ee6e058e923" kindref="member">SYN_FW_STATE_NEW</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__fwboot_8c_1af34c3d41295176a2523d52ad47441643" kindref="member">write_state</ref>(mgr-&gt;<ref refid="structSYN__FwBootManager_1a4a19a82eac51800223ba47040947925c" kindref="member">slot_addr</ref>[i],<sp/>&amp;mgr-&gt;<ref refid="structSYN__FwBootManager_1ac0a81d44bd514e2b3470bdd2c8e34986" kindref="member">slot_hdr</ref>[i],</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__fwimage_8h_1ac7b9ccf9f3eb2ecbddcb78b87acdef9fa0d97ea88a25e0e0df425a8ccbeeb3ec4" kindref="member">SYN_FW_STATE_TESTING</ref>);</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>mgr-&gt;<ref refid="structSYN__FwBootManager_1ac0a81d44bd514e2b3470bdd2c8e34986" kindref="member">slot_hdr</ref>[i].<ref refid="structSYN__FwImageHeader_1a5370a279a613d369d15f866205639fdf" kindref="member">state</ref><sp/>=<sp/><ref refid="syn__fwimage_8h_1ac7b9ccf9f3eb2ecbddcb78b87acdef9fa0d97ea88a25e0e0df425a8ccbeeb3ec4" kindref="member">SYN_FW_STATE_TESTING</ref>;</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__fwimage_8h_1a5b14953c26ff467be092bd8ca7f2e25c" kindref="member">syn_fwimage_seal_header</ref>(&amp;mgr-&gt;<ref refid="structSYN__FwBootManager_1ac0a81d44bd514e2b3470bdd2c8e34986" kindref="member">slot_hdr</ref>[i]);</highlight></codeline>
+<codeline lineno="109"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>mgr-&gt;<ref refid="structSYN__FwBootManager_1aa435244af10e836930d0415cd6503cf9" kindref="member">active_slot</ref><sp/>=<sp/>(uint8_t)i;</highlight></codeline>
+<codeline lineno="110"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(uint8_t)i;</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="112"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="113"><highlight class="normal"></highlight></codeline>
+<codeline lineno="114"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Priority<sp/>3:<sp/>CONFIRMED<sp/>slot<sp/>with<sp/>highest<sp/>version<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="115"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>best<sp/>=<sp/><ref refid="syn__fwboot_8h_1a9a1dbc6f1205b4216bd8dd14de51ff0c" kindref="member">SYN_FW_SLOT_NONE</ref>;</highlight></codeline>
+<codeline lineno="116"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/>best_ver<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="117"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>2;<sp/>i++)<sp/>{</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(valid[i]<sp/>&amp;&amp;<sp/>mgr-&gt;<ref refid="structSYN__FwBootManager_1ac0a81d44bd514e2b3470bdd2c8e34986" kindref="member">slot_hdr</ref>[i].<ref refid="structSYN__FwImageHeader_1a5370a279a613d369d15f866205639fdf" kindref="member">state</ref><sp/>==<sp/><ref refid="syn__fwimage_8h_1ac7b9ccf9f3eb2ecbddcb78b87acdef9faae41163782940a2545b63ccc86042996" kindref="member">SYN_FW_STATE_CONFIRMED</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(best<sp/>==<sp/><ref refid="syn__fwboot_8h_1a9a1dbc6f1205b4216bd8dd14de51ff0c" kindref="member">SYN_FW_SLOT_NONE</ref><sp/>||</highlight></codeline>
+<codeline lineno="120"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>mgr-&gt;<ref refid="structSYN__FwBootManager_1ac0a81d44bd514e2b3470bdd2c8e34986" kindref="member">slot_hdr</ref>[i].<ref refid="structSYN__FwImageHeader_1ad8b843701877dc2782bed2b82fb7117a" kindref="member">version_code</ref><sp/>&gt;<sp/>best_ver)<sp/>{</highlight></codeline>
+<codeline lineno="121"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>best<sp/>=<sp/>(uint8_t)i;</highlight></codeline>
+<codeline lineno="122"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>best_ver<sp/>=<sp/>mgr-&gt;<ref refid="structSYN__FwBootManager_1ac0a81d44bd514e2b3470bdd2c8e34986" kindref="member">slot_hdr</ref>[i].<ref refid="structSYN__FwImageHeader_1ad8b843701877dc2782bed2b82fb7117a" kindref="member">version_code</ref>;</highlight></codeline>
+<codeline lineno="123"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="124"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="126"><highlight class="normal"></highlight></codeline>
+<codeline lineno="127"><highlight class="normal"><sp/><sp/><sp/><sp/>mgr-&gt;<ref refid="structSYN__FwBootManager_1aa435244af10e836930d0415cd6503cf9" kindref="member">active_slot</ref><sp/>=<sp/>best;</highlight></codeline>
+<codeline lineno="128"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>best;</highlight></codeline>
+<codeline lineno="129"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="130"><highlight class="normal"></highlight></codeline>
+<codeline lineno="131"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__fwboot_8c_1aa63abcc69a5cf468f5fbd6686c0db161" kindref="member">syn_fwboot_confirm</ref>(<ref refid="structSYN__FwBootManager" kindref="compound">SYN_FwBootManager</ref><sp/>*mgr)</highlight></codeline>
+<codeline lineno="132"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="133"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(mgr<sp/>!=<sp/>NULL<sp/>&amp;&amp;<sp/>mgr-&gt;<ref refid="structSYN__FwBootManager_1a40658a40535922ab98a56bfd11a8aca9" kindref="member">initialized</ref>);</highlight></codeline>
+<codeline lineno="134"><highlight class="normal"></highlight></codeline>
+<codeline lineno="135"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(mgr-&gt;<ref refid="structSYN__FwBootManager_1aa435244af10e836930d0415cd6503cf9" kindref="member">active_slot</ref><sp/>&gt;=<sp/>2)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00acd5d2701b7cfa9fb446640ecbeb19fc9" kindref="member">SYN_ERROR</ref>;</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"></highlight></codeline>
+<codeline lineno="137"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structSYN__FwImageHeader" kindref="compound">SYN_FwImageHeader</ref><sp/>*hdr<sp/>=<sp/>&amp;mgr-&gt;<ref refid="structSYN__FwBootManager_1ac0a81d44bd514e2b3470bdd2c8e34986" kindref="member">slot_hdr</ref>[mgr-&gt;<ref refid="structSYN__FwBootManager_1aa435244af10e836930d0415cd6503cf9" kindref="member">active_slot</ref>];</highlight></codeline>
+<codeline lineno="138"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(hdr-&gt;<ref refid="structSYN__FwImageHeader_1a5370a279a613d369d15f866205639fdf" kindref="member">state</ref><sp/>!=<sp/><ref refid="syn__fwimage_8h_1ac7b9ccf9f3eb2ecbddcb78b87acdef9fa0d97ea88a25e0e0df425a8ccbeeb3ec4" kindref="member">SYN_FW_STATE_TESTING</ref>)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00acd5d2701b7cfa9fb446640ecbeb19fc9" kindref="member">SYN_ERROR</ref>;</highlight></codeline>
+<codeline lineno="139"><highlight class="normal"></highlight></codeline>
+<codeline lineno="140"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/>st<sp/>=<sp/><ref refid="syn__fwboot_8c_1af34c3d41295176a2523d52ad47441643" kindref="member">write_state</ref>(mgr-&gt;<ref refid="structSYN__FwBootManager_1a4a19a82eac51800223ba47040947925c" kindref="member">slot_addr</ref>[mgr-&gt;<ref refid="structSYN__FwBootManager_1aa435244af10e836930d0415cd6503cf9" kindref="member">active_slot</ref>],</highlight></codeline>
+<codeline lineno="141"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>hdr,<sp/><ref refid="syn__fwimage_8h_1ac7b9ccf9f3eb2ecbddcb78b87acdef9faae41163782940a2545b63ccc86042996" kindref="member">SYN_FW_STATE_CONFIRMED</ref>);</highlight></codeline>
+<codeline lineno="142"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(st<sp/>==<sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="143"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>hdr-&gt;<ref refid="structSYN__FwImageHeader_1a5370a279a613d369d15f866205639fdf" kindref="member">state</ref><sp/>=<sp/><ref refid="syn__fwimage_8h_1ac7b9ccf9f3eb2ecbddcb78b87acdef9faae41163782940a2545b63ccc86042996" kindref="member">SYN_FW_STATE_CONFIRMED</ref>;</highlight></codeline>
+<codeline lineno="144"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__fwimage_8h_1a5b14953c26ff467be092bd8ca7f2e25c" kindref="member">syn_fwimage_seal_header</ref>(hdr);</highlight></codeline>
+<codeline lineno="145"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="146"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>st;</highlight></codeline>
+<codeline lineno="147"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="148"><highlight class="normal"></highlight></codeline>
+<codeline lineno="149"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__fwboot_8c_1ac9cef61055d3ce675f3b54b14a07676f" kindref="member">syn_fwboot_refresh</ref>(<ref refid="structSYN__FwBootManager" kindref="compound">SYN_FwBootManager</ref><sp/>*mgr)</highlight></codeline>
+<codeline lineno="150"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="151"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(mgr<sp/>!=<sp/>NULL<sp/>&amp;&amp;<sp/>mgr-&gt;<ref refid="structSYN__FwBootManager_1a40658a40535922ab98a56bfd11a8aca9" kindref="member">initialized</ref>);</highlight></codeline>
+<codeline lineno="152"><highlight class="normal"></highlight></codeline>
+<codeline lineno="153"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__fwboot_8c_1ade5d6eab8410c0c00489d098a370b2c2" kindref="member">read_header</ref>(mgr-&gt;<ref refid="structSYN__FwBootManager_1a4a19a82eac51800223ba47040947925c" kindref="member">slot_addr</ref>[0],<sp/>&amp;mgr-&gt;<ref refid="structSYN__FwBootManager_1ac0a81d44bd514e2b3470bdd2c8e34986" kindref="member">slot_hdr</ref>[0]);</highlight></codeline>
+<codeline lineno="154"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__fwboot_8c_1ade5d6eab8410c0c00489d098a370b2c2" kindref="member">read_header</ref>(mgr-&gt;<ref refid="structSYN__FwBootManager_1a4a19a82eac51800223ba47040947925c" kindref="member">slot_addr</ref>[1],<sp/>&amp;mgr-&gt;<ref refid="structSYN__FwBootManager_1ac0a81d44bd514e2b3470bdd2c8e34986" kindref="member">slot_hdr</ref>[1]);</highlight></codeline>
+<codeline lineno="155"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="156"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="157"><highlight class="normal"></highlight></codeline>
+<codeline lineno="158"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_USE_BOOT<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/system/syn_fwboot.c"/>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,688 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__sleep_8h" kind="file" language="C++">
+    <compoundname>syn_sleep.h</compoundname>
+    <includes refid="syn__defs_8h" local="yes">../common/syn_defs.h</includes>
+    <includes local="no">stdint.h</includes>
+    <includes local="no">stdbool.h</includes>
+    <includedby refid="syn__port__stubs_8c" local="yes">src/syntropic/port_stubs/syn_port_stubs.c</includedby>
+    <includedby refid="syntropic_8h" local="yes">src/syntropic/syntropic.h</includedby>
+    <incdepgraph>
+      <node id="2">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/system/syn_sleep.h</label>
+        <link refid="syn__sleep_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>stdbool.h</label>
+      </node>
+      <node id="4">
+        <label>stddef.h</label>
+      </node>
+      <node id="3">
+        <label>stdint.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="2">
+        <label>src/syntropic/port_stubs/syn_port_stubs.c</label>
+        <link refid="syn__port__stubs_8c"/>
+      </node>
+      <node id="3">
+        <label>src/syntropic/syntropic.h</label>
+        <link refid="syntropic_8h"/>
+      </node>
+      <node id="1">
+        <label>src/syntropic/system/syn_sleep.h</label>
+        <link refid="syn__sleep_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="structSYN__Sleep" prot="public">SYN_Sleep</innerclass>
+    <sectiondef kind="user-defined">
+      <header>Sleep Lock IDs (bit positions)</header>
+      <description><para>Users can define their own; these are common examples. </para>
+</description>
+      <memberdef kind="define" id="syn__sleep_8h_1a4db5634481ffc78b3cdbd812e8d7e5a6" prot="public" static="no">
+        <name>SYN_SLEEP_LOCK_UART</name>
+        <initializer>(1u &lt;&lt; 0)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>UART peripheral active <linebreak/>
+ </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/system/syn_sleep.h" line="55" column="9" bodyfile="src/syntropic/system/syn_sleep.h" bodystart="55" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__sleep_8h_1aca3d12ecade6f0644cb231dbb72ad30d" prot="public" static="no">
+        <name>SYN_SLEEP_LOCK_SPI</name>
+        <initializer>(1u &lt;&lt; 1)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>SPI peripheral active <linebreak/>
+ </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/system/syn_sleep.h" line="56" column="9" bodyfile="src/syntropic/system/syn_sleep.h" bodystart="56" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__sleep_8h_1a538a220376eaa8397cf1c6e03f03416f" prot="public" static="no">
+        <name>SYN_SLEEP_LOCK_I2C</name>
+        <initializer>(1u &lt;&lt; 2)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>I2C peripheral active <linebreak/>
+ </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/system/syn_sleep.h" line="57" column="9" bodyfile="src/syntropic/system/syn_sleep.h" bodystart="57" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__sleep_8h_1a475e1e5dc4f70bd0c4deba4698d16f66" prot="public" static="no">
+        <name>SYN_SLEEP_LOCK_DMA</name>
+        <initializer>(1u &lt;&lt; 3)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>DMA transfer in progress <linebreak/>
+ </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/system/syn_sleep.h" line="58" column="9" bodyfile="src/syntropic/system/syn_sleep.h" bodystart="58" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__sleep_8h_1a2d26dfd7d69580e584a8bef21a9a9916" prot="public" static="no">
+        <name>SYN_SLEEP_LOCK_ADC</name>
+        <initializer>(1u &lt;&lt; 4)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>ADC conversion in progress </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/system/syn_sleep.h" line="59" column="9" bodyfile="src/syntropic/system/syn_sleep.h" bodystart="59" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__sleep_8h_1a8d400f0b41496f42b0fd649155c5f41e" prot="public" static="no">
+        <name>SYN_SLEEP_LOCK_TIMER</name>
+        <initializer>(1u &lt;&lt; 5)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Hardware timer active <linebreak/>
+ </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/system/syn_sleep.h" line="60" column="9" bodyfile="src/syntropic/system/syn_sleep.h" bodystart="60" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__sleep_8h_1a98baf47e0b286b0d48d10623ef1d402a" prot="public" static="no">
+        <name>SYN_SLEEP_LOCK_APP0</name>
+        <initializer>(1u &lt;&lt; 8)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Application-defined lock 0 </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/system/syn_sleep.h" line="61" column="9" bodyfile="src/syntropic/system/syn_sleep.h" bodystart="61" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__sleep_8h_1a3958f5e048621561c81cfb453492d462" prot="public" static="no">
+        <name>SYN_SLEEP_LOCK_APP1</name>
+        <initializer>(1u &lt;&lt; 9)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Application-defined lock 1 </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/system/syn_sleep.h" line="62" column="9" bodyfile="src/syntropic/system/syn_sleep.h" bodystart="62" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__sleep_8h_1a0272bb54021db094afbdd420436d0158" prot="public" static="no">
+        <name>SYN_SLEEP_LOCK_APP2</name>
+        <initializer>(1u &lt;&lt; 10)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Application-defined lock 2 </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/system/syn_sleep.h" line="63" column="9" bodyfile="src/syntropic/system/syn_sleep.h" bodystart="63" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__sleep_8h_1a04f4adb578d58b23e373fbd70d0bb5d7" prot="public" static="no">
+        <name>SYN_SLEEP_LOCK_APP3</name>
+        <initializer>(1u &lt;&lt; 11)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Application-defined lock 3 </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/system/syn_sleep.h" line="64" column="9" bodyfile="src/syntropic/system/syn_sleep.h" bodystart="64" bodyend="-1"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="enum">
+      <memberdef kind="enum" id="syn__sleep_8h_1a3982260032578bb148402b075c84941a" prot="public" static="no" strong="no">
+        <type></type>
+        <name>SYN_SleepMode</name>
+        <enumvalue id="syn__sleep_8h_1a3982260032578bb148402b075c84941aadde7609d0fd3c18f5002857ae1714e83" prot="public">
+          <name>SYN_SLEEP_NONE</name>
+          <initializer>= 0</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>No sleep (busy wait) <linebreak/>
+ </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__sleep_8h_1a3982260032578bb148402b075c84941aaf3f2ece414ff6be26e4775fdd1018d4a" prot="public">
+          <name>SYN_SLEEP_LIGHT</name>
+          <initializer>= 1</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>WFI / idle — fast wakeup <linebreak/>
+ </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__sleep_8h_1a3982260032578bb148402b075c84941aa4d7964d0e4ed52a7090a49c317fc30d5" prot="public">
+          <name>SYN_SLEEP_DEEP</name>
+          <initializer>= 2</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Stop mode — slower wakeup, lower power <linebreak/>
+ </para>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>Sleep depth selector. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/system/syn_sleep.h" line="45" column="1" bodyfile="src/syntropic/system/syn_sleep.h" bodystart="45" bodyend="49"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__sleep_8h_1a5df8f24e0b14b488d72a3f304905c32e" prot="public" static="no" extern="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_port_sleep</definition>
+        <argsstring>(SYN_SleepMode mode)</argsstring>
+        <name>syn_port_sleep</name>
+        <param>
+          <type><ref refid="syn__sleep_8h_1a3982260032578bb148402b075c84941a" kindref="member">SYN_SleepMode</ref></type>
+          <declname>mode</declname>
+        </param>
+        <briefdescription>
+<para>Enter low-power mode. Implement for your platform. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>For Cortex-M: SYN_SLEEP_LIGHT → WFI, SYN_SLEEP_DEEP → STOP mode. Must return when an interrupt wakes the MCU.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>mode</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Requested sleep depth. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/system/syn_sleep.h" line="88" column="13" bodyfile="src/syntropic/port_stubs/syn_port_stubs.c" bodystart="337" bodyend="341" declfile="src/syntropic/system/syn_sleep.h" declline="88" declcolumn="13"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__sleep_8h_1a2a356bbd8431290ba3964aba05de9a57" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void syn_sleep_init</definition>
+        <argsstring>(SYN_Sleep *s, SYN_SleepMode max_depth)</argsstring>
+        <name>syn_sleep_init</name>
+        <param>
+          <type><ref refid="structSYN__Sleep" kindref="compound">SYN_Sleep</ref> *</type>
+          <declname>s</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__sleep_8h_1a3982260032578bb148402b075c84941a" kindref="member">SYN_SleepMode</ref></type>
+          <declname>max_depth</declname>
+        </param>
+        <briefdescription>
+<para>Initialize the sleep coordinator. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>s</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Sleep instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>max_depth</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Deepest sleep mode allowed. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/system/syn_sleep.h" line="97" column="20" bodyfile="src/syntropic/system/syn_sleep.h" bodystart="97" bodyend="104"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__sleep_8h_1a349e1d982abc198d59e5ef8fcc14deaf" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void syn_sleep_lock</definition>
+        <argsstring>(SYN_Sleep *s, uint32_t lock_id)</argsstring>
+        <name>syn_sleep_lock</name>
+        <param>
+          <type><ref refid="structSYN__Sleep" kindref="compound">SYN_Sleep</ref> *</type>
+          <declname>s</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>lock_id</declname>
+        </param>
+        <briefdescription>
+<para>Acquire a wake lock (prevents sleep). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>s</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Sleep instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>lock_id</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Lock bitmask (e.g. SYN_SLEEP_LOCK_UART). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/system/syn_sleep.h" line="111" column="20" bodyfile="src/syntropic/system/syn_sleep.h" bodystart="111" bodyend="114"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__sleep_8h_1a088c01b66ed2d03f1f51965dccdd1fc9" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void syn_sleep_unlock</definition>
+        <argsstring>(SYN_Sleep *s, uint32_t lock_id)</argsstring>
+        <name>syn_sleep_unlock</name>
+        <param>
+          <type><ref refid="structSYN__Sleep" kindref="compound">SYN_Sleep</ref> *</type>
+          <declname>s</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>lock_id</declname>
+        </param>
+        <briefdescription>
+<para>Release a wake lock. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>s</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Sleep instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>lock_id</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Lock bitmask to release. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/system/syn_sleep.h" line="121" column="20" bodyfile="src/syntropic/system/syn_sleep.h" bodystart="121" bodyend="124"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__sleep_8h_1ac57e2dcd07fd09cd2411dca0e30f8278" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>static bool syn_sleep_is_locked</definition>
+        <argsstring>(const SYN_Sleep *s, uint32_t lock_id)</argsstring>
+        <name>syn_sleep_is_locked</name>
+        <param>
+          <type>const <ref refid="structSYN__Sleep" kindref="compound">SYN_Sleep</ref> *</type>
+          <declname>s</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>lock_id</declname>
+        </param>
+        <briefdescription>
+<para>Check if a specific lock is held. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>s</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Sleep instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>lock_id</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Lock bitmask to check. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if the lock is active. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/system/syn_sleep.h" line="132" column="20" bodyfile="src/syntropic/system/syn_sleep.h" bodystart="132" bodyend="135"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__sleep_8h_1a68c414c183500b0fa31a77069a5fcbfc" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>static bool syn_sleep_any_locked</definition>
+        <argsstring>(const SYN_Sleep *s)</argsstring>
+        <name>syn_sleep_any_locked</name>
+        <param>
+          <type>const <ref refid="structSYN__Sleep" kindref="compound">SYN_Sleep</ref> *</type>
+          <declname>s</declname>
+        </param>
+        <briefdescription>
+<para>Check if any lock is held. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>s</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Sleep instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if any lock is active. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/system/syn_sleep.h" line="142" column="20" bodyfile="src/syntropic/system/syn_sleep.h" bodystart="142" bodyend="145"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__sleep_8h_1ac38c1db283b2121d7ec1189904ec85d4" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>static bool syn_sleep_enter</definition>
+        <argsstring>(SYN_Sleep *s)</argsstring>
+        <name>syn_sleep_enter</name>
+        <param>
+          <type><ref refid="structSYN__Sleep" kindref="compound">SYN_Sleep</ref> *</type>
+          <declname>s</declname>
+        </param>
+        <briefdescription>
+<para>Try to enter sleep mode. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>If no locks are held and sleep is enabled, calls <ref refid="syn__sleep_8h_1a5df8f24e0b14b488d72a3f304905c32e" kindref="member">syn_port_sleep()</ref>.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>s</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Sleep instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if we actually slept, false if vetoed. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/system/syn_sleep.h" line="155" column="20" bodyfile="src/syntropic/system/syn_sleep.h" bodystart="155" bodyend="165"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__sleep_8h_1a115c5b2b46a45762cfead67a705c37b2" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void syn_sleep_enable</definition>
+        <argsstring>(SYN_Sleep *s, bool en)</argsstring>
+        <name>syn_sleep_enable</name>
+        <param>
+          <type><ref refid="structSYN__Sleep" kindref="compound">SYN_Sleep</ref> *</type>
+          <declname>s</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+          <declname>en</declname>
+        </param>
+        <briefdescription>
+<para>Enable/disable sleep globally. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>s</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Sleep instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>en</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>true to enable, false to disable. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/system/syn_sleep.h" line="172" column="20" bodyfile="src/syntropic/system/syn_sleep.h" bodystart="172" bodyend="175"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__sleep_8h_1ad0d69d2f69a9a0a4ef2b75e4c8d6d8b1" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>static uint32_t syn_sleep_locks</definition>
+        <argsstring>(const SYN_Sleep *s)</argsstring>
+        <name>syn_sleep_locks</name>
+        <param>
+          <type>const <ref refid="structSYN__Sleep" kindref="compound">SYN_Sleep</ref> *</type>
+          <declname>s</declname>
+        </param>
+        <briefdescription>
+<para>Get active lock mask (for debug). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>s</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Sleep instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Active lock bitmask. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/system/syn_sleep.h" line="182" column="24" bodyfile="src/syntropic/system/syn_sleep.h" bodystart="182" bodyend="185"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Sleep coordinator — low-power mode management. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Coordinates sleep entry with the scheduler. When all tasks are idle (or only timer-blocked), the system can enter a low-power mode. Clients can veto sleep by holding a &quot;stay awake&quot; lock.</para>
+<para><simplesect kind="par"><title>Architecture</title><para><itemizedlist>
+<listitem><para>Each subsystem that needs the CPU awake holds a lock.</para>
+</listitem><listitem><para>When all locks are released, the scheduler calls <ref refid="syn__sleep_8h_1ac38c1db283b2121d7ec1189904ec85d4" kindref="member">syn_sleep_enter()</ref> which invokes the port sleep function.</para>
+</listitem><listitem><para>Interrupts wake the MCU, and the scheduler resumes.</para>
+</listitem></itemizedlist>
+</para>
+</simplesect>
+<simplesect kind="par"><title>Usage</title><para><programlisting><codeline><highlight class="normal"><ref refid="structSYN__Sleep" kindref="compound">SYN_Sleep</ref><sp/>sleep;</highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__sleep_8h_1a2a356bbd8431290ba3964aba05de9a57" kindref="member">syn_sleep_init</ref>(&amp;sleep,<sp/><ref refid="syn__sleep_8h_1a3982260032578bb148402b075c84941aaf3f2ece414ff6be26e4775fdd1018d4a" kindref="member">SYN_SLEEP_LIGHT</ref>);</highlight></codeline>
+<codeline><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="comment">//<sp/>UART<sp/>ISR:<sp/>hold<sp/>lock<sp/>while<sp/>transmitting</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__sleep_8h_1a349e1d982abc198d59e5ef8fcc14deaf" kindref="member">syn_sleep_lock</ref>(&amp;sleep,<sp/><ref refid="syn__sleep_8h_1a4db5634481ffc78b3cdbd812e8d7e5a6" kindref="member">SYN_SLEEP_LOCK_UART</ref>);</highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="comment">//<sp/>...<sp/>transmit<sp/>complete<sp/>...</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__sleep_8h_1a088c01b66ed2d03f1f51965dccdd1fc9" kindref="member">syn_sleep_unlock</ref>(&amp;sleep,<sp/><ref refid="syn__sleep_8h_1a4db5634481ffc78b3cdbd812e8d7e5a6" kindref="member">SYN_SLEEP_LOCK_UART</ref>);</highlight></codeline>
+<codeline><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="comment">//<sp/>In<sp/>scheduler<sp/>idle<sp/>hook:</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__sleep_8h_1ac38c1db283b2121d7ec1189904ec85d4" kindref="member">syn_sleep_enter</ref>(&amp;sleep);<sp/><sp/></highlight><highlight class="comment">//<sp/>sleeps<sp/>only<sp/>if<sp/>no<sp/>locks<sp/>held</highlight></codeline>
+</programlisting> </para>
+</simplesect>
+</para>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_SLEEP_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_SLEEP_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../common/syn_defs.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Sleep<sp/>depth<sp/>──────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight></codeline>
+<codeline lineno="45" refid="syn__sleep_8h_1a3982260032578bb148402b075c84941a" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="46" refid="syn__sleep_8h_1a3982260032578bb148402b075c84941aadde7609d0fd3c18f5002857ae1714e83" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__sleep_8h_1a3982260032578bb148402b075c84941aadde7609d0fd3c18f5002857ae1714e83" kindref="member">SYN_SLEEP_NONE</ref><sp/><sp/><sp/>=<sp/>0,<sp/><sp/></highlight></codeline>
+<codeline lineno="47" refid="syn__sleep_8h_1a3982260032578bb148402b075c84941aaf3f2ece414ff6be26e4775fdd1018d4a" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__sleep_8h_1a3982260032578bb148402b075c84941aaf3f2ece414ff6be26e4775fdd1018d4a" kindref="member">SYN_SLEEP_LIGHT</ref><sp/><sp/>=<sp/>1,<sp/><sp/></highlight></codeline>
+<codeline lineno="48" refid="syn__sleep_8h_1a3982260032578bb148402b075c84941aa4d7964d0e4ed52a7090a49c317fc30d5" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__sleep_8h_1a3982260032578bb148402b075c84941aa4d7964d0e4ed52a7090a49c317fc30d5" kindref="member">SYN_SLEEP_DEEP</ref><sp/><sp/><sp/>=<sp/>2,<sp/><sp/></highlight></codeline>
+<codeline lineno="49"><highlight class="normal">}<sp/><ref refid="syn__sleep_8h_1a3982260032578bb148402b075c84941a" kindref="member">SYN_SleepMode</ref>;</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"></highlight></codeline>
+<codeline lineno="55" refid="syn__sleep_8h_1a4db5634481ffc78b3cdbd812e8d7e5a6" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_SLEEP_LOCK_UART<sp/><sp/><sp/><sp/><sp/>(1u<sp/>&lt;&lt;<sp/>0)<sp/><sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="56" refid="syn__sleep_8h_1aca3d12ecade6f0644cb231dbb72ad30d" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_SLEEP_LOCK_SPI<sp/><sp/><sp/><sp/><sp/><sp/>(1u<sp/>&lt;&lt;<sp/>1)<sp/><sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="57" refid="syn__sleep_8h_1a538a220376eaa8397cf1c6e03f03416f" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_SLEEP_LOCK_I2C<sp/><sp/><sp/><sp/><sp/><sp/>(1u<sp/>&lt;&lt;<sp/>2)<sp/><sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="58" refid="syn__sleep_8h_1a475e1e5dc4f70bd0c4deba4698d16f66" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_SLEEP_LOCK_DMA<sp/><sp/><sp/><sp/><sp/><sp/>(1u<sp/>&lt;&lt;<sp/>3)<sp/><sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="59" refid="syn__sleep_8h_1a2d26dfd7d69580e584a8bef21a9a9916" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_SLEEP_LOCK_ADC<sp/><sp/><sp/><sp/><sp/><sp/>(1u<sp/>&lt;&lt;<sp/>4)<sp/><sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="60" refid="syn__sleep_8h_1a8d400f0b41496f42b0fd649155c5f41e" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_SLEEP_LOCK_TIMER<sp/><sp/><sp/><sp/>(1u<sp/>&lt;&lt;<sp/>5)<sp/><sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="61" refid="syn__sleep_8h_1a98baf47e0b286b0d48d10623ef1d402a" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_SLEEP_LOCK_APP0<sp/><sp/><sp/><sp/><sp/>(1u<sp/>&lt;&lt;<sp/>8)<sp/><sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="62" refid="syn__sleep_8h_1a3958f5e048621561c81cfb453492d462" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_SLEEP_LOCK_APP1<sp/><sp/><sp/><sp/><sp/>(1u<sp/>&lt;&lt;<sp/>9)<sp/><sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="63" refid="syn__sleep_8h_1a0272bb54021db094afbdd420436d0158" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_SLEEP_LOCK_APP2<sp/><sp/><sp/><sp/><sp/>(1u<sp/>&lt;&lt;<sp/>10)<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="64" refid="syn__sleep_8h_1a04f4adb578d58b23e373fbd70d0bb5d7" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_SLEEP_LOCK_APP3<sp/><sp/><sp/><sp/><sp/>(1u<sp/>&lt;&lt;<sp/>11)<sp/></highlight></codeline>
+<codeline lineno="67"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Sleep<sp/>coordinator<sp/>────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="68"><highlight class="normal"></highlight></codeline>
+<codeline lineno="70" refid="structSYN__Sleep" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="71" refid="structSYN__Sleep_1af7ed7bc9b792ef0663bb38c3f3839899" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__sleep_8h_1a3982260032578bb148402b075c84941a" kindref="member">SYN_SleepMode</ref><sp/><sp/><sp/><ref refid="structSYN__Sleep_1af7ed7bc9b792ef0663bb38c3f3839899" kindref="member">max_depth</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="72" refid="structSYN__Sleep_1abc0f3b1a4f63de3a1e8bc9fb917b01b2" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">volatile</highlight><highlight class="normal"><sp/>uint32_t<sp/><ref refid="structSYN__Sleep_1abc0f3b1a4f63de3a1e8bc9fb917b01b2" kindref="member">lock_mask</ref>;<sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="73" refid="structSYN__Sleep_1adb2e69a7bdb1d41f007c939a0390de85" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__Sleep_1adb2e69a7bdb1d41f007c939a0390de85" kindref="member">enter_count</ref>;<sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="74" refid="structSYN__Sleep_1ae23491ff47ac7b7f0edced707f95cced" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__Sleep_1ae23491ff47ac7b7f0edced707f95cced" kindref="member">veto_count</ref>;<sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="75" refid="structSYN__Sleep_1ad961af23ad7152dea628f32ed30e5879" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__Sleep_1ad961af23ad7152dea628f32ed30e5879" kindref="member">enabled</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="76"><highlight class="normal">}<sp/><ref refid="structSYN__Sleep" kindref="compound">SYN_Sleep</ref>;</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"></highlight></codeline>
+<codeline lineno="78"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Port<sp/>function<sp/>(user<sp/>implements)<sp/>──────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="79"><highlight class="normal"></highlight></codeline>
+<codeline lineno="88"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__sleep_8h_1a5df8f24e0b14b488d72a3f304905c32e" kindref="member">syn_port_sleep</ref>(<ref refid="syn__sleep_8h_1a3982260032578bb148402b075c84941a" kindref="member">SYN_SleepMode</ref><sp/>mode);</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"></highlight></codeline>
+<codeline lineno="90"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>API<sp/>──────────────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="91"><highlight class="normal"></highlight></codeline>
+<codeline lineno="97" refid="syn__sleep_8h_1a2a356bbd8431290ba3964aba05de9a57" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__sleep_8h_1a2a356bbd8431290ba3964aba05de9a57" kindref="member">syn_sleep_init</ref>(<ref refid="structSYN__Sleep" kindref="compound">SYN_Sleep</ref><sp/>*s,<sp/><ref refid="syn__sleep_8h_1a3982260032578bb148402b075c84941a" kindref="member">SYN_SleepMode</ref><sp/>max_depth)</highlight></codeline>
+<codeline lineno="98"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"><sp/><sp/><sp/><sp/>s-&gt;<ref refid="structSYN__Sleep_1af7ed7bc9b792ef0663bb38c3f3839899" kindref="member">max_depth</ref><sp/><sp/><sp/>=<sp/>max_depth;</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><sp/><sp/><sp/><sp/>s-&gt;<ref refid="structSYN__Sleep_1abc0f3b1a4f63de3a1e8bc9fb917b01b2" kindref="member">lock_mask</ref><sp/><sp/><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"><sp/><sp/><sp/><sp/>s-&gt;<ref refid="structSYN__Sleep_1adb2e69a7bdb1d41f007c939a0390de85" kindref="member">enter_count</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><sp/><sp/><sp/><sp/>s-&gt;<ref refid="structSYN__Sleep_1ae23491ff47ac7b7f0edced707f95cced" kindref="member">veto_count</ref><sp/><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"><sp/><sp/><sp/><sp/>s-&gt;<ref refid="structSYN__Sleep_1ad961af23ad7152dea628f32ed30e5879" kindref="member">enabled</ref><sp/><sp/><sp/><sp/><sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="104"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"></highlight></codeline>
+<codeline lineno="111" refid="syn__sleep_8h_1a349e1d982abc198d59e5ef8fcc14deaf" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__sleep_8h_1a349e1d982abc198d59e5ef8fcc14deaf" kindref="member">syn_sleep_lock</ref>(<ref refid="structSYN__Sleep" kindref="compound">SYN_Sleep</ref><sp/>*s,<sp/>uint32_t<sp/>lock_id)</highlight></codeline>
+<codeline lineno="112"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="113"><highlight class="normal"><sp/><sp/><sp/><sp/>s-&gt;<ref refid="structSYN__Sleep_1abc0f3b1a4f63de3a1e8bc9fb917b01b2" kindref="member">lock_mask</ref><sp/>|=<sp/>lock_id;</highlight></codeline>
+<codeline lineno="114"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="115"><highlight class="normal"></highlight></codeline>
+<codeline lineno="121" refid="syn__sleep_8h_1a088c01b66ed2d03f1f51965dccdd1fc9" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__sleep_8h_1a088c01b66ed2d03f1f51965dccdd1fc9" kindref="member">syn_sleep_unlock</ref>(<ref refid="structSYN__Sleep" kindref="compound">SYN_Sleep</ref><sp/>*s,<sp/>uint32_t<sp/>lock_id)</highlight></codeline>
+<codeline lineno="122"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="123"><highlight class="normal"><sp/><sp/><sp/><sp/>s-&gt;<ref refid="structSYN__Sleep_1abc0f3b1a4f63de3a1e8bc9fb917b01b2" kindref="member">lock_mask</ref><sp/>&amp;=<sp/>~lock_id;</highlight></codeline>
+<codeline lineno="124"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"></highlight></codeline>
+<codeline lineno="132" refid="syn__sleep_8h_1ac57e2dcd07fd09cd2411dca0e30f8278" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__sleep_8h_1ac57e2dcd07fd09cd2411dca0e30f8278" kindref="member">syn_sleep_is_locked</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__Sleep" kindref="compound">SYN_Sleep</ref><sp/>*s,<sp/>uint32_t<sp/>lock_id)</highlight></codeline>
+<codeline lineno="133"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="134"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(s-&gt;<ref refid="structSYN__Sleep_1abc0f3b1a4f63de3a1e8bc9fb917b01b2" kindref="member">lock_mask</ref><sp/>&amp;<sp/>lock_id)<sp/>!=<sp/>0;</highlight></codeline>
+<codeline lineno="135"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"></highlight></codeline>
+<codeline lineno="142" refid="syn__sleep_8h_1a68c414c183500b0fa31a77069a5fcbfc" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__sleep_8h_1a68c414c183500b0fa31a77069a5fcbfc" kindref="member">syn_sleep_any_locked</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__Sleep" kindref="compound">SYN_Sleep</ref><sp/>*s)</highlight></codeline>
+<codeline lineno="143"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="144"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>s-&gt;<ref refid="structSYN__Sleep_1abc0f3b1a4f63de3a1e8bc9fb917b01b2" kindref="member">lock_mask</ref><sp/>!=<sp/>0;</highlight></codeline>
+<codeline lineno="145"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="146"><highlight class="normal"></highlight></codeline>
+<codeline lineno="155" refid="syn__sleep_8h_1ac38c1db283b2121d7ec1189904ec85d4" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__sleep_8h_1ac38c1db283b2121d7ec1189904ec85d4" kindref="member">syn_sleep_enter</ref>(<ref refid="structSYN__Sleep" kindref="compound">SYN_Sleep</ref><sp/>*s)</highlight></codeline>
+<codeline lineno="156"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="157"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!s-&gt;<ref refid="structSYN__Sleep_1ad961af23ad7152dea628f32ed30e5879" kindref="member">enabled</ref><sp/>||<sp/>s-&gt;<ref refid="structSYN__Sleep_1abc0f3b1a4f63de3a1e8bc9fb917b01b2" kindref="member">lock_mask</ref><sp/>!=<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="158"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>s-&gt;<ref refid="structSYN__Sleep_1ae23491ff47ac7b7f0edced707f95cced" kindref="member">veto_count</ref>++;</highlight></codeline>
+<codeline lineno="159"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="160"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="161"><highlight class="normal"></highlight></codeline>
+<codeline lineno="162"><highlight class="normal"><sp/><sp/><sp/><sp/>s-&gt;<ref refid="structSYN__Sleep_1adb2e69a7bdb1d41f007c939a0390de85" kindref="member">enter_count</ref>++;</highlight></codeline>
+<codeline lineno="163"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__sleep_8h_1a5df8f24e0b14b488d72a3f304905c32e" kindref="member">syn_port_sleep</ref>(s-&gt;<ref refid="structSYN__Sleep_1af7ed7bc9b792ef0663bb38c3f3839899" kindref="member">max_depth</ref>);</highlight></codeline>
+<codeline lineno="164"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="165"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="166"><highlight class="normal"></highlight></codeline>
+<codeline lineno="172" refid="syn__sleep_8h_1a115c5b2b46a45762cfead67a705c37b2" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__sleep_8h_1a115c5b2b46a45762cfead67a705c37b2" kindref="member">syn_sleep_enable</ref>(<ref refid="structSYN__Sleep" kindref="compound">SYN_Sleep</ref><sp/>*s,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>en)</highlight></codeline>
+<codeline lineno="173"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="174"><highlight class="normal"><sp/><sp/><sp/><sp/>s-&gt;<ref refid="structSYN__Sleep_1ad961af23ad7152dea628f32ed30e5879" kindref="member">enabled</ref><sp/>=<sp/>en;</highlight></codeline>
+<codeline lineno="175"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="176"><highlight class="normal"></highlight></codeline>
+<codeline lineno="182" refid="syn__sleep_8h_1ad0d69d2f69a9a0a4ef2b75e4c8d6d8b1" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>uint32_t<sp/><ref refid="syn__sleep_8h_1ad0d69d2f69a9a0a4ef2b75e4c8d6d8b1" kindref="member">syn_sleep_locks</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__Sleep" kindref="compound">SYN_Sleep</ref><sp/>*s)</highlight></codeline>
+<codeline lineno="183"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="184"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>s-&gt;<ref refid="structSYN__Sleep_1abc0f3b1a4f63de3a1e8bc9fb917b01b2" kindref="member">lock_mask</ref>;</highlight></codeline>
+<codeline lineno="185"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="186"><highlight class="normal"></highlight></codeline>
+<codeline lineno="187"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="188"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="189"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="190"><highlight class="normal"></highlight></codeline>
+<codeline lineno="191"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_SLEEP_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/system/syn_sleep.h"/>
+  </compounddef>
+</doxygen>

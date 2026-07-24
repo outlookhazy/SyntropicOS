@@ -1,0 +1,1930 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__matrix_8h" kind="file" language="C++">
+    <compoundname>syn_matrix.h</compoundname>
+    <includes refid="syn__qmath_8h" local="yes">syn_qmath.h</includes>
+    <includes refid="syn__defs_8h" local="yes">../common/syn_defs.h</includes>
+    <includes local="no">stdint.h</includes>
+    <includes local="no">stdbool.h</includes>
+    <includedby refid="syn__kalman_8h" local="yes">src/syntropic/dsp/syn_kalman.h</includedby>
+    <includedby refid="syn__sensor__fusion_8c" local="yes">src/syntropic/sensor/syn_sensor_fusion.c</includedby>
+    <includedby refid="syn__matrix_8c" local="yes">src/syntropic/util/syn_matrix.c</includedby>
+    <incdepgraph>
+      <node id="5">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/util/syn_matrix.h</label>
+        <link refid="syn__matrix_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>syn_qmath.h</label>
+        <link refid="syn__qmath_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>stdbool.h</label>
+      </node>
+      <node id="4">
+        <label>stddef.h</label>
+      </node>
+      <node id="3">
+        <label>stdint.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="3">
+        <label>src/syntropic/dsp/syn_kalman.c</label>
+        <link refid="syn__kalman_8c"/>
+      </node>
+      <node id="2">
+        <label>src/syntropic/dsp/syn_kalman.h</label>
+        <link refid="syn__kalman_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>src/syntropic/sensor/syn_sensor_fusion.c</label>
+        <link refid="syn__sensor__fusion_8c"/>
+      </node>
+      <node id="5">
+        <label>src/syntropic/util/syn_matrix.c</label>
+        <link refid="syn__matrix_8c"/>
+      </node>
+      <node id="1">
+        <label>src/syntropic/util/syn_matrix.h</label>
+        <link refid="syn__matrix_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="structSYN__Matrix" prot="public">SYN_Matrix</innerclass>
+    <sectiondef kind="define">
+      <memberdef kind="define" id="syn__matrix_8h_1a9b97cad52e6a5e4200c44c1144d01af3" prot="public" static="no">
+        <name>SYN_MAT_DECL</name>
+        <param><defname>name</defname></param>
+        <param><defname>R</defname></param>
+        <param><defname>C</defname></param>
+        <initializer>    <ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref> name##_store[(R) * (C)];                              \
+    <ref refid="structSYN__Matrix" kindref="compound">SYN_Matrix</ref> name = { name##_store, (R), (C) }</initializer>
+        <briefdescription>
+<para>Declare a matrix with automatic (stack) storage. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_matrix.h" line="64" column="9" bodyfile="src/syntropic/util/syn_matrix.h" bodystart="64" bodyend="66"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__matrix_8h_1aaa1a4bcd4f8aca7e6f724d95781f90d7" prot="public" static="no">
+        <name>SYN_MAT_STATIC</name>
+        <param><defname>name</defname></param>
+        <param><defname>R</defname></param>
+        <param><defname>C</defname></param>
+        <initializer>    static <ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref> name##_store[(R) * (C)];                       \
+    static <ref refid="structSYN__Matrix" kindref="compound">SYN_Matrix</ref> name = { name##_store, (R), (C) }</initializer>
+        <briefdescription>
+<para>Declare a matrix with static storage (zero-initialized). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_matrix.h" line="69" column="9" bodyfile="src/syntropic/util/syn_matrix.h" bodystart="69" bodyend="71"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__matrix_8h_1a6c300ebd225c87a6d6c520540653680f" prot="public" static="no">
+        <name>SYN_MAT_INIT</name>
+        <param><defname>name</defname></param>
+        <param><defname>storage</defname></param>
+        <param><defname>R</defname></param>
+        <param><defname>C</defname></param>
+        <initializer>    <ref refid="structSYN__Matrix" kindref="compound">SYN_Matrix</ref> name = { (storage), (R), (C) }</initializer>
+        <briefdescription>
+<para>Initialize a matrix view over existing storage. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_matrix.h" line="74" column="9" bodyfile="src/syntropic/util/syn_matrix.h" bodystart="74" bodyend="75"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__matrix_8h_1a07fd91f391cbb10eb26bcc74bae9e633" prot="public" static="no">
+        <name>SYN_MAT_AT</name>
+        <param><defname>m</defname></param>
+        <param><defname>r</defname></param>
+        <param><defname>c</defname></param>
+        <initializer>((m)-&gt;data[(r) * (m)-&gt;cols + (c)])</initializer>
+        <briefdescription>
+<para>Element access (row, col) — evaluates to an lvalue. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_matrix.h" line="78" column="9" bodyfile="src/syntropic/util/syn_matrix.h" bodystart="78" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__matrix_8h_1a63acc154097682e78ee7decf4fb6f80b" prot="public" static="no">
+        <name>SYN_MAT2_DECL</name>
+        <param><defname>name</defname></param>
+        <initializer><ref refid="syn__matrix_8h_1a9b97cad52e6a5e4200c44c1144d01af3" kindref="member">SYN_MAT_DECL</ref>(name, 2, 2)</initializer>
+        <briefdescription>
+<para>Shorthand for 2×2. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_matrix.h" line="81" column="9" bodyfile="src/syntropic/util/syn_matrix.h" bodystart="81" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__matrix_8h_1a00d4a6b5b4a4e05f351ecc7a57a84632" prot="public" static="no">
+        <name>SYN_MAT3_DECL</name>
+        <param><defname>name</defname></param>
+        <initializer><ref refid="syn__matrix_8h_1a9b97cad52e6a5e4200c44c1144d01af3" kindref="member">SYN_MAT_DECL</ref>(name, 3, 3)</initializer>
+        <briefdescription>
+<para>Shorthand for 3×3. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_matrix.h" line="83" column="9" bodyfile="src/syntropic/util/syn_matrix.h" bodystart="83" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__matrix_8h_1a7e8ab792acdda458029edd67b9433972" prot="public" static="no">
+        <name>SYN_MAT4_DECL</name>
+        <param><defname>name</defname></param>
+        <initializer><ref refid="syn__matrix_8h_1a9b97cad52e6a5e4200c44c1144d01af3" kindref="member">SYN_MAT_DECL</ref>(name, 4, 4)</initializer>
+        <briefdescription>
+<para>Shorthand for 4×4. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_matrix.h" line="85" column="9" bodyfile="src/syntropic/util/syn_matrix.h" bodystart="85" bodyend="-1"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__matrix_8h_1ab213c0c824b6c873d8f558bef070c6ee" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_matrix_identity</definition>
+        <argsstring>(SYN_Matrix *m)</argsstring>
+        <name>syn_matrix_identity</name>
+        <param>
+          <type><ref refid="structSYN__Matrix" kindref="compound">SYN_Matrix</ref> *</type>
+          <declname>m</declname>
+        </param>
+        <briefdescription>
+<para>Set matrix to identity. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>m</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Square matrix. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_matrix.h" line="93" column="6" bodyfile="src/syntropic/util/syn_matrix.c" bodystart="24" bodyend="34" declfile="src/syntropic/util/syn_matrix.h" declline="93" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__matrix_8h_1a4319f2456d293582a320814edbda929f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_matrix_zero</definition>
+        <argsstring>(SYN_Matrix *m)</argsstring>
+        <name>syn_matrix_zero</name>
+        <param>
+          <type><ref refid="structSYN__Matrix" kindref="compound">SYN_Matrix</ref> *</type>
+          <declname>m</declname>
+        </param>
+        <briefdescription>
+<para>Set all elements to zero. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>m</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Matrix to clear. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_matrix.h" line="99" column="6" bodyfile="src/syntropic/util/syn_matrix.c" bodystart="36" bodyend="40" declfile="src/syntropic/util/syn_matrix.h" declline="99" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__matrix_8h_1a470262c46687ffc380390233507536de" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_matrix_copy</definition>
+        <argsstring>(SYN_Matrix *dst, const SYN_Matrix *src)</argsstring>
+        <name>syn_matrix_copy</name>
+        <param>
+          <type><ref refid="structSYN__Matrix" kindref="compound">SYN_Matrix</ref> *</type>
+          <declname>dst</declname>
+        </param>
+        <param>
+          <type>const <ref refid="structSYN__Matrix" kindref="compound">SYN_Matrix</ref> *</type>
+          <declname>src</declname>
+        </param>
+        <briefdescription>
+<para>Copy matrix contents. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>dst</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Destination (must match src dimensions). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>src</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Source matrix. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_matrix.h" line="106" column="6" bodyfile="src/syntropic/util/syn_matrix.c" bodystart="42" bodyend="47" declfile="src/syntropic/util/syn_matrix.h" declline="106" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__matrix_8h_1a454d468ef6f8c423d3d47568b166a098" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_matrix_add</definition>
+        <argsstring>(const SYN_Matrix *a, const SYN_Matrix *b, SYN_Matrix *out)</argsstring>
+        <name>syn_matrix_add</name>
+        <param>
+          <type>const <ref refid="structSYN__Matrix" kindref="compound">SYN_Matrix</ref> *</type>
+          <declname>a</declname>
+        </param>
+        <param>
+          <type>const <ref refid="structSYN__Matrix" kindref="compound">SYN_Matrix</ref> *</type>
+          <declname>b</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__Matrix" kindref="compound">SYN_Matrix</ref> *</type>
+          <declname>out</declname>
+        </param>
+        <briefdescription>
+<para>Element-wise addition: out = A + B. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>a</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>First operand. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>b</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Second operand (same dimensions as a). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Result (same dimensions as a). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_matrix.h" line="114" column="6" bodyfile="src/syntropic/util/syn_matrix.c" bodystart="49" bodyend="60" declfile="src/syntropic/util/syn_matrix.h" declline="114" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__matrix_8h_1a91d15189d13ed0e587a0ee7a66a37e4e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_matrix_sub</definition>
+        <argsstring>(const SYN_Matrix *a, const SYN_Matrix *b, SYN_Matrix *out)</argsstring>
+        <name>syn_matrix_sub</name>
+        <param>
+          <type>const <ref refid="structSYN__Matrix" kindref="compound">SYN_Matrix</ref> *</type>
+          <declname>a</declname>
+        </param>
+        <param>
+          <type>const <ref refid="structSYN__Matrix" kindref="compound">SYN_Matrix</ref> *</type>
+          <declname>b</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__Matrix" kindref="compound">SYN_Matrix</ref> *</type>
+          <declname>out</declname>
+        </param>
+        <briefdescription>
+<para>Element-wise subtraction: out = A − B. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>a</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Minuend. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>b</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Subtrahend (same dimensions as a). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Result (same dimensions as a). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_matrix.h" line="122" column="6" bodyfile="src/syntropic/util/syn_matrix.c" bodystart="62" bodyend="73" declfile="src/syntropic/util/syn_matrix.h" declline="122" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__matrix_8h_1a6e7b7d4684817baa6b2f4b97471c1e89" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_matrix_scale</definition>
+        <argsstring>(const SYN_Matrix *a, q16_t scalar, SYN_Matrix *out)</argsstring>
+        <name>syn_matrix_scale</name>
+        <param>
+          <type>const <ref refid="structSYN__Matrix" kindref="compound">SYN_Matrix</ref> *</type>
+          <declname>a</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+          <declname>scalar</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__Matrix" kindref="compound">SYN_Matrix</ref> *</type>
+          <declname>out</declname>
+        </param>
+        <briefdescription>
+<para>Scalar multiply: out = A × scalar. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>a</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Input matrix. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>scalar</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Q16 scalar multiplier. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Result (same dimensions as a). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_matrix.h" line="130" column="6" bodyfile="src/syntropic/util/syn_matrix.c" bodystart="75" bodyend="85" declfile="src/syntropic/util/syn_matrix.h" declline="130" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__matrix_8h_1adf86ff2ab8bd25c16e55379ffa75dfdd" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_matrix_mul</definition>
+        <argsstring>(const SYN_Matrix *a, const SYN_Matrix *b, SYN_Matrix *out)</argsstring>
+        <name>syn_matrix_mul</name>
+        <param>
+          <type>const <ref refid="structSYN__Matrix" kindref="compound">SYN_Matrix</ref> *</type>
+          <declname>a</declname>
+        </param>
+        <param>
+          <type>const <ref refid="structSYN__Matrix" kindref="compound">SYN_Matrix</ref> *</type>
+          <declname>b</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__Matrix" kindref="compound">SYN_Matrix</ref> *</type>
+          <declname>out</declname>
+        </param>
+        <briefdescription>
+<para>Matrix multiply: out = A × B. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Requires: A.cols == B.rows, out is A.rows × B.cols. Uses int64_t accumulator for full Q16 precision.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>a</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Left operand (R₁ × C₁). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>b</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Right operand (C₁ × C₂). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Result (R₁ × C₂). Must not alias a or b. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_matrix.h" line="144" column="6" bodyfile="src/syntropic/util/syn_matrix.c" bodystart="91" bodyend="107" declfile="src/syntropic/util/syn_matrix.h" declline="144" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__matrix_8h_1a2d449191e7d9d678213eb327d1a1abbd" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_matrix_mul_vec</definition>
+        <argsstring>(const SYN_Matrix *m, const q16_t *v_in, q16_t *v_out, uint8_t n_in)</argsstring>
+        <name>syn_matrix_mul_vec</name>
+        <param>
+          <type>const <ref refid="structSYN__Matrix" kindref="compound">SYN_Matrix</ref> *</type>
+          <declname>m</declname>
+        </param>
+        <param>
+          <type>const <ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref> *</type>
+          <declname>v_in</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref> *</type>
+          <declname>v_out</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>n_in</declname>
+        </param>
+        <briefdescription>
+<para>Matrix–vector multiply: out = M × v. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>m</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Square or rectangular matrix (R × C). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>v_in</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Input vector (C elements). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>v_out</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output vector (R elements). Must not alias v_in. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>n_in</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Length of input vector (must equal m-&gt;cols). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_matrix.h" line="154" column="6" bodyfile="src/syntropic/util/syn_matrix.c" bodystart="109" bodyend="123" declfile="src/syntropic/util/syn_matrix.h" declline="154" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__matrix_8h_1aa3c8b7a1f151ccff38ebf4300537d61c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_matrix_transpose</definition>
+        <argsstring>(const SYN_Matrix *a, SYN_Matrix *out)</argsstring>
+        <name>syn_matrix_transpose</name>
+        <param>
+          <type>const <ref refid="structSYN__Matrix" kindref="compound">SYN_Matrix</ref> *</type>
+          <declname>a</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__Matrix" kindref="compound">SYN_Matrix</ref> *</type>
+          <declname>out</declname>
+        </param>
+        <briefdescription>
+<para>Transpose: out = Aᵀ. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>a</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Input (R × C). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output (C × R). Must not alias a. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_matrix.h" line="164" column="6" bodyfile="src/syntropic/util/syn_matrix.c" bodystart="129" bodyend="140" declfile="src/syntropic/util/syn_matrix.h" declline="164" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__matrix_8h_1aebe0e0329321a765b77f70e158d21865" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+        <definition>q16_t syn_matrix_trace</definition>
+        <argsstring>(const SYN_Matrix *m)</argsstring>
+        <name>syn_matrix_trace</name>
+        <param>
+          <type>const <ref refid="structSYN__Matrix" kindref="compound">SYN_Matrix</ref> *</type>
+          <declname>m</declname>
+        </param>
+        <briefdescription>
+<para>Trace (sum of diagonal elements). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>m</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Square matrix. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Trace in Q16. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_matrix.h" line="171" column="7" bodyfile="src/syntropic/util/syn_matrix.c" bodystart="142" bodyend="153" declfile="src/syntropic/util/syn_matrix.h" declline="171" declcolumn="7"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__matrix_8h_1a8b17245b94786cf1145294117315f069" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+        <definition>q16_t syn_matrix_det</definition>
+        <argsstring>(const SYN_Matrix *m)</argsstring>
+        <name>syn_matrix_det</name>
+        <param>
+          <type>const <ref refid="structSYN__Matrix" kindref="compound">SYN_Matrix</ref> *</type>
+          <declname>m</declname>
+        </param>
+        <briefdescription>
+<para>Determinant of a square matrix. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Supports 2×2, 3×3, and 4×4. Uses cofactor expansion for 2×2/3×3 and LU decomposition for 4×4.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>m</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Square matrix. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Determinant in Q16. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_matrix.h" line="184" column="7" bodyfile="src/syntropic/util/syn_matrix.c" bodystart="224" bodyend="236" declfile="src/syntropic/util/syn_matrix.h" declline="184" declcolumn="7"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__matrix_8h_1a3d181d40485bda7852f894799d6eccde" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_matrix_inv</definition>
+        <argsstring>(const SYN_Matrix *m, SYN_Matrix *out)</argsstring>
+        <name>syn_matrix_inv</name>
+        <param>
+          <type>const <ref refid="structSYN__Matrix" kindref="compound">SYN_Matrix</ref> *</type>
+          <declname>m</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__Matrix" kindref="compound">SYN_Matrix</ref> *</type>
+          <declname>out</declname>
+        </param>
+        <briefdescription>
+<para>Matrix inverse: out = M⁻¹. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Supports 2×2, 3×3, and 4×4 square matrices. Returns SYN_ERROR if the matrix is singular (determinant ≈ 0).</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>m</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Input square matrix. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output inverse (same dimensions). Must not alias m. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_ERROR if singular. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_matrix.h" line="196" column="12" bodyfile="src/syntropic/util/syn_matrix.c" bodystart="386" bodyend="399" declfile="src/syntropic/util/syn_matrix.h" declline="196" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__matrix_8h_1af055ef15a89703a08d2f07d22f023f41" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_matrix_rotate_2d</definition>
+        <argsstring>(SYN_Matrix *out, q16_t angle)</argsstring>
+        <name>syn_matrix_rotate_2d</name>
+        <param>
+          <type><ref refid="structSYN__Matrix" kindref="compound">SYN_Matrix</ref> *</type>
+          <declname>out</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+          <declname>angle</declname>
+        </param>
+        <briefdescription>
+<para>Set 3×3 matrix to a 2D rotation. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>out</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output 3×3 matrix. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>angle</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Rotation angle in Q16 radians (counter-clockwise). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_matrix.h" line="205" column="6" bodyfile="src/syntropic/util/syn_matrix.c" bodystart="405" bodyend="418" declfile="src/syntropic/util/syn_matrix.h" declline="205" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__matrix_8h_1af8da8be96f5bc9d2c68914af7625fa59" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_matrix_translate_2d</definition>
+        <argsstring>(SYN_Matrix *out, q16_t tx, q16_t ty)</argsstring>
+        <name>syn_matrix_translate_2d</name>
+        <param>
+          <type><ref refid="structSYN__Matrix" kindref="compound">SYN_Matrix</ref> *</type>
+          <declname>out</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+          <declname>tx</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+          <declname>ty</declname>
+        </param>
+        <briefdescription>
+<para>Set 3×3 matrix to a 2D translation. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>out</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output 3×3 matrix. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>tx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>X translation in Q16. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>ty</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Y translation in Q16. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_matrix.h" line="213" column="6" bodyfile="src/syntropic/util/syn_matrix.c" bodystart="420" bodyend="428" declfile="src/syntropic/util/syn_matrix.h" declline="213" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__matrix_8h_1a184cd0d34b90e564c9b15e9f39c93d29" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_matrix_scale_2d</definition>
+        <argsstring>(SYN_Matrix *out, q16_t sx, q16_t sy)</argsstring>
+        <name>syn_matrix_scale_2d</name>
+        <param>
+          <type><ref refid="structSYN__Matrix" kindref="compound">SYN_Matrix</ref> *</type>
+          <declname>out</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+          <declname>sx</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+          <declname>sy</declname>
+        </param>
+        <briefdescription>
+<para>Set 3×3 matrix to a 2D scale. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>out</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output 3×3 matrix. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>sx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>X scale factor in Q16. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>sy</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Y scale factor in Q16. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_matrix.h" line="221" column="6" bodyfile="src/syntropic/util/syn_matrix.c" bodystart="430" bodyend="439" declfile="src/syntropic/util/syn_matrix.h" declline="221" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__matrix_8h_1aa25cb944c29b0e02e4021611cc290881" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_matrix_rotate_x</definition>
+        <argsstring>(SYN_Matrix *out, q16_t angle)</argsstring>
+        <name>syn_matrix_rotate_x</name>
+        <param>
+          <type><ref refid="structSYN__Matrix" kindref="compound">SYN_Matrix</ref> *</type>
+          <declname>out</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+          <declname>angle</declname>
+        </param>
+        <briefdescription>
+<para>Set 4×4 matrix to a rotation around the X axis. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>out</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output 4×4 matrix. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>angle</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Rotation angle in Q16 radians. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_matrix.h" line="230" column="6" bodyfile="src/syntropic/util/syn_matrix.c" bodystart="445" bodyend="458" declfile="src/syntropic/util/syn_matrix.h" declline="230" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__matrix_8h_1aa790ec4fb460e4a268dda32f463b04cb" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_matrix_rotate_y</definition>
+        <argsstring>(SYN_Matrix *out, q16_t angle)</argsstring>
+        <name>syn_matrix_rotate_y</name>
+        <param>
+          <type><ref refid="structSYN__Matrix" kindref="compound">SYN_Matrix</ref> *</type>
+          <declname>out</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+          <declname>angle</declname>
+        </param>
+        <briefdescription>
+<para>Set 4×4 matrix to a rotation around the Y axis. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>out</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output 4×4 matrix. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>angle</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Rotation angle in Q16 radians. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_matrix.h" line="237" column="6" bodyfile="src/syntropic/util/syn_matrix.c" bodystart="460" bodyend="473" declfile="src/syntropic/util/syn_matrix.h" declline="237" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__matrix_8h_1a15ffc48f5abdd30ce308375fd0bc0629" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_matrix_rotate_z</definition>
+        <argsstring>(SYN_Matrix *out, q16_t angle)</argsstring>
+        <name>syn_matrix_rotate_z</name>
+        <param>
+          <type><ref refid="structSYN__Matrix" kindref="compound">SYN_Matrix</ref> *</type>
+          <declname>out</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+          <declname>angle</declname>
+        </param>
+        <briefdescription>
+<para>Set 4×4 matrix to a rotation around the Z axis. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>out</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output 4×4 matrix. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>angle</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Rotation angle in Q16 radians. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_matrix.h" line="244" column="6" bodyfile="src/syntropic/util/syn_matrix.c" bodystart="475" bodyend="488" declfile="src/syntropic/util/syn_matrix.h" declline="244" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__matrix_8h_1a0dd382ab4a7feca1b97a326a04d3c23d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_matrix_translate_3d</definition>
+        <argsstring>(SYN_Matrix *out, q16_t tx, q16_t ty, q16_t tz)</argsstring>
+        <name>syn_matrix_translate_3d</name>
+        <param>
+          <type><ref refid="structSYN__Matrix" kindref="compound">SYN_Matrix</ref> *</type>
+          <declname>out</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+          <declname>tx</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+          <declname>ty</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+          <declname>tz</declname>
+        </param>
+        <briefdescription>
+<para>Set 4×4 matrix to a 3D translation. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>out</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output 4×4 matrix. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>tx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>X translation in Q16. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>ty</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Y translation in Q16. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>tz</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Z translation in Q16. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_matrix.h" line="253" column="6" bodyfile="src/syntropic/util/syn_matrix.c" bodystart="490" bodyend="499" declfile="src/syntropic/util/syn_matrix.h" declline="253" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__matrix_8h_1ac6b12bcc9fa5fd60eb1e16d94cf4b1da" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+        <definition>q16_t syn_vec_dot</definition>
+        <argsstring>(const q16_t *a, const q16_t *b, uint8_t n)</argsstring>
+        <name>syn_vec_dot</name>
+        <param>
+          <type>const <ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref> *</type>
+          <declname>a</declname>
+        </param>
+        <param>
+          <type>const <ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref> *</type>
+          <declname>b</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Dot product of two n-element Q16 vectors. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>a</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>First vector. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>b</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Second vector. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>n</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of elements. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Dot product in Q16. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_matrix.h" line="264" column="7" bodyfile="src/syntropic/util/syn_matrix.c" bodystart="505" bodyend="515" declfile="src/syntropic/util/syn_matrix.h" declline="264" declcolumn="7"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__matrix_8h_1a34fec05e9d1ecc90504b26e4d2c3f8c4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_vec3_cross</definition>
+        <argsstring>(const q16_t *a, const q16_t *b, q16_t *out)</argsstring>
+        <name>syn_vec3_cross</name>
+        <param>
+          <type>const <ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref> *</type>
+          <declname>a</declname>
+        </param>
+        <param>
+          <type>const <ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref> *</type>
+          <declname>b</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref> *</type>
+          <declname>out</declname>
+        </param>
+        <briefdescription>
+<para>Cross product of two 3-element Q16 vectors. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>a</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>First vector (3 elements). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>b</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Second vector (3 elements). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output vector (3 elements). Must not alias a or b. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_matrix.h" line="272" column="6" bodyfile="src/syntropic/util/syn_matrix.c" bodystart="517" bodyend="524" declfile="src/syntropic/util/syn_matrix.h" declline="272" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__matrix_8h_1ade5718ecbebbff441776d8a8aa83b25a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+        <definition>q16_t syn_vec_norm</definition>
+        <argsstring>(const q16_t *v, uint8_t n)</argsstring>
+        <name>syn_vec_norm</name>
+        <param>
+          <type>const <ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref> *</type>
+          <declname>v</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Magnitude (Euclidean norm) of an n-element Q16 vector. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>v</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Vector. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>n</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of elements. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>|v| in Q16. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_matrix.h" line="280" column="7" bodyfile="src/syntropic/util/syn_matrix.c" bodystart="526" bodyend="539" declfile="src/syntropic/util/syn_matrix.h" declline="280" declcolumn="7"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__matrix_8h_1adb806f7a23132728c93cba6bbe7f4b5c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_vec_normalize</definition>
+        <argsstring>(const q16_t *v, q16_t *out, uint8_t n)</argsstring>
+        <name>syn_vec_normalize</name>
+        <param>
+          <type>const <ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref> *</type>
+          <declname>v</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref> *</type>
+          <declname>out</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Normalize a vector to unit length. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>v</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Input vector (n elements). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output unit vector (n elements). May alias v. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>n</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of elements. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_ERROR if zero-length vector. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_matrix.h" line="289" column="12" bodyfile="src/syntropic/util/syn_matrix.c" bodystart="541" bodyend="553" declfile="src/syntropic/util/syn_matrix.h" declline="289" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__matrix_8h_1a115360494b4392eaa3d1db5370ce46d2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_matrix_solve_lu</definition>
+        <argsstring>(const SYN_Matrix *A, const SYN_Matrix *b, SYN_Matrix *x)</argsstring>
+        <name>syn_matrix_solve_lu</name>
+        <param>
+          <type>const <ref refid="structSYN__Matrix" kindref="compound">SYN_Matrix</ref> *</type>
+          <declname>A</declname>
+        </param>
+        <param>
+          <type>const <ref refid="structSYN__Matrix" kindref="compound">SYN_Matrix</ref> *</type>
+          <declname>b</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__Matrix" kindref="compound">SYN_Matrix</ref> *</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+<para>Solve general linear system A · x = b via LU decomposition. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Uses Doolittle LU decomposition with partial pivoting (PA = LU). A must be a square N×N non-singular matrix. b and x must be N×1 vectors.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>A</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Square system matrix (N×N). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>b</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Right-hand side vector (N×1). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>x</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output solution vector (N×1). May alias b. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_ERROR if A is singular or dimensions invalid. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_matrix.h" line="304" column="12" bodyfile="src/syntropic/util/syn_matrix.c" bodystart="559" bodyend="637" declfile="src/syntropic/util/syn_matrix.h" declline="304" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__matrix_8h_1a0d3a7fb803467e4b708807c6da61176c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_matrix_solve_cholesky</definition>
+        <argsstring>(const SYN_Matrix *A, const SYN_Matrix *b, SYN_Matrix *x)</argsstring>
+        <name>syn_matrix_solve_cholesky</name>
+        <param>
+          <type>const <ref refid="structSYN__Matrix" kindref="compound">SYN_Matrix</ref> *</type>
+          <declname>A</declname>
+        </param>
+        <param>
+          <type>const <ref refid="structSYN__Matrix" kindref="compound">SYN_Matrix</ref> *</type>
+          <declname>b</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__Matrix" kindref="compound">SYN_Matrix</ref> *</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+<para>Solve symmetric positive-definite system A · x = b via Cholesky. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Decomposes A into L · Lᵀ where L is lower-triangular, then solves L · y = b and Lᵀ · x = y. Faster and more numerically stable than LU for symmetric positive-definite matrices (e.g. covariance or normal eqns).</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>A</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Symmetric positive-definite system matrix (N×N). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>b</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Right-hand side vector (N×1). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>x</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output solution vector (N×1). May alias b. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_ERROR if A is not positive-definite. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_matrix.h" line="318" column="12" bodyfile="src/syntropic/util/syn_matrix.c" bodystart="639" bodyend="690" declfile="src/syntropic/util/syn_matrix.h" declline="318" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__matrix_8h_1a3d112532abd06264c1eff8ecc99c8119" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_matrix_least_squares</definition>
+        <argsstring>(const SYN_Matrix *A, const SYN_Matrix *b, SYN_Matrix *x)</argsstring>
+        <name>syn_matrix_least_squares</name>
+        <param>
+          <type>const <ref refid="structSYN__Matrix" kindref="compound">SYN_Matrix</ref> *</type>
+          <declname>A</declname>
+        </param>
+        <param>
+          <type>const <ref refid="structSYN__Matrix" kindref="compound">SYN_Matrix</ref> *</type>
+          <declname>b</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__Matrix" kindref="compound">SYN_Matrix</ref> *</type>
+          <declname>x</declname>
+        </param>
+        <briefdescription>
+<para>Solve overdetermined system A · x ≈ b via Normal Equations (Least Squares). </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Minimizes ||A·x − b||₂ for an M×N system (M ≥ N). Solves (Aᵀ · A) · x = Aᵀ · b using Cholesky or LU decomposition.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>A</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Overdetermined system matrix (M×N, M ≥ N). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>b</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Right-hand side measurement vector (M×1). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>x</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output solution parameter vector (N×1). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_ERROR if AᵀA is singular. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_matrix.h" line="331" column="12" bodyfile="src/syntropic/util/syn_matrix.c" bodystart="692" bodyend="724" declfile="src/syntropic/util/syn_matrix.h" declline="331" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__matrix_8h_1aa7d3a09cac2b6d0f775d3483681ca703" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_matrix_get_block</definition>
+        <argsstring>(const SYN_Matrix *src, uint8_t r0, uint8_t c0, SYN_Matrix *dst)</argsstring>
+        <name>syn_matrix_get_block</name>
+        <param>
+          <type>const <ref refid="structSYN__Matrix" kindref="compound">SYN_Matrix</ref> *</type>
+          <declname>src</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>r0</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>c0</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__Matrix" kindref="compound">SYN_Matrix</ref> *</type>
+          <declname>dst</declname>
+        </param>
+        <briefdescription>
+<para>Extract a submatrix block from src into dst. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>src</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Source matrix (M×N). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>r0</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Starting row index in src. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>c0</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Starting column index in src. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dst</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Destination matrix (R×C). Must fit within src bounds from (r0, c0). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_INVALID_PARAM on out-of-bounds. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_matrix.h" line="343" column="12" bodyfile="src/syntropic/util/syn_matrix.c" bodystart="726" bodyend="739" declfile="src/syntropic/util/syn_matrix.h" declline="343" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__matrix_8h_1ab512de0993590dde8948df2e3b04a6bc" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_matrix_set_block</definition>
+        <argsstring>(SYN_Matrix *dst, uint8_t r0, uint8_t c0, const SYN_Matrix *src)</argsstring>
+        <name>syn_matrix_set_block</name>
+        <param>
+          <type><ref refid="structSYN__Matrix" kindref="compound">SYN_Matrix</ref> *</type>
+          <declname>dst</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>r0</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>c0</declname>
+        </param>
+        <param>
+          <type>const <ref refid="structSYN__Matrix" kindref="compound">SYN_Matrix</ref> *</type>
+          <declname>src</declname>
+        </param>
+        <briefdescription>
+<para>Embed a submatrix block src into dst at position (r0, c0). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>dst</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Destination matrix (M×N). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>r0</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Starting row index in dst. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>c0</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Starting column index in dst. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>src</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Source submatrix block (R×C). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_INVALID_PARAM on out-of-bounds. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_matrix.h" line="353" column="12" bodyfile="src/syntropic/util/syn_matrix.c" bodystart="741" bodyend="754" declfile="src/syntropic/util/syn_matrix.h" declline="353" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__matrix_8h_1a9f470aaa840debe8fb2d624a8fb8c4d0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_matrix_outer_product</definition>
+        <argsstring>(const q16_t *u, uint8_t rows, const q16_t *v, uint8_t cols, SYN_Matrix *out)</argsstring>
+        <name>syn_matrix_outer_product</name>
+        <param>
+          <type>const <ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref> *</type>
+          <declname>u</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>rows</declname>
+        </param>
+        <param>
+          <type>const <ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref> *</type>
+          <declname>v</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>cols</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__Matrix" kindref="compound">SYN_Matrix</ref> *</type>
+          <declname>out</declname>
+        </param>
+        <briefdescription>
+<para>Vector outer product: out = u · vᵀ (rows(u) × cols(v)). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>u</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Column vector elements (R elements). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>rows</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of rows (R). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>v</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Row vector elements (C elements). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>cols</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of columns (C). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output matrix (R×C). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_INVALID_PARAM if NULL or invalid dimensions. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_matrix.h" line="364" column="12" bodyfile="src/syntropic/util/syn_matrix.c" bodystart="756" bodyend="767" declfile="src/syntropic/util/syn_matrix.h" declline="364" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__matrix_8h_1af77196108b2c582fb1d0a15d6a66fe22" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_matrix_qr</definition>
+        <argsstring>(const SYN_Matrix *A, SYN_Matrix *Q, SYN_Matrix *R)</argsstring>
+        <name>syn_matrix_qr</name>
+        <param>
+          <type>const <ref refid="structSYN__Matrix" kindref="compound">SYN_Matrix</ref> *</type>
+          <declname>A</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__Matrix" kindref="compound">SYN_Matrix</ref> *</type>
+          <declname>Q</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__Matrix" kindref="compound">SYN_Matrix</ref> *</type>
+          <declname>R</declname>
+        </param>
+        <briefdescription>
+<para>QR Decomposition: A = Q · R via Modified Gram-Schmidt process. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Decomposes an M×N matrix A (M ≥ N) into orthogonal M×N matrix Q (QᵀQ = I) and upper-triangular N×N matrix R.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>A</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Input matrix (M×N, M ≥ N). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>Q</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output orthogonal matrix (M×N). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>R</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output upper-triangular matrix (N×N). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_ERROR if A is linearly dependent / singular. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_matrix.h" line="377" column="12" bodyfile="src/syntropic/util/syn_matrix.c" bodystart="769" bodyend="820" declfile="src/syntropic/util/syn_matrix.h" declline="377" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__matrix_8h_1a9305b7f82185ebf9921971162d853b06" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_matrix_eigen_sym2</definition>
+        <argsstring>(const SYN_Matrix *A, q16_t evals[2], SYN_Matrix *E)</argsstring>
+        <name>syn_matrix_eigen_sym2</name>
+        <param>
+          <type>const <ref refid="structSYN__Matrix" kindref="compound">SYN_Matrix</ref> *</type>
+          <declname>A</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+          <declname>evals</declname>
+          <array>[2]</array>
+        </param>
+        <param>
+          <type><ref refid="structSYN__Matrix" kindref="compound">SYN_Matrix</ref> *</type>
+          <declname>E</declname>
+        </param>
+        <briefdescription>
+<para>Compute eigenvalues and eigenvectors of a symmetric 2×2 matrix A. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>A</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Symmetric 2×2 matrix. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>evals</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output array of 2 eigenvalues (sorted descending). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>E</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output 2×2 matrix whose columns are the normalized eigenvectors. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_INVALID_PARAM on invalid inputs. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_matrix.h" line="386" column="12" bodyfile="src/syntropic/util/syn_matrix.c" bodystart="822" bodyend="857" declfile="src/syntropic/util/syn_matrix.h" declline="386" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__matrix_8h_1a18c2b74c9aeedcbab07cb4f4569e6d29" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_matrix_eigen_sym3</definition>
+        <argsstring>(const SYN_Matrix *A, q16_t evals[3], SYN_Matrix *E)</argsstring>
+        <name>syn_matrix_eigen_sym3</name>
+        <param>
+          <type>const <ref refid="structSYN__Matrix" kindref="compound">SYN_Matrix</ref> *</type>
+          <declname>A</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+          <declname>evals</declname>
+          <array>[3]</array>
+        </param>
+        <param>
+          <type><ref refid="structSYN__Matrix" kindref="compound">SYN_Matrix</ref> *</type>
+          <declname>E</declname>
+        </param>
+        <briefdescription>
+<para>Compute eigenvalues and eigenvectors of a symmetric 3×3 matrix A via Jacobi rotations. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>A</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Symmetric 3×3 matrix. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>evals</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output array of 3 eigenvalues (sorted descending). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>E</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output 3×3 matrix whose columns are the normalized eigenvectors. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_INVALID_PARAM on invalid inputs. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_matrix.h" line="395" column="12" bodyfile="src/syntropic/util/syn_matrix.c" bodystart="859" bodyend="927" declfile="src/syntropic/util/syn_matrix.h" declline="395" declcolumn="12"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Fixed-point Q16.16 matrix operations — zero heap allocation. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Supports compile-time-arbitrary matrix dimensions. Callers supply all storage via stack or static arrays. The compiler constant-folds dimension parameters and unrolls loops when sizes are compile-time constants.</para>
+<para><simplesect kind="par"><title>Usage</title><para><programlisting><codeline><highlight class="comment">//<sp/>Declare<sp/>three<sp/>3×3<sp/>matrices<sp/>on<sp/>the<sp/>stack</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__matrix_8h_1a9b97cad52e6a5e4200c44c1144d01af3" kindref="member">SYN_MAT_DECL</ref>(<ref refid="syn__x25519_8c_1aa27803512e9def92ca62a90141a0780a" kindref="member">A</ref>,<sp/>3,<sp/>3);</highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__matrix_8h_1a9b97cad52e6a5e4200c44c1144d01af3" kindref="member">SYN_MAT_DECL</ref>(B,<sp/>3,<sp/>3);</highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__matrix_8h_1a9b97cad52e6a5e4200c44c1144d01af3" kindref="member">SYN_MAT_DECL</ref>(C,<sp/>3,<sp/>3);</highlight></codeline>
+<codeline><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__matrix_8c_1ab213c0c824b6c873d8f558bef070c6ee" kindref="member">syn_matrix_identity</ref>(&amp;<ref refid="syn__x25519_8c_1aa27803512e9def92ca62a90141a0780a" kindref="member">A</ref>);</highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__matrix_8c_1af055ef15a89703a08d2f07d22f023f41" kindref="member">syn_matrix_rotate_2d</ref>(&amp;B,<sp/><ref refid="syn__qmath_8h_1af41601365a72baee10ec70edc6f5509d" kindref="member">Q16_PI_2</ref>);<sp/><sp/></highlight><highlight class="comment">//<sp/>90°<sp/>rotation</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__matrix_8c_1adf86ff2ab8bd25c16e55379ffa75dfdd" kindref="member">syn_matrix_mul</ref>(&amp;<ref refid="syn__x25519_8c_1aa27803512e9def92ca62a90141a0780a" kindref="member">A</ref>,<sp/>&amp;B,<sp/>&amp;C);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>C<sp/>=<sp/>A<sp/>×<sp/>B</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="comment">//<sp/>Non-square<sp/>multiply:<sp/>2×3<sp/>×<sp/>3×4<sp/>=<sp/>2×4</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__matrix_8h_1a9b97cad52e6a5e4200c44c1144d01af3" kindref="member">SYN_MAT_DECL</ref>(<ref refid="syn__x25519_8c_1afd74efb8a0693602ddae62c237f9332c" kindref="member">M</ref>,<sp/>2,<sp/>3);</highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__matrix_8h_1a9b97cad52e6a5e4200c44c1144d01af3" kindref="member">SYN_MAT_DECL</ref>(N,<sp/>3,<sp/>4);</highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__matrix_8h_1a9b97cad52e6a5e4200c44c1144d01af3" kindref="member">SYN_MAT_DECL</ref>(P,<sp/>2,<sp/>4);</highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__matrix_8c_1adf86ff2ab8bd25c16e55379ffa75dfdd" kindref="member">syn_matrix_mul</ref>(&amp;<ref refid="syn__x25519_8c_1afd74efb8a0693602ddae62c237f9332c" kindref="member">M</ref>,<sp/>&amp;N,<sp/>&amp;P);</highlight></codeline>
+<codeline><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="comment">//<sp/>Element<sp/>access</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__matrix_8h_1a07fd91f391cbb10eb26bcc74bae9e633" kindref="member">SYN_MAT_AT</ref>(&amp;<ref refid="syn__x25519_8c_1aa27803512e9def92ca62a90141a0780a" kindref="member">A</ref>,<sp/>1,<sp/>2)<sp/>=<sp/><ref refid="syn__qmath_8h_1a403814e6ece6021eaba034176496dbae" kindref="member">Q16_FROM_INT</ref>(42);</highlight></codeline>
+</programlisting> </para>
+</simplesect>
+</para>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_MATRIX_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_MATRIX_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__qmath_8h" kindref="compound">syn_qmath.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../common/syn_defs.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight></codeline>
+<codeline lineno="46"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Matrix<sp/>view<sp/>(non-owning)<sp/>─────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="47"><highlight class="normal"></highlight></codeline>
+<codeline lineno="55" refid="structSYN__Matrix" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="56" refid="structSYN__Matrix_1a29ab6d4105f91e1cae248647ac338fed" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/><sp/><sp/>*<ref refid="structSYN__Matrix_1a29ab6d4105f91e1cae248647ac338fed" kindref="member">data</ref>;<sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="57" refid="structSYN__Matrix_1a2c7941d2e17da7a51eeefe896f3f594e" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/><ref refid="structSYN__Matrix_1a2c7941d2e17da7a51eeefe896f3f594e" kindref="member">rows</ref>;<sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="58" refid="structSYN__Matrix_1a73c88f9b971e0c313b6549e649ce6483" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/><ref refid="structSYN__Matrix_1a73c88f9b971e0c313b6549e649ce6483" kindref="member">cols</ref>;<sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="59"><highlight class="normal">}<sp/><ref refid="structSYN__Matrix" kindref="compound">SYN_Matrix</ref>;</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"></highlight></codeline>
+<codeline lineno="61"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Declaration<sp/>macros<sp/>───────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="62"><highlight class="normal"></highlight></codeline>
+<codeline lineno="64" refid="syn__matrix_8h_1a9b97cad52e6a5e4200c44c1144d01af3" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_MAT_DECL(name,<sp/>R,<sp/>C)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="65"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>q16_t<sp/>name##_store[(R)<sp/>*<sp/>(C)];<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="66"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>SYN_Matrix<sp/>name<sp/>=<sp/>{<sp/>name##_store,<sp/>(R),<sp/>(C)<sp/>}</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="67"><highlight class="normal"></highlight></codeline>
+<codeline lineno="69" refid="syn__matrix_8h_1aaa1a4bcd4f8aca7e6f724d95781f90d7" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_MAT_STATIC(name,<sp/>R,<sp/>C)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="70"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>static<sp/>q16_t<sp/>name##_store[(R)<sp/>*<sp/>(C)];<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="71"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>static<sp/>SYN_Matrix<sp/>name<sp/>=<sp/>{<sp/>name##_store,<sp/>(R),<sp/>(C)<sp/>}</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="72"><highlight class="normal"></highlight></codeline>
+<codeline lineno="74" refid="syn__matrix_8h_1a6c300ebd225c87a6d6c520540653680f" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_MAT_INIT(name,<sp/>storage,<sp/>R,<sp/>C)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="75"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>SYN_Matrix<sp/>name<sp/>=<sp/>{<sp/>(storage),<sp/>(R),<sp/>(C)<sp/>}</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="76"><highlight class="normal"></highlight></codeline>
+<codeline lineno="78" refid="syn__matrix_8h_1a07fd91f391cbb10eb26bcc74bae9e633" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_MAT_AT(m,<sp/>r,<sp/>c)<sp/><sp/>((m)-&gt;data[(r)<sp/>*<sp/>(m)-&gt;cols<sp/>+<sp/>(c)])</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="79"><highlight class="normal"></highlight></codeline>
+<codeline lineno="81" refid="syn__matrix_8h_1a63acc154097682e78ee7decf4fb6f80b" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_MAT2_DECL(name)<sp/><sp/>SYN_MAT_DECL(name,<sp/>2,<sp/>2)</highlight></codeline>
+<codeline lineno="83" refid="syn__matrix_8h_1a00d4a6b5b4a4e05f351ecc7a57a84632" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_MAT3_DECL(name)<sp/><sp/>SYN_MAT_DECL(name,<sp/>3,<sp/>3)</highlight></codeline>
+<codeline lineno="85" refid="syn__matrix_8h_1a7e8ab792acdda458029edd67b9433972" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_MAT4_DECL(name)<sp/><sp/>SYN_MAT_DECL(name,<sp/>4,<sp/>4)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="86"><highlight class="normal"></highlight></codeline>
+<codeline lineno="87"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Core<sp/>operations<sp/>──────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="88"><highlight class="normal"></highlight></codeline>
+<codeline lineno="93"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__matrix_8h_1ab213c0c824b6c873d8f558bef070c6ee" kindref="member">syn_matrix_identity</ref>(<ref refid="structSYN__Matrix" kindref="compound">SYN_Matrix</ref><sp/>*m);</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"></highlight></codeline>
+<codeline lineno="99"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__matrix_8h_1a4319f2456d293582a320814edbda929f" kindref="member">syn_matrix_zero</ref>(<ref refid="structSYN__Matrix" kindref="compound">SYN_Matrix</ref><sp/>*m);</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"></highlight></codeline>
+<codeline lineno="106"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__matrix_8h_1a470262c46687ffc380390233507536de" kindref="member">syn_matrix_copy</ref>(<ref refid="structSYN__Matrix" kindref="compound">SYN_Matrix</ref><sp/>*dst,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__Matrix" kindref="compound">SYN_Matrix</ref><sp/>*src);</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"></highlight></codeline>
+<codeline lineno="114"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__matrix_8h_1a454d468ef6f8c423d3d47568b166a098" kindref="member">syn_matrix_add</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__Matrix" kindref="compound">SYN_Matrix</ref><sp/>*a,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__Matrix" kindref="compound">SYN_Matrix</ref><sp/>*b,<sp/><ref refid="structSYN__Matrix" kindref="compound">SYN_Matrix</ref><sp/>*out);</highlight></codeline>
+<codeline lineno="115"><highlight class="normal"></highlight></codeline>
+<codeline lineno="122"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__matrix_8h_1a91d15189d13ed0e587a0ee7a66a37e4e" kindref="member">syn_matrix_sub</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__Matrix" kindref="compound">SYN_Matrix</ref><sp/>*a,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__Matrix" kindref="compound">SYN_Matrix</ref><sp/>*b,<sp/><ref refid="structSYN__Matrix" kindref="compound">SYN_Matrix</ref><sp/>*out);</highlight></codeline>
+<codeline lineno="123"><highlight class="normal"></highlight></codeline>
+<codeline lineno="130"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__matrix_8h_1a6e7b7d4684817baa6b2f4b97471c1e89" kindref="member">syn_matrix_scale</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__Matrix" kindref="compound">SYN_Matrix</ref><sp/>*a,<sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>scalar,<sp/><ref refid="structSYN__Matrix" kindref="compound">SYN_Matrix</ref><sp/>*out);</highlight></codeline>
+<codeline lineno="131"><highlight class="normal"></highlight></codeline>
+<codeline lineno="132"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Multiply<sp/>─────────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="133"><highlight class="normal"></highlight></codeline>
+<codeline lineno="144"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__matrix_8h_1adf86ff2ab8bd25c16e55379ffa75dfdd" kindref="member">syn_matrix_mul</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__Matrix" kindref="compound">SYN_Matrix</ref><sp/>*a,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__Matrix" kindref="compound">SYN_Matrix</ref><sp/>*b,<sp/><ref refid="structSYN__Matrix" kindref="compound">SYN_Matrix</ref><sp/>*out);</highlight></codeline>
+<codeline lineno="145"><highlight class="normal"></highlight></codeline>
+<codeline lineno="154"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__matrix_8h_1a2d449191e7d9d678213eb327d1a1abbd" kindref="member">syn_matrix_mul_vec</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__Matrix" kindref="compound">SYN_Matrix</ref><sp/>*m,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>*v_in,</highlight></codeline>
+<codeline lineno="155"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>*v_out,<sp/>uint8_t<sp/>n_in);</highlight></codeline>
+<codeline lineno="156"><highlight class="normal"></highlight></codeline>
+<codeline lineno="157"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Transpose,<sp/>trace<sp/>─────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="158"><highlight class="normal"></highlight></codeline>
+<codeline lineno="164"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__matrix_8h_1aa3c8b7a1f151ccff38ebf4300537d61c" kindref="member">syn_matrix_transpose</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__Matrix" kindref="compound">SYN_Matrix</ref><sp/>*a,<sp/><ref refid="structSYN__Matrix" kindref="compound">SYN_Matrix</ref><sp/>*out);</highlight></codeline>
+<codeline lineno="165"><highlight class="normal"></highlight></codeline>
+<codeline lineno="171"><highlight class="normal"><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/><ref refid="syn__matrix_8h_1aebe0e0329321a765b77f70e158d21865" kindref="member">syn_matrix_trace</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__Matrix" kindref="compound">SYN_Matrix</ref><sp/>*m);</highlight></codeline>
+<codeline lineno="172"><highlight class="normal"></highlight></codeline>
+<codeline lineno="173"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Determinant<sp/>&amp;<sp/>inverse<sp/>────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="174"><highlight class="normal"></highlight></codeline>
+<codeline lineno="184"><highlight class="normal"><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/><ref refid="syn__matrix_8h_1a8b17245b94786cf1145294117315f069" kindref="member">syn_matrix_det</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__Matrix" kindref="compound">SYN_Matrix</ref><sp/>*m);</highlight></codeline>
+<codeline lineno="185"><highlight class="normal"></highlight></codeline>
+<codeline lineno="196"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__matrix_8h_1a3d181d40485bda7852f894799d6eccde" kindref="member">syn_matrix_inv</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__Matrix" kindref="compound">SYN_Matrix</ref><sp/>*m,<sp/><ref refid="structSYN__Matrix" kindref="compound">SYN_Matrix</ref><sp/>*out);</highlight></codeline>
+<codeline lineno="197"><highlight class="normal"></highlight></codeline>
+<codeline lineno="198"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>2D<sp/>transforms<sp/>(3×3<sp/>homogeneous)<sp/>──────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="199"><highlight class="normal"></highlight></codeline>
+<codeline lineno="205"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__matrix_8h_1af055ef15a89703a08d2f07d22f023f41" kindref="member">syn_matrix_rotate_2d</ref>(<ref refid="structSYN__Matrix" kindref="compound">SYN_Matrix</ref><sp/>*out,<sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>angle);</highlight></codeline>
+<codeline lineno="206"><highlight class="normal"></highlight></codeline>
+<codeline lineno="213"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__matrix_8h_1af8da8be96f5bc9d2c68914af7625fa59" kindref="member">syn_matrix_translate_2d</ref>(<ref refid="structSYN__Matrix" kindref="compound">SYN_Matrix</ref><sp/>*out,<sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>tx,<sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>ty);</highlight></codeline>
+<codeline lineno="214"><highlight class="normal"></highlight></codeline>
+<codeline lineno="221"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__matrix_8h_1a184cd0d34b90e564c9b15e9f39c93d29" kindref="member">syn_matrix_scale_2d</ref>(<ref refid="structSYN__Matrix" kindref="compound">SYN_Matrix</ref><sp/>*out,<sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>sx,<sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>sy);</highlight></codeline>
+<codeline lineno="222"><highlight class="normal"></highlight></codeline>
+<codeline lineno="223"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>3D<sp/>transforms<sp/>(4×4<sp/>homogeneous)<sp/>──────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="224"><highlight class="normal"></highlight></codeline>
+<codeline lineno="230"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__matrix_8h_1aa25cb944c29b0e02e4021611cc290881" kindref="member">syn_matrix_rotate_x</ref>(<ref refid="structSYN__Matrix" kindref="compound">SYN_Matrix</ref><sp/>*out,<sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>angle);</highlight></codeline>
+<codeline lineno="231"><highlight class="normal"></highlight></codeline>
+<codeline lineno="237"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__matrix_8h_1aa790ec4fb460e4a268dda32f463b04cb" kindref="member">syn_matrix_rotate_y</ref>(<ref refid="structSYN__Matrix" kindref="compound">SYN_Matrix</ref><sp/>*out,<sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>angle);</highlight></codeline>
+<codeline lineno="238"><highlight class="normal"></highlight></codeline>
+<codeline lineno="244"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__matrix_8h_1a15ffc48f5abdd30ce308375fd0bc0629" kindref="member">syn_matrix_rotate_z</ref>(<ref refid="structSYN__Matrix" kindref="compound">SYN_Matrix</ref><sp/>*out,<sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>angle);</highlight></codeline>
+<codeline lineno="245"><highlight class="normal"></highlight></codeline>
+<codeline lineno="253"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__matrix_8h_1a0dd382ab4a7feca1b97a326a04d3c23d" kindref="member">syn_matrix_translate_3d</ref>(<ref refid="structSYN__Matrix" kindref="compound">SYN_Matrix</ref><sp/>*out,<sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>tx,<sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>ty,<sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>tz);</highlight></codeline>
+<codeline lineno="254"><highlight class="normal"></highlight></codeline>
+<codeline lineno="255"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Vector<sp/>helpers<sp/>───────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="256"><highlight class="normal"></highlight></codeline>
+<codeline lineno="264"><highlight class="normal"><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/><ref refid="syn__matrix_8h_1ac6b12bcc9fa5fd60eb1e16d94cf4b1da" kindref="member">syn_vec_dot</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>*a,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>*b,<sp/>uint8_t<sp/>n);</highlight></codeline>
+<codeline lineno="265"><highlight class="normal"></highlight></codeline>
+<codeline lineno="272"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__matrix_8h_1a34fec05e9d1ecc90504b26e4d2c3f8c4" kindref="member">syn_vec3_cross</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>*a,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>*b,<sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>*out);</highlight></codeline>
+<codeline lineno="273"><highlight class="normal"></highlight></codeline>
+<codeline lineno="280"><highlight class="normal"><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/><ref refid="syn__matrix_8h_1ade5718ecbebbff441776d8a8aa83b25a" kindref="member">syn_vec_norm</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>*v,<sp/>uint8_t<sp/>n);</highlight></codeline>
+<codeline lineno="281"><highlight class="normal"></highlight></codeline>
+<codeline lineno="289"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__matrix_8h_1adb806f7a23132728c93cba6bbe7f4b5c" kindref="member">syn_vec_normalize</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>*v,<sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>*out,<sp/>uint8_t<sp/>n);</highlight></codeline>
+<codeline lineno="290"><highlight class="normal"></highlight></codeline>
+<codeline lineno="291"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Linear<sp/>Solvers<sp/>───────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="292"><highlight class="normal"></highlight></codeline>
+<codeline lineno="304"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__matrix_8h_1a115360494b4392eaa3d1db5370ce46d2" kindref="member">syn_matrix_solve_lu</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__Matrix" kindref="compound">SYN_Matrix</ref><sp/>*<ref refid="syn__x25519_8c_1aa27803512e9def92ca62a90141a0780a" kindref="member">A</ref>,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__Matrix" kindref="compound">SYN_Matrix</ref><sp/>*b,<sp/><ref refid="structSYN__Matrix" kindref="compound">SYN_Matrix</ref><sp/>*x);</highlight></codeline>
+<codeline lineno="305"><highlight class="normal"></highlight></codeline>
+<codeline lineno="318"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__matrix_8h_1a0d3a7fb803467e4b708807c6da61176c" kindref="member">syn_matrix_solve_cholesky</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__Matrix" kindref="compound">SYN_Matrix</ref><sp/>*<ref refid="syn__x25519_8c_1aa27803512e9def92ca62a90141a0780a" kindref="member">A</ref>,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__Matrix" kindref="compound">SYN_Matrix</ref><sp/>*b,<sp/><ref refid="structSYN__Matrix" kindref="compound">SYN_Matrix</ref><sp/>*x);</highlight></codeline>
+<codeline lineno="319"><highlight class="normal"></highlight></codeline>
+<codeline lineno="331"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__matrix_8h_1a3d112532abd06264c1eff8ecc99c8119" kindref="member">syn_matrix_least_squares</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__Matrix" kindref="compound">SYN_Matrix</ref><sp/>*<ref refid="syn__x25519_8c_1aa27803512e9def92ca62a90141a0780a" kindref="member">A</ref>,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__Matrix" kindref="compound">SYN_Matrix</ref><sp/>*b,<sp/><ref refid="structSYN__Matrix" kindref="compound">SYN_Matrix</ref><sp/>*x);</highlight></codeline>
+<codeline lineno="332"><highlight class="normal"></highlight></codeline>
+<codeline lineno="333"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Block<sp/>&amp;<sp/>Outer<sp/>Product<sp/>Operations<sp/>────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="334"><highlight class="normal"></highlight></codeline>
+<codeline lineno="343"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__matrix_8h_1aa7d3a09cac2b6d0f775d3483681ca703" kindref="member">syn_matrix_get_block</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__Matrix" kindref="compound">SYN_Matrix</ref><sp/>*src,<sp/>uint8_t<sp/>r0,<sp/>uint8_t<sp/>c0,<sp/><ref refid="structSYN__Matrix" kindref="compound">SYN_Matrix</ref><sp/>*dst);</highlight></codeline>
+<codeline lineno="344"><highlight class="normal"></highlight></codeline>
+<codeline lineno="353"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__matrix_8h_1ab512de0993590dde8948df2e3b04a6bc" kindref="member">syn_matrix_set_block</ref>(<ref refid="structSYN__Matrix" kindref="compound">SYN_Matrix</ref><sp/>*dst,<sp/>uint8_t<sp/>r0,<sp/>uint8_t<sp/>c0,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__Matrix" kindref="compound">SYN_Matrix</ref><sp/>*src);</highlight></codeline>
+<codeline lineno="354"><highlight class="normal"></highlight></codeline>
+<codeline lineno="364"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__matrix_8h_1a9f470aaa840debe8fb2d624a8fb8c4d0" kindref="member">syn_matrix_outer_product</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>*u,<sp/>uint8_t<sp/>rows,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>*v,<sp/>uint8_t<sp/>cols,<sp/><ref refid="structSYN__Matrix" kindref="compound">SYN_Matrix</ref><sp/>*out);</highlight></codeline>
+<codeline lineno="365"><highlight class="normal"></highlight></codeline>
+<codeline lineno="377"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__matrix_8h_1af77196108b2c582fb1d0a15d6a66fe22" kindref="member">syn_matrix_qr</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__Matrix" kindref="compound">SYN_Matrix</ref><sp/>*<ref refid="syn__x25519_8c_1aa27803512e9def92ca62a90141a0780a" kindref="member">A</ref>,<sp/><ref refid="structSYN__Matrix" kindref="compound">SYN_Matrix</ref><sp/>*Q,<sp/><ref refid="structSYN__Matrix" kindref="compound">SYN_Matrix</ref><sp/>*R);</highlight></codeline>
+<codeline lineno="378"><highlight class="normal"></highlight></codeline>
+<codeline lineno="386"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__matrix_8h_1a9305b7f82185ebf9921971162d853b06" kindref="member">syn_matrix_eigen_sym2</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__Matrix" kindref="compound">SYN_Matrix</ref><sp/>*<ref refid="syn__x25519_8c_1aa27803512e9def92ca62a90141a0780a" kindref="member">A</ref>,<sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>evals[2],<sp/><ref refid="structSYN__Matrix" kindref="compound">SYN_Matrix</ref><sp/>*E);</highlight></codeline>
+<codeline lineno="387"><highlight class="normal"></highlight></codeline>
+<codeline lineno="395"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__matrix_8h_1a18c2b74c9aeedcbab07cb4f4569e6d29" kindref="member">syn_matrix_eigen_sym3</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__Matrix" kindref="compound">SYN_Matrix</ref><sp/>*<ref refid="syn__x25519_8c_1aa27803512e9def92ca62a90141a0780a" kindref="member">A</ref>,<sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>evals[3],<sp/><ref refid="structSYN__Matrix" kindref="compound">SYN_Matrix</ref><sp/>*E);</highlight></codeline>
+<codeline lineno="396"><highlight class="normal"></highlight></codeline>
+<codeline lineno="397"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="398"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="399"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="400"><highlight class="normal"></highlight></codeline>
+<codeline lineno="401"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_MATRIX_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/util/syn_matrix.h"/>
+  </compounddef>
+</doxygen>

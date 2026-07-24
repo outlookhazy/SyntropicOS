@@ -1,0 +1,553 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__pool_8h" kind="file" language="C++">
+    <compoundname>syn_pool.h</compoundname>
+    <includes refid="syn__assert_8h" local="yes">../util/syn_assert.h</includes>
+    <includes local="no">stdint.h</includes>
+    <includes local="no">stddef.h</includes>
+    <includedby refid="syntropic_8h" local="yes">src/syntropic/syntropic.h</includedby>
+    <incdepgraph>
+      <node id="3">
+        <label>../common/syn_compiler.h</label>
+        <link refid="syn__compiler_8h"/>
+      </node>
+      <node id="2">
+        <label>../util/syn_assert.h</label>
+        <link refid="syn__assert_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/util/syn_pool.h</label>
+        <link refid="syn__pool_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>stddef.h</label>
+      </node>
+      <node id="4">
+        <label>stdint.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="2">
+        <label>src/syntropic/syntropic.h</label>
+        <link refid="syntropic_8h"/>
+      </node>
+      <node id="1">
+        <label>src/syntropic/util/syn_pool.h</label>
+        <link refid="syn__pool_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="structSYN__Pool" prot="public">SYN_Pool</innerclass>
+    <sectiondef kind="define">
+      <memberdef kind="define" id="syn__pool_8h_1ab30bd6fbe4aaa6c8604591c1c1c442e4" prot="public" static="no">
+        <name>SYN_POOL_ALIGN4</name>
+        <param><defname>x</defname></param>
+        <initializer>(((x) + 3u) &amp; ~3u)</initializer>
+        <briefdescription>
+<para>Round <computeroutput>x</computeroutput> up to the next multiple of 4. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_pool.h" line="48" column="9" bodyfile="src/syntropic/util/syn_pool.h" bodystart="48" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__pool_8h_1a422e43a740911599b5045af11be0a73a" prot="public" static="no">
+        <name>SYN_POOL_BUF_SIZE</name>
+        <param><defname>block_size</defname></param>
+        <param><defname>count</defname></param>
+        <initializer>    (<ref refid="syn__pool_8h_1ab30bd6fbe4aaa6c8604591c1c1c442e4" kindref="member">SYN_POOL_ALIGN4</ref>(block_size) * (count))</initializer>
+        <briefdescription>
+<para>Compute the buffer size required for a pool. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>block_size</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Desired block size (will be aligned to 4). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>count</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of blocks. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Required buffer size in bytes. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_pool.h" line="56" column="9" bodyfile="src/syntropic/util/syn_pool.h" bodystart="56" bodyend="57"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__pool_8h_1a56880ecfc2ce60cc2ac71f2b255d0d08" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void syn_pool_init</definition>
+        <argsstring>(SYN_Pool *pool, void *buf, size_t buf_size, size_t block_size)</argsstring>
+        <name>syn_pool_init</name>
+        <param>
+          <type><ref refid="structSYN__Pool" kindref="compound">SYN_Pool</ref> *</type>
+          <declname>pool</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>buf_size</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>block_size</declname>
+        </param>
+        <briefdescription>
+<para>Initialize a memory pool. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Partitions the backing buffer into fixed-size blocks and threads a freelist through all of them.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>pool</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pool instance (caller-owned). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Backing storage (caller-owned, must be 4-byte aligned). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>buf_size</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Size of backing storage in bytes. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>block_size</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Desired block size. Rounded up to 4-byte alignment. Must be &gt;= sizeof(void*). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_pool.h" line="87" column="20" bodyfile="src/syntropic/util/syn_pool.h" bodystart="87" bodyend="119"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__pool_8h_1ac2c59b9ab279e16e4da4525d794a0c8b" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void *</type>
+        <definition>static void * syn_pool_alloc</definition>
+        <argsstring>(SYN_Pool *pool)</argsstring>
+        <name>syn_pool_alloc</name>
+        <param>
+          <type><ref refid="structSYN__Pool" kindref="compound">SYN_Pool</ref> *</type>
+          <declname>pool</declname>
+        </param>
+        <briefdescription>
+<para>Allocate a block from the pool. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>pool</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pool instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Pointer to allocated block, or NULL if pool is exhausted. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_pool.h" line="126" column="20" bodyfile="src/syntropic/util/syn_pool.h" bodystart="126" bodyend="144"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__pool_8h_1a9a73768a89f620f3ded956156c9fe0c6" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void syn_pool_free</definition>
+        <argsstring>(SYN_Pool *pool, void *block)</argsstring>
+        <name>syn_pool_free</name>
+        <param>
+          <type><ref refid="structSYN__Pool" kindref="compound">SYN_Pool</ref> *</type>
+          <declname>pool</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>block</declname>
+        </param>
+        <briefdescription>
+<para>Return a block to the pool. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>The block must have been previously allocated from this pool.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>pool</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pool instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>block</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to block to free (NULL is safely ignored). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_pool.h" line="154" column="20" bodyfile="src/syntropic/util/syn_pool.h" bodystart="154" bodyend="165"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__pool_8h_1a5a863cc606d9bd334bd225b130f51977" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>size_t</type>
+        <definition>static size_t syn_pool_available</definition>
+        <argsstring>(const SYN_Pool *pool)</argsstring>
+        <name>syn_pool_available</name>
+        <param>
+          <type>const <ref refid="structSYN__Pool" kindref="compound">SYN_Pool</ref> *</type>
+          <declname>pool</declname>
+        </param>
+        <briefdescription>
+<para>Get the number of available (free) blocks. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>pool</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pool instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Free block count. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_pool.h" line="172" column="22" bodyfile="src/syntropic/util/syn_pool.h" bodystart="172" bodyend="176"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__pool_8h_1afa275e2eb2a832cf4e88ab40eb8defdc" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>size_t</type>
+        <definition>static size_t syn_pool_used</definition>
+        <argsstring>(const SYN_Pool *pool)</argsstring>
+        <name>syn_pool_used</name>
+        <param>
+          <type>const <ref refid="structSYN__Pool" kindref="compound">SYN_Pool</ref> *</type>
+          <declname>pool</declname>
+        </param>
+        <briefdescription>
+<para>Get the number of currently allocated blocks. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>pool</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pool instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Used block count. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_pool.h" line="183" column="22" bodyfile="src/syntropic/util/syn_pool.h" bodystart="183" bodyend="187"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__pool_8h_1aa5bd363db3018859a369c1dc20672295" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>size_t</type>
+        <definition>static size_t syn_pool_high_watermark</definition>
+        <argsstring>(const SYN_Pool *pool)</argsstring>
+        <name>syn_pool_high_watermark</name>
+        <param>
+          <type>const <ref refid="structSYN__Pool" kindref="compound">SYN_Pool</ref> *</type>
+          <declname>pool</declname>
+        </param>
+        <briefdescription>
+<para>Get the peak allocation count (high watermark). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>pool</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pool instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Maximum simultaneous allocations observed. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_pool.h" line="194" column="22" bodyfile="src/syntropic/util/syn_pool.h" bodystart="194" bodyend="198"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__pool_8h_1a528ccf7c7a9dd0021ac16c9ce5b36129" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>size_t</type>
+        <definition>static size_t syn_pool_block_size</definition>
+        <argsstring>(const SYN_Pool *pool)</argsstring>
+        <name>syn_pool_block_size</name>
+        <param>
+          <type>const <ref refid="structSYN__Pool" kindref="compound">SYN_Pool</ref> *</type>
+          <declname>pool</declname>
+        </param>
+        <briefdescription>
+<para>Get the aligned block size. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>pool</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pool instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Block size in bytes (4-byte aligned). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_pool.h" line="205" column="22" bodyfile="src/syntropic/util/syn_pool.h" bodystart="205" bodyend="209"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__pool_8h_1adff82d3b56b817894b69a005c03fac2f" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>size_t</type>
+        <definition>static size_t syn_pool_block_count</definition>
+        <argsstring>(const SYN_Pool *pool)</argsstring>
+        <name>syn_pool_block_count</name>
+        <param>
+          <type>const <ref refid="structSYN__Pool" kindref="compound">SYN_Pool</ref> *</type>
+          <declname>pool</declname>
+        </param>
+        <briefdescription>
+<para>Get the total block count. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>pool</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pool instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Total number of blocks. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_pool.h" line="216" column="22" bodyfile="src/syntropic/util/syn_pool.h" bodystart="216" bodyend="220"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Fixed-size block memory pool — zero-heap, header-only. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>A pool allocator backed by a caller-provided byte array. All blocks are the same size. Allocation and free are O(1) via a freelist embedded in the free blocks themselves.</para>
+<para>Block size is automatically rounded up to 4-byte alignment. Minimum block size is sizeof(void*) (4 bytes on 32-bit targets).</para>
+<para><simplesect kind="par"><title>Usage</title><para><programlisting><codeline><highlight class="comment">//<sp/>Allocate<sp/>a<sp/>pool<sp/>of<sp/>8<sp/>blocks,<sp/>each<sp/>64<sp/>bytes</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/>uint8_t<sp/>backing[<ref refid="syn__pool_8h_1a422e43a740911599b5045af11be0a73a" kindref="member">SYN_POOL_BUF_SIZE</ref>(64,<sp/>8)];</highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/><ref refid="structSYN__Pool" kindref="compound">SYN_Pool</ref><sp/>pool;</highlight></codeline>
+<codeline><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__pool_8h_1a56880ecfc2ce60cc2ac71f2b255d0d08" kindref="member">syn_pool_init</ref>(&amp;pool,<sp/>backing,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(backing),<sp/>64);</highlight></codeline>
+<codeline><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*blk<sp/>=<sp/><ref refid="syn__pool_8h_1ac2c59b9ab279e16e4da4525d794a0c8b" kindref="member">syn_pool_alloc</ref>(&amp;pool);</highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="comment">//<sp/>...<sp/>use<sp/>blk<sp/>...</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__pool_8h_1a9a73768a89f620f3ded956156c9fe0c6" kindref="member">syn_pool_free</ref>(&amp;pool,<sp/>blk);</highlight></codeline>
+</programlisting> </para>
+</simplesect>
+</para>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_POOL_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_POOL_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>__has_include(&quot;syn_config.h&quot;)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/>#include<sp/>&quot;syn_config.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>!defined(SYN_USE_POOL)<sp/>||<sp/>SYN_USE_POOL</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../util/syn_assert.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stddef.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Helpers<sp/>──────────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="46"><highlight class="normal"></highlight></codeline>
+<codeline lineno="48" refid="syn__pool_8h_1ab30bd6fbe4aaa6c8604591c1c1c442e4" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_POOL_ALIGN4(x)<sp/><sp/>(((x)<sp/>+<sp/>3u)<sp/>&amp;<sp/>~3u)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="49"><highlight class="normal"></highlight></codeline>
+<codeline lineno="56" refid="syn__pool_8h_1a422e43a740911599b5045af11be0a73a" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_POOL_BUF_SIZE(block_size,<sp/>count)<sp/>\</highlight></codeline>
+<codeline lineno="57"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>(SYN_POOL_ALIGN4(block_size)<sp/>*<sp/>(count))</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="58"><highlight class="normal"></highlight></codeline>
+<codeline lineno="59"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Pool<sp/>struct<sp/>──────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="60"><highlight class="normal"></highlight></codeline>
+<codeline lineno="64" refid="structSYN__Pool" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="65" refid="structSYN__Pool_1ad43209effb0f530e062efcc302eb242c" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><sp/><sp/><sp/>*<ref refid="structSYN__Pool_1ad43209effb0f530e062efcc302eb242c" kindref="member">freelist</ref>;<sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="66" refid="structSYN__Pool_1a24e2c12872f65c31ef1edbe8d16ef68e" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>*<ref refid="structSYN__Pool_1a24e2c12872f65c31ef1edbe8d16ef68e" kindref="member">buf</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="67" refid="structSYN__Pool_1a6f3d885188eda93097b585ecae0e5462" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><sp/><sp/><ref refid="structSYN__Pool_1a6f3d885188eda93097b585ecae0e5462" kindref="member">block_size</ref>;<sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="68" refid="structSYN__Pool_1a4961e30989f4a0b47b97314e2e084b32" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><sp/><sp/><ref refid="structSYN__Pool_1a4961e30989f4a0b47b97314e2e084b32" kindref="member">block_count</ref>;<sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="69" refid="structSYN__Pool_1a0f4d5816e328c253dc01a25867331e09" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><sp/><sp/><ref refid="structSYN__Pool_1a0f4d5816e328c253dc01a25867331e09" kindref="member">used</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="70" refid="structSYN__Pool_1a27e758da03c9d9601f7d458f0b4ac75f" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><sp/><sp/><ref refid="structSYN__Pool_1a27e758da03c9d9601f7d458f0b4ac75f" kindref="member">high_water</ref>;<sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="71"><highlight class="normal">}<sp/><ref refid="structSYN__Pool" kindref="compound">SYN_Pool</ref>;</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"></highlight></codeline>
+<codeline lineno="73"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>API<sp/>──────────────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="74"><highlight class="normal"></highlight></codeline>
+<codeline lineno="87" refid="syn__pool_8h_1a56880ecfc2ce60cc2ac71f2b255d0d08" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__pool_8h_1a56880ecfc2ce60cc2ac71f2b255d0d08" kindref="member">syn_pool_init</ref>(<ref refid="structSYN__Pool" kindref="compound">SYN_Pool</ref><sp/>*pool,<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*buf,</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>buf_size,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>block_size)</highlight></codeline>
+<codeline lineno="89"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(pool<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(buf<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"></highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Enforce<sp/>minimum<sp/>block<sp/>size<sp/>(must<sp/>hold<sp/>a<sp/>pointer<sp/>for<sp/>the<sp/>freelist)<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(block_size<sp/>&lt;<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*))<sp/>{</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>block_size<sp/>=<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*);</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"></highlight></codeline>
+<codeline lineno="98"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Round<sp/>up<sp/>to<sp/>4-byte<sp/>alignment<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="99"><highlight class="normal"><sp/><sp/><sp/><sp/>block_size<sp/>=<sp/><ref refid="syn__pool_8h_1ab30bd6fbe4aaa6c8604591c1c1c442e4" kindref="member">SYN_POOL_ALIGN4</ref>(block_size);</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"></highlight></codeline>
+<codeline lineno="101"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>count<sp/>=<sp/>buf_size<sp/>/<sp/>block_size;</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(count<sp/>&gt;<sp/>0);</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"></highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/><sp/><sp/><sp/>pool-&gt;<ref refid="structSYN__Pool_1a24e2c12872f65c31ef1edbe8d16ef68e" kindref="member">buf</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>(uint8_t<sp/>*)buf;</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><sp/><sp/><sp/><sp/>pool-&gt;<ref refid="structSYN__Pool_1a6f3d885188eda93097b585ecae0e5462" kindref="member">block_size</ref><sp/><sp/>=<sp/>block_size;</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"><sp/><sp/><sp/><sp/>pool-&gt;<ref refid="structSYN__Pool_1a4961e30989f4a0b47b97314e2e084b32" kindref="member">block_count</ref><sp/>=<sp/>count;</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"><sp/><sp/><sp/><sp/>pool-&gt;<ref refid="structSYN__Pool_1a0f4d5816e328c253dc01a25867331e09" kindref="member">used</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"><sp/><sp/><sp/><sp/>pool-&gt;<ref refid="structSYN__Pool_1a27e758da03c9d9601f7d458f0b4ac75f" kindref="member">high_water</ref><sp/><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="109"><highlight class="normal"></highlight></codeline>
+<codeline lineno="110"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Thread<sp/>freelist<sp/>through<sp/>all<sp/>blocks<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="111"><highlight class="normal"><sp/><sp/><sp/><sp/>pool-&gt;<ref refid="structSYN__Pool_1ad43209effb0f530e062efcc302eb242c" kindref="member">freelist</ref><sp/>=<sp/>NULL;</highlight></codeline>
+<codeline lineno="112"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>i<sp/>=<sp/>count;</highlight></codeline>
+<codeline lineno="113"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">while</highlight><highlight class="normal"><sp/>(i<sp/>&gt;<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>i--;</highlight></codeline>
+<codeline lineno="115"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>**blk<sp/>=<sp/>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>**)(pool-&gt;<ref refid="structSYN__Pool_1a24e2c12872f65c31ef1edbe8d16ef68e" kindref="member">buf</ref><sp/>+<sp/>i<sp/>*<sp/>block_size);</highlight></codeline>
+<codeline lineno="116"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*blk<sp/>=<sp/>pool-&gt;<ref refid="structSYN__Pool_1ad43209effb0f530e062efcc302eb242c" kindref="member">freelist</ref>;</highlight></codeline>
+<codeline lineno="117"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>pool-&gt;<ref refid="structSYN__Pool_1ad43209effb0f530e062efcc302eb242c" kindref="member">freelist</ref><sp/>=<sp/>blk;</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="119"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="120"><highlight class="normal"></highlight></codeline>
+<codeline lineno="126" refid="syn__pool_8h_1ac2c59b9ab279e16e4da4525d794a0c8b" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*<ref refid="syn__pool_8h_1ac2c59b9ab279e16e4da4525d794a0c8b" kindref="member">syn_pool_alloc</ref>(<ref refid="structSYN__Pool" kindref="compound">SYN_Pool</ref><sp/>*pool)</highlight></codeline>
+<codeline lineno="127"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="128"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(pool<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="129"><highlight class="normal"></highlight></codeline>
+<codeline lineno="130"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(pool-&gt;<ref refid="structSYN__Pool_1ad43209effb0f530e062efcc302eb242c" kindref="member">freelist</ref><sp/>==<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="131"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>NULL;<sp/><sp/></highlight><highlight class="comment">/*<sp/>exhausted<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="132"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="133"><highlight class="normal"></highlight></codeline>
+<codeline lineno="134"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Pop<sp/>head<sp/>of<sp/>freelist<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="135"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*blk<sp/>=<sp/>pool-&gt;<ref refid="structSYN__Pool_1ad43209effb0f530e062efcc302eb242c" kindref="member">freelist</ref>;</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"><sp/><sp/><sp/><sp/>pool-&gt;<ref refid="structSYN__Pool_1ad43209effb0f530e062efcc302eb242c" kindref="member">freelist</ref><sp/>=<sp/>*(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>**)blk;</highlight></codeline>
+<codeline lineno="137"><highlight class="normal"></highlight></codeline>
+<codeline lineno="138"><highlight class="normal"><sp/><sp/><sp/><sp/>pool-&gt;<ref refid="structSYN__Pool_1a0f4d5816e328c253dc01a25867331e09" kindref="member">used</ref>++;</highlight></codeline>
+<codeline lineno="139"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(pool-&gt;<ref refid="structSYN__Pool_1a0f4d5816e328c253dc01a25867331e09" kindref="member">used</ref><sp/>&gt;<sp/>pool-&gt;<ref refid="structSYN__Pool_1a27e758da03c9d9601f7d458f0b4ac75f" kindref="member">high_water</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="140"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>pool-&gt;<ref refid="structSYN__Pool_1a27e758da03c9d9601f7d458f0b4ac75f" kindref="member">high_water</ref><sp/>=<sp/>pool-&gt;<ref refid="structSYN__Pool_1a0f4d5816e328c253dc01a25867331e09" kindref="member">used</ref>;</highlight></codeline>
+<codeline lineno="141"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="142"><highlight class="normal"></highlight></codeline>
+<codeline lineno="143"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>blk;</highlight></codeline>
+<codeline lineno="144"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="145"><highlight class="normal"></highlight></codeline>
+<codeline lineno="154" refid="syn__pool_8h_1a9a73768a89f620f3ded956156c9fe0c6" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__pool_8h_1a9a73768a89f620f3ded956156c9fe0c6" kindref="member">syn_pool_free</ref>(<ref refid="structSYN__Pool" kindref="compound">SYN_Pool</ref><sp/>*pool,<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*block)</highlight></codeline>
+<codeline lineno="155"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="156"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(pool<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="157"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(block<sp/>==<sp/>NULL)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="158"><highlight class="normal"></highlight></codeline>
+<codeline lineno="159"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Push<sp/>onto<sp/>freelist<sp/>head<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="160"><highlight class="normal"><sp/><sp/><sp/><sp/>*(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>**)block<sp/>=<sp/>pool-&gt;<ref refid="structSYN__Pool_1ad43209effb0f530e062efcc302eb242c" kindref="member">freelist</ref>;</highlight></codeline>
+<codeline lineno="161"><highlight class="normal"><sp/><sp/><sp/><sp/>pool-&gt;<ref refid="structSYN__Pool_1ad43209effb0f530e062efcc302eb242c" kindref="member">freelist</ref><sp/>=<sp/>block;</highlight></codeline>
+<codeline lineno="162"><highlight class="normal"></highlight></codeline>
+<codeline lineno="163"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(pool-&gt;<ref refid="structSYN__Pool_1a0f4d5816e328c253dc01a25867331e09" kindref="member">used</ref><sp/>&gt;<sp/>0);</highlight></codeline>
+<codeline lineno="164"><highlight class="normal"><sp/><sp/><sp/><sp/>pool-&gt;<ref refid="structSYN__Pool_1a0f4d5816e328c253dc01a25867331e09" kindref="member">used</ref>--;</highlight></codeline>
+<codeline lineno="165"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="166"><highlight class="normal"></highlight></codeline>
+<codeline lineno="172" refid="syn__pool_8h_1a5a863cc606d9bd334bd225b130f51977" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="syn__pool_8h_1a5a863cc606d9bd334bd225b130f51977" kindref="member">syn_pool_available</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__Pool" kindref="compound">SYN_Pool</ref><sp/>*pool)</highlight></codeline>
+<codeline lineno="173"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="174"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(pool<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="175"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>pool-&gt;<ref refid="structSYN__Pool_1a4961e30989f4a0b47b97314e2e084b32" kindref="member">block_count</ref><sp/>-<sp/>pool-&gt;<ref refid="structSYN__Pool_1a0f4d5816e328c253dc01a25867331e09" kindref="member">used</ref>;</highlight></codeline>
+<codeline lineno="176"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="177"><highlight class="normal"></highlight></codeline>
+<codeline lineno="183" refid="syn__pool_8h_1afa275e2eb2a832cf4e88ab40eb8defdc" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="syn__pool_8h_1afa275e2eb2a832cf4e88ab40eb8defdc" kindref="member">syn_pool_used</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__Pool" kindref="compound">SYN_Pool</ref><sp/>*pool)</highlight></codeline>
+<codeline lineno="184"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="185"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(pool<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="186"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>pool-&gt;<ref refid="structSYN__Pool_1a0f4d5816e328c253dc01a25867331e09" kindref="member">used</ref>;</highlight></codeline>
+<codeline lineno="187"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="188"><highlight class="normal"></highlight></codeline>
+<codeline lineno="194" refid="syn__pool_8h_1aa5bd363db3018859a369c1dc20672295" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="syn__pool_8h_1aa5bd363db3018859a369c1dc20672295" kindref="member">syn_pool_high_watermark</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__Pool" kindref="compound">SYN_Pool</ref><sp/>*pool)</highlight></codeline>
+<codeline lineno="195"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="196"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(pool<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="197"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>pool-&gt;<ref refid="structSYN__Pool_1a27e758da03c9d9601f7d458f0b4ac75f" kindref="member">high_water</ref>;</highlight></codeline>
+<codeline lineno="198"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="199"><highlight class="normal"></highlight></codeline>
+<codeline lineno="205" refid="syn__pool_8h_1a528ccf7c7a9dd0021ac16c9ce5b36129" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="syn__pool_8h_1a528ccf7c7a9dd0021ac16c9ce5b36129" kindref="member">syn_pool_block_size</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__Pool" kindref="compound">SYN_Pool</ref><sp/>*pool)</highlight></codeline>
+<codeline lineno="206"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="207"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(pool<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="208"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>pool-&gt;<ref refid="structSYN__Pool_1a6f3d885188eda93097b585ecae0e5462" kindref="member">block_size</ref>;</highlight></codeline>
+<codeline lineno="209"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="210"><highlight class="normal"></highlight></codeline>
+<codeline lineno="216" refid="syn__pool_8h_1adff82d3b56b817894b69a005c03fac2f" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="syn__pool_8h_1adff82d3b56b817894b69a005c03fac2f" kindref="member">syn_pool_block_count</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__Pool" kindref="compound">SYN_Pool</ref><sp/>*pool)</highlight></codeline>
+<codeline lineno="217"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="218"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(pool<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="219"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>pool-&gt;<ref refid="structSYN__Pool_1a4961e30989f4a0b47b97314e2e084b32" kindref="member">block_count</ref>;</highlight></codeline>
+<codeline lineno="220"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="221"><highlight class="normal"></highlight></codeline>
+<codeline lineno="222"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="223"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="224"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="225"><highlight class="normal"></highlight></codeline>
+<codeline lineno="226"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_USE_POOL<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="227"><highlight class="normal"></highlight></codeline>
+<codeline lineno="228"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_POOL_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/util/syn_pool.h"/>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,415 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__slab_8c" kind="file" language="C++">
+    <compoundname>syn_slab.c</compoundname>
+    <includes refid="syn__slab_8h" local="yes">syn_slab.h</includes>
+    <includes local="no">string.h</includes>
+    <incdepgraph>
+      <node id="3">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/util/syn_slab.c</label>
+        <link refid="syn__slab_8c"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>syn_slab.h</label>
+        <link refid="syn__slab_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>stdbool.h</label>
+      </node>
+      <node id="5">
+        <label>stddef.h</label>
+      </node>
+      <node id="4">
+        <label>stdint.h</label>
+      </node>
+      <node id="7">
+        <label>string.h</label>
+      </node>
+    </incdepgraph>
+    <sectiondef kind="define">
+      <memberdef kind="define" id="syn__slab_8c_1a808d0810882dd1f0c4cf8392bc76dc34" prot="public" static="no">
+        <name>ALIGN4</name>
+        <param><defname>x</defname></param>
+        <initializer>(((x) + 3u) &amp; ~3u)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_slab.c" line="9" column="9" bodyfile="src/syntropic/util/syn_slab.c" bodystart="9" bodyend="-1"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__slab_8c_1a09b7e6723999ddb14a5a76beb05f8e1c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_slab_init</definition>
+        <argsstring>(SYN_SlabAllocator *slab, void *backing_memory, size_t total_size, const size_t *block_sizes, const size_t *blocks_per_class, size_t num_classes)</argsstring>
+        <name>syn_slab_init</name>
+        <param>
+          <type><ref refid="structSYN__SlabAllocator" kindref="compound">SYN_SlabAllocator</ref> *</type>
+          <declname>slab</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>backing_memory</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>total_size</declname>
+        </param>
+        <param>
+          <type>const size_t *</type>
+          <declname>block_sizes</declname>
+        </param>
+        <param>
+          <type>const size_t *</type>
+          <declname>blocks_per_class</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>num_classes</declname>
+        </param>
+        <briefdescription>
+<para>Initialize a Multi-Class Slab Allocator. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>slab</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to allocator context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>backing_memory</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to static backing array. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>total_size</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Size of backing memory in bytes. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>block_sizes</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Array of desired block sizes (e.g. {16, 64, 256}). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>blocks_per_class</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Array of block counts for each class. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>num_classes</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of classes (1 to SYN_SLAB_MAX_CLASSES). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_slab.c" line="11" column="12" bodyfile="src/syntropic/util/syn_slab.c" bodystart="11" bodyend="64"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__slab_8c_1a9b9adc8d19a6482fe11c99566646ee91" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void *</type>
+        <definition>void * syn_slab_alloc</definition>
+        <argsstring>(SYN_SlabAllocator *slab, size_t size)</argsstring>
+        <name>syn_slab_alloc</name>
+        <param>
+          <type><ref refid="structSYN__SlabAllocator" kindref="compound">SYN_SlabAllocator</ref> *</type>
+          <declname>slab</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>size</declname>
+        </param>
+        <briefdescription>
+<para>Allocate a block from the optimal slab class. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>slab</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Allocator context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>size</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Requested allocation size in bytes. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Pointer to allocated block, or NULL if unavailable. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_slab.c" line="66" column="6" bodyfile="src/syntropic/util/syn_slab.c" bodystart="66" bodyend="84"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__slab_8c_1a72fac227dbd7b513edc6668d86d9a09c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_slab_free</definition>
+        <argsstring>(SYN_SlabAllocator *slab, void *ptr)</argsstring>
+        <name>syn_slab_free</name>
+        <param>
+          <type><ref refid="structSYN__SlabAllocator" kindref="compound">SYN_SlabAllocator</ref> *</type>
+          <declname>slab</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>ptr</declname>
+        </param>
+        <briefdescription>
+<para>Free a previously allocated slab block. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>slab</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Allocator context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>ptr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to block to free. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, or SYN_INVALID_PARAM. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_slab.c" line="86" column="12" bodyfile="src/syntropic/util/syn_slab.c" bodystart="86" bodyend="111"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__slab_8c_1af3f9ff066e726098b20c12058c0d1254" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_slab_get_stats</definition>
+        <argsstring>(const SYN_SlabAllocator *slab, SYN_SlabStats *stats)</argsstring>
+        <name>syn_slab_get_stats</name>
+        <param>
+          <type>const <ref refid="structSYN__SlabAllocator" kindref="compound">SYN_SlabAllocator</ref> *</type>
+          <declname>slab</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__SlabStats" kindref="compound">SYN_SlabStats</ref> *</type>
+          <declname>stats</declname>
+        </param>
+        <briefdescription>
+<para>Retrieve current allocator usage statistics. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>slab</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Allocator context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>stats</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output statistics structure. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_slab.c" line="113" column="12" bodyfile="src/syntropic/util/syn_slab.c" bodystart="113" bodyend="129"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Multi-Class Slab Memory Allocator implementation. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__slab_8h" kindref="compound">syn_slab.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;string.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>ALIGN4(x)<sp/>(((x)<sp/>+<sp/>3u)<sp/>&amp;<sp/>~3u)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__slab_8c_1a09b7e6723999ddb14a5a76beb05f8e1c" kindref="member">syn_slab_init</ref>(<ref refid="structSYN__SlabAllocator" kindref="compound">SYN_SlabAllocator</ref><sp/>*slab,</highlight></codeline>
+<codeline lineno="12"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*backing_memory,</highlight></codeline>
+<codeline lineno="13"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>total_size,</highlight></codeline>
+<codeline lineno="14"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>*block_sizes,</highlight></codeline>
+<codeline lineno="15"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>*blocks_per_class,</highlight></codeline>
+<codeline lineno="16"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>num_classes)</highlight></codeline>
+<codeline lineno="17"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="18"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!slab<sp/>||<sp/>!backing_memory<sp/>||<sp/>!block_sizes<sp/>||<sp/>!blocks_per_class<sp/>||</highlight></codeline>
+<codeline lineno="19"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>num_classes<sp/>==<sp/>0<sp/>||<sp/>num_classes<sp/>&gt;<sp/><ref refid="syn__slab_8h_1a5fd71d67e072970c2db72ae640c8b97b" kindref="member">SYN_SLAB_MAX_CLASSES</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="20"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="21"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"><sp/><sp/><sp/><sp/>memset(slab,<sp/>0,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(*slab));</highlight></codeline>
+<codeline lineno="24"><highlight class="normal"><sp/><sp/><sp/><sp/>slab-&gt;<ref refid="structSYN__SlabAllocator_1a72d126ca804244c872536068d059ff0a" kindref="member">backing_memory</ref><sp/><sp/><sp/><sp/>=<sp/>(uint8_t<sp/>*)backing_memory;</highlight></codeline>
+<codeline lineno="25"><highlight class="normal"><sp/><sp/><sp/><sp/>slab-&gt;<ref refid="structSYN__SlabAllocator_1a159d2af8331bf6a349dee407ba67dc04" kindref="member">total_memory_size</ref><sp/>=<sp/>total_size;</highlight></codeline>
+<codeline lineno="26"><highlight class="normal"><sp/><sp/><sp/><sp/>slab-&gt;<ref refid="structSYN__SlabAllocator_1abcaf48196b253c847624cef2feb0afe5" kindref="member">num_classes</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>num_classes;</highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>*curr_ptr<sp/>=<sp/>slab-&gt;<ref refid="structSYN__SlabAllocator_1a72d126ca804244c872536068d059ff0a" kindref="member">backing_memory</ref>;</highlight></codeline>
+<codeline lineno="29"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>remaining_size<sp/>=<sp/>total_size;</highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight></codeline>
+<codeline lineno="31"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>num_classes;<sp/>i++)<sp/>{</highlight></codeline>
+<codeline lineno="32"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>b_size<sp/>=<sp/>ALIGN4(block_sizes[i]);</highlight></codeline>
+<codeline lineno="33"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(b_size<sp/>&lt;<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*))<sp/>{</highlight></codeline>
+<codeline lineno="34"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>b_size<sp/>=<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*);</highlight></codeline>
+<codeline lineno="35"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>count<sp/>=<sp/>blocks_per_class[i];</highlight></codeline>
+<codeline lineno="38"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>req_size<sp/>=<sp/>b_size<sp/>*<sp/>count;</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(req_size<sp/>&gt;<sp/>remaining_size)<sp/>{</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;<sp/></highlight><highlight class="comment">/*<sp/>Insufficient<sp/>backing<sp/>memory<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__SlabClass" kindref="compound">SYN_SlabClass</ref><sp/>*sc<sp/>=<sp/>&amp;slab-&gt;<ref refid="structSYN__SlabAllocator_1acff552ab09b873f7fd1add287f5b58fb" kindref="member">classes</ref>[i];</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>sc-&gt;<ref refid="structSYN__SlabClass_1ab2d330a7947ef924d9f68afbb986c308" kindref="member">block_size</ref><sp/><sp/><sp/>=<sp/>b_size;</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>sc-&gt;<ref refid="structSYN__SlabClass_1ad9f99a25aac4b0f77d3f5fdad234c32a" kindref="member">total_blocks</ref><sp/>=<sp/>count;</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>sc-&gt;<ref refid="structSYN__SlabClass_1a3d0b65e97ebc83947005fb36b6a0851f" kindref="member">free_count</ref><sp/><sp/><sp/>=<sp/>count;</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>sc-&gt;<ref refid="structSYN__SlabClass_1a6115ac335d27ce8453ff49225191bfab" kindref="member">start_ptr</ref><sp/><sp/><sp/><sp/>=<sp/>curr_ptr;</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>sc-&gt;<ref refid="structSYN__SlabClass_1a7f32de1add71d246f27b9aac9dffad43" kindref="member">freelist</ref><sp/><sp/><sp/><sp/><sp/>=<sp/>NULL;</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"></highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Build<sp/>embedded<sp/>freelist<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>j<sp/>=<sp/>0;<sp/>j<sp/>&lt;<sp/>count;<sp/>j++)<sp/>{</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>*block<sp/>=<sp/>curr_ptr<sp/>+<sp/>(j<sp/>*<sp/>b_size);</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*next<sp/>=<sp/>sc-&gt;<ref refid="structSYN__SlabClass_1a7f32de1add71d246f27b9aac9dffad43" kindref="member">freelist</ref>;</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>sc-&gt;<ref refid="structSYN__SlabClass_1a7f32de1add71d246f27b9aac9dffad43" kindref="member">freelist</ref><sp/>=<sp/>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*)block;</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>**)block<sp/>=<sp/>next;</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"></highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>curr_ptr<sp/>+=<sp/>req_size;</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>remaining_size<sp/>-=<sp/>req_size;</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"></highlight></codeline>
+<codeline lineno="63"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="64"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"></highlight></codeline>
+<codeline lineno="66"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*<ref refid="syn__slab_8c_1a9b9adc8d19a6482fe11c99566646ee91" kindref="member">syn_slab_alloc</ref>(<ref refid="structSYN__SlabAllocator" kindref="compound">SYN_SlabAllocator</ref><sp/>*slab,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>size)</highlight></codeline>
+<codeline lineno="67"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!slab<sp/>||<sp/>size<sp/>==<sp/>0)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>NULL;</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"></highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Find<sp/>smallest<sp/>fitting<sp/>slab<sp/>class<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="71"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>slab-&gt;<ref refid="structSYN__SlabAllocator_1abcaf48196b253c847624cef2feb0afe5" kindref="member">num_classes</ref>;<sp/>i++)<sp/>{</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__SlabClass" kindref="compound">SYN_SlabClass</ref><sp/>*sc<sp/>=<sp/>&amp;slab-&gt;<ref refid="structSYN__SlabAllocator_1acff552ab09b873f7fd1add287f5b58fb" kindref="member">classes</ref>[i];</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(sc-&gt;<ref refid="structSYN__SlabClass_1ab2d330a7947ef924d9f68afbb986c308" kindref="member">block_size</ref><sp/>&gt;=<sp/>size)<sp/>{</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(sc-&gt;<ref refid="structSYN__SlabClass_1a3d0b65e97ebc83947005fb36b6a0851f" kindref="member">free_count</ref><sp/>&gt;<sp/>0<sp/>&amp;&amp;<sp/>sc-&gt;<ref refid="structSYN__SlabClass_1a7f32de1add71d246f27b9aac9dffad43" kindref="member">freelist</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*ptr<sp/>=<sp/>sc-&gt;<ref refid="structSYN__SlabClass_1a7f32de1add71d246f27b9aac9dffad43" kindref="member">freelist</ref>;</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>sc-&gt;<ref refid="structSYN__SlabClass_1a7f32de1add71d246f27b9aac9dffad43" kindref="member">freelist</ref><sp/>=<sp/>*(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>**)ptr;</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>sc-&gt;<ref refid="structSYN__SlabClass_1a3d0b65e97ebc83947005fb36b6a0851f" kindref="member">free_count</ref>--;</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>ptr;</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"></highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>NULL;<sp/></highlight><highlight class="comment">/*<sp/>Out<sp/>of<sp/>memory<sp/>/<sp/>no<sp/>fitting<sp/>block<sp/>free<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="84"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"></highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__slab_8c_1a72fac227dbd7b513edc6668d86d9a09c" kindref="member">syn_slab_free</ref>(<ref refid="structSYN__SlabAllocator" kindref="compound">SYN_SlabAllocator</ref><sp/>*slab,<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*ptr)</highlight></codeline>
+<codeline lineno="87"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!slab<sp/>||<sp/>!ptr)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"></highlight></codeline>
+<codeline lineno="90"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*p<sp/>=<sp/>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*)ptr;</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"></highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Identify<sp/>owning<sp/>slab<sp/>class<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>slab-&gt;<ref refid="structSYN__SlabAllocator_1abcaf48196b253c847624cef2feb0afe5" kindref="member">num_classes</ref>;<sp/>i++)<sp/>{</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__SlabClass" kindref="compound">SYN_SlabClass</ref><sp/>*sc<sp/>=<sp/>&amp;slab-&gt;<ref refid="structSYN__SlabAllocator_1acff552ab09b873f7fd1add287f5b58fb" kindref="member">classes</ref>[i];</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>slab_bytes<sp/>=<sp/>sc-&gt;<ref refid="structSYN__SlabClass_1ab2d330a7947ef924d9f68afbb986c308" kindref="member">block_size</ref><sp/>*<sp/>sc-&gt;<ref refid="structSYN__SlabClass_1ad9f99a25aac4b0f77d3f5fdad234c32a" kindref="member">total_blocks</ref>;</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(p<sp/>&gt;=<sp/>sc-&gt;<ref refid="structSYN__SlabClass_1a6115ac335d27ce8453ff49225191bfab" kindref="member">start_ptr</ref><sp/>&amp;&amp;<sp/>p<sp/>&lt;<sp/>(sc-&gt;<ref refid="structSYN__SlabClass_1a6115ac335d27ce8453ff49225191bfab" kindref="member">start_ptr</ref><sp/>+<sp/>slab_bytes))<sp/>{</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Verify<sp/>pointer<sp/>alignment<sp/>within<sp/>slab<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="98"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>offset<sp/>=<sp/>(size_t)(p<sp/>-<sp/>sc-&gt;<ref refid="structSYN__SlabClass_1a6115ac335d27ce8453ff49225191bfab" kindref="member">start_ptr</ref>);</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>((offset<sp/>%<sp/>sc-&gt;<ref refid="structSYN__SlabClass_1ab2d330a7947ef924d9f68afbb986c308" kindref="member">block_size</ref>)<sp/>!=<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;<sp/></highlight><highlight class="comment">/*<sp/>Misaligned<sp/>pointer<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="101"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"></highlight></codeline>
+<codeline lineno="103"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>**)ptr<sp/>=<sp/>sc-&gt;<ref refid="structSYN__SlabClass_1a7f32de1add71d246f27b9aac9dffad43" kindref="member">freelist</ref>;</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>sc-&gt;<ref refid="structSYN__SlabClass_1a7f32de1add71d246f27b9aac9dffad43" kindref="member">freelist</ref><sp/>=<sp/>ptr;</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>sc-&gt;<ref refid="structSYN__SlabClass_1a3d0b65e97ebc83947005fb36b6a0851f" kindref="member">free_count</ref>++;</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="109"><highlight class="normal"></highlight></codeline>
+<codeline lineno="110"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;<sp/></highlight><highlight class="comment">/*<sp/>Pointer<sp/>out<sp/>of<sp/>slab<sp/>bounds<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="111"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="112"><highlight class="normal"></highlight></codeline>
+<codeline lineno="113"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__slab_8c_1af3f9ff066e726098b20c12058c0d1254" kindref="member">syn_slab_get_stats</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__SlabAllocator" kindref="compound">SYN_SlabAllocator</ref><sp/>*slab,<sp/><ref refid="structSYN__SlabStats" kindref="compound">SYN_SlabStats</ref><sp/>*stats)</highlight></codeline>
+<codeline lineno="114"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="115"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!slab<sp/>||<sp/>!stats)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="116"><highlight class="normal"></highlight></codeline>
+<codeline lineno="117"><highlight class="normal"><sp/><sp/><sp/><sp/>stats-&gt;<ref refid="structSYN__SlabStats_1abe4c54bfc8da23e836f87d308f04b6ec" kindref="member">total_bytes</ref><sp/><sp/><sp/><sp/><sp/>=<sp/>slab-&gt;<ref refid="structSYN__SlabAllocator_1a159d2af8331bf6a349dee407ba67dc04" kindref="member">total_memory_size</ref>;</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"><sp/><sp/><sp/><sp/>stats-&gt;<ref refid="structSYN__SlabStats_1ac7d2bb1a12a7fd281d2b1c027367ac92" kindref="member">allocated_bytes</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"><sp/><sp/><sp/><sp/>stats-&gt;<ref refid="structSYN__SlabStats_1a3771a903ed5bc0f5c334abce59aec3f2" kindref="member">total_allocs</ref><sp/><sp/><sp/><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="120"><highlight class="normal"></highlight></codeline>
+<codeline lineno="121"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>slab-&gt;<ref refid="structSYN__SlabAllocator_1abcaf48196b253c847624cef2feb0afe5" kindref="member">num_classes</ref>;<sp/>i++)<sp/>{</highlight></codeline>
+<codeline lineno="122"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__SlabClass" kindref="compound">SYN_SlabClass</ref><sp/>*sc<sp/>=<sp/>&amp;slab-&gt;<ref refid="structSYN__SlabAllocator_1acff552ab09b873f7fd1add287f5b58fb" kindref="member">classes</ref>[i];</highlight></codeline>
+<codeline lineno="123"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>used<sp/>=<sp/>sc-&gt;<ref refid="structSYN__SlabClass_1ad9f99a25aac4b0f77d3f5fdad234c32a" kindref="member">total_blocks</ref><sp/>-<sp/>sc-&gt;<ref refid="structSYN__SlabClass_1a3d0b65e97ebc83947005fb36b6a0851f" kindref="member">free_count</ref>;</highlight></codeline>
+<codeline lineno="124"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>stats-&gt;<ref refid="structSYN__SlabStats_1ac7d2bb1a12a7fd281d2b1c027367ac92" kindref="member">allocated_bytes</ref><sp/>+=<sp/>used<sp/>*<sp/>sc-&gt;<ref refid="structSYN__SlabClass_1ab2d330a7947ef924d9f68afbb986c308" kindref="member">block_size</ref>;</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>stats-&gt;<ref refid="structSYN__SlabStats_1a3771a903ed5bc0f5c334abce59aec3f2" kindref="member">total_allocs</ref><sp/><sp/><sp/><sp/>+=<sp/>used;</highlight></codeline>
+<codeline lineno="126"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="127"><highlight class="normal"></highlight></codeline>
+<codeline lineno="128"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="129"><highlight class="normal">}</highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/util/syn_slab.c"/>
+  </compounddef>
+</doxygen>

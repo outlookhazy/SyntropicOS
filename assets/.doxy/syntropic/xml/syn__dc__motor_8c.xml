@@ -1,0 +1,876 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__dc__motor_8c" kind="file" language="C++">
+    <compoundname>syn_dc_motor.c</compoundname>
+    <includes refid="syn__dc__motor_8h" local="yes">syn_dc_motor.h</includes>
+    <includes refid="syn__assert_8h" local="yes">../util/syn_assert.h</includes>
+    <includes refid="syn__ramp_8h" local="yes">../util/syn_ramp.h</includes>
+    <includes local="no">string.h</includes>
+    <incdepgraph>
+      <node id="10">
+        <label>../common/syn_compiler.h</label>
+        <link refid="syn__compiler_8h"/>
+      </node>
+      <node id="3">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>../drivers/syn_gpio.h</label>
+        <link refid="syn__gpio_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/motor/syn_dc_motor.c</label>
+        <link refid="syn__dc__motor_8c"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>syn_dc_motor.h</label>
+        <link refid="syn__dc__motor_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>../motor/syn_motor_output.h</label>
+        <link refid="syn__motor__output_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>../port/syn_port_gpio.h</label>
+        <link refid="syn__port__gpio_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="9">
+        <label>../port/syn_port_system.h</label>
+        <link refid="syn__port__system_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+      </node>
+      <node id="13">
+        <label>../util/syn_assert.h</label>
+        <link refid="syn__assert_8h"/>
+        <childnode refid="10" relation="include">
+        </childnode>
+      </node>
+      <node id="11">
+        <label>../util/syn_ramp.h</label>
+        <link refid="syn__ramp_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+      </node>
+      <node id="12">
+        <label>stdbool.h</label>
+      </node>
+      <node id="5">
+        <label>stddef.h</label>
+      </node>
+      <node id="4">
+        <label>stdint.h</label>
+      </node>
+      <node id="14">
+        <label>string.h</label>
+      </node>
+    </incdepgraph>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__dc__motor_8c_1a0eb8444cd8404f47318a5cd7c3c41d57" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int32_t</type>
+        <definition>static int32_t clamp_speed</definition>
+        <argsstring>(const SYN_DCMotor *motor, int32_t speed)</argsstring>
+        <name>clamp_speed</name>
+        <param>
+          <type>const <ref refid="structSYN__DCMotor" kindref="compound">SYN_DCMotor</ref> *</type>
+          <declname>motor</declname>
+        </param>
+        <param>
+          <type>int32_t</type>
+          <declname>speed</declname>
+        </param>
+        <briefdescription>
+<para>Clamp speed to the valid range [-duty_max, +duty_max]. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>motor</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Motor instance (for duty_max). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>speed</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Raw speed value. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Clamped speed. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/motor/syn_dc_motor.c" line="26" column="16" bodyfile="src/syntropic/motor/syn_dc_motor.c" bodystart="26" bodyend="31"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__dc__motor_8c_1a1e8364d5122b4c7b2a7ac577b848416b" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void apply_speed</definition>
+        <argsstring>(SYN_DCMotor *m)</argsstring>
+        <name>apply_speed</name>
+        <param>
+          <type><ref refid="structSYN__DCMotor" kindref="compound">SYN_DCMotor</ref> *</type>
+          <declname>m</declname>
+        </param>
+        <briefdescription>
+<para>Apply the current speed to the motor outputs. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>m</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>DC motor instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/motor/syn_dc_motor.c" line="37" column="13" bodyfile="src/syntropic/motor/syn_dc_motor.c" bodystart="37" bodyend="82"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__dc__motor_8c_1ab52659dfe9f5f69a84e367c884501c4c" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void dc_output_set</definition>
+        <argsstring>(void *ctx, int32_t output)</argsstring>
+        <name>dc_output_set</name>
+        <param>
+          <type>void *</type>
+          <declname>ctx</declname>
+        </param>
+        <param>
+          <type>int32_t</type>
+          <declname>output</declname>
+        </param>
+        <briefdescription>
+<para>Set output adapter for <ref refid="structSYN__MotorOutput" kindref="compound">SYN_MotorOutput</ref>. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ctx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>DC motor instance (SYN_DCMotor*). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>output</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Signed output level. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/motor/syn_dc_motor.c" line="91" column="13" bodyfile="src/syntropic/motor/syn_dc_motor.c" bodystart="91" bodyend="95"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__dc__motor_8c_1a0ae73f2862d8c98e946b06adee841746" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void dc_output_coast</definition>
+        <argsstring>(void *ctx)</argsstring>
+        <name>dc_output_coast</name>
+        <param>
+          <type>void *</type>
+          <declname>ctx</declname>
+        </param>
+        <briefdescription>
+<para>Coast adapter for <ref refid="structSYN__MotorOutput" kindref="compound">SYN_MotorOutput</ref>. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ctx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>DC motor instance (SYN_DCMotor*). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/motor/syn_dc_motor.c" line="101" column="13" bodyfile="src/syntropic/motor/syn_dc_motor.c" bodystart="101" bodyend="104"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__dc__motor_8c_1a8701a0cf516a71936e2f82859f6f31a8" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void dc_output_brake</definition>
+        <argsstring>(void *ctx)</argsstring>
+        <name>dc_output_brake</name>
+        <param>
+          <type>void *</type>
+          <declname>ctx</declname>
+        </param>
+        <briefdescription>
+<para>Brake adapter for <ref refid="structSYN__MotorOutput" kindref="compound">SYN_MotorOutput</ref>. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ctx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>DC motor instance (SYN_DCMotor*). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/motor/syn_dc_motor.c" line="110" column="13" bodyfile="src/syntropic/motor/syn_dc_motor.c" bodystart="110" bodyend="113"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__dc__motor_8c_1a13897d6549aa6dc1552b44e7afee80de" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_dc_motor_init</definition>
+        <argsstring>(SYN_DCMotor *motor, SYN_GPIO_Pin pin_a, SYN_GPIO_Pin pin_b, SYN_DCMotorMode mode)</argsstring>
+        <name>syn_dc_motor_init</name>
+        <param>
+          <type><ref refid="structSYN__DCMotor" kindref="compound">SYN_DCMotor</ref> *</type>
+          <declname>motor</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref></type>
+          <declname>pin_a</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref></type>
+          <declname>pin_b</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__dc__motor_8h_1a3132843a8373f0e8ea7f13ddeeac9b70" kindref="member">SYN_DCMotorMode</ref></type>
+          <declname>mode</declname>
+        </param>
+        <briefdescription>
+<para>Initialize DC motor controller. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Sets duty_max to SYN_DC_MOTOR_DUTY_MAX_DEFAULT (1000).</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>motor</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Motor instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>pin_a</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>PWM pin (or IN_A). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>pin_b</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Direction pin (or IN_B). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>mode</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Control mode. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/motor/syn_dc_motor.c" line="117" column="6" bodyfile="src/syntropic/motor/syn_dc_motor.c" bodystart="117" bodyend="131"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__dc__motor_8c_1a5cefb8a404bc0eef08a0f5ad054dd904" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_dc_motor_set_duty_callback</definition>
+        <argsstring>(SYN_DCMotor *motor, void(*cb)(SYN_GPIO_Pin, uint16_t, void *), void *ctx)</argsstring>
+        <name>syn_dc_motor_set_duty_callback</name>
+        <param>
+          <type><ref refid="structSYN__DCMotor" kindref="compound">SYN_DCMotor</ref> *</type>
+          <declname>motor</declname>
+        </param>
+        <param>
+          <type>void(*)(<ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref>, uint16_t, void *)</type>
+          <declname>cb</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>ctx</declname>
+        </param>
+        <briefdescription>
+<para>Set the PWM duty callback. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>The callback is called with the pin and a duty value in [0, duty_max] whenever the motor speed changes.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>motor</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Motor instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>cb</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Duty callback. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>ctx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>User context. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/motor/syn_dc_motor.c" line="133" column="6" bodyfile="src/syntropic/motor/syn_dc_motor.c" bodystart="133" bodyend="140"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__dc__motor_8c_1a6fe771f3def9da3beab45cadd034a32a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_dc_motor_set_speed</definition>
+        <argsstring>(SYN_DCMotor *motor, int32_t speed)</argsstring>
+        <name>syn_dc_motor_set_speed</name>
+        <param>
+          <type><ref refid="structSYN__DCMotor" kindref="compound">SYN_DCMotor</ref> *</type>
+          <declname>motor</declname>
+        </param>
+        <param>
+          <type>int32_t</type>
+          <declname>speed</declname>
+        </param>
+        <briefdescription>
+<para>Set motor speed immediately. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>motor</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>DC motor handle. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>speed</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Speed in range [-duty_max, +duty_max]. Positive = forward, negative = reverse, 0 = stop. Clamped to ±duty_max. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/motor/syn_dc_motor.c" line="142" column="6" bodyfile="src/syntropic/motor/syn_dc_motor.c" bodystart="142" bodyend="151"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__dc__motor_8c_1a7d5d0cef91bcb2cc7babdc0c659da33d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_dc_motor_ramp_to</definition>
+        <argsstring>(SYN_DCMotor *motor, int32_t speed, uint16_t duration)</argsstring>
+        <name>syn_dc_motor_ramp_to</name>
+        <param>
+          <type><ref refid="structSYN__DCMotor" kindref="compound">SYN_DCMotor</ref> *</type>
+          <declname>motor</declname>
+        </param>
+        <param>
+          <type>int32_t</type>
+          <declname>speed</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>duration</declname>
+        </param>
+        <briefdescription>
+<para>Ramp to a target speed over a duration. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>motor</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Motor. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>speed</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Target speed [-duty_max, +duty_max]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>duration</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Ramp duration in milliseconds. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/motor/syn_dc_motor.c" line="153" column="6" bodyfile="src/syntropic/motor/syn_dc_motor.c" bodystart="153" bodyend="183"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__dc__motor_8c_1a95272abd8bb02f1d1535129a82d51d27" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_dc_motor_update</definition>
+        <argsstring>(SYN_DCMotor *motor)</argsstring>
+        <name>syn_dc_motor_update</name>
+        <param>
+          <type><ref refid="structSYN__DCMotor" kindref="compound">SYN_DCMotor</ref> *</type>
+          <declname>motor</declname>
+        </param>
+        <briefdescription>
+<para>Update motor ramp. Call periodically. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>motor</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Motor instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/motor/syn_dc_motor.c" line="185" column="6" bodyfile="src/syntropic/motor/syn_dc_motor.c" bodystart="185" bodyend="214"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__dc__motor_8c_1a1d900696c23a8a8061a49f6348add6c3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_dc_motor_coast</definition>
+        <argsstring>(SYN_DCMotor *motor)</argsstring>
+        <name>syn_dc_motor_coast</name>
+        <param>
+          <type><ref refid="structSYN__DCMotor" kindref="compound">SYN_DCMotor</ref> *</type>
+          <declname>motor</declname>
+        </param>
+        <briefdescription>
+<para>Stop the motor (coast — both pins low). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>motor</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Motor instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/motor/syn_dc_motor.c" line="216" column="6" bodyfile="src/syntropic/motor/syn_dc_motor.c" bodystart="216" bodyend="224"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__dc__motor_8c_1ac284f0f7e630d905a98d6660ba58d48c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_dc_motor_brake</definition>
+        <argsstring>(SYN_DCMotor *motor)</argsstring>
+        <name>syn_dc_motor_brake</name>
+        <param>
+          <type><ref refid="structSYN__DCMotor" kindref="compound">SYN_DCMotor</ref> *</type>
+          <declname>motor</declname>
+        </param>
+        <briefdescription>
+<para>Brake the motor (both pins high, if driver supports it). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>motor</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Motor instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/motor/syn_dc_motor.c" line="226" column="6" bodyfile="src/syntropic/motor/syn_dc_motor.c" bodystart="226" bodyend="234"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__dc__motor_8c_1af0df40a58c4d6d97a059f583b43ea81e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_dc_motor_set_duty_max</definition>
+        <argsstring>(SYN_DCMotor *motor, int32_t duty_max)</argsstring>
+        <name>syn_dc_motor_set_duty_max</name>
+        <param>
+          <type><ref refid="structSYN__DCMotor" kindref="compound">SYN_DCMotor</ref> *</type>
+          <declname>motor</declname>
+        </param>
+        <param>
+          <type>int32_t</type>
+          <declname>duty_max</declname>
+        </param>
+        <briefdescription>
+<para>Set the maximum duty cycle value. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Call after init to change from the default (1000). Resets speed to 0.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>motor</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Motor instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>duty_max</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Maximum duty value (e.g., 255, 1000, 4095, 65535). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/motor/syn_dc_motor.c" line="236" column="6" bodyfile="src/syntropic/motor/syn_dc_motor.c" bodystart="236" bodyend="243"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__dc__motor_8c_1a61cd420228e33bb64e73a5cad4f4a122" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="structSYN__MotorOutput" kindref="compound">SYN_MotorOutput</ref></type>
+        <definition>SYN_MotorOutput syn_dc_motor_output</definition>
+        <argsstring>(SYN_DCMotor *motor)</argsstring>
+        <name>syn_dc_motor_output</name>
+        <param>
+          <type><ref refid="structSYN__DCMotor" kindref="compound">SYN_DCMotor</ref> *</type>
+          <declname>motor</declname>
+        </param>
+        <briefdescription>
+<para>Create a <ref refid="structSYN__MotorOutput" kindref="compound">SYN_MotorOutput</ref> interface for this DC motor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns a motor output vtable that maps set_output() to <ref refid="syn__dc__motor_8h_1a6fe771f3def9da3beab45cadd034a32a" kindref="member">syn_dc_motor_set_speed()</ref>, coast() to <ref refid="syn__dc__motor_8h_1a1d900696c23a8a8061a49f6348add6c3" kindref="member">syn_dc_motor_coast()</ref>, etc. The output range maps directly to [-duty_max, +duty_max].</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>motor</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>DC motor instance (must outlive the returned output). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Motor output interface. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/motor/syn_dc_motor.c" line="245" column="17" bodyfile="src/syntropic/motor/syn_dc_motor.c" bodystart="245" bodyend="254"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>DC motor controller implementation. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#if<sp/>__has_include(&quot;syn_config.h&quot;)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/>#include<sp/>&quot;syn_config.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="4"><highlight class="normal"></highlight></codeline>
+<codeline lineno="5"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>!defined(SYN_USE_DC_MOTOR)<sp/>||<sp/>SYN_USE_DC_MOTOR</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__dc__motor_8h" kindref="compound">syn_dc_motor.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../util/syn_assert.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../util/syn_ramp.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;string.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Helpers<sp/>──────────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/>int32_t<sp/><ref refid="syn__dc__motor_8c_1a0eb8444cd8404f47318a5cd7c3c41d57" kindref="member">clamp_speed</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__DCMotor" kindref="compound">SYN_DCMotor</ref><sp/>*motor,<sp/>int32_t<sp/>speed)</highlight></codeline>
+<codeline lineno="27"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="28"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(speed<sp/>&gt;<sp/>motor-&gt;<ref refid="structSYN__DCMotor_1ae3bdc0bce97023e42316e1fa6a8cd07b" kindref="member">duty_max</ref>)<sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>motor-&gt;<ref refid="structSYN__DCMotor_1ae3bdc0bce97023e42316e1fa6a8cd07b" kindref="member">duty_max</ref>;</highlight></codeline>
+<codeline lineno="29"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(speed<sp/>&lt;<sp/>-motor-&gt;duty_max)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>-motor-&gt;<ref refid="structSYN__DCMotor_1ae3bdc0bce97023e42316e1fa6a8cd07b" kindref="member">duty_max</ref>;</highlight></codeline>
+<codeline lineno="30"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>speed;</highlight></codeline>
+<codeline lineno="31"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__dc__motor_8c_1a1e8364d5122b4c7b2a7ac577b848416b" kindref="member">apply_speed</ref>(<ref refid="structSYN__DCMotor" kindref="compound">SYN_DCMotor</ref><sp/>*m)</highlight></codeline>
+<codeline lineno="38"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"><sp/><sp/><sp/><sp/>int32_t<sp/>spd<sp/>=<sp/>m-&gt;<ref refid="structSYN__DCMotor_1adef71ecc2a7aa6209e736250e79b66b3" kindref="member">speed</ref>;</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>forward<sp/>=<sp/>(spd<sp/>&gt;=<sp/>0);</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(m-&gt;<ref refid="structSYN__DCMotor_1a0eab2a28c3575f49db1bbed72b54638a" kindref="member">invert</ref>)<sp/>forward<sp/>=<sp/>!forward;</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight></codeline>
+<codeline lineno="43"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/>duty<sp/>=<sp/>(uint16_t)(spd<sp/>&gt;=<sp/>0<sp/>?<sp/>spd<sp/>:<sp/>-spd);</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">switch</highlight><highlight class="normal"><sp/>((<ref refid="syn__dc__motor_8h_1a3132843a8373f0e8ea7f13ddeeac9b70" kindref="member">SYN_DCMotorMode</ref>)m-&gt;<ref refid="structSYN__DCMotor_1a003c761e9cbba746bf4b4d8c7e1143aa" kindref="member">mode</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__dc__motor_8h_1a3132843a8373f0e8ea7f13ddeeac9b70afaca2239e5e8cf7b5d886e4e4fd58d8c" kindref="member">SYN_DC_MODE_PWM_DIR</ref>:</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>pin_a<sp/>=<sp/>PWM,<sp/>pin_b<sp/>=<sp/>direction<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__port__gpio_8h_1a797218e188e548d3e6116e87554b29fe" kindref="member">syn_port_gpio_write</ref>(m-&gt;<ref refid="structSYN__DCMotor_1aba9682b3c1457781fb8a0f6f7b501baf" kindref="member">pin_b</ref>,</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>forward<sp/>?<sp/>SYN_GPIO_HIGH<sp/>:<sp/>SYN_GPIO_LOW);</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(m-&gt;<ref refid="structSYN__DCMotor_1a4e082e48cd3aec2dedb65663b9e77126" kindref="member">set_duty</ref><sp/>!=<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>m-&gt;<ref refid="structSYN__DCMotor_1a4e082e48cd3aec2dedb65663b9e77126" kindref="member">set_duty</ref>(m-&gt;<ref refid="structSYN__DCMotor_1a0f808c5d976c03c18e42e5f52944964b" kindref="member">pin_a</ref>,<sp/>duty,<sp/>m-&gt;<ref refid="structSYN__DCMotor_1a54992a423dd614abc0431b823ed44df3" kindref="member">duty_ctx</ref>);</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Fallback:<sp/>just<sp/>set<sp/>GPIO<sp/>high/low<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__port__gpio_8h_1a797218e188e548d3e6116e87554b29fe" kindref="member">syn_port_gpio_write</ref>(m-&gt;<ref refid="structSYN__DCMotor_1a0f808c5d976c03c18e42e5f52944964b" kindref="member">pin_a</ref>,</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>duty<sp/>&gt;<sp/>0<sp/>?<sp/>SYN_GPIO_HIGH<sp/>:<sp/>SYN_GPIO_LOW);</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"></highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/>SYN_DC_MODE_DUAL_PWM:</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>pin_a<sp/>=<sp/>forward<sp/>PWM,<sp/>pin_b<sp/>=<sp/>reverse<sp/>PWM<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(forward)<sp/>{</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(m-&gt;<ref refid="structSYN__DCMotor_1a4e082e48cd3aec2dedb65663b9e77126" kindref="member">set_duty</ref><sp/>!=<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>m-&gt;<ref refid="structSYN__DCMotor_1a4e082e48cd3aec2dedb65663b9e77126" kindref="member">set_duty</ref>(m-&gt;<ref refid="structSYN__DCMotor_1a0f808c5d976c03c18e42e5f52944964b" kindref="member">pin_a</ref>,<sp/>duty,<sp/>m-&gt;<ref refid="structSYN__DCMotor_1a54992a423dd614abc0431b823ed44df3" kindref="member">duty_ctx</ref>);</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>m-&gt;<ref refid="structSYN__DCMotor_1a4e082e48cd3aec2dedb65663b9e77126" kindref="member">set_duty</ref>(m-&gt;<ref refid="structSYN__DCMotor_1aba9682b3c1457781fb8a0f6f7b501baf" kindref="member">pin_b</ref>,<sp/>0,<sp/><sp/><sp/><sp/>m-&gt;<ref refid="structSYN__DCMotor_1a54992a423dd614abc0431b823ed44df3" kindref="member">duty_ctx</ref>);</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__port__gpio_8h_1a797218e188e548d3e6116e87554b29fe" kindref="member">syn_port_gpio_write</ref>(m-&gt;<ref refid="structSYN__DCMotor_1a0f808c5d976c03c18e42e5f52944964b" kindref="member">pin_a</ref>,</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>duty<sp/>&gt;<sp/>0<sp/>?<sp/>SYN_GPIO_HIGH<sp/>:<sp/>SYN_GPIO_LOW);</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__port__gpio_8h_1a797218e188e548d3e6116e87554b29fe" kindref="member">syn_port_gpio_write</ref>(m-&gt;<ref refid="structSYN__DCMotor_1aba9682b3c1457781fb8a0f6f7b501baf" kindref="member">pin_b</ref>,<sp/>SYN_GPIO_LOW);</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(m-&gt;<ref refid="structSYN__DCMotor_1a4e082e48cd3aec2dedb65663b9e77126" kindref="member">set_duty</ref><sp/>!=<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>m-&gt;<ref refid="structSYN__DCMotor_1a4e082e48cd3aec2dedb65663b9e77126" kindref="member">set_duty</ref>(m-&gt;<ref refid="structSYN__DCMotor_1a0f808c5d976c03c18e42e5f52944964b" kindref="member">pin_a</ref>,<sp/>0,<sp/><sp/><sp/><sp/>m-&gt;<ref refid="structSYN__DCMotor_1a54992a423dd614abc0431b823ed44df3" kindref="member">duty_ctx</ref>);</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>m-&gt;<ref refid="structSYN__DCMotor_1a4e082e48cd3aec2dedb65663b9e77126" kindref="member">set_duty</ref>(m-&gt;<ref refid="structSYN__DCMotor_1aba9682b3c1457781fb8a0f6f7b501baf" kindref="member">pin_b</ref>,<sp/>duty,<sp/>m-&gt;<ref refid="structSYN__DCMotor_1a54992a423dd614abc0431b823ed44df3" kindref="member">duty_ctx</ref>);</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__port__gpio_8h_1a797218e188e548d3e6116e87554b29fe" kindref="member">syn_port_gpio_write</ref>(m-&gt;<ref refid="structSYN__DCMotor_1a0f808c5d976c03c18e42e5f52944964b" kindref="member">pin_a</ref>,<sp/>SYN_GPIO_LOW);</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__port__gpio_8h_1a797218e188e548d3e6116e87554b29fe" kindref="member">syn_port_gpio_write</ref>(m-&gt;<ref refid="structSYN__DCMotor_1aba9682b3c1457781fb8a0f6f7b501baf" kindref="member">pin_b</ref>,</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>duty<sp/>&gt;<sp/>0<sp/>?<sp/>SYN_GPIO_HIGH<sp/>:<sp/>SYN_GPIO_LOW);</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="82"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"></highlight></codeline>
+<codeline lineno="84"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>SYN_MotorOutput<sp/>adapter<sp/>─────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="85"><highlight class="normal"></highlight></codeline>
+<codeline lineno="91"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__dc__motor_8c_1ab52659dfe9f5f69a84e367c884501c4c" kindref="member">dc_output_set</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*ctx,<sp/>int32_t<sp/>output)</highlight></codeline>
+<codeline lineno="92"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structSYN__DCMotor" kindref="compound">SYN_DCMotor</ref><sp/>*m<sp/>=<sp/>(<ref refid="structSYN__DCMotor" kindref="compound">SYN_DCMotor</ref><sp/>*)ctx;</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__dc__motor_8c_1a6fe771f3def9da3beab45cadd034a32a" kindref="member">syn_dc_motor_set_speed</ref>(m,<sp/>output);</highlight></codeline>
+<codeline lineno="95"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"></highlight></codeline>
+<codeline lineno="101"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__dc__motor_8c_1a0ae73f2862d8c98e946b06adee841746" kindref="member">dc_output_coast</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*ctx)</highlight></codeline>
+<codeline lineno="102"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__dc__motor_8c_1a1d900696c23a8a8061a49f6348add6c3" kindref="member">syn_dc_motor_coast</ref>((<ref refid="structSYN__DCMotor" kindref="compound">SYN_DCMotor</ref><sp/>*)ctx);</highlight></codeline>
+<codeline lineno="104"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"></highlight></codeline>
+<codeline lineno="110"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__dc__motor_8c_1a8701a0cf516a71936e2f82859f6f31a8" kindref="member">dc_output_brake</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*ctx)</highlight></codeline>
+<codeline lineno="111"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="112"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__dc__motor_8c_1ac284f0f7e630d905a98d6660ba58d48c" kindref="member">syn_dc_motor_brake</ref>((<ref refid="structSYN__DCMotor" kindref="compound">SYN_DCMotor</ref><sp/>*)ctx);</highlight></codeline>
+<codeline lineno="113"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"></highlight></codeline>
+<codeline lineno="115"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>API<sp/>──────────────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="116"><highlight class="normal"></highlight></codeline>
+<codeline lineno="117"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__dc__motor_8c_1a13897d6549aa6dc1552b44e7afee80de" kindref="member">syn_dc_motor_init</ref>(<ref refid="structSYN__DCMotor" kindref="compound">SYN_DCMotor</ref><sp/>*motor,<sp/><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref><sp/>pin_a,</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref><sp/>pin_b,<sp/><ref refid="syn__dc__motor_8h_1a3132843a8373f0e8ea7f13ddeeac9b70" kindref="member">SYN_DCMotorMode</ref><sp/>mode)</highlight></codeline>
+<codeline lineno="119"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="120"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(motor<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="121"><highlight class="normal"></highlight></codeline>
+<codeline lineno="122"><highlight class="normal"><sp/><sp/><sp/><sp/>memset(motor,<sp/>0,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(*motor));</highlight></codeline>
+<codeline lineno="123"><highlight class="normal"><sp/><sp/><sp/><sp/>motor-&gt;<ref refid="structSYN__DCMotor_1a0f808c5d976c03c18e42e5f52944964b" kindref="member">pin_a</ref><sp/><sp/><sp/><sp/>=<sp/>pin_a;</highlight></codeline>
+<codeline lineno="124"><highlight class="normal"><sp/><sp/><sp/><sp/>motor-&gt;<ref refid="structSYN__DCMotor_1aba9682b3c1457781fb8a0f6f7b501baf" kindref="member">pin_b</ref><sp/><sp/><sp/><sp/>=<sp/>pin_b;</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"><sp/><sp/><sp/><sp/>motor-&gt;<ref refid="structSYN__DCMotor_1a003c761e9cbba746bf4b4d8c7e1143aa" kindref="member">mode</ref><sp/><sp/><sp/><sp/><sp/>=<sp/>(uint8_t)mode;</highlight></codeline>
+<codeline lineno="126"><highlight class="normal"><sp/><sp/><sp/><sp/>motor-&gt;<ref refid="structSYN__DCMotor_1ae3bdc0bce97023e42316e1fa6a8cd07b" kindref="member">duty_max</ref><sp/>=<sp/><ref refid="syn__dc__motor_8h_1a8187a3ba9c3dbc95b480ebd38ea8f9bb" kindref="member">SYN_DC_MOTOR_DUTY_MAX_DEFAULT</ref>;</highlight></codeline>
+<codeline lineno="127"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__ramp_8c_1a52d1c828ac89b45a17be1736863bfc04" kindref="member">syn_ramp_init</ref>(&amp;motor-&gt;<ref refid="structSYN__DCMotor_1aefa1c521ec5d648a2888f5400f1e60b1" kindref="member">ramp</ref>,<sp/>0);</highlight></codeline>
+<codeline lineno="128"><highlight class="normal"></highlight></codeline>
+<codeline lineno="129"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__port__gpio_8h_1a797218e188e548d3e6116e87554b29fe" kindref="member">syn_port_gpio_write</ref>(pin_a,<sp/>SYN_GPIO_LOW);</highlight></codeline>
+<codeline lineno="130"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__port__gpio_8h_1a797218e188e548d3e6116e87554b29fe" kindref="member">syn_port_gpio_write</ref>(pin_b,<sp/>SYN_GPIO_LOW);</highlight></codeline>
+<codeline lineno="131"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="132"><highlight class="normal"></highlight></codeline>
+<codeline lineno="133"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__dc__motor_8c_1a5cefb8a404bc0eef08a0f5ad054dd904" kindref="member">syn_dc_motor_set_duty_callback</ref>(<ref refid="structSYN__DCMotor" kindref="compound">SYN_DCMotor</ref><sp/>*motor,</highlight></codeline>
+<codeline lineno="134"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>(*cb)(<ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref>,<sp/>uint16_t,<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*),</highlight></codeline>
+<codeline lineno="135"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*ctx)</highlight></codeline>
+<codeline lineno="136"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="137"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(motor<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="138"><highlight class="normal"><sp/><sp/><sp/><sp/>motor-&gt;<ref refid="structSYN__DCMotor_1a4e082e48cd3aec2dedb65663b9e77126" kindref="member">set_duty</ref><sp/>=<sp/>cb;</highlight></codeline>
+<codeline lineno="139"><highlight class="normal"><sp/><sp/><sp/><sp/>motor-&gt;<ref refid="structSYN__DCMotor_1a54992a423dd614abc0431b823ed44df3" kindref="member">duty_ctx</ref><sp/>=<sp/>ctx;</highlight></codeline>
+<codeline lineno="140"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="141"><highlight class="normal"></highlight></codeline>
+<codeline lineno="142"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__dc__motor_8c_1a6fe771f3def9da3beab45cadd034a32a" kindref="member">syn_dc_motor_set_speed</ref>(<ref refid="structSYN__DCMotor" kindref="compound">SYN_DCMotor</ref><sp/>*motor,<sp/>int32_t<sp/>speed)</highlight></codeline>
+<codeline lineno="143"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="144"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(motor<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="145"><highlight class="normal"><sp/><sp/><sp/><sp/>speed<sp/>=<sp/><ref refid="syn__dc__motor_8c_1a0eb8444cd8404f47318a5cd7c3c41d57" kindref="member">clamp_speed</ref>(motor,<sp/>speed);</highlight></codeline>
+<codeline lineno="146"><highlight class="normal"><sp/><sp/><sp/><sp/>motor-&gt;<ref refid="structSYN__DCMotor_1adef71ecc2a7aa6209e736250e79b66b3" kindref="member">speed</ref><sp/><sp/><sp/><sp/><sp/>=<sp/>speed;</highlight></codeline>
+<codeline lineno="147"><highlight class="normal"><sp/><sp/><sp/><sp/>motor-&gt;<ref refid="structSYN__DCMotor_1a0f6be2ae6c84c86804e9e97f0a57ee8d" kindref="member">target</ref><sp/><sp/><sp/><sp/>=<sp/>speed;</highlight></codeline>
+<codeline lineno="148"><highlight class="normal"><sp/><sp/><sp/><sp/>motor-&gt;<ref refid="structSYN__DCMotor_1ac199f25c5b0756271b29b0d05cf8d5aa" kindref="member">ramp_rate</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="149"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__ramp_8c_1a23da637a557edc06f31c881ce3f25b9f" kindref="member">syn_ramp_jump</ref>(&amp;motor-&gt;<ref refid="structSYN__DCMotor_1aefa1c521ec5d648a2888f5400f1e60b1" kindref="member">ramp</ref>,<sp/>speed);</highlight></codeline>
+<codeline lineno="150"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__dc__motor_8c_1a1e8364d5122b4c7b2a7ac577b848416b" kindref="member">apply_speed</ref>(motor);</highlight></codeline>
+<codeline lineno="151"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="152"><highlight class="normal"></highlight></codeline>
+<codeline lineno="153"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__dc__motor_8c_1a7d5d0cef91bcb2cc7babdc0c659da33d" kindref="member">syn_dc_motor_ramp_to</ref>(<ref refid="structSYN__DCMotor" kindref="compound">SYN_DCMotor</ref><sp/>*motor,<sp/>int32_t<sp/>speed,</highlight></codeline>
+<codeline lineno="154"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint16_t<sp/>duration)</highlight></codeline>
+<codeline lineno="155"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="156"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(motor<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="157"><highlight class="normal"><sp/><sp/><sp/><sp/>speed<sp/>=<sp/><ref refid="syn__dc__motor_8c_1a0eb8444cd8404f47318a5cd7c3c41d57" kindref="member">clamp_speed</ref>(motor,<sp/>speed);</highlight></codeline>
+<codeline lineno="158"><highlight class="normal"><sp/><sp/><sp/><sp/>motor-&gt;<ref refid="structSYN__DCMotor_1a0f6be2ae6c84c86804e9e97f0a57ee8d" kindref="member">target</ref><sp/>=<sp/>speed;</highlight></codeline>
+<codeline lineno="159"><highlight class="normal"></highlight></codeline>
+<codeline lineno="160"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(duration<sp/>==<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="161"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>motor-&gt;<ref refid="structSYN__DCMotor_1adef71ecc2a7aa6209e736250e79b66b3" kindref="member">speed</ref><sp/>=<sp/>speed;</highlight></codeline>
+<codeline lineno="162"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>motor-&gt;<ref refid="structSYN__DCMotor_1ac199f25c5b0756271b29b0d05cf8d5aa" kindref="member">ramp_rate</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="163"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__ramp_8c_1a23da637a557edc06f31c881ce3f25b9f" kindref="member">syn_ramp_jump</ref>(&amp;motor-&gt;<ref refid="structSYN__DCMotor_1aefa1c521ec5d648a2888f5400f1e60b1" kindref="member">ramp</ref>,<sp/>speed);</highlight></codeline>
+<codeline lineno="164"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__dc__motor_8c_1a1e8364d5122b4c7b2a7ac577b848416b" kindref="member">apply_speed</ref>(motor);</highlight></codeline>
+<codeline lineno="165"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="166"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="167"><highlight class="normal"></highlight></codeline>
+<codeline lineno="168"><highlight class="normal"><sp/><sp/><sp/><sp/>int32_t<sp/>delta<sp/>=<sp/>speed<sp/>-<sp/>motor-&gt;<ref refid="structSYN__DCMotor_1adef71ecc2a7aa6209e736250e79b66b3" kindref="member">speed</ref>;</highlight></codeline>
+<codeline lineno="169"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Rate<sp/>in<sp/>units<sp/>per<sp/>ms,<sp/>Q8<sp/>fixed-point<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="170"><highlight class="normal"><sp/><sp/><sp/><sp/>motor-&gt;<ref refid="structSYN__DCMotor_1ac199f25c5b0756271b29b0d05cf8d5aa" kindref="member">ramp_rate</ref><sp/>=<sp/>(delta<sp/>*<sp/>256)<sp/>/<sp/>(int32_t)duration;</highlight></codeline>
+<codeline lineno="171"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(motor-&gt;<ref refid="structSYN__DCMotor_1ac199f25c5b0756271b29b0d05cf8d5aa" kindref="member">ramp_rate</ref><sp/>==<sp/>0<sp/>&amp;&amp;<sp/>delta<sp/>!=<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="172"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>motor-&gt;<ref refid="structSYN__DCMotor_1ac199f25c5b0756271b29b0d05cf8d5aa" kindref="member">ramp_rate</ref><sp/>=<sp/>(delta<sp/>&gt;<sp/>0)<sp/>?<sp/>1<sp/>:<sp/>-1;</highlight></codeline>
+<codeline lineno="173"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="174"><highlight class="normal"></highlight></codeline>
+<codeline lineno="175"><highlight class="normal"><sp/><sp/><sp/><sp/>int32_t<sp/>step_rate<sp/>=<sp/>(delta<sp/>&gt;=<sp/>0<sp/>?<sp/>delta<sp/>:<sp/>-delta)<sp/>/<sp/>(int32_t)duration;</highlight></codeline>
+<codeline lineno="176"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(step_rate<sp/>==<sp/>0<sp/>&amp;&amp;<sp/>delta<sp/>!=<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="177"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>step_rate<sp/>=<sp/>1;</highlight></codeline>
+<codeline lineno="178"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="179"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__ramp_8c_1a52d1c828ac89b45a17be1736863bfc04" kindref="member">syn_ramp_init</ref>(&amp;motor-&gt;<ref refid="structSYN__DCMotor_1aefa1c521ec5d648a2888f5400f1e60b1" kindref="member">ramp</ref>,<sp/>motor-&gt;<ref refid="structSYN__DCMotor_1adef71ecc2a7aa6209e736250e79b66b3" kindref="member">speed</ref>);</highlight></codeline>
+<codeline lineno="180"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__ramp_8c_1ab37da99a5fb59848009175e850fa596d" kindref="member">syn_ramp_set_target</ref>(&amp;motor-&gt;<ref refid="structSYN__DCMotor_1aefa1c521ec5d648a2888f5400f1e60b1" kindref="member">ramp</ref>,<sp/>speed,<sp/>step_rate);</highlight></codeline>
+<codeline lineno="181"><highlight class="normal"></highlight></codeline>
+<codeline lineno="182"><highlight class="normal"><sp/><sp/><sp/><sp/>motor-&gt;<ref refid="structSYN__DCMotor_1a49c6d50b61dd297ee59087645400e7ab" kindref="member">last_tick</ref><sp/>=<sp/><ref refid="syn__port__system_8h_1a6c7d98587814b2c0d9c09da02d318873" kindref="member">syn_port_get_tick_ms</ref>();</highlight></codeline>
+<codeline lineno="183"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="184"><highlight class="normal"></highlight></codeline>
+<codeline lineno="185"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__dc__motor_8c_1a95272abd8bb02f1d1535129a82d51d27" kindref="member">syn_dc_motor_update</ref>(<ref refid="structSYN__DCMotor" kindref="compound">SYN_DCMotor</ref><sp/>*motor)</highlight></codeline>
+<codeline lineno="186"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="187"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(motor<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="188"><highlight class="normal"></highlight></codeline>
+<codeline lineno="189"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(motor-&gt;<ref refid="structSYN__DCMotor_1adef71ecc2a7aa6209e736250e79b66b3" kindref="member">speed</ref><sp/>==<sp/>motor-&gt;<ref refid="structSYN__DCMotor_1a0f6be2ae6c84c86804e9e97f0a57ee8d" kindref="member">target</ref><sp/>||<sp/>motor-&gt;<ref refid="structSYN__DCMotor_1ac199f25c5b0756271b29b0d05cf8d5aa" kindref="member">ramp_rate</ref><sp/>==<sp/>0)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="190"><highlight class="normal"></highlight></codeline>
+<codeline lineno="191"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/>now<sp/>=<sp/><ref refid="syn__port__system_8h_1a6c7d98587814b2c0d9c09da02d318873" kindref="member">syn_port_get_tick_ms</ref>();</highlight></codeline>
+<codeline lineno="192"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/>dt<sp/>=<sp/>now<sp/>-<sp/>motor-&gt;<ref refid="structSYN__DCMotor_1a49c6d50b61dd297ee59087645400e7ab" kindref="member">last_tick</ref>;</highlight></codeline>
+<codeline lineno="193"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(dt<sp/>==<sp/>0)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="194"><highlight class="normal"></highlight></codeline>
+<codeline lineno="195"><highlight class="normal"><sp/><sp/><sp/><sp/>motor-&gt;<ref refid="structSYN__DCMotor_1a49c6d50b61dd297ee59087645400e7ab" kindref="member">last_tick</ref><sp/>=<sp/>now;</highlight></codeline>
+<codeline lineno="196"><highlight class="normal"></highlight></codeline>
+<codeline lineno="197"><highlight class="normal"><sp/><sp/><sp/><sp/>int32_t<sp/>delta<sp/>=<sp/>(motor-&gt;<ref refid="structSYN__DCMotor_1ac199f25c5b0756271b29b0d05cf8d5aa" kindref="member">ramp_rate</ref><sp/>*<sp/>(int32_t)dt)<sp/>/<sp/>256;</highlight></codeline>
+<codeline lineno="198"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(delta<sp/>==<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="199"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>delta<sp/>=<sp/>(motor-&gt;<ref refid="structSYN__DCMotor_1ac199f25c5b0756271b29b0d05cf8d5aa" kindref="member">ramp_rate</ref><sp/>&gt;<sp/>0)<sp/>?<sp/>1<sp/>:<sp/>-1;</highlight></codeline>
+<codeline lineno="200"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="201"><highlight class="normal"></highlight></codeline>
+<codeline lineno="202"><highlight class="normal"><sp/><sp/><sp/><sp/>int32_t<sp/>new_speed<sp/>=<sp/>motor-&gt;<ref refid="structSYN__DCMotor_1adef71ecc2a7aa6209e736250e79b66b3" kindref="member">speed</ref><sp/>+<sp/>delta;</highlight></codeline>
+<codeline lineno="203"><highlight class="normal"></highlight></codeline>
+<codeline lineno="204"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>((motor-&gt;<ref refid="structSYN__DCMotor_1ac199f25c5b0756271b29b0d05cf8d5aa" kindref="member">ramp_rate</ref><sp/>&gt;<sp/>0<sp/>&amp;&amp;<sp/>new_speed<sp/>&gt;=<sp/>motor-&gt;<ref refid="structSYN__DCMotor_1a0f6be2ae6c84c86804e9e97f0a57ee8d" kindref="member">target</ref>)<sp/>||</highlight></codeline>
+<codeline lineno="205"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(motor-&gt;<ref refid="structSYN__DCMotor_1ac199f25c5b0756271b29b0d05cf8d5aa" kindref="member">ramp_rate</ref><sp/>&lt;<sp/>0<sp/>&amp;&amp;<sp/>new_speed<sp/>&lt;=<sp/>motor-&gt;target))<sp/>{</highlight></codeline>
+<codeline lineno="206"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>motor-&gt;<ref refid="structSYN__DCMotor_1adef71ecc2a7aa6209e736250e79b66b3" kindref="member">speed</ref><sp/><sp/><sp/><sp/><sp/>=<sp/>motor-&gt;<ref refid="structSYN__DCMotor_1a0f6be2ae6c84c86804e9e97f0a57ee8d" kindref="member">target</ref>;</highlight></codeline>
+<codeline lineno="207"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>motor-&gt;<ref refid="structSYN__DCMotor_1ac199f25c5b0756271b29b0d05cf8d5aa" kindref="member">ramp_rate</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="208"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__ramp_8c_1a23da637a557edc06f31c881ce3f25b9f" kindref="member">syn_ramp_jump</ref>(&amp;motor-&gt;<ref refid="structSYN__DCMotor_1aefa1c521ec5d648a2888f5400f1e60b1" kindref="member">ramp</ref>,<sp/>motor-&gt;<ref refid="structSYN__DCMotor_1a0f6be2ae6c84c86804e9e97f0a57ee8d" kindref="member">target</ref>);</highlight></codeline>
+<codeline lineno="209"><highlight class="normal"><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="210"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>motor-&gt;<ref refid="structSYN__DCMotor_1adef71ecc2a7aa6209e736250e79b66b3" kindref="member">speed</ref><sp/>=<sp/><ref refid="syn__dc__motor_8c_1a0eb8444cd8404f47318a5cd7c3c41d57" kindref="member">clamp_speed</ref>(motor,<sp/>new_speed);</highlight></codeline>
+<codeline lineno="211"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="212"><highlight class="normal"></highlight></codeline>
+<codeline lineno="213"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__dc__motor_8c_1a1e8364d5122b4c7b2a7ac577b848416b" kindref="member">apply_speed</ref>(motor);</highlight></codeline>
+<codeline lineno="214"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="215"><highlight class="normal"></highlight></codeline>
+<codeline lineno="216"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__dc__motor_8c_1a1d900696c23a8a8061a49f6348add6c3" kindref="member">syn_dc_motor_coast</ref>(<ref refid="structSYN__DCMotor" kindref="compound">SYN_DCMotor</ref><sp/>*motor)</highlight></codeline>
+<codeline lineno="217"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="218"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(motor<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="219"><highlight class="normal"><sp/><sp/><sp/><sp/>motor-&gt;<ref refid="structSYN__DCMotor_1adef71ecc2a7aa6209e736250e79b66b3" kindref="member">speed</ref><sp/><sp/><sp/><sp/><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="220"><highlight class="normal"><sp/><sp/><sp/><sp/>motor-&gt;<ref refid="structSYN__DCMotor_1a0f6be2ae6c84c86804e9e97f0a57ee8d" kindref="member">target</ref><sp/><sp/><sp/><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="221"><highlight class="normal"><sp/><sp/><sp/><sp/>motor-&gt;<ref refid="structSYN__DCMotor_1ac199f25c5b0756271b29b0d05cf8d5aa" kindref="member">ramp_rate</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="222"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__port__gpio_8h_1a797218e188e548d3e6116e87554b29fe" kindref="member">syn_port_gpio_write</ref>(motor-&gt;<ref refid="structSYN__DCMotor_1a0f808c5d976c03c18e42e5f52944964b" kindref="member">pin_a</ref>,<sp/>SYN_GPIO_LOW);</highlight></codeline>
+<codeline lineno="223"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__port__gpio_8h_1a797218e188e548d3e6116e87554b29fe" kindref="member">syn_port_gpio_write</ref>(motor-&gt;<ref refid="structSYN__DCMotor_1aba9682b3c1457781fb8a0f6f7b501baf" kindref="member">pin_b</ref>,<sp/>SYN_GPIO_LOW);</highlight></codeline>
+<codeline lineno="224"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="225"><highlight class="normal"></highlight></codeline>
+<codeline lineno="226"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__dc__motor_8c_1ac284f0f7e630d905a98d6660ba58d48c" kindref="member">syn_dc_motor_brake</ref>(<ref refid="structSYN__DCMotor" kindref="compound">SYN_DCMotor</ref><sp/>*motor)</highlight></codeline>
+<codeline lineno="227"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="228"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(motor<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="229"><highlight class="normal"><sp/><sp/><sp/><sp/>motor-&gt;<ref refid="structSYN__DCMotor_1adef71ecc2a7aa6209e736250e79b66b3" kindref="member">speed</ref><sp/><sp/><sp/><sp/><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="230"><highlight class="normal"><sp/><sp/><sp/><sp/>motor-&gt;<ref refid="structSYN__DCMotor_1a0f6be2ae6c84c86804e9e97f0a57ee8d" kindref="member">target</ref><sp/><sp/><sp/><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="231"><highlight class="normal"><sp/><sp/><sp/><sp/>motor-&gt;<ref refid="structSYN__DCMotor_1ac199f25c5b0756271b29b0d05cf8d5aa" kindref="member">ramp_rate</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="232"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__port__gpio_8h_1a797218e188e548d3e6116e87554b29fe" kindref="member">syn_port_gpio_write</ref>(motor-&gt;<ref refid="structSYN__DCMotor_1a0f808c5d976c03c18e42e5f52944964b" kindref="member">pin_a</ref>,<sp/>SYN_GPIO_HIGH);</highlight></codeline>
+<codeline lineno="233"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__port__gpio_8h_1a797218e188e548d3e6116e87554b29fe" kindref="member">syn_port_gpio_write</ref>(motor-&gt;<ref refid="structSYN__DCMotor_1aba9682b3c1457781fb8a0f6f7b501baf" kindref="member">pin_b</ref>,<sp/>SYN_GPIO_HIGH);</highlight></codeline>
+<codeline lineno="234"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="235"><highlight class="normal"></highlight></codeline>
+<codeline lineno="236"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__dc__motor_8c_1af0df40a58c4d6d97a059f583b43ea81e" kindref="member">syn_dc_motor_set_duty_max</ref>(<ref refid="structSYN__DCMotor" kindref="compound">SYN_DCMotor</ref><sp/>*motor,<sp/>int32_t<sp/>duty_max)</highlight></codeline>
+<codeline lineno="237"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="238"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(motor<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="239"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(duty_max<sp/>&gt;<sp/>0);</highlight></codeline>
+<codeline lineno="240"><highlight class="normal"><sp/><sp/><sp/><sp/>motor-&gt;<ref refid="structSYN__DCMotor_1ae3bdc0bce97023e42316e1fa6a8cd07b" kindref="member">duty_max</ref><sp/>=<sp/>duty_max;</highlight></codeline>
+<codeline lineno="241"><highlight class="normal"><sp/><sp/><sp/><sp/>motor-&gt;<ref refid="structSYN__DCMotor_1adef71ecc2a7aa6209e736250e79b66b3" kindref="member">speed</ref><sp/><sp/><sp/><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="242"><highlight class="normal"><sp/><sp/><sp/><sp/>motor-&gt;<ref refid="structSYN__DCMotor_1a0f6be2ae6c84c86804e9e97f0a57ee8d" kindref="member">target</ref><sp/><sp/><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="243"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="244"><highlight class="normal"></highlight></codeline>
+<codeline lineno="245"><highlight class="normal"><ref refid="structSYN__MotorOutput" kindref="compound">SYN_MotorOutput</ref><sp/><ref refid="syn__dc__motor_8c_1a61cd420228e33bb64e73a5cad4f4a122" kindref="member">syn_dc_motor_output</ref>(<ref refid="structSYN__DCMotor" kindref="compound">SYN_DCMotor</ref><sp/>*motor)</highlight></codeline>
+<codeline lineno="246"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="247"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structSYN__MotorOutput" kindref="compound">SYN_MotorOutput</ref><sp/>out<sp/>=<sp/>{</highlight></codeline>
+<codeline lineno="248"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>.<ref refid="structSYN__MotorOutput_1aa4093e161107629b490bef6d083ebe99" kindref="member">set_output</ref><sp/>=<sp/><ref refid="syn__dc__motor_8c_1ab52659dfe9f5f69a84e367c884501c4c" kindref="member">dc_output_set</ref>,</highlight></codeline>
+<codeline lineno="249"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>.coast<sp/><sp/><sp/><sp/><sp/><sp/>=<sp/><ref refid="syn__dc__motor_8c_1a0ae73f2862d8c98e946b06adee841746" kindref="member">dc_output_coast</ref>,</highlight></codeline>
+<codeline lineno="250"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>.brake<sp/><sp/><sp/><sp/><sp/><sp/>=<sp/><ref refid="syn__dc__motor_8c_1a8701a0cf516a71936e2f82859f6f31a8" kindref="member">dc_output_brake</ref>,</highlight></codeline>
+<codeline lineno="251"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>.ctx<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>motor,</highlight></codeline>
+<codeline lineno="252"><highlight class="normal"><sp/><sp/><sp/><sp/>};</highlight></codeline>
+<codeline lineno="253"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>out;</highlight></codeline>
+<codeline lineno="254"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="255"><highlight class="normal"></highlight></codeline>
+<codeline lineno="256"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_USE_DC_MOTOR<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/motor/syn_dc_motor.c"/>
+  </compounddef>
+</doxygen>

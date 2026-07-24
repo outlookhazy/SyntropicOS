@@ -1,0 +1,518 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__lss_8c" kind="file" language="C++">
+    <compoundname>syn_lss.c</compoundname>
+    <includes refid="syn__lss_8h" local="yes">syn_lss.h</includes>
+    <includes refid="syn__assert_8h" local="yes">../util/syn_assert.h</includes>
+    <includes local="no">string.h</includes>
+    <incdepgraph>
+      <node id="10">
+        <label>../common/syn_compiler.h</label>
+        <link refid="syn__compiler_8h"/>
+      </node>
+      <node id="6">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>../drivers/syn_can.h</label>
+        <link refid="syn__can_8h"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>../port/syn_port_can.h</label>
+        <link refid="syn__port__can_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/proto/syn_lss.c</label>
+        <link refid="syn__lss_8c"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>syn_lss.h</label>
+        <link refid="syn__lss_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="9">
+        <label>../util/syn_assert.h</label>
+        <link refid="syn__assert_8h"/>
+        <childnode refid="10" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>stdbool.h</label>
+      </node>
+      <node id="5">
+        <label>stddef.h</label>
+      </node>
+      <node id="3">
+        <label>stdint.h</label>
+      </node>
+      <node id="11">
+        <label>string.h</label>
+      </node>
+    </incdepgraph>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__lss_8c_1a12d20e4cf72329fa2fca334923e9f8b2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_lss_slave_init</definition>
+        <argsstring>(SYN_LSSSlave *slave, const SYN_LSSAddress *addr, uint8_t initial_node_id)</argsstring>
+        <name>syn_lss_slave_init</name>
+        <param>
+          <type><ref refid="structSYN__LSSSlave" kindref="compound">SYN_LSSSlave</ref> *</type>
+          <declname>slave</declname>
+        </param>
+        <param>
+          <type>const <ref refid="structSYN__LSSAddress" kindref="compound">SYN_LSSAddress</ref> *</type>
+          <declname>addr</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>initial_node_id</declname>
+        </param>
+        <briefdescription>
+<para>Initialize LSS Slave state instance. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>slave</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to slave handle. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>addr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to LSS unique 128-bit identity address. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>initial_node_id</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Starting node-ID (or 0xFF for unconfigured). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_lss.c" line="10" column="6" bodyfile="src/syntropic/proto/syn_lss.c" bodystart="10" bodyend="19"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__lss_8c_1a95727868670359ac92312ca8f4f8dd3c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_lss_slave_process</definition>
+        <argsstring>(SYN_LSSSlave *slave, const SYN_CAN_Frame *frame, SYN_CAN_Frame *resp)</argsstring>
+        <name>syn_lss_slave_process</name>
+        <param>
+          <type><ref refid="structSYN__LSSSlave" kindref="compound">SYN_LSSSlave</ref> *</type>
+          <declname>slave</declname>
+        </param>
+        <param>
+          <type>const <ref refid="structSYN__CAN__Frame" kindref="compound">SYN_CAN_Frame</ref> *</type>
+          <declname>frame</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__CAN__Frame" kindref="compound">SYN_CAN_Frame</ref> *</type>
+          <declname>resp</declname>
+        </param>
+        <briefdescription>
+<para>Process an incoming CAN frame for LSS Slave processing. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>slave</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to LSS Slave handle. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>frame</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Incoming CAN frame (COB-ID 0x7E5). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>resp</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output CAN frame buffer (populated with 0x7E4 response if required). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>True if a response frame should be transmitted over CAN. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_lss.c" line="21" column="6" bodyfile="src/syntropic/proto/syn_lss.c" bodystart="21" bodyend="131"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__lss_8c_1ae74ed963d04642e51c4a034af9e1abe4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_lss_master_build_switch_mode</definition>
+        <argsstring>(SYN_CAN_Frame *frame, uint8_t mode)</argsstring>
+        <name>syn_lss_master_build_switch_mode</name>
+        <param>
+          <type><ref refid="structSYN__CAN__Frame" kindref="compound">SYN_CAN_Frame</ref> *</type>
+          <declname>frame</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>mode</declname>
+        </param>
+        <briefdescription>
+<para>Build an LSS Master request frame to switch global mode. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>frame</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output frame buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>mode</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Target LSS mode (SYN_LSS_MODE_OPERATION or SYN_LSS_MODE_CONFIGURATION). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_lss.c" line="133" column="6" bodyfile="src/syntropic/proto/syn_lss.c" bodystart="133" bodyend="141"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__lss_8c_1a08cf71249ba6f11ed03b745db2931040" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_lss_master_build_config_node_id</definition>
+        <argsstring>(SYN_CAN_Frame *frame, uint8_t new_node_id)</argsstring>
+        <name>syn_lss_master_build_config_node_id</name>
+        <param>
+          <type><ref refid="structSYN__CAN__Frame" kindref="compound">SYN_CAN_Frame</ref> *</type>
+          <declname>frame</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>new_node_id</declname>
+        </param>
+        <briefdescription>
+<para>Build an LSS Master request frame to configure Node-ID. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>frame</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output frame buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>new_node_id</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Target Node-ID (1..127). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_lss.c" line="143" column="6" bodyfile="src/syntropic/proto/syn_lss.c" bodystart="143" bodyend="151"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__lss_8c_1af878519f2c353da6326cbe1a787518a9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_lss_master_build_config_bit_timing</definition>
+        <argsstring>(SYN_CAN_Frame *frame, uint8_t baud_table_idx)</argsstring>
+        <name>syn_lss_master_build_config_bit_timing</name>
+        <param>
+          <type><ref refid="structSYN__CAN__Frame" kindref="compound">SYN_CAN_Frame</ref> *</type>
+          <declname>frame</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>baud_table_idx</declname>
+        </param>
+        <briefdescription>
+<para>Build an LSS Master request frame to configure Bit Timing / Baud rate. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>frame</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output frame buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>baud_table_idx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Baud rate index (SYN_LSS_BAUD_*). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_lss.c" line="153" column="6" bodyfile="src/syntropic/proto/syn_lss.c" bodystart="153" bodyend="162"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__lss_8c_1adcbc6322edee17aa622adc8401f41a7f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_lss_master_build_store_config</definition>
+        <argsstring>(SYN_CAN_Frame *frame)</argsstring>
+        <name>syn_lss_master_build_store_config</name>
+        <param>
+          <type><ref refid="structSYN__CAN__Frame" kindref="compound">SYN_CAN_Frame</ref> *</type>
+          <declname>frame</declname>
+        </param>
+        <briefdescription>
+<para>Build an LSS Master request frame to store configuration to NVM. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>frame</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output frame buffer. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_lss.c" line="164" column="6" bodyfile="src/syntropic/proto/syn_lss.c" bodystart="164" bodyend="171"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>CANopen CiA 305 Layer Setting Services (LSS) Implementation. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__lss_8h" kindref="compound">syn_lss.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../util/syn_assert.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;string.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__lss_8c_1a12d20e4cf72329fa2fca334923e9f8b2" kindref="member">syn_lss_slave_init</ref>(<ref refid="structSYN__LSSSlave" kindref="compound">SYN_LSSSlave</ref><sp/>*slave,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__LSSAddress" kindref="compound">SYN_LSSAddress</ref><sp/>*addr,<sp/>uint8_t<sp/>initial_node_id)</highlight></codeline>
+<codeline lineno="11"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="12"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(slave<sp/>!=<sp/>NULL<sp/>&amp;&amp;<sp/>addr<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="13"><highlight class="normal"><sp/><sp/><sp/><sp/>memset(slave,<sp/>0,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(*slave));</highlight></codeline>
+<codeline lineno="14"><highlight class="normal"><sp/><sp/><sp/><sp/>slave-&gt;<ref refid="structSYN__LSSSlave_1ae4391f357babbf599a6fb77bdc937bed" kindref="member">mode</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/><ref refid="syn__lss_8h_1a46eb183d4ae08d67fdd421aa127863fc" kindref="member">SYN_LSS_MODE_OPERATION</ref>;</highlight></codeline>
+<codeline lineno="15"><highlight class="normal"><sp/><sp/><sp/><sp/>slave-&gt;<ref refid="structSYN__LSSSlave_1a7bddd2ffda4e163b4de220e32076fea1" kindref="member">node_id</ref><sp/><sp/><sp/><sp/>=<sp/>initial_node_id;</highlight></codeline>
+<codeline lineno="16"><highlight class="normal"><sp/><sp/><sp/><sp/>slave-&gt;<ref refid="structSYN__LSSSlave_1a615040ed2f782463906faa0ac53120e5" kindref="member">baud_table</ref><sp/>=<sp/><ref refid="syn__lss_8h_1a513a23afe1e093dc7058387f7b478427" kindref="member">SYN_LSS_BAUD_250K</ref>;</highlight></codeline>
+<codeline lineno="17"><highlight class="normal"><sp/><sp/><sp/><sp/>slave-&gt;<ref refid="structSYN__LSSSlave_1afb419d6b4afb25b02eee0d3dca85e407" kindref="member">addr</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>*addr;</highlight></codeline>
+<codeline lineno="18"><highlight class="normal"><sp/><sp/><sp/><sp/>slave-&gt;<ref refid="structSYN__LSSSlave_1ac63ecf42c91161569507c8fd38085190" kindref="member">store_req</ref><sp/><sp/>=<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="19"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__lss_8c_1a95727868670359ac92312ca8f4f8dd3c" kindref="member">syn_lss_slave_process</ref>(<ref refid="structSYN__LSSSlave" kindref="compound">SYN_LSSSlave</ref><sp/>*slave,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__CAN__Frame" kindref="compound">SYN_CAN_Frame</ref><sp/>*frame,<sp/><ref refid="structSYN__CAN__Frame" kindref="compound">SYN_CAN_Frame</ref><sp/>*resp)</highlight></codeline>
+<codeline lineno="22"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="23"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(slave<sp/>!=<sp/>NULL<sp/>&amp;&amp;<sp/>frame<sp/>!=<sp/>NULL<sp/>&amp;&amp;<sp/>resp<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>LSS<sp/>Requests<sp/>must<sp/>use<sp/>COB-ID<sp/>0x7E5<sp/>and<sp/>DLC<sp/>8<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(frame-&gt;<ref refid="structSYN__CAN__Frame_1a398fcc4dcd7e0cad9d130ad99148964b" kindref="member">id</ref><sp/>!=<sp/><ref refid="syn__lss_8h_1a924989b01eeff59c99fb2b92d4908343" kindref="member">SYN_LSS_COB_ID_MASTER</ref><sp/>||<sp/>frame-&gt;<ref refid="structSYN__CAN__Frame_1aa28e28d157508dfd7f94aaa53871c698" kindref="member">dlc</ref><sp/>&lt;<sp/>8)<sp/>{</highlight></codeline>
+<codeline lineno="27"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="28"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>cs<sp/>=<sp/>frame-&gt;<ref refid="structSYN__CAN__Frame_1a823d943b00d88be2e8f3a724bf7aa94c" kindref="member">data</ref>[0];</highlight></codeline>
+<codeline lineno="31"><highlight class="normal"><sp/><sp/><sp/><sp/>memset(resp,<sp/>0,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(*resp));</highlight></codeline>
+<codeline lineno="32"><highlight class="normal"><sp/><sp/><sp/><sp/>resp-&gt;<ref refid="structSYN__CAN__Frame_1a398fcc4dcd7e0cad9d130ad99148964b" kindref="member">id</ref><sp/>=<sp/><ref refid="syn__lss_8h_1af40df836727bdbbf8883e2a8c33f892d" kindref="member">SYN_LSS_COB_ID_SLAVE</ref>;</highlight></codeline>
+<codeline lineno="33"><highlight class="normal"><sp/><sp/><sp/><sp/>resp-&gt;<ref refid="structSYN__CAN__Frame_1aa28e28d157508dfd7f94aaa53871c698" kindref="member">dlc</ref><sp/>=<sp/>8;</highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">switch</highlight><highlight class="normal"><sp/>(cs)<sp/>{</highlight></codeline>
+<codeline lineno="36"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__lss_8h_1a8bb9e94196bcb5005f05b481ab0b8529" kindref="member">SYN_LSS_CS_SWITCH_MODE_GLOBAL</ref>:</highlight></codeline>
+<codeline lineno="37"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>slave-&gt;<ref refid="structSYN__LSSSlave_1ae4391f357babbf599a6fb77bdc937bed" kindref="member">mode</ref><sp/>=<sp/>frame-&gt;<ref refid="structSYN__CAN__Frame_1a823d943b00d88be2e8f3a724bf7aa94c" kindref="member">data</ref>[1];</highlight></codeline>
+<codeline lineno="38"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;<sp/></highlight><highlight class="comment">/*<sp/>Global<sp/>switch<sp/>has<sp/>no<sp/>response<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__lss_8h_1a92f8275702ddfba71fe80c9fd14ecb9e" kindref="member">SYN_LSS_CS_CONFIGURE_NODE_ID</ref>:</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(slave-&gt;<ref refid="structSYN__LSSSlave_1ae4391f357babbf599a6fb77bdc937bed" kindref="member">mode</ref><sp/>==<sp/><ref refid="syn__lss_8h_1a614a823c3941c13761fe681b03b7aab8" kindref="member">SYN_LSS_MODE_CONFIGURATION</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>new_id<sp/>=<sp/>frame-&gt;<ref refid="structSYN__CAN__Frame_1a823d943b00d88be2e8f3a724bf7aa94c" kindref="member">data</ref>[1];</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>resp-&gt;<ref refid="structSYN__CAN__Frame_1a823d943b00d88be2e8f3a724bf7aa94c" kindref="member">data</ref>[0]<sp/>=<sp/><ref refid="syn__lss_8h_1a92f8275702ddfba71fe80c9fd14ecb9e" kindref="member">SYN_LSS_CS_CONFIGURE_NODE_ID</ref>;</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(new_id<sp/>&gt;=<sp/>1<sp/>&amp;&amp;<sp/>new_id<sp/>&lt;=<sp/>127)<sp/>{</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>slave-&gt;<ref refid="structSYN__LSSSlave_1a7bddd2ffda4e163b4de220e32076fea1" kindref="member">node_id</ref><sp/>=<sp/>new_id;</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>resp-&gt;<ref refid="structSYN__CAN__Frame_1a823d943b00d88be2e8f3a724bf7aa94c" kindref="member">data</ref>[1]<sp/>=<sp/>0;<sp/></highlight><highlight class="comment">/*<sp/>Error<sp/>code<sp/>0<sp/>=<sp/>protocol<sp/>error<sp/>/<sp/>OK<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>resp-&gt;<ref refid="structSYN__CAN__Frame_1a823d943b00d88be2e8f3a724bf7aa94c" kindref="member">data</ref>[2]<sp/>=<sp/>0;<sp/></highlight><highlight class="comment">/*<sp/>Spec<sp/>error<sp/>0<sp/>=<sp/>success<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>resp-&gt;<ref refid="structSYN__CAN__Frame_1a823d943b00d88be2e8f3a724bf7aa94c" kindref="member">data</ref>[1]<sp/>=<sp/>1;<sp/></highlight><highlight class="comment">/*<sp/>Out<sp/>of<sp/>range<sp/>error<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>resp-&gt;<ref refid="structSYN__CAN__Frame_1a823d943b00d88be2e8f3a724bf7aa94c" kindref="member">data</ref>[2]<sp/>=<sp/>0xFF;</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"></highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__lss_8h_1add6aff242c1149499f76834fc59ef14f" kindref="member">SYN_LSS_CS_CONFIGURE_BIT_TIMING</ref>:</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(slave-&gt;<ref refid="structSYN__LSSSlave_1ae4391f357babbf599a6fb77bdc937bed" kindref="member">mode</ref><sp/>==<sp/><ref refid="syn__lss_8h_1a614a823c3941c13761fe681b03b7aab8" kindref="member">SYN_LSS_MODE_CONFIGURATION</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>baud_idx<sp/>=<sp/>frame-&gt;<ref refid="structSYN__CAN__Frame_1a823d943b00d88be2e8f3a724bf7aa94c" kindref="member">data</ref>[2];</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>resp-&gt;<ref refid="structSYN__CAN__Frame_1a823d943b00d88be2e8f3a724bf7aa94c" kindref="member">data</ref>[0]<sp/>=<sp/><ref refid="syn__lss_8h_1add6aff242c1149499f76834fc59ef14f" kindref="member">SYN_LSS_CS_CONFIGURE_BIT_TIMING</ref>;</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(baud_idx<sp/>&lt;=<sp/><ref refid="syn__lss_8h_1abc6aef55acb3fb1a94bfcafb2db23f63" kindref="member">SYN_LSS_BAUD_10K</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>slave-&gt;<ref refid="structSYN__LSSSlave_1a615040ed2f782463906faa0ac53120e5" kindref="member">baud_table</ref><sp/>=<sp/>baud_idx;</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>resp-&gt;<ref refid="structSYN__CAN__Frame_1a823d943b00d88be2e8f3a724bf7aa94c" kindref="member">data</ref>[1]<sp/>=<sp/>0;<sp/></highlight><highlight class="comment">/*<sp/>Success<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="63"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>resp-&gt;<ref refid="structSYN__CAN__Frame_1a823d943b00d88be2e8f3a724bf7aa94c" kindref="member">data</ref>[2]<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>resp-&gt;<ref refid="structSYN__CAN__Frame_1a823d943b00d88be2e8f3a724bf7aa94c" kindref="member">data</ref>[1]<sp/>=<sp/>1;<sp/></highlight><highlight class="comment">/*<sp/>Unsupported<sp/>bit<sp/>timing<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>resp-&gt;<ref refid="structSYN__CAN__Frame_1a823d943b00d88be2e8f3a724bf7aa94c" kindref="member">data</ref>[2]<sp/>=<sp/>0xFF;</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"></highlight></codeline>
+<codeline lineno="72"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__lss_8h_1ada40ed06778e45b1c455cda5c7a5d65f" kindref="member">SYN_LSS_CS_STORE_CONFIG</ref>:</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(slave-&gt;<ref refid="structSYN__LSSSlave_1ae4391f357babbf599a6fb77bdc937bed" kindref="member">mode</ref><sp/>==<sp/><ref refid="syn__lss_8h_1a614a823c3941c13761fe681b03b7aab8" kindref="member">SYN_LSS_MODE_CONFIGURATION</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>slave-&gt;<ref refid="structSYN__LSSSlave_1ac63ecf42c91161569507c8fd38085190" kindref="member">store_req</ref><sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>resp-&gt;<ref refid="structSYN__CAN__Frame_1a823d943b00d88be2e8f3a724bf7aa94c" kindref="member">data</ref>[0]<sp/>=<sp/><ref refid="syn__lss_8h_1ada40ed06778e45b1c455cda5c7a5d65f" kindref="member">SYN_LSS_CS_STORE_CONFIG</ref>;</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>resp-&gt;<ref refid="structSYN__CAN__Frame_1a823d943b00d88be2e8f3a724bf7aa94c" kindref="member">data</ref>[1]<sp/>=<sp/>0;<sp/></highlight><highlight class="comment">/*<sp/>Success<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>resp-&gt;<ref refid="structSYN__CAN__Frame_1a823d943b00d88be2e8f3a724bf7aa94c" kindref="member">data</ref>[2]<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"></highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__lss_8h_1a1aa09dcb3bef35ab5d457947cb8ce03f" kindref="member">SYN_LSS_CS_INQUIRE_VENDOR</ref>:</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(slave-&gt;<ref refid="structSYN__LSSSlave_1ae4391f357babbf599a6fb77bdc937bed" kindref="member">mode</ref><sp/>==<sp/><ref refid="syn__lss_8h_1a614a823c3941c13761fe681b03b7aab8" kindref="member">SYN_LSS_MODE_CONFIGURATION</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>resp-&gt;<ref refid="structSYN__CAN__Frame_1a823d943b00d88be2e8f3a724bf7aa94c" kindref="member">data</ref>[0]<sp/>=<sp/><ref refid="syn__lss_8h_1a1aa09dcb3bef35ab5d457947cb8ce03f" kindref="member">SYN_LSS_CS_INQUIRE_VENDOR</ref>;</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>resp-&gt;<ref refid="structSYN__CAN__Frame_1a823d943b00d88be2e8f3a724bf7aa94c" kindref="member">data</ref>[1]<sp/>=<sp/>(uint8_t)(slave-&gt;<ref refid="structSYN__LSSSlave_1afb419d6b4afb25b02eee0d3dca85e407" kindref="member">addr</ref>.<ref refid="structSYN__LSSAddress_1a6745f817bff1d560795c7496cbab49a3" kindref="member">vendor_id</ref>);</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>resp-&gt;<ref refid="structSYN__CAN__Frame_1a823d943b00d88be2e8f3a724bf7aa94c" kindref="member">data</ref>[2]<sp/>=<sp/>(uint8_t)(slave-&gt;<ref refid="structSYN__LSSSlave_1afb419d6b4afb25b02eee0d3dca85e407" kindref="member">addr</ref>.<ref refid="structSYN__LSSAddress_1a6745f817bff1d560795c7496cbab49a3" kindref="member">vendor_id</ref><sp/>&gt;&gt;<sp/>8);</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>resp-&gt;<ref refid="structSYN__CAN__Frame_1a823d943b00d88be2e8f3a724bf7aa94c" kindref="member">data</ref>[3]<sp/>=<sp/>(uint8_t)(slave-&gt;<ref refid="structSYN__LSSSlave_1afb419d6b4afb25b02eee0d3dca85e407" kindref="member">addr</ref>.<ref refid="structSYN__LSSAddress_1a6745f817bff1d560795c7496cbab49a3" kindref="member">vendor_id</ref><sp/>&gt;&gt;<sp/>16);</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>resp-&gt;<ref refid="structSYN__CAN__Frame_1a823d943b00d88be2e8f3a724bf7aa94c" kindref="member">data</ref>[4]<sp/>=<sp/>(uint8_t)(slave-&gt;<ref refid="structSYN__LSSSlave_1afb419d6b4afb25b02eee0d3dca85e407" kindref="member">addr</ref>.<ref refid="structSYN__LSSAddress_1a6745f817bff1d560795c7496cbab49a3" kindref="member">vendor_id</ref><sp/>&gt;&gt;<sp/>24);</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"></highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__lss_8h_1a6f7c0b92215f15b053b75f510a12a2a8" kindref="member">SYN_LSS_CS_INQUIRE_PRODUCT</ref>:</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(slave-&gt;<ref refid="structSYN__LSSSlave_1ae4391f357babbf599a6fb77bdc937bed" kindref="member">mode</ref><sp/>==<sp/><ref refid="syn__lss_8h_1a614a823c3941c13761fe681b03b7aab8" kindref="member">SYN_LSS_MODE_CONFIGURATION</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>resp-&gt;<ref refid="structSYN__CAN__Frame_1a823d943b00d88be2e8f3a724bf7aa94c" kindref="member">data</ref>[0]<sp/>=<sp/><ref refid="syn__lss_8h_1a6f7c0b92215f15b053b75f510a12a2a8" kindref="member">SYN_LSS_CS_INQUIRE_PRODUCT</ref>;</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>resp-&gt;<ref refid="structSYN__CAN__Frame_1a823d943b00d88be2e8f3a724bf7aa94c" kindref="member">data</ref>[1]<sp/>=<sp/>(uint8_t)(slave-&gt;<ref refid="structSYN__LSSSlave_1afb419d6b4afb25b02eee0d3dca85e407" kindref="member">addr</ref>.<ref refid="structSYN__LSSAddress_1a53c7b5f084b63d18dca70dd8239825a9" kindref="member">product_code</ref>);</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>resp-&gt;<ref refid="structSYN__CAN__Frame_1a823d943b00d88be2e8f3a724bf7aa94c" kindref="member">data</ref>[2]<sp/>=<sp/>(uint8_t)(slave-&gt;<ref refid="structSYN__LSSSlave_1afb419d6b4afb25b02eee0d3dca85e407" kindref="member">addr</ref>.<ref refid="structSYN__LSSAddress_1a53c7b5f084b63d18dca70dd8239825a9" kindref="member">product_code</ref><sp/>&gt;&gt;<sp/>8);</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>resp-&gt;<ref refid="structSYN__CAN__Frame_1a823d943b00d88be2e8f3a724bf7aa94c" kindref="member">data</ref>[3]<sp/>=<sp/>(uint8_t)(slave-&gt;<ref refid="structSYN__LSSSlave_1afb419d6b4afb25b02eee0d3dca85e407" kindref="member">addr</ref>.<ref refid="structSYN__LSSAddress_1a53c7b5f084b63d18dca70dd8239825a9" kindref="member">product_code</ref><sp/>&gt;&gt;<sp/>16);</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>resp-&gt;<ref refid="structSYN__CAN__Frame_1a823d943b00d88be2e8f3a724bf7aa94c" kindref="member">data</ref>[4]<sp/>=<sp/>(uint8_t)(slave-&gt;<ref refid="structSYN__LSSSlave_1afb419d6b4afb25b02eee0d3dca85e407" kindref="member">addr</ref>.<ref refid="structSYN__LSSAddress_1a53c7b5f084b63d18dca70dd8239825a9" kindref="member">product_code</ref><sp/>&gt;&gt;<sp/>24);</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"></highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__lss_8h_1aebe3be95fa7302e610507a83883d9897" kindref="member">SYN_LSS_CS_INQUIRE_REV</ref>:</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(slave-&gt;<ref refid="structSYN__LSSSlave_1ae4391f357babbf599a6fb77bdc937bed" kindref="member">mode</ref><sp/>==<sp/><ref refid="syn__lss_8h_1a614a823c3941c13761fe681b03b7aab8" kindref="member">SYN_LSS_MODE_CONFIGURATION</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>resp-&gt;<ref refid="structSYN__CAN__Frame_1a823d943b00d88be2e8f3a724bf7aa94c" kindref="member">data</ref>[0]<sp/>=<sp/><ref refid="syn__lss_8h_1aebe3be95fa7302e610507a83883d9897" kindref="member">SYN_LSS_CS_INQUIRE_REV</ref>;</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>resp-&gt;<ref refid="structSYN__CAN__Frame_1a823d943b00d88be2e8f3a724bf7aa94c" kindref="member">data</ref>[1]<sp/>=<sp/>(uint8_t)(slave-&gt;<ref refid="structSYN__LSSSlave_1afb419d6b4afb25b02eee0d3dca85e407" kindref="member">addr</ref>.<ref refid="structSYN__LSSAddress_1a3e726e2a6e0fd9303e2e3d58c36542a8" kindref="member">revision_no</ref>);</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>resp-&gt;<ref refid="structSYN__CAN__Frame_1a823d943b00d88be2e8f3a724bf7aa94c" kindref="member">data</ref>[2]<sp/>=<sp/>(uint8_t)(slave-&gt;<ref refid="structSYN__LSSSlave_1afb419d6b4afb25b02eee0d3dca85e407" kindref="member">addr</ref>.<ref refid="structSYN__LSSAddress_1a3e726e2a6e0fd9303e2e3d58c36542a8" kindref="member">revision_no</ref><sp/>&gt;&gt;<sp/>8);</highlight></codeline>
+<codeline lineno="109"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>resp-&gt;<ref refid="structSYN__CAN__Frame_1a823d943b00d88be2e8f3a724bf7aa94c" kindref="member">data</ref>[3]<sp/>=<sp/>(uint8_t)(slave-&gt;<ref refid="structSYN__LSSSlave_1afb419d6b4afb25b02eee0d3dca85e407" kindref="member">addr</ref>.<ref refid="structSYN__LSSAddress_1a3e726e2a6e0fd9303e2e3d58c36542a8" kindref="member">revision_no</ref><sp/>&gt;&gt;<sp/>16);</highlight></codeline>
+<codeline lineno="110"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>resp-&gt;<ref refid="structSYN__CAN__Frame_1a823d943b00d88be2e8f3a724bf7aa94c" kindref="member">data</ref>[4]<sp/>=<sp/>(uint8_t)(slave-&gt;<ref refid="structSYN__LSSSlave_1afb419d6b4afb25b02eee0d3dca85e407" kindref="member">addr</ref>.<ref refid="structSYN__LSSAddress_1a3e726e2a6e0fd9303e2e3d58c36542a8" kindref="member">revision_no</ref><sp/>&gt;&gt;<sp/>24);</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="112"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="113"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"></highlight></codeline>
+<codeline lineno="115"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__lss_8h_1a863dab6113ec61be1f58ebcc6170d494" kindref="member">SYN_LSS_CS_INQUIRE_SERIAL</ref>:</highlight></codeline>
+<codeline lineno="116"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(slave-&gt;<ref refid="structSYN__LSSSlave_1ae4391f357babbf599a6fb77bdc937bed" kindref="member">mode</ref><sp/>==<sp/><ref refid="syn__lss_8h_1a614a823c3941c13761fe681b03b7aab8" kindref="member">SYN_LSS_MODE_CONFIGURATION</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="117"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>resp-&gt;<ref refid="structSYN__CAN__Frame_1a823d943b00d88be2e8f3a724bf7aa94c" kindref="member">data</ref>[0]<sp/>=<sp/><ref refid="syn__lss_8h_1a863dab6113ec61be1f58ebcc6170d494" kindref="member">SYN_LSS_CS_INQUIRE_SERIAL</ref>;</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>resp-&gt;<ref refid="structSYN__CAN__Frame_1a823d943b00d88be2e8f3a724bf7aa94c" kindref="member">data</ref>[1]<sp/>=<sp/>(uint8_t)(slave-&gt;<ref refid="structSYN__LSSSlave_1afb419d6b4afb25b02eee0d3dca85e407" kindref="member">addr</ref>.<ref refid="structSYN__LSSAddress_1a54e154cb79b43abb7410793f7c25b93f" kindref="member">serial_no</ref>);</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>resp-&gt;<ref refid="structSYN__CAN__Frame_1a823d943b00d88be2e8f3a724bf7aa94c" kindref="member">data</ref>[2]<sp/>=<sp/>(uint8_t)(slave-&gt;<ref refid="structSYN__LSSSlave_1afb419d6b4afb25b02eee0d3dca85e407" kindref="member">addr</ref>.<ref refid="structSYN__LSSAddress_1a54e154cb79b43abb7410793f7c25b93f" kindref="member">serial_no</ref><sp/>&gt;&gt;<sp/>8);</highlight></codeline>
+<codeline lineno="120"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>resp-&gt;<ref refid="structSYN__CAN__Frame_1a823d943b00d88be2e8f3a724bf7aa94c" kindref="member">data</ref>[3]<sp/>=<sp/>(uint8_t)(slave-&gt;<ref refid="structSYN__LSSSlave_1afb419d6b4afb25b02eee0d3dca85e407" kindref="member">addr</ref>.<ref refid="structSYN__LSSAddress_1a54e154cb79b43abb7410793f7c25b93f" kindref="member">serial_no</ref><sp/>&gt;&gt;<sp/>16);</highlight></codeline>
+<codeline lineno="121"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>resp-&gt;<ref refid="structSYN__CAN__Frame_1a823d943b00d88be2e8f3a724bf7aa94c" kindref="member">data</ref>[4]<sp/>=<sp/>(uint8_t)(slave-&gt;<ref refid="structSYN__LSSSlave_1afb419d6b4afb25b02eee0d3dca85e407" kindref="member">addr</ref>.<ref refid="structSYN__LSSAddress_1a54e154cb79b43abb7410793f7c25b93f" kindref="member">serial_no</ref><sp/>&gt;&gt;<sp/>24);</highlight></codeline>
+<codeline lineno="122"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="123"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="124"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"></highlight></codeline>
+<codeline lineno="126"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">default</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="127"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="128"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="129"><highlight class="normal"></highlight></codeline>
+<codeline lineno="130"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="131"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="132"><highlight class="normal"></highlight></codeline>
+<codeline lineno="133"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__lss_8c_1ae74ed963d04642e51c4a034af9e1abe4" kindref="member">syn_lss_master_build_switch_mode</ref>(<ref refid="structSYN__CAN__Frame" kindref="compound">SYN_CAN_Frame</ref><sp/>*frame,<sp/>uint8_t<sp/>mode)</highlight></codeline>
+<codeline lineno="134"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="135"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(frame<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"><sp/><sp/><sp/><sp/>memset(frame,<sp/>0,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(*frame));</highlight></codeline>
+<codeline lineno="137"><highlight class="normal"><sp/><sp/><sp/><sp/>frame-&gt;<ref refid="structSYN__CAN__Frame_1a398fcc4dcd7e0cad9d130ad99148964b" kindref="member">id</ref><sp/>=<sp/><ref refid="syn__lss_8h_1a924989b01eeff59c99fb2b92d4908343" kindref="member">SYN_LSS_COB_ID_MASTER</ref>;</highlight></codeline>
+<codeline lineno="138"><highlight class="normal"><sp/><sp/><sp/><sp/>frame-&gt;<ref refid="structSYN__CAN__Frame_1aa28e28d157508dfd7f94aaa53871c698" kindref="member">dlc</ref><sp/>=<sp/>8;</highlight></codeline>
+<codeline lineno="139"><highlight class="normal"><sp/><sp/><sp/><sp/>frame-&gt;<ref refid="structSYN__CAN__Frame_1a823d943b00d88be2e8f3a724bf7aa94c" kindref="member">data</ref>[0]<sp/>=<sp/><ref refid="syn__lss_8h_1a8bb9e94196bcb5005f05b481ab0b8529" kindref="member">SYN_LSS_CS_SWITCH_MODE_GLOBAL</ref>;</highlight></codeline>
+<codeline lineno="140"><highlight class="normal"><sp/><sp/><sp/><sp/>frame-&gt;<ref refid="structSYN__CAN__Frame_1a823d943b00d88be2e8f3a724bf7aa94c" kindref="member">data</ref>[1]<sp/>=<sp/>mode;</highlight></codeline>
+<codeline lineno="141"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="142"><highlight class="normal"></highlight></codeline>
+<codeline lineno="143"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__lss_8c_1a08cf71249ba6f11ed03b745db2931040" kindref="member">syn_lss_master_build_config_node_id</ref>(<ref refid="structSYN__CAN__Frame" kindref="compound">SYN_CAN_Frame</ref><sp/>*frame,<sp/>uint8_t<sp/>new_node_id)</highlight></codeline>
+<codeline lineno="144"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="145"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(frame<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="146"><highlight class="normal"><sp/><sp/><sp/><sp/>memset(frame,<sp/>0,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(*frame));</highlight></codeline>
+<codeline lineno="147"><highlight class="normal"><sp/><sp/><sp/><sp/>frame-&gt;<ref refid="structSYN__CAN__Frame_1a398fcc4dcd7e0cad9d130ad99148964b" kindref="member">id</ref><sp/>=<sp/><ref refid="syn__lss_8h_1a924989b01eeff59c99fb2b92d4908343" kindref="member">SYN_LSS_COB_ID_MASTER</ref>;</highlight></codeline>
+<codeline lineno="148"><highlight class="normal"><sp/><sp/><sp/><sp/>frame-&gt;<ref refid="structSYN__CAN__Frame_1aa28e28d157508dfd7f94aaa53871c698" kindref="member">dlc</ref><sp/>=<sp/>8;</highlight></codeline>
+<codeline lineno="149"><highlight class="normal"><sp/><sp/><sp/><sp/>frame-&gt;<ref refid="structSYN__CAN__Frame_1a823d943b00d88be2e8f3a724bf7aa94c" kindref="member">data</ref>[0]<sp/>=<sp/><ref refid="syn__lss_8h_1a92f8275702ddfba71fe80c9fd14ecb9e" kindref="member">SYN_LSS_CS_CONFIGURE_NODE_ID</ref>;</highlight></codeline>
+<codeline lineno="150"><highlight class="normal"><sp/><sp/><sp/><sp/>frame-&gt;<ref refid="structSYN__CAN__Frame_1a823d943b00d88be2e8f3a724bf7aa94c" kindref="member">data</ref>[1]<sp/>=<sp/>new_node_id;</highlight></codeline>
+<codeline lineno="151"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="152"><highlight class="normal"></highlight></codeline>
+<codeline lineno="153"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__lss_8c_1af878519f2c353da6326cbe1a787518a9" kindref="member">syn_lss_master_build_config_bit_timing</ref>(<ref refid="structSYN__CAN__Frame" kindref="compound">SYN_CAN_Frame</ref><sp/>*frame,<sp/>uint8_t<sp/>baud_table_idx)</highlight></codeline>
+<codeline lineno="154"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="155"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(frame<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="156"><highlight class="normal"><sp/><sp/><sp/><sp/>memset(frame,<sp/>0,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(*frame));</highlight></codeline>
+<codeline lineno="157"><highlight class="normal"><sp/><sp/><sp/><sp/>frame-&gt;<ref refid="structSYN__CAN__Frame_1a398fcc4dcd7e0cad9d130ad99148964b" kindref="member">id</ref><sp/>=<sp/><ref refid="syn__lss_8h_1a924989b01eeff59c99fb2b92d4908343" kindref="member">SYN_LSS_COB_ID_MASTER</ref>;</highlight></codeline>
+<codeline lineno="158"><highlight class="normal"><sp/><sp/><sp/><sp/>frame-&gt;<ref refid="structSYN__CAN__Frame_1aa28e28d157508dfd7f94aaa53871c698" kindref="member">dlc</ref><sp/>=<sp/>8;</highlight></codeline>
+<codeline lineno="159"><highlight class="normal"><sp/><sp/><sp/><sp/>frame-&gt;<ref refid="structSYN__CAN__Frame_1a823d943b00d88be2e8f3a724bf7aa94c" kindref="member">data</ref>[0]<sp/>=<sp/><ref refid="syn__lss_8h_1add6aff242c1149499f76834fc59ef14f" kindref="member">SYN_LSS_CS_CONFIGURE_BIT_TIMING</ref>;</highlight></codeline>
+<codeline lineno="160"><highlight class="normal"><sp/><sp/><sp/><sp/>frame-&gt;<ref refid="structSYN__CAN__Frame_1a823d943b00d88be2e8f3a724bf7aa94c" kindref="member">data</ref>[1]<sp/>=<sp/>0;<sp/></highlight><highlight class="comment">/*<sp/>Selector:<sp/>0<sp/>=<sp/>Table,<sp/>1<sp/>=<sp/>Bitrate<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="161"><highlight class="normal"><sp/><sp/><sp/><sp/>frame-&gt;<ref refid="structSYN__CAN__Frame_1a823d943b00d88be2e8f3a724bf7aa94c" kindref="member">data</ref>[2]<sp/>=<sp/>baud_table_idx;</highlight></codeline>
+<codeline lineno="162"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="163"><highlight class="normal"></highlight></codeline>
+<codeline lineno="164"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__lss_8c_1adcbc6322edee17aa622adc8401f41a7f" kindref="member">syn_lss_master_build_store_config</ref>(<ref refid="structSYN__CAN__Frame" kindref="compound">SYN_CAN_Frame</ref><sp/>*frame)</highlight></codeline>
+<codeline lineno="165"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="166"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(frame<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="167"><highlight class="normal"><sp/><sp/><sp/><sp/>memset(frame,<sp/>0,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(*frame));</highlight></codeline>
+<codeline lineno="168"><highlight class="normal"><sp/><sp/><sp/><sp/>frame-&gt;<ref refid="structSYN__CAN__Frame_1a398fcc4dcd7e0cad9d130ad99148964b" kindref="member">id</ref><sp/>=<sp/><ref refid="syn__lss_8h_1a924989b01eeff59c99fb2b92d4908343" kindref="member">SYN_LSS_COB_ID_MASTER</ref>;</highlight></codeline>
+<codeline lineno="169"><highlight class="normal"><sp/><sp/><sp/><sp/>frame-&gt;<ref refid="structSYN__CAN__Frame_1aa28e28d157508dfd7f94aaa53871c698" kindref="member">dlc</ref><sp/>=<sp/>8;</highlight></codeline>
+<codeline lineno="170"><highlight class="normal"><sp/><sp/><sp/><sp/>frame-&gt;<ref refid="structSYN__CAN__Frame_1a823d943b00d88be2e8f3a724bf7aa94c" kindref="member">data</ref>[0]<sp/>=<sp/><ref refid="syn__lss_8h_1ada40ed06778e45b1c455cda5c7a5d65f" kindref="member">SYN_LSS_CS_STORE_CONFIG</ref>;</highlight></codeline>
+<codeline lineno="171"><highlight class="normal">}</highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/proto/syn_lss.c"/>
+  </compounddef>
+</doxygen>

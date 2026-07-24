@@ -1,0 +1,366 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__spsc__queue_8h" kind="file" language="C++">
+    <compoundname>syn_spsc_queue.h</compoundname>
+    <includes refid="syn__defs_8h" local="yes">../common/syn_defs.h</includes>
+    <includes local="no">stdint.h</includes>
+    <includes local="no">stddef.h</includes>
+    <includes local="no">stdbool.h</includes>
+    <includedby refid="syn__workqueue_8h" local="yes">src/syntropic/sched/syn_workqueue.h</includedby>
+    <includedby refid="syntropic_8h" local="yes">src/syntropic/syntropic.h</includedby>
+    <includedby refid="syn__spsc__queue_8c" local="yes">src/syntropic/util/syn_spsc_queue.c</includedby>
+    <incdepgraph>
+      <node id="2">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/util/syn_spsc_queue.h</label>
+        <link refid="syn__spsc__queue_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>stdbool.h</label>
+      </node>
+      <node id="4">
+        <label>stddef.h</label>
+      </node>
+      <node id="3">
+        <label>stdint.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="3">
+        <label>src/syntropic/sched/syn_workqueue.c</label>
+        <link refid="syn__workqueue_8c"/>
+      </node>
+      <node id="2">
+        <label>src/syntropic/sched/syn_workqueue.h</label>
+        <link refid="syn__workqueue_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>src/syntropic/syntropic.h</label>
+        <link refid="syntropic_8h"/>
+      </node>
+      <node id="5">
+        <label>src/syntropic/util/syn_spsc_queue.c</label>
+        <link refid="syn__spsc__queue_8c"/>
+      </node>
+      <node id="1">
+        <label>src/syntropic/util/syn_spsc_queue.h</label>
+        <link refid="syn__spsc__queue_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="structSYN__SPSC__Queue" prot="public">SYN_SPSC_Queue</innerclass>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__spsc__queue_8h_1a0ee5405e0b954485f2f17370856762dc" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_spsc_queue_init</definition>
+        <argsstring>(SYN_SPSC_Queue *q, void *elem_buf, size_t elem_size, size_t capacity)</argsstring>
+        <name>syn_spsc_queue_init</name>
+        <param>
+          <type><ref refid="structSYN__SPSC__Queue" kindref="compound">SYN_SPSC_Queue</ref> *</type>
+          <declname>q</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>elem_buf</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>elem_size</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>capacity</declname>
+        </param>
+        <briefdescription>
+<para>Initialize a Lock-Free SPSC Queue. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>q</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to queue control structure. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>elem_buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to caller-provided backing memory buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>elem_size</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Size of each element in bytes (must be &gt; 0). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>capacity</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of elements buffer can hold (must be &gt; 0). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_spsc_queue.h" line="42" column="12" bodyfile="src/syntropic/util/syn_spsc_queue.c" bodystart="20" bodyend="31" declfile="src/syntropic/util/syn_spsc_queue.h" declline="42" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__spsc__queue_8h_1ae476468e1c6401cdb9b921f688f1a7c1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_spsc_queue_push</definition>
+        <argsstring>(SYN_SPSC_Queue *q, const void *item)</argsstring>
+        <name>syn_spsc_queue_push</name>
+        <param>
+          <type><ref refid="structSYN__SPSC__Queue" kindref="compound">SYN_SPSC_Queue</ref> *</type>
+          <declname>q</declname>
+        </param>
+        <param>
+          <type>const void *</type>
+          <declname>item</declname>
+        </param>
+        <briefdescription>
+<para>Push an item into the queue (Producer only). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>q</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Queue context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>item</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to item to copy into queue. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, or SYN_BUSY if full. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_spsc_queue.h" line="50" column="12" bodyfile="src/syntropic/util/syn_spsc_queue.c" bodystart="57" bodyend="72" declfile="src/syntropic/util/syn_spsc_queue.h" declline="50" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__spsc__queue_8h_1a77ae4d18fc4c45e738ef9e3c58c7dd8f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_spsc_queue_pop</definition>
+        <argsstring>(SYN_SPSC_Queue *q, void *out_item)</argsstring>
+        <name>syn_spsc_queue_pop</name>
+        <param>
+          <type><ref refid="structSYN__SPSC__Queue" kindref="compound">SYN_SPSC_Queue</ref> *</type>
+          <declname>q</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>out_item</declname>
+        </param>
+        <briefdescription>
+<para>Pop an item from the queue (Consumer only). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>q</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Queue context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out_item</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to memory receiving popped item. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, or SYN_ERROR if empty. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_spsc_queue.h" line="58" column="12" bodyfile="src/syntropic/util/syn_spsc_queue.c" bodystart="74" bodyend="90" declfile="src/syntropic/util/syn_spsc_queue.h" declline="58" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__spsc__queue_8h_1afeb744061130083d7ad4fe0e8d084dd7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_spsc_queue_is_empty</definition>
+        <argsstring>(const SYN_SPSC_Queue *q)</argsstring>
+        <name>syn_spsc_queue_is_empty</name>
+        <param>
+          <type>const <ref refid="structSYN__SPSC__Queue" kindref="compound">SYN_SPSC_Queue</ref> *</type>
+          <declname>q</declname>
+        </param>
+        <briefdescription>
+<para>Check if the queue is empty. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>q</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Queue context. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if empty. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_spsc_queue.h" line="65" column="6" bodyfile="src/syntropic/util/syn_spsc_queue.c" bodystart="33" bodyend="37" declfile="src/syntropic/util/syn_spsc_queue.h" declline="65" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__spsc__queue_8h_1a98af7c4235aa7a86a01cd88445d4c23c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_spsc_queue_is_full</definition>
+        <argsstring>(const SYN_SPSC_Queue *q)</argsstring>
+        <name>syn_spsc_queue_is_full</name>
+        <param>
+          <type>const <ref refid="structSYN__SPSC__Queue" kindref="compound">SYN_SPSC_Queue</ref> *</type>
+          <declname>q</declname>
+        </param>
+        <briefdescription>
+<para>Check if the queue is full. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>q</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Queue context. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if full. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_spsc_queue.h" line="72" column="6" bodyfile="src/syntropic/util/syn_spsc_queue.c" bodystart="39" bodyend="44" declfile="src/syntropic/util/syn_spsc_queue.h" declline="72" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__spsc__queue_8h_1a3c02940183af9084a9ef5f95061644bb" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>size_t</type>
+        <definition>size_t syn_spsc_queue_count</definition>
+        <argsstring>(const SYN_SPSC_Queue *q)</argsstring>
+        <name>syn_spsc_queue_count</name>
+        <param>
+          <type>const <ref refid="structSYN__SPSC__Queue" kindref="compound">SYN_SPSC_Queue</ref> *</type>
+          <declname>q</declname>
+        </param>
+        <briefdescription>
+<para>Get current number of items stored in queue. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>q</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Queue context. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Count of items in queue. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_spsc_queue.h" line="79" column="8" bodyfile="src/syntropic/util/syn_spsc_queue.c" bodystart="46" bodyend="55" declfile="src/syntropic/util/syn_spsc_queue.h" declline="79" declcolumn="8"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Lock-free Single-Producer Single-Consumer (SPSC) queue. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Provides a lock-free, zero-allocation SPSC item queue designed for high-performance ISR-to-Task, Task-to-Task, or Inter-Core (multicore) message passing without spinlocks or disabling interrupts. </para>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_SPSC_QUEUE_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_SPSC_QUEUE_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../common/syn_defs.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stddef.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight></codeline>
+<codeline lineno="26" refid="structSYN__SPSC__Queue" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="27" refid="structSYN__SPSC__Queue_1a0ba2ef5038dc05465b1508debd34dc2a" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>*<ref refid="structSYN__SPSC__Queue_1a0ba2ef5038dc05465b1508debd34dc2a" kindref="member">buffer</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="28" refid="structSYN__SPSC__Queue_1a19f3ab7b0d956217faf12ffaacdbb732" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><sp/><sp/><ref refid="structSYN__SPSC__Queue_1a19f3ab7b0d956217faf12ffaacdbb732" kindref="member">elem_size</ref>;<sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="29" refid="structSYN__SPSC__Queue_1a18dea52a5baa55321efff0b365825f32" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><sp/><sp/><ref refid="structSYN__SPSC__Queue_1a18dea52a5baa55321efff0b365825f32" kindref="member">capacity</ref>;<sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="30" refid="structSYN__SPSC__Queue_1a56f75f2b596b7c03ee981c2203853a98" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">volatile</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="structSYN__SPSC__Queue_1a56f75f2b596b7c03ee981c2203853a98" kindref="member">head</ref>;<sp/><sp/></highlight></codeline>
+<codeline lineno="31" refid="structSYN__SPSC__Queue_1a2875057933f51f732d455b76ba640138" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">volatile</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="structSYN__SPSC__Queue_1a2875057933f51f732d455b76ba640138" kindref="member">tail</ref>;<sp/><sp/></highlight></codeline>
+<codeline lineno="32"><highlight class="normal">}<sp/><ref refid="structSYN__SPSC__Queue" kindref="compound">SYN_SPSC_Queue</ref>;</highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__spsc__queue_8h_1a0ee5405e0b954485f2f17370856762dc" kindref="member">syn_spsc_queue_init</ref>(<ref refid="structSYN__SPSC__Queue" kindref="compound">SYN_SPSC_Queue</ref><sp/>*q,<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*elem_buf,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>elem_size,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>capacity);</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__spsc__queue_8h_1ae476468e1c6401cdb9b921f688f1a7c1" kindref="member">syn_spsc_queue_push</ref>(<ref refid="structSYN__SPSC__Queue" kindref="compound">SYN_SPSC_Queue</ref><sp/>*q,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*item);</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"></highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__spsc__queue_8h_1a77ae4d18fc4c45e738ef9e3c58c7dd8f" kindref="member">syn_spsc_queue_pop</ref>(<ref refid="structSYN__SPSC__Queue" kindref="compound">SYN_SPSC_Queue</ref><sp/>*q,<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*out_item);</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"></highlight></codeline>
+<codeline lineno="65"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__spsc__queue_8h_1afeb744061130083d7ad4fe0e8d084dd7" kindref="member">syn_spsc_queue_is_empty</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__SPSC__Queue" kindref="compound">SYN_SPSC_Queue</ref><sp/>*q);</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"></highlight></codeline>
+<codeline lineno="72"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__spsc__queue_8h_1a98af7c4235aa7a86a01cd88445d4c23c" kindref="member">syn_spsc_queue_is_full</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__SPSC__Queue" kindref="compound">SYN_SPSC_Queue</ref><sp/>*q);</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"></highlight></codeline>
+<codeline lineno="79"><highlight class="normal"></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="syn__spsc__queue_8h_1a3c02940183af9084a9ef5f95061644bb" kindref="member">syn_spsc_queue_count</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__SPSC__Queue" kindref="compound">SYN_SPSC_Queue</ref><sp/>*q);</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"></highlight></codeline>
+<codeline lineno="81"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="82"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="84"><highlight class="normal"></highlight></codeline>
+<codeline lineno="85"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_SPSC_QUEUE_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/util/syn_spsc_queue.h"/>
+  </compounddef>
+</doxygen>

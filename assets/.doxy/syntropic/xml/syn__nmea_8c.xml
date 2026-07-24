@@ -1,0 +1,889 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__nmea_8c" kind="file" language="C++">
+    <compoundname>syn_nmea.c</compoundname>
+    <includes refid="syn__nmea_8h" local="yes">syn_nmea.h</includes>
+    <includes refid="syn__assert_8h" local="yes">../util/syn_assert.h</includes>
+    <includes local="no">stdio.h</includes>
+    <includes local="no">stdlib.h</includes>
+    <includes local="no">string.h</includes>
+    <includes local="no">ctype.h</includes>
+    <incdepgraph>
+      <node id="8">
+        <label>../common/syn_compiler.h</label>
+        <link refid="syn__compiler_8h"/>
+      </node>
+      <node id="3">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/proto/syn_nmea.c</label>
+        <link refid="syn__nmea_8c"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>syn_nmea.h</label>
+        <link refid="syn__nmea_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>../util/syn_assert.h</label>
+        <link refid="syn__assert_8h"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="12">
+        <label>ctype.h</label>
+      </node>
+      <node id="6">
+        <label>stdbool.h</label>
+      </node>
+      <node id="5">
+        <label>stddef.h</label>
+      </node>
+      <node id="4">
+        <label>stdint.h</label>
+      </node>
+      <node id="9">
+        <label>stdio.h</label>
+      </node>
+      <node id="10">
+        <label>stdlib.h</label>
+      </node>
+      <node id="11">
+        <label>string.h</label>
+      </node>
+    </incdepgraph>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__nmea_8c_1ab2886e56eaf03eed3e08937c15764bad" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>static bool get_field</definition>
+        <argsstring>(const char *sentence, uint8_t index, char *dest, size_t max_len)</argsstring>
+        <name>get_field</name>
+        <param>
+          <type>const char *</type>
+          <declname>sentence</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>index</declname>
+        </param>
+        <param>
+          <type>char *</type>
+          <declname>dest</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>max_len</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_nmea.c" line="21" column="13" bodyfile="src/syntropic/proto/syn_nmea.c" bodystart="21" bodyend="51"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__nmea_8c_1a8d2f7b09cbbef4c7c9298a0884cf7ea2" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint8_t</type>
+        <definition>static uint8_t hex2dec</definition>
+        <argsstring>(char c)</argsstring>
+        <name>hex2dec</name>
+        <param>
+          <type>char</type>
+          <declname>c</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_nmea.c" line="53" column="16" bodyfile="src/syntropic/proto/syn_nmea.c" bodystart="53" bodyend="59"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__nmea_8c_1a0f798d491659eff81f4f8c290b97a084" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_nmea_parser_init</definition>
+        <argsstring>(SYN_NMEA_Parser *parser)</argsstring>
+        <name>syn_nmea_parser_init</name>
+        <param>
+          <type><ref refid="structSYN__NMEA__Parser" kindref="compound">SYN_NMEA_Parser</ref> *</type>
+          <declname>parser</declname>
+        </param>
+        <briefdescription>
+<para>Initialize an NMEA streaming parser. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>parser</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to parser state machine. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_nmea.c" line="61" column="6" bodyfile="src/syntropic/proto/syn_nmea.c" bodystart="61" bodyend="67"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__nmea_8c_1a2a790a38eafa0fce2fe6f7f71f801873" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_nmea_parser_feed</definition>
+        <argsstring>(SYN_NMEA_Parser *parser, char byte, char *out_sentence)</argsstring>
+        <name>syn_nmea_parser_feed</name>
+        <param>
+          <type><ref refid="structSYN__NMEA__Parser" kindref="compound">SYN_NMEA_Parser</ref> *</type>
+          <declname>parser</declname>
+        </param>
+        <param>
+          <type>char</type>
+          <declname>byte</declname>
+        </param>
+        <param>
+          <type>char *</type>
+          <declname>out_sentence</declname>
+        </param>
+        <briefdescription>
+<para>Feed a byte into the NMEA streaming parser. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>parser</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to parser instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>byte</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Received character. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out_sentence</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output buffer for completed NMEA sentence string (if returns true). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if a complete, valid NMEA sentence was received. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_nmea.c" line="69" column="6" bodyfile="src/syntropic/proto/syn_nmea.c" bodystart="69" bodyend="107"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__nmea_8c_1a15b72e1d6b8b605af0c81d56c61e8f9a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint8_t</type>
+        <definition>uint8_t syn_nmea_checksum</definition>
+        <argsstring>(const char *sentence)</argsstring>
+        <name>syn_nmea_checksum</name>
+        <param>
+          <type>const char *</type>
+          <declname>sentence</declname>
+        </param>
+        <briefdescription>
+<para>Calculate XOR checksum of an NMEA sentence payload (between &apos;$&apos; and &apos;*&apos;). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>sentence</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>NMEA sentence string. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>8-bit XOR checksum value. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_nmea.c" line="109" column="9" bodyfile="src/syntropic/proto/syn_nmea.c" bodystart="109" bodyend="121"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__nmea_8c_1ae91d4afae616474251f04783d0087b32" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_nmea_validate</definition>
+        <argsstring>(const char *sentence)</argsstring>
+        <name>syn_nmea_validate</name>
+        <param>
+          <type>const char *</type>
+          <declname>sentence</declname>
+        </param>
+        <briefdescription>
+<para>Validate an NMEA sentence string (checks start &apos;$&apos;, &apos;*XX&apos; checksum, and CRLF). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>sentence</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>NMEA sentence string. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if valid sentence and matching checksum. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_nmea.c" line="123" column="6" bodyfile="src/syntropic/proto/syn_nmea.c" bodystart="123" bodyend="134"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__nmea_8c_1af7ee797870318fb38fa649110e5dd265" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__nmea_8h_1a83599bd9c4ddbb9884cc107b618a788c" kindref="member">SYN_NMEA_SentenceType</ref></type>
+        <definition>SYN_NMEA_SentenceType syn_nmea_get_type</definition>
+        <argsstring>(const char *sentence)</argsstring>
+        <name>syn_nmea_get_type</name>
+        <param>
+          <type>const char *</type>
+          <declname>sentence</declname>
+        </param>
+        <briefdescription>
+<para>Identify sentence type from NMEA string. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>sentence</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>NMEA sentence string. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_NMEA_SentenceType enum. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_nmea.c" line="136" column="23" bodyfile="src/syntropic/proto/syn_nmea.c" bodystart="136" bodyend="154"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__nmea_8c_1af6c6a82f2cc80de4ce911a0b926ae4df" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>double</type>
+        <definition>double syn_nmea_parse_coord</definition>
+        <argsstring>(const char *nmea_coord, char dir)</argsstring>
+        <name>syn_nmea_parse_coord</name>
+        <param>
+          <type>const char *</type>
+          <declname>nmea_coord</declname>
+        </param>
+        <param>
+          <type>char</type>
+          <declname>dir</declname>
+        </param>
+        <briefdescription>
+<para>Parse NMEA DDMM.MMMM coordinate string and direction indicator. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>nmea_coord</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Coordinate string (e.g. &quot;4807.038&quot;). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dir</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Direction char (&apos;N&apos;, &apos;S&apos;, &apos;E&apos;, &apos;W&apos;). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Decimal degrees (+N/+E, -S/-W). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_nmea.c" line="156" column="8" bodyfile="src/syntropic/proto/syn_nmea.c" bodystart="156" bodyend="170"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__nmea_8c_1ac3e5badf2bc3f01ebe3442e479d8080e" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void parse_time</definition>
+        <argsstring>(const char *field, uint8_t *h, uint8_t *m, uint8_t *s, uint16_t *ms)</argsstring>
+        <name>parse_time</name>
+        <param>
+          <type>const char *</type>
+          <declname>field</declname>
+        </param>
+        <param>
+          <type>uint8_t *</type>
+          <declname>h</declname>
+        </param>
+        <param>
+          <type>uint8_t *</type>
+          <declname>m</declname>
+        </param>
+        <param>
+          <type>uint8_t *</type>
+          <declname>s</declname>
+        </param>
+        <param>
+          <type>uint16_t *</type>
+          <declname>ms</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_nmea.c" line="172" column="13" bodyfile="src/syntropic/proto/syn_nmea.c" bodystart="172" bodyend="186"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__nmea_8c_1a931f9a781cc0148f7a87c7204444b23d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_nmea_parse_gga</definition>
+        <argsstring>(const char *sentence, SYN_NMEA_GGA *gga)</argsstring>
+        <name>syn_nmea_parse_gga</name>
+        <param>
+          <type>const char *</type>
+          <declname>sentence</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__NMEA__GGA" kindref="compound">SYN_NMEA_GGA</ref> *</type>
+          <declname>gga</declname>
+        </param>
+        <briefdescription>
+<para>Parse a $GPGGA / $GNGGA sentence. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>sentence</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>NMEA sentence string. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>gga</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to destination GGA struct. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_nmea.c" line="188" column="6" bodyfile="src/syntropic/proto/syn_nmea.c" bodystart="188" bodyend="212"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__nmea_8c_1a8cf06ad4e17855c3ce3c769673b1bfb5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_nmea_parse_rmc</definition>
+        <argsstring>(const char *sentence, SYN_NMEA_RMC *rmc)</argsstring>
+        <name>syn_nmea_parse_rmc</name>
+        <param>
+          <type>const char *</type>
+          <declname>sentence</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__NMEA__RMC" kindref="compound">SYN_NMEA_RMC</ref> *</type>
+          <declname>rmc</declname>
+        </param>
+        <briefdescription>
+<para>Parse a $GPRMC / $GNRMC sentence. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>sentence</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>NMEA sentence string. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>rmc</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to destination RMC struct. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_nmea.c" line="214" column="6" bodyfile="src/syntropic/proto/syn_nmea.c" bodystart="214" bodyend="247"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__nmea_8c_1a694990975eabe7864801eeec7cc6ef72" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_nmea_parse_vtg</definition>
+        <argsstring>(const char *sentence, SYN_NMEA_VTG *vtg)</argsstring>
+        <name>syn_nmea_parse_vtg</name>
+        <param>
+          <type>const char *</type>
+          <declname>sentence</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__NMEA__VTG" kindref="compound">SYN_NMEA_VTG</ref> *</type>
+          <declname>vtg</declname>
+        </param>
+        <briefdescription>
+<para>Parse a $GPVTG / $GNVTG sentence. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>sentence</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>NMEA sentence string. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>vtg</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to destination VTG struct. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_nmea.c" line="249" column="6" bodyfile="src/syntropic/proto/syn_nmea.c" bodystart="249" bodyend="263"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__nmea_8c_1a1e3ae1f66d901052cb6dc9d76e147f0f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_nmea_parse_gsa</definition>
+        <argsstring>(const char *sentence, SYN_NMEA_GSA *gsa)</argsstring>
+        <name>syn_nmea_parse_gsa</name>
+        <param>
+          <type>const char *</type>
+          <declname>sentence</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__NMEA__GSA" kindref="compound">SYN_NMEA_GSA</ref> *</type>
+          <declname>gsa</declname>
+        </param>
+        <briefdescription>
+<para>Parse a $GPGSA / $GNGSA sentence. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>sentence</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>NMEA sentence string. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>gsa</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to destination GSA struct. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_nmea.c" line="265" column="6" bodyfile="src/syntropic/proto/syn_nmea.c" bodystart="265" bodyend="281"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__nmea_8c_1a695a2b669d55c480429ae5c2d75a8d8a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_nmea_parse_zda</definition>
+        <argsstring>(const char *sentence, SYN_NMEA_ZDA *zda)</argsstring>
+        <name>syn_nmea_parse_zda</name>
+        <param>
+          <type>const char *</type>
+          <declname>sentence</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__NMEA__ZDA" kindref="compound">SYN_NMEA_ZDA</ref> *</type>
+          <declname>zda</declname>
+        </param>
+        <briefdescription>
+<para>Parse a $GPZDA / $GNZDA sentence. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>sentence</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>NMEA sentence string. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>zda</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to destination ZDA struct. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_nmea.c" line="283" column="6" bodyfile="src/syntropic/proto/syn_nmea.c" bodystart="283" bodyend="298"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>NMEA 0183 / GNSS sentence parser and encoder implementation. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#if<sp/>__has_include(&quot;syn_config.h&quot;)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/>#include<sp/>&quot;syn_config.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="4"><highlight class="normal"></highlight></codeline>
+<codeline lineno="5"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>!defined(SYN_USE_NMEA)<sp/>||<sp/>SYN_USE_NMEA</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__nmea_8h" kindref="compound">syn_nmea.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../util/syn_assert.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdio.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdlib.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;string.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;ctype.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>Helper<sp/>to<sp/>extract<sp/>comma-separated<sp/>field<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>get_field(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*sentence,<sp/>uint8_t<sp/>index,<sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*dest,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>max_len)</highlight></codeline>
+<codeline lineno="22"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="23"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(sentence<sp/>==<sp/>NULL<sp/>||<sp/>dest<sp/>==<sp/>NULL<sp/>||<sp/>max_len<sp/>==<sp/>0)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="24"><highlight class="normal"><sp/><sp/><sp/><sp/>dest[0]<sp/>=<sp/></highlight><highlight class="charliteral">&apos;\0&apos;</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*p<sp/>=<sp/>sentence;</highlight></codeline>
+<codeline lineno="27"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(*p<sp/>==<sp/></highlight><highlight class="charliteral">&apos;$&apos;</highlight><highlight class="normal">)<sp/>p++;</highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>current_field<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="30"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">while</highlight><highlight class="normal"><sp/>(*p<sp/>&amp;&amp;<sp/>*p<sp/>!=<sp/></highlight><highlight class="charliteral">&apos;*&apos;</highlight><highlight class="normal"><sp/>&amp;&amp;<sp/>*p<sp/>!=<sp/></highlight><highlight class="charliteral">&apos;\r&apos;</highlight><highlight class="normal"><sp/>&amp;&amp;<sp/>*p<sp/>!=<sp/></highlight><highlight class="charliteral">&apos;\n&apos;</highlight><highlight class="normal">)<sp/>{</highlight></codeline>
+<codeline lineno="31"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(*p<sp/>==<sp/></highlight><highlight class="charliteral">&apos;,&apos;</highlight><highlight class="normal">)<sp/>{</highlight></codeline>
+<codeline lineno="32"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>current_field++;</highlight></codeline>
+<codeline lineno="33"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>p++;</highlight></codeline>
+<codeline lineno="34"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(current_field<sp/>&gt;<sp/>index)<sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="35"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">continue</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="36"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(current_field<sp/>==<sp/>index)<sp/>{</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>len<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">while</highlight><highlight class="normal"><sp/>(*p<sp/>&amp;&amp;<sp/>*p<sp/>!=<sp/></highlight><highlight class="charliteral">&apos;,&apos;</highlight><highlight class="normal"><sp/>&amp;&amp;<sp/>*p<sp/>!=<sp/></highlight><highlight class="charliteral">&apos;*&apos;</highlight><highlight class="normal"><sp/>&amp;&amp;<sp/>*p<sp/>!=<sp/></highlight><highlight class="charliteral">&apos;\r&apos;</highlight><highlight class="normal"><sp/>&amp;&amp;<sp/>*p<sp/>!=<sp/></highlight><highlight class="charliteral">&apos;\n&apos;</highlight><highlight class="normal"><sp/>&amp;&amp;<sp/>len<sp/>&lt;<sp/>max_len<sp/>-<sp/>1)<sp/>{</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>dest[len++]<sp/>=<sp/>*p++;</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>dest[len]<sp/>=<sp/></highlight><highlight class="charliteral">&apos;\0&apos;</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(len<sp/>&gt;<sp/>0);</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"></highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>p++;</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"></highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="51"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"></highlight></codeline>
+<codeline lineno="53"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/>uint8_t<sp/>hex2dec(</highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>c)</highlight></codeline>
+<codeline lineno="54"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(c<sp/>&gt;=<sp/></highlight><highlight class="charliteral">&apos;0&apos;</highlight><highlight class="normal"><sp/>&amp;&amp;<sp/>c<sp/>&lt;=<sp/></highlight><highlight class="charliteral">&apos;9&apos;</highlight><highlight class="normal">)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>c<sp/>-<sp/></highlight><highlight class="charliteral">&apos;0&apos;</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(c<sp/>&gt;=<sp/></highlight><highlight class="charliteral">&apos;A&apos;</highlight><highlight class="normal"><sp/>&amp;&amp;<sp/>c<sp/>&lt;=<sp/></highlight><highlight class="charliteral">&apos;F&apos;</highlight><highlight class="normal">)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>10<sp/>+<sp/>(c<sp/>-<sp/></highlight><highlight class="charliteral">&apos;A&apos;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(c<sp/>&gt;=<sp/></highlight><highlight class="charliteral">&apos;a&apos;</highlight><highlight class="normal"><sp/>&amp;&amp;<sp/>c<sp/>&lt;=<sp/></highlight><highlight class="charliteral">&apos;f&apos;</highlight><highlight class="normal">)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>10<sp/>+<sp/>(c<sp/>-<sp/></highlight><highlight class="charliteral">&apos;a&apos;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0;</highlight></codeline>
+<codeline lineno="59"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"></highlight></codeline>
+<codeline lineno="61"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__nmea_8c_1a0f798d491659eff81f4f8c290b97a084" kindref="member">syn_nmea_parser_init</ref>(<ref refid="structSYN__NMEA__Parser" kindref="compound">SYN_NMEA_Parser</ref><sp/>*parser)</highlight></codeline>
+<codeline lineno="62"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(parser<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/><sp/><sp/>parser-&gt;pos<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/><sp/><sp/>parser-&gt;in_sentence<sp/>=<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/><sp/><sp/>parser-&gt;buf[0]<sp/>=<sp/></highlight><highlight class="charliteral">&apos;\0&apos;</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="67"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"></highlight></codeline>
+<codeline lineno="69"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__nmea_8c_1a2a790a38eafa0fce2fe6f7f71f801873" kindref="member">syn_nmea_parser_feed</ref>(<ref refid="structSYN__NMEA__Parser" kindref="compound">SYN_NMEA_Parser</ref><sp/>*parser,<sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">byte</highlight><highlight class="normal">,<sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*out_sentence)</highlight></codeline>
+<codeline lineno="70"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(parser<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"></highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">byte</highlight><highlight class="normal"><sp/>==<sp/></highlight><highlight class="charliteral">&apos;$&apos;</highlight><highlight class="normal">)<sp/>{</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>parser-&gt;pos<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>parser-&gt;buf[parser-&gt;pos++]<sp/>=<sp/></highlight><highlight class="charliteral">&apos;$&apos;</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>parser-&gt;in_sentence<sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"></highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!parser-&gt;in_sentence)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"></highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">byte</highlight><highlight class="normal"><sp/>==<sp/></highlight><highlight class="charliteral">&apos;\n&apos;</highlight><highlight class="normal"><sp/>||<sp/></highlight><highlight class="keywordtype">byte</highlight><highlight class="normal"><sp/>==<sp/></highlight><highlight class="charliteral">&apos;\r&apos;</highlight><highlight class="normal">)<sp/>{</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(parser-&gt;pos<sp/>&gt;<sp/>6)<sp/>{</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>parser-&gt;buf[parser-&gt;pos]<sp/>=<sp/></highlight><highlight class="charliteral">&apos;\0&apos;</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="syn__nmea_8c_1ae91d4afae616474251f04783d0087b32" kindref="member">syn_nmea_validate</ref>(parser-&gt;buf))<sp/>{</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(out_sentence<sp/>!=<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>strcpy(out_sentence,<sp/>parser-&gt;buf);</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>parser-&gt;in_sentence<sp/>=<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>parser-&gt;pos<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>parser-&gt;in_sentence<sp/>=<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>parser-&gt;pos<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"></highlight></codeline>
+<codeline lineno="99"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(parser-&gt;pos<sp/>&lt;<sp/><ref refid="syn__nmea_8h_1af8d7405b0f19648d864df8a83c931f43" kindref="member">SYN_NMEA_MAX_SENTENCE_LEN</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>parser-&gt;buf[parser-&gt;pos++]<sp/>=<sp/>byte;</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>parser-&gt;in_sentence<sp/>=<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>parser-&gt;pos<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"></highlight></codeline>
+<codeline lineno="106"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="107"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"></highlight></codeline>
+<codeline lineno="109"><highlight class="normal">uint8_t<sp/><ref refid="syn__nmea_8c_1a15b72e1d6b8b605af0c81d56c61e8f9a" kindref="member">syn_nmea_checksum</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*sentence)</highlight></codeline>
+<codeline lineno="110"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(sentence<sp/>==<sp/>NULL)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0;</highlight></codeline>
+<codeline lineno="112"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*p<sp/>=<sp/>sentence;</highlight></codeline>
+<codeline lineno="113"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(*p<sp/>==<sp/></highlight><highlight class="charliteral">&apos;$&apos;</highlight><highlight class="normal">)<sp/>p++;</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"></highlight></codeline>
+<codeline lineno="115"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>checksum<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="116"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">while</highlight><highlight class="normal"><sp/>(*p<sp/>&amp;&amp;<sp/>*p<sp/>!=<sp/></highlight><highlight class="charliteral">&apos;*&apos;</highlight><highlight class="normal"><sp/>&amp;&amp;<sp/>*p<sp/>!=<sp/></highlight><highlight class="charliteral">&apos;\r&apos;</highlight><highlight class="normal"><sp/>&amp;&amp;<sp/>*p<sp/>!=<sp/></highlight><highlight class="charliteral">&apos;\n&apos;</highlight><highlight class="normal">)<sp/>{</highlight></codeline>
+<codeline lineno="117"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>checksum<sp/>^=<sp/>(uint8_t)(*p++);</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"></highlight></codeline>
+<codeline lineno="120"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>checksum;</highlight></codeline>
+<codeline lineno="121"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="122"><highlight class="normal"></highlight></codeline>
+<codeline lineno="123"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__nmea_8c_1ae91d4afae616474251f04783d0087b32" kindref="member">syn_nmea_validate</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*sentence)</highlight></codeline>
+<codeline lineno="124"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(sentence<sp/>==<sp/>NULL<sp/>||<sp/>sentence[0]<sp/>!=<sp/></highlight><highlight class="charliteral">&apos;$&apos;</highlight><highlight class="normal">)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="126"><highlight class="normal"></highlight></codeline>
+<codeline lineno="127"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*star<sp/>=<sp/>strchr(sentence,<sp/></highlight><highlight class="charliteral">&apos;*&apos;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="128"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(star<sp/>==<sp/>NULL<sp/>||<sp/>strlen(star)<sp/>&lt;<sp/>3)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="129"><highlight class="normal"></highlight></codeline>
+<codeline lineno="130"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>expected_crc<sp/>=<sp/>(uint8_t)((hex2dec(star[1])<sp/>&lt;&lt;<sp/>4)<sp/>|<sp/>hex2dec(star[2]));</highlight></codeline>
+<codeline lineno="131"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>calc_crc<sp/><sp/><sp/><sp/><sp/>=<sp/><ref refid="syn__nmea_8c_1a15b72e1d6b8b605af0c81d56c61e8f9a" kindref="member">syn_nmea_checksum</ref>(sentence);</highlight></codeline>
+<codeline lineno="132"><highlight class="normal"></highlight></codeline>
+<codeline lineno="133"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(expected_crc<sp/>==<sp/>calc_crc);</highlight></codeline>
+<codeline lineno="134"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="135"><highlight class="normal"></highlight></codeline>
+<codeline lineno="136"><highlight class="normal"><ref refid="syn__nmea_8h_1a83599bd9c4ddbb9884cc107b618a788c" kindref="member">SYN_NMEA_SentenceType</ref><sp/><ref refid="syn__nmea_8c_1af7ee797870318fb38fa649110e5dd265" kindref="member">syn_nmea_get_type</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*sentence)</highlight></codeline>
+<codeline lineno="137"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="138"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!<ref refid="syn__nmea_8c_1ae91d4afae616474251f04783d0087b32" kindref="member">syn_nmea_validate</ref>(sentence))<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>SYN_NMEA_SENTENCE_UNKNOWN;</highlight></codeline>
+<codeline lineno="139"><highlight class="normal"></highlight></codeline>
+<codeline lineno="140"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>talker[10];</highlight></codeline>
+<codeline lineno="141"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!get_field(sentence,<sp/>0,<sp/>talker,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(talker)))<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>SYN_NMEA_SENTENCE_UNKNOWN;</highlight></codeline>
+<codeline lineno="142"><highlight class="normal"></highlight></codeline>
+<codeline lineno="143"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>len<sp/>=<sp/>strlen(talker);</highlight></codeline>
+<codeline lineno="144"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(len<sp/>&lt;<sp/>3)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>SYN_NMEA_SENTENCE_UNKNOWN;</highlight></codeline>
+<codeline lineno="145"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*type_str<sp/>=<sp/>&amp;talker[len<sp/>-<sp/>3];</highlight></codeline>
+<codeline lineno="146"><highlight class="normal"></highlight></codeline>
+<codeline lineno="147"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(strcmp(type_str,<sp/></highlight><highlight class="stringliteral">&quot;GGA&quot;</highlight><highlight class="normal">)<sp/>==<sp/>0)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>SYN_NMEA_SENTENCE_GGA;</highlight></codeline>
+<codeline lineno="148"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(strcmp(type_str,<sp/></highlight><highlight class="stringliteral">&quot;RMC&quot;</highlight><highlight class="normal">)<sp/>==<sp/>0)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>SYN_NMEA_SENTENCE_RMC;</highlight></codeline>
+<codeline lineno="149"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(strcmp(type_str,<sp/></highlight><highlight class="stringliteral">&quot;VTG&quot;</highlight><highlight class="normal">)<sp/>==<sp/>0)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>SYN_NMEA_SENTENCE_VTG;</highlight></codeline>
+<codeline lineno="150"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(strcmp(type_str,<sp/></highlight><highlight class="stringliteral">&quot;GSA&quot;</highlight><highlight class="normal">)<sp/>==<sp/>0)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>SYN_NMEA_SENTENCE_GSA;</highlight></codeline>
+<codeline lineno="151"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(strcmp(type_str,<sp/></highlight><highlight class="stringliteral">&quot;ZDA&quot;</highlight><highlight class="normal">)<sp/>==<sp/>0)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>SYN_NMEA_SENTENCE_ZDA;</highlight></codeline>
+<codeline lineno="152"><highlight class="normal"></highlight></codeline>
+<codeline lineno="153"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>SYN_NMEA_SENTENCE_UNKNOWN;</highlight></codeline>
+<codeline lineno="154"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="155"><highlight class="normal"></highlight></codeline>
+<codeline lineno="156"><highlight class="normal"></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="syn__nmea_8c_1af6c6a82f2cc80de4ce911a0b926ae4df" kindref="member">syn_nmea_parse_coord</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*nmea_coord,<sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>dir)</highlight></codeline>
+<codeline lineno="157"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="158"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(nmea_coord<sp/>==<sp/>NULL<sp/>||<sp/>strlen(nmea_coord)<sp/>&lt;<sp/>4)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0.0;</highlight></codeline>
+<codeline lineno="159"><highlight class="normal"></highlight></codeline>
+<codeline lineno="160"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>val<sp/>=<sp/>atof(nmea_coord);</highlight></codeline>
+<codeline lineno="161"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>deg<sp/>=<sp/>(double)((</highlight><highlight class="keywordtype">int</highlight><highlight class="normal">)(val<sp/>/<sp/>100.0));</highlight></codeline>
+<codeline lineno="162"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>minutes<sp/>=<sp/>val<sp/>-<sp/>(deg<sp/>*<sp/>100.0);</highlight></codeline>
+<codeline lineno="163"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>decimal<sp/>=<sp/>deg<sp/>+<sp/>(minutes<sp/>/<sp/>60.0);</highlight></codeline>
+<codeline lineno="164"><highlight class="normal"></highlight></codeline>
+<codeline lineno="165"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(dir<sp/>==<sp/></highlight><highlight class="charliteral">&apos;S&apos;</highlight><highlight class="normal"><sp/>||<sp/>dir<sp/>==<sp/></highlight><highlight class="charliteral">&apos;W&apos;</highlight><highlight class="normal">)<sp/>{</highlight></codeline>
+<codeline lineno="166"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>decimal<sp/>=<sp/>-decimal;</highlight></codeline>
+<codeline lineno="167"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="168"><highlight class="normal"></highlight></codeline>
+<codeline lineno="169"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>decimal;</highlight></codeline>
+<codeline lineno="170"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="171"><highlight class="normal"></highlight></codeline>
+<codeline lineno="172"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>parse_time(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*field,<sp/>uint8_t<sp/>*h,<sp/>uint8_t<sp/>*m,<sp/>uint8_t<sp/>*s,<sp/>uint16_t<sp/>*ms)</highlight></codeline>
+<codeline lineno="173"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="174"><highlight class="normal"><sp/><sp/><sp/><sp/>*h<sp/>=<sp/>0;<sp/>*m<sp/>=<sp/>0;<sp/>*s<sp/>=<sp/>0;<sp/>*ms<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="175"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(field<sp/>==<sp/>NULL<sp/>||<sp/>strlen(field)<sp/>&lt;<sp/>6)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="176"><highlight class="normal"></highlight></codeline>
+<codeline lineno="177"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>tmp[3]<sp/>=<sp/>{0};</highlight></codeline>
+<codeline lineno="178"><highlight class="normal"><sp/><sp/><sp/><sp/>tmp[0]<sp/>=<sp/>field[0];<sp/>tmp[1]<sp/>=<sp/>field[1];<sp/>*h<sp/>=<sp/>(uint8_t)atoi(tmp);</highlight></codeline>
+<codeline lineno="179"><highlight class="normal"><sp/><sp/><sp/><sp/>tmp[0]<sp/>=<sp/>field[2];<sp/>tmp[1]<sp/>=<sp/>field[3];<sp/>*m<sp/>=<sp/>(uint8_t)atoi(tmp);</highlight></codeline>
+<codeline lineno="180"><highlight class="normal"><sp/><sp/><sp/><sp/>tmp[0]<sp/>=<sp/>field[4];<sp/>tmp[1]<sp/>=<sp/>field[5];<sp/>*s<sp/>=<sp/>(uint8_t)atoi(tmp);</highlight></codeline>
+<codeline lineno="181"><highlight class="normal"></highlight></codeline>
+<codeline lineno="182"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*dot<sp/>=<sp/>strchr(field,<sp/></highlight><highlight class="charliteral">&apos;.&apos;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="183"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(dot<sp/>!=<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="184"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*ms<sp/>=<sp/>(uint16_t)(atof(dot)<sp/>*<sp/>1000.0);</highlight></codeline>
+<codeline lineno="185"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="186"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="187"><highlight class="normal"></highlight></codeline>
+<codeline lineno="188"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__nmea_8c_1a931f9a781cc0148f7a87c7204444b23d" kindref="member">syn_nmea_parse_gga</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*sentence,<sp/><ref refid="structSYN__NMEA__GGA" kindref="compound">SYN_NMEA_GGA</ref><sp/>*gga)</highlight></codeline>
+<codeline lineno="189"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="190"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(gga<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="191"><highlight class="normal"><sp/><sp/><sp/><sp/>memset(gga,<sp/>0,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(<ref refid="structSYN__NMEA__GGA" kindref="compound">SYN_NMEA_GGA</ref>));</highlight></codeline>
+<codeline lineno="192"><highlight class="normal"></highlight></codeline>
+<codeline lineno="193"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="syn__nmea_8c_1af7ee797870318fb38fa649110e5dd265" kindref="member">syn_nmea_get_type</ref>(sentence)<sp/>!=<sp/>SYN_NMEA_SENTENCE_GGA)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="194"><highlight class="normal"></highlight></codeline>
+<codeline lineno="195"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>f[16];</highlight></codeline>
+<codeline lineno="196"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(get_field(sentence,<sp/>1,<sp/>f,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(f)))<sp/>parse_time(f,<sp/>&amp;gga-&gt;hours,<sp/>&amp;gga-&gt;minutes,<sp/>&amp;gga-&gt;seconds,<sp/>&amp;gga-&gt;milliseconds);</highlight></codeline>
+<codeline lineno="197"><highlight class="normal"></highlight></codeline>
+<codeline lineno="198"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>lat_str[16],<sp/>lat_dir[4],<sp/>lon_str[16],<sp/>lon_dir[4];</highlight></codeline>
+<codeline lineno="199"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>has_lat<sp/>=<sp/>get_field(sentence,<sp/>2,<sp/>lat_str,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(lat_str))<sp/>&amp;&amp;<sp/>get_field(sentence,<sp/>3,<sp/>lat_dir,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(lat_dir));</highlight></codeline>
+<codeline lineno="200"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>has_lon<sp/>=<sp/>get_field(sentence,<sp/>4,<sp/>lon_str,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(lon_str))<sp/>&amp;&amp;<sp/>get_field(sentence,<sp/>5,<sp/>lon_dir,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(lon_dir));</highlight></codeline>
+<codeline lineno="201"><highlight class="normal"></highlight></codeline>
+<codeline lineno="202"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(has_lat)<sp/>gga-&gt;<ref refid="structSYN__NMEA__GGA_1a992eadfbc7b158cb84ea8a007561733a" kindref="member">latitude</ref><sp/><sp/>=<sp/><ref refid="syn__nmea_8c_1af6c6a82f2cc80de4ce911a0b926ae4df" kindref="member">syn_nmea_parse_coord</ref>(lat_str,<sp/>lat_dir[0]);</highlight></codeline>
+<codeline lineno="203"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(has_lon)<sp/>gga-&gt;<ref refid="structSYN__NMEA__GGA_1ab693006b031014c5780b8654b0ee05e7" kindref="member">longitude</ref><sp/>=<sp/><ref refid="syn__nmea_8c_1af6c6a82f2cc80de4ce911a0b926ae4df" kindref="member">syn_nmea_parse_coord</ref>(lon_str,<sp/>lon_dir[0]);</highlight></codeline>
+<codeline lineno="204"><highlight class="normal"></highlight></codeline>
+<codeline lineno="205"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(get_field(sentence,<sp/>6,<sp/>f,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(f)))<sp/>gga-&gt;fix_quality<sp/>=<sp/>(<ref refid="syn__nmea_8h_1ae2a439a294ce6ae3c3438bbca3da0085" kindref="member">SYN_NMEA_FixQuality</ref>)atoi(f);</highlight></codeline>
+<codeline lineno="206"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(get_field(sentence,<sp/>7,<sp/>f,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(f)))<sp/>gga-&gt;num_satellites<sp/>=<sp/>(uint8_t)atoi(f);</highlight></codeline>
+<codeline lineno="207"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(get_field(sentence,<sp/>8,<sp/>f,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(f)))<sp/>gga-&gt;hdop<sp/>=<sp/>(float)atof(f);</highlight></codeline>
+<codeline lineno="208"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(get_field(sentence,<sp/>9,<sp/>f,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(f)))<sp/>gga-&gt;altitude_m<sp/>=<sp/>(</highlight><highlight class="keywordtype">float</highlight><highlight class="normal">)atof(f);</highlight></codeline>
+<codeline lineno="209"><highlight class="normal"></highlight></codeline>
+<codeline lineno="210"><highlight class="normal"><sp/><sp/><sp/><sp/>gga-&gt;valid<sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="211"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="212"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="213"><highlight class="normal"></highlight></codeline>
+<codeline lineno="214"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__nmea_8c_1a8cf06ad4e17855c3ce3c769673b1bfb5" kindref="member">syn_nmea_parse_rmc</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*sentence,<sp/><ref refid="structSYN__NMEA__RMC" kindref="compound">SYN_NMEA_RMC</ref><sp/>*rmc)</highlight></codeline>
+<codeline lineno="215"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="216"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(rmc<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="217"><highlight class="normal"><sp/><sp/><sp/><sp/>memset(rmc,<sp/>0,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(<ref refid="structSYN__NMEA__RMC" kindref="compound">SYN_NMEA_RMC</ref>));</highlight></codeline>
+<codeline lineno="218"><highlight class="normal"></highlight></codeline>
+<codeline lineno="219"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="syn__nmea_8c_1af7ee797870318fb38fa649110e5dd265" kindref="member">syn_nmea_get_type</ref>(sentence)<sp/>!=<sp/>SYN_NMEA_SENTENCE_RMC)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="220"><highlight class="normal"></highlight></codeline>
+<codeline lineno="221"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>f[16];</highlight></codeline>
+<codeline lineno="222"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(get_field(sentence,<sp/>1,<sp/>f,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(f)))<sp/>parse_time(f,<sp/>&amp;rmc-&gt;hours,<sp/>&amp;rmc-&gt;minutes,<sp/>&amp;rmc-&gt;seconds,<sp/>&amp;rmc-&gt;milliseconds);</highlight></codeline>
+<codeline lineno="223"><highlight class="normal"></highlight></codeline>
+<codeline lineno="224"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(get_field(sentence,<sp/>2,<sp/>f,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(f)))<sp/>rmc-&gt;<ref refid="structSYN__NMEA__RMC_1a99d50173112e5eec7479fb691a075f9c" kindref="member">status_valid</ref><sp/>=<sp/>(f[0]<sp/>==<sp/></highlight><highlight class="charliteral">&apos;A&apos;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="225"><highlight class="normal"></highlight></codeline>
+<codeline lineno="226"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>lat_str[16],<sp/>lat_dir[4],<sp/>lon_str[16],<sp/>lon_dir[4];</highlight></codeline>
+<codeline lineno="227"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>has_lat<sp/>=<sp/>get_field(sentence,<sp/>3,<sp/>lat_str,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(lat_str))<sp/>&amp;&amp;<sp/>get_field(sentence,<sp/>4,<sp/>lat_dir,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(lat_dir));</highlight></codeline>
+<codeline lineno="228"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>has_lon<sp/>=<sp/>get_field(sentence,<sp/>5,<sp/>lon_str,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(lon_str))<sp/>&amp;&amp;<sp/>get_field(sentence,<sp/>6,<sp/>lon_dir,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(lon_dir));</highlight></codeline>
+<codeline lineno="229"><highlight class="normal"></highlight></codeline>
+<codeline lineno="230"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(has_lat)<sp/>rmc-&gt;<ref refid="structSYN__NMEA__RMC_1ac355adc72ce48e99fd0f600bb6959b71" kindref="member">latitude</ref><sp/><sp/>=<sp/><ref refid="syn__nmea_8c_1af6c6a82f2cc80de4ce911a0b926ae4df" kindref="member">syn_nmea_parse_coord</ref>(lat_str,<sp/>lat_dir[0]);</highlight></codeline>
+<codeline lineno="231"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(has_lon)<sp/>rmc-&gt;<ref refid="structSYN__NMEA__RMC_1a1a74777c96ad8a021b96ba755ad99441" kindref="member">longitude</ref><sp/>=<sp/><ref refid="syn__nmea_8c_1af6c6a82f2cc80de4ce911a0b926ae4df" kindref="member">syn_nmea_parse_coord</ref>(lon_str,<sp/>lon_dir[0]);</highlight></codeline>
+<codeline lineno="232"><highlight class="normal"></highlight></codeline>
+<codeline lineno="233"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(get_field(sentence,<sp/>7,<sp/>f,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(f)))<sp/>rmc-&gt;<ref refid="structSYN__NMEA__RMC_1ad2983ed8056838f4a94dd570297e6e96" kindref="member">speed_knots</ref><sp/>=<sp/>(float)atof(f);</highlight></codeline>
+<codeline lineno="234"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(get_field(sentence,<sp/>8,<sp/>f,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(f)))<sp/>rmc-&gt;<ref refid="structSYN__NMEA__RMC_1a120c65cf846e692cda85ce486e85d5b1" kindref="member">course_deg</ref><sp/><sp/>=<sp/>(</highlight><highlight class="keywordtype">float</highlight><highlight class="normal">)atof(f);</highlight></codeline>
+<codeline lineno="235"><highlight class="normal"></highlight></codeline>
+<codeline lineno="236"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(get_field(sentence,<sp/>9,<sp/>f,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(f))<sp/>&amp;&amp;<sp/>strlen(f)<sp/>&gt;=<sp/>6)<sp/>{</highlight></codeline>
+<codeline lineno="237"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>tmp[3]<sp/>=<sp/>{0};</highlight></codeline>
+<codeline lineno="238"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tmp[0]<sp/>=<sp/>f[0];<sp/>tmp[1]<sp/>=<sp/>f[1];<sp/>rmc-&gt;day<sp/><sp/><sp/>=<sp/>(uint8_t)atoi(tmp);</highlight></codeline>
+<codeline lineno="239"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tmp[0]<sp/>=<sp/>f[2];<sp/>tmp[1]<sp/>=<sp/>f[3];<sp/>rmc-&gt;month<sp/>=<sp/>(uint8_t)atoi(tmp);</highlight></codeline>
+<codeline lineno="240"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tmp[0]<sp/>=<sp/>f[4];<sp/>tmp[1]<sp/>=<sp/>f[5];</highlight></codeline>
+<codeline lineno="241"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint16_t<sp/>yr<sp/>=<sp/>(uint16_t)atoi(tmp);</highlight></codeline>
+<codeline lineno="242"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rmc-&gt;year<sp/>=<sp/>(yr<sp/>&gt;=<sp/>70)<sp/>?<sp/>(uint16_t)(1900<sp/>+<sp/>yr)<sp/>:<sp/>(uint16_t)(2000<sp/>+<sp/>yr);</highlight></codeline>
+<codeline lineno="243"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="244"><highlight class="normal"></highlight></codeline>
+<codeline lineno="245"><highlight class="normal"><sp/><sp/><sp/><sp/>rmc-&gt;valid<sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="246"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="247"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="248"><highlight class="normal"></highlight></codeline>
+<codeline lineno="249"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__nmea_8c_1a694990975eabe7864801eeec7cc6ef72" kindref="member">syn_nmea_parse_vtg</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*sentence,<sp/><ref refid="structSYN__NMEA__VTG" kindref="compound">SYN_NMEA_VTG</ref><sp/>*vtg)</highlight></codeline>
+<codeline lineno="250"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="251"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(vtg<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="252"><highlight class="normal"><sp/><sp/><sp/><sp/>memset(vtg,<sp/>0,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(<ref refid="structSYN__NMEA__VTG" kindref="compound">SYN_NMEA_VTG</ref>));</highlight></codeline>
+<codeline lineno="253"><highlight class="normal"></highlight></codeline>
+<codeline lineno="254"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="syn__nmea_8c_1af7ee797870318fb38fa649110e5dd265" kindref="member">syn_nmea_get_type</ref>(sentence)<sp/>!=<sp/>SYN_NMEA_SENTENCE_VTG)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="255"><highlight class="normal"></highlight></codeline>
+<codeline lineno="256"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>f[16];</highlight></codeline>
+<codeline lineno="257"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(get_field(sentence,<sp/>1,<sp/>f,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(f)))<sp/>vtg-&gt;course_true_deg<sp/>=<sp/>(float)atof(f);</highlight></codeline>
+<codeline lineno="258"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(get_field(sentence,<sp/>5,<sp/>f,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(f)))<sp/>vtg-&gt;speed_knots<sp/><sp/><sp/><sp/><sp/>=<sp/>(</highlight><highlight class="keywordtype">float</highlight><highlight class="normal">)atof(f);</highlight></codeline>
+<codeline lineno="259"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(get_field(sentence,<sp/>7,<sp/>f,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(f)))<sp/>vtg-&gt;speed_kph<sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>(float)atof(f);</highlight></codeline>
+<codeline lineno="260"><highlight class="normal"></highlight></codeline>
+<codeline lineno="261"><highlight class="normal"><sp/><sp/><sp/><sp/>vtg-&gt;valid<sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="262"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="263"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="264"><highlight class="normal"></highlight></codeline>
+<codeline lineno="265"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__nmea_8c_1a1e3ae1f66d901052cb6dc9d76e147f0f" kindref="member">syn_nmea_parse_gsa</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*sentence,<sp/><ref refid="structSYN__NMEA__GSA" kindref="compound">SYN_NMEA_GSA</ref><sp/>*gsa)</highlight></codeline>
+<codeline lineno="266"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="267"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(gsa<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="268"><highlight class="normal"><sp/><sp/><sp/><sp/>memset(gsa,<sp/>0,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(<ref refid="structSYN__NMEA__GSA" kindref="compound">SYN_NMEA_GSA</ref>));</highlight></codeline>
+<codeline lineno="269"><highlight class="normal"></highlight></codeline>
+<codeline lineno="270"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="syn__nmea_8c_1af7ee797870318fb38fa649110e5dd265" kindref="member">syn_nmea_get_type</ref>(sentence)<sp/>!=<sp/>SYN_NMEA_SENTENCE_GSA)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="271"><highlight class="normal"></highlight></codeline>
+<codeline lineno="272"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>f[16];</highlight></codeline>
+<codeline lineno="273"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(get_field(sentence,<sp/>1,<sp/>f,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(f)))<sp/>gsa-&gt;<ref refid="structSYN__NMEA__GSA_1a0511df13285089de5f2c747d66957606" kindref="member">mode</ref><sp/><sp/><sp/><sp/><sp/>=<sp/>f[0];</highlight></codeline>
+<codeline lineno="274"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(get_field(sentence,<sp/>2,<sp/>f,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(f)))<sp/>gsa-&gt;<ref refid="structSYN__NMEA__GSA_1aa3a9869f5d68dc3061429a7edafeecaf" kindref="member">fix_type</ref><sp/>=<sp/>(uint8_t)atoi(f);</highlight></codeline>
+<codeline lineno="275"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(get_field(sentence,<sp/>15,<sp/>f,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(f)))<sp/>gsa-&gt;pdop<sp/><sp/><sp/><sp/>=<sp/>(</highlight><highlight class="keywordtype">float</highlight><highlight class="normal">)atof(f);</highlight></codeline>
+<codeline lineno="276"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(get_field(sentence,<sp/>16,<sp/>f,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(f)))<sp/>gsa-&gt;hdop<sp/><sp/><sp/><sp/>=<sp/>(float)atof(f);</highlight></codeline>
+<codeline lineno="277"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(get_field(sentence,<sp/>17,<sp/>f,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(f)))<sp/>gsa-&gt;vdop<sp/><sp/><sp/><sp/>=<sp/>(</highlight><highlight class="keywordtype">float</highlight><highlight class="normal">)atof(f);</highlight></codeline>
+<codeline lineno="278"><highlight class="normal"></highlight></codeline>
+<codeline lineno="279"><highlight class="normal"><sp/><sp/><sp/><sp/>gsa-&gt;valid<sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="280"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="281"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="282"><highlight class="normal"></highlight></codeline>
+<codeline lineno="283"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__nmea_8c_1a695a2b669d55c480429ae5c2d75a8d8a" kindref="member">syn_nmea_parse_zda</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*sentence,<sp/><ref refid="structSYN__NMEA__ZDA" kindref="compound">SYN_NMEA_ZDA</ref><sp/>*zda)</highlight></codeline>
+<codeline lineno="284"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="285"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(zda<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="286"><highlight class="normal"><sp/><sp/><sp/><sp/>memset(zda,<sp/>0,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(<ref refid="structSYN__NMEA__ZDA" kindref="compound">SYN_NMEA_ZDA</ref>));</highlight></codeline>
+<codeline lineno="287"><highlight class="normal"></highlight></codeline>
+<codeline lineno="288"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="syn__nmea_8c_1af7ee797870318fb38fa649110e5dd265" kindref="member">syn_nmea_get_type</ref>(sentence)<sp/>!=<sp/>SYN_NMEA_SENTENCE_ZDA)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="289"><highlight class="normal"></highlight></codeline>
+<codeline lineno="290"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>f[16];</highlight></codeline>
+<codeline lineno="291"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(get_field(sentence,<sp/>1,<sp/>f,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(f)))<sp/>parse_time(f,<sp/>&amp;zda-&gt;hours,<sp/>&amp;zda-&gt;minutes,<sp/>&amp;zda-&gt;seconds,<sp/>&amp;zda-&gt;milliseconds);</highlight></codeline>
+<codeline lineno="292"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(get_field(sentence,<sp/>2,<sp/>f,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(f)))<sp/>zda-&gt;day<sp/><sp/><sp/>=<sp/>(uint8_t)atoi(f);</highlight></codeline>
+<codeline lineno="293"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(get_field(sentence,<sp/>3,<sp/>f,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(f)))<sp/>zda-&gt;month<sp/>=<sp/>(uint8_t)atoi(f);</highlight></codeline>
+<codeline lineno="294"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(get_field(sentence,<sp/>4,<sp/>f,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(f)))<sp/>zda-&gt;year<sp/><sp/>=<sp/>(uint16_t)atoi(f);</highlight></codeline>
+<codeline lineno="295"><highlight class="normal"></highlight></codeline>
+<codeline lineno="296"><highlight class="normal"><sp/><sp/><sp/><sp/>zda-&gt;valid<sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="297"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="298"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="299"><highlight class="normal"></highlight></codeline>
+<codeline lineno="300"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_USE_NMEA<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/proto/syn_nmea.c"/>
+  </compounddef>
+</doxygen>

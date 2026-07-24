@@ -1,0 +1,576 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__dds_8h" kind="file" language="C++">
+    <compoundname>syn_dds.h</compoundname>
+    <includes refid="syn__defs_8h" local="yes">../common/syn_defs.h</includes>
+    <includes refid="syn__qmath_8h" local="yes">../util/syn_qmath.h</includes>
+    <includes local="no">stdint.h</includes>
+    <includes local="no">stddef.h</includes>
+    <includes local="no">stdbool.h</includes>
+    <includedby refid="syn__dds_8c" local="yes">src/syntropic/dsp/syn_dds.c</includedby>
+    <includedby refid="syntropic_8h" local="yes">src/syntropic/syntropic.h</includedby>
+    <incdepgraph>
+      <node id="2">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/dsp/syn_dds.h</label>
+        <link refid="syn__dds_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>../util/syn_qmath.h</label>
+        <link refid="syn__qmath_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>stdbool.h</label>
+      </node>
+      <node id="4">
+        <label>stddef.h</label>
+      </node>
+      <node id="3">
+        <label>stdint.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="2">
+        <label>src/syntropic/dsp/syn_dds.c</label>
+        <link refid="syn__dds_8c"/>
+      </node>
+      <node id="1">
+        <label>src/syntropic/dsp/syn_dds.h</label>
+        <link refid="syn__dds_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>src/syntropic/syntropic.h</label>
+        <link refid="syntropic_8h"/>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="structSYN__DDS" prot="public">SYN_DDS</innerclass>
+    <sectiondef kind="enum">
+      <memberdef kind="enum" id="syn__dds_8h_1a0e6016bcad7e0c92a5c5edb03ae17428" prot="public" static="no" strong="no">
+        <type></type>
+        <name>SYN_DDS_Waveform</name>
+        <enumvalue id="syn__dds_8h_1a0e6016bcad7e0c92a5c5edb03ae17428a4a60ac5ebd7572500bea0b053fae06da" prot="public">
+          <name>SYN_DDS_SINE</name>
+          <initializer>= 0</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Sine wave (via Taylor/Polynomial approximation) </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__dds_8h_1a0e6016bcad7e0c92a5c5edb03ae17428af571d2115794fa2f4e9a08d580f28229" prot="public">
+          <name>SYN_DDS_TRIANGLE</name>
+          <initializer>= 1</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Symmetric Triangle wave <linebreak/>
+ </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__dds_8h_1a0e6016bcad7e0c92a5c5edb03ae17428a64577b52a744f2d118d853b44a623238" prot="public">
+          <name>SYN_DDS_SAWTOOTH</name>
+          <initializer>= 2</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Ramp / Sawtooth wave <linebreak/>
+ </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__dds_8h_1a0e6016bcad7e0c92a5c5edb03ae17428ae1c97d5d9543a5ef0f38f51a95d754cb" prot="public">
+          <name>SYN_DDS_SQUARE</name>
+          <initializer>= 3</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Square / PWM wave <linebreak/>
+ </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__dds_8h_1a0e6016bcad7e0c92a5c5edb03ae17428a0590746186eea554924c323983cf6c85" prot="public">
+          <name>SYN_DDS_NOISE</name>
+          <initializer>= 4</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Pseudorandom White Noise <linebreak/>
+ </para>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>DDS Waveform Types. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/dsp/syn_dds.h" line="24" column="1" bodyfile="src/syntropic/dsp/syn_dds.h" bodystart="24" bodyend="30"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__dds_8h_1aa70d3dcba92669d910b1d4aa744a89b6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_dds_init</definition>
+        <argsstring>(SYN_DDS *dds, SYN_DDS_Waveform type, uint32_t freq_hz, uint32_t sample_rate_hz)</argsstring>
+        <name>syn_dds_init</name>
+        <param>
+          <type><ref refid="structSYN__DDS" kindref="compound">SYN_DDS</ref> *</type>
+          <declname>dds</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__dds_8h_1a0e6016bcad7e0c92a5c5edb03ae17428" kindref="member">SYN_DDS_Waveform</ref></type>
+          <declname>type</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>freq_hz</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>sample_rate_hz</declname>
+        </param>
+        <briefdescription>
+<para>Initialize a DDS Generator instance. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>dds</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to DDS instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>type</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Waveform type. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>freq_hz</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Target output frequency in Hz. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>sample_rate_hz</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Sample rate in Hz. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, or SYN_INVALID_PARAM. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/dsp/syn_dds.h" line="53" column="12" bodyfile="src/syntropic/dsp/syn_dds.c" bodystart="10" bodyend="22" declfile="src/syntropic/dsp/syn_dds.h" declline="53" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__dds_8h_1a953e9a98820d83fb0a176de3a1ff85f8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_dds_set_freq</definition>
+        <argsstring>(SYN_DDS *dds, uint32_t freq_hz, uint32_t sample_rate_hz)</argsstring>
+        <name>syn_dds_set_freq</name>
+        <param>
+          <type><ref refid="structSYN__DDS" kindref="compound">SYN_DDS</ref> *</type>
+          <declname>dds</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>freq_hz</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>sample_rate_hz</declname>
+        </param>
+        <briefdescription>
+<para>Set the output frequency of the DDS generator. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>dds</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to DDS instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>freq_hz</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output frequency in Hz. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>sample_rate_hz</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Sample rate in Hz. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/dsp/syn_dds.h" line="62" column="12" bodyfile="src/syntropic/dsp/syn_dds.c" bodystart="24" bodyend="33" declfile="src/syntropic/dsp/syn_dds.h" declline="62" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__dds_8h_1ab551510cd77f18287b503d5d1474a069" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_dds_set_gain</definition>
+        <argsstring>(SYN_DDS *dds, q16_t amplitude, q16_t offset)</argsstring>
+        <name>syn_dds_set_gain</name>
+        <param>
+          <type><ref refid="structSYN__DDS" kindref="compound">SYN_DDS</ref> *</type>
+          <declname>dds</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+          <declname>amplitude</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+          <declname>offset</declname>
+        </param>
+        <briefdescription>
+<para>Set the peak amplitude and DC offset. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>dds</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to DDS instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>amplitude</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Q16.16 peak amplitude. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>offset</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Q16.16 DC offset. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/dsp/syn_dds.h" line="71" column="12" bodyfile="src/syntropic/dsp/syn_dds.c" bodystart="35" bodyend="43" declfile="src/syntropic/dsp/syn_dds.h" declline="71" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__dds_8h_1a485486814667193326108ae22f723c8c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_dds_set_duty</definition>
+        <argsstring>(SYN_DDS *dds, float duty_pct)</argsstring>
+        <name>syn_dds_set_duty</name>
+        <param>
+          <type><ref refid="structSYN__DDS" kindref="compound">SYN_DDS</ref> *</type>
+          <declname>dds</declname>
+        </param>
+        <param>
+          <type>float</type>
+          <declname>duty_pct</declname>
+        </param>
+        <briefdescription>
+<para>Set PWM duty cycle (for SYN_DDS_SQUARE mode). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>dds</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to DDS instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>duty_pct</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Duty cycle percentage (0.0 to 100.0%). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/dsp/syn_dds.h" line="79" column="12" bodyfile="src/syntropic/dsp/syn_dds.c" bodystart="45" bodyend="55" declfile="src/syntropic/dsp/syn_dds.h" declline="79" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__dds_8h_1a6578a3686d9fcbf2525864a69fba26d9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+        <definition>q16_t syn_dds_step</definition>
+        <argsstring>(SYN_DDS *dds)</argsstring>
+        <name>syn_dds_step</name>
+        <param>
+          <type><ref refid="structSYN__DDS" kindref="compound">SYN_DDS</ref> *</type>
+          <declname>dds</declname>
+        </param>
+        <briefdescription>
+<para>Compute and advance the DDS generator by one sample step. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>dds</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to DDS instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Generated sample in Q16.16 fixed-point format. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/dsp/syn_dds.h" line="86" column="7" bodyfile="src/syntropic/dsp/syn_dds.c" bodystart="57" bodyend="112" declfile="src/syntropic/dsp/syn_dds.h" declline="86" declcolumn="7"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__dds_8h_1a9caa946bb3f170b5fff09a976a576600" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_dds_fill_q16</definition>
+        <argsstring>(SYN_DDS *dds, q16_t *buf, size_t count)</argsstring>
+        <name>syn_dds_fill_q16</name>
+        <param>
+          <type><ref refid="structSYN__DDS" kindref="compound">SYN_DDS</ref> *</type>
+          <declname>dds</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref> *</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>count</declname>
+        </param>
+        <briefdescription>
+<para>Fill a Q16.16 buffer with consecutive DDS samples. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>dds</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to DDS instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output Q16.16 buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>count</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of samples to generate. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/dsp/syn_dds.h" line="95" column="12" bodyfile="src/syntropic/dsp/syn_dds.c" bodystart="114" bodyend="123" declfile="src/syntropic/dsp/syn_dds.h" declline="95" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__dds_8h_1ab2e81ba0148d26d7109431129eff0122" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_dds_fill_u16</definition>
+        <argsstring>(SYN_DDS *dds, uint16_t *buf, size_t count, uint16_t dac_center, uint16_t dac_span)</argsstring>
+        <name>syn_dds_fill_u16</name>
+        <param>
+          <type><ref refid="structSYN__DDS" kindref="compound">SYN_DDS</ref> *</type>
+          <declname>dds</declname>
+        </param>
+        <param>
+          <type>uint16_t *</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>count</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>dac_center</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>dac_span</declname>
+        </param>
+        <briefdescription>
+<para>Fill a unsigned 16-bit integer buffer for DAC DMA output. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>dds</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to DDS instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output 16-bit DAC buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>count</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of samples. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dac_center</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Center DAC value (e.g. 2048 for 12-bit DAC). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dac_span</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Maximum peak-to-peak DAC range (e.g. 2047). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/dsp/syn_dds.h" line="106" column="12" bodyfile="src/syntropic/dsp/syn_dds.c" bodystart="125" bodyend="138" declfile="src/syntropic/dsp/syn_dds.h" declline="106" declcolumn="12"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Direct Digital Synthesis (DDS) Waveform Synthesizer. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Implements a zero-malloc Q16.16 fixed-point DDS signal generator supporting Sine, Triangle, Sawtooth, Square/PWM, and Noise waveforms. </para>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_DDS_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_DDS_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../common/syn_defs.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../util/syn_qmath.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stddef.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight></codeline>
+<codeline lineno="24" refid="syn__dds_8h_1a0e6016bcad7e0c92a5c5edb03ae17428" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="25" refid="syn__dds_8h_1a0e6016bcad7e0c92a5c5edb03ae17428a4a60ac5ebd7572500bea0b053fae06da" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__dds_8h_1a0e6016bcad7e0c92a5c5edb03ae17428a4a60ac5ebd7572500bea0b053fae06da" kindref="member">SYN_DDS_SINE</ref><sp/><sp/><sp/><sp/><sp/>=<sp/>0,<sp/></highlight></codeline>
+<codeline lineno="26" refid="syn__dds_8h_1a0e6016bcad7e0c92a5c5edb03ae17428af571d2115794fa2f4e9a08d580f28229" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__dds_8h_1a0e6016bcad7e0c92a5c5edb03ae17428af571d2115794fa2f4e9a08d580f28229" kindref="member">SYN_DDS_TRIANGLE</ref><sp/>=<sp/>1,<sp/></highlight></codeline>
+<codeline lineno="27" refid="syn__dds_8h_1a0e6016bcad7e0c92a5c5edb03ae17428a64577b52a744f2d118d853b44a623238" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__dds_8h_1a0e6016bcad7e0c92a5c5edb03ae17428a64577b52a744f2d118d853b44a623238" kindref="member">SYN_DDS_SAWTOOTH</ref><sp/>=<sp/>2,<sp/></highlight></codeline>
+<codeline lineno="28" refid="syn__dds_8h_1a0e6016bcad7e0c92a5c5edb03ae17428ae1c97d5d9543a5ef0f38f51a95d754cb" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__dds_8h_1a0e6016bcad7e0c92a5c5edb03ae17428ae1c97d5d9543a5ef0f38f51a95d754cb" kindref="member">SYN_DDS_SQUARE</ref><sp/><sp/><sp/>=<sp/>3,<sp/></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__dds_8h_1a0e6016bcad7e0c92a5c5edb03ae17428a0590746186eea554924c323983cf6c85" kindref="member">SYN_DDS_NOISE</ref><sp/><sp/><sp/><sp/>=<sp/>4<sp/><sp/></highlight></codeline>
+<codeline lineno="30" refid="syn__dds_8h_1a0e6016bcad7e0c92a5c5edb03ae17428a0590746186eea554924c323983cf6c85" refkind="member"><highlight class="normal">}<sp/><ref refid="syn__dds_8h_1a0e6016bcad7e0c92a5c5edb03ae17428" kindref="member">SYN_DDS_Waveform</ref>;</highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight></codeline>
+<codeline lineno="35" refid="structSYN__DDS" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="36" refid="structSYN__DDS_1a755f97d36cd64aca24bc444c61990c98" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__dds_8h_1a0e6016bcad7e0c92a5c5edb03ae17428" kindref="member">SYN_DDS_Waveform</ref><sp/><ref refid="structSYN__DDS_1a755f97d36cd64aca24bc444c61990c98" kindref="member">type</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="37" refid="structSYN__DDS_1aa93f3476c66890b5bd3bb1ffa0e01d90" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__DDS_1aa93f3476c66890b5bd3bb1ffa0e01d90" kindref="member">phase</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="38" refid="structSYN__DDS_1a9dd53e73daf3784d32e26d5639f7b330" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__DDS_1a9dd53e73daf3784d32e26d5639f7b330" kindref="member">phase_step</ref>;<sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="39" refid="structSYN__DDS_1a9c9174b9b3a2a2b61af5bcdf51c6029c" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__DDS_1a9c9174b9b3a2a2b61af5bcdf51c6029c" kindref="member">amplitude</ref>;<sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="40" refid="structSYN__DDS_1a4e1ec6fe1315c68c224b8b94fc36eca2" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__DDS_1a4e1ec6fe1315c68c224b8b94fc36eca2" kindref="member">offset</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="41" refid="structSYN__DDS_1a1e7ca865bbe80544bcb303dd0b9824db" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__DDS_1a1e7ca865bbe80544bcb303dd0b9824db" kindref="member">duty_q16</ref>;<sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="42" refid="structSYN__DDS_1a93da227c29ccc531bd418af62e23740d" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__DDS_1a93da227c29ccc531bd418af62e23740d" kindref="member">rand_state</ref>;<sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="43"><highlight class="normal">}<sp/><ref refid="structSYN__DDS" kindref="compound">SYN_DDS</ref>;</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__dds_8h_1aa70d3dcba92669d910b1d4aa744a89b6" kindref="member">syn_dds_init</ref>(<ref refid="structSYN__DDS" kindref="compound">SYN_DDS</ref><sp/>*dds,<sp/><ref refid="syn__dds_8h_1a0e6016bcad7e0c92a5c5edb03ae17428" kindref="member">SYN_DDS_Waveform</ref><sp/>type,<sp/>uint32_t<sp/>freq_hz,<sp/>uint32_t<sp/>sample_rate_hz);</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"></highlight></codeline>
+<codeline lineno="62"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__dds_8h_1a953e9a98820d83fb0a176de3a1ff85f8" kindref="member">syn_dds_set_freq</ref>(<ref refid="structSYN__DDS" kindref="compound">SYN_DDS</ref><sp/>*dds,<sp/>uint32_t<sp/>freq_hz,<sp/>uint32_t<sp/>sample_rate_hz);</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"></highlight></codeline>
+<codeline lineno="71"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__dds_8h_1ab551510cd77f18287b503d5d1474a069" kindref="member">syn_dds_set_gain</ref>(<ref refid="structSYN__DDS" kindref="compound">SYN_DDS</ref><sp/>*dds,<sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>amplitude,<sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>offset);</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"></highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__dds_8h_1a485486814667193326108ae22f723c8c" kindref="member">syn_dds_set_duty</ref>(<ref refid="structSYN__DDS" kindref="compound">SYN_DDS</ref><sp/>*dds,<sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>duty_pct);</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"></highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/><ref refid="syn__dds_8h_1a6578a3686d9fcbf2525864a69fba26d9" kindref="member">syn_dds_step</ref>(<ref refid="structSYN__DDS" kindref="compound">SYN_DDS</ref><sp/>*dds);</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"></highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__dds_8h_1a9caa946bb3f170b5fff09a976a576600" kindref="member">syn_dds_fill_q16</ref>(<ref refid="structSYN__DDS" kindref="compound">SYN_DDS</ref><sp/>*dds,<sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>*buf,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>count);</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"></highlight></codeline>
+<codeline lineno="106"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__dds_8h_1ab2e81ba0148d26d7109431129eff0122" kindref="member">syn_dds_fill_u16</ref>(<ref refid="structSYN__DDS" kindref="compound">SYN_DDS</ref><sp/>*dds,<sp/>uint16_t<sp/>*buf,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>count,<sp/>uint16_t<sp/>dac_center,<sp/>uint16_t<sp/>dac_span);</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"></highlight></codeline>
+<codeline lineno="108"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="109"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="110"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="111"><highlight class="normal"></highlight></codeline>
+<codeline lineno="112"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_DDS_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/dsp/syn_dds.h"/>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,465 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__errlog_8c" kind="file" language="C++">
+    <compoundname>syn_errlog.c</compoundname>
+    <includes refid="syn__errlog_8h" local="yes">syn_errlog.h</includes>
+    <includes refid="syn__assert_8h" local="yes">../util/syn_assert.h</includes>
+    <includes refid="syn__port__system_8h" local="yes">../port/syn_port_system.h</includes>
+    <includes local="no">string.h</includes>
+    <incdepgraph>
+      <node id="8">
+        <label>../common/syn_compiler.h</label>
+        <link refid="syn__compiler_8h"/>
+      </node>
+      <node id="3">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="9">
+        <label>../port/syn_port_system.h</label>
+        <link refid="syn__port__system_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/system/syn_errlog.c</label>
+        <link refid="syn__errlog_8c"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>syn_errlog.h</label>
+        <link refid="syn__errlog_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>../util/syn_assert.h</label>
+        <link refid="syn__assert_8h"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>stdbool.h</label>
+      </node>
+      <node id="5">
+        <label>stddef.h</label>
+      </node>
+      <node id="4">
+        <label>stdint.h</label>
+      </node>
+      <node id="10">
+        <label>string.h</label>
+      </node>
+    </incdepgraph>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__errlog_8c_1ae375421330061e0e0c8acb13910b48c8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_errlog_init</definition>
+        <argsstring>(SYN_ErrLog *log, SYN_ErrEntry *entries, size_t capacity, uint32_t boot_count)</argsstring>
+        <name>syn_errlog_init</name>
+        <param>
+          <type><ref refid="structSYN__ErrLog" kindref="compound">SYN_ErrLog</ref> *</type>
+          <declname>log</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__ErrEntry" kindref="compound">SYN_ErrEntry</ref> *</type>
+          <declname>entries</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>capacity</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>boot_count</declname>
+        </param>
+        <briefdescription>
+<para>Initialize the error log. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>log</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Error log instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>entries</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Caller-provided entry buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>capacity</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of entries in buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>boot_count</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Current boot count (from boot manager or 0). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/system/syn_errlog.c" line="18" column="6" bodyfile="src/syntropic/system/syn_errlog.c" bodystart="18" bodyend="32"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__errlog_8c_1a3d982c5a6ca2ded81a16b87cc139f30f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_errlog_record</definition>
+        <argsstring>(SYN_ErrLog *log, uint16_t code, SYN_ErrSeverity severity, uint32_t context)</argsstring>
+        <name>syn_errlog_record</name>
+        <param>
+          <type><ref refid="structSYN__ErrLog" kindref="compound">SYN_ErrLog</ref> *</type>
+          <declname>log</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>code</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__errlog_8h_1aedfaf77999e34bb2ed005704ccc91933" kindref="member">SYN_ErrSeverity</ref></type>
+          <declname>severity</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>context</declname>
+        </param>
+        <briefdescription>
+<para>Record an error. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>log</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Error log. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>code</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Application-defined error code. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>severity</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Severity level. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>context</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Application-defined context value. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/system/syn_errlog.c" line="34" column="6" bodyfile="src/syntropic/system/syn_errlog.c" bodystart="34" bodyend="49"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__errlog_8c_1aae357c4cc426d1976606acca444c80d8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_errlog_read</definition>
+        <argsstring>(const SYN_ErrLog *log, size_t index, SYN_ErrEntry *out)</argsstring>
+        <name>syn_errlog_read</name>
+        <param>
+          <type>const <ref refid="structSYN__ErrLog" kindref="compound">SYN_ErrLog</ref> *</type>
+          <declname>log</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>index</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__ErrEntry" kindref="compound">SYN_ErrEntry</ref> *</type>
+          <declname>out</declname>
+        </param>
+        <briefdescription>
+<para>Read an error entry by index (0 = oldest available). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>log</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Error log. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>index</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Entry index. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output entry. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if entry exists. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/system/syn_errlog.c" line="51" column="6" bodyfile="src/syntropic/system/syn_errlog.c" bodystart="51" bodyend="69"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__errlog_8c_1a7ce65a6834effa242f3fe42ae3cbe3de" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_errlog_clear</definition>
+        <argsstring>(SYN_ErrLog *log)</argsstring>
+        <name>syn_errlog_clear</name>
+        <param>
+          <type><ref refid="structSYN__ErrLog" kindref="compound">SYN_ErrLog</ref> *</type>
+          <declname>log</declname>
+        </param>
+        <briefdescription>
+<para>Clear all entries. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>log</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Error log. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/system/syn_errlog.c" line="71" column="6" bodyfile="src/syntropic/system/syn_errlog.c" bodystart="71" bodyend="76"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__errlog_8c_1a6cbe8c1d3207bcf7496050dafa52ba43" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>const <ref refid="structSYN__ErrEntry" kindref="compound">SYN_ErrEntry</ref> *</type>
+        <definition>const SYN_ErrEntry * syn_errlog_latest</definition>
+        <argsstring>(const SYN_ErrLog *log)</argsstring>
+        <name>syn_errlog_latest</name>
+        <param>
+          <type>const <ref refid="structSYN__ErrLog" kindref="compound">SYN_ErrLog</ref> *</type>
+          <declname>log</declname>
+        </param>
+        <briefdescription>
+<para>Get the most recent error entry. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>log</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Error log. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Pointer to latest entry, or NULL if empty. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/system/syn_errlog.c" line="78" column="20" bodyfile="src/syntropic/system/syn_errlog.c" bodystart="78" bodyend="84"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__errlog_8c_1aa53d74af3e3ce7497884fafffe691b28" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>size_t</type>
+        <definition>size_t syn_errlog_count_severity</definition>
+        <argsstring>(const SYN_ErrLog *log, SYN_ErrSeverity severity)</argsstring>
+        <name>syn_errlog_count_severity</name>
+        <param>
+          <type>const <ref refid="structSYN__ErrLog" kindref="compound">SYN_ErrLog</ref> *</type>
+          <declname>log</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__errlog_8h_1aedfaf77999e34bb2ed005704ccc91933" kindref="member">SYN_ErrSeverity</ref></type>
+          <declname>severity</declname>
+        </param>
+        <briefdescription>
+<para>Count errors with a specific severity level. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>log</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Error log. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>severity</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Severity to count. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Number of matching entries. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/system/syn_errlog.c" line="86" column="8" bodyfile="src/syntropic/system/syn_errlog.c" bodystart="86" bodyend="102"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Persistent error registry implementation. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#if<sp/>__has_include(&quot;syn_config.h&quot;)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/>#include<sp/>&quot;syn_config.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="4"><highlight class="normal"></highlight></codeline>
+<codeline lineno="5"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>!defined(SYN_USE_ERRLOG)<sp/>||<sp/>SYN_USE_ERRLOG</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__errlog_8h" kindref="compound">syn_errlog.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../util/syn_assert.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../port/syn_port_system.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;string.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__errlog_8c_1ae375421330061e0e0c8acb13910b48c8" kindref="member">syn_errlog_init</ref>(<ref refid="structSYN__ErrLog" kindref="compound">SYN_ErrLog</ref><sp/>*log,<sp/><ref refid="structSYN__ErrEntry" kindref="compound">SYN_ErrEntry</ref><sp/>*entries,</highlight></codeline>
+<codeline lineno="19"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>capacity,<sp/>uint32_t<sp/>boot_count)</highlight></codeline>
+<codeline lineno="20"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="21"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(log<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="22"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(entries<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="23"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(capacity<sp/>&gt;<sp/>0);</highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"><sp/><sp/><sp/><sp/>memset(log,<sp/>0,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(*log));</highlight></codeline>
+<codeline lineno="26"><highlight class="normal"><sp/><sp/><sp/><sp/>log-&gt;<ref refid="structSYN__ErrLog_1ab96f75de5576932d9b3bf612f65bb47b" kindref="member">entries</ref><sp/><sp/><sp/><sp/>=<sp/>entries;</highlight></codeline>
+<codeline lineno="27"><highlight class="normal"><sp/><sp/><sp/><sp/>log-&gt;<ref refid="structSYN__ErrLog_1aba11ffa17f637d16aabdab6a5d111667" kindref="member">capacity</ref><sp/><sp/><sp/>=<sp/>capacity;</highlight></codeline>
+<codeline lineno="28"><highlight class="normal"><sp/><sp/><sp/><sp/>log-&gt;<ref refid="structSYN__ErrLog_1a7278c9f07d616344ee65c2f08f2143b3" kindref="member">boot_count</ref><sp/>=<sp/>boot_count;</highlight></codeline>
+<codeline lineno="29"><highlight class="normal"><sp/><sp/><sp/><sp/>log-&gt;<ref refid="structSYN__ErrLog_1aef9257bd38750a44b8c9718867f209b3" kindref="member">enabled</ref><sp/><sp/><sp/><sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight></codeline>
+<codeline lineno="31"><highlight class="normal"><sp/><sp/><sp/><sp/>memset(entries,<sp/>0,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(<ref refid="structSYN__ErrEntry" kindref="compound">SYN_ErrEntry</ref>)<sp/>*<sp/>capacity);</highlight></codeline>
+<codeline lineno="32"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__errlog_8c_1a3d982c5a6ca2ded81a16b87cc139f30f" kindref="member">syn_errlog_record</ref>(<ref refid="structSYN__ErrLog" kindref="compound">SYN_ErrLog</ref><sp/>*log,<sp/>uint16_t<sp/>code,</highlight></codeline>
+<codeline lineno="35"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__errlog_8h_1aedfaf77999e34bb2ed005704ccc91933" kindref="member">SYN_ErrSeverity</ref><sp/>severity,<sp/>uint32_t<sp/>context)</highlight></codeline>
+<codeline lineno="36"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="37"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!log-&gt;<ref refid="structSYN__ErrLog_1aef9257bd38750a44b8c9718867f209b3" kindref="member">enabled</ref>)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structSYN__ErrEntry" kindref="compound">SYN_ErrEntry</ref><sp/>*e<sp/>=<sp/>&amp;log-&gt;<ref refid="structSYN__ErrLog_1ab96f75de5576932d9b3bf612f65bb47b" kindref="member">entries</ref>[log-&gt;<ref refid="structSYN__ErrLog_1aa142e50e04fb4d61ff0cbd839d7e2f98" kindref="member">head</ref>];</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"><sp/><sp/><sp/><sp/>e-&gt;<ref refid="structSYN__ErrEntry_1ab80265294759a99d838335d111afdfcc" kindref="member">code</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>code;</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"><sp/><sp/><sp/><sp/>e-&gt;<ref refid="structSYN__ErrEntry_1a2126d39114434db971ad1e3542b574d4" kindref="member">severity</ref><sp/><sp/><sp/>=<sp/>(uint8_t)severity;</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"><sp/><sp/><sp/><sp/>e-&gt;<ref refid="structSYN__ErrEntry_1a292e160842c97377766e7965f3bb3219" kindref="member">context</ref><sp/><sp/><sp/><sp/>=<sp/>context;</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"><sp/><sp/><sp/><sp/>e-&gt;<ref refid="structSYN__ErrEntry_1a578197c9bb3d657505f2cbfdb85782a2" kindref="member">timestamp</ref><sp/><sp/>=<sp/><ref refid="syn__port__system_8h_1a6c7d98587814b2c0d9c09da02d318873" kindref="member">syn_port_get_tick_ms</ref>();</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"><sp/><sp/><sp/><sp/>e-&gt;<ref refid="structSYN__ErrEntry_1aabd4c16dbb476c9e50b7466c4d8e7e4e" kindref="member">boot_count</ref><sp/>=<sp/>log-&gt;<ref refid="structSYN__ErrLog_1a7278c9f07d616344ee65c2f08f2143b3" kindref="member">boot_count</ref>;</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/><sp/><sp/>log-&gt;<ref refid="structSYN__ErrLog_1aa142e50e04fb4d61ff0cbd839d7e2f98" kindref="member">head</ref>++;</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(log-&gt;<ref refid="structSYN__ErrLog_1aa142e50e04fb4d61ff0cbd839d7e2f98" kindref="member">head</ref><sp/>&gt;=<sp/>log-&gt;<ref refid="structSYN__ErrLog_1aba11ffa17f637d16aabdab6a5d111667" kindref="member">capacity</ref>)<sp/>log-&gt;<ref refid="structSYN__ErrLog_1aa142e50e04fb4d61ff0cbd839d7e2f98" kindref="member">head</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/><sp/><sp/>log-&gt;<ref refid="structSYN__ErrLog_1a4f982323eceb36a212d44714298a220e" kindref="member">total_count</ref>++;</highlight></codeline>
+<codeline lineno="49"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"></highlight></codeline>
+<codeline lineno="51"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__errlog_8c_1aae357c4cc426d1976606acca444c80d8" kindref="member">syn_errlog_read</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__ErrLog" kindref="compound">SYN_ErrLog</ref><sp/>*log,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>index,</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__ErrEntry" kindref="compound">SYN_ErrEntry</ref><sp/>*out)</highlight></codeline>
+<codeline lineno="53"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(out<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"></highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>avail<sp/>=<sp/><ref refid="syn__errlog_8h_1a5fbcbefcb237bcb95ec3c5077888e27e" kindref="member">syn_errlog_available</ref>(log);</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(index<sp/>&gt;=<sp/>avail)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"></highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>start;</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(log-&gt;<ref refid="structSYN__ErrLog_1a4f982323eceb36a212d44714298a220e" kindref="member">total_count</ref><sp/>&lt;=<sp/>log-&gt;<ref refid="structSYN__ErrLog_1aba11ffa17f637d16aabdab6a5d111667" kindref="member">capacity</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>start<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>start<sp/>=<sp/>log-&gt;<ref refid="structSYN__ErrLog_1aa142e50e04fb4d61ff0cbd839d7e2f98" kindref="member">head</ref>;<sp/></highlight><highlight class="comment">/*<sp/>oldest<sp/>entry<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"></highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>actual<sp/>=<sp/>(start<sp/>+<sp/>index)<sp/>%<sp/>log-&gt;<ref refid="structSYN__ErrLog_1aba11ffa17f637d16aabdab6a5d111667" kindref="member">capacity</ref>;</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/><sp/><sp/>*out<sp/>=<sp/>log-&gt;<ref refid="structSYN__ErrLog_1ab96f75de5576932d9b3bf612f65bb47b" kindref="member">entries</ref>[actual];</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="69"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"></highlight></codeline>
+<codeline lineno="71"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__errlog_8c_1a7ce65a6834effa242f3fe42ae3cbe3de" kindref="member">syn_errlog_clear</ref>(<ref refid="structSYN__ErrLog" kindref="compound">SYN_ErrLog</ref><sp/>*log)</highlight></codeline>
+<codeline lineno="72"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><sp/><sp/><sp/><sp/>log-&gt;<ref refid="structSYN__ErrLog_1aa142e50e04fb4d61ff0cbd839d7e2f98" kindref="member">head</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"><sp/><sp/><sp/><sp/>log-&gt;<ref refid="structSYN__ErrLog_1a4f982323eceb36a212d44714298a220e" kindref="member">total_count</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/><sp/><sp/>memset(log-&gt;<ref refid="structSYN__ErrLog_1ab96f75de5576932d9b3bf612f65bb47b" kindref="member">entries</ref>,<sp/>0,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(<ref refid="structSYN__ErrEntry" kindref="compound">SYN_ErrEntry</ref>)<sp/>*<sp/>log-&gt;<ref refid="structSYN__ErrLog_1aba11ffa17f637d16aabdab6a5d111667" kindref="member">capacity</ref>);</highlight></codeline>
+<codeline lineno="76"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"></highlight></codeline>
+<codeline lineno="78"><highlight class="normal"></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__ErrEntry" kindref="compound">SYN_ErrEntry</ref><sp/>*<ref refid="syn__errlog_8c_1a6cbe8c1d3207bcf7496050dafa52ba43" kindref="member">syn_errlog_latest</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__ErrLog" kindref="compound">SYN_ErrLog</ref><sp/>*log)</highlight></codeline>
+<codeline lineno="79"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(log-&gt;<ref refid="structSYN__ErrLog_1a4f982323eceb36a212d44714298a220e" kindref="member">total_count</ref><sp/>==<sp/>0)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>NULL;</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"></highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>idx<sp/>=<sp/>(log-&gt;<ref refid="structSYN__ErrLog_1aa142e50e04fb4d61ff0cbd839d7e2f98" kindref="member">head</ref><sp/>==<sp/>0)<sp/>?<sp/>log-&gt;<ref refid="structSYN__ErrLog_1aba11ffa17f637d16aabdab6a5d111667" kindref="member">capacity</ref><sp/>-<sp/>1<sp/>:<sp/>log-&gt;head<sp/>-<sp/>1;</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>&amp;log-&gt;<ref refid="structSYN__ErrLog_1ab96f75de5576932d9b3bf612f65bb47b" kindref="member">entries</ref>[idx];</highlight></codeline>
+<codeline lineno="84"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"></highlight></codeline>
+<codeline lineno="86"><highlight class="normal"></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="syn__errlog_8c_1aa53d74af3e3ce7497884fafffe691b28" kindref="member">syn_errlog_count_severity</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__ErrLog" kindref="compound">SYN_ErrLog</ref><sp/>*log,</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__errlog_8h_1aedfaf77999e34bb2ed005704ccc91933" kindref="member">SYN_ErrSeverity</ref><sp/>severity)</highlight></codeline>
+<codeline lineno="88"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>avail<sp/>=<sp/><ref refid="syn__errlog_8h_1a5fbcbefcb237bcb95ec3c5077888e27e" kindref="member">syn_errlog_available</ref>(log);</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>count<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>i;</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"></highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>start<sp/>=<sp/>(log-&gt;<ref refid="structSYN__ErrLog_1a4f982323eceb36a212d44714298a220e" kindref="member">total_count</ref><sp/>&lt;=<sp/>log-&gt;<ref refid="structSYN__ErrLog_1aba11ffa17f637d16aabdab6a5d111667" kindref="member">capacity</ref>)<sp/>?<sp/>0<sp/>:<sp/>log-&gt;head;</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"></highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>avail;<sp/>i++)<sp/>{</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>idx<sp/>=<sp/>(start<sp/>+<sp/>i)<sp/>%<sp/>log-&gt;<ref refid="structSYN__ErrLog_1aba11ffa17f637d16aabdab6a5d111667" kindref="member">capacity</ref>;</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(log-&gt;<ref refid="structSYN__ErrLog_1ab96f75de5576932d9b3bf612f65bb47b" kindref="member">entries</ref>[idx].<ref refid="structSYN__ErrEntry_1a2126d39114434db971ad1e3542b574d4" kindref="member">severity</ref><sp/>==<sp/>(uint8_t)severity)<sp/>{</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>count++;</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>count;</highlight></codeline>
+<codeline lineno="102"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"></highlight></codeline>
+<codeline lineno="104"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_USE_ERRLOG<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/system/syn_errlog.c"/>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,320 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__kalman_8c" kind="file" language="C++">
+    <compoundname>syn_kalman.c</compoundname>
+    <includes refid="syn__kalman_8h" local="yes">syn_kalman.h</includes>
+    <includes refid="syn__assert_8h" local="yes">../util/syn_assert.h</includes>
+    <includes local="no">string.h</includes>
+    <incdepgraph>
+      <node id="10">
+        <label>../common/syn_compiler.h</label>
+        <link refid="syn__compiler_8h"/>
+      </node>
+      <node id="7">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/dsp/syn_kalman.c</label>
+        <link refid="syn__kalman_8c"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>syn_kalman.h</label>
+        <link refid="syn__kalman_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="9">
+        <label>../util/syn_assert.h</label>
+        <link refid="syn__assert_8h"/>
+        <childnode refid="10" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>../util/syn_matrix.h</label>
+        <link refid="syn__matrix_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>syn_qmath.h</label>
+        <link refid="syn__qmath_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>stdbool.h</label>
+      </node>
+      <node id="6">
+        <label>stddef.h</label>
+      </node>
+      <node id="5">
+        <label>stdint.h</label>
+      </node>
+      <node id="11">
+        <label>string.h</label>
+      </node>
+    </incdepgraph>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__kalman_8c_1ad03ca93379c411cd33ca83fafa2376ca" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_kalman_init</definition>
+        <argsstring>(SYN_Kalman *kf, const SYN_Kalman_Config *cfg)</argsstring>
+        <name>syn_kalman_init</name>
+        <param>
+          <type><ref refid="structSYN__Kalman" kindref="compound">SYN_Kalman</ref> *</type>
+          <declname>kf</declname>
+        </param>
+        <param>
+          <type>const <ref refid="structSYN__Kalman__Config" kindref="compound">SYN_Kalman_Config</ref> *</type>
+          <declname>cfg</declname>
+        </param>
+        <briefdescription>
+<para>Initialize the Kalman filter. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>The caller must have populated cfg-&gt;F, cfg-&gt;H, cfg-&gt;Q, cfg-&gt;R, and initial cfg-&gt;x and cfg-&gt;P before calling this. Scratch matrices must be assigned via SYN_KALMAN_SCRATCH_ASSIGN.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>kf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Kalman filter instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>cfg</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Configuration (caller-owned, must outlive kf). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_INVALID_PARAM on dimension mismatch. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/dsp/syn_kalman.c" line="20" column="12" bodyfile="src/syntropic/dsp/syn_kalman.c" bodystart="20" bodyend="39"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__kalman_8c_1a1aafada7cee05b3098ebeb5da03c60dd" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_kalman_predict</definition>
+        <argsstring>(SYN_Kalman *kf)</argsstring>
+        <name>syn_kalman_predict</name>
+        <param>
+          <type><ref refid="structSYN__Kalman" kindref="compound">SYN_Kalman</ref> *</type>
+          <declname>kf</declname>
+        </param>
+        <briefdescription>
+<para>Predict step: propagate state and covariance forward. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>After this call:<itemizedlist>
+<listitem><para>x̂⁻ = F · x̂ (state predicted forward)</para>
+</listitem><listitem><para>P⁻ = F · P · Fᵀ + Q (covariance grows)</para>
+</listitem></itemizedlist>
+</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>kf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Kalman filter instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/dsp/syn_kalman.c" line="41" column="6" bodyfile="src/syntropic/dsp/syn_kalman.c" bodystart="41" bodyend="57"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__kalman_8c_1aba28bccaa0c7c20b4751f9abbba82852" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_kalman_update</definition>
+        <argsstring>(SYN_Kalman *kf, const SYN_Matrix *z)</argsstring>
+        <name>syn_kalman_update</name>
+        <param>
+          <type><ref refid="structSYN__Kalman" kindref="compound">SYN_Kalman</ref> *</type>
+          <declname>kf</declname>
+        </param>
+        <param>
+          <type>const <ref refid="structSYN__Matrix" kindref="compound">SYN_Matrix</ref> *</type>
+          <declname>z</declname>
+        </param>
+        <briefdescription>
+<para>Update step: incorporate a measurement. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>After this call:<itemizedlist>
+<listitem><para>x̂ is corrected toward the measurement</para>
+</listitem><listitem><para>P is reduced (uncertainty decreased)</para>
+</listitem></itemizedlist>
+</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>kf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Kalman filter instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>z</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Measurement vector (n_meas × 1). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_ERROR if innovation covariance is singular. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/dsp/syn_kalman.c" line="59" column="12" bodyfile="src/syntropic/dsp/syn_kalman.c" bodystart="59" bodyend="113"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>General-purpose fixed-point Kalman filter implementation. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>All operations use caller-owned <ref refid="structSYN__Matrix" kindref="compound">SYN_Matrix</ref> instances. No heap allocation. Uses int64_t accumulator matrix multiply for full Q16 precision. </para>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#if<sp/>__has_include(&quot;syn_config.h&quot;)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/>#include<sp/>&quot;syn_config.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="4"><highlight class="normal"></highlight></codeline>
+<codeline lineno="5"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>!defined(SYN_USE_KALMAN)<sp/>||<sp/>SYN_USE_KALMAN</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__kalman_8h" kindref="compound">syn_kalman.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../util/syn_assert.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;string.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__kalman_8c_1ad03ca93379c411cd33ca83fafa2376ca" kindref="member">syn_kalman_init</ref>(<ref refid="structSYN__Kalman" kindref="compound">SYN_Kalman</ref><sp/>*kf,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__Kalman__Config" kindref="compound">SYN_Kalman_Config</ref><sp/>*cfg)</highlight></codeline>
+<codeline lineno="21"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="22"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(kf<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="23"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(cfg<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>ns<sp/>=<sp/>cfg-&gt;<ref refid="structSYN__Kalman__Config_1a36b0bf74173891cd4292a08337cfcb1a" kindref="member">n_state</ref>;</highlight></codeline>
+<codeline lineno="26"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>nm<sp/>=<sp/>cfg-&gt;<ref refid="structSYN__Kalman__Config_1aa885288b0120134bb6897f3386842e55" kindref="member">n_meas</ref>;</highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Validate<sp/>dimensions<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(cfg-&gt;<ref refid="structSYN__Kalman__Config_1aa8567119463c15cdb80353d6c8749a30" kindref="member">x</ref>-&gt;<ref refid="structSYN__Matrix_1a2c7941d2e17da7a51eeefe896f3f594e" kindref="member">rows</ref><sp/>!=<sp/>ns<sp/>||<sp/>cfg-&gt;<ref refid="structSYN__Kalman__Config_1aa8567119463c15cdb80353d6c8749a30" kindref="member">x</ref>-&gt;<ref refid="structSYN__Matrix_1a73c88f9b971e0c313b6549e649ce6483" kindref="member">cols</ref><sp/>!=<sp/>1)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="30"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(cfg-&gt;<ref refid="structSYN__Kalman__Config_1a14fc0c28b1ecd202542d182e3124adc6" kindref="member">P</ref>-&gt;<ref refid="structSYN__Matrix_1a2c7941d2e17da7a51eeefe896f3f594e" kindref="member">rows</ref><sp/>!=<sp/>ns<sp/>||<sp/>cfg-&gt;<ref refid="structSYN__Kalman__Config_1a14fc0c28b1ecd202542d182e3124adc6" kindref="member">P</ref>-&gt;<ref refid="structSYN__Matrix_1a73c88f9b971e0c313b6549e649ce6483" kindref="member">cols</ref><sp/>!=<sp/>ns)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="31"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(cfg-&gt;<ref refid="structSYN__Kalman__Config_1a3a9dd366108524f7a89748b31ba2a5f2" kindref="member">F</ref>-&gt;<ref refid="structSYN__Matrix_1a2c7941d2e17da7a51eeefe896f3f594e" kindref="member">rows</ref><sp/>!=<sp/>ns<sp/>||<sp/>cfg-&gt;<ref refid="structSYN__Kalman__Config_1a3a9dd366108524f7a89748b31ba2a5f2" kindref="member">F</ref>-&gt;<ref refid="structSYN__Matrix_1a73c88f9b971e0c313b6549e649ce6483" kindref="member">cols</ref><sp/>!=<sp/>ns)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="32"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(cfg-&gt;<ref refid="structSYN__Kalman__Config_1a0ebcac1acb694c62fa870fcf9185392c" kindref="member">Q</ref>-&gt;<ref refid="structSYN__Matrix_1a2c7941d2e17da7a51eeefe896f3f594e" kindref="member">rows</ref><sp/>!=<sp/>ns<sp/>||<sp/>cfg-&gt;<ref refid="structSYN__Kalman__Config_1a0ebcac1acb694c62fa870fcf9185392c" kindref="member">Q</ref>-&gt;<ref refid="structSYN__Matrix_1a73c88f9b971e0c313b6549e649ce6483" kindref="member">cols</ref><sp/>!=<sp/>ns)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="33"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(cfg-&gt;<ref refid="structSYN__Kalman__Config_1af8122278ea8950a2cf546401ad1c9447" kindref="member">H</ref>-&gt;<ref refid="structSYN__Matrix_1a2c7941d2e17da7a51eeefe896f3f594e" kindref="member">rows</ref><sp/>!=<sp/>nm<sp/>||<sp/>cfg-&gt;<ref refid="structSYN__Kalman__Config_1af8122278ea8950a2cf546401ad1c9447" kindref="member">H</ref>-&gt;<ref refid="structSYN__Matrix_1a73c88f9b971e0c313b6549e649ce6483" kindref="member">cols</ref><sp/>!=<sp/>ns)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="34"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(cfg-&gt;<ref refid="structSYN__Kalman__Config_1af4b64657b340c3fe924b515718fdd408" kindref="member">R</ref>-&gt;<ref refid="structSYN__Matrix_1a2c7941d2e17da7a51eeefe896f3f594e" kindref="member">rows</ref><sp/>!=<sp/>nm<sp/>||<sp/>cfg-&gt;<ref refid="structSYN__Kalman__Config_1af4b64657b340c3fe924b515718fdd408" kindref="member">R</ref>-&gt;<ref refid="structSYN__Matrix_1a73c88f9b971e0c313b6549e649ce6483" kindref="member">cols</ref><sp/>!=<sp/>nm)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"><sp/><sp/><sp/><sp/>kf-&gt;<ref refid="structSYN__Kalman_1ad25d4148886becbc183eed18cbf77b9b" kindref="member">cfg</ref><sp/>=<sp/>cfg;</highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="39"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__kalman_8c_1a1aafada7cee05b3098ebeb5da03c60dd" kindref="member">syn_kalman_predict</ref>(<ref refid="structSYN__Kalman" kindref="compound">SYN_Kalman</ref><sp/>*kf)</highlight></codeline>
+<codeline lineno="42"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(kf<sp/>!=<sp/>NULL<sp/>&amp;&amp;<sp/>kf-&gt;<ref refid="structSYN__Kalman_1ad25d4148886becbc183eed18cbf77b9b" kindref="member">cfg</ref><sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__Kalman__Config" kindref="compound">SYN_Kalman_Config</ref><sp/>*c<sp/>=<sp/>kf-&gt;<ref refid="structSYN__Kalman_1ad25d4148886becbc183eed18cbf77b9b" kindref="member">cfg</ref>;</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"></highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>x̂⁻<sp/>=<sp/>F<sp/>·<sp/>x̂<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__matrix_8c_1adf86ff2ab8bd25c16e55379ffa75dfdd" kindref="member">syn_matrix_mul</ref>(c-&gt;<ref refid="structSYN__Kalman__Config_1a3a9dd366108524f7a89748b31ba2a5f2" kindref="member">F</ref>,<sp/>c-&gt;<ref refid="structSYN__Kalman__Config_1aa8567119463c15cdb80353d6c8749a30" kindref="member">x</ref>,<sp/>kf-&gt;<ref refid="structSYN__Kalman_1a144ce570740f6f0337b62f3106a00720" kindref="member">temp_n1</ref>);</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__matrix_8c_1a470262c46687ffc380390233507536de" kindref="member">syn_matrix_copy</ref>(c-&gt;<ref refid="structSYN__Kalman__Config_1aa8567119463c15cdb80353d6c8749a30" kindref="member">x</ref>,<sp/>kf-&gt;<ref refid="structSYN__Kalman_1a144ce570740f6f0337b62f3106a00720" kindref="member">temp_n1</ref>);</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"></highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>P⁻<sp/>=<sp/>F<sp/>·<sp/>P<sp/>·<sp/>Fᵀ<sp/>+<sp/>Q<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__matrix_8c_1adf86ff2ab8bd25c16e55379ffa75dfdd" kindref="member">syn_matrix_mul</ref>(c-&gt;<ref refid="structSYN__Kalman__Config_1a3a9dd366108524f7a89748b31ba2a5f2" kindref="member">F</ref>,<sp/>c-&gt;<ref refid="structSYN__Kalman__Config_1a14fc0c28b1ecd202542d182e3124adc6" kindref="member">P</ref>,<sp/>kf-&gt;<ref refid="structSYN__Kalman_1a22b50a95bcc2dd82286b9735a94eedad" kindref="member">temp_nn_1</ref>);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>F·P<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__matrix_8c_1aa3c8b7a1f151ccff38ebf4300537d61c" kindref="member">syn_matrix_transpose</ref>(c-&gt;<ref refid="structSYN__Kalman__Config_1a3a9dd366108524f7a89748b31ba2a5f2" kindref="member">F</ref>,<sp/>kf-&gt;<ref refid="structSYN__Kalman_1a3aa8efadb663f8e438928bad481f2dad" kindref="member">temp_nn_2</ref>);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Fᵀ<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__matrix_8c_1adf86ff2ab8bd25c16e55379ffa75dfdd" kindref="member">syn_matrix_mul</ref>(kf-&gt;<ref refid="structSYN__Kalman_1a22b50a95bcc2dd82286b9735a94eedad" kindref="member">temp_nn_1</ref>,<sp/>kf-&gt;<ref refid="structSYN__Kalman_1a3aa8efadb663f8e438928bad481f2dad" kindref="member">temp_nn_2</ref>,<sp/>c-&gt;<ref refid="structSYN__Kalman__Config_1a14fc0c28b1ecd202542d182e3124adc6" kindref="member">P</ref>);<sp/><sp/></highlight><highlight class="comment">/*<sp/>F·P·Fᵀ<sp/>→<sp/>P<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__matrix_8c_1a454d468ef6f8c423d3d47568b166a098" kindref="member">syn_matrix_add</ref>(c-&gt;<ref refid="structSYN__Kalman__Config_1a14fc0c28b1ecd202542d182e3124adc6" kindref="member">P</ref>,<sp/>c-&gt;<ref refid="structSYN__Kalman__Config_1a0ebcac1acb694c62fa870fcf9185392c" kindref="member">Q</ref>,<sp/>kf-&gt;<ref refid="structSYN__Kalman_1a22b50a95bcc2dd82286b9735a94eedad" kindref="member">temp_nn_1</ref>);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>P<sp/>+<sp/>Q<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__matrix_8c_1a470262c46687ffc380390233507536de" kindref="member">syn_matrix_copy</ref>(c-&gt;<ref refid="structSYN__Kalman__Config_1a14fc0c28b1ecd202542d182e3124adc6" kindref="member">P</ref>,<sp/>kf-&gt;<ref refid="structSYN__Kalman_1a22b50a95bcc2dd82286b9735a94eedad" kindref="member">temp_nn_1</ref>);</highlight></codeline>
+<codeline lineno="57"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"></highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__kalman_8c_1aba28bccaa0c7c20b4751f9abbba82852" kindref="member">syn_kalman_update</ref>(<ref refid="structSYN__Kalman" kindref="compound">SYN_Kalman</ref><sp/>*kf,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__Matrix" kindref="compound">SYN_Matrix</ref><sp/>*z)</highlight></codeline>
+<codeline lineno="60"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(kf<sp/>!=<sp/>NULL<sp/>&amp;&amp;<sp/>z<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"></highlight></codeline>
+<codeline lineno="63"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__Kalman__Config" kindref="compound">SYN_Kalman_Config</ref><sp/>*c<sp/>=<sp/>kf-&gt;<ref refid="structSYN__Kalman_1ad25d4148886becbc183eed18cbf77b9b" kindref="member">cfg</ref>;</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>ns<sp/>=<sp/>c-&gt;<ref refid="structSYN__Kalman__Config_1a36b0bf74173891cd4292a08337cfcb1a" kindref="member">n_state</ref>;</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>nm<sp/>=<sp/>c-&gt;<ref refid="structSYN__Kalman__Config_1aa885288b0120134bb6897f3386842e55" kindref="member">n_meas</ref>;</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"></highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>──<sp/>Innovation:<sp/>y<sp/>=<sp/>z<sp/>−<sp/>H·x̂⁻<sp/>──────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__matrix_8c_1adf86ff2ab8bd25c16e55379ffa75dfdd" kindref="member">syn_matrix_mul</ref>(c-&gt;<ref refid="structSYN__Kalman__Config_1af8122278ea8950a2cf546401ad1c9447" kindref="member">H</ref>,<sp/>c-&gt;<ref refid="structSYN__Kalman__Config_1aa8567119463c15cdb80353d6c8749a30" kindref="member">x</ref>,<sp/>kf-&gt;<ref refid="structSYN__Kalman_1ae8f18557ff7f2592161b4f34052cf201" kindref="member">temp_m1</ref>);<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>H·x<sp/>→<sp/>temp_m1<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__matrix_8c_1a91d15189d13ed0e587a0ee7a66a37e4e" kindref="member">syn_matrix_sub</ref>(z,<sp/>kf-&gt;<ref refid="structSYN__Kalman_1ae8f18557ff7f2592161b4f34052cf201" kindref="member">temp_m1</ref>,<sp/>kf-&gt;<ref refid="structSYN__Kalman_1ae8f18557ff7f2592161b4f34052cf201" kindref="member">temp_m1</ref>);<sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>y<sp/>=<sp/>z<sp/>-<sp/>H·x<sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="70"><highlight class="normal"></highlight></codeline>
+<codeline lineno="71"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>──<sp/>Innovation<sp/>covariance:<sp/>S<sp/>=<sp/>H·P⁻·Hᵀ<sp/>+<sp/>R<sp/>────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="72"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__matrix_8c_1adf86ff2ab8bd25c16e55379ffa75dfdd" kindref="member">syn_matrix_mul</ref>(c-&gt;<ref refid="structSYN__Kalman__Config_1af8122278ea8950a2cf546401ad1c9447" kindref="member">H</ref>,<sp/>c-&gt;<ref refid="structSYN__Kalman__Config_1a14fc0c28b1ecd202542d182e3124adc6" kindref="member">P</ref>,<sp/>kf-&gt;<ref refid="structSYN__Kalman_1a0d903d3bbefd5b5a4d4e560b59729c4a" kindref="member">temp_mn</ref>);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>H·P<sp/><sp/>(nm×ns)<sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__matrix_8c_1aa3c8b7a1f151ccff38ebf4300537d61c" kindref="member">syn_matrix_transpose</ref>(c-&gt;<ref refid="structSYN__Kalman__Config_1af8122278ea8950a2cf546401ad1c9447" kindref="member">H</ref>,<sp/>kf-&gt;<ref refid="structSYN__Kalman_1a692ead56cac16c2d7886574f1d8b5c01" kindref="member">temp_nm</ref>);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Hᵀ<sp/><sp/><sp/>(ns×nm)<sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="74"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__matrix_8c_1adf86ff2ab8bd25c16e55379ffa75dfdd" kindref="member">syn_matrix_mul</ref>(kf-&gt;<ref refid="structSYN__Kalman_1a0d903d3bbefd5b5a4d4e560b59729c4a" kindref="member">temp_mn</ref>,<sp/>kf-&gt;<ref refid="structSYN__Kalman_1a692ead56cac16c2d7886574f1d8b5c01" kindref="member">temp_nm</ref>,<sp/>kf-&gt;<ref refid="structSYN__Kalman_1a14754ae7aa475a5b14cd686d2f0dcf5c" kindref="member">temp_mm</ref>);<sp/><sp/></highlight><highlight class="comment">/*<sp/>H·P·Hᵀ<sp/>(nm×nm)<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__matrix_8c_1a454d468ef6f8c423d3d47568b166a098" kindref="member">syn_matrix_add</ref>(kf-&gt;<ref refid="structSYN__Kalman_1a14754ae7aa475a5b14cd686d2f0dcf5c" kindref="member">temp_mm</ref>,<sp/>c-&gt;<ref refid="structSYN__Kalman__Config_1af4b64657b340c3fe924b515718fdd408" kindref="member">R</ref>,<sp/>kf-&gt;<ref refid="structSYN__Kalman_1a0949fa9e5b4f65e73ff80852cb40a3d9" kindref="member">temp_mm_2</ref>);<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>S<sp/>=<sp/>HPHᵀ<sp/>+<sp/>R<sp/><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="76"><highlight class="normal"></highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>──<sp/>S⁻¹<sp/>────────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/>inv_st<sp/>=<sp/><ref refid="syn__matrix_8c_1a3d181d40485bda7852f894799d6eccde" kindref="member">syn_matrix_inv</ref>(kf-&gt;<ref refid="structSYN__Kalman_1a0949fa9e5b4f65e73ff80852cb40a3d9" kindref="member">temp_mm_2</ref>,<sp/>kf-&gt;<ref refid="structSYN__Kalman_1a14754ae7aa475a5b14cd686d2f0dcf5c" kindref="member">temp_mm</ref>);</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(inv_st<sp/>!=<sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00acd5d2701b7cfa9fb446640ecbeb19fc9" kindref="member">SYN_ERROR</ref>;</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>temp_mm<sp/>=<sp/>S⁻¹<sp/>(nm<sp/>×<sp/>nm)<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="81"><highlight class="normal"></highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>──<sp/>Kalman<sp/>gain:<sp/>K<sp/>=<sp/>P·Hᵀ·S⁻¹<sp/>────────────────────────────────────</highlight></codeline>
+<codeline lineno="83"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/>*</highlight></codeline>
+<codeline lineno="84"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/>*<sp/>temp_nm<sp/>already<sp/>holds<sp/>Hᵀ<sp/>(ns<sp/>×<sp/>nm).</highlight></codeline>
+<codeline lineno="85"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/>*<sp/>We<sp/>compute<sp/>K<sp/>in<sp/>two<sp/>steps<sp/>to<sp/>avoid<sp/>aliasing:</highlight></codeline>
+<codeline lineno="86"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/>*<sp/><sp/><sp/>1.<sp/>Hᵀ·S⁻¹<sp/>→<sp/>(ns×nm)(nm×nm)<sp/>=<sp/>(ns×nm),<sp/>store<sp/>on<sp/>stack<sp/>as<sp/>K</highlight></codeline>
+<codeline lineno="87"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/>*<sp/><sp/><sp/>2.<sp/>K_final<sp/>=<sp/>P<sp/>·<sp/>K_partial<sp/>→<sp/>(ns×ns)(ns×nm)<sp/>=<sp/>(ns×nm)</highlight></codeline>
+<codeline lineno="88"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/>*</highlight></codeline>
+<codeline lineno="89"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/>*<sp/>K<sp/>is<sp/>at<sp/>most<sp/>SYN_KALMAN_MAX_STATE<sp/>×<sp/>SYN_KALMAN_MAX_MEAS</highlight></codeline>
+<codeline lineno="90"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/>*<sp/>elements.<sp/>For<sp/>a<sp/>6-state<sp/>4-measurement<sp/>filter<sp/>this<sp/>is<sp/>24<sp/>×<sp/>4<sp/>=<sp/>96<sp/>bytes.</highlight></codeline>
+<codeline lineno="91"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>k_buf[<ref refid="syn__kalman_8h_1a563a2ef03fb91e97f1886e70b4d88722" kindref="member">SYN_KALMAN_MAX_STATE</ref><sp/>*<sp/><ref refid="syn__kalman_8h_1ae958c62084ebae6e4723051c7a6334ff" kindref="member">SYN_KALMAN_MAX_MEAS</ref>];</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structSYN__Matrix" kindref="compound">SYN_Matrix</ref><sp/>K_partial<sp/>=<sp/>{<sp/>k_buf,<sp/>ns,<sp/>nm<sp/>};</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structSYN__Matrix" kindref="compound">SYN_Matrix</ref><sp/><ref refid="syn__sha256_8c_1a22c6551e88df4c5c42fce3d0641adb64" kindref="member">K</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>{<sp/>k_buf,<sp/>ns,<sp/>nm<sp/>};</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"></highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__matrix_8c_1adf86ff2ab8bd25c16e55379ffa75dfdd" kindref="member">syn_matrix_mul</ref>(kf-&gt;<ref refid="structSYN__Kalman_1a692ead56cac16c2d7886574f1d8b5c01" kindref="member">temp_nm</ref>,<sp/>kf-&gt;<ref refid="structSYN__Kalman_1a14754ae7aa475a5b14cd686d2f0dcf5c" kindref="member">temp_mm</ref>,<sp/>&amp;K_partial);<sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Hᵀ·S⁻¹<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__matrix_8c_1adf86ff2ab8bd25c16e55379ffa75dfdd" kindref="member">syn_matrix_mul</ref>(c-&gt;<ref refid="structSYN__Kalman__Config_1a14fc0c28b1ecd202542d182e3124adc6" kindref="member">P</ref>,<sp/>&amp;K_partial,<sp/>kf-&gt;<ref refid="structSYN__Kalman_1a692ead56cac16c2d7886574f1d8b5c01" kindref="member">temp_nm</ref>);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>P·Hᵀ·S⁻¹<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="98"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__matrix_8c_1a470262c46687ffc380390233507536de" kindref="member">syn_matrix_copy</ref>(&amp;<ref refid="syn__sha256_8c_1a22c6551e88df4c5c42fce3d0641adb64" kindref="member">K</ref>,<sp/>kf-&gt;<ref refid="structSYN__Kalman_1a692ead56cac16c2d7886574f1d8b5c01" kindref="member">temp_nm</ref>);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>K<sp/>final<sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="99"><highlight class="normal"></highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>──<sp/>State<sp/>update:<sp/>x̂<sp/>=<sp/>x̂⁻<sp/>+<sp/>K·y<sp/>────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="101"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__matrix_8c_1adf86ff2ab8bd25c16e55379ffa75dfdd" kindref="member">syn_matrix_mul</ref>(&amp;<ref refid="syn__sha256_8c_1a22c6551e88df4c5c42fce3d0641adb64" kindref="member">K</ref>,<sp/>kf-&gt;<ref refid="structSYN__Kalman_1ae8f18557ff7f2592161b4f34052cf201" kindref="member">temp_m1</ref>,<sp/>kf-&gt;<ref refid="structSYN__Kalman_1a144ce570740f6f0337b62f3106a00720" kindref="member">temp_n1</ref>);<sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>K·y<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__matrix_8c_1a454d468ef6f8c423d3d47568b166a098" kindref="member">syn_matrix_add</ref>(c-&gt;<ref refid="structSYN__Kalman__Config_1aa8567119463c15cdb80353d6c8749a30" kindref="member">x</ref>,<sp/>kf-&gt;<ref refid="structSYN__Kalman_1a144ce570740f6f0337b62f3106a00720" kindref="member">temp_n1</ref>,<sp/>c-&gt;<ref refid="structSYN__Kalman__Config_1aa8567119463c15cdb80353d6c8749a30" kindref="member">x</ref>);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>x<sp/>+=<sp/>K·y<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="103"><highlight class="normal"></highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>──<sp/>Covariance<sp/>update:<sp/>P<sp/>=<sp/>(I<sp/>−<sp/>K·H)·P⁻<sp/>───────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__matrix_8c_1adf86ff2ab8bd25c16e55379ffa75dfdd" kindref="member">syn_matrix_mul</ref>(&amp;<ref refid="syn__sha256_8c_1a22c6551e88df4c5c42fce3d0641adb64" kindref="member">K</ref>,<sp/>c-&gt;<ref refid="structSYN__Kalman__Config_1af8122278ea8950a2cf546401ad1c9447" kindref="member">H</ref>,<sp/>kf-&gt;<ref refid="structSYN__Kalman_1a22b50a95bcc2dd82286b9735a94eedad" kindref="member">temp_nn_1</ref>);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>K·H<sp/>(ns×ns)<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="106"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__matrix_8c_1ab213c0c824b6c873d8f558bef070c6ee" kindref="member">syn_matrix_identity</ref>(kf-&gt;<ref refid="structSYN__Kalman_1a3aa8efadb663f8e438928bad481f2dad" kindref="member">temp_nn_2</ref>);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>I<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="107"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__matrix_8c_1a91d15189d13ed0e587a0ee7a66a37e4e" kindref="member">syn_matrix_sub</ref>(kf-&gt;<ref refid="structSYN__Kalman_1a3aa8efadb663f8e438928bad481f2dad" kindref="member">temp_nn_2</ref>,<sp/>kf-&gt;<ref refid="structSYN__Kalman_1a22b50a95bcc2dd82286b9735a94eedad" kindref="member">temp_nn_1</ref>,<sp/>kf-&gt;<ref refid="structSYN__Kalman_1a22b50a95bcc2dd82286b9735a94eedad" kindref="member">temp_nn_1</ref>);<sp/><sp/></highlight><highlight class="comment">/*<sp/>I<sp/>-<sp/>K·H<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="108"><highlight class="normal"></highlight></codeline>
+<codeline lineno="109"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__matrix_8c_1a470262c46687ffc380390233507536de" kindref="member">syn_matrix_copy</ref>(kf-&gt;<ref refid="structSYN__Kalman_1a3aa8efadb663f8e438928bad481f2dad" kindref="member">temp_nn_2</ref>,<sp/>c-&gt;<ref refid="structSYN__Kalman__Config_1a14fc0c28b1ecd202542d182e3124adc6" kindref="member">P</ref>);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>save<sp/>P⁻<sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="110"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__matrix_8c_1adf86ff2ab8bd25c16e55379ffa75dfdd" kindref="member">syn_matrix_mul</ref>(kf-&gt;<ref refid="structSYN__Kalman_1a22b50a95bcc2dd82286b9735a94eedad" kindref="member">temp_nn_1</ref>,<sp/>kf-&gt;<ref refid="structSYN__Kalman_1a3aa8efadb663f8e438928bad481f2dad" kindref="member">temp_nn_2</ref>,<sp/>c-&gt;<ref refid="structSYN__Kalman__Config_1a14fc0c28b1ecd202542d182e3124adc6" kindref="member">P</ref>);<sp/><sp/></highlight><highlight class="comment">/*<sp/>(I-K·H)·P⁻<sp/>→<sp/>P<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="111"><highlight class="normal"></highlight></codeline>
+<codeline lineno="112"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="113"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"></highlight></codeline>
+<codeline lineno="115"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_USE_KALMAN<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/dsp/syn_kalman.c"/>
+  </compounddef>
+</doxygen>

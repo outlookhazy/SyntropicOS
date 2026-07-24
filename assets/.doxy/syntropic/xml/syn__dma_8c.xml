@@ -1,0 +1,420 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__dma_8c" kind="file" language="C++">
+    <compoundname>syn_dma.c</compoundname>
+    <includes refid="syn__dma_8h" local="yes">syn_dma.h</includes>
+    <includes refid="syn__assert_8h" local="yes">../util/syn_assert.h</includes>
+    <includes refid="syn__compiler_8h" local="yes">../common/syn_compiler.h</includes>
+    <includes local="no">string.h</includes>
+    <incdepgraph>
+      <node id="9">
+        <label>../common/syn_compiler.h</label>
+        <link refid="syn__compiler_8h"/>
+      </node>
+      <node id="3">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/drivers/syn_dma.c</label>
+        <link refid="syn__dma_8c"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>syn_dma.h</label>
+        <link refid="syn__dma_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>../port/syn_port_dma.h</label>
+        <link refid="syn__port__dma_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>../util/syn_assert.h</label>
+        <link refid="syn__assert_8h"/>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>stdbool.h</label>
+      </node>
+      <node id="5">
+        <label>stddef.h</label>
+      </node>
+      <node id="4">
+        <label>stdint.h</label>
+      </node>
+      <node id="10">
+        <label>string.h</label>
+      </node>
+    </incdepgraph>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__dma_8c_1a649e44711fd794ab1f28362d1164f2cc" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_dma_init</definition>
+        <argsstring>(SYN_DMA *dma, const SYN_DMA_Config *cfg)</argsstring>
+        <name>syn_dma_init</name>
+        <param>
+          <type><ref refid="structSYN__DMA" kindref="compound">SYN_DMA</ref> *</type>
+          <declname>dma</declname>
+        </param>
+        <param>
+          <type>const <ref refid="structSYN__DMA__Config" kindref="compound">SYN_DMA_Config</ref> *</type>
+          <declname>cfg</declname>
+        </param>
+        <briefdescription>
+<para>Initialize a DMA channel object. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>dma</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to DMA instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>cfg</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Configuration structure. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, or SYN_INVALID_PARAM if dma/cfg is NULL. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_dma.c" line="11" column="12" bodyfile="src/syntropic/drivers/syn_dma.c" bodystart="11" bodyend="28"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__dma_8c_1ad161eca6e1cc697a55f70939869c5857" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_dma_start</definition>
+        <argsstring>(SYN_DMA *dma, const void *src, void *dst, size_t count)</argsstring>
+        <name>syn_dma_start</name>
+        <param>
+          <type><ref refid="structSYN__DMA" kindref="compound">SYN_DMA</ref> *</type>
+          <declname>dma</declname>
+        </param>
+        <param>
+          <type>const void *</type>
+          <declname>src</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>dst</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>count</declname>
+        </param>
+        <briefdescription>
+<para>Submit and trigger a DMA transfer. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Verifies address alignment against data element size (8/16/32-bit), cleans D-cache for source region, invalidates D-cache for destination region, and launches hardware transfer.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>dma</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to initialized DMA channel instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>src</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Source buffer address. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dst</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Destination buffer address. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>count</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of elements to transfer (must be &gt; 0). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+<simplesect kind="return"><para>SYN_INVALID_PARAM if buffer address is unaligned to data_size or parameters invalid. </para>
+</simplesect>
+<simplesect kind="return"><para>SYN_BUSY if channel is actively transferring. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_dma.c" line="30" column="12" bodyfile="src/syntropic/drivers/syn_dma.c" bodystart="30" bodyend="83"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__dma_8c_1ab1793ff01b2e2ccdaebe1c1a096aa093" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_dma_stop</definition>
+        <argsstring>(SYN_DMA *dma)</argsstring>
+        <name>syn_dma_stop</name>
+        <param>
+          <type><ref refid="structSYN__DMA" kindref="compound">SYN_DMA</ref> *</type>
+          <declname>dma</declname>
+        </param>
+        <briefdescription>
+<para>Stop/abort an active DMA transfer. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>dma</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to DMA channel. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_dma.c" line="85" column="12" bodyfile="src/syntropic/drivers/syn_dma.c" bodystart="85" bodyend="92"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__dma_8c_1abe88336e6845dbfbf4d299bdd58e2ca3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__dma_8h_1aedebbf31c765b6f15c7c26aadc602775" kindref="member">SYN_DMA_State</ref></type>
+        <definition>SYN_DMA_State syn_dma_get_state</definition>
+        <argsstring>(const SYN_DMA *dma)</argsstring>
+        <name>syn_dma_get_state</name>
+        <param>
+          <type>const <ref refid="structSYN__DMA" kindref="compound">SYN_DMA</ref> *</type>
+          <declname>dma</declname>
+        </param>
+        <briefdescription>
+<para>Get current state of DMA channel. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>dma</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to DMA channel. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Current SYN_DMA_State. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_dma.c" line="94" column="15" bodyfile="src/syntropic/drivers/syn_dma.c" bodystart="94" bodyend="98"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__dma_8c_1a1f64ef54e99d034597f884267d673ba7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_dma_isr_handler</definition>
+        <argsstring>(SYN_DMA *dma, SYN_DMA_Event event)</argsstring>
+        <name>syn_dma_isr_handler</name>
+        <param>
+          <type><ref refid="structSYN__DMA" kindref="compound">SYN_DMA</ref> *</type>
+          <declname>dma</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__dma_8h_1ac0d2c364f46900bbf582bfaae341ac66" kindref="member">SYN_DMA_Event</ref></type>
+          <declname>event</declname>
+        </param>
+        <briefdescription>
+<para>Hardware ISR event handler entry point. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Call this function from the MCU hardware DMA interrupt handler when a channel fires a half-transfer, complete, or error interrupt.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>dma</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to DMA channel. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>event</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Event bitmask (SYN_DMA_EVENT_*). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_dma.c" line="100" column="6" bodyfile="src/syntropic/drivers/syn_dma.c" bodystart="100" bodyend="120"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Bare-Metal Safe DMA Transaction Engine implementation. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__dma_8h" kindref="compound">syn_dma.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../util/syn_assert.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../common/syn_compiler.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;string.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__dma_8c_1a649e44711fd794ab1f28362d1164f2cc" kindref="member">syn_dma_init</ref>(<ref refid="structSYN__DMA" kindref="compound">SYN_DMA</ref><sp/>*dma,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__DMA__Config" kindref="compound">SYN_DMA_Config</ref><sp/>*cfg)</highlight></codeline>
+<codeline lineno="12"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="13"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!dma<sp/>||<sp/>!cfg)<sp/>{</highlight></codeline>
+<codeline lineno="14"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="15"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(cfg-&gt;<ref refid="structSYN__DMA__Config_1aea200b013f9bed546b84cd55feefe3e4" kindref="member">data_size</ref><sp/>!=<sp/><ref refid="syn__port__dma_8h_1a0395007d01bc3ebe174bd1ea8ce77a52a7a3a3c2735e2e758cad1e924cb4b968a" kindref="member">SYN_DMA_SIZE_8BIT</ref><sp/>&amp;&amp;</highlight></codeline>
+<codeline lineno="18"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>cfg-&gt;<ref refid="structSYN__DMA__Config_1aea200b013f9bed546b84cd55feefe3e4" kindref="member">data_size</ref><sp/>!=<sp/><ref refid="syn__port__dma_8h_1a0395007d01bc3ebe174bd1ea8ce77a52abf8851fb2bfec24b791dd3d830a573d6" kindref="member">SYN_DMA_SIZE_16BIT</ref><sp/>&amp;&amp;</highlight></codeline>
+<codeline lineno="19"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>cfg-&gt;<ref refid="structSYN__DMA__Config_1aea200b013f9bed546b84cd55feefe3e4" kindref="member">data_size</ref><sp/>!=<sp/><ref refid="syn__port__dma_8h_1a0395007d01bc3ebe174bd1ea8ce77a52ab33da1aadaef8234f81898f88a6af8b0" kindref="member">SYN_DMA_SIZE_32BIT</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="20"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="21"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"><sp/><sp/><sp/><sp/>memset(dma,<sp/>0,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(*dma));</highlight></codeline>
+<codeline lineno="24"><highlight class="normal"><sp/><sp/><sp/><sp/>dma-&gt;<ref refid="structSYN__DMA_1a4285a97a648054fd1a8f254cc43685e1" kindref="member">cfg</ref><sp/>=<sp/>*cfg;</highlight></codeline>
+<codeline lineno="25"><highlight class="normal"><sp/><sp/><sp/><sp/>dma-&gt;<ref refid="structSYN__DMA_1a59e5c9122d731809d6cc145f1a3caccc" kindref="member">state</ref><sp/>=<sp/><ref refid="syn__dma_8h_1aedebbf31c765b6f15c7c26aadc602775a560ad21e99c4ec68865ccc7f50c98f46" kindref="member">SYN_DMA_STATE_IDLE</ref>;</highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="28"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__dma_8c_1ad161eca6e1cc697a55f70939869c5857" kindref="member">syn_dma_start</ref>(<ref refid="structSYN__DMA" kindref="compound">SYN_DMA</ref><sp/>*dma,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*src,<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*dst,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>count)</highlight></codeline>
+<codeline lineno="31"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="32"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!dma<sp/>||<sp/>!src<sp/>||<sp/>!dst<sp/>||<sp/>count<sp/>==<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="33"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="34"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(dma-&gt;<ref refid="structSYN__DMA_1a59e5c9122d731809d6cc145f1a3caccc" kindref="member">state</ref><sp/>==<sp/><ref refid="syn__dma_8h_1aedebbf31c765b6f15c7c26aadc602775ab2251e581715458cab28556d043bcaee" kindref="member">SYN_DMA_STATE_BUSY</ref><sp/>||<sp/><ref refid="syn__port__dma_8h_1a6f4cbd368027459470c3e032d9b345b9" kindref="member">syn_port_dma_is_busy</ref>(dma-&gt;<ref refid="structSYN__DMA_1a4285a97a648054fd1a8f254cc43685e1" kindref="member">cfg</ref>.<ref refid="structSYN__DMA__Config_1a387ab8eea7220c421afe118f057687e4" kindref="member">channel_id</ref>))<sp/>{</highlight></codeline>
+<codeline lineno="37"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a3be376d242928cd8de46b32c69647539" kindref="member">SYN_BUSY</ref>;</highlight></codeline>
+<codeline lineno="38"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Safety<sp/>Safeguard<sp/>1:<sp/>Verify<sp/>Memory<sp/>Address<sp/>Alignment<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"><sp/><sp/><sp/><sp/>uintptr_t<sp/>src_addr<sp/>=<sp/>(uintptr_t)src;</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"><sp/><sp/><sp/><sp/>uintptr_t<sp/>dst_addr<sp/>=<sp/>(uintptr_t)dst;</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>align_mask<sp/>=<sp/>(size_t)dma-&gt;<ref refid="structSYN__DMA_1a4285a97a648054fd1a8f254cc43685e1" kindref="member">cfg</ref>.<ref refid="structSYN__DMA__Config_1aea200b013f9bed546b84cd55feefe3e4" kindref="member">data_size</ref><sp/>-<sp/>1U;</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>((src_addr<sp/>&amp;<sp/>align_mask)<sp/>!=<sp/>0<sp/>||<sp/>(dst_addr<sp/>&amp;<sp/>align_mask)<sp/>!=<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"></highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>total_bytes<sp/>=<sp/>count<sp/>*<sp/>(size_t)dma-&gt;<ref refid="structSYN__DMA_1a4285a97a648054fd1a8f254cc43685e1" kindref="member">cfg</ref>.<ref refid="structSYN__DMA__Config_1aea200b013f9bed546b84cd55feefe3e4" kindref="member">data_size</ref>;</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"></highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Safety<sp/>Safeguard<sp/>2:<sp/>Clean<sp/>source<sp/>D-Cache<sp/>and<sp/>Invalidate<sp/>destination<sp/>D-Cache<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__port__dma_8h_1a510b0f8c328652377a59c5cfa60f3191" kindref="member">syn_port_cache_clean</ref>(src,<sp/>total_bytes);</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__port__dma_8h_1a4bd2dbcd08d24ed7ccdffe1d9607b083" kindref="member">syn_port_cache_invalidate</ref>(dst,<sp/>total_bytes);</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"></highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Prepare<sp/>port<sp/>transfer<sp/>request<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structSYN__PortDmaTransfer" kindref="compound">SYN_PortDmaTransfer</ref><sp/>xfer<sp/>=<sp/>{</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>.<ref refid="structSYN__PortDmaTransfer_1a8e8f3b853ce34a15b43034fdb3607eaf" kindref="member">channel_id</ref><sp/>=<sp/>dma-&gt;<ref refid="structSYN__DMA_1a4285a97a648054fd1a8f254cc43685e1" kindref="member">cfg</ref>.<ref refid="structSYN__DMA__Config_1a387ab8eea7220c421afe118f057687e4" kindref="member">channel_id</ref>,</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>.dir<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>dma-&gt;<ref refid="structSYN__DMA_1a4285a97a648054fd1a8f254cc43685e1" kindref="member">cfg</ref>.<ref refid="structSYN__DMA__Config_1afc21da3e3b1db9a792da8d7f23225fc9" kindref="member">dir</ref>,</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>.data_size<sp/><sp/>=<sp/>dma-&gt;<ref refid="structSYN__DMA_1a4285a97a648054fd1a8f254cc43685e1" kindref="member">cfg</ref>.<ref refid="structSYN__DMA__Config_1aea200b013f9bed546b84cd55feefe3e4" kindref="member">data_size</ref>,</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>.src_inc<sp/><sp/><sp/><sp/>=<sp/>dma-&gt;<ref refid="structSYN__DMA_1a4285a97a648054fd1a8f254cc43685e1" kindref="member">cfg</ref>.<ref refid="structSYN__DMA__Config_1a976138ee1645a03a8b1d2a9d7ce24374" kindref="member">src_inc</ref>,</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>.dst_inc<sp/><sp/><sp/><sp/>=<sp/>dma-&gt;<ref refid="structSYN__DMA_1a4285a97a648054fd1a8f254cc43685e1" kindref="member">cfg</ref>.<ref refid="structSYN__DMA__Config_1a9b82da0fc34fc7bc5eddfc17a88627fd" kindref="member">dst_inc</ref>,</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>.src<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>src,</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>.dst<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>dst,</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>.count<sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>count</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/><sp/><sp/>};</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"></highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/><sp/><sp/>dma-&gt;<ref refid="structSYN__DMA_1ad7ff6ca49c2025ad3c9ab5e5c8706c60" kindref="member">current_src</ref><sp/>=<sp/>src;</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/><sp/><sp/>dma-&gt;<ref refid="structSYN__DMA_1a5d8e4eca544e5d2bd4d994c7ef4831fb" kindref="member">current_dst</ref><sp/>=<sp/>dst;</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/>dma-&gt;<ref refid="structSYN__DMA_1aa6872cab37160720686ad38f0c11bc22" kindref="member">current_len</ref><sp/>=<sp/>total_bytes;</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/><sp/><sp/>dma-&gt;<ref refid="structSYN__DMA_1a59e5c9122d731809d6cc145f1a3caccc" kindref="member">state</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/><ref refid="syn__dma_8h_1aedebbf31c765b6f15c7c26aadc602775ab2251e581715458cab28556d043bcaee" kindref="member">SYN_DMA_STATE_BUSY</ref>;</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"></highlight></codeline>
+<codeline lineno="72"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Compiler<sp/>memory<sp/>barrier<sp/>before<sp/>hardware<sp/>trigger<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__compiler_8h_1a1afb4c3dfe60fc42928a5619e3100c23" kindref="member">SYN_COMPILER_BARRIER</ref>();</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"></highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/>st<sp/>=<sp/><ref refid="syn__port__dma_8h_1a91fd355a78014d1451500cf455aee0a0" kindref="member">syn_port_dma_start</ref>(&amp;xfer);</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(st<sp/>!=<sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>dma-&gt;<ref refid="structSYN__DMA_1a59e5c9122d731809d6cc145f1a3caccc" kindref="member">state</ref><sp/>=<sp/><ref refid="syn__dma_8h_1aedebbf31c765b6f15c7c26aadc602775a9e4f64c4ff4f6fa3a34326cbbd652cc1" kindref="member">SYN_DMA_STATE_ERROR</ref>;</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>dma-&gt;<ref refid="structSYN__DMA_1a17bf6a2ea61765345be12b414d014183" kindref="member">errors_cnt</ref>++;</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>st;</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"></highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="83"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"></highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__dma_8c_1ab1793ff01b2e2ccdaebe1c1a096aa093" kindref="member">syn_dma_stop</ref>(<ref refid="structSYN__DMA" kindref="compound">SYN_DMA</ref><sp/>*dma)</highlight></codeline>
+<codeline lineno="86"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!dma)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"></highlight></codeline>
+<codeline lineno="89"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__port__dma_8h_1aa4c0fbb27a4b48b9b9fd297b77467919" kindref="member">syn_port_dma_stop</ref>(dma-&gt;<ref refid="structSYN__DMA_1a4285a97a648054fd1a8f254cc43685e1" kindref="member">cfg</ref>.<ref refid="structSYN__DMA__Config_1a387ab8eea7220c421afe118f057687e4" kindref="member">channel_id</ref>);</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"><sp/><sp/><sp/><sp/>dma-&gt;<ref refid="structSYN__DMA_1a59e5c9122d731809d6cc145f1a3caccc" kindref="member">state</ref><sp/>=<sp/><ref refid="syn__dma_8h_1aedebbf31c765b6f15c7c26aadc602775a560ad21e99c4ec68865ccc7f50c98f46" kindref="member">SYN_DMA_STATE_IDLE</ref>;</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="92"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"></highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><ref refid="syn__dma_8h_1aedebbf31c765b6f15c7c26aadc602775" kindref="member">SYN_DMA_State</ref><sp/><ref refid="syn__dma_8c_1abe88336e6845dbfbf4d299bdd58e2ca3" kindref="member">syn_dma_get_state</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__DMA" kindref="compound">SYN_DMA</ref><sp/>*dma)</highlight></codeline>
+<codeline lineno="95"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!dma)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__dma_8h_1aedebbf31c765b6f15c7c26aadc602775a9e4f64c4ff4f6fa3a34326cbbd652cc1" kindref="member">SYN_DMA_STATE_ERROR</ref>;</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>dma-&gt;<ref refid="structSYN__DMA_1a59e5c9122d731809d6cc145f1a3caccc" kindref="member">state</ref>;</highlight></codeline>
+<codeline lineno="98"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"></highlight></codeline>
+<codeline lineno="100"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__dma_8c_1a1f64ef54e99d034597f884267d673ba7" kindref="member">syn_dma_isr_handler</ref>(<ref refid="structSYN__DMA" kindref="compound">SYN_DMA</ref><sp/>*dma,<sp/><ref refid="syn__dma_8h_1ac0d2c364f46900bbf582bfaae341ac66" kindref="member">SYN_DMA_Event</ref><sp/>event)</highlight></codeline>
+<codeline lineno="101"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!dma)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"></highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(event<sp/>&amp;<sp/><ref refid="syn__dma_8h_1ac0d2c364f46900bbf582bfaae341ac66a1ad8d470a153363c87e679e5d13facf1" kindref="member">SYN_DMA_EVENT_ERROR</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__port__dma_8h_1aa4c0fbb27a4b48b9b9fd297b77467919" kindref="member">syn_port_dma_stop</ref>(dma-&gt;<ref refid="structSYN__DMA_1a4285a97a648054fd1a8f254cc43685e1" kindref="member">cfg</ref>.<ref refid="structSYN__DMA__Config_1a387ab8eea7220c421afe118f057687e4" kindref="member">channel_id</ref>);</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>dma-&gt;<ref refid="structSYN__DMA_1a59e5c9122d731809d6cc145f1a3caccc" kindref="member">state</ref><sp/>=<sp/><ref refid="syn__dma_8h_1aedebbf31c765b6f15c7c26aadc602775a9e4f64c4ff4f6fa3a34326cbbd652cc1" kindref="member">SYN_DMA_STATE_ERROR</ref>;</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>dma-&gt;<ref refid="structSYN__DMA_1a17bf6a2ea61765345be12b414d014183" kindref="member">errors_cnt</ref>++;</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(event<sp/>&amp;<sp/><ref refid="syn__dma_8h_1ac0d2c364f46900bbf582bfaae341ac66ac3611d02f53b3602a6b5871d504f3cf1" kindref="member">SYN_DMA_EVENT_COMPLETE</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="109"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__port__dma_8h_1aa4c0fbb27a4b48b9b9fd297b77467919" kindref="member">syn_port_dma_stop</ref>(dma-&gt;<ref refid="structSYN__DMA_1a4285a97a648054fd1a8f254cc43685e1" kindref="member">cfg</ref>.<ref refid="structSYN__DMA__Config_1a387ab8eea7220c421afe118f057687e4" kindref="member">channel_id</ref>);</highlight></codeline>
+<codeline lineno="110"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Clean/Invalidate<sp/>cache<sp/>after<sp/>hardware<sp/>write<sp/>completion<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="111"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__port__dma_8h_1a4bd2dbcd08d24ed7ccdffe1d9607b083" kindref="member">syn_port_cache_invalidate</ref>(dma-&gt;<ref refid="structSYN__DMA_1a5d8e4eca544e5d2bd4d994c7ef4831fb" kindref="member">current_dst</ref>,<sp/>dma-&gt;<ref refid="structSYN__DMA_1aa6872cab37160720686ad38f0c11bc22" kindref="member">current_len</ref>);</highlight></codeline>
+<codeline lineno="112"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>dma-&gt;<ref refid="structSYN__DMA_1a59e5c9122d731809d6cc145f1a3caccc" kindref="member">state</ref><sp/>=<sp/><ref refid="syn__dma_8h_1aedebbf31c765b6f15c7c26aadc602775a9152375486c8201155fd154fd208fec0" kindref="member">SYN_DMA_STATE_COMPLETE</ref>;</highlight></codeline>
+<codeline lineno="113"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>dma-&gt;<ref refid="structSYN__DMA_1ab0d9d6c338b0c3376376818ca3f928bf" kindref="member">transfers_cnt</ref>++;</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="115"><highlight class="normal"></highlight></codeline>
+<codeline lineno="116"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Fire<sp/>user<sp/>completion/event<sp/>callback<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="117"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(dma-&gt;<ref refid="structSYN__DMA_1a4285a97a648054fd1a8f254cc43685e1" kindref="member">cfg</ref>.<ref refid="structSYN__DMA__Config_1ad3a28d83cd432d393ba1773ddfddf085" kindref="member">callback</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>dma-&gt;<ref refid="structSYN__DMA_1a4285a97a648054fd1a8f254cc43685e1" kindref="member">cfg</ref>.<ref refid="structSYN__DMA__Config_1ad3a28d83cd432d393ba1773ddfddf085" kindref="member">callback</ref>(dma,<sp/>event,<sp/>dma-&gt;<ref refid="structSYN__DMA_1a4285a97a648054fd1a8f254cc43685e1" kindref="member">cfg</ref>.<ref refid="structSYN__DMA__Config_1ac1ecd7fb21ed36a2593b91782b0f0d7b" kindref="member">user_ctx</ref>);</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="120"><highlight class="normal">}</highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/drivers/syn_dma.c"/>
+  </compounddef>
+</doxygen>

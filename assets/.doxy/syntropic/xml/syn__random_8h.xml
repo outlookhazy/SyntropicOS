@@ -1,0 +1,308 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__random_8h" kind="file" language="C++">
+    <compoundname>syn_random.h</compoundname>
+    <includes refid="syn__defs_8h" local="yes">../common/syn_defs.h</includes>
+    <includes refid="syn__compiler_8h" local="yes">../common/syn_compiler.h</includes>
+    <includes local="no">stdint.h</includes>
+    <includes local="no">stddef.h</includes>
+    <includedby refid="syn__dds_8c" local="yes">src/syntropic/dsp/syn_dds.c</includedby>
+    <includedby refid="syn__wg_8c" local="yes">src/syntropic/net/syn_wg.c</includedby>
+    <includedby refid="syn__backoff_8c" local="yes">src/syntropic/util/syn_backoff.c</includedby>
+    <includedby refid="syn__random_8c" local="yes">src/syntropic/util/syn_random.c</includedby>
+    <incdepgraph>
+      <node id="5">
+        <label>../common/syn_compiler.h</label>
+        <link refid="syn__compiler_8h"/>
+      </node>
+      <node id="2">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/util/syn_random.h</label>
+        <link refid="syn__random_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>stddef.h</label>
+      </node>
+      <node id="3">
+        <label>stdint.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="2">
+        <label>src/syntropic/dsp/syn_dds.c</label>
+        <link refid="syn__dds_8c"/>
+      </node>
+      <node id="3">
+        <label>src/syntropic/net/syn_wg.c</label>
+        <link refid="syn__wg_8c"/>
+      </node>
+      <node id="4">
+        <label>src/syntropic/util/syn_backoff.c</label>
+        <link refid="syn__backoff_8c"/>
+      </node>
+      <node id="5">
+        <label>src/syntropic/util/syn_random.c</label>
+        <link refid="syn__random_8c"/>
+      </node>
+      <node id="1">
+        <label>src/syntropic/util/syn_random.h</label>
+        <link refid="syn__random_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__random_8h_1a2bc53f841c3d82be9373ddad25e7ae22" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_random_fill</definition>
+        <argsstring>(void *buf, size_t len)</argsstring>
+        <name>syn_random_fill</name>
+        <param>
+          <type>void *</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>len</declname>
+        </param>
+        <briefdescription>
+<para>Fill a buffer with cryptographically secure random bytes. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>This function relies on a platform-specific hardware RNG or secure OS source (via syn_port_random_fill).</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of bytes to generate. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_ERROR if the RNG is unavailable. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_random.h" line="29" column="12" bodyfile="src/syntropic/util/syn_random.c" bodystart="10" bodyend="14" declfile="src/syntropic/util/syn_random.h" declline="29" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__random_8h_1a27ec793279f40ce303711295d135e49d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_random_fallback_fill</definition>
+        <argsstring>(void *buf, size_t len)</argsstring>
+        <name>syn_random_fallback_fill</name>
+        <param>
+          <type>void *</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>len</declname>
+        </param>
+        <briefdescription>
+<para>Internal XOR-shift fallback for random data. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="note"><para>NOT SECURE. Only for testing or desperate fallbacks.</para>
+</simplesect>
+Internal XOR-shift fallback for random data.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Length in bytes. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_random.h" line="35" column="12" bodyfile="src/syntropic/util/syn_random.c" bodystart="42" bodyend="56" declfile="src/syntropic/util/syn_random.h" declline="35" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__random_8h_1ac18e38690adb49915658a5fd4976d610" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>uint32_t syn_random_u32</definition>
+        <argsstring>(void)</argsstring>
+        <name>syn_random_u32</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Generate a random 32-bit integer. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>Random value, or 0 on failure (RNG check is recommended for sensitive use). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_random.h" line="41" column="10" bodyfile="src/syntropic/util/syn_random.c" bodystart="16" bodyend="21" declfile="src/syntropic/util/syn_random.h" declline="41" declcolumn="10"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__random_8h_1ac474baecd1bfc785cfecc4863e99af6e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>uint32_t syn_random_range</definition>
+        <argsstring>(uint32_t min, uint32_t max)</argsstring>
+        <name>syn_random_range</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>min</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>max</declname>
+        </param>
+        <briefdescription>
+<para>Generate a random integer within a range [min, max]. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>min</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Minimum value (inclusive). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>max</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Maximum value (inclusive). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Random value. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_random.h" line="49" column="10" bodyfile="src/syntropic/util/syn_random.c" bodystart="23" bodyend="28" declfile="src/syntropic/util/syn_random.h" declline="49" declcolumn="10"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__random_8h_1a8dc13a708057050454dc7a9d54c97490" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__compiler_8h_1a5465ec82d7fbe848522138a7c17ff8d5" kindref="member">SYN_WEAK</ref> <ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_WEAK SYN_Status syn_port_random_fill</definition>
+        <argsstring>(void *buf, size_t len)</argsstring>
+        <name>syn_port_random_fill</name>
+        <param>
+          <type>void *</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>len</declname>
+        </param>
+        <briefdescription>
+<para>Porting hook: must be implemented by the platform to provide entropy. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of bytes. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_random.h" line="60" column="21" bodyfile="src/syntropic/util/syn_random.c" bodystart="31" bodyend="34" declfile="src/syntropic/util/syn_random.h" declline="60" declcolumn="21"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Hardware-agnostic random number generation. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_RANDOM_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_RANDOM_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../common/syn_defs.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../common/syn_compiler.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stddef.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__random_8h_1a2bc53f841c3d82be9373ddad25e7ae22" kindref="member">syn_random_fill</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*buf,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>len);</highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__random_8h_1a27ec793279f40ce303711295d135e49d" kindref="member">syn_random_fallback_fill</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*buf,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>len);</highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal">uint32_t<sp/><ref refid="syn__random_8h_1ac18e38690adb49915658a5fd4976d610" kindref="member">syn_random_u32</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight></codeline>
+<codeline lineno="49"><highlight class="normal">uint32_t<sp/><ref refid="syn__random_8h_1ac474baecd1bfc785cfecc4863e99af6e" kindref="member">syn_random_range</ref>(uint32_t<sp/>min,<sp/>uint32_t<sp/>max);</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"></highlight></codeline>
+<codeline lineno="51"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Porting<sp/>Hook<sp/>─────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="52"><highlight class="normal"></highlight></codeline>
+<codeline lineno="60"><highlight class="normal"><ref refid="syn__compiler_8h_1a5465ec82d7fbe848522138a7c17ff8d5" kindref="member">SYN_WEAK</ref><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__random_8h_1a8dc13a708057050454dc7a9d54c97490" kindref="member">syn_port_random_fill</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*buf,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>len);</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"></highlight></codeline>
+<codeline lineno="62"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="63"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="65"><highlight class="normal"></highlight></codeline>
+<codeline lineno="66"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_RANDOM_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/util/syn_random.h"/>
+  </compounddef>
+</doxygen>

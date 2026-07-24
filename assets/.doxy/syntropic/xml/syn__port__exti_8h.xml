@@ -1,0 +1,293 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__port__exti_8h" kind="file" language="C++">
+    <compoundname>syn_port_exti.h</compoundname>
+    <includes refid="syn__defs_8h" local="yes">../common/syn_defs.h</includes>
+    <includes refid="syn__port__gpio_8h" local="yes">../port/syn_port_gpio.h</includes>
+    <includes local="no">stdint.h</includes>
+    <includes local="no">stdbool.h</includes>
+    <includedby refid="syn__exti_8h" local="yes">src/syntropic/drivers/syn_exti.h</includedby>
+    <includedby refid="syn__port__stubs_8c" local="yes">src/syntropic/port_stubs/syn_port_stubs.c</includedby>
+    <incdepgraph>
+      <node id="2">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/port/syn_port_exti.h</label>
+        <link refid="syn__port__exti_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>../port/syn_port_gpio.h</label>
+        <link refid="syn__port__gpio_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>stdbool.h</label>
+      </node>
+      <node id="4">
+        <label>stddef.h</label>
+      </node>
+      <node id="3">
+        <label>stdint.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="3">
+        <label>src/syntropic/drivers/syn_exti.c</label>
+        <link refid="syn__exti_8c"/>
+      </node>
+      <node id="2">
+        <label>src/syntropic/drivers/syn_exti.h</label>
+        <link refid="syn__exti_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/port/syn_port_exti.h</label>
+        <link refid="syn__port__exti_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>src/syntropic/port_stubs/syn_port_stubs.c</label>
+        <link refid="syn__port__stubs_8c"/>
+      </node>
+      <node id="4">
+        <label>src/syntropic/syntropic.h</label>
+        <link refid="syntropic_8h"/>
+      </node>
+    </invincdepgraph>
+    <sectiondef kind="enum">
+      <memberdef kind="enum" id="syn__port__exti_8h_1a13a7b36d42ad1cac04f2b9599d94de1c" prot="public" static="no" strong="no">
+        <type></type>
+        <name>SYN_EXTI_Edge</name>
+        <enumvalue id="syn__port__exti_8h_1a13a7b36d42ad1cac04f2b9599d94de1cab8a5ca6f05e6286a5dc50ba446895def" prot="public">
+          <name>SYN_EXTI_RISING</name>
+          <initializer>= 0</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Trigger on rising edge <linebreak/>
+ </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__port__exti_8h_1a13a7b36d42ad1cac04f2b9599d94de1cae45324098c8a7801a90fe19b8a62286f" prot="public">
+          <name>SYN_EXTI_FALLING</name>
+          <initializer>= 1</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Trigger on falling edge <linebreak/>
+ </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__port__exti_8h_1a13a7b36d42ad1cac04f2b9599d94de1ca9588fe6b5775e23bc21a365db20f8059" prot="public">
+          <name>SYN_EXTI_BOTH</name>
+          <initializer>= 2</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Trigger on both edges <linebreak/>
+ </para>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Interrupt trigger edge. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/port/syn_port_exti.h" line="25" column="1" bodyfile="src/syntropic/port/syn_port_exti.h" bodystart="25" bodyend="29"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__port__exti_8h_1ae42d7bed67bbe0a8a456366a22d647cb" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_port_exti_configure</definition>
+        <argsstring>(SYN_GPIO_Pin pin, SYN_EXTI_Edge edge)</argsstring>
+        <name>syn_port_exti_configure</name>
+        <param>
+          <type><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref></type>
+          <declname>pin</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__port__exti_8h_1a13a7b36d42ad1cac04f2b9599d94de1c" kindref="member">SYN_EXTI_Edge</ref></type>
+          <declname>edge</declname>
+        </param>
+        <briefdescription>
+<para>Configure a pin for interrupt generation. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>pin</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>GPIO pin number. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>edge</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Trigger edge. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/port/syn_port_exti.h" line="38" column="12" bodyfile="src/syntropic/port_stubs/syn_port_stubs.c" bodystart="354" bodyend="359" declfile="src/syntropic/port/syn_port_exti.h" declline="38" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__port__exti_8h_1a857ae01386523fc2e90ecddbdbe6e4b5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_port_exti_enable</definition>
+        <argsstring>(SYN_GPIO_Pin pin)</argsstring>
+        <name>syn_port_exti_enable</name>
+        <param>
+          <type><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref></type>
+          <declname>pin</declname>
+        </param>
+        <briefdescription>
+<para>Enable interrupt on a configured pin. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>pin</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>GPIO pin. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/port/syn_port_exti.h" line="44" column="6" bodyfile="src/syntropic/port_stubs/syn_port_stubs.c" bodystart="361" bodyend="364" declfile="src/syntropic/port/syn_port_exti.h" declline="44" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__port__exti_8h_1aaf36ff0526030cf7454706a6d429f45b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_port_exti_disable</definition>
+        <argsstring>(SYN_GPIO_Pin pin)</argsstring>
+        <name>syn_port_exti_disable</name>
+        <param>
+          <type><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref></type>
+          <declname>pin</declname>
+        </param>
+        <briefdescription>
+<para>Disable interrupt on a pin (without deconfiguring). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>pin</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>GPIO pin. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/port/syn_port_exti.h" line="50" column="6" bodyfile="src/syntropic/port_stubs/syn_port_stubs.c" bodystart="366" bodyend="369" declfile="src/syntropic/port/syn_port_exti.h" declline="50" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__port__exti_8h_1a5c8a2ff817c963ea84752fde43af9ce8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_port_exti_clear_pending</definition>
+        <argsstring>(SYN_GPIO_Pin pin)</argsstring>
+        <name>syn_port_exti_clear_pending</name>
+        <param>
+          <type><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref></type>
+          <declname>pin</declname>
+        </param>
+        <briefdescription>
+<para>Clear pending interrupt flag for a pin. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>pin</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>GPIO pin. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/port/syn_port_exti.h" line="56" column="6" bodyfile="src/syntropic/port_stubs/syn_port_stubs.c" bodystart="371" bodyend="374" declfile="src/syntropic/port/syn_port_exti.h" declline="56" declcolumn="6"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>GPIO interrupt (EXTI) port interface — implement for your platform. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Provides pin-change interrupt registration. The platform layer manages the hardware (NVIC, EXTI lines, etc.) and calls back into the syn_exti dispatcher. </para>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_PORT_EXTI_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_PORT_EXTI_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../common/syn_defs.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../port/syn_port_gpio.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight></codeline>
+<codeline lineno="25" refid="syn__port__exti_8h_1a13a7b36d42ad1cac04f2b9599d94de1c" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="26" refid="syn__port__exti_8h_1a13a7b36d42ad1cac04f2b9599d94de1cab8a5ca6f05e6286a5dc50ba446895def" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__port__exti_8h_1a13a7b36d42ad1cac04f2b9599d94de1cab8a5ca6f05e6286a5dc50ba446895def" kindref="member">SYN_EXTI_RISING</ref><sp/><sp/>=<sp/>0,<sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="27" refid="syn__port__exti_8h_1a13a7b36d42ad1cac04f2b9599d94de1cae45324098c8a7801a90fe19b8a62286f" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__port__exti_8h_1a13a7b36d42ad1cac04f2b9599d94de1cae45324098c8a7801a90fe19b8a62286f" kindref="member">SYN_EXTI_FALLING</ref><sp/>=<sp/>1,<sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="28" refid="syn__port__exti_8h_1a13a7b36d42ad1cac04f2b9599d94de1ca9588fe6b5775e23bc21a365db20f8059" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__port__exti_8h_1a13a7b36d42ad1cac04f2b9599d94de1ca9588fe6b5775e23bc21a365db20f8059" kindref="member">SYN_EXTI_BOTH</ref><sp/><sp/><sp/><sp/>=<sp/>2,<sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="29"><highlight class="normal">}<sp/><ref refid="syn__port__exti_8h_1a13a7b36d42ad1cac04f2b9599d94de1c" kindref="member">SYN_EXTI_Edge</ref>;</highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__port__exti_8h_1ae42d7bed67bbe0a8a456366a22d647cb" kindref="member">syn_port_exti_configure</ref>(<ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref><sp/>pin,<sp/><ref refid="syn__port__exti_8h_1a13a7b36d42ad1cac04f2b9599d94de1c" kindref="member">SYN_EXTI_Edge</ref><sp/>edge);</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__port__exti_8h_1a857ae01386523fc2e90ecddbdbe6e4b5" kindref="member">syn_port_exti_enable</ref>(<ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref><sp/>pin);</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight></codeline>
+<codeline lineno="50"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__port__exti_8h_1aaf36ff0526030cf7454706a6d429f45b" kindref="member">syn_port_exti_disable</ref>(<ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref><sp/>pin);</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"></highlight></codeline>
+<codeline lineno="56"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__port__exti_8h_1a5c8a2ff817c963ea84752fde43af9ce8" kindref="member">syn_port_exti_clear_pending</ref>(<ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref><sp/>pin);</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"></highlight></codeline>
+<codeline lineno="58"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="59"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="61"><highlight class="normal"></highlight></codeline>
+<codeline lineno="62"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_PORT_EXTI_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/port/syn_port_exti.h"/>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,1025 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__n2k_8c" kind="file" language="C++">
+    <compoundname>syn_n2k.c</compoundname>
+    <includes refid="syn__n2k_8h" local="yes">syn_n2k.h</includes>
+    <includes refid="syn__pack_8h" local="yes">../util/syn_pack.h</includes>
+    <includes local="no">string.h</includes>
+    <incdepgraph>
+      <node id="3">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>../drivers/syn_can.h</label>
+        <link refid="syn__can_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>../port/syn_port_can.h</label>
+        <link refid="syn__port__can_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="9">
+        <label>syn_j1939.h</label>
+        <link refid="syn__j1939_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/proto/syn_n2k.c</label>
+        <link refid="syn__n2k_8c"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>syn_n2k.h</label>
+        <link refid="syn__n2k_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="10">
+        <label>../util/syn_pack.h</label>
+        <link refid="syn__pack_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>stdbool.h</label>
+      </node>
+      <node id="5">
+        <label>stddef.h</label>
+      </node>
+      <node id="4">
+        <label>stdint.h</label>
+      </node>
+      <node id="11">
+        <label>string.h</label>
+      </node>
+    </incdepgraph>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__n2k_8c_1a56142cf094db8b0d7a9ecf559db5a76f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_n2k_encode_position_rapid</definition>
+        <argsstring>(uint8_t sa, const SYN_N2K_PositionRapid *pos, SYN_CAN_Frame *frame)</argsstring>
+        <name>syn_n2k_encode_position_rapid</name>
+        <param>
+          <type>uint8_t</type>
+          <declname>sa</declname>
+        </param>
+        <param>
+          <type>const <ref refid="structSYN__N2K__PositionRapid" kindref="compound">SYN_N2K_PositionRapid</ref> *</type>
+          <declname>pos</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__CAN__Frame" kindref="compound">SYN_CAN_Frame</ref> *</type>
+          <declname>frame</declname>
+        </param>
+        <briefdescription>
+<para>Encode PGN 129025 (Position, Rapid Update) into an 8-byte CAN frame. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>sa</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Source address. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>pos</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Position structure (Lat/Lon in 1e-7 degrees). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>frame</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output CAN frame. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_n2k.c" line="10" column="12" bodyfile="src/syntropic/proto/syn_n2k.c" bodystart="10" bodyend="23"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__n2k_8c_1a4f5515c8824487a85e9bb48130062475" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_n2k_decode_position_rapid</definition>
+        <argsstring>(const SYN_CAN_Frame *frame, SYN_N2K_PositionRapid *pos)</argsstring>
+        <name>syn_n2k_decode_position_rapid</name>
+        <param>
+          <type>const <ref refid="structSYN__CAN__Frame" kindref="compound">SYN_CAN_Frame</ref> *</type>
+          <declname>frame</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__N2K__PositionRapid" kindref="compound">SYN_N2K_PositionRapid</ref> *</type>
+          <declname>pos</declname>
+        </param>
+        <briefdescription>
+<para>Decode PGN 129025 (Position, Rapid Update) from an 8-byte CAN frame. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>frame</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Source CAN frame. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>pos</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output Position structure. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_n2k.c" line="25" column="12" bodyfile="src/syntropic/proto/syn_n2k.c" bodystart="25" bodyend="34"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__n2k_8c_1acc428f83a8d8f58a28ba4c9bcd5fbc96" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_n2k_encode_cog_sog_rapid</definition>
+        <argsstring>(uint8_t sa, const SYN_N2K_CogSogRapid *cog_sog, SYN_CAN_Frame *frame)</argsstring>
+        <name>syn_n2k_encode_cog_sog_rapid</name>
+        <param>
+          <type>uint8_t</type>
+          <declname>sa</declname>
+        </param>
+        <param>
+          <type>const <ref refid="structSYN__N2K__CogSogRapid" kindref="compound">SYN_N2K_CogSogRapid</ref> *</type>
+          <declname>cog_sog</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__CAN__Frame" kindref="compound">SYN_CAN_Frame</ref> *</type>
+          <declname>frame</declname>
+        </param>
+        <briefdescription>
+<para>Encode PGN 129026 (COG &amp; SOG, Rapid Update) into an 8-byte CAN frame. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>sa</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Source address. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>cog_sog</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>COG &amp; SOG structure. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>frame</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output CAN frame. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_n2k.c" line="36" column="12" bodyfile="src/syntropic/proto/syn_n2k.c" bodystart="36" bodyend="53"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__n2k_8c_1af758ec047325f497cbd0447e1e6a3ee9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_n2k_decode_cog_sog_rapid</definition>
+        <argsstring>(const SYN_CAN_Frame *frame, SYN_N2K_CogSogRapid *cog_sog)</argsstring>
+        <name>syn_n2k_decode_cog_sog_rapid</name>
+        <param>
+          <type>const <ref refid="structSYN__CAN__Frame" kindref="compound">SYN_CAN_Frame</ref> *</type>
+          <declname>frame</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__N2K__CogSogRapid" kindref="compound">SYN_N2K_CogSogRapid</ref> *</type>
+          <declname>cog_sog</declname>
+        </param>
+        <briefdescription>
+<para>Decode PGN 129026 (COG &amp; SOG, Rapid Update) from an 8-byte CAN frame. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>frame</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Source CAN frame. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>cog_sog</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output COG &amp; SOG structure. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_n2k.c" line="55" column="12" bodyfile="src/syntropic/proto/syn_n2k.c" bodystart="55" bodyend="66"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__n2k_8c_1a7d1795e00c17c0babd6e17f3e5399b98" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_n2k_encode_heading</definition>
+        <argsstring>(uint8_t sa, const SYN_N2K_VesselHeading *heading, SYN_CAN_Frame *frame)</argsstring>
+        <name>syn_n2k_encode_heading</name>
+        <param>
+          <type>uint8_t</type>
+          <declname>sa</declname>
+        </param>
+        <param>
+          <type>const <ref refid="structSYN__N2K__VesselHeading" kindref="compound">SYN_N2K_VesselHeading</ref> *</type>
+          <declname>heading</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__CAN__Frame" kindref="compound">SYN_CAN_Frame</ref> *</type>
+          <declname>frame</declname>
+        </param>
+        <briefdescription>
+<para>Encode PGN 127250 (Vessel Heading) into an 8-byte CAN frame. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>sa</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Source address. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>heading</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Heading structure. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>frame</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output CAN frame. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_n2k.c" line="68" column="12" bodyfile="src/syntropic/proto/syn_n2k.c" bodystart="68" bodyend="84"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__n2k_8c_1a0d5bca838751fcae86333d4bd3808614" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_n2k_decode_heading</definition>
+        <argsstring>(const SYN_CAN_Frame *frame, SYN_N2K_VesselHeading *heading)</argsstring>
+        <name>syn_n2k_decode_heading</name>
+        <param>
+          <type>const <ref refid="structSYN__CAN__Frame" kindref="compound">SYN_CAN_Frame</ref> *</type>
+          <declname>frame</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__N2K__VesselHeading" kindref="compound">SYN_N2K_VesselHeading</ref> *</type>
+          <declname>heading</declname>
+        </param>
+        <briefdescription>
+<para>Decode PGN 127250 (Vessel Heading) from an 8-byte CAN frame. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>frame</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Source CAN frame. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>heading</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output Heading structure. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_n2k.c" line="86" column="12" bodyfile="src/syntropic/proto/syn_n2k.c" bodystart="86" bodyend="98"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__n2k_8c_1a0cbbc19a2fc4bee7f2c2981224c06e9f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_n2k_encode_battery</definition>
+        <argsstring>(uint8_t sa, const SYN_N2K_BatteryStatus *battery, SYN_CAN_Frame *frame)</argsstring>
+        <name>syn_n2k_encode_battery</name>
+        <param>
+          <type>uint8_t</type>
+          <declname>sa</declname>
+        </param>
+        <param>
+          <type>const <ref refid="structSYN__N2K__BatteryStatus" kindref="compound">SYN_N2K_BatteryStatus</ref> *</type>
+          <declname>battery</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__CAN__Frame" kindref="compound">SYN_CAN_Frame</ref> *</type>
+          <declname>frame</declname>
+        </param>
+        <briefdescription>
+<para>Encode PGN 127508 (Battery Status) into an 8-byte CAN frame. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>sa</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Source address. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>battery</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Battery status structure. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>frame</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output CAN frame. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_n2k.c" line="100" column="12" bodyfile="src/syntropic/proto/syn_n2k.c" bodystart="100" bodyend="116"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__n2k_8c_1ab565ebe5a38689a1d407ef56f5d651fb" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_n2k_decode_battery</definition>
+        <argsstring>(const SYN_CAN_Frame *frame, SYN_N2K_BatteryStatus *battery)</argsstring>
+        <name>syn_n2k_decode_battery</name>
+        <param>
+          <type>const <ref refid="structSYN__CAN__Frame" kindref="compound">SYN_CAN_Frame</ref> *</type>
+          <declname>frame</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__N2K__BatteryStatus" kindref="compound">SYN_N2K_BatteryStatus</ref> *</type>
+          <declname>battery</declname>
+        </param>
+        <briefdescription>
+<para>Decode PGN 127508 (Battery Status) from an 8-byte CAN frame. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>frame</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Source CAN frame. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>battery</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output Battery status structure. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_n2k.c" line="118" column="12" bodyfile="src/syntropic/proto/syn_n2k.c" bodystart="118" bodyend="130"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__n2k_8c_1a63845e843629d1e01626068e768984a7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_n2k_encode_dc_detailed</definition>
+        <argsstring>(uint8_t sa, const SYN_N2K_DcDetailedStatus *dc, SYN_CAN_Frame *frame)</argsstring>
+        <name>syn_n2k_encode_dc_detailed</name>
+        <param>
+          <type>uint8_t</type>
+          <declname>sa</declname>
+        </param>
+        <param>
+          <type>const <ref refid="structSYN__N2K__DcDetailedStatus" kindref="compound">SYN_N2K_DcDetailedStatus</ref> *</type>
+          <declname>dc</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__CAN__Frame" kindref="compound">SYN_CAN_Frame</ref> *</type>
+          <declname>frame</declname>
+        </param>
+        <briefdescription>
+<para>Encode PGN 127506 (DC Detailed Status) into an 8-byte CAN frame. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>sa</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Source address. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dc</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>DC detailed status structure. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>frame</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output CAN frame. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_n2k.c" line="132" column="12" bodyfile="src/syntropic/proto/syn_n2k.c" bodystart="132" bodyend="150"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__n2k_8c_1a9bf9b0b251ddfd7b541f12bbab661dc0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_n2k_decode_dc_detailed</definition>
+        <argsstring>(const SYN_CAN_Frame *frame, SYN_N2K_DcDetailedStatus *dc)</argsstring>
+        <name>syn_n2k_decode_dc_detailed</name>
+        <param>
+          <type>const <ref refid="structSYN__CAN__Frame" kindref="compound">SYN_CAN_Frame</ref> *</type>
+          <declname>frame</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__N2K__DcDetailedStatus" kindref="compound">SYN_N2K_DcDetailedStatus</ref> *</type>
+          <declname>dc</declname>
+        </param>
+        <briefdescription>
+<para>Decode PGN 127506 (DC Detailed Status) from an 8-byte CAN frame. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>frame</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Source CAN frame. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dc</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output DC detailed status structure. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_n2k.c" line="152" column="12" bodyfile="src/syntropic/proto/syn_n2k.c" bodystart="152" bodyend="166"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__n2k_8c_1ac00af7b7618dff454eff86ad957f5d83" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_n2k_encode_environment</definition>
+        <argsstring>(uint8_t sa, const SYN_N2K_EnvParams *env, SYN_CAN_Frame *frame)</argsstring>
+        <name>syn_n2k_encode_environment</name>
+        <param>
+          <type>uint8_t</type>
+          <declname>sa</declname>
+        </param>
+        <param>
+          <type>const <ref refid="structSYN__N2K__EnvParams" kindref="compound">SYN_N2K_EnvParams</ref> *</type>
+          <declname>env</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__CAN__Frame" kindref="compound">SYN_CAN_Frame</ref> *</type>
+          <declname>frame</declname>
+        </param>
+        <briefdescription>
+<para>Encode PGN 130310 (Environmental Parameters) into an 8-byte CAN frame. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>sa</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Source address. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>env</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Environmental parameters structure. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>frame</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output CAN frame. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_n2k.c" line="168" column="12" bodyfile="src/syntropic/proto/syn_n2k.c" bodystart="168" bodyend="184"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__n2k_8c_1a0b7e10b538c9fb55950f45f9580cd957" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_n2k_decode_environment</definition>
+        <argsstring>(const SYN_CAN_Frame *frame, SYN_N2K_EnvParams *env)</argsstring>
+        <name>syn_n2k_decode_environment</name>
+        <param>
+          <type>const <ref refid="structSYN__CAN__Frame" kindref="compound">SYN_CAN_Frame</ref> *</type>
+          <declname>frame</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__N2K__EnvParams" kindref="compound">SYN_N2K_EnvParams</ref> *</type>
+          <declname>env</declname>
+        </param>
+        <briefdescription>
+<para>Decode PGN 130310 (Environmental Parameters) from an 8-byte CAN frame. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>frame</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Source CAN frame. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>env</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output Environmental parameters structure. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_n2k.c" line="186" column="12" bodyfile="src/syntropic/proto/syn_n2k.c" bodystart="186" bodyend="197"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__n2k_8c_1a5bf2bf1d92ff36f8ec5ddd1e024db01d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_n2k_fastpacket_process</definition>
+        <argsstring>(SYN_N2K_FastPacketRx *rx, const SYN_CAN_Frame *frame, uint32_t target_pgn, const uint8_t **out_payload, size_t *out_len)</argsstring>
+        <name>syn_n2k_fastpacket_process</name>
+        <param>
+          <type><ref refid="structSYN__N2K__FastPacketRx" kindref="compound">SYN_N2K_FastPacketRx</ref> *</type>
+          <declname>rx</declname>
+        </param>
+        <param>
+          <type>const <ref refid="structSYN__CAN__Frame" kindref="compound">SYN_CAN_Frame</ref> *</type>
+          <declname>frame</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>target_pgn</declname>
+        </param>
+        <param>
+          <type>const uint8_t **</type>
+          <declname>out_payload</declname>
+        </param>
+        <param>
+          <type>size_t *</type>
+          <declname>out_len</declname>
+        </param>
+        <briefdescription>
+<para>Process an incoming CAN frame in the Fast-Packet multi-frame RX reassembler. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>rx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Fast-Packet RX state context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>frame</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Incoming CAN frame. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>target_pgn</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Expected target PGN for the Fast-Packet message. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out_payload</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output pointer receiving reassembled payload buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output length of payload in bytes. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK if payload complete, or SYN_BUSY if Fast-Packet frames are still pending. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_n2k.c" line="199" column="12" bodyfile="src/syntropic/proto/syn_n2k.c" bodystart="199" bodyend="262"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>NMEA 2000 Marine CAN Protocol Stack implementation. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__n2k_8h" kindref="compound">syn_n2k.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../util/syn_pack.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;string.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__n2k_8c_1a56142cf094db8b0d7a9ecf559db5a76f" kindref="member">syn_n2k_encode_position_rapid</ref>(uint8_t<sp/>sa,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__N2K__PositionRapid" kindref="compound">SYN_N2K_PositionRapid</ref><sp/>*pos,<sp/><ref refid="structSYN__CAN__Frame" kindref="compound">SYN_CAN_Frame</ref><sp/>*frame)</highlight></codeline>
+<codeline lineno="11"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="12"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!pos<sp/>||<sp/>!frame)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"><sp/><sp/><sp/><sp/>frame-&gt;<ref refid="structSYN__CAN__Frame_1a398fcc4dcd7e0cad9d130ad99148964b" kindref="member">id</ref><sp/>=<sp/><ref refid="syn__j1939_8c_1a42cc74674fd684d52c7e07517b399d74" kindref="member">syn_j1939_id_pack</ref>(2,<sp/><ref refid="group__n2k__pgns_1gae1ccdb2778cdff9d25a8d0bc839bfbd2" kindref="member">SYN_N2K_PGN_POS_RAPID</ref>,<sp/>sa,<sp/><ref refid="group__j1939__addresses_1ga9f29cc12048817503baa24b0a893f24b" kindref="member">SYN_J1939_ADDR_GLOBAL</ref>);</highlight></codeline>
+<codeline lineno="15"><highlight class="normal"><sp/><sp/><sp/><sp/>frame-&gt;<ref refid="structSYN__CAN__Frame_1aa28e28d157508dfd7f94aaa53871c698" kindref="member">dlc</ref><sp/>=<sp/>8;</highlight></codeline>
+<codeline lineno="16"><highlight class="normal"><sp/><sp/><sp/><sp/>frame-&gt;<ref refid="structSYN__CAN__Frame_1a99c7f6ff1ef97c339417fef135ec8810" kindref="member">extended</ref><sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>pos_idx<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="19"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__pack_8h_1ae709f863d044ff4d6261b9ecf0d7ac1b" kindref="member">syn_pack_u32_le</ref>(frame-&gt;<ref refid="structSYN__CAN__Frame_1a823d943b00d88be2e8f3a724bf7aa94c" kindref="member">data</ref>,<sp/>&amp;pos_idx,<sp/>(uint32_t)pos-&gt;<ref refid="structSYN__N2K__PositionRapid_1a133dd5df9f4fbf14a9d12cbdd712a42a" kindref="member">latitude_1e7</ref>);</highlight></codeline>
+<codeline lineno="20"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__pack_8h_1ae709f863d044ff4d6261b9ecf0d7ac1b" kindref="member">syn_pack_u32_le</ref>(frame-&gt;<ref refid="structSYN__CAN__Frame_1a823d943b00d88be2e8f3a724bf7aa94c" kindref="member">data</ref>,<sp/>&amp;pos_idx,<sp/>(uint32_t)pos-&gt;<ref refid="structSYN__N2K__PositionRapid_1ab1872917f4f175483d9cf35e681d9652" kindref="member">longitude_1e7</ref>);</highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="23"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__n2k_8c_1a4f5515c8824487a85e9bb48130062475" kindref="member">syn_n2k_decode_position_rapid</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__CAN__Frame" kindref="compound">SYN_CAN_Frame</ref><sp/>*frame,<sp/><ref refid="structSYN__N2K__PositionRapid" kindref="compound">SYN_N2K_PositionRapid</ref><sp/>*pos)</highlight></codeline>
+<codeline lineno="26"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="27"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!frame<sp/>||<sp/>!pos<sp/>||<sp/>frame-&gt;<ref refid="structSYN__CAN__Frame_1aa28e28d157508dfd7f94aaa53871c698" kindref="member">dlc</ref><sp/>&lt;<sp/>8)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>pos_idx<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="30"><highlight class="normal"><sp/><sp/><sp/><sp/>pos-&gt;<ref refid="structSYN__N2K__PositionRapid_1a133dd5df9f4fbf14a9d12cbdd712a42a" kindref="member">latitude_1e7</ref><sp/><sp/>=<sp/>(int32_t)<ref refid="syn__pack_8h_1a375de212bd1c8600aaad3301261c0bbb" kindref="member">syn_unpack_u32_le</ref>(frame-&gt;<ref refid="structSYN__CAN__Frame_1a823d943b00d88be2e8f3a724bf7aa94c" kindref="member">data</ref>,<sp/>&amp;pos_idx);</highlight></codeline>
+<codeline lineno="31"><highlight class="normal"><sp/><sp/><sp/><sp/>pos-&gt;<ref refid="structSYN__N2K__PositionRapid_1ab1872917f4f175483d9cf35e681d9652" kindref="member">longitude_1e7</ref><sp/>=<sp/>(int32_t)<ref refid="syn__pack_8h_1a375de212bd1c8600aaad3301261c0bbb" kindref="member">syn_unpack_u32_le</ref>(frame-&gt;<ref refid="structSYN__CAN__Frame_1a823d943b00d88be2e8f3a724bf7aa94c" kindref="member">data</ref>,<sp/>&amp;pos_idx);</highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="34"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__n2k_8c_1acc428f83a8d8f58a28ba4c9bcd5fbc96" kindref="member">syn_n2k_encode_cog_sog_rapid</ref>(uint8_t<sp/>sa,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__N2K__CogSogRapid" kindref="compound">SYN_N2K_CogSogRapid</ref><sp/>*cog_sog,<sp/><ref refid="structSYN__CAN__Frame" kindref="compound">SYN_CAN_Frame</ref><sp/>*frame)</highlight></codeline>
+<codeline lineno="37"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="38"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!cog_sog<sp/>||<sp/>!frame)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"><sp/><sp/><sp/><sp/>frame-&gt;<ref refid="structSYN__CAN__Frame_1a398fcc4dcd7e0cad9d130ad99148964b" kindref="member">id</ref><sp/>=<sp/><ref refid="syn__j1939_8c_1a42cc74674fd684d52c7e07517b399d74" kindref="member">syn_j1939_id_pack</ref>(2,<sp/><ref refid="group__n2k__pgns_1ga4fe03c3b3f72950d58a1f4c7aa432662" kindref="member">SYN_N2K_PGN_COG_SOG_RAPID</ref>,<sp/>sa,<sp/><ref refid="group__j1939__addresses_1ga9f29cc12048817503baa24b0a893f24b" kindref="member">SYN_J1939_ADDR_GLOBAL</ref>);</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"><sp/><sp/><sp/><sp/>frame-&gt;<ref refid="structSYN__CAN__Frame_1aa28e28d157508dfd7f94aaa53871c698" kindref="member">dlc</ref><sp/>=<sp/>8;</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"><sp/><sp/><sp/><sp/>frame-&gt;<ref refid="structSYN__CAN__Frame_1a99c7f6ff1ef97c339417fef135ec8810" kindref="member">extended</ref><sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>pos_idx<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__pack_8h_1aac40f9b22618ee05925bb28b93f1cc6d" kindref="member">syn_pack_u8</ref>(frame-&gt;<ref refid="structSYN__CAN__Frame_1a823d943b00d88be2e8f3a724bf7aa94c" kindref="member">data</ref>,<sp/>&amp;pos_idx,<sp/>cog_sog-&gt;<ref refid="structSYN__N2K__CogSogRapid_1abc378e83065c9f74ae2c51216af40004" kindref="member">sid</ref>);</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__pack_8h_1aac40f9b22618ee05925bb28b93f1cc6d" kindref="member">syn_pack_u8</ref>(frame-&gt;<ref refid="structSYN__CAN__Frame_1a823d943b00d88be2e8f3a724bf7aa94c" kindref="member">data</ref>,<sp/>&amp;pos_idx,<sp/>(uint8_t)(cog_sog-&gt;<ref refid="structSYN__N2K__CogSogRapid_1a0ef64551d44ed62b8a314ddde6870057" kindref="member">cog_ref</ref><sp/>&amp;<sp/>0x03U)<sp/>|<sp/>0xFCU);</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__pack_8h_1abfc3cc697bedf7605f54285824f4b99d" kindref="member">syn_pack_u16_le</ref>(frame-&gt;<ref refid="structSYN__CAN__Frame_1a823d943b00d88be2e8f3a724bf7aa94c" kindref="member">data</ref>,<sp/>&amp;pos_idx,<sp/>cog_sog-&gt;<ref refid="structSYN__N2K__CogSogRapid_1aa21d38f55f260b92a1c91b8bc38a4d60" kindref="member">cog_rad_1e4</ref>);</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__pack_8h_1abfc3cc697bedf7605f54285824f4b99d" kindref="member">syn_pack_u16_le</ref>(frame-&gt;<ref refid="structSYN__CAN__Frame_1a823d943b00d88be2e8f3a724bf7aa94c" kindref="member">data</ref>,<sp/>&amp;pos_idx,<sp/>cog_sog-&gt;<ref refid="structSYN__N2K__CogSogRapid_1a72544e7b93038b9c82fcdcd109ddbf61" kindref="member">sog_m_s_1e2</ref>);</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__pack_8h_1aac40f9b22618ee05925bb28b93f1cc6d" kindref="member">syn_pack_u8</ref>(frame-&gt;<ref refid="structSYN__CAN__Frame_1a823d943b00d88be2e8f3a724bf7aa94c" kindref="member">data</ref>,<sp/>&amp;pos_idx,<sp/>0xFFU);<sp/></highlight><highlight class="comment">/*<sp/>Reserved<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__pack_8h_1aac40f9b22618ee05925bb28b93f1cc6d" kindref="member">syn_pack_u8</ref>(frame-&gt;<ref refid="structSYN__CAN__Frame_1a823d943b00d88be2e8f3a724bf7aa94c" kindref="member">data</ref>,<sp/>&amp;pos_idx,<sp/>0xFFU);<sp/></highlight><highlight class="comment">/*<sp/>Reserved<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="51"><highlight class="normal"></highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="53"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"></highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__n2k_8c_1af758ec047325f497cbd0447e1e6a3ee9" kindref="member">syn_n2k_decode_cog_sog_rapid</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__CAN__Frame" kindref="compound">SYN_CAN_Frame</ref><sp/>*frame,<sp/><ref refid="structSYN__N2K__CogSogRapid" kindref="compound">SYN_N2K_CogSogRapid</ref><sp/>*cog_sog)</highlight></codeline>
+<codeline lineno="56"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!frame<sp/>||<sp/>!cog_sog<sp/>||<sp/>frame-&gt;<ref refid="structSYN__CAN__Frame_1aa28e28d157508dfd7f94aaa53871c698" kindref="member">dlc</ref><sp/>&lt;<sp/>6)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"></highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>pos_idx<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"><sp/><sp/><sp/><sp/>cog_sog-&gt;<ref refid="structSYN__N2K__CogSogRapid_1abc378e83065c9f74ae2c51216af40004" kindref="member">sid</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/><ref refid="syn__pack_8h_1abc721915156bfc4d32591812796f3797" kindref="member">syn_unpack_u8</ref>(frame-&gt;<ref refid="structSYN__CAN__Frame_1a823d943b00d88be2e8f3a724bf7aa94c" kindref="member">data</ref>,<sp/>&amp;pos_idx);</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/><sp/><sp/>cog_sog-&gt;<ref refid="structSYN__N2K__CogSogRapid_1a0ef64551d44ed62b8a314ddde6870057" kindref="member">cog_ref</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/><ref refid="syn__pack_8h_1abc721915156bfc4d32591812796f3797" kindref="member">syn_unpack_u8</ref>(frame-&gt;<ref refid="structSYN__CAN__Frame_1a823d943b00d88be2e8f3a724bf7aa94c" kindref="member">data</ref>,<sp/>&amp;pos_idx)<sp/>&amp;<sp/>0x03U;</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"><sp/><sp/><sp/><sp/>cog_sog-&gt;<ref refid="structSYN__N2K__CogSogRapid_1aa21d38f55f260b92a1c91b8bc38a4d60" kindref="member">cog_rad_1e4</ref><sp/><sp/><sp/>=<sp/><ref refid="syn__pack_8h_1ae4855adc140fc4dbd50792f7d637eb47" kindref="member">syn_unpack_u16_le</ref>(frame-&gt;<ref refid="structSYN__CAN__Frame_1a823d943b00d88be2e8f3a724bf7aa94c" kindref="member">data</ref>,<sp/>&amp;pos_idx);</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"><sp/><sp/><sp/><sp/>cog_sog-&gt;<ref refid="structSYN__N2K__CogSogRapid_1a72544e7b93038b9c82fcdcd109ddbf61" kindref="member">sog_m_s_1e2</ref><sp/><sp/><sp/>=<sp/><ref refid="syn__pack_8h_1ae4855adc140fc4dbd50792f7d637eb47" kindref="member">syn_unpack_u16_le</ref>(frame-&gt;<ref refid="structSYN__CAN__Frame_1a823d943b00d88be2e8f3a724bf7aa94c" kindref="member">data</ref>,<sp/>&amp;pos_idx);</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"></highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="66"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"></highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__n2k_8c_1a7d1795e00c17c0babd6e17f3e5399b98" kindref="member">syn_n2k_encode_heading</ref>(uint8_t<sp/>sa,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__N2K__VesselHeading" kindref="compound">SYN_N2K_VesselHeading</ref><sp/>*heading,<sp/><ref refid="structSYN__CAN__Frame" kindref="compound">SYN_CAN_Frame</ref><sp/>*frame)</highlight></codeline>
+<codeline lineno="69"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!heading<sp/>||<sp/>!frame)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"></highlight></codeline>
+<codeline lineno="72"><highlight class="normal"><sp/><sp/><sp/><sp/>frame-&gt;<ref refid="structSYN__CAN__Frame_1a398fcc4dcd7e0cad9d130ad99148964b" kindref="member">id</ref><sp/>=<sp/><ref refid="syn__j1939_8c_1a42cc74674fd684d52c7e07517b399d74" kindref="member">syn_j1939_id_pack</ref>(2,<sp/><ref refid="group__n2k__pgns_1gaacc19bdbd1b18f1cb67a7aa3d406510c" kindref="member">SYN_N2K_PGN_VESSEL_HEADING</ref>,<sp/>sa,<sp/><ref refid="group__j1939__addresses_1ga9f29cc12048817503baa24b0a893f24b" kindref="member">SYN_J1939_ADDR_GLOBAL</ref>);</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><sp/><sp/><sp/><sp/>frame-&gt;<ref refid="structSYN__CAN__Frame_1aa28e28d157508dfd7f94aaa53871c698" kindref="member">dlc</ref><sp/>=<sp/>8;</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"><sp/><sp/><sp/><sp/>frame-&gt;<ref refid="structSYN__CAN__Frame_1a99c7f6ff1ef97c339417fef135ec8810" kindref="member">extended</ref><sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"></highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>pos_idx<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__pack_8h_1aac40f9b22618ee05925bb28b93f1cc6d" kindref="member">syn_pack_u8</ref>(frame-&gt;<ref refid="structSYN__CAN__Frame_1a823d943b00d88be2e8f3a724bf7aa94c" kindref="member">data</ref>,<sp/>&amp;pos_idx,<sp/>heading-&gt;<ref refid="structSYN__N2K__VesselHeading_1ad5ad0137dd2eb54faee5e16312de0083" kindref="member">sid</ref>);</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__pack_8h_1abfc3cc697bedf7605f54285824f4b99d" kindref="member">syn_pack_u16_le</ref>(frame-&gt;<ref refid="structSYN__CAN__Frame_1a823d943b00d88be2e8f3a724bf7aa94c" kindref="member">data</ref>,<sp/>&amp;pos_idx,<sp/>heading-&gt;<ref refid="structSYN__N2K__VesselHeading_1a380c04e852dcf83ea74e982d7807c878" kindref="member">heading_rad_1e4</ref>);</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__pack_8h_1abfc3cc697bedf7605f54285824f4b99d" kindref="member">syn_pack_u16_le</ref>(frame-&gt;<ref refid="structSYN__CAN__Frame_1a823d943b00d88be2e8f3a724bf7aa94c" kindref="member">data</ref>,<sp/>&amp;pos_idx,<sp/>(uint16_t)heading-&gt;<ref refid="structSYN__N2K__VesselHeading_1aee040e5fe06e787af977500127f0cf3d" kindref="member">deviation_rad_1e4</ref>);</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__pack_8h_1abfc3cc697bedf7605f54285824f4b99d" kindref="member">syn_pack_u16_le</ref>(frame-&gt;<ref refid="structSYN__CAN__Frame_1a823d943b00d88be2e8f3a724bf7aa94c" kindref="member">data</ref>,<sp/>&amp;pos_idx,<sp/>(uint16_t)heading-&gt;<ref refid="structSYN__N2K__VesselHeading_1ab7afee802e9d5f08f81f7c3ffdcc12fe" kindref="member">variation_rad_1e4</ref>);</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__pack_8h_1aac40f9b22618ee05925bb28b93f1cc6d" kindref="member">syn_pack_u8</ref>(frame-&gt;<ref refid="structSYN__CAN__Frame_1a823d943b00d88be2e8f3a724bf7aa94c" kindref="member">data</ref>,<sp/>&amp;pos_idx,<sp/>(uint8_t)(heading-&gt;<ref refid="structSYN__N2K__VesselHeading_1a14351c44190bea8218e29afd7786c209" kindref="member">heading_ref</ref><sp/>&amp;<sp/>0x03U)<sp/>|<sp/>0xFCU);</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"></highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="84"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"></highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__n2k_8c_1a0d5bca838751fcae86333d4bd3808614" kindref="member">syn_n2k_decode_heading</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__CAN__Frame" kindref="compound">SYN_CAN_Frame</ref><sp/>*frame,<sp/><ref refid="structSYN__N2K__VesselHeading" kindref="compound">SYN_N2K_VesselHeading</ref><sp/>*heading)</highlight></codeline>
+<codeline lineno="87"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!frame<sp/>||<sp/>!heading<sp/>||<sp/>frame-&gt;<ref refid="structSYN__CAN__Frame_1aa28e28d157508dfd7f94aaa53871c698" kindref="member">dlc</ref><sp/>&lt;<sp/>8)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"></highlight></codeline>
+<codeline lineno="90"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>pos_idx<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"><sp/><sp/><sp/><sp/>heading-&gt;<ref refid="structSYN__N2K__VesselHeading_1ad5ad0137dd2eb54faee5e16312de0083" kindref="member">sid</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/><ref refid="syn__pack_8h_1abc721915156bfc4d32591812796f3797" kindref="member">syn_unpack_u8</ref>(frame-&gt;<ref refid="structSYN__CAN__Frame_1a823d943b00d88be2e8f3a724bf7aa94c" kindref="member">data</ref>,<sp/>&amp;pos_idx);</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/><sp/><sp/>heading-&gt;<ref refid="structSYN__N2K__VesselHeading_1a380c04e852dcf83ea74e982d7807c878" kindref="member">heading_rad_1e4</ref><sp/><sp/><sp/>=<sp/><ref refid="syn__pack_8h_1ae4855adc140fc4dbd50792f7d637eb47" kindref="member">syn_unpack_u16_le</ref>(frame-&gt;<ref refid="structSYN__CAN__Frame_1a823d943b00d88be2e8f3a724bf7aa94c" kindref="member">data</ref>,<sp/>&amp;pos_idx);</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><sp/><sp/><sp/><sp/>heading-&gt;<ref refid="structSYN__N2K__VesselHeading_1aee040e5fe06e787af977500127f0cf3d" kindref="member">deviation_rad_1e4</ref><sp/>=<sp/><ref refid="syn__pack_8h_1a0a9ae0ca09d665b3991142935b46e5ba" kindref="member">syn_unpack_i16_le</ref>(frame-&gt;<ref refid="structSYN__CAN__Frame_1a823d943b00d88be2e8f3a724bf7aa94c" kindref="member">data</ref>,<sp/>&amp;pos_idx);</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><sp/><sp/><sp/><sp/>heading-&gt;<ref refid="structSYN__N2K__VesselHeading_1ab7afee802e9d5f08f81f7c3ffdcc12fe" kindref="member">variation_rad_1e4</ref><sp/>=<sp/><ref refid="syn__pack_8h_1a0a9ae0ca09d665b3991142935b46e5ba" kindref="member">syn_unpack_i16_le</ref>(frame-&gt;<ref refid="structSYN__CAN__Frame_1a823d943b00d88be2e8f3a724bf7aa94c" kindref="member">data</ref>,<sp/>&amp;pos_idx);</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/>heading-&gt;<ref refid="structSYN__N2K__VesselHeading_1a14351c44190bea8218e29afd7786c209" kindref="member">heading_ref</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/><ref refid="syn__pack_8h_1abc721915156bfc4d32591812796f3797" kindref="member">syn_unpack_u8</ref>(frame-&gt;<ref refid="structSYN__CAN__Frame_1a823d943b00d88be2e8f3a724bf7aa94c" kindref="member">data</ref>,<sp/>&amp;pos_idx)<sp/>&amp;<sp/>0x03U;</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"></highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="98"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"></highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__n2k_8c_1a0cbbc19a2fc4bee7f2c2981224c06e9f" kindref="member">syn_n2k_encode_battery</ref>(uint8_t<sp/>sa,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__N2K__BatteryStatus" kindref="compound">SYN_N2K_BatteryStatus</ref><sp/>*battery,<sp/><ref refid="structSYN__CAN__Frame" kindref="compound">SYN_CAN_Frame</ref><sp/>*frame)</highlight></codeline>
+<codeline lineno="101"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!battery<sp/>||<sp/>!frame)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"></highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/><sp/><sp/><sp/>frame-&gt;<ref refid="structSYN__CAN__Frame_1a398fcc4dcd7e0cad9d130ad99148964b" kindref="member">id</ref><sp/>=<sp/><ref refid="syn__j1939_8c_1a42cc74674fd684d52c7e07517b399d74" kindref="member">syn_j1939_id_pack</ref>(6,<sp/><ref refid="group__n2k__pgns_1gad38f38f1f8b4368e50a3451fb4b89790" kindref="member">SYN_N2K_PGN_BATTERY_STATUS</ref>,<sp/>sa,<sp/><ref refid="group__j1939__addresses_1ga9f29cc12048817503baa24b0a893f24b" kindref="member">SYN_J1939_ADDR_GLOBAL</ref>);</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><sp/><sp/><sp/><sp/>frame-&gt;<ref refid="structSYN__CAN__Frame_1aa28e28d157508dfd7f94aaa53871c698" kindref="member">dlc</ref><sp/>=<sp/>8;</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"><sp/><sp/><sp/><sp/>frame-&gt;<ref refid="structSYN__CAN__Frame_1a99c7f6ff1ef97c339417fef135ec8810" kindref="member">extended</ref><sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"></highlight></codeline>
+<codeline lineno="108"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>pos_idx<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="109"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__pack_8h_1aac40f9b22618ee05925bb28b93f1cc6d" kindref="member">syn_pack_u8</ref>(frame-&gt;<ref refid="structSYN__CAN__Frame_1a823d943b00d88be2e8f3a724bf7aa94c" kindref="member">data</ref>,<sp/>&amp;pos_idx,<sp/>battery-&gt;<ref refid="structSYN__N2K__BatteryStatus_1a0389dac984e5f0889e8ffcf86122deb0" kindref="member">instance</ref>);</highlight></codeline>
+<codeline lineno="110"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__pack_8h_1abfc3cc697bedf7605f54285824f4b99d" kindref="member">syn_pack_u16_le</ref>(frame-&gt;<ref refid="structSYN__CAN__Frame_1a823d943b00d88be2e8f3a724bf7aa94c" kindref="member">data</ref>,<sp/>&amp;pos_idx,<sp/>battery-&gt;<ref refid="structSYN__N2K__BatteryStatus_1a35ac892772f38fa1fd641298c86c3f8f" kindref="member">voltage_1e2</ref>);</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__pack_8h_1abfc3cc697bedf7605f54285824f4b99d" kindref="member">syn_pack_u16_le</ref>(frame-&gt;<ref refid="structSYN__CAN__Frame_1a823d943b00d88be2e8f3a724bf7aa94c" kindref="member">data</ref>,<sp/>&amp;pos_idx,<sp/>(uint16_t)battery-&gt;<ref refid="structSYN__N2K__BatteryStatus_1a28a8cee174c8243636a61d3969d052b3" kindref="member">current_1e1</ref>);</highlight></codeline>
+<codeline lineno="112"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__pack_8h_1abfc3cc697bedf7605f54285824f4b99d" kindref="member">syn_pack_u16_le</ref>(frame-&gt;<ref refid="structSYN__CAN__Frame_1a823d943b00d88be2e8f3a724bf7aa94c" kindref="member">data</ref>,<sp/>&amp;pos_idx,<sp/>battery-&gt;<ref refid="structSYN__N2K__BatteryStatus_1a687f8748bafddc6ea05e96e17a1a1f2e" kindref="member">temperature_1e1</ref>);</highlight></codeline>
+<codeline lineno="113"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__pack_8h_1aac40f9b22618ee05925bb28b93f1cc6d" kindref="member">syn_pack_u8</ref>(frame-&gt;<ref refid="structSYN__CAN__Frame_1a823d943b00d88be2e8f3a724bf7aa94c" kindref="member">data</ref>,<sp/>&amp;pos_idx,<sp/>battery-&gt;<ref refid="structSYN__N2K__BatteryStatus_1a0d00ec206252717ee9b833c87afc178f" kindref="member">sid</ref>);</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"></highlight></codeline>
+<codeline lineno="115"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="116"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="117"><highlight class="normal"></highlight></codeline>
+<codeline lineno="118"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__n2k_8c_1ab565ebe5a38689a1d407ef56f5d651fb" kindref="member">syn_n2k_decode_battery</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__CAN__Frame" kindref="compound">SYN_CAN_Frame</ref><sp/>*frame,<sp/><ref refid="structSYN__N2K__BatteryStatus" kindref="compound">SYN_N2K_BatteryStatus</ref><sp/>*battery)</highlight></codeline>
+<codeline lineno="119"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="120"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!frame<sp/>||<sp/>!battery<sp/>||<sp/>frame-&gt;<ref refid="structSYN__CAN__Frame_1aa28e28d157508dfd7f94aaa53871c698" kindref="member">dlc</ref><sp/>&lt;<sp/>8)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="121"><highlight class="normal"></highlight></codeline>
+<codeline lineno="122"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>pos_idx<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="123"><highlight class="normal"><sp/><sp/><sp/><sp/>battery-&gt;<ref refid="structSYN__N2K__BatteryStatus_1a0389dac984e5f0889e8ffcf86122deb0" kindref="member">instance</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/><ref refid="syn__pack_8h_1abc721915156bfc4d32591812796f3797" kindref="member">syn_unpack_u8</ref>(frame-&gt;<ref refid="structSYN__CAN__Frame_1a823d943b00d88be2e8f3a724bf7aa94c" kindref="member">data</ref>,<sp/>&amp;pos_idx);</highlight></codeline>
+<codeline lineno="124"><highlight class="normal"><sp/><sp/><sp/><sp/>battery-&gt;<ref refid="structSYN__N2K__BatteryStatus_1a35ac892772f38fa1fd641298c86c3f8f" kindref="member">voltage_1e2</ref><sp/><sp/><sp/><sp/><sp/>=<sp/><ref refid="syn__pack_8h_1ae4855adc140fc4dbd50792f7d637eb47" kindref="member">syn_unpack_u16_le</ref>(frame-&gt;<ref refid="structSYN__CAN__Frame_1a823d943b00d88be2e8f3a724bf7aa94c" kindref="member">data</ref>,<sp/>&amp;pos_idx);</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"><sp/><sp/><sp/><sp/>battery-&gt;<ref refid="structSYN__N2K__BatteryStatus_1a28a8cee174c8243636a61d3969d052b3" kindref="member">current_1e1</ref><sp/><sp/><sp/><sp/><sp/>=<sp/><ref refid="syn__pack_8h_1a0a9ae0ca09d665b3991142935b46e5ba" kindref="member">syn_unpack_i16_le</ref>(frame-&gt;<ref refid="structSYN__CAN__Frame_1a823d943b00d88be2e8f3a724bf7aa94c" kindref="member">data</ref>,<sp/>&amp;pos_idx);</highlight></codeline>
+<codeline lineno="126"><highlight class="normal"><sp/><sp/><sp/><sp/>battery-&gt;<ref refid="structSYN__N2K__BatteryStatus_1a687f8748bafddc6ea05e96e17a1a1f2e" kindref="member">temperature_1e1</ref><sp/>=<sp/><ref refid="syn__pack_8h_1ae4855adc140fc4dbd50792f7d637eb47" kindref="member">syn_unpack_u16_le</ref>(frame-&gt;<ref refid="structSYN__CAN__Frame_1a823d943b00d88be2e8f3a724bf7aa94c" kindref="member">data</ref>,<sp/>&amp;pos_idx);</highlight></codeline>
+<codeline lineno="127"><highlight class="normal"><sp/><sp/><sp/><sp/>battery-&gt;<ref refid="structSYN__N2K__BatteryStatus_1a0d00ec206252717ee9b833c87afc178f" kindref="member">sid</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/><ref refid="syn__pack_8h_1abc721915156bfc4d32591812796f3797" kindref="member">syn_unpack_u8</ref>(frame-&gt;<ref refid="structSYN__CAN__Frame_1a823d943b00d88be2e8f3a724bf7aa94c" kindref="member">data</ref>,<sp/>&amp;pos_idx);</highlight></codeline>
+<codeline lineno="128"><highlight class="normal"></highlight></codeline>
+<codeline lineno="129"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="130"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="131"><highlight class="normal"></highlight></codeline>
+<codeline lineno="132"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__n2k_8c_1a63845e843629d1e01626068e768984a7" kindref="member">syn_n2k_encode_dc_detailed</ref>(uint8_t<sp/>sa,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__N2K__DcDetailedStatus" kindref="compound">SYN_N2K_DcDetailedStatus</ref><sp/>*dc,<sp/><ref refid="structSYN__CAN__Frame" kindref="compound">SYN_CAN_Frame</ref><sp/>*frame)</highlight></codeline>
+<codeline lineno="133"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="134"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!dc<sp/>||<sp/>!frame)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="135"><highlight class="normal"></highlight></codeline>
+<codeline lineno="136"><highlight class="normal"><sp/><sp/><sp/><sp/>frame-&gt;<ref refid="structSYN__CAN__Frame_1a398fcc4dcd7e0cad9d130ad99148964b" kindref="member">id</ref><sp/>=<sp/><ref refid="syn__j1939_8c_1a42cc74674fd684d52c7e07517b399d74" kindref="member">syn_j1939_id_pack</ref>(6,<sp/><ref refid="group__n2k__pgns_1gaf9e4c50820021e60e4364cc103c17e5a" kindref="member">SYN_N2K_PGN_DC_DETAILED_STATUS</ref>,<sp/>sa,<sp/><ref refid="group__j1939__addresses_1ga9f29cc12048817503baa24b0a893f24b" kindref="member">SYN_J1939_ADDR_GLOBAL</ref>);</highlight></codeline>
+<codeline lineno="137"><highlight class="normal"><sp/><sp/><sp/><sp/>frame-&gt;<ref refid="structSYN__CAN__Frame_1aa28e28d157508dfd7f94aaa53871c698" kindref="member">dlc</ref><sp/>=<sp/>8;</highlight></codeline>
+<codeline lineno="138"><highlight class="normal"><sp/><sp/><sp/><sp/>frame-&gt;<ref refid="structSYN__CAN__Frame_1a99c7f6ff1ef97c339417fef135ec8810" kindref="member">extended</ref><sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="139"><highlight class="normal"></highlight></codeline>
+<codeline lineno="140"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>pos_idx<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="141"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__pack_8h_1aac40f9b22618ee05925bb28b93f1cc6d" kindref="member">syn_pack_u8</ref>(frame-&gt;<ref refid="structSYN__CAN__Frame_1a823d943b00d88be2e8f3a724bf7aa94c" kindref="member">data</ref>,<sp/>&amp;pos_idx,<sp/>dc-&gt;<ref refid="structSYN__N2K__DcDetailedStatus_1a1de396577f64d31a5dc60801128e63b7" kindref="member">sid</ref>);</highlight></codeline>
+<codeline lineno="142"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__pack_8h_1aac40f9b22618ee05925bb28b93f1cc6d" kindref="member">syn_pack_u8</ref>(frame-&gt;<ref refid="structSYN__CAN__Frame_1a823d943b00d88be2e8f3a724bf7aa94c" kindref="member">data</ref>,<sp/>&amp;pos_idx,<sp/>dc-&gt;<ref refid="structSYN__N2K__DcDetailedStatus_1a88d0ccd1e8ca2a72f55c2a99544609e7" kindref="member">instance</ref>);</highlight></codeline>
+<codeline lineno="143"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__pack_8h_1aac40f9b22618ee05925bb28b93f1cc6d" kindref="member">syn_pack_u8</ref>(frame-&gt;<ref refid="structSYN__CAN__Frame_1a823d943b00d88be2e8f3a724bf7aa94c" kindref="member">data</ref>,<sp/>&amp;pos_idx,<sp/>dc-&gt;<ref refid="structSYN__N2K__DcDetailedStatus_1a1cacc43c9957d2346dbb4be89e365ee7" kindref="member">dc_type</ref>);</highlight></codeline>
+<codeline lineno="144"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__pack_8h_1aac40f9b22618ee05925bb28b93f1cc6d" kindref="member">syn_pack_u8</ref>(frame-&gt;<ref refid="structSYN__CAN__Frame_1a823d943b00d88be2e8f3a724bf7aa94c" kindref="member">data</ref>,<sp/>&amp;pos_idx,<sp/>dc-&gt;<ref refid="structSYN__N2K__DcDetailedStatus_1aa810f4c70d1fdf77dbcfe509c7da5006" kindref="member">state_of_charge</ref>);</highlight></codeline>
+<codeline lineno="145"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__pack_8h_1aac40f9b22618ee05925bb28b93f1cc6d" kindref="member">syn_pack_u8</ref>(frame-&gt;<ref refid="structSYN__CAN__Frame_1a823d943b00d88be2e8f3a724bf7aa94c" kindref="member">data</ref>,<sp/>&amp;pos_idx,<sp/>dc-&gt;<ref refid="structSYN__N2K__DcDetailedStatus_1a2f446491565fe97456b8a5069b1bbc38" kindref="member">state_of_health</ref>);</highlight></codeline>
+<codeline lineno="146"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__pack_8h_1abfc3cc697bedf7605f54285824f4b99d" kindref="member">syn_pack_u16_le</ref>(frame-&gt;<ref refid="structSYN__CAN__Frame_1a823d943b00d88be2e8f3a724bf7aa94c" kindref="member">data</ref>,<sp/>&amp;pos_idx,<sp/>dc-&gt;<ref refid="structSYN__N2K__DcDetailedStatus_1aaa8c4c80e67692fc06584a1633179d06" kindref="member">time_to_go_min</ref>);</highlight></codeline>
+<codeline lineno="147"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__pack_8h_1aac40f9b22618ee05925bb28b93f1cc6d" kindref="member">syn_pack_u8</ref>(frame-&gt;<ref refid="structSYN__CAN__Frame_1a823d943b00d88be2e8f3a724bf7aa94c" kindref="member">data</ref>,<sp/>&amp;pos_idx,<sp/>(uint8_t)dc-&gt;<ref refid="structSYN__N2K__DcDetailedStatus_1aeb29baafbb8e39912ecdf0fbc53ba570" kindref="member">capacity_ah_1e1</ref>);</highlight></codeline>
+<codeline lineno="148"><highlight class="normal"></highlight></codeline>
+<codeline lineno="149"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="150"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="151"><highlight class="normal"></highlight></codeline>
+<codeline lineno="152"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__n2k_8c_1a9bf9b0b251ddfd7b541f12bbab661dc0" kindref="member">syn_n2k_decode_dc_detailed</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__CAN__Frame" kindref="compound">SYN_CAN_Frame</ref><sp/>*frame,<sp/><ref refid="structSYN__N2K__DcDetailedStatus" kindref="compound">SYN_N2K_DcDetailedStatus</ref><sp/>*dc)</highlight></codeline>
+<codeline lineno="153"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="154"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!frame<sp/>||<sp/>!dc<sp/>||<sp/>frame-&gt;<ref refid="structSYN__CAN__Frame_1aa28e28d157508dfd7f94aaa53871c698" kindref="member">dlc</ref><sp/>&lt;<sp/>8)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="155"><highlight class="normal"></highlight></codeline>
+<codeline lineno="156"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>pos_idx<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="157"><highlight class="normal"><sp/><sp/><sp/><sp/>dc-&gt;<ref refid="structSYN__N2K__DcDetailedStatus_1a1de396577f64d31a5dc60801128e63b7" kindref="member">sid</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/><ref refid="syn__pack_8h_1abc721915156bfc4d32591812796f3797" kindref="member">syn_unpack_u8</ref>(frame-&gt;<ref refid="structSYN__CAN__Frame_1a823d943b00d88be2e8f3a724bf7aa94c" kindref="member">data</ref>,<sp/>&amp;pos_idx);</highlight></codeline>
+<codeline lineno="158"><highlight class="normal"><sp/><sp/><sp/><sp/>dc-&gt;<ref refid="structSYN__N2K__DcDetailedStatus_1a88d0ccd1e8ca2a72f55c2a99544609e7" kindref="member">instance</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/><ref refid="syn__pack_8h_1abc721915156bfc4d32591812796f3797" kindref="member">syn_unpack_u8</ref>(frame-&gt;<ref refid="structSYN__CAN__Frame_1a823d943b00d88be2e8f3a724bf7aa94c" kindref="member">data</ref>,<sp/>&amp;pos_idx);</highlight></codeline>
+<codeline lineno="159"><highlight class="normal"><sp/><sp/><sp/><sp/>dc-&gt;<ref refid="structSYN__N2K__DcDetailedStatus_1a1cacc43c9957d2346dbb4be89e365ee7" kindref="member">dc_type</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/><ref refid="syn__pack_8h_1abc721915156bfc4d32591812796f3797" kindref="member">syn_unpack_u8</ref>(frame-&gt;<ref refid="structSYN__CAN__Frame_1a823d943b00d88be2e8f3a724bf7aa94c" kindref="member">data</ref>,<sp/>&amp;pos_idx);</highlight></codeline>
+<codeline lineno="160"><highlight class="normal"><sp/><sp/><sp/><sp/>dc-&gt;<ref refid="structSYN__N2K__DcDetailedStatus_1aa810f4c70d1fdf77dbcfe509c7da5006" kindref="member">state_of_charge</ref><sp/>=<sp/><ref refid="syn__pack_8h_1abc721915156bfc4d32591812796f3797" kindref="member">syn_unpack_u8</ref>(frame-&gt;<ref refid="structSYN__CAN__Frame_1a823d943b00d88be2e8f3a724bf7aa94c" kindref="member">data</ref>,<sp/>&amp;pos_idx);</highlight></codeline>
+<codeline lineno="161"><highlight class="normal"><sp/><sp/><sp/><sp/>dc-&gt;<ref refid="structSYN__N2K__DcDetailedStatus_1a2f446491565fe97456b8a5069b1bbc38" kindref="member">state_of_health</ref><sp/>=<sp/><ref refid="syn__pack_8h_1abc721915156bfc4d32591812796f3797" kindref="member">syn_unpack_u8</ref>(frame-&gt;<ref refid="structSYN__CAN__Frame_1a823d943b00d88be2e8f3a724bf7aa94c" kindref="member">data</ref>,<sp/>&amp;pos_idx);</highlight></codeline>
+<codeline lineno="162"><highlight class="normal"><sp/><sp/><sp/><sp/>dc-&gt;<ref refid="structSYN__N2K__DcDetailedStatus_1aaa8c4c80e67692fc06584a1633179d06" kindref="member">time_to_go_min</ref><sp/><sp/>=<sp/><ref refid="syn__pack_8h_1ae4855adc140fc4dbd50792f7d637eb47" kindref="member">syn_unpack_u16_le</ref>(frame-&gt;<ref refid="structSYN__CAN__Frame_1a823d943b00d88be2e8f3a724bf7aa94c" kindref="member">data</ref>,<sp/>&amp;pos_idx);</highlight></codeline>
+<codeline lineno="163"><highlight class="normal"><sp/><sp/><sp/><sp/>dc-&gt;<ref refid="structSYN__N2K__DcDetailedStatus_1aeb29baafbb8e39912ecdf0fbc53ba570" kindref="member">capacity_ah_1e1</ref><sp/>=<sp/>(uint16_t)<ref refid="syn__pack_8h_1abc721915156bfc4d32591812796f3797" kindref="member">syn_unpack_u8</ref>(frame-&gt;<ref refid="structSYN__CAN__Frame_1a823d943b00d88be2e8f3a724bf7aa94c" kindref="member">data</ref>,<sp/>&amp;pos_idx);</highlight></codeline>
+<codeline lineno="164"><highlight class="normal"></highlight></codeline>
+<codeline lineno="165"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="166"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="167"><highlight class="normal"></highlight></codeline>
+<codeline lineno="168"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__n2k_8c_1ac00af7b7618dff454eff86ad957f5d83" kindref="member">syn_n2k_encode_environment</ref>(uint8_t<sp/>sa,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__N2K__EnvParams" kindref="compound">SYN_N2K_EnvParams</ref><sp/>*env,<sp/><ref refid="structSYN__CAN__Frame" kindref="compound">SYN_CAN_Frame</ref><sp/>*frame)</highlight></codeline>
+<codeline lineno="169"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="170"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!env<sp/>||<sp/>!frame)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="171"><highlight class="normal"></highlight></codeline>
+<codeline lineno="172"><highlight class="normal"><sp/><sp/><sp/><sp/>frame-&gt;<ref refid="structSYN__CAN__Frame_1a398fcc4dcd7e0cad9d130ad99148964b" kindref="member">id</ref><sp/>=<sp/><ref refid="syn__j1939_8c_1a42cc74674fd684d52c7e07517b399d74" kindref="member">syn_j1939_id_pack</ref>(6,<sp/><ref refid="group__n2k__pgns_1ga98966e88e03adac882fb0332f6d5fac2" kindref="member">SYN_N2K_PGN_ENV_PARAMS</ref>,<sp/>sa,<sp/><ref refid="group__j1939__addresses_1ga9f29cc12048817503baa24b0a893f24b" kindref="member">SYN_J1939_ADDR_GLOBAL</ref>);</highlight></codeline>
+<codeline lineno="173"><highlight class="normal"><sp/><sp/><sp/><sp/>frame-&gt;<ref refid="structSYN__CAN__Frame_1aa28e28d157508dfd7f94aaa53871c698" kindref="member">dlc</ref><sp/>=<sp/>8;</highlight></codeline>
+<codeline lineno="174"><highlight class="normal"><sp/><sp/><sp/><sp/>frame-&gt;<ref refid="structSYN__CAN__Frame_1a99c7f6ff1ef97c339417fef135ec8810" kindref="member">extended</ref><sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="175"><highlight class="normal"></highlight></codeline>
+<codeline lineno="176"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>pos_idx<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="177"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__pack_8h_1aac40f9b22618ee05925bb28b93f1cc6d" kindref="member">syn_pack_u8</ref>(frame-&gt;<ref refid="structSYN__CAN__Frame_1a823d943b00d88be2e8f3a724bf7aa94c" kindref="member">data</ref>,<sp/>&amp;pos_idx,<sp/>env-&gt;<ref refid="structSYN__N2K__EnvParams_1ab8c2ff57b5e7ae5a6dab8defaf542308" kindref="member">sid</ref>);</highlight></codeline>
+<codeline lineno="178"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__pack_8h_1abfc3cc697bedf7605f54285824f4b99d" kindref="member">syn_pack_u16_le</ref>(frame-&gt;<ref refid="structSYN__CAN__Frame_1a823d943b00d88be2e8f3a724bf7aa94c" kindref="member">data</ref>,<sp/>&amp;pos_idx,<sp/>env-&gt;<ref refid="structSYN__N2K__EnvParams_1aa73acc470134356b36c44d17505fbb44" kindref="member">water_temp_1e2</ref>);</highlight></codeline>
+<codeline lineno="179"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__pack_8h_1abfc3cc697bedf7605f54285824f4b99d" kindref="member">syn_pack_u16_le</ref>(frame-&gt;<ref refid="structSYN__CAN__Frame_1a823d943b00d88be2e8f3a724bf7aa94c" kindref="member">data</ref>,<sp/>&amp;pos_idx,<sp/>env-&gt;<ref refid="structSYN__N2K__EnvParams_1a634709a94bbb2d5e6843731005e5fbf7" kindref="member">air_temp_1e2</ref>);</highlight></codeline>
+<codeline lineno="180"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__pack_8h_1abfc3cc697bedf7605f54285824f4b99d" kindref="member">syn_pack_u16_le</ref>(frame-&gt;<ref refid="structSYN__CAN__Frame_1a823d943b00d88be2e8f3a724bf7aa94c" kindref="member">data</ref>,<sp/>&amp;pos_idx,<sp/>env-&gt;<ref refid="structSYN__N2K__EnvParams_1a25a4d9ab541322c72483a85328b54425" kindref="member">pressure_pa_1e2</ref>);</highlight></codeline>
+<codeline lineno="181"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__pack_8h_1aac40f9b22618ee05925bb28b93f1cc6d" kindref="member">syn_pack_u8</ref>(frame-&gt;<ref refid="structSYN__CAN__Frame_1a823d943b00d88be2e8f3a724bf7aa94c" kindref="member">data</ref>,<sp/>&amp;pos_idx,<sp/>0xFFU);<sp/></highlight><highlight class="comment">/*<sp/>Reserved<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="182"><highlight class="normal"></highlight></codeline>
+<codeline lineno="183"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="184"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="185"><highlight class="normal"></highlight></codeline>
+<codeline lineno="186"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__n2k_8c_1a0b7e10b538c9fb55950f45f9580cd957" kindref="member">syn_n2k_decode_environment</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__CAN__Frame" kindref="compound">SYN_CAN_Frame</ref><sp/>*frame,<sp/><ref refid="structSYN__N2K__EnvParams" kindref="compound">SYN_N2K_EnvParams</ref><sp/>*env)</highlight></codeline>
+<codeline lineno="187"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="188"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!frame<sp/>||<sp/>!env<sp/>||<sp/>frame-&gt;<ref refid="structSYN__CAN__Frame_1aa28e28d157508dfd7f94aaa53871c698" kindref="member">dlc</ref><sp/>&lt;<sp/>7)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="189"><highlight class="normal"></highlight></codeline>
+<codeline lineno="190"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>pos_idx<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="191"><highlight class="normal"><sp/><sp/><sp/><sp/>env-&gt;<ref refid="structSYN__N2K__EnvParams_1ab8c2ff57b5e7ae5a6dab8defaf542308" kindref="member">sid</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/><ref refid="syn__pack_8h_1abc721915156bfc4d32591812796f3797" kindref="member">syn_unpack_u8</ref>(frame-&gt;<ref refid="structSYN__CAN__Frame_1a823d943b00d88be2e8f3a724bf7aa94c" kindref="member">data</ref>,<sp/>&amp;pos_idx);</highlight></codeline>
+<codeline lineno="192"><highlight class="normal"><sp/><sp/><sp/><sp/>env-&gt;<ref refid="structSYN__N2K__EnvParams_1aa73acc470134356b36c44d17505fbb44" kindref="member">water_temp_1e2</ref><sp/>=<sp/><ref refid="syn__pack_8h_1ae4855adc140fc4dbd50792f7d637eb47" kindref="member">syn_unpack_u16_le</ref>(frame-&gt;<ref refid="structSYN__CAN__Frame_1a823d943b00d88be2e8f3a724bf7aa94c" kindref="member">data</ref>,<sp/>&amp;pos_idx);</highlight></codeline>
+<codeline lineno="193"><highlight class="normal"><sp/><sp/><sp/><sp/>env-&gt;<ref refid="structSYN__N2K__EnvParams_1a634709a94bbb2d5e6843731005e5fbf7" kindref="member">air_temp_1e2</ref><sp/><sp/><sp/>=<sp/><ref refid="syn__pack_8h_1ae4855adc140fc4dbd50792f7d637eb47" kindref="member">syn_unpack_u16_le</ref>(frame-&gt;<ref refid="structSYN__CAN__Frame_1a823d943b00d88be2e8f3a724bf7aa94c" kindref="member">data</ref>,<sp/>&amp;pos_idx);</highlight></codeline>
+<codeline lineno="194"><highlight class="normal"><sp/><sp/><sp/><sp/>env-&gt;<ref refid="structSYN__N2K__EnvParams_1a25a4d9ab541322c72483a85328b54425" kindref="member">pressure_pa_1e2</ref>=<sp/><ref refid="syn__pack_8h_1ae4855adc140fc4dbd50792f7d637eb47" kindref="member">syn_unpack_u16_le</ref>(frame-&gt;<ref refid="structSYN__CAN__Frame_1a823d943b00d88be2e8f3a724bf7aa94c" kindref="member">data</ref>,<sp/>&amp;pos_idx);</highlight></codeline>
+<codeline lineno="195"><highlight class="normal"></highlight></codeline>
+<codeline lineno="196"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="197"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="198"><highlight class="normal"></highlight></codeline>
+<codeline lineno="199"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__n2k_8c_1a5bf2bf1d92ff36f8ec5ddd1e024db01d" kindref="member">syn_n2k_fastpacket_process</ref>(<ref refid="structSYN__N2K__FastPacketRx" kindref="compound">SYN_N2K_FastPacketRx</ref><sp/>*rx,</highlight></codeline>
+<codeline lineno="200"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__CAN__Frame" kindref="compound">SYN_CAN_Frame</ref><sp/>*frame,</highlight></codeline>
+<codeline lineno="201"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>target_pgn,</highlight></codeline>
+<codeline lineno="202"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>**out_payload,</highlight></codeline>
+<codeline lineno="203"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>*out_len)</highlight></codeline>
+<codeline lineno="204"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="205"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!rx<sp/>||<sp/>!frame<sp/>||<sp/>!out_payload<sp/>||<sp/>!out_len)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="206"><highlight class="normal"></highlight></codeline>
+<codeline lineno="207"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structSYN__J1939__Header" kindref="compound">SYN_J1939_Header</ref><sp/>hdr;</highlight></codeline>
+<codeline lineno="208"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="syn__j1939_8c_1a8fc81171ee95746286f9ed99b8a420b9" kindref="member">syn_j1939_id_unpack</ref>(frame-&gt;<ref refid="structSYN__CAN__Frame_1a398fcc4dcd7e0cad9d130ad99148964b" kindref="member">id</ref>,<sp/>&amp;hdr)<sp/>!=<sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="209"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(hdr.<ref refid="structSYN__J1939__Header_1a138b1f1481e16f511d47c708f4452d18" kindref="member">pgn</ref><sp/>!=<sp/>target_pgn)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="210"><highlight class="normal"></highlight></codeline>
+<codeline lineno="211"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>seq_frame<sp/>=<sp/>frame-&gt;<ref refid="structSYN__CAN__Frame_1a823d943b00d88be2e8f3a724bf7aa94c" kindref="member">data</ref>[0];</highlight></codeline>
+<codeline lineno="212"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>seq_id<sp/><sp/><sp/><sp/>=<sp/>(seq_frame<sp/>&gt;&gt;<sp/>5)<sp/>&amp;<sp/>0x07U;</highlight></codeline>
+<codeline lineno="213"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>frame_idx<sp/>=<sp/>seq_frame<sp/>&amp;<sp/>0x1FU;</highlight></codeline>
+<codeline lineno="214"><highlight class="normal"></highlight></codeline>
+<codeline lineno="215"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>First<sp/>frame<sp/>of<sp/>a<sp/>Fast-Packet<sp/>sequence<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="216"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(frame_idx<sp/>==<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="217"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>total_bytes<sp/>=<sp/>frame-&gt;<ref refid="structSYN__CAN__Frame_1a823d943b00d88be2e8f3a724bf7aa94c" kindref="member">data</ref>[1];</highlight></codeline>
+<codeline lineno="218"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(total_bytes<sp/>&gt;<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(rx-&gt;<ref refid="structSYN__N2K__FastPacketRx_1a04e4970712cd9e7aefacfd42455d4528" kindref="member">data</ref>))<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="219"><highlight class="normal"></highlight></codeline>
+<codeline lineno="220"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rx-&gt;<ref refid="structSYN__N2K__FastPacketRx_1a081172c3f9a58285e42645bf874109d8" kindref="member">active</ref><sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="221"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rx-&gt;<ref refid="structSYN__N2K__FastPacketRx_1a514f000d00552033a5d6a91eceda4004" kindref="member">seq_id</ref><sp/>=<sp/>seq_id;</highlight></codeline>
+<codeline lineno="222"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rx-&gt;<ref refid="structSYN__N2K__FastPacketRx_1ac9444fa190bddb00415f697f0eec2f94" kindref="member">expected_frame</ref><sp/>=<sp/>1;</highlight></codeline>
+<codeline lineno="223"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rx-&gt;<ref refid="structSYN__N2K__FastPacketRx_1a65e40a094eccdd7bdfaca6a804427aba" kindref="member">sa</ref><sp/>=<sp/>hdr.<ref refid="structSYN__J1939__Header_1a3bf51c7006dd209120d7794c78b4de7f" kindref="member">sa</ref>;</highlight></codeline>
+<codeline lineno="224"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rx-&gt;<ref refid="structSYN__N2K__FastPacketRx_1ad53191ff84a42d972fc74085b035fde8" kindref="member">pgn</ref><sp/>=<sp/>target_pgn;</highlight></codeline>
+<codeline lineno="225"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rx-&gt;<ref refid="structSYN__N2K__FastPacketRx_1aa09aa40023c58f918e7775d16d309d15" kindref="member">total_bytes</ref><sp/>=<sp/>total_bytes;</highlight></codeline>
+<codeline lineno="226"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rx-&gt;<ref refid="structSYN__N2K__FastPacketRx_1ab04cda6e843bb2fcde5ec98a85c96ca0" kindref="member">received_bytes</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="227"><highlight class="normal"></highlight></codeline>
+<codeline lineno="228"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>copy_len<sp/>=<sp/>(total_bytes<sp/>&gt;<sp/>6)<sp/>?<sp/>6<sp/>:<sp/>total_bytes;</highlight></codeline>
+<codeline lineno="229"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>memcpy(&amp;rx-&gt;<ref refid="structSYN__N2K__FastPacketRx_1a04e4970712cd9e7aefacfd42455d4528" kindref="member">data</ref>[0],<sp/>&amp;frame-&gt;<ref refid="structSYN__CAN__Frame_1a823d943b00d88be2e8f3a724bf7aa94c" kindref="member">data</ref>[2],<sp/>copy_len);</highlight></codeline>
+<codeline lineno="230"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rx-&gt;<ref refid="structSYN__N2K__FastPacketRx_1ab04cda6e843bb2fcde5ec98a85c96ca0" kindref="member">received_bytes</ref><sp/>=<sp/>(uint8_t)copy_len;</highlight></codeline>
+<codeline lineno="231"><highlight class="normal"></highlight></codeline>
+<codeline lineno="232"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(rx-&gt;<ref refid="structSYN__N2K__FastPacketRx_1ab04cda6e843bb2fcde5ec98a85c96ca0" kindref="member">received_bytes</ref><sp/>&gt;=<sp/>rx-&gt;<ref refid="structSYN__N2K__FastPacketRx_1aa09aa40023c58f918e7775d16d309d15" kindref="member">total_bytes</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="233"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*out_payload<sp/>=<sp/>rx-&gt;<ref refid="structSYN__N2K__FastPacketRx_1a04e4970712cd9e7aefacfd42455d4528" kindref="member">data</ref>;</highlight></codeline>
+<codeline lineno="234"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*out_len<sp/>=<sp/>rx-&gt;<ref refid="structSYN__N2K__FastPacketRx_1aa09aa40023c58f918e7775d16d309d15" kindref="member">total_bytes</ref>;</highlight></codeline>
+<codeline lineno="235"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rx-&gt;<ref refid="structSYN__N2K__FastPacketRx_1a081172c3f9a58285e42645bf874109d8" kindref="member">active</ref><sp/>=<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="236"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="237"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="238"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a3be376d242928cd8de46b32c69647539" kindref="member">SYN_BUSY</ref>;</highlight></codeline>
+<codeline lineno="239"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="240"><highlight class="normal"></highlight></codeline>
+<codeline lineno="241"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Subsequent<sp/>Fast-Packet<sp/>frame<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="242"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(rx-&gt;<ref refid="structSYN__N2K__FastPacketRx_1a081172c3f9a58285e42645bf874109d8" kindref="member">active</ref><sp/>&amp;&amp;<sp/>rx-&gt;<ref refid="structSYN__N2K__FastPacketRx_1a514f000d00552033a5d6a91eceda4004" kindref="member">seq_id</ref><sp/>==<sp/>seq_id<sp/>&amp;&amp;<sp/>frame_idx<sp/>==<sp/>rx-&gt;<ref refid="structSYN__N2K__FastPacketRx_1ac9444fa190bddb00415f697f0eec2f94" kindref="member">expected_frame</ref><sp/>&amp;&amp;<sp/>hdr.<ref refid="structSYN__J1939__Header_1a3bf51c7006dd209120d7794c78b4de7f" kindref="member">sa</ref><sp/>==<sp/>rx-&gt;<ref refid="structSYN__N2K__FastPacketRx_1a65e40a094eccdd7bdfaca6a804427aba" kindref="member">sa</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="243"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>offset<sp/>=<sp/>6U<sp/>+<sp/>(size_t)(frame_idx<sp/>-<sp/>1U)<sp/>*<sp/>7U;</highlight></codeline>
+<codeline lineno="244"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(offset<sp/>&lt;<sp/>rx-&gt;total_bytes)<sp/>{</highlight></codeline>
+<codeline lineno="245"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>remaining<sp/>=<sp/>rx-&gt;<ref refid="structSYN__N2K__FastPacketRx_1aa09aa40023c58f918e7775d16d309d15" kindref="member">total_bytes</ref><sp/>-<sp/>offset;</highlight></codeline>
+<codeline lineno="246"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>copy_len<sp/>=<sp/>(remaining<sp/>&gt;<sp/>7U)<sp/>?<sp/>7U<sp/>:<sp/>remaining;</highlight></codeline>
+<codeline lineno="247"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>memcpy(&amp;rx-&gt;<ref refid="structSYN__N2K__FastPacketRx_1a04e4970712cd9e7aefacfd42455d4528" kindref="member">data</ref>[offset],<sp/>&amp;frame-&gt;<ref refid="structSYN__CAN__Frame_1a823d943b00d88be2e8f3a724bf7aa94c" kindref="member">data</ref>[1],<sp/>copy_len);</highlight></codeline>
+<codeline lineno="248"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rx-&gt;<ref refid="structSYN__N2K__FastPacketRx_1ab04cda6e843bb2fcde5ec98a85c96ca0" kindref="member">received_bytes</ref><sp/>=<sp/>(uint8_t)(offset<sp/>+<sp/>copy_len);</highlight></codeline>
+<codeline lineno="249"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rx-&gt;<ref refid="structSYN__N2K__FastPacketRx_1ac9444fa190bddb00415f697f0eec2f94" kindref="member">expected_frame</ref>++;</highlight></codeline>
+<codeline lineno="250"><highlight class="normal"></highlight></codeline>
+<codeline lineno="251"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(rx-&gt;<ref refid="structSYN__N2K__FastPacketRx_1ab04cda6e843bb2fcde5ec98a85c96ca0" kindref="member">received_bytes</ref><sp/>&gt;=<sp/>rx-&gt;<ref refid="structSYN__N2K__FastPacketRx_1aa09aa40023c58f918e7775d16d309d15" kindref="member">total_bytes</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="252"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*out_payload<sp/>=<sp/>rx-&gt;<ref refid="structSYN__N2K__FastPacketRx_1a04e4970712cd9e7aefacfd42455d4528" kindref="member">data</ref>;</highlight></codeline>
+<codeline lineno="253"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*out_len<sp/>=<sp/>rx-&gt;<ref refid="structSYN__N2K__FastPacketRx_1aa09aa40023c58f918e7775d16d309d15" kindref="member">total_bytes</ref>;</highlight></codeline>
+<codeline lineno="254"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rx-&gt;<ref refid="structSYN__N2K__FastPacketRx_1a081172c3f9a58285e42645bf874109d8" kindref="member">active</ref><sp/>=<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="255"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="256"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="257"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="258"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a3be376d242928cd8de46b32c69647539" kindref="member">SYN_BUSY</ref>;</highlight></codeline>
+<codeline lineno="259"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="260"><highlight class="normal"></highlight></codeline>
+<codeline lineno="261"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="262"><highlight class="normal">}</highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/proto/syn_n2k.c"/>
+  </compounddef>
+</doxygen>

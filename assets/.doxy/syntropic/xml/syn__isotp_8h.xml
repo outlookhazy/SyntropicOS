@@ -1,0 +1,854 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__isotp_8h" kind="file" language="C++">
+    <compoundname>syn_isotp.h</compoundname>
+    <includes refid="syn__defs_8h" local="yes">../common/syn_defs.h</includes>
+    <includes refid="syn__can_8h" local="yes">../drivers/syn_can.h</includes>
+    <includes local="no">stdint.h</includes>
+    <includes local="no">stdbool.h</includes>
+    <includes local="no">stddef.h</includes>
+    <includes local="no">sys/types.h</includes>
+    <includedby refid="syn__isotp_8c" local="yes">src/syntropic/proto/syn_isotp.c</includedby>
+    <includedby refid="syntropic_8h" local="yes">src/syntropic/syntropic.h</includedby>
+    <incdepgraph>
+      <node id="2">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>../drivers/syn_can.h</label>
+        <link refid="syn__can_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>../port/syn_port_can.h</label>
+        <link refid="syn__port__can_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/proto/syn_isotp.h</label>
+        <link refid="syn__isotp_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>stdbool.h</label>
+      </node>
+      <node id="4">
+        <label>stddef.h</label>
+      </node>
+      <node id="3">
+        <label>stdint.h</label>
+      </node>
+      <node id="8">
+        <label>sys/types.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="2">
+        <label>src/syntropic/proto/syn_isotp.c</label>
+        <link refid="syn__isotp_8c"/>
+      </node>
+      <node id="1">
+        <label>src/syntropic/proto/syn_isotp.h</label>
+        <link refid="syn__isotp_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>src/syntropic/syntropic.h</label>
+        <link refid="syntropic_8h"/>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="structSYN__ISOTP__Link" prot="public">SYN_ISOTP_Link</innerclass>
+    <sectiondef kind="define">
+      <memberdef kind="define" id="syn__isotp_8h_1a0638e092894192ee3c599a0b0645a0a4" prot="public" static="no">
+        <name>SYN_ISOTP_MAX_PAYLOAD</name>
+        <initializer>4095U</initializer>
+        <briefdescription>
+<para>ISO-TP Protocol Constants. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Standard 12-bit max payload (Classic CAN) </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_isotp.h" line="35" column="10" bodyfile="src/syntropic/proto/syn_isotp.h" bodystart="35" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__isotp_8h_1af3d97f0f530de0e6ae3031d59b7caebb" prot="public" static="no">
+        <name>SYN_ISOTP_PCI_SF</name>
+        <initializer>0x00U</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Single Frame <linebreak/>
+ </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_isotp.h" line="38" column="9" bodyfile="src/syntropic/proto/syn_isotp.h" bodystart="38" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__isotp_8h_1a65c9391653c685555489e3ab266d29c2" prot="public" static="no">
+        <name>SYN_ISOTP_PCI_FF</name>
+        <initializer>0x10U</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>First Frame <linebreak/>
+ </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_isotp.h" line="39" column="9" bodyfile="src/syntropic/proto/syn_isotp.h" bodystart="39" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__isotp_8h_1a915c00d27aea20b8abdb844c6f64582a" prot="public" static="no">
+        <name>SYN_ISOTP_PCI_CF</name>
+        <initializer>0x20U</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Consecutive Frame <linebreak/>
+ </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_isotp.h" line="40" column="9" bodyfile="src/syntropic/proto/syn_isotp.h" bodystart="40" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__isotp_8h_1a3c63b6176b1ae9542d3df13d462e4297" prot="public" static="no">
+        <name>SYN_ISOTP_PCI_FC</name>
+        <initializer>0x30U</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Flow Control Frame <linebreak/>
+ </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_isotp.h" line="41" column="9" bodyfile="src/syntropic/proto/syn_isotp.h" bodystart="41" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__isotp_8h_1a72786a0f71fae2c49c61029ce78dbd41" prot="public" static="no">
+        <name>SYN_ISOTP_DEFAULT_N_BS_MS</name>
+        <initializer>1000U</initializer>
+        <briefdescription>
+<para>ISO 15765-2 Network Layer Default Timeouts (ISO 15765-2:2016) </para>
+        </briefdescription>
+        <detaileddescription>
+<para>N_Bs max time for FC reception (1000 ms) </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_isotp.h" line="44" column="9" bodyfile="src/syntropic/proto/syn_isotp.h" bodystart="44" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__isotp_8h_1a4535849f6dac918db386b30ee6e2b390" prot="public" static="no">
+        <name>SYN_ISOTP_DEFAULT_N_CR_MS</name>
+        <initializer>1000U</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>N_Cr max time for CF reception (1000 ms) </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_isotp.h" line="45" column="9" bodyfile="src/syntropic/proto/syn_isotp.h" bodystart="45" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__isotp_8h_1a3d9125fbb8a67b9a29c48f80f9f3a341" prot="public" static="no">
+        <name>SYN_ISOTP_FC_CTS</name>
+        <initializer>0x00U</initializer>
+        <briefdescription>
+<para>Flow Control Status (FC) </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Continue To Send <linebreak/>
+ </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_isotp.h" line="48" column="9" bodyfile="src/syntropic/proto/syn_isotp.h" bodystart="48" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__isotp_8h_1ab5dcdf716f43a88d2c6b2e925521bc50" prot="public" static="no">
+        <name>SYN_ISOTP_FC_WAIT</name>
+        <initializer>0x01U</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Wait <linebreak/>
+ </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_isotp.h" line="49" column="9" bodyfile="src/syntropic/proto/syn_isotp.h" bodystart="49" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__isotp_8h_1a0ff11b8887a549b9363a7f328d305465" prot="public" static="no">
+        <name>SYN_ISOTP_FC_OVERFLOW</name>
+        <initializer>0x02U</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Buffer Overflow <linebreak/>
+ </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_isotp.h" line="50" column="9" bodyfile="src/syntropic/proto/syn_isotp.h" bodystart="50" bodyend="-1"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="enum">
+      <memberdef kind="enum" id="syn__isotp_8h_1a70d174c2728684135f441d501d2eca7d" prot="public" static="no" strong="no">
+        <type></type>
+        <name>SYN_ISOTP_TxState</name>
+        <enumvalue id="syn__isotp_8h_1a70d174c2728684135f441d501d2eca7dac7b7815806749f8dc259fae98da93225" prot="public">
+          <name>SYN_ISOTP_TX_IDLE</name>
+          <initializer>= 0</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__isotp_8h_1a70d174c2728684135f441d501d2eca7dab3191bca54349b7e2c7708ad1cb4e555" prot="public">
+          <name>SYN_ISOTP_TX_SEND_SF</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__isotp_8h_1a70d174c2728684135f441d501d2eca7daa0182d760876eceab35a5defebc39ce9" prot="public">
+          <name>SYN_ISOTP_TX_SEND_FF</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__isotp_8h_1a70d174c2728684135f441d501d2eca7daa2d63daba2f88e1892b1d4b71d8e3007" prot="public">
+          <name>SYN_ISOTP_TX_WAIT_FC</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__isotp_8h_1a70d174c2728684135f441d501d2eca7da49558f262d7dff92f1f7b05976fde807" prot="public">
+          <name>SYN_ISOTP_TX_SEND_CF</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>ISO-TP Tx States. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_isotp.h" line="53" column="1" bodyfile="src/syntropic/proto/syn_isotp.h" bodystart="53" bodyend="59"/>
+      </memberdef>
+      <memberdef kind="enum" id="syn__isotp_8h_1a20bb3f9cde2cc5c688e8e67fbfc743eb" prot="public" static="no" strong="no">
+        <type></type>
+        <name>SYN_ISOTP_RxState</name>
+        <enumvalue id="syn__isotp_8h_1a20bb3f9cde2cc5c688e8e67fbfc743eba76f8945ca387ecbb298f29e60b67da68" prot="public">
+          <name>SYN_ISOTP_RX_IDLE</name>
+          <initializer>= 0</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__isotp_8h_1a20bb3f9cde2cc5c688e8e67fbfc743eba08903d8442cb885d0bc520404b0c0cd6" prot="public">
+          <name>SYN_ISOTP_RX_WAIT_CF</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__isotp_8h_1a20bb3f9cde2cc5c688e8e67fbfc743ebaff3d433fd777241d64fd9255f7cc67f1" prot="public">
+          <name>SYN_ISOTP_RX_COMPLETE</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>ISO-TP Rx States. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_isotp.h" line="62" column="1" bodyfile="src/syntropic/proto/syn_isotp.h" bodystart="62" bodyend="66"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__isotp_8h_1a7dcaaee50f2cbe66ab8db084a53af4a8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_isotp_set_timeouts</definition>
+        <argsstring>(SYN_ISOTP_Link *link, uint32_t n_bs_ms, uint32_t n_cr_ms)</argsstring>
+        <name>syn_isotp_set_timeouts</name>
+        <param>
+          <type><ref refid="structSYN__ISOTP__Link" kindref="compound">SYN_ISOTP_Link</ref> *</type>
+          <declname>link</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>n_bs_ms</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>n_cr_ms</declname>
+        </param>
+        <briefdescription>
+<para>Configure custom ISO 15765-2 network layer timeouts. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>link</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Link handle. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>n_bs_ms</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>N_Bs max timeout in milliseconds (0 = use default 1000ms). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>n_cr_ms</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>N_Cr max timeout in milliseconds (0 = use default 1000ms). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_isotp.h" line="110" column="6" bodyfile="src/syntropic/proto/syn_isotp.c" bodystart="45" bodyend="50" declfile="src/syntropic/proto/syn_isotp.h" declline="110" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__isotp_8h_1ae647887d460dfe633c66b16ae482ae69" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_isotp_init</definition>
+        <argsstring>(SYN_ISOTP_Link *link, uint32_t rx_id, uint32_t tx_id, uint8_t *rx_buf, size_t rx_buf_size, uint8_t *tx_buf, size_t tx_buf_size)</argsstring>
+        <name>syn_isotp_init</name>
+        <param>
+          <type><ref refid="structSYN__ISOTP__Link" kindref="compound">SYN_ISOTP_Link</ref> *</type>
+          <declname>link</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>rx_id</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>tx_id</declname>
+        </param>
+        <param>
+          <type>uint8_t *</type>
+          <declname>rx_buf</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>rx_buf_size</declname>
+        </param>
+        <param>
+          <type>uint8_t *</type>
+          <declname>tx_buf</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>tx_buf_size</declname>
+        </param>
+        <briefdescription>
+<para>Initialize ISO-TP Link in Classic CAN mode (8-byte frames). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>link</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Link handle. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>rx_id</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Incoming CAN identifier. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>tx_id</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Outgoing CAN identifier. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>rx_buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Receive assembly buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>rx_buf_size</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Receive buffer capacity. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>tx_buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Transmit buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>tx_buf_size</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Transmit buffer capacity. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_isotp.h" line="122" column="6" bodyfile="src/syntropic/proto/syn_isotp.c" bodystart="52" bodyend="73" declfile="src/syntropic/proto/syn_isotp.h" declline="122" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__isotp_8h_1a1b857eb5b063ae848416cbe97dbffc12" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_isotp_send</definition>
+        <argsstring>(SYN_ISOTP_Link *link, const uint8_t *payload, size_t payload_len)</argsstring>
+        <name>syn_isotp_send</name>
+        <param>
+          <type><ref refid="structSYN__ISOTP__Link" kindref="compound">SYN_ISOTP_Link</ref> *</type>
+          <declname>link</declname>
+        </param>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>payload</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>payload_len</declname>
+        </param>
+        <briefdescription>
+<para>Initiate transmission of a multi-byte payload. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>link</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Link handle. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>payload</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Payload buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>payload_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Length of payload (1 to max buffer capacity). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, error code on busy/invalid params. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_isotp.h" line="150" column="12" bodyfile="src/syntropic/proto/syn_isotp.c" bodystart="97" bodyend="128" declfile="src/syntropic/proto/syn_isotp.h" declline="150" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__isotp_8h_1a3a9e7e4f95708fced5dec29c2db9648c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_isotp_get_tx_frame</definition>
+        <argsstring>(SYN_ISOTP_Link *link, SYN_CAN_Frame *frame)</argsstring>
+        <name>syn_isotp_get_tx_frame</name>
+        <param>
+          <type><ref refid="structSYN__ISOTP__Link" kindref="compound">SYN_ISOTP_Link</ref> *</type>
+          <declname>link</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__CAN__Frame" kindref="compound">SYN_CAN_Frame</ref> *</type>
+          <declname>frame</declname>
+        </param>
+        <briefdescription>
+<para>Retrieve next pending outgoing CAN frame from ISO-TP engine. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>link</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Link handle. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>frame</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output CAN frame buffer. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if a frame was generated, false otherwise. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_isotp.h" line="158" column="6" bodyfile="src/syntropic/proto/syn_isotp.c" bodystart="130" bodyend="273" declfile="src/syntropic/proto/syn_isotp.h" declline="158" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__isotp_8h_1a4264742b3ab05ee04a9ce72483c62c4a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_isotp_process_rx_frame</definition>
+        <argsstring>(SYN_ISOTP_Link *link, const SYN_CAN_Frame *frame)</argsstring>
+        <name>syn_isotp_process_rx_frame</name>
+        <param>
+          <type><ref refid="structSYN__ISOTP__Link" kindref="compound">SYN_ISOTP_Link</ref> *</type>
+          <declname>link</declname>
+        </param>
+        <param>
+          <type>const <ref refid="structSYN__CAN__Frame" kindref="compound">SYN_CAN_Frame</ref> *</type>
+          <declname>frame</declname>
+        </param>
+        <briefdescription>
+<para>Process an incoming CAN frame into the ISO-TP engine. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>link</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Link handle. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>frame</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Incoming CAN frame. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_isotp.h" line="165" column="6" bodyfile="src/syntropic/proto/syn_isotp.c" bodystart="275" bodyend="387" declfile="src/syntropic/proto/syn_isotp.h" declline="165" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__isotp_8h_1a4c4c0d3328b741b72c680aaf74dc628a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>ssize_t</type>
+        <definition>ssize_t syn_isotp_receive</definition>
+        <argsstring>(SYN_ISOTP_Link *link, uint8_t *out_buf, size_t max_len)</argsstring>
+        <name>syn_isotp_receive</name>
+        <param>
+          <type><ref refid="structSYN__ISOTP__Link" kindref="compound">SYN_ISOTP_Link</ref> *</type>
+          <declname>link</declname>
+        </param>
+        <param>
+          <type>uint8_t *</type>
+          <declname>out_buf</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>max_len</declname>
+        </param>
+        <briefdescription>
+<para>Read completed assembled message from ISO-TP receiver. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>link</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Link handle. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out_buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>max_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Capacity of out_buf. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Number of bytes copied, or -1 if no message ready. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_isotp.h" line="174" column="9" bodyfile="src/syntropic/proto/syn_isotp.c" bodystart="389" bodyend="404" declfile="src/syntropic/proto/syn_isotp.h" declline="174" declcolumn="9"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__isotp_8h_1a7dbeaa8e204977ae778b2a1f3453a8d1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_isotp_step</definition>
+        <argsstring>(SYN_ISOTP_Link *link, uint32_t dt_ms)</argsstring>
+        <name>syn_isotp_step</name>
+        <param>
+          <type><ref refid="structSYN__ISOTP__Link" kindref="compound">SYN_ISOTP_Link</ref> *</type>
+          <declname>link</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>dt_ms</declname>
+        </param>
+        <briefdescription>
+<para>Step ISO-TP timers (milliseconds). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>link</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Link handle. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dt_ms</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Elapsed time in milliseconds. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_isotp.h" line="181" column="6" bodyfile="src/syntropic/proto/syn_isotp.c" bodystart="406" bodyend="409" declfile="src/syntropic/proto/syn_isotp.h" declline="181" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__isotp_8h_1ab7ca1c783c644a3a0a34feef856932d1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_isotp_step_us</definition>
+        <argsstring>(SYN_ISOTP_Link *link, uint32_t dt_us)</argsstring>
+        <name>syn_isotp_step_us</name>
+        <param>
+          <type><ref refid="structSYN__ISOTP__Link" kindref="compound">SYN_ISOTP_Link</ref> *</type>
+          <declname>link</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>dt_us</declname>
+        </param>
+        <briefdescription>
+<para>Step ISO-TP timers (microseconds for fine STmin pacing). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>link</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Link handle. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dt_us</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Elapsed time in microseconds. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_isotp.h" line="188" column="6" bodyfile="src/syntropic/proto/syn_isotp.c" bodystart="411" bodyend="442" declfile="src/syntropic/proto/syn_isotp.h" declline="188" declcolumn="6"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>ISO 15765-2 (DoCAN / ISO-TP) Multi-Frame CAN Transport Protocol. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Implements non-blocking, zero-malloc ISO 15765-2 segmentation &amp; reassembly for multi-byte CAN payload transmission with Single Frame (SF), First Frame (FF), Consecutive Frame (CF), and Flow Control (FC) support.</para>
+<para>Support for CAN FD (64-byte payload frames &amp; ISO 15765-2:2016 extended length) is opt-in via #define SYN_USE_CAN_FD 1. </para>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_ISOTP_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_ISOTP_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../common/syn_defs.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../drivers/syn_can.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stddef.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;sys/types.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(__AVR__)<sp/>&amp;&amp;<sp/>!defined(_SSIZE_T_DEFINED_)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>ssize_t;</highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>_SSIZE_T_DEFINED_</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(SYN_USE_CAN_FD)<sp/>&amp;&amp;<sp/>SYN_USE_CAN_FD</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_ISOTP_MAX_PAYLOAD<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>0xFFFFFFFFU<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="preprocessor">#else</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35" refid="syn__isotp_8h_1a0638e092894192ee3c599a0b0645a0a4" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_ISOTP_MAX_PAYLOAD<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>4095U<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight></codeline>
+<codeline lineno="38" refid="syn__isotp_8h_1af3d97f0f530de0e6ae3031d59b7caebb" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_ISOTP_PCI_SF<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>0x00U<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="39" refid="syn__isotp_8h_1a65c9391653c685555489e3ab266d29c2" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_ISOTP_PCI_FF<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>0x10U<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="40" refid="syn__isotp_8h_1a915c00d27aea20b8abdb844c6f64582a" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_ISOTP_PCI_CF<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>0x20U<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="41" refid="syn__isotp_8h_1a3c63b6176b1ae9542d3df13d462e4297" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_ISOTP_PCI_FC<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>0x30U<sp/></highlight></codeline>
+<codeline lineno="44" refid="syn__isotp_8h_1a72786a0f71fae2c49c61029ce78dbd41" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_ISOTP_DEFAULT_N_BS_MS<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>1000U<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="45" refid="syn__isotp_8h_1a4535849f6dac918db386b30ee6e2b390" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_ISOTP_DEFAULT_N_CR_MS<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>1000U<sp/></highlight></codeline>
+<codeline lineno="48" refid="syn__isotp_8h_1a3d9125fbb8a67b9a29c48f80f9f3a341" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_ISOTP_FC_CTS<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>0x00U<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="49" refid="syn__isotp_8h_1ab5dcdf716f43a88d2c6b2e925521bc50" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_ISOTP_FC_WAIT<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>0x01U<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="50" refid="syn__isotp_8h_1a0ff11b8887a549b9363a7f328d305465" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_ISOTP_FC_OVERFLOW<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>0x02U<sp/></highlight></codeline>
+<codeline lineno="53" refid="syn__isotp_8h_1a70d174c2728684135f441d501d2eca7d" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/><sp/><sp/>SYN_ISOTP_TX_IDLE<sp/>=<sp/>0,</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/><sp/><sp/>SYN_ISOTP_TX_SEND_SF,</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/><sp/><sp/>SYN_ISOTP_TX_SEND_FF,</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/><sp/><sp/>SYN_ISOTP_TX_WAIT_FC,</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/>SYN_ISOTP_TX_SEND_CF,</highlight></codeline>
+<codeline lineno="59"><highlight class="normal">}<sp/><ref refid="syn__isotp_8h_1a70d174c2728684135f441d501d2eca7d" kindref="member">SYN_ISOTP_TxState</ref>;</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"></highlight></codeline>
+<codeline lineno="62" refid="syn__isotp_8h_1a20bb3f9cde2cc5c688e8e67fbfc743eb" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"><sp/><sp/><sp/><sp/>SYN_ISOTP_RX_IDLE<sp/>=<sp/>0,</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/><sp/><sp/>SYN_ISOTP_RX_WAIT_CF,</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/><sp/><sp/>SYN_ISOTP_RX_COMPLETE,</highlight></codeline>
+<codeline lineno="66"><highlight class="normal">}<sp/><ref refid="syn__isotp_8h_1a20bb3f9cde2cc5c688e8e67fbfc743eb" kindref="member">SYN_ISOTP_RxState</ref>;</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"></highlight></codeline>
+<codeline lineno="69" refid="structSYN__ISOTP__Link" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Addressing<sp/>&amp;<sp/>Mode<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="71" refid="structSYN__ISOTP__Link_1a61dfb31eec82460ac6e35555890c5972" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__ISOTP__Link_1a61dfb31eec82460ac6e35555890c5972" kindref="member">rx_id</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="72" refid="structSYN__ISOTP__Link_1a0819c7f04612f77d51aba722c908f78c" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__ISOTP__Link_1a0819c7f04612f77d51aba722c908f78c" kindref="member">tx_id</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="73"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(SYN_USE_CAN_FD)<sp/>&amp;&amp;<sp/>SYN_USE_CAN_FD</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="74"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>is_fd;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="75"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="76"><highlight class="normal"></highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Tx<sp/>Channel<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="78" refid="structSYN__ISOTP__Link_1a3313643442b6572a788e28383f21a144" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<ref refid="structSYN__ISOTP__Link_1a3313643442b6572a788e28383f21a144" kindref="member">tx_buf</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="79" refid="structSYN__ISOTP__Link_1a06364e0154c328a3abb45f6231776309" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__ISOTP__Link_1a06364e0154c328a3abb45f6231776309" kindref="member">tx_buf_size</ref>;<sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="80" refid="structSYN__ISOTP__Link_1a49dc9f4ecf05a052301d97700a234f24" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__ISOTP__Link_1a49dc9f4ecf05a052301d97700a234f24" kindref="member">tx_len</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="81" refid="structSYN__ISOTP__Link_1a9990f204b6d60cabc55f2feb6491ccc0" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__ISOTP__Link_1a9990f204b6d60cabc55f2feb6491ccc0" kindref="member">tx_offset</ref>;<sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="82" refid="structSYN__ISOTP__Link_1aa5870347f8319ef92936635be14acf7f" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__ISOTP__Link_1aa5870347f8319ef92936635be14acf7f" kindref="member">tx_seq</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="83" refid="structSYN__ISOTP__Link_1a64b70f56682b5b13001ff8dea61f6e5e" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__isotp_8h_1a70d174c2728684135f441d501d2eca7d" kindref="member">SYN_ISOTP_TxState</ref><sp/><sp/><sp/><ref refid="structSYN__ISOTP__Link_1a64b70f56682b5b13001ff8dea61f6e5e" kindref="member">tx_state</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="84" refid="structSYN__ISOTP__Link_1afa5fd2b36cbdc8fd001c85c42a86b962" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__ISOTP__Link_1afa5fd2b36cbdc8fd001c85c42a86b962" kindref="member">tx_bs</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="85" refid="structSYN__ISOTP__Link_1a26cd413a9fe7ebcc357ba47f4c458c1a" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__ISOTP__Link_1a26cd413a9fe7ebcc357ba47f4c458c1a" kindref="member">tx_bs_count</ref>;<sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="86" refid="structSYN__ISOTP__Link_1a4aba69fae759039ec65e155e70551958" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__ISOTP__Link_1a4aba69fae759039ec65e155e70551958" kindref="member">tx_st_min</ref>;<sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="87" refid="structSYN__ISOTP__Link_1a40531c059424045b0763759fd80d70d6" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__ISOTP__Link_1a40531c059424045b0763759fd80d70d6" kindref="member">tx_st_timer_us</ref>;<sp/></highlight></codeline>
+<codeline lineno="88" refid="structSYN__ISOTP__Link_1aa511abc0611b11b146d272ef19261ff2" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__ISOTP__Link_1aa511abc0611b11b146d272ef19261ff2" kindref="member">n_bs_timeout_us</ref>;</highlight></codeline>
+<codeline lineno="89" refid="structSYN__ISOTP__Link_1a6de760f79b3435b5577ff3b90e32b592" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__ISOTP__Link_1a6de760f79b3435b5577ff3b90e32b592" kindref="member">tx_timeout_timer_us</ref>;<sp/></highlight></codeline>
+<codeline lineno="91"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Rx<sp/>Channel<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="92" refid="structSYN__ISOTP__Link_1a0a863049b15d6095e577ba4784686865" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<ref refid="structSYN__ISOTP__Link_1a0a863049b15d6095e577ba4784686865" kindref="member">rx_buf</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="93" refid="structSYN__ISOTP__Link_1a88fd36ce681956242f03908dead49e05" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__ISOTP__Link_1a88fd36ce681956242f03908dead49e05" kindref="member">rx_buf_size</ref>;<sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="94" refid="structSYN__ISOTP__Link_1aed5e916d261fdc9fe1cca1fd729f8828" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__ISOTP__Link_1aed5e916d261fdc9fe1cca1fd729f8828" kindref="member">rx_len</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="95" refid="structSYN__ISOTP__Link_1a85993b32776ed331d5a02e58344dfaf2" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__ISOTP__Link_1a85993b32776ed331d5a02e58344dfaf2" kindref="member">rx_expected</ref>;<sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="96" refid="structSYN__ISOTP__Link_1a218edca96e1fa212206659a71a1de571" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__ISOTP__Link_1a218edca96e1fa212206659a71a1de571" kindref="member">rx_seq</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="97" refid="structSYN__ISOTP__Link_1ac4fd8a14db36a93aa4a46283b647dc9f" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__isotp_8h_1a20bb3f9cde2cc5c688e8e67fbfc743eb" kindref="member">SYN_ISOTP_RxState</ref><sp/><sp/><sp/><ref refid="structSYN__ISOTP__Link_1ac4fd8a14db36a93aa4a46283b647dc9f" kindref="member">rx_state</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="98" refid="structSYN__ISOTP__Link_1a2d4e719c372197a099e1c12aa217e78d" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__ISOTP__Link_1a2d4e719c372197a099e1c12aa217e78d" kindref="member">rx_fc_pending</ref>;<sp/><sp/></highlight></codeline>
+<codeline lineno="99" refid="structSYN__ISOTP__Link_1a6d2c50526826620f9c5f5f0d83d82b47" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__ISOTP__Link_1a6d2c50526826620f9c5f5f0d83d82b47" kindref="member">rx_fc_status</ref>;<sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="100" refid="structSYN__ISOTP__Link_1af6d927c80b0d33afdff1ae8a9ac13724" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__ISOTP__Link_1af6d927c80b0d33afdff1ae8a9ac13724" kindref="member">n_cr_timeout_us</ref>;</highlight></codeline>
+<codeline lineno="101" refid="structSYN__ISOTP__Link_1a3e4eced33dc6dc73d16c9a55b2c00d94" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__ISOTP__Link_1a3e4eced33dc6dc73d16c9a55b2c00d94" kindref="member">rx_timeout_timer_us</ref>;<sp/></highlight></codeline>
+<codeline lineno="102"><highlight class="normal">}<sp/><ref refid="structSYN__ISOTP__Link" kindref="compound">SYN_ISOTP_Link</ref>;</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"></highlight></codeline>
+<codeline lineno="110"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__isotp_8h_1a7dcaaee50f2cbe66ab8db084a53af4a8" kindref="member">syn_isotp_set_timeouts</ref>(<ref refid="structSYN__ISOTP__Link" kindref="compound">SYN_ISOTP_Link</ref><sp/>*link,<sp/>uint32_t<sp/>n_bs_ms,<sp/>uint32_t<sp/>n_cr_ms);</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"></highlight></codeline>
+<codeline lineno="122"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__isotp_8h_1ae647887d460dfe633c66b16ae482ae69" kindref="member">syn_isotp_init</ref>(<ref refid="structSYN__ISOTP__Link" kindref="compound">SYN_ISOTP_Link</ref><sp/>*link,<sp/>uint32_t<sp/>rx_id,<sp/>uint32_t<sp/>tx_id,</highlight></codeline>
+<codeline lineno="123"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>*rx_buf,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>rx_buf_size,</highlight></codeline>
+<codeline lineno="124"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>*tx_buf,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>tx_buf_size);</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"></highlight></codeline>
+<codeline lineno="126"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(SYN_USE_CAN_FD)<sp/>&amp;&amp;<sp/>SYN_USE_CAN_FD</highlight></codeline>
+<codeline lineno="138"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>syn_isotp_init_fd(<ref refid="structSYN__ISOTP__Link" kindref="compound">SYN_ISOTP_Link</ref><sp/>*link,<sp/>uint32_t<sp/>rx_id,<sp/>uint32_t<sp/>tx_id,</highlight></codeline>
+<codeline lineno="139"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>*rx_buf,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>rx_buf_size,</highlight></codeline>
+<codeline lineno="140"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>*tx_buf,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>tx_buf_size,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>is_fd);</highlight></codeline>
+<codeline lineno="141"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="142"><highlight class="normal"></highlight></codeline>
+<codeline lineno="150"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__isotp_8h_1a1b857eb5b063ae848416cbe97dbffc12" kindref="member">syn_isotp_send</ref>(<ref refid="structSYN__ISOTP__Link" kindref="compound">SYN_ISOTP_Link</ref><sp/>*link,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*payload,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>payload_len);</highlight></codeline>
+<codeline lineno="151"><highlight class="normal"></highlight></codeline>
+<codeline lineno="158"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__isotp_8h_1a3a9e7e4f95708fced5dec29c2db9648c" kindref="member">syn_isotp_get_tx_frame</ref>(<ref refid="structSYN__ISOTP__Link" kindref="compound">SYN_ISOTP_Link</ref><sp/>*link,<sp/><ref refid="structSYN__CAN__Frame" kindref="compound">SYN_CAN_Frame</ref><sp/>*frame);</highlight></codeline>
+<codeline lineno="159"><highlight class="normal"></highlight></codeline>
+<codeline lineno="165"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__isotp_8h_1a4264742b3ab05ee04a9ce72483c62c4a" kindref="member">syn_isotp_process_rx_frame</ref>(<ref refid="structSYN__ISOTP__Link" kindref="compound">SYN_ISOTP_Link</ref><sp/>*link,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__CAN__Frame" kindref="compound">SYN_CAN_Frame</ref><sp/>*frame);</highlight></codeline>
+<codeline lineno="166"><highlight class="normal"></highlight></codeline>
+<codeline lineno="174"><highlight class="normal">ssize_t<sp/><ref refid="syn__isotp_8h_1a4c4c0d3328b741b72c680aaf74dc628a" kindref="member">syn_isotp_receive</ref>(<ref refid="structSYN__ISOTP__Link" kindref="compound">SYN_ISOTP_Link</ref><sp/>*link,<sp/>uint8_t<sp/>*out_buf,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>max_len);</highlight></codeline>
+<codeline lineno="175"><highlight class="normal"></highlight></codeline>
+<codeline lineno="181"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__isotp_8h_1a7dbeaa8e204977ae778b2a1f3453a8d1" kindref="member">syn_isotp_step</ref>(<ref refid="structSYN__ISOTP__Link" kindref="compound">SYN_ISOTP_Link</ref><sp/>*link,<sp/>uint32_t<sp/>dt_ms);</highlight></codeline>
+<codeline lineno="182"><highlight class="normal"></highlight></codeline>
+<codeline lineno="188"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__isotp_8h_1ab7ca1c783c644a3a0a34feef856932d1" kindref="member">syn_isotp_step_us</ref>(<ref refid="structSYN__ISOTP__Link" kindref="compound">SYN_ISOTP_Link</ref><sp/>*link,<sp/>uint32_t<sp/>dt_us);</highlight></codeline>
+<codeline lineno="189"><highlight class="normal"></highlight></codeline>
+<codeline lineno="190"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="191"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="192"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="193"><highlight class="normal"></highlight></codeline>
+<codeline lineno="194"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_ISOTP_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/proto/syn_isotp.h"/>
+  </compounddef>
+</doxygen>

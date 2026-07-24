@@ -1,0 +1,392 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__sensor__fusion_8h" kind="file" language="C++">
+    <compoundname>syn_sensor_fusion.h</compoundname>
+    <includes refid="syn__defs_8h" local="yes">../common/syn_defs.h</includes>
+    <includes refid="syn__qmath_8h" local="yes">../util/syn_qmath.h</includes>
+    <includedby refid="syn__sensor__fusion_8c" local="yes">src/syntropic/sensor/syn_sensor_fusion.c</includedby>
+    <incdepgraph>
+      <node id="2">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/sensor/syn_sensor_fusion.h</label>
+        <link refid="syn__sensor__fusion_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>../util/syn_qmath.h</label>
+        <link refid="syn__qmath_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>stddef.h</label>
+      </node>
+      <node id="3">
+        <label>stdint.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="2">
+        <label>src/syntropic/sensor/syn_sensor_fusion.c</label>
+        <link refid="syn__sensor__fusion_8c"/>
+      </node>
+      <node id="1">
+        <label>src/syntropic/sensor/syn_sensor_fusion.h</label>
+        <link refid="syn__sensor__fusion_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="structSYN__Quaternion" prot="public">SYN_Quaternion</innerclass>
+    <innerclass refid="structSYN__EulerAngles" prot="public">SYN_EulerAngles</innerclass>
+    <innerclass refid="structSYN__SensorFusion" prot="public">SYN_SensorFusion</innerclass>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__sensor__fusion_8h_1a0b0de28bc580fd154c770f9867f55692" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_sensor_fusion_init</definition>
+        <argsstring>(SYN_SensorFusion *f, q16_t Kp, q16_t Ki, q16_t dt)</argsstring>
+        <name>syn_sensor_fusion_init</name>
+        <param>
+          <type><ref refid="structSYN__SensorFusion" kindref="compound">SYN_SensorFusion</ref> *</type>
+          <declname>f</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+          <declname>Kp</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+          <declname>Ki</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+          <declname>dt</declname>
+        </param>
+        <briefdescription>
+<para>Initialize the IMU sensor fusion filter. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>f</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Filter instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>Kp</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Proportional error gain (e.g., Q16_FROM_FLOAT(2.0)). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>Ki</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Integral error gain (e.g., Q16_FROM_FLOAT(0.005)). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dt</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Sampling interval in seconds (e.g., Q16_FROM_FLOAT(0.01) for 100 Hz). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/sensor/syn_sensor_fusion.h" line="48" column="6" bodyfile="src/syntropic/sensor/syn_sensor_fusion.c" bodystart="11" bodyend="24" declfile="src/syntropic/sensor/syn_sensor_fusion.h" declline="48" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__sensor__fusion_8h_1ab134c4aa730b51efc58d61cc147ae5ae" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_sensor_fusion_update</definition>
+        <argsstring>(SYN_SensorFusion *f, q16_t gx, q16_t gy, q16_t gz, q16_t ax, q16_t ay, q16_t az)</argsstring>
+        <name>syn_sensor_fusion_update</name>
+        <param>
+          <type><ref refid="structSYN__SensorFusion" kindref="compound">SYN_SensorFusion</ref> *</type>
+          <declname>f</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+          <declname>gx</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+          <declname>gy</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+          <declname>gz</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+          <declname>ax</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+          <declname>ay</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+          <declname>az</declname>
+        </param>
+        <briefdescription>
+<para>Update orientation estimate using 6-axis IMU sample. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>f</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Filter instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>gx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Gyroscope X rate in rad/s (Q16.16). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>gy</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Gyroscope Y rate in rad/s (Q16.16). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>gz</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Gyroscope Z rate in rad/s (Q16.16). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>ax</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Accelerometer X acceleration in g or m/s² (Q16.16). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>ay</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Accelerometer Y acceleration in g or m/s² (Q16.16). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>az</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Accelerometer Z acceleration in g or m/s² (Q16.16). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_INVALID_PARAM if NULL. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/sensor/syn_sensor_fusion.h" line="62" column="12" bodyfile="src/syntropic/sensor/syn_sensor_fusion.c" bodystart="39" bodyend="126" declfile="src/syntropic/sensor/syn_sensor_fusion.h" declline="62" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__sensor__fusion_8h_1a43ddebd6753abe85ec67560f6d8ed810" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_sensor_fusion_get_quaternion</definition>
+        <argsstring>(const SYN_SensorFusion *f, SYN_Quaternion *q)</argsstring>
+        <name>syn_sensor_fusion_get_quaternion</name>
+        <param>
+          <type>const <ref refid="structSYN__SensorFusion" kindref="compound">SYN_SensorFusion</ref> *</type>
+          <declname>f</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__Quaternion" kindref="compound">SYN_Quaternion</ref> *</type>
+          <declname>q</declname>
+        </param>
+        <briefdescription>
+<para>Retrieve current quaternion orientation estimate. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>f</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Filter instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>q</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output quaternion pointer. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_INVALID_PARAM if NULL. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/sensor/syn_sensor_fusion.h" line="71" column="12" bodyfile="src/syntropic/sensor/syn_sensor_fusion.c" bodystart="128" bodyend="133" declfile="src/syntropic/sensor/syn_sensor_fusion.h" declline="71" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__sensor__fusion_8h_1aba745a48742a5f9a95b73fe273981a56" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_sensor_fusion_get_euler</definition>
+        <argsstring>(const SYN_SensorFusion *f, SYN_EulerAngles *euler)</argsstring>
+        <name>syn_sensor_fusion_get_euler</name>
+        <param>
+          <type>const <ref refid="structSYN__SensorFusion" kindref="compound">SYN_SensorFusion</ref> *</type>
+          <declname>f</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__EulerAngles" kindref="compound">SYN_EulerAngles</ref> *</type>
+          <declname>euler</declname>
+        </param>
+        <briefdescription>
+<para>Retrieve current Euler attitude angles (Roll, Pitch, Yaw). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>f</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Filter instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>euler</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output Euler angles pointer. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_INVALID_PARAM if NULL. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/sensor/syn_sensor_fusion.h" line="79" column="12" bodyfile="src/syntropic/sensor/syn_sensor_fusion.c" bodystart="135" bodyend="159" declfile="src/syntropic/sensor/syn_sensor_fusion.h" declline="79" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__sensor__fusion_8h_1aa1be597aba889cfe21d04b8db8249993" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_sensor_fusion_reset</definition>
+        <argsstring>(SYN_SensorFusion *f)</argsstring>
+        <name>syn_sensor_fusion_reset</name>
+        <param>
+          <type><ref refid="structSYN__SensorFusion" kindref="compound">SYN_SensorFusion</ref> *</type>
+          <declname>f</declname>
+        </param>
+        <briefdescription>
+<para>Reset filter state to initial identity orientation (q = [1, 0, 0, 0]). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>f</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Filter instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/sensor/syn_sensor_fusion.h" line="85" column="6" bodyfile="src/syntropic/sensor/syn_sensor_fusion.c" bodystart="26" bodyend="37" declfile="src/syntropic/sensor/syn_sensor_fusion.h" declline="85" declcolumn="6"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>6-DOF IMU Sensor Fusion &amp; AHRS Complementary / Mahony Filter (Q16.16 fixed-point). </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_SENSOR_FUSION_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_SENSOR_FUSION_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../common/syn_defs.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../util/syn_qmath.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight></codeline>
+<codeline lineno="17" refid="structSYN__Quaternion" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="18" refid="structSYN__Quaternion_1a86ce05e51a9e649c79aa69b6f1d11996" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/><ref refid="structSYN__Quaternion_1a86ce05e51a9e649c79aa69b6f1d11996" kindref="member">w</ref>;<sp/></highlight></codeline>
+<codeline lineno="19" refid="structSYN__Quaternion_1a342bc8d41d620103ff3a181a54422338" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/><ref refid="structSYN__Quaternion_1a342bc8d41d620103ff3a181a54422338" kindref="member">x</ref>;<sp/></highlight></codeline>
+<codeline lineno="20" refid="structSYN__Quaternion_1a72c47dbb5280aaf1a028c4941a11a770" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/><ref refid="structSYN__Quaternion_1a72c47dbb5280aaf1a028c4941a11a770" kindref="member">y</ref>;<sp/></highlight></codeline>
+<codeline lineno="21" refid="structSYN__Quaternion_1ab405c0de61b192cc87b4d2f828abe5c7" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/><ref refid="structSYN__Quaternion_1ab405c0de61b192cc87b4d2f828abe5c7" kindref="member">z</ref>;<sp/></highlight></codeline>
+<codeline lineno="22"><highlight class="normal">}<sp/><ref refid="structSYN__Quaternion" kindref="compound">SYN_Quaternion</ref>;</highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight></codeline>
+<codeline lineno="25" refid="structSYN__EulerAngles" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="26" refid="structSYN__EulerAngles_1aba5e23f506dcbc064bbe02f97d10f315" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/><ref refid="structSYN__EulerAngles_1aba5e23f506dcbc064bbe02f97d10f315" kindref="member">roll_rad</ref>;<sp/><sp/></highlight></codeline>
+<codeline lineno="27" refid="structSYN__EulerAngles_1a1965d45adf9cd19475b8410972afd8d9" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/><ref refid="structSYN__EulerAngles_1a1965d45adf9cd19475b8410972afd8d9" kindref="member">pitch_rad</ref>;<sp/></highlight></codeline>
+<codeline lineno="28" refid="structSYN__EulerAngles_1a935cffa323900544d53c10a526181bd1" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/><ref refid="structSYN__EulerAngles_1a935cffa323900544d53c10a526181bd1" kindref="member">yaw_rad</ref>;<sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="29"><highlight class="normal">}<sp/><ref refid="structSYN__EulerAngles" kindref="compound">SYN_EulerAngles</ref>;</highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight></codeline>
+<codeline lineno="32" refid="structSYN__SensorFusion" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="33" refid="structSYN__SensorFusion_1a5aeeefbd12b3ed65dbb0f782dbbd6a07" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/><ref refid="structSYN__SensorFusion_1a5aeeefbd12b3ed65dbb0f782dbbd6a07" kindref="member">Kp</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="34" refid="structSYN__SensorFusion_1a30beaa4e85b55632e3e4fc5152d9e875" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/><ref refid="structSYN__SensorFusion_1a30beaa4e85b55632e3e4fc5152d9e875" kindref="member">Ki</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="35" refid="structSYN__SensorFusion_1a42fa7bf2eb981534014cbaa1e1b087e7" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/><ref refid="structSYN__SensorFusion_1a42fa7bf2eb981534014cbaa1e1b087e7" kindref="member">dt</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="37" refid="structSYN__SensorFusion_1a41d3b93a449fc0745e933a84b3bc7705" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structSYN__Quaternion" kindref="compound">SYN_Quaternion</ref><sp/><ref refid="structSYN__SensorFusion_1a41d3b93a449fc0745e933a84b3bc7705" kindref="member">q</ref>;<sp/></highlight></codeline>
+<codeline lineno="38" refid="structSYN__SensorFusion_1a544fd05788a9cb0907efe9ae9d66d331" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>e_int[3];<sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="39"><highlight class="normal">}<sp/><ref refid="structSYN__SensorFusion" kindref="compound">SYN_SensorFusion</ref>;</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight></codeline>
+<codeline lineno="48"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__sensor__fusion_8h_1a0b0de28bc580fd154c770f9867f55692" kindref="member">syn_sensor_fusion_init</ref>(<ref refid="structSYN__SensorFusion" kindref="compound">SYN_SensorFusion</ref><sp/>*f,<sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>Kp,<sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>Ki,<sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>dt);</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"></highlight></codeline>
+<codeline lineno="62"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__sensor__fusion_8h_1ab134c4aa730b51efc58d61cc147ae5ae" kindref="member">syn_sensor_fusion_update</ref>(<ref refid="structSYN__SensorFusion" kindref="compound">SYN_SensorFusion</ref><sp/>*f,<sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>gx,<sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>gy,<sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>gz,</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>ax,<sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>ay,<sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>az);</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"></highlight></codeline>
+<codeline lineno="71"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__sensor__fusion_8h_1a43ddebd6753abe85ec67560f6d8ed810" kindref="member">syn_sensor_fusion_get_quaternion</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__SensorFusion" kindref="compound">SYN_SensorFusion</ref><sp/>*f,<sp/><ref refid="structSYN__Quaternion" kindref="compound">SYN_Quaternion</ref><sp/>*q);</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"></highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__sensor__fusion_8h_1aba745a48742a5f9a95b73fe273981a56" kindref="member">syn_sensor_fusion_get_euler</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__SensorFusion" kindref="compound">SYN_SensorFusion</ref><sp/>*f,<sp/><ref refid="structSYN__EulerAngles" kindref="compound">SYN_EulerAngles</ref><sp/>*euler);</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"></highlight></codeline>
+<codeline lineno="85"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__sensor__fusion_8h_1aa1be597aba889cfe21d04b8db8249993" kindref="member">syn_sensor_fusion_reset</ref>(<ref refid="structSYN__SensorFusion" kindref="compound">SYN_SensorFusion</ref><sp/>*f);</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"></highlight></codeline>
+<codeline lineno="87"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="88"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="90"><highlight class="normal"></highlight></codeline>
+<codeline lineno="91"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_SENSOR_FUSION_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/sensor/syn_sensor_fusion.h"/>
+  </compounddef>
+</doxygen>

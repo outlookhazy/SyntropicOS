@@ -1,0 +1,2395 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Modular cooperative OS & application framework for microcontrollers">
+      
+      
+      
+        <link rel="canonical" href="https://outlookhazy.github.io/SyntropicOS/syntropic/syn__canopen_8h/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>File syn_canopen.h - SyntropicOS</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="cyan">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#file-syn_canopenh" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="SyntropicOS" class="md-header__button md-logo" aria-label="SyntropicOS" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SyntropicOS
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              File syn_canopen.h
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="cyan"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="cyan"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/outlookhazy/SyntropicOS" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    outlookhazy/SyntropicOS
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="SyntropicOS" class="md-nav__button md-logo" aria-label="SyntropicOS" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SyntropicOS
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/outlookhazy/SyntropicOS" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    outlookhazy/SyntropicOS
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../arduino/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Arduino Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Modules
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Modules
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../modules/core/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Core & Utilities
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../modules/drivers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Drivers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../modules/multitasking/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Multitasking
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../modules/services/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../modules/io/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Input / Output
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../modules/display/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Display & UI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../modules/control/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Control & Motor
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../modules/dsp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DSP & Filters
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../modules/communication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Communication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../modules/crypto/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Crypto & VPN
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../modules/storage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Storage
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../modules/system/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    System
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../modules/debug/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Debug
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../modules/integration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Cross-Module Integration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../group__syn__core/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Core & Utilities
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../group__syn__sched/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scheduling
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../group__syn__drivers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Drivers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../group__syn__io/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Input / Output
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../group__syn__motor/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Motor & Control
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../group__syn__display/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Display & UI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../group__syn__net/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Networking
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../group__syn__protocol/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Protocols
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../group__syn__storage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Storage
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../group__syn__system/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    System
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../group__syn__dsp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DSP & Filters
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../group__syn__debug/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Debug & Diagnostics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../files/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    All Files
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../annotated/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    All Structs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../porting-guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Porting Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../testing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../directory-structure/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Directory Structure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#classes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Classes
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#public-functions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Public Functions
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#macros" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Macros
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#detailed-description" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Detailed Description
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#public-functions-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Public Functions Documentation
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Public Functions Documentation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_canopen_get_tx" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_canopen_get_tx
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_canopen_init" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_canopen_init
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_canopen_od_read" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_canopen_od_read
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_canopen_od_write" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_canopen_od_write
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_canopen_process_rx" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_canopen_process_rx
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_canopen_send_emcy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_canopen_send_emcy
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_canopen_update" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_canopen_update
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#macro-definition-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Macro Definition Documentation
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Macro Definition Documentation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#define-syn_canopen_access_ro" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        define SYN_CANOPEN_ACCESS_RO
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#define-syn_canopen_access_rw" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        define SYN_CANOPEN_ACCESS_RW
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#define-syn_canopen_access_wo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        define SYN_CANOPEN_ACCESS_WO
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#define-syn_canopen_nmt_cmd_preop" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        define SYN_CANOPEN_NMT_CMD_PREOP
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#define-syn_canopen_nmt_cmd_reset_comm" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        define SYN_CANOPEN_NMT_CMD_RESET_COMM
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#define-syn_canopen_nmt_cmd_reset_node" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        define SYN_CANOPEN_NMT_CMD_RESET_NODE
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#define-syn_canopen_nmt_cmd_start" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        define SYN_CANOPEN_NMT_CMD_START
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#define-syn_canopen_nmt_cmd_stop" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        define SYN_CANOPEN_NMT_CMD_STOP
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#define-syn_canopen_nmt_state_bootup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        define SYN_CANOPEN_NMT_STATE_BOOTUP
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#define-syn_canopen_nmt_state_operational" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        define SYN_CANOPEN_NMT_STATE_OPERATIONAL
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#define-syn_canopen_nmt_state_preop" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        define SYN_CANOPEN_NMT_STATE_PREOP
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#define-syn_canopen_nmt_state_stopped" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        define SYN_CANOPEN_NMT_STATE_STOPPED
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#define-syn_canopen_sdo_abort_none" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        define SYN_CANOPEN_SDO_ABORT_NONE
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#define-syn_canopen_sdo_abort_not_exist" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        define SYN_CANOPEN_SDO_ABORT_NOT_EXIST
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#define-syn_canopen_sdo_abort_read_only" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        define SYN_CANOPEN_SDO_ABORT_READ_ONLY
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#define-syn_canopen_sdo_abort_subindex_not_exist" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        define SYN_CANOPEN_SDO_ABORT_SUBINDEX_NOT_EXIST
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#define-syn_canopen_sdo_abort_toggle_bit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        define SYN_CANOPEN_SDO_ABORT_TOGGLE_BIT
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#define-syn_canopen_sdo_abort_type_mismatch" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        define SYN_CANOPEN_SDO_ABORT_TYPE_MISMATCH
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#define-syn_canopen_sdo_abort_unsupported_access" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        define SYN_CANOPEN_SDO_ABORT_UNSUPPORTED_ACCESS
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#define-syn_canopen_sdo_abort_write_only" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        define SYN_CANOPEN_SDO_ABORT_WRITE_ONLY
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#define-syn_canopen_type_i16" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        define SYN_CANOPEN_TYPE_I16
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#define-syn_canopen_type_i32" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        define SYN_CANOPEN_TYPE_I32
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#define-syn_canopen_type_i8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        define SYN_CANOPEN_TYPE_I8
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#define-syn_canopen_type_u16" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        define SYN_CANOPEN_TYPE_U16
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#define-syn_canopen_type_u32" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        define SYN_CANOPEN_TYPE_U32
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#define-syn_canopen_type_u8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        define SYN_CANOPEN_TYPE_U8
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="file-syn_canopenh">File syn_canopen.h<a class="headerlink" href="#file-syn_canopenh" title="Permanent link">&para;</a></h1>
+<p><a href="../files/"><strong>FileList</strong></a> <strong>&gt;</strong> <a href="../dir_0a7333506e1b11c22e7531106607b850/"><strong>proto</strong></a> <strong>&gt;</strong> <a href="./"><strong>syn_canopen.h</strong></a></p>
+<p><a href="../syn__canopen_8h_source/">Go to the source code of this file</a></p>
+<p><em>CANopen DS301 Slave Protocol Engine.</em> <a href="#detailed-description">More...</a></p>
+<ul>
+<li><code>#include &lt;stdint.h&gt;</code></li>
+<li><code>#include &lt;stdbool.h&gt;</code></li>
+<li><code>#include &lt;stddef.h&gt;</code></li>
+<li><code>#include "../common/syn_defs.h"</code></li>
+<li><code>#include "../drivers/syn_can.h"</code></li>
+</ul>
+<h2 id="classes">Classes<a class="headerlink" href="#classes" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: right;">Type</th>
+<th style="text-align: left;">Name</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">struct</td>
+<td style="text-align: left;"><a href="../structSYN__CANOpenNode/"><strong>SYN_CANOpenNode</strong></a> <br><em>CANopen Node State Handle.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;">struct</td>
+<td style="text-align: left;"><a href="../structSYN__CANOpenNodeConfig/"><strong>SYN_CANOpenNodeConfig</strong></a> <br><em>CANopen Node Configuration.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;">struct</td>
+<td style="text-align: left;"><a href="../structSYN__CANOpenODEntry/"><strong>SYN_CANOpenODEntry</strong></a> <br><em>Object Dictionary Entry Definition.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;">struct</td>
+<td style="text-align: left;"><a href="../structSYN__CANOpenPDOMap/"><strong>SYN_CANOpenPDOMap</strong></a> <br><em>PDO Mapping Configuration.</em></td>
+</tr>
+</tbody>
+</table>
+<h2 id="public-functions">Public Functions<a class="headerlink" href="#public-functions" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: right;">Type</th>
+<th style="text-align: left;">Name</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;"><a href="../syn__defs_8h/#enum-bool"><strong>bool</strong></a></td>
+<td style="text-align: left;"><a href="#function-syn_canopen_get_tx"><strong>syn_canopen_get_tx</strong></a> (<a href="../structSYN__CANOpenNode/"><strong>SYN_CANOpenNode</strong></a> * node, uint32_t * out_cob_id, uint8_t * out_data, uint8_t * out_len) <br><em>Retrieve pending transmit CAN frame.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;"><a href="../syn__defs_8h/#enum-syn_status"><strong>SYN_Status</strong></a></td>
+<td style="text-align: left;"><a href="#function-syn_canopen_init"><strong>syn_canopen_init</strong></a> (<a href="../structSYN__CANOpenNode/"><strong>SYN_CANOpenNode</strong></a> * node, const <a href="../structSYN__CANOpenNodeConfig/"><strong>SYN_CANOpenNodeConfig</strong></a> * cfg, const <a href="../structSYN__CANOpenODEntry/"><strong>SYN_CANOpenODEntry</strong></a> * od_table, size_t od_count) <br><em>Initialize a CANopen DS301 Node.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;"><a href="../syn__defs_8h/#enum-syn_status"><strong>SYN_Status</strong></a></td>
+<td style="text-align: left;"><a href="#function-syn_canopen_od_read"><strong>syn_canopen_od_read</strong></a> (<a href="../structSYN__CANOpenNode/"><strong>SYN_CANOpenNode</strong></a> * node, uint16_t index, uint8_t subindex, void * buf, size_t buf_size, size_t * out_len) <br><em>Directly read an entry from the Object Dictionary.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;"><a href="../syn__defs_8h/#enum-syn_status"><strong>SYN_Status</strong></a></td>
+<td style="text-align: left;"><a href="#function-syn_canopen_od_write"><strong>syn_canopen_od_write</strong></a> (<a href="../structSYN__CANOpenNode/"><strong>SYN_CANOpenNode</strong></a> * node, uint16_t index, uint8_t subindex, const void * data, size_t len) <br><em>Directly write an entry to the Object Dictionary.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;"><a href="../syn__defs_8h/#enum-syn_status"><strong>SYN_Status</strong></a></td>
+<td style="text-align: left;"><a href="#function-syn_canopen_process_rx"><strong>syn_canopen_process_rx</strong></a> (<a href="../structSYN__CANOpenNode/"><strong>SYN_CANOpenNode</strong></a> * node, uint32_t cob_id, const uint8_t * data, uint8_t len) <br><em>Process an incoming CAN frame.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;"><a href="../syn__defs_8h/#enum-syn_status"><strong>SYN_Status</strong></a></td>
+<td style="text-align: left;"><a href="#function-syn_canopen_send_emcy"><strong>syn_canopen_send_emcy</strong></a> (<a href="../structSYN__CANOpenNode/"><strong>SYN_CANOpenNode</strong></a> * node, uint16_t err_code, uint8_t err_reg) <br><em>Transmit an Emergency (EMCY) message.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;"><a href="../syn__defs_8h/#enum-syn_status"><strong>SYN_Status</strong></a></td>
+<td style="text-align: left;"><a href="#function-syn_canopen_update"><strong>syn_canopen_update</strong></a> (<a href="../structSYN__CANOpenNode/"><strong>SYN_CANOpenNode</strong></a> * node, uint32_t dt_ms) <br><em>Periodic timer update (call from tick thread or loop).</em></td>
+</tr>
+</tbody>
+</table>
+<h2 id="macros">Macros<a class="headerlink" href="#macros" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: right;">Type</th>
+<th style="text-align: left;">Name</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">define</td>
+<td style="text-align: left;"><a href="./#define-syn_canopen_access_ro"><strong>SYN_CANOPEN_ACCESS_RO</strong></a>  <code>0x01U</code><br><em>OD Access Rights.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;">define</td>
+<td style="text-align: left;"><a href="./#define-syn_canopen_access_rw"><strong>SYN_CANOPEN_ACCESS_RW</strong></a>  <code>0x03U</code><br></td>
+</tr>
+<tr>
+<td style="text-align: right;">define</td>
+<td style="text-align: left;"><a href="./#define-syn_canopen_access_wo"><strong>SYN_CANOPEN_ACCESS_WO</strong></a>  <code>0x02U</code><br></td>
+</tr>
+<tr>
+<td style="text-align: right;">define</td>
+<td style="text-align: left;"><a href="./#define-syn_canopen_nmt_cmd_preop"><strong>SYN_CANOPEN_NMT_CMD_PREOP</strong></a>  <code>0x80U</code><br></td>
+</tr>
+<tr>
+<td style="text-align: right;">define</td>
+<td style="text-align: left;"><a href="./#define-syn_canopen_nmt_cmd_reset_comm"><strong>SYN_CANOPEN_NMT_CMD_RESET_COMM</strong></a>  <code>0x82U</code><br></td>
+</tr>
+<tr>
+<td style="text-align: right;">define</td>
+<td style="text-align: left;"><a href="./#define-syn_canopen_nmt_cmd_reset_node"><strong>SYN_CANOPEN_NMT_CMD_RESET_NODE</strong></a>  <code>0x81U</code><br></td>
+</tr>
+<tr>
+<td style="text-align: right;">define</td>
+<td style="text-align: left;"><a href="./#define-syn_canopen_nmt_cmd_start"><strong>SYN_CANOPEN_NMT_CMD_START</strong></a>  <code>0x01U</code><br><em>CANopen NMT Command Specifiers.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;">define</td>
+<td style="text-align: left;"><a href="./#define-syn_canopen_nmt_cmd_stop"><strong>SYN_CANOPEN_NMT_CMD_STOP</strong></a>  <code>0x02U</code><br></td>
+</tr>
+<tr>
+<td style="text-align: right;">define</td>
+<td style="text-align: left;"><a href="./#define-syn_canopen_nmt_state_bootup"><strong>SYN_CANOPEN_NMT_STATE_BOOTUP</strong></a>  <code>0x00U</code><br><em>CANopen NMT States.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;">define</td>
+<td style="text-align: left;"><a href="./#define-syn_canopen_nmt_state_operational"><strong>SYN_CANOPEN_NMT_STATE_OPERATIONAL</strong></a>  <code>0x05U</code><br></td>
+</tr>
+<tr>
+<td style="text-align: right;">define</td>
+<td style="text-align: left;"><a href="./#define-syn_canopen_nmt_state_preop"><strong>SYN_CANOPEN_NMT_STATE_PREOP</strong></a>  <code>0x7FU</code><br></td>
+</tr>
+<tr>
+<td style="text-align: right;">define</td>
+<td style="text-align: left;"><a href="./#define-syn_canopen_nmt_state_stopped"><strong>SYN_CANOPEN_NMT_STATE_STOPPED</strong></a>  <code>0x04U</code><br></td>
+</tr>
+<tr>
+<td style="text-align: right;">define</td>
+<td style="text-align: left;"><a href="./#define-syn_canopen_sdo_abort_none"><strong>SYN_CANOPEN_SDO_ABORT_NONE</strong></a>  <code>0x00000000UL</code><br><em>SDO Abort Codes.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;">define</td>
+<td style="text-align: left;"><a href="./#define-syn_canopen_sdo_abort_not_exist"><strong>SYN_CANOPEN_SDO_ABORT_NOT_EXIST</strong></a>  <code>0x06020000UL</code><br></td>
+</tr>
+<tr>
+<td style="text-align: right;">define</td>
+<td style="text-align: left;"><a href="./#define-syn_canopen_sdo_abort_read_only"><strong>SYN_CANOPEN_SDO_ABORT_READ_ONLY</strong></a>  <code>0x06010002UL</code><br></td>
+</tr>
+<tr>
+<td style="text-align: right;">define</td>
+<td style="text-align: left;"><a href="./#define-syn_canopen_sdo_abort_subindex_not_exist"><strong>SYN_CANOPEN_SDO_ABORT_SUBINDEX_NOT_EXIST</strong></a>  <code>0x06090011UL</code><br></td>
+</tr>
+<tr>
+<td style="text-align: right;">define</td>
+<td style="text-align: left;"><a href="./#define-syn_canopen_sdo_abort_toggle_bit"><strong>SYN_CANOPEN_SDO_ABORT_TOGGLE_BIT</strong></a>  <code>0x05030000UL</code><br></td>
+</tr>
+<tr>
+<td style="text-align: right;">define</td>
+<td style="text-align: left;"><a href="./#define-syn_canopen_sdo_abort_type_mismatch"><strong>SYN_CANOPEN_SDO_ABORT_TYPE_MISMATCH</strong></a>  <code>0x06070010UL</code><br></td>
+</tr>
+<tr>
+<td style="text-align: right;">define</td>
+<td style="text-align: left;"><a href="./#define-syn_canopen_sdo_abort_unsupported_access"><strong>SYN_CANOPEN_SDO_ABORT_UNSUPPORTED_ACCESS</strong></a>  <code>0x06010000UL</code><br></td>
+</tr>
+<tr>
+<td style="text-align: right;">define</td>
+<td style="text-align: left;"><a href="./#define-syn_canopen_sdo_abort_write_only"><strong>SYN_CANOPEN_SDO_ABORT_WRITE_ONLY</strong></a>  <code>0x06010001UL</code><br></td>
+</tr>
+<tr>
+<td style="text-align: right;">define</td>
+<td style="text-align: left;"><a href="./#define-syn_canopen_type_i16"><strong>SYN_CANOPEN_TYPE_I16</strong></a>  <code>0x03U</code><br></td>
+</tr>
+<tr>
+<td style="text-align: right;">define</td>
+<td style="text-align: left;"><a href="./#define-syn_canopen_type_i32"><strong>SYN_CANOPEN_TYPE_I32</strong></a>  <code>0x04U</code><br></td>
+</tr>
+<tr>
+<td style="text-align: right;">define</td>
+<td style="text-align: left;"><a href="./#define-syn_canopen_type_i8"><strong>SYN_CANOPEN_TYPE_I8</strong></a>  <code>0x02U</code><br><em>OD Data Types.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;">define</td>
+<td style="text-align: left;"><a href="./#define-syn_canopen_type_u16"><strong>SYN_CANOPEN_TYPE_U16</strong></a>  <code>0x06U</code><br></td>
+</tr>
+<tr>
+<td style="text-align: right;">define</td>
+<td style="text-align: left;"><a href="./#define-syn_canopen_type_u32"><strong>SYN_CANOPEN_TYPE_U32</strong></a>  <code>0x07U</code><br></td>
+</tr>
+<tr>
+<td style="text-align: right;">define</td>
+<td style="text-align: left;"><a href="./#define-syn_canopen_type_u8"><strong>SYN_CANOPEN_TYPE_U8</strong></a>  <code>0x05U</code><br></td>
+</tr>
+</tbody>
+</table>
+<h2 id="detailed-description">Detailed Description<a class="headerlink" href="#detailed-description" title="Permanent link">&para;</a></h2>
+<p>Implements a lightweight, non-blocking, zero-malloc CANopen DS301 slave stack including Object Dictionary, SDO server, RPDO/TPDO engine, NMT state machine, Heartbeat producer, and Emergency (EMCY) alarms. </p>
+<h2 id="public-functions-documentation">Public Functions Documentation<a class="headerlink" href="#public-functions-documentation" title="Permanent link">&para;</a></h2>
+<h3 id="function-syn_canopen_get_tx">function syn_canopen_get_tx<a class="headerlink" href="#function-syn_canopen_get_tx" title="Permanent link">&para;</a></h3>
+<p><em>Retrieve pending transmit CAN frame.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kt">bool</span><span class="w"> </span><span class="n">syn_canopen_get_tx</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">    </span><span class="n">SYN_CANOpenNode</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">node</span><span class="p">,</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">    </span><span class="kt">uint32_t</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">out_cob_id</span><span class="p">,</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">    </span><span class="kt">uint8_t</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">out_data</span><span class="p">,</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">    </span><span class="kt">uint8_t</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">out_len</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>node</code> Pointer to node handle. </li>
+<li><code>out_cob_id</code> Output COB-ID pointer. </li>
+<li><code>out_data</code> Output 8-byte buffer pointer. </li>
+<li><code>out_len</code> Output frame length pointer. </li>
+</ul>
+<p><strong>Returns:</strong></p>
+<p>true if a frame was popped, false if no frame pending. </p>
+<hr>
+
+<h3 id="function-syn_canopen_init">function syn_canopen_init<a class="headerlink" href="#function-syn_canopen_init" title="Permanent link">&para;</a></h3>
+<p><em>Initialize a CANopen DS301 Node.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="n">SYN_Status</span><span class="w"> </span><span class="n">syn_canopen_init</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">    </span><span class="n">SYN_CANOpenNode</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">node</span><span class="p">,</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">SYN_CANOpenNodeConfig</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">cfg</span><span class="p">,</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">SYN_CANOpenODEntry</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">od_table</span><span class="p">,</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="n">od_count</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>node</code> Pointer to node handle. </li>
+<li><code>cfg</code> Pointer to node configuration. </li>
+<li><code>od_table</code> Array of Object Dictionary entries. </li>
+<li><code>od_count</code> Number of entries in od_table. </li>
+</ul>
+<p><strong>Returns:</strong></p>
+<p>SYN_OK on success, SYN_INVALID_PARAM on invalid inputs. </p>
+<hr>
+
+<h3 id="function-syn_canopen_od_read">function syn_canopen_od_read<a class="headerlink" href="#function-syn_canopen_od_read" title="Permanent link">&para;</a></h3>
+<p><em>Directly read an entry from the Object Dictionary.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="n">SYN_Status</span><span class="w"> </span><span class="n">syn_canopen_od_read</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">    </span><span class="n">SYN_CANOpenNode</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">node</span><span class="p">,</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">    </span><span class="kt">uint16_t</span><span class="w"> </span><span class="n">index</span><span class="p">,</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">    </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">subindex</span><span class="p">,</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">buf</span><span class="p">,</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="n">buf_size</span><span class="p">,</span>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">out_len</span>
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>node</code> Pointer to node handle. </li>
+<li><code>index</code> 16-bit OD Index. </li>
+<li><code>subindex</code> 8-bit OD Subindex. </li>
+<li><code>buf</code> Output buffer pointer. </li>
+<li><code>buf_size</code> Maximum buffer capacity. </li>
+<li><code>out_len</code> Pointer to store read byte length. </li>
+</ul>
+<p><strong>Returns:</strong></p>
+<p>SYN_OK on success, error code if not found or unauthorized. </p>
+<hr>
+
+<h3 id="function-syn_canopen_od_write">function syn_canopen_od_write<a class="headerlink" href="#function-syn_canopen_od_write" title="Permanent link">&para;</a></h3>
+<p><em>Directly write an entry to the Object Dictionary.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="n">SYN_Status</span><span class="w"> </span><span class="n">syn_canopen_od_write</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">    </span><span class="n">SYN_CANOpenNode</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">node</span><span class="p">,</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">    </span><span class="kt">uint16_t</span><span class="w"> </span><span class="n">index</span><span class="p">,</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">    </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">subindex</span><span class="p">,</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">data</span><span class="p">,</span>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="n">len</span>
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>node</code> Pointer to node handle. </li>
+<li><code>index</code> 16-bit OD Index. </li>
+<li><code>subindex</code> 8-bit OD Subindex. </li>
+<li><code>data</code> Input data pointer. </li>
+<li><code>len</code> Input data length in bytes. </li>
+</ul>
+<p><strong>Returns:</strong></p>
+<p>SYN_OK on success, error code if not found or unauthorized. </p>
+<hr>
+
+<h3 id="function-syn_canopen_process_rx">function syn_canopen_process_rx<a class="headerlink" href="#function-syn_canopen_process_rx" title="Permanent link">&para;</a></h3>
+<p><em>Process an incoming CAN frame.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="n">SYN_Status</span><span class="w"> </span><span class="n">syn_canopen_process_rx</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">    </span><span class="n">SYN_CANOpenNode</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">node</span><span class="p">,</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">    </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">cob_id</span><span class="p">,</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">data</span><span class="p">,</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">    </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">len</span>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>node</code> Pointer to node handle. </li>
+<li><code>cob_id</code> Received 11-bit CAN COB-ID. </li>
+<li><code>data</code> Payload buffer (up to 8 bytes). </li>
+<li><code>len</code> Payload length. </li>
+</ul>
+<p><strong>Returns:</strong></p>
+<p>SYN_OK on success, error code on failure. </p>
+<hr>
+
+<h3 id="function-syn_canopen_send_emcy">function syn_canopen_send_emcy<a class="headerlink" href="#function-syn_canopen_send_emcy" title="Permanent link">&para;</a></h3>
+<p><em>Transmit an Emergency (EMCY) message.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="n">SYN_Status</span><span class="w"> </span><span class="n">syn_canopen_send_emcy</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">    </span><span class="n">SYN_CANOpenNode</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">node</span><span class="p">,</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">    </span><span class="kt">uint16_t</span><span class="w"> </span><span class="n">err_code</span><span class="p">,</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">    </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">err_reg</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>node</code> Pointer to node handle. </li>
+<li><code>err_code</code> 16-bit CANopen Emergency Error Code. </li>
+<li><code>err_reg</code> 8-bit Error Register value (Index 0x1001). </li>
+</ul>
+<p><strong>Returns:</strong></p>
+<p>SYN_OK on success, SYN_INVALID_PARAM on invalid parameters. </p>
+<hr>
+
+<h3 id="function-syn_canopen_update">function syn_canopen_update<a class="headerlink" href="#function-syn_canopen_update" title="Permanent link">&para;</a></h3>
+<p><em>Periodic timer update (call from tick thread or loop).</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="n">SYN_Status</span><span class="w"> </span><span class="n">syn_canopen_update</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">    </span><span class="n">SYN_CANOpenNode</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">node</span><span class="p">,</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">    </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">dt_ms</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>node</code> Pointer to node handle. </li>
+<li><code>dt_ms</code> Elapsed time since last update in milliseconds. </li>
+</ul>
+<p><strong>Returns:</strong></p>
+<p>SYN_OK on success. </p>
+<hr>
+<h2 id="macro-definition-documentation">Macro Definition Documentation<a class="headerlink" href="#macro-definition-documentation" title="Permanent link">&para;</a></h2>
+<h3 id="define-syn_canopen_access_ro">define SYN_CANOPEN_ACCESS_RO<a class="headerlink" href="#define-syn_canopen_access_ro" title="Permanent link">&para;</a></h3>
+<p><em>OD Access Rights.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="cp">#define SYN_CANOPEN_ACCESS_RO `0x01U`</span>
+</code></pre></div></p>
+<p>Read-Only access </p>
+<hr>
+
+<h3 id="define-syn_canopen_access_rw">define SYN_CANOPEN_ACCESS_RW<a class="headerlink" href="#define-syn_canopen_access_rw" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="cp">#define SYN_CANOPEN_ACCESS_RW `0x03U`</span>
+</code></pre></div>
+<p>Read/Write access </p>
+<hr>
+
+<h3 id="define-syn_canopen_access_wo">define SYN_CANOPEN_ACCESS_WO<a class="headerlink" href="#define-syn_canopen_access_wo" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="cp">#define SYN_CANOPEN_ACCESS_WO `0x02U`</span>
+</code></pre></div>
+<p>Write-Only access </p>
+<hr>
+
+<h3 id="define-syn_canopen_nmt_cmd_preop">define SYN_CANOPEN_NMT_CMD_PREOP<a class="headerlink" href="#define-syn_canopen_nmt_cmd_preop" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="cp">#define SYN_CANOPEN_NMT_CMD_PREOP `0x80U`</span>
+</code></pre></div>
+<p>Enter Pre-Operational </p>
+<hr>
+
+<h3 id="define-syn_canopen_nmt_cmd_reset_comm">define SYN_CANOPEN_NMT_CMD_RESET_COMM<a class="headerlink" href="#define-syn_canopen_nmt_cmd_reset_comm" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="cp">#define SYN_CANOPEN_NMT_CMD_RESET_COMM `0x82U`</span>
+</code></pre></div>
+<p>Reset Communication </p>
+<hr>
+
+<h3 id="define-syn_canopen_nmt_cmd_reset_node">define SYN_CANOPEN_NMT_CMD_RESET_NODE<a class="headerlink" href="#define-syn_canopen_nmt_cmd_reset_node" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="cp">#define SYN_CANOPEN_NMT_CMD_RESET_NODE `0x81U`</span>
+</code></pre></div>
+<p>Reset Node </p>
+<hr>
+
+<h3 id="define-syn_canopen_nmt_cmd_start">define SYN_CANOPEN_NMT_CMD_START<a class="headerlink" href="#define-syn_canopen_nmt_cmd_start" title="Permanent link">&para;</a></h3>
+<p><em>CANopen NMT Command Specifiers.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="cp">#define SYN_CANOPEN_NMT_CMD_START `0x01U`</span>
+</code></pre></div></p>
+<p>Start Remote Node </p>
+<hr>
+
+<h3 id="define-syn_canopen_nmt_cmd_stop">define SYN_CANOPEN_NMT_CMD_STOP<a class="headerlink" href="#define-syn_canopen_nmt_cmd_stop" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="cp">#define SYN_CANOPEN_NMT_CMD_STOP `0x02U`</span>
+</code></pre></div>
+<p>Stop Remote Node </p>
+<hr>
+
+<h3 id="define-syn_canopen_nmt_state_bootup">define SYN_CANOPEN_NMT_STATE_BOOTUP<a class="headerlink" href="#define-syn_canopen_nmt_state_bootup" title="Permanent link">&para;</a></h3>
+<p><em>CANopen NMT States.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="cp">#define SYN_CANOPEN_NMT_STATE_BOOTUP `0x00U`</span>
+</code></pre></div></p>
+<p>Bootup State </p>
+<hr>
+
+<h3 id="define-syn_canopen_nmt_state_operational">define SYN_CANOPEN_NMT_STATE_OPERATIONAL<a class="headerlink" href="#define-syn_canopen_nmt_state_operational" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="cp">#define SYN_CANOPEN_NMT_STATE_OPERATIONAL `0x05U`</span>
+</code></pre></div>
+<p>Operational State </p>
+<hr>
+
+<h3 id="define-syn_canopen_nmt_state_preop">define SYN_CANOPEN_NMT_STATE_PREOP<a class="headerlink" href="#define-syn_canopen_nmt_state_preop" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="cp">#define SYN_CANOPEN_NMT_STATE_PREOP `0x7FU`</span>
+</code></pre></div>
+<p>Pre-Operational State </p>
+<hr>
+
+<h3 id="define-syn_canopen_nmt_state_stopped">define SYN_CANOPEN_NMT_STATE_STOPPED<a class="headerlink" href="#define-syn_canopen_nmt_state_stopped" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="cp">#define SYN_CANOPEN_NMT_STATE_STOPPED `0x04U`</span>
+</code></pre></div>
+<p>Stopped State </p>
+<hr>
+
+<h3 id="define-syn_canopen_sdo_abort_none">define SYN_CANOPEN_SDO_ABORT_NONE<a class="headerlink" href="#define-syn_canopen_sdo_abort_none" title="Permanent link">&para;</a></h3>
+<p><em>SDO Abort Codes.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="cp">#define SYN_CANOPEN_SDO_ABORT_NONE `0x00000000UL`</span>
+</code></pre></div></p>
+<p>No error </p>
+<hr>
+
+<h3 id="define-syn_canopen_sdo_abort_not_exist">define SYN_CANOPEN_SDO_ABORT_NOT_EXIST<a class="headerlink" href="#define-syn_canopen_sdo_abort_not_exist" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="cp">#define SYN_CANOPEN_SDO_ABORT_NOT_EXIST `0x06020000UL`</span>
+</code></pre></div>
+<p>Object does not exist in dictionary </p>
+<hr>
+
+<h3 id="define-syn_canopen_sdo_abort_read_only">define SYN_CANOPEN_SDO_ABORT_READ_ONLY<a class="headerlink" href="#define-syn_canopen_sdo_abort_read_only" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="cp">#define SYN_CANOPEN_SDO_ABORT_READ_ONLY `0x06010002UL`</span>
+</code></pre></div>
+<p>Attempt to write a read only object </p>
+<hr>
+
+<h3 id="define-syn_canopen_sdo_abort_subindex_not_exist">define SYN_CANOPEN_SDO_ABORT_SUBINDEX_NOT_EXIST<a class="headerlink" href="#define-syn_canopen_sdo_abort_subindex_not_exist" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a><span class="cp">#define SYN_CANOPEN_SDO_ABORT_SUBINDEX_NOT_EXIST `0x06090011UL`</span>
+</code></pre></div>
+<p>Subindex does not exist </p>
+<hr>
+
+<h3 id="define-syn_canopen_sdo_abort_toggle_bit">define SYN_CANOPEN_SDO_ABORT_TOGGLE_BIT<a class="headerlink" href="#define-syn_canopen_sdo_abort_toggle_bit" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a><span class="cp">#define SYN_CANOPEN_SDO_ABORT_TOGGLE_BIT `0x05030000UL`</span>
+</code></pre></div>
+<p>Toggle bit not altered </p>
+<hr>
+
+<h3 id="define-syn_canopen_sdo_abort_type_mismatch">define SYN_CANOPEN_SDO_ABORT_TYPE_MISMATCH<a class="headerlink" href="#define-syn_canopen_sdo_abort_type_mismatch" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a><span class="cp">#define SYN_CANOPEN_SDO_ABORT_TYPE_MISMATCH `0x06070010UL`</span>
+</code></pre></div>
+<p>Data type mismatch, length mismatch </p>
+<hr>
+
+<h3 id="define-syn_canopen_sdo_abort_unsupported_access">define SYN_CANOPEN_SDO_ABORT_UNSUPPORTED_ACCESS<a class="headerlink" href="#define-syn_canopen_sdo_abort_unsupported_access" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a><span class="cp">#define SYN_CANOPEN_SDO_ABORT_UNSUPPORTED_ACCESS `0x06010000UL`</span>
+</code></pre></div>
+<p>Unsupported access to object </p>
+<hr>
+
+<h3 id="define-syn_canopen_sdo_abort_write_only">define SYN_CANOPEN_SDO_ABORT_WRITE_ONLY<a class="headerlink" href="#define-syn_canopen_sdo_abort_write_only" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a><span class="cp">#define SYN_CANOPEN_SDO_ABORT_WRITE_ONLY `0x06010001UL`</span>
+</code></pre></div>
+<p>Attempt to read a write only object </p>
+<hr>
+
+<h3 id="define-syn_canopen_type_i16">define SYN_CANOPEN_TYPE_I16<a class="headerlink" href="#define-syn_canopen_type_i16" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a><span class="cp">#define SYN_CANOPEN_TYPE_I16 `0x03U`</span>
+</code></pre></div>
+<p>Signed 16-bit integer </p>
+<hr>
+
+<h3 id="define-syn_canopen_type_i32">define SYN_CANOPEN_TYPE_I32<a class="headerlink" href="#define-syn_canopen_type_i32" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a><span class="cp">#define SYN_CANOPEN_TYPE_I32 `0x04U`</span>
+</code></pre></div>
+<p>Signed 32-bit integer </p>
+<hr>
+
+<h3 id="define-syn_canopen_type_i8">define SYN_CANOPEN_TYPE_I8<a class="headerlink" href="#define-syn_canopen_type_i8" title="Permanent link">&para;</a></h3>
+<p><em>OD Data Types.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-29-1" name="__codelineno-29-1" href="#__codelineno-29-1"></a><span class="cp">#define SYN_CANOPEN_TYPE_I8 `0x02U`</span>
+</code></pre></div></p>
+<p>Signed 8-bit integer </p>
+<hr>
+
+<h3 id="define-syn_canopen_type_u16">define SYN_CANOPEN_TYPE_U16<a class="headerlink" href="#define-syn_canopen_type_u16" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-30-1" name="__codelineno-30-1" href="#__codelineno-30-1"></a><span class="cp">#define SYN_CANOPEN_TYPE_U16 `0x06U`</span>
+</code></pre></div>
+<p>Unsigned 16-bit integer </p>
+<hr>
+
+<h3 id="define-syn_canopen_type_u32">define SYN_CANOPEN_TYPE_U32<a class="headerlink" href="#define-syn_canopen_type_u32" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-31-1" name="__codelineno-31-1" href="#__codelineno-31-1"></a><span class="cp">#define SYN_CANOPEN_TYPE_U32 `0x07U`</span>
+</code></pre></div>
+<p>Unsigned 32-bit integer </p>
+<hr>
+
+<h3 id="define-syn_canopen_type_u8">define SYN_CANOPEN_TYPE_U8<a class="headerlink" href="#define-syn_canopen_type_u8" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-32-1" name="__codelineno-32-1" href="#__codelineno-32-1"></a><span class="cp">#define SYN_CANOPEN_TYPE_U8 `0x05U`</span>
+</code></pre></div>
+<p>Unsigned 8-bit integer </p>
+<hr>
+
+<hr />
+<p>The documentation for this class was generated from the following file <code>src/syntropic/proto/syn_canopen.h</code></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.expand", "navigation.top", "search.highlight", "content.code.copy", "content.code.annotate"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>

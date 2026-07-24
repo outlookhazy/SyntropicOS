@@ -1,0 +1,772 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__nmea_8h" kind="file" language="C++">
+    <compoundname>syn_nmea.h</compoundname>
+    <includes refid="syn__defs_8h" local="yes">../common/syn_defs.h</includes>
+    <includes local="no">stdint.h</includes>
+    <includes local="no">stdbool.h</includes>
+    <includes local="no">stddef.h</includes>
+    <includedby refid="syn__nmea_8c" local="yes">src/syntropic/proto/syn_nmea.c</includedby>
+    <includedby refid="syntropic_8h" local="yes">src/syntropic/syntropic.h</includedby>
+    <incdepgraph>
+      <node id="2">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/proto/syn_nmea.h</label>
+        <link refid="syn__nmea_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>stdbool.h</label>
+      </node>
+      <node id="4">
+        <label>stddef.h</label>
+      </node>
+      <node id="3">
+        <label>stdint.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="2">
+        <label>src/syntropic/proto/syn_nmea.c</label>
+        <link refid="syn__nmea_8c"/>
+      </node>
+      <node id="1">
+        <label>src/syntropic/proto/syn_nmea.h</label>
+        <link refid="syn__nmea_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>src/syntropic/syntropic.h</label>
+        <link refid="syntropic_8h"/>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="structSYN__NMEA__GGA" prot="public">SYN_NMEA_GGA</innerclass>
+    <innerclass refid="structSYN__NMEA__RMC" prot="public">SYN_NMEA_RMC</innerclass>
+    <innerclass refid="structSYN__NMEA__VTG" prot="public">SYN_NMEA_VTG</innerclass>
+    <innerclass refid="structSYN__NMEA__GSA" prot="public">SYN_NMEA_GSA</innerclass>
+    <innerclass refid="structSYN__NMEA__ZDA" prot="public">SYN_NMEA_ZDA</innerclass>
+    <innerclass refid="structSYN__NMEA__Parser" prot="public">SYN_NMEA_Parser</innerclass>
+    <sectiondef kind="define">
+      <memberdef kind="define" id="syn__nmea_8h_1af8d7405b0f19648d864df8a83c931f43" prot="public" static="no">
+        <name>SYN_NMEA_MAX_SENTENCE_LEN</name>
+        <initializer>82</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Max NMEA 0183 sentence length </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_nmea.h" line="29" column="9" bodyfile="src/syntropic/proto/syn_nmea.h" bodystart="29" bodyend="-1"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="enum">
+      <memberdef kind="enum" id="syn__nmea_8h_1a83599bd9c4ddbb9884cc107b618a788c" prot="public" static="no" strong="no">
+        <type></type>
+        <name>SYN_NMEA_SentenceType</name>
+        <enumvalue id="syn__nmea_8h_1a83599bd9c4ddbb9884cc107b618a788caed1eb2f91bc9b0a5305dd1a19c0f860a" prot="public">
+          <name>SYN_NMEA_SENTENCE_UNKNOWN</name>
+          <initializer>= 0</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__nmea_8h_1a83599bd9c4ddbb9884cc107b618a788ca96f846ca1bb6f229d01450143c53be47" prot="public">
+          <name>SYN_NMEA_SENTENCE_GGA</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__nmea_8h_1a83599bd9c4ddbb9884cc107b618a788ca25a869ce83fa8b8c8bb3091447252a62" prot="public">
+          <name>SYN_NMEA_SENTENCE_RMC</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__nmea_8h_1a83599bd9c4ddbb9884cc107b618a788ca9fc6915b455576c07d1512dfc5fb1fbb" prot="public">
+          <name>SYN_NMEA_SENTENCE_VTG</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__nmea_8h_1a83599bd9c4ddbb9884cc107b618a788ca2d82b6e6ac9d2714cefd35c8e9386c15" prot="public">
+          <name>SYN_NMEA_SENTENCE_GSA</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__nmea_8h_1a83599bd9c4ddbb9884cc107b618a788ca3333facd4c8d73e51595d7c28e394cb1" prot="public">
+          <name>SYN_NMEA_SENTENCE_ZDA</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>NMEA Sentence Type Enum. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_nmea.h" line="32" column="1" bodyfile="src/syntropic/proto/syn_nmea.h" bodystart="32" bodyend="39"/>
+      </memberdef>
+      <memberdef kind="enum" id="syn__nmea_8h_1ae2a439a294ce6ae3c3438bbca3da0085" prot="public" static="no" strong="no">
+        <type></type>
+        <name>SYN_NMEA_FixQuality</name>
+        <enumvalue id="syn__nmea_8h_1ae2a439a294ce6ae3c3438bbca3da0085a8d332c46691a6a7a9a5ef1c048268a82" prot="public">
+          <name>SYN_NMEA_FIX_INVALID</name>
+          <initializer>= 0</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__nmea_8h_1ae2a439a294ce6ae3c3438bbca3da0085adabb0e978a8c37269238ac1c8378c0ab" prot="public">
+          <name>SYN_NMEA_FIX_GPS</name>
+          <initializer>= 1</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__nmea_8h_1ae2a439a294ce6ae3c3438bbca3da0085a6ece88347cea13cf48cebbbfa6d420c7" prot="public">
+          <name>SYN_NMEA_FIX_DGPS</name>
+          <initializer>= 2</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__nmea_8h_1ae2a439a294ce6ae3c3438bbca3da0085a931514464d08c53d5780c1c20f5538c1" prot="public">
+          <name>SYN_NMEA_FIX_PPS</name>
+          <initializer>= 3</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__nmea_8h_1ae2a439a294ce6ae3c3438bbca3da0085a1ff70d1dd259d5b86aeb58ed0c0d260b" prot="public">
+          <name>SYN_NMEA_FIX_RTK</name>
+          <initializer>= 4</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__nmea_8h_1ae2a439a294ce6ae3c3438bbca3da0085ac142ed7003b476beac3687ee03abbf6e" prot="public">
+          <name>SYN_NMEA_FIX_FLOAT_RTK</name>
+          <initializer>= 5</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__nmea_8h_1ae2a439a294ce6ae3c3438bbca3da0085a051f268d257b44e77a2b0ffab52570b5" prot="public">
+          <name>SYN_NMEA_FIX_ESTIMATED</name>
+          <initializer>= 6</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>GPS Fix Quality Enum (from GGA) </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_nmea.h" line="42" column="1" bodyfile="src/syntropic/proto/syn_nmea.h" bodystart="42" bodyend="50"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__nmea_8h_1a0f798d491659eff81f4f8c290b97a084" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_nmea_parser_init</definition>
+        <argsstring>(SYN_NMEA_Parser *parser)</argsstring>
+        <name>syn_nmea_parser_init</name>
+        <param>
+          <type><ref refid="structSYN__NMEA__Parser" kindref="compound">SYN_NMEA_Parser</ref> *</type>
+          <declname>parser</declname>
+        </param>
+        <briefdescription>
+<para>Initialize an NMEA streaming parser. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>parser</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to parser state machine. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_nmea.h" line="125" column="6" bodyfile="src/syntropic/proto/syn_nmea.c" bodystart="61" bodyend="67" declfile="src/syntropic/proto/syn_nmea.h" declline="125" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__nmea_8h_1a2a790a38eafa0fce2fe6f7f71f801873" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_nmea_parser_feed</definition>
+        <argsstring>(SYN_NMEA_Parser *parser, char byte, char *out_sentence)</argsstring>
+        <name>syn_nmea_parser_feed</name>
+        <param>
+          <type><ref refid="structSYN__NMEA__Parser" kindref="compound">SYN_NMEA_Parser</ref> *</type>
+          <declname>parser</declname>
+        </param>
+        <param>
+          <type>char</type>
+          <declname>byte</declname>
+        </param>
+        <param>
+          <type>char *</type>
+          <declname>out_sentence</declname>
+        </param>
+        <briefdescription>
+<para>Feed a byte into the NMEA streaming parser. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>parser</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to parser instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>byte</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Received character. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out_sentence</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output buffer for completed NMEA sentence string (if returns true). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if a complete, valid NMEA sentence was received. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_nmea.h" line="135" column="6" bodyfile="src/syntropic/proto/syn_nmea.c" bodystart="69" bodyend="107" declfile="src/syntropic/proto/syn_nmea.h" declline="135" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__nmea_8h_1a15b72e1d6b8b605af0c81d56c61e8f9a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint8_t</type>
+        <definition>uint8_t syn_nmea_checksum</definition>
+        <argsstring>(const char *sentence)</argsstring>
+        <name>syn_nmea_checksum</name>
+        <param>
+          <type>const char *</type>
+          <declname>sentence</declname>
+        </param>
+        <briefdescription>
+<para>Calculate XOR checksum of an NMEA sentence payload (between &apos;$&apos; and &apos;*&apos;). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>sentence</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>NMEA sentence string. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>8-bit XOR checksum value. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_nmea.h" line="142" column="9" bodyfile="src/syntropic/proto/syn_nmea.c" bodystart="109" bodyend="121" declfile="src/syntropic/proto/syn_nmea.h" declline="142" declcolumn="9"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__nmea_8h_1ae91d4afae616474251f04783d0087b32" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_nmea_validate</definition>
+        <argsstring>(const char *sentence)</argsstring>
+        <name>syn_nmea_validate</name>
+        <param>
+          <type>const char *</type>
+          <declname>sentence</declname>
+        </param>
+        <briefdescription>
+<para>Validate an NMEA sentence string (checks start &apos;$&apos;, &apos;*XX&apos; checksum, and CRLF). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>sentence</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>NMEA sentence string. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if valid sentence and matching checksum. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_nmea.h" line="149" column="6" bodyfile="src/syntropic/proto/syn_nmea.c" bodystart="123" bodyend="134" declfile="src/syntropic/proto/syn_nmea.h" declline="149" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__nmea_8h_1af7ee797870318fb38fa649110e5dd265" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__nmea_8h_1a83599bd9c4ddbb9884cc107b618a788c" kindref="member">SYN_NMEA_SentenceType</ref></type>
+        <definition>SYN_NMEA_SentenceType syn_nmea_get_type</definition>
+        <argsstring>(const char *sentence)</argsstring>
+        <name>syn_nmea_get_type</name>
+        <param>
+          <type>const char *</type>
+          <declname>sentence</declname>
+        </param>
+        <briefdescription>
+<para>Identify sentence type from NMEA string. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>sentence</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>NMEA sentence string. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_NMEA_SentenceType enum. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_nmea.h" line="156" column="23" bodyfile="src/syntropic/proto/syn_nmea.c" bodystart="136" bodyend="154" declfile="src/syntropic/proto/syn_nmea.h" declline="156" declcolumn="23"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__nmea_8h_1af6c6a82f2cc80de4ce911a0b926ae4df" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>double</type>
+        <definition>double syn_nmea_parse_coord</definition>
+        <argsstring>(const char *nmea_coord, char dir)</argsstring>
+        <name>syn_nmea_parse_coord</name>
+        <param>
+          <type>const char *</type>
+          <declname>nmea_coord</declname>
+        </param>
+        <param>
+          <type>char</type>
+          <declname>dir</declname>
+        </param>
+        <briefdescription>
+<para>Parse NMEA DDMM.MMMM coordinate string and direction indicator. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>nmea_coord</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Coordinate string (e.g. &quot;4807.038&quot;). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dir</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Direction char (&apos;N&apos;, &apos;S&apos;, &apos;E&apos;, &apos;W&apos;). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Decimal degrees (+N/+E, -S/-W). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_nmea.h" line="164" column="8" bodyfile="src/syntropic/proto/syn_nmea.c" bodystart="156" bodyend="170" declfile="src/syntropic/proto/syn_nmea.h" declline="164" declcolumn="8"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__nmea_8h_1a931f9a781cc0148f7a87c7204444b23d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_nmea_parse_gga</definition>
+        <argsstring>(const char *sentence, SYN_NMEA_GGA *gga)</argsstring>
+        <name>syn_nmea_parse_gga</name>
+        <param>
+          <type>const char *</type>
+          <declname>sentence</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__NMEA__GGA" kindref="compound">SYN_NMEA_GGA</ref> *</type>
+          <declname>gga</declname>
+        </param>
+        <briefdescription>
+<para>Parse a $GPGGA / $GNGGA sentence. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>sentence</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>NMEA sentence string. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>gga</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to destination GGA struct. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_nmea.h" line="172" column="6" bodyfile="src/syntropic/proto/syn_nmea.c" bodystart="188" bodyend="212" declfile="src/syntropic/proto/syn_nmea.h" declline="172" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__nmea_8h_1a8cf06ad4e17855c3ce3c769673b1bfb5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_nmea_parse_rmc</definition>
+        <argsstring>(const char *sentence, SYN_NMEA_RMC *rmc)</argsstring>
+        <name>syn_nmea_parse_rmc</name>
+        <param>
+          <type>const char *</type>
+          <declname>sentence</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__NMEA__RMC" kindref="compound">SYN_NMEA_RMC</ref> *</type>
+          <declname>rmc</declname>
+        </param>
+        <briefdescription>
+<para>Parse a $GPRMC / $GNRMC sentence. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>sentence</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>NMEA sentence string. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>rmc</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to destination RMC struct. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_nmea.h" line="180" column="6" bodyfile="src/syntropic/proto/syn_nmea.c" bodystart="214" bodyend="247" declfile="src/syntropic/proto/syn_nmea.h" declline="180" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__nmea_8h_1a694990975eabe7864801eeec7cc6ef72" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_nmea_parse_vtg</definition>
+        <argsstring>(const char *sentence, SYN_NMEA_VTG *vtg)</argsstring>
+        <name>syn_nmea_parse_vtg</name>
+        <param>
+          <type>const char *</type>
+          <declname>sentence</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__NMEA__VTG" kindref="compound">SYN_NMEA_VTG</ref> *</type>
+          <declname>vtg</declname>
+        </param>
+        <briefdescription>
+<para>Parse a $GPVTG / $GNVTG sentence. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>sentence</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>NMEA sentence string. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>vtg</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to destination VTG struct. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_nmea.h" line="188" column="6" bodyfile="src/syntropic/proto/syn_nmea.c" bodystart="249" bodyend="263" declfile="src/syntropic/proto/syn_nmea.h" declline="188" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__nmea_8h_1a1e3ae1f66d901052cb6dc9d76e147f0f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_nmea_parse_gsa</definition>
+        <argsstring>(const char *sentence, SYN_NMEA_GSA *gsa)</argsstring>
+        <name>syn_nmea_parse_gsa</name>
+        <param>
+          <type>const char *</type>
+          <declname>sentence</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__NMEA__GSA" kindref="compound">SYN_NMEA_GSA</ref> *</type>
+          <declname>gsa</declname>
+        </param>
+        <briefdescription>
+<para>Parse a $GPGSA / $GNGSA sentence. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>sentence</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>NMEA sentence string. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>gsa</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to destination GSA struct. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_nmea.h" line="196" column="6" bodyfile="src/syntropic/proto/syn_nmea.c" bodystart="265" bodyend="281" declfile="src/syntropic/proto/syn_nmea.h" declline="196" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__nmea_8h_1a695a2b669d55c480429ae5c2d75a8d8a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_nmea_parse_zda</definition>
+        <argsstring>(const char *sentence, SYN_NMEA_ZDA *zda)</argsstring>
+        <name>syn_nmea_parse_zda</name>
+        <param>
+          <type>const char *</type>
+          <declname>sentence</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__NMEA__ZDA" kindref="compound">SYN_NMEA_ZDA</ref> *</type>
+          <declname>zda</declname>
+        </param>
+        <briefdescription>
+<para>Parse a $GPZDA / $GNZDA sentence. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>sentence</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>NMEA sentence string. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>zda</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to destination ZDA struct. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_nmea.h" line="204" column="6" bodyfile="src/syntropic/proto/syn_nmea.c" bodystart="283" bodyend="298" declfile="src/syntropic/proto/syn_nmea.h" declline="204" declcolumn="6"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>NMEA 0183 / GNSS sentence parser and encoder. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Provides a zero-allocation, streaming byte-at-a-time NMEA 0183 parser, sentence checksum verification, and structured data decoders for standard GNSS sentences:<itemizedlist>
+<listitem><para>GGA: Global Positioning System Fix Data</para>
+</listitem><listitem><para>RMC: Recommended Minimum Specific GNSS Data</para>
+</listitem><listitem><para>VTG: Course Over Ground &amp; Ground Speed</para>
+</listitem><listitem><para>GSA: GNSS DOP &amp; Active Satellites</para>
+</listitem><listitem><para>ZDA: UTC Time &amp; Date </para>
+</listitem></itemizedlist>
+</para>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_NMEA_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_NMEA_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../common/syn_defs.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stddef.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight></codeline>
+<codeline lineno="29" refid="syn__nmea_8h_1af8d7405b0f19648d864df8a83c931f43" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_NMEA_MAX_SENTENCE_LEN<sp/><sp/><sp/>82<sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="32" refid="syn__nmea_8h_1a83599bd9c4ddbb9884cc107b618a788c" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="33"><highlight class="normal"><sp/><sp/><sp/><sp/>SYN_NMEA_SENTENCE_UNKNOWN<sp/>=<sp/>0,</highlight></codeline>
+<codeline lineno="34"><highlight class="normal"><sp/><sp/><sp/><sp/>SYN_NMEA_SENTENCE_GGA,</highlight></codeline>
+<codeline lineno="35"><highlight class="normal"><sp/><sp/><sp/><sp/>SYN_NMEA_SENTENCE_RMC,</highlight></codeline>
+<codeline lineno="36"><highlight class="normal"><sp/><sp/><sp/><sp/>SYN_NMEA_SENTENCE_VTG,</highlight></codeline>
+<codeline lineno="37"><highlight class="normal"><sp/><sp/><sp/><sp/>SYN_NMEA_SENTENCE_GSA,</highlight></codeline>
+<codeline lineno="38"><highlight class="normal"><sp/><sp/><sp/><sp/>SYN_NMEA_SENTENCE_ZDA,</highlight></codeline>
+<codeline lineno="39"><highlight class="normal">}<sp/><ref refid="syn__nmea_8h_1a83599bd9c4ddbb9884cc107b618a788c" kindref="member">SYN_NMEA_SentenceType</ref>;</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight></codeline>
+<codeline lineno="42" refid="syn__nmea_8h_1ae2a439a294ce6ae3c3438bbca3da0085" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"><sp/><sp/><sp/><sp/>SYN_NMEA_FIX_INVALID<sp/>=<sp/>0,</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"><sp/><sp/><sp/><sp/>SYN_NMEA_FIX_GPS<sp/><sp/><sp/><sp/><sp/>=<sp/>1,</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"><sp/><sp/><sp/><sp/>SYN_NMEA_FIX_DGPS<sp/><sp/><sp/><sp/>=<sp/>2,</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/><sp/><sp/>SYN_NMEA_FIX_PPS<sp/><sp/><sp/><sp/><sp/>=<sp/>3,</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/><sp/><sp/>SYN_NMEA_FIX_RTK<sp/><sp/><sp/><sp/><sp/>=<sp/>4,</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/><sp/><sp/>SYN_NMEA_FIX_FLOAT_RTK<sp/>=<sp/>5,</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/><sp/><sp/>SYN_NMEA_FIX_ESTIMATED<sp/>=<sp/>6,</highlight></codeline>
+<codeline lineno="50"><highlight class="normal">}<sp/><ref refid="syn__nmea_8h_1ae2a439a294ce6ae3c3438bbca3da0085" kindref="member">SYN_NMEA_FixQuality</ref>;</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"></highlight></codeline>
+<codeline lineno="53" refid="structSYN__NMEA__GGA" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/>hours;</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/>minutes;</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/>seconds;</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/>milliseconds;</highlight></codeline>
+<codeline lineno="58" refid="structSYN__NMEA__GGA_1a992eadfbc7b158cb84ea8a007561733a" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><sp/><sp/><ref refid="structSYN__NMEA__GGA_1a992eadfbc7b158cb84ea8a007561733a" kindref="member">latitude</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="59" refid="structSYN__NMEA__GGA_1ab693006b031014c5780b8654b0ee05e7" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><sp/><sp/><ref refid="structSYN__NMEA__GGA_1ab693006b031014c5780b8654b0ee05e7" kindref="member">longitude</ref>;<sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="60"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__nmea_8h_1ae2a439a294ce6ae3c3438bbca3da0085" kindref="member">SYN_NMEA_FixQuality</ref><sp/>fix_quality;</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/>num_satellites;</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/><sp/><sp/><sp/>hdop;</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/><sp/><sp/><sp/>altitude_m;</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/>valid;</highlight></codeline>
+<codeline lineno="65"><highlight class="normal">}<sp/><ref refid="structSYN__NMEA__GGA" kindref="compound">SYN_NMEA_GGA</ref>;</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"></highlight></codeline>
+<codeline lineno="68" refid="structSYN__NMEA__RMC" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/>hours;</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/>minutes;</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/>seconds;</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/>milliseconds;</highlight></codeline>
+<codeline lineno="73" refid="structSYN__NMEA__RMC_1a99d50173112e5eec7479fb691a075f9c" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__NMEA__RMC_1a99d50173112e5eec7479fb691a075f9c" kindref="member">status_valid</ref>;<sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="74" refid="structSYN__NMEA__RMC_1ac355adc72ce48e99fd0f600bb6959b71" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><sp/><sp/><ref refid="structSYN__NMEA__RMC_1ac355adc72ce48e99fd0f600bb6959b71" kindref="member">latitude</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="75" refid="structSYN__NMEA__RMC_1a1a74777c96ad8a021b96ba755ad99441" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><sp/><sp/><ref refid="structSYN__NMEA__RMC_1a1a74777c96ad8a021b96ba755ad99441" kindref="member">longitude</ref>;<sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="76" refid="structSYN__NMEA__RMC_1ad2983ed8056838f4a94dd570297e6e96" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structSYN__NMEA__RMC_1ad2983ed8056838f4a94dd570297e6e96" kindref="member">speed_knots</ref>;<sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="77" refid="structSYN__NMEA__RMC_1a120c65cf846e692cda85ce486e85d5b1" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structSYN__NMEA__RMC_1a120c65cf846e692cda85ce486e85d5b1" kindref="member">course_deg</ref>;<sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/>day;</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/>month;</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/>year;</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/>valid;</highlight></codeline>
+<codeline lineno="82"><highlight class="normal">}<sp/><ref refid="structSYN__NMEA__RMC" kindref="compound">SYN_NMEA_RMC</ref>;</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"></highlight></codeline>
+<codeline lineno="85" refid="structSYN__NMEA__VTG" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/><sp/><sp/><sp/>course_true_deg;</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/><sp/><sp/><sp/>speed_knots;</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/><sp/><sp/><sp/>speed_kph;</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/>valid;</highlight></codeline>
+<codeline lineno="90"><highlight class="normal">}<sp/><ref refid="structSYN__NMEA__VTG" kindref="compound">SYN_NMEA_VTG</ref>;</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"></highlight></codeline>
+<codeline lineno="93" refid="structSYN__NMEA__GSA" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="94" refid="structSYN__NMEA__GSA_1a0511df13285089de5f2c747d66957606" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__NMEA__GSA_1a0511df13285089de5f2c747d66957606" kindref="member">mode</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="95" refid="structSYN__NMEA__GSA_1aa3a9869f5d68dc3061429a7edafeecaf" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/><ref refid="structSYN__NMEA__GSA_1aa3a9869f5d68dc3061429a7edafeecaf" kindref="member">fix_type</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/><sp/><sp/><sp/>pdop;</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/><sp/><sp/><sp/>hdop;</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/><sp/><sp/><sp/>vdop;</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/>valid;</highlight></codeline>
+<codeline lineno="100"><highlight class="normal">}<sp/><ref refid="structSYN__NMEA__GSA" kindref="compound">SYN_NMEA_GSA</ref>;</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"></highlight></codeline>
+<codeline lineno="103" refid="structSYN__NMEA__ZDA" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/>hours;</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/>minutes;</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/>seconds;</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/>milliseconds;</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/>day;</highlight></codeline>
+<codeline lineno="109"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/>month;</highlight></codeline>
+<codeline lineno="110"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/>year;</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/>valid;</highlight></codeline>
+<codeline lineno="112"><highlight class="normal">}<sp/><ref refid="structSYN__NMEA__ZDA" kindref="compound">SYN_NMEA_ZDA</ref>;</highlight></codeline>
+<codeline lineno="113"><highlight class="normal"></highlight></codeline>
+<codeline lineno="115" refid="structSYN__NMEA__Parser" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="116"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/>buf[<ref refid="syn__nmea_8h_1af8d7405b0f19648d864df8a83c931f43" kindref="member">SYN_NMEA_MAX_SENTENCE_LEN</ref><sp/>+<sp/>1];</highlight></codeline>
+<codeline lineno="117"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/>pos;</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/>in_sentence;</highlight></codeline>
+<codeline lineno="119"><highlight class="normal">}<sp/><ref refid="structSYN__NMEA__Parser" kindref="compound">SYN_NMEA_Parser</ref>;</highlight></codeline>
+<codeline lineno="120"><highlight class="normal"></highlight></codeline>
+<codeline lineno="125"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__nmea_8h_1a0f798d491659eff81f4f8c290b97a084" kindref="member">syn_nmea_parser_init</ref>(<ref refid="structSYN__NMEA__Parser" kindref="compound">SYN_NMEA_Parser</ref><sp/>*parser);</highlight></codeline>
+<codeline lineno="126"><highlight class="normal"></highlight></codeline>
+<codeline lineno="135"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__nmea_8h_1a2a790a38eafa0fce2fe6f7f71f801873" kindref="member">syn_nmea_parser_feed</ref>(<ref refid="structSYN__NMEA__Parser" kindref="compound">SYN_NMEA_Parser</ref><sp/>*parser,<sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">byte</highlight><highlight class="normal">,<sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*out_sentence);</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"></highlight></codeline>
+<codeline lineno="142"><highlight class="normal">uint8_t<sp/><ref refid="syn__nmea_8h_1a15b72e1d6b8b605af0c81d56c61e8f9a" kindref="member">syn_nmea_checksum</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*sentence);</highlight></codeline>
+<codeline lineno="143"><highlight class="normal"></highlight></codeline>
+<codeline lineno="149"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__nmea_8h_1ae91d4afae616474251f04783d0087b32" kindref="member">syn_nmea_validate</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*sentence);</highlight></codeline>
+<codeline lineno="150"><highlight class="normal"></highlight></codeline>
+<codeline lineno="156"><highlight class="normal"><ref refid="syn__nmea_8h_1a83599bd9c4ddbb9884cc107b618a788c" kindref="member">SYN_NMEA_SentenceType</ref><sp/><ref refid="syn__nmea_8h_1af7ee797870318fb38fa649110e5dd265" kindref="member">syn_nmea_get_type</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*sentence);</highlight></codeline>
+<codeline lineno="157"><highlight class="normal"></highlight></codeline>
+<codeline lineno="164"><highlight class="normal"></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="syn__nmea_8h_1af6c6a82f2cc80de4ce911a0b926ae4df" kindref="member">syn_nmea_parse_coord</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*nmea_coord,<sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>dir);</highlight></codeline>
+<codeline lineno="165"><highlight class="normal"></highlight></codeline>
+<codeline lineno="172"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__nmea_8h_1a931f9a781cc0148f7a87c7204444b23d" kindref="member">syn_nmea_parse_gga</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*sentence,<sp/><ref refid="structSYN__NMEA__GGA" kindref="compound">SYN_NMEA_GGA</ref><sp/>*gga);</highlight></codeline>
+<codeline lineno="173"><highlight class="normal"></highlight></codeline>
+<codeline lineno="180"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__nmea_8h_1a8cf06ad4e17855c3ce3c769673b1bfb5" kindref="member">syn_nmea_parse_rmc</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*sentence,<sp/><ref refid="structSYN__NMEA__RMC" kindref="compound">SYN_NMEA_RMC</ref><sp/>*rmc);</highlight></codeline>
+<codeline lineno="181"><highlight class="normal"></highlight></codeline>
+<codeline lineno="188"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__nmea_8h_1a694990975eabe7864801eeec7cc6ef72" kindref="member">syn_nmea_parse_vtg</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*sentence,<sp/><ref refid="structSYN__NMEA__VTG" kindref="compound">SYN_NMEA_VTG</ref><sp/>*vtg);</highlight></codeline>
+<codeline lineno="189"><highlight class="normal"></highlight></codeline>
+<codeline lineno="196"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__nmea_8h_1a1e3ae1f66d901052cb6dc9d76e147f0f" kindref="member">syn_nmea_parse_gsa</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*sentence,<sp/><ref refid="structSYN__NMEA__GSA" kindref="compound">SYN_NMEA_GSA</ref><sp/>*gsa);</highlight></codeline>
+<codeline lineno="197"><highlight class="normal"></highlight></codeline>
+<codeline lineno="204"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__nmea_8h_1a695a2b669d55c480429ae5c2d75a8d8a" kindref="member">syn_nmea_parse_zda</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*sentence,<sp/><ref refid="structSYN__NMEA__ZDA" kindref="compound">SYN_NMEA_ZDA</ref><sp/>*zda);</highlight></codeline>
+<codeline lineno="205"><highlight class="normal"></highlight></codeline>
+<codeline lineno="206"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="207"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="208"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="209"><highlight class="normal"></highlight></codeline>
+<codeline lineno="210"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_NMEA_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/proto/syn_nmea.h"/>
+  </compounddef>
+</doxygen>

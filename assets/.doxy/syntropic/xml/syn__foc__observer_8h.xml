@@ -1,0 +1,320 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__foc__observer_8h" kind="file" language="C++">
+    <compoundname>syn_foc_observer.h</compoundname>
+    <includes refid="syn__defs_8h" local="yes">../common/syn_defs.h</includes>
+    <includes refid="syn__qmath_8h" local="yes">../util/syn_qmath.h</includes>
+    <includedby refid="syn__foc__observer_8c" local="yes">src/syntropic/motor/syn_foc_observer.c</includedby>
+    <incdepgraph>
+      <node id="2">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/motor/syn_foc_observer.h</label>
+        <link refid="syn__foc__observer_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>../util/syn_qmath.h</label>
+        <link refid="syn__qmath_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>stddef.h</label>
+      </node>
+      <node id="3">
+        <label>stdint.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="2">
+        <label>src/syntropic/motor/syn_foc_observer.c</label>
+        <link refid="syn__foc__observer_8c"/>
+      </node>
+      <node id="1">
+        <label>src/syntropic/motor/syn_foc_observer.h</label>
+        <link refid="syn__foc__observer_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="structSYN__FOCObserverConfig" prot="public">SYN_FOCObserverConfig</innerclass>
+    <innerclass refid="structSYN__FOCObserver" prot="public">SYN_FOCObserver</innerclass>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__foc__observer_8h_1ac13bc569e080f76aad28e08819590324" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_foc_observer_init</definition>
+        <argsstring>(SYN_FOCObserver *obs, const SYN_FOCObserverConfig *cfg)</argsstring>
+        <name>syn_foc_observer_init</name>
+        <param>
+          <type><ref refid="structSYN__FOCObserver" kindref="compound">SYN_FOCObserver</ref> *</type>
+          <declname>obs</declname>
+        </param>
+        <param>
+          <type>const <ref refid="structSYN__FOCObserverConfig" kindref="compound">SYN_FOCObserverConfig</ref> *</type>
+          <declname>cfg</declname>
+        </param>
+        <briefdescription>
+<para>Initialize the sensorless FOC Sliding Mode Observer. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>obs</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to observer instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>cfg</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Observer configuration parameters. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_INVALID_PARAM if NULL or invalid parameters. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/motor/syn_foc_observer.h" line="48" column="12" bodyfile="src/syntropic/motor/syn_foc_observer.c" bodystart="10" bodyend="19" declfile="src/syntropic/motor/syn_foc_observer.h" declline="48" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__foc__observer_8h_1a528267269ad28340428c13af7d7fafe7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_foc_observer_update</definition>
+        <argsstring>(SYN_FOCObserver *obs, q16_t V_alpha, q16_t V_beta, q16_t I_alpha, q16_t I_beta)</argsstring>
+        <name>syn_foc_observer_update</name>
+        <param>
+          <type><ref refid="structSYN__FOCObserver" kindref="compound">SYN_FOCObserver</ref> *</type>
+          <declname>obs</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+          <declname>V_alpha</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+          <declname>V_beta</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+          <declname>I_alpha</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+          <declname>I_beta</declname>
+        </param>
+        <briefdescription>
+<para>Update observer with latest phase voltages and measured phase currents. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>obs</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Observer instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>V_alpha</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Applied alpha-axis voltage in Volts (Q16.16). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>V_beta</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Applied beta-axis voltage in Volts (Q16.16). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>I_alpha</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Measured alpha-axis current in Amps (Q16.16). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>I_beta</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Measured beta-axis current in Amps (Q16.16). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_INVALID_PARAM if NULL. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/motor/syn_foc_observer.h" line="60" column="12" bodyfile="src/syntropic/motor/syn_foc_observer.c" bodystart="34" bodyend="112" declfile="src/syntropic/motor/syn_foc_observer.h" declline="60" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__foc__observer_8h_1aedb9664a847c06e226ede85c428aa2aa" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+        <definition>q16_t syn_foc_observer_get_angle</definition>
+        <argsstring>(const SYN_FOCObserver *obs)</argsstring>
+        <name>syn_foc_observer_get_angle</name>
+        <param>
+          <type>const <ref refid="structSYN__FOCObserver" kindref="compound">SYN_FOCObserver</ref> *</type>
+          <declname>obs</declname>
+        </param>
+        <briefdescription>
+<para>Get current estimated rotor electrical angle. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>obs</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Observer instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Estimated angle in radians (Q16.16, 0 to 2pi). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/motor/syn_foc_observer.h" line="68" column="7" bodyfile="src/syntropic/motor/syn_foc_observer.c" bodystart="114" bodyend="118" declfile="src/syntropic/motor/syn_foc_observer.h" declline="68" declcolumn="7"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__foc__observer_8h_1aa92a39ce0cc73dd0a8c3c5196fa64a64" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+        <definition>q16_t syn_foc_observer_get_speed</definition>
+        <argsstring>(const SYN_FOCObserver *obs)</argsstring>
+        <name>syn_foc_observer_get_speed</name>
+        <param>
+          <type>const <ref refid="structSYN__FOCObserver" kindref="compound">SYN_FOCObserver</ref> *</type>
+          <declname>obs</declname>
+        </param>
+        <briefdescription>
+<para>Get current estimated rotor electrical angular speed. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>obs</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Observer instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Estimated angular speed in rad/s (Q16.16). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/motor/syn_foc_observer.h" line="75" column="7" bodyfile="src/syntropic/motor/syn_foc_observer.c" bodystart="120" bodyend="124" declfile="src/syntropic/motor/syn_foc_observer.h" declline="75" declcolumn="7"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__foc__observer_8h_1a1c10bd643f70ac6180b977c5fb5a3e08" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_foc_observer_reset</definition>
+        <argsstring>(SYN_FOCObserver *obs)</argsstring>
+        <name>syn_foc_observer_reset</name>
+        <param>
+          <type><ref refid="structSYN__FOCObserver" kindref="compound">SYN_FOCObserver</ref> *</type>
+          <declname>obs</declname>
+        </param>
+        <briefdescription>
+<para>Reset observer state to zero. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>obs</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Observer instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/motor/syn_foc_observer.h" line="81" column="6" bodyfile="src/syntropic/motor/syn_foc_observer.c" bodystart="21" bodyend="32" declfile="src/syntropic/motor/syn_foc_observer.h" declline="81" declcolumn="6"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Sensorless FOC Rotor Position &amp; Speed Sliding Mode Observer (SMO) (Q16.16 fixed-point). </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_FOC_OBSERVER_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_FOC_OBSERVER_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../common/syn_defs.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../util/syn_qmath.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight></codeline>
+<codeline lineno="17" refid="structSYN__FOCObserverConfig" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="18" refid="structSYN__FOCObserverConfig_1ae9f676696e16ca8967a487b9faa0e157" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/><ref refid="structSYN__FOCObserverConfig_1ae9f676696e16ca8967a487b9faa0e157" kindref="member">R</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="19" refid="structSYN__FOCObserverConfig_1aaa05bc7c28370414bcf5301fa1dffff4" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/><ref refid="structSYN__FOCObserverConfig_1aaa05bc7c28370414bcf5301fa1dffff4" kindref="member">L</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="20" refid="structSYN__FOCObserverConfig_1a6a4f0d66baaf8402d9186b1d9672e935" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/><ref refid="structSYN__FOCObserverConfig_1a6a4f0d66baaf8402d9186b1d9672e935" kindref="member">G</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="21" refid="structSYN__FOCObserverConfig_1abb7ef25e93309e6169f801ca236b66a6" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/><ref refid="structSYN__FOCObserverConfig_1abb7ef25e93309e6169f801ca236b66a6" kindref="member">dt</ref>;<sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="22" refid="structSYN__FOCObserverConfig_1ae4fa0d4b21c71051bc370c8e8ebbce6c" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/><ref refid="structSYN__FOCObserverConfig_1ae4fa0d4b21c71051bc370c8e8ebbce6c" kindref="member">Kp_pll</ref>;<sp/><sp/></highlight></codeline>
+<codeline lineno="23" refid="structSYN__FOCObserverConfig_1afcfbc640cdce1758ef6380336b3b8642" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/><ref refid="structSYN__FOCObserverConfig_1afcfbc640cdce1758ef6380336b3b8642" kindref="member">Ki_pll</ref>;<sp/><sp/></highlight></codeline>
+<codeline lineno="24"><highlight class="normal">}<sp/><ref refid="structSYN__FOCObserverConfig" kindref="compound">SYN_FOCObserverConfig</ref>;</highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight></codeline>
+<codeline lineno="27" refid="structSYN__FOCObserver" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="28" refid="structSYN__FOCObserver_1a23fdcc7cd9873167048fa1df2e251b8e" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structSYN__FOCObserverConfig" kindref="compound">SYN_FOCObserverConfig</ref><sp/><ref refid="structSYN__FOCObserver_1a23fdcc7cd9873167048fa1df2e251b8e" kindref="member">cfg</ref>;<sp/></highlight></codeline>
+<codeline lineno="30" refid="structSYN__FOCObserver_1acc9de8c177edcd03460a500578f67ce6" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/><ref refid="structSYN__FOCObserver_1acc9de8c177edcd03460a500578f67ce6" kindref="member">I_alpha_est</ref>;<sp/></highlight></codeline>
+<codeline lineno="31" refid="structSYN__FOCObserver_1a93c19955bfddae42d0c273a8eb1365cb" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/><ref refid="structSYN__FOCObserver_1a93c19955bfddae42d0c273a8eb1365cb" kindref="member">I_beta_est</ref>;<sp/><sp/></highlight></codeline>
+<codeline lineno="33" refid="structSYN__FOCObserver_1ac7c89b8dfdd0c7252ed1c4efc069112a" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/><ref refid="structSYN__FOCObserver_1ac7c89b8dfdd0c7252ed1c4efc069112a" kindref="member">E_alpha_est</ref>;<sp/></highlight></codeline>
+<codeline lineno="34" refid="structSYN__FOCObserver_1a08a58df64b775ac2342fbaecd49ca621" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/><ref refid="structSYN__FOCObserver_1a08a58df64b775ac2342fbaecd49ca621" kindref="member">E_beta_est</ref>;<sp/><sp/></highlight></codeline>
+<codeline lineno="36" refid="structSYN__FOCObserver_1afa7dd721d6d56a9049835524c2a03407" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/><ref refid="structSYN__FOCObserver_1afa7dd721d6d56a9049835524c2a03407" kindref="member">theta_e</ref>;<sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="37" refid="structSYN__FOCObserver_1af2212c27909027c7f526438d8b3244f2" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/><ref refid="structSYN__FOCObserver_1af2212c27909027c7f526438d8b3244f2" kindref="member">omega_e</ref>;<sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="39" refid="structSYN__FOCObserver_1abbac17bb75f5bea422f174d91fc895e2" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/><ref refid="structSYN__FOCObserver_1abbac17bb75f5bea422f174d91fc895e2" kindref="member">pll_i_accum</ref>;<sp/></highlight></codeline>
+<codeline lineno="40"><highlight class="normal">}<sp/><ref refid="structSYN__FOCObserver" kindref="compound">SYN_FOCObserver</ref>;</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__foc__observer_8h_1ac13bc569e080f76aad28e08819590324" kindref="member">syn_foc_observer_init</ref>(<ref refid="structSYN__FOCObserver" kindref="compound">SYN_FOCObserver</ref><sp/>*obs,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__FOCObserverConfig" kindref="compound">SYN_FOCObserverConfig</ref><sp/>*cfg);</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"></highlight></codeline>
+<codeline lineno="60"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__foc__observer_8h_1a528267269ad28340428c13af7d7fafe7" kindref="member">syn_foc_observer_update</ref>(<ref refid="structSYN__FOCObserver" kindref="compound">SYN_FOCObserver</ref><sp/>*obs,<sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>V_alpha,<sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>V_beta,</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>I_alpha,<sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>I_beta);</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"></highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/><ref refid="syn__foc__observer_8h_1aedb9664a847c06e226ede85c428aa2aa" kindref="member">syn_foc_observer_get_angle</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__FOCObserver" kindref="compound">SYN_FOCObserver</ref><sp/>*obs);</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"></highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/><ref refid="syn__foc__observer_8h_1aa92a39ce0cc73dd0a8c3c5196fa64a64" kindref="member">syn_foc_observer_get_speed</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__FOCObserver" kindref="compound">SYN_FOCObserver</ref><sp/>*obs);</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"></highlight></codeline>
+<codeline lineno="81"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__foc__observer_8h_1a1c10bd643f70ac6180b977c5fb5a3e08" kindref="member">syn_foc_observer_reset</ref>(<ref refid="structSYN__FOCObserver" kindref="compound">SYN_FOCObserver</ref><sp/>*obs);</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"></highlight></codeline>
+<codeline lineno="83"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="84"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="86"><highlight class="normal"></highlight></codeline>
+<codeline lineno="87"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_FOC_OBSERVER_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/motor/syn_foc_observer.h"/>
+  </compounddef>
+</doxygen>

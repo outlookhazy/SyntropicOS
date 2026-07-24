@@ -1,0 +1,633 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__biquad_8c" kind="file" language="C++">
+    <compoundname>syn_biquad.c</compoundname>
+    <includes refid="syn__biquad_8h" local="yes">syn_biquad.h</includes>
+    <includes refid="syn__assert_8h" local="yes">../util/syn_assert.h</includes>
+    <includes local="no">stddef.h</includes>
+    <incdepgraph>
+      <node id="7">
+        <label>../common/syn_compiler.h</label>
+        <link refid="syn__compiler_8h"/>
+      </node>
+      <node id="1">
+        <label>src/syntropic/dsp/syn_biquad.c</label>
+        <link refid="syn__biquad_8c"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>syn_biquad.h</label>
+        <link refid="syn__biquad_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>../util/syn_assert.h</label>
+        <link refid="syn__assert_8h"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>../util/syn_qmath.h</label>
+        <link refid="syn__qmath_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>stddef.h</label>
+      </node>
+      <node id="4">
+        <label>stdint.h</label>
+      </node>
+    </incdepgraph>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__biquad_8c_1a3dd5f5e168685b753213a74aacd8ff74" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_filter_biquad_init</definition>
+        <argsstring>(SYN_FilterBiquad *f, q16_t b0, q16_t b1, q16_t b2, q16_t a1, q16_t a2)</argsstring>
+        <name>syn_filter_biquad_init</name>
+        <param>
+          <type><ref refid="structSYN__FilterBiquad" kindref="compound">SYN_FilterBiquad</ref> *</type>
+          <declname>f</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+          <declname>b0</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+          <declname>b1</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+          <declname>b2</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+          <declname>a1</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+          <declname>a2</declname>
+        </param>
+        <briefdescription>
+<para>Initialize a biquad filter with raw coefficients. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>f</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Filter instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>b0</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Feedforward coefficient b0 (Q16.16). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>b1</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Feedforward coefficient b1 (Q16.16). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>b2</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Feedforward coefficient b2 (Q16.16). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>a1</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Feedback coefficient a1 (Q16.16). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>a2</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Feedback coefficient a2 (Q16.16). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/dsp/syn_biquad.c" line="19" column="6" bodyfile="src/syntropic/dsp/syn_biquad.c" bodystart="19" bodyend="28"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__biquad_8c_1abbe4c75359961a9994be09b22a6d6d98" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_filter_biquad_reset</definition>
+        <argsstring>(SYN_FilterBiquad *f)</argsstring>
+        <name>syn_filter_biquad_reset</name>
+        <param>
+          <type><ref refid="structSYN__FilterBiquad" kindref="compound">SYN_FilterBiquad</ref> *</type>
+          <declname>f</declname>
+        </param>
+        <briefdescription>
+<para>Reset biquad filter delay lines to zero. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>f</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Filter instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/dsp/syn_biquad.c" line="30" column="6" bodyfile="src/syntropic/dsp/syn_biquad.c" bodystart="30" bodyend="37"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__biquad_8c_1a0a9acab93b3118201432316ab1338bc1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+        <definition>q16_t syn_filter_biquad_update</definition>
+        <argsstring>(SYN_FilterBiquad *f, q16_t sample)</argsstring>
+        <name>syn_filter_biquad_update</name>
+        <param>
+          <type><ref refid="structSYN__FilterBiquad" kindref="compound">SYN_FilterBiquad</ref> *</type>
+          <declname>f</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+          <declname>sample</declname>
+        </param>
+        <briefdescription>
+<para>Process a single sample through the biquad filter. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Uses 64-bit intermediate calculations to prevent overflows.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>f</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Biquad filter instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>sample</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Input sample in Q16.16. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Filtered output in Q16.16. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/dsp/syn_biquad.c" line="39" column="7" bodyfile="src/syntropic/dsp/syn_biquad.c" bodystart="39" bodyend="60"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__biquad_8c_1af7422f148806c1283350f504ad30fdb5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_filter_biquad_lowpass</definition>
+        <argsstring>(SYN_FilterBiquad *f, q16_t fc, q16_t fs)</argsstring>
+        <name>syn_filter_biquad_lowpass</name>
+        <param>
+          <type><ref refid="structSYN__FilterBiquad" kindref="compound">SYN_FilterBiquad</ref> *</type>
+          <declname>f</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+          <declname>fc</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+          <declname>fs</declname>
+        </param>
+        <briefdescription>
+<para>Initialize a biquad lowpass filter. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Computes standard Butterworth coefficients in Q16.16.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>f</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Filter instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>fc</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Cutoff frequency (Hz) in Q16.16. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>fs</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Sample rate (Hz) in Q16.16. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/dsp/syn_biquad.c" line="62" column="6" bodyfile="src/syntropic/dsp/syn_biquad.c" bodystart="62" bodyend="92"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__biquad_8c_1a83a0dda3db11866198ad5b628bd949e0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_filter_biquad_highpass</definition>
+        <argsstring>(SYN_FilterBiquad *f, q16_t fc, q16_t fs)</argsstring>
+        <name>syn_filter_biquad_highpass</name>
+        <param>
+          <type><ref refid="structSYN__FilterBiquad" kindref="compound">SYN_FilterBiquad</ref> *</type>
+          <declname>f</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+          <declname>fc</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+          <declname>fs</declname>
+        </param>
+        <briefdescription>
+<para>Initialize a biquad highpass filter. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Computes standard Butterworth highpass coefficients in Q16.16.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>f</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Filter instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>fc</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Cutoff frequency (Hz) in Q16.16. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>fs</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Sample rate (Hz) in Q16.16. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/dsp/syn_biquad.c" line="94" column="6" bodyfile="src/syntropic/dsp/syn_biquad.c" bodystart="94" bodyend="122"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__biquad_8c_1af043b2b654b380467f45cf2c02790bdb" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_filter_biquad_bandpass</definition>
+        <argsstring>(SYN_FilterBiquad *f, q16_t fc, q16_t fs, q16_t q)</argsstring>
+        <name>syn_filter_biquad_bandpass</name>
+        <param>
+          <type><ref refid="structSYN__FilterBiquad" kindref="compound">SYN_FilterBiquad</ref> *</type>
+          <declname>f</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+          <declname>fc</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+          <declname>fs</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+          <declname>q</declname>
+        </param>
+        <briefdescription>
+<para>Initialize a biquad bandpass filter. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Constant-skirt-gain bandpass. Peak gain = 1.0 at center frequency.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>f</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Filter instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>fc</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Center frequency (Hz) in Q16.16. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>fs</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Sample rate (Hz) in Q16.16. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>q</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Quality factor in Q16.16 (higher = narrower band). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/dsp/syn_biquad.c" line="124" column="6" bodyfile="src/syntropic/dsp/syn_biquad.c" bodystart="124" bodyend="151"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__biquad_8c_1a1dff9105b8df94946661a02be55d88c1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_filter_biquad_notch</definition>
+        <argsstring>(SYN_FilterBiquad *f, q16_t fc, q16_t fs, q16_t q)</argsstring>
+        <name>syn_filter_biquad_notch</name>
+        <param>
+          <type><ref refid="structSYN__FilterBiquad" kindref="compound">SYN_FilterBiquad</ref> *</type>
+          <declname>f</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+          <declname>fc</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+          <declname>fs</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+          <declname>q</declname>
+        </param>
+        <briefdescription>
+<para>Initialize a biquad notch (band-reject) filter. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Rejects frequencies near fc, passes all others.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>f</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Filter instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>fc</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Notch center frequency (Hz) in Q16.16. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>fs</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Sample rate (Hz) in Q16.16. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>q</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Quality factor in Q16.16 (higher = narrower notch). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/dsp/syn_biquad.c" line="153" column="6" bodyfile="src/syntropic/dsp/syn_biquad.c" bodystart="153" bodyend="180"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Fixed-point Q16.16 Biquad filter implementation. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#if<sp/>__has_include(&quot;syn_config.h&quot;)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/>#include<sp/>&quot;syn_config.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="4"><highlight class="normal"></highlight></codeline>
+<codeline lineno="5"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>!defined(SYN_USE_BIQUAD)<sp/>||<sp/>SYN_USE_BIQUAD</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__biquad_8h" kindref="compound">syn_biquad.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../util/syn_assert.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stddef.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Biquad<sp/>Filter<sp/>API<sp/>────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__biquad_8c_1a3dd5f5e168685b753213a74aacd8ff74" kindref="member">syn_filter_biquad_init</ref>(<ref refid="structSYN__FilterBiquad" kindref="compound">SYN_FilterBiquad</ref><sp/>*f,<sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>b0,<sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>b1,<sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>b2,<sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>a1,<sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>a2)</highlight></codeline>
+<codeline lineno="20"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="21"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(f<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="22"><highlight class="normal"><sp/><sp/><sp/><sp/>f-&gt;<ref refid="structSYN__FilterBiquad_1abf41dca7c86f0b4991afed2261e7a058" kindref="member">b0</ref><sp/>=<sp/>b0;</highlight></codeline>
+<codeline lineno="23"><highlight class="normal"><sp/><sp/><sp/><sp/>f-&gt;<ref refid="structSYN__FilterBiquad_1a7f8af8732a15ee3e71a0661b8cd30ec3" kindref="member">b1</ref><sp/>=<sp/>b1;</highlight></codeline>
+<codeline lineno="24"><highlight class="normal"><sp/><sp/><sp/><sp/>f-&gt;<ref refid="structSYN__FilterBiquad_1ada3a9b74f75ae05eef42f7d366195df9" kindref="member">b2</ref><sp/>=<sp/>b2;</highlight></codeline>
+<codeline lineno="25"><highlight class="normal"><sp/><sp/><sp/><sp/>f-&gt;<ref refid="structSYN__FilterBiquad_1a5ae1ed116912292aeb41ba98335bb94e" kindref="member">a1</ref><sp/>=<sp/>a1;</highlight></codeline>
+<codeline lineno="26"><highlight class="normal"><sp/><sp/><sp/><sp/>f-&gt;<ref refid="structSYN__FilterBiquad_1ac6780ad777fd4974a3c967a95590c2b0" kindref="member">a2</ref><sp/>=<sp/>a2;</highlight></codeline>
+<codeline lineno="27"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__biquad_8c_1abbe4c75359961a9994be09b22a6d6d98" kindref="member">syn_filter_biquad_reset</ref>(f);</highlight></codeline>
+<codeline lineno="28"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__biquad_8c_1abbe4c75359961a9994be09b22a6d6d98" kindref="member">syn_filter_biquad_reset</ref>(<ref refid="structSYN__FilterBiquad" kindref="compound">SYN_FilterBiquad</ref><sp/>*f)</highlight></codeline>
+<codeline lineno="31"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="32"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(f<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="33"><highlight class="normal"><sp/><sp/><sp/><sp/>f-&gt;<ref refid="structSYN__FilterBiquad_1aaf9df85fdd88ba0430b2d575baf3fb01" kindref="member">x1</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="34"><highlight class="normal"><sp/><sp/><sp/><sp/>f-&gt;<ref refid="structSYN__FilterBiquad_1a4be17c0ed9aa56874b90cf808746df5f" kindref="member">x2</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="35"><highlight class="normal"><sp/><sp/><sp/><sp/>f-&gt;<ref refid="structSYN__FilterBiquad_1adbb34f01ec96fb82f68b5bc9f36e6958" kindref="member">y1</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="36"><highlight class="normal"><sp/><sp/><sp/><sp/>f-&gt;<ref refid="structSYN__FilterBiquad_1af2a5dd91a1e5d2fb271590ccf0779bee" kindref="member">y2</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="37"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/><ref refid="syn__biquad_8c_1a0a9acab93b3118201432316ab1338bc1" kindref="member">syn_filter_biquad_update</ref>(<ref refid="structSYN__FilterBiquad" kindref="compound">SYN_FilterBiquad</ref><sp/>*f,<sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>sample)</highlight></codeline>
+<codeline lineno="40"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(f<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight></codeline>
+<codeline lineno="43"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>y[n]<sp/>=<sp/>b0*x[n]<sp/>+<sp/>b1*x[n-1]<sp/>+<sp/>b2*x[n-2]<sp/>-<sp/>a1*y[n-1]<sp/>-<sp/>a2*y[n-2]<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal"><sp/><sp/><sp/><sp/>int64_t<sp/>acc<sp/>=<sp/>((int64_t)f-&gt;<ref refid="structSYN__FilterBiquad_1abf41dca7c86f0b4991afed2261e7a058" kindref="member">b0</ref><sp/>*<sp/>sample)<sp/>+</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>((int64_t)f-&gt;<ref refid="structSYN__FilterBiquad_1a7f8af8732a15ee3e71a0661b8cd30ec3" kindref="member">b1</ref><sp/>*<sp/>f-&gt;<ref refid="structSYN__FilterBiquad_1aaf9df85fdd88ba0430b2d575baf3fb01" kindref="member">x1</ref>)<sp/>+</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>((int64_t)f-&gt;<ref refid="structSYN__FilterBiquad_1ada3a9b74f75ae05eef42f7d366195df9" kindref="member">b2</ref><sp/>*<sp/>f-&gt;<ref refid="structSYN__FilterBiquad_1a4be17c0ed9aa56874b90cf808746df5f" kindref="member">x2</ref>)<sp/>-</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>((int64_t)f-&gt;<ref refid="structSYN__FilterBiquad_1a5ae1ed116912292aeb41ba98335bb94e" kindref="member">a1</ref><sp/>*<sp/>f-&gt;<ref refid="structSYN__FilterBiquad_1adbb34f01ec96fb82f68b5bc9f36e6958" kindref="member">y1</ref>)<sp/>-</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>((int64_t)f-&gt;<ref refid="structSYN__FilterBiquad_1ac6780ad777fd4974a3c967a95590c2b0" kindref="member">a2</ref><sp/>*<sp/>f-&gt;<ref refid="structSYN__FilterBiquad_1af2a5dd91a1e5d2fb271590ccf0779bee" kindref="member">y2</ref>);</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"></highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Shift<sp/>back<sp/>to<sp/>Q16.16<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>output<sp/>=<sp/>(<ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref>)(acc<sp/>&gt;&gt;<sp/>16);</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"></highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Update<sp/>history<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/><sp/><sp/>f-&gt;<ref refid="structSYN__FilterBiquad_1a4be17c0ed9aa56874b90cf808746df5f" kindref="member">x2</ref><sp/>=<sp/>f-&gt;<ref refid="structSYN__FilterBiquad_1aaf9df85fdd88ba0430b2d575baf3fb01" kindref="member">x1</ref>;</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/><sp/><sp/>f-&gt;<ref refid="structSYN__FilterBiquad_1aaf9df85fdd88ba0430b2d575baf3fb01" kindref="member">x1</ref><sp/>=<sp/>sample;</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/><sp/><sp/>f-&gt;<ref refid="structSYN__FilterBiquad_1af2a5dd91a1e5d2fb271590ccf0779bee" kindref="member">y2</ref><sp/>=<sp/>f-&gt;<ref refid="structSYN__FilterBiquad_1adbb34f01ec96fb82f68b5bc9f36e6958" kindref="member">y1</ref>;</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/><sp/><sp/>f-&gt;<ref refid="structSYN__FilterBiquad_1adbb34f01ec96fb82f68b5bc9f36e6958" kindref="member">y1</ref><sp/>=<sp/>output;</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"></highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>output;</highlight></codeline>
+<codeline lineno="60"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"></highlight></codeline>
+<codeline lineno="62"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__biquad_8c_1af7422f148806c1283350f504ad30fdb5" kindref="member">syn_filter_biquad_lowpass</ref>(<ref refid="structSYN__FilterBiquad" kindref="compound">SYN_FilterBiquad</ref><sp/>*f,<sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>fc,<sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>fs)</highlight></codeline>
+<codeline lineno="63"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(f<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(fs<sp/>&gt;<sp/>0);</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"></highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>omega<sp/>=<sp/>2<sp/>*<sp/>PI<sp/>*<sp/>fc<sp/>/<sp/>fs<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>omega<sp/>=<sp/><ref refid="syn__qmath_8h_1a1103d3b63cffa202284e7a12eeada585" kindref="member">q16_div</ref>(<ref refid="syn__qmath_8h_1a9c59677a95516b0b1f571520a670dfb0" kindref="member">q16_mul</ref>(<ref refid="syn__qmath_8h_1a66565b2b7c53ef89a0d7afdd97cec206" kindref="member">Q16_2_PI</ref>,<sp/>fc),<sp/>fs);</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"></highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>sin_w<sp/>=<sp/><ref refid="syn__qmath_8c_1a0a59d0e19eb1aec35e6fed6875fee719" kindref="member">q16_sin</ref>(omega);</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>cos_w<sp/>=<sp/><ref refid="syn__qmath_8c_1a74949e55423f04de44c2e5a583b6bb9f" kindref="member">q16_cos</ref>(omega);</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"></highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Butterworth<sp/>Q<sp/>=<sp/>1/sqrt(2)<sp/>≈<sp/>0.707107<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="74"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>q_val<sp/>=<sp/>46341;<sp/></highlight><highlight class="comment">/*<sp/>0.70710678<sp/>in<sp/>Q16.16<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>alpha<sp/>=<sp/><ref refid="syn__qmath_8h_1a9c59677a95516b0b1f571520a670dfb0" kindref="member">q16_mul</ref>(sin_w,<sp/>q_val);</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"></highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>a0<sp/>=<sp/><ref refid="syn__qmath_8h_1a393bf569f282debd95081de04610eb4c" kindref="member">Q16_ONE</ref><sp/>+<sp/>alpha;</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>b0<sp/>=<sp/><ref refid="syn__qmath_8h_1a1103d3b63cffa202284e7a12eeada585" kindref="member">q16_div</ref>(<ref refid="syn__qmath_8h_1a393bf569f282debd95081de04610eb4c" kindref="member">Q16_ONE</ref><sp/>-<sp/>cos_w,<sp/><ref refid="syn__qmath_8h_1a403814e6ece6021eaba034176496dbae" kindref="member">Q16_FROM_INT</ref>(2));</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>b1<sp/>=<sp/><ref refid="syn__qmath_8h_1a393bf569f282debd95081de04610eb4c" kindref="member">Q16_ONE</ref><sp/>-<sp/>cos_w;</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>b2<sp/>=<sp/>b0;</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>a1<sp/>=<sp/>-<ref refid="syn__qmath_8h_1a9c59677a95516b0b1f571520a670dfb0" kindref="member">q16_mul</ref>(<ref refid="syn__qmath_8h_1a403814e6ece6021eaba034176496dbae" kindref="member">Q16_FROM_INT</ref>(2),<sp/>cos_w);</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>a2<sp/>=<sp/><ref refid="syn__qmath_8h_1a393bf569f282debd95081de04610eb4c" kindref="member">Q16_ONE</ref><sp/>-<sp/>alpha;</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"></highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Normalize<sp/>by<sp/>a0<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/>f-&gt;<ref refid="structSYN__FilterBiquad_1abf41dca7c86f0b4991afed2261e7a058" kindref="member">b0</ref><sp/>=<sp/><ref refid="syn__qmath_8h_1a1103d3b63cffa202284e7a12eeada585" kindref="member">q16_div</ref>(b0,<sp/>a0);</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/><sp/><sp/>f-&gt;<ref refid="structSYN__FilterBiquad_1a7f8af8732a15ee3e71a0661b8cd30ec3" kindref="member">b1</ref><sp/>=<sp/><ref refid="syn__qmath_8h_1a1103d3b63cffa202284e7a12eeada585" kindref="member">q16_div</ref>(b1,<sp/>a0);</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/><sp/><sp/>f-&gt;<ref refid="structSYN__FilterBiquad_1ada3a9b74f75ae05eef42f7d366195df9" kindref="member">b2</ref><sp/>=<sp/><ref refid="syn__qmath_8h_1a1103d3b63cffa202284e7a12eeada585" kindref="member">q16_div</ref>(b2,<sp/>a0);</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/><sp/><sp/>f-&gt;<ref refid="structSYN__FilterBiquad_1a5ae1ed116912292aeb41ba98335bb94e" kindref="member">a1</ref><sp/>=<sp/><ref refid="syn__qmath_8h_1a1103d3b63cffa202284e7a12eeada585" kindref="member">q16_div</ref>(a1,<sp/>a0);</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"><sp/><sp/><sp/><sp/>f-&gt;<ref refid="structSYN__FilterBiquad_1ac6780ad777fd4974a3c967a95590c2b0" kindref="member">a2</ref><sp/>=<sp/><ref refid="syn__qmath_8h_1a1103d3b63cffa202284e7a12eeada585" kindref="member">q16_div</ref>(a2,<sp/>a0);</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"></highlight></codeline>
+<codeline lineno="91"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__biquad_8c_1abbe4c75359961a9994be09b22a6d6d98" kindref="member">syn_filter_biquad_reset</ref>(f);</highlight></codeline>
+<codeline lineno="92"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"></highlight></codeline>
+<codeline lineno="94"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__biquad_8c_1a83a0dda3db11866198ad5b628bd949e0" kindref="member">syn_filter_biquad_highpass</ref>(<ref refid="structSYN__FilterBiquad" kindref="compound">SYN_FilterBiquad</ref><sp/>*f,<sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>fc,<sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>fs)</highlight></codeline>
+<codeline lineno="95"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(f<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(fs<sp/>&gt;<sp/>0);</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"></highlight></codeline>
+<codeline lineno="99"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>omega<sp/>=<sp/><ref refid="syn__qmath_8h_1a1103d3b63cffa202284e7a12eeada585" kindref="member">q16_div</ref>(<ref refid="syn__qmath_8h_1a9c59677a95516b0b1f571520a670dfb0" kindref="member">q16_mul</ref>(<ref refid="syn__qmath_8h_1a66565b2b7c53ef89a0d7afdd97cec206" kindref="member">Q16_2_PI</ref>,<sp/>fc),<sp/>fs);</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>sin_w<sp/>=<sp/><ref refid="syn__qmath_8c_1a0a59d0e19eb1aec35e6fed6875fee719" kindref="member">q16_sin</ref>(omega);</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>cos_w<sp/>=<sp/><ref refid="syn__qmath_8c_1a74949e55423f04de44c2e5a583b6bb9f" kindref="member">q16_cos</ref>(omega);</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"></highlight></codeline>
+<codeline lineno="103"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Butterworth<sp/>Q<sp/>=<sp/>1/sqrt(2)<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>q_val<sp/>=<sp/>46341;<sp/></highlight><highlight class="comment">/*<sp/>0.70710678<sp/>in<sp/>Q16.16<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>alpha<sp/>=<sp/><ref refid="syn__qmath_8h_1a9c59677a95516b0b1f571520a670dfb0" kindref="member">q16_mul</ref>(sin_w,<sp/>q_val);</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"></highlight></codeline>
+<codeline lineno="107"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>a0<sp/>=<sp/><ref refid="syn__qmath_8h_1a393bf569f282debd95081de04610eb4c" kindref="member">Q16_ONE</ref><sp/>+<sp/>alpha;</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>one_plus_cos<sp/>=<sp/><ref refid="syn__qmath_8h_1a393bf569f282debd95081de04610eb4c" kindref="member">Q16_ONE</ref><sp/>+<sp/>cos_w;</highlight></codeline>
+<codeline lineno="109"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>b0<sp/>=<sp/><ref refid="syn__qmath_8h_1a1103d3b63cffa202284e7a12eeada585" kindref="member">q16_div</ref>(one_plus_cos,<sp/><ref refid="syn__qmath_8h_1a403814e6ece6021eaba034176496dbae" kindref="member">Q16_FROM_INT</ref>(2));</highlight></codeline>
+<codeline lineno="110"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>b1<sp/>=<sp/>-(<ref refid="syn__qmath_8h_1a393bf569f282debd95081de04610eb4c" kindref="member">Q16_ONE</ref><sp/>+<sp/>cos_w);</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>b2<sp/>=<sp/>b0;</highlight></codeline>
+<codeline lineno="112"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>a1<sp/>=<sp/>-<ref refid="syn__qmath_8h_1a9c59677a95516b0b1f571520a670dfb0" kindref="member">q16_mul</ref>(<ref refid="syn__qmath_8h_1a403814e6ece6021eaba034176496dbae" kindref="member">Q16_FROM_INT</ref>(2),<sp/>cos_w);</highlight></codeline>
+<codeline lineno="113"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>a2<sp/>=<sp/><ref refid="syn__qmath_8h_1a393bf569f282debd95081de04610eb4c" kindref="member">Q16_ONE</ref><sp/>-<sp/>alpha;</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"></highlight></codeline>
+<codeline lineno="115"><highlight class="normal"><sp/><sp/><sp/><sp/>f-&gt;<ref refid="structSYN__FilterBiquad_1abf41dca7c86f0b4991afed2261e7a058" kindref="member">b0</ref><sp/>=<sp/><ref refid="syn__qmath_8h_1a1103d3b63cffa202284e7a12eeada585" kindref="member">q16_div</ref>(b0,<sp/>a0);</highlight></codeline>
+<codeline lineno="116"><highlight class="normal"><sp/><sp/><sp/><sp/>f-&gt;<ref refid="structSYN__FilterBiquad_1a7f8af8732a15ee3e71a0661b8cd30ec3" kindref="member">b1</ref><sp/>=<sp/><ref refid="syn__qmath_8h_1a1103d3b63cffa202284e7a12eeada585" kindref="member">q16_div</ref>(b1,<sp/>a0);</highlight></codeline>
+<codeline lineno="117"><highlight class="normal"><sp/><sp/><sp/><sp/>f-&gt;<ref refid="structSYN__FilterBiquad_1ada3a9b74f75ae05eef42f7d366195df9" kindref="member">b2</ref><sp/>=<sp/><ref refid="syn__qmath_8h_1a1103d3b63cffa202284e7a12eeada585" kindref="member">q16_div</ref>(b2,<sp/>a0);</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"><sp/><sp/><sp/><sp/>f-&gt;<ref refid="structSYN__FilterBiquad_1a5ae1ed116912292aeb41ba98335bb94e" kindref="member">a1</ref><sp/>=<sp/><ref refid="syn__qmath_8h_1a1103d3b63cffa202284e7a12eeada585" kindref="member">q16_div</ref>(a1,<sp/>a0);</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"><sp/><sp/><sp/><sp/>f-&gt;<ref refid="structSYN__FilterBiquad_1ac6780ad777fd4974a3c967a95590c2b0" kindref="member">a2</ref><sp/>=<sp/><ref refid="syn__qmath_8h_1a1103d3b63cffa202284e7a12eeada585" kindref="member">q16_div</ref>(a2,<sp/>a0);</highlight></codeline>
+<codeline lineno="120"><highlight class="normal"></highlight></codeline>
+<codeline lineno="121"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__biquad_8c_1abbe4c75359961a9994be09b22a6d6d98" kindref="member">syn_filter_biquad_reset</ref>(f);</highlight></codeline>
+<codeline lineno="122"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="123"><highlight class="normal"></highlight></codeline>
+<codeline lineno="124"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__biquad_8c_1af043b2b654b380467f45cf2c02790bdb" kindref="member">syn_filter_biquad_bandpass</ref>(<ref refid="structSYN__FilterBiquad" kindref="compound">SYN_FilterBiquad</ref><sp/>*f,<sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>fc,<sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>fs,<sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>q)</highlight></codeline>
+<codeline lineno="125"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="126"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(f<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="127"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(fs<sp/>&gt;<sp/>0);</highlight></codeline>
+<codeline lineno="128"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(q<sp/>&gt;<sp/>0);</highlight></codeline>
+<codeline lineno="129"><highlight class="normal"></highlight></codeline>
+<codeline lineno="130"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>omega<sp/>=<sp/><ref refid="syn__qmath_8h_1a1103d3b63cffa202284e7a12eeada585" kindref="member">q16_div</ref>(<ref refid="syn__qmath_8h_1a9c59677a95516b0b1f571520a670dfb0" kindref="member">q16_mul</ref>(<ref refid="syn__qmath_8h_1a66565b2b7c53ef89a0d7afdd97cec206" kindref="member">Q16_2_PI</ref>,<sp/>fc),<sp/>fs);</highlight></codeline>
+<codeline lineno="131"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>sin_w<sp/>=<sp/><ref refid="syn__qmath_8c_1a0a59d0e19eb1aec35e6fed6875fee719" kindref="member">q16_sin</ref>(omega);</highlight></codeline>
+<codeline lineno="132"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>cos_w<sp/>=<sp/><ref refid="syn__qmath_8c_1a74949e55423f04de44c2e5a583b6bb9f" kindref="member">q16_cos</ref>(omega);</highlight></codeline>
+<codeline lineno="133"><highlight class="normal"></highlight></codeline>
+<codeline lineno="134"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>alpha<sp/>=<sp/>sin(w)<sp/>/<sp/>(2*Q)<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="135"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>alpha<sp/>=<sp/><ref refid="syn__qmath_8h_1a1103d3b63cffa202284e7a12eeada585" kindref="member">q16_div</ref>(sin_w,<sp/><ref refid="syn__qmath_8h_1a9c59677a95516b0b1f571520a670dfb0" kindref="member">q16_mul</ref>(<ref refid="syn__qmath_8h_1a403814e6ece6021eaba034176496dbae" kindref="member">Q16_FROM_INT</ref>(2),<sp/>q));</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"></highlight></codeline>
+<codeline lineno="137"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>a0<sp/>=<sp/><ref refid="syn__qmath_8h_1a393bf569f282debd95081de04610eb4c" kindref="member">Q16_ONE</ref><sp/>+<sp/>alpha;</highlight></codeline>
+<codeline lineno="138"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>b0<sp/>=<sp/>alpha;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Peak<sp/>gain<sp/>=<sp/>1.0<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="139"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>b1<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="140"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>b2<sp/>=<sp/>-alpha;</highlight></codeline>
+<codeline lineno="141"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>a1<sp/>=<sp/>-<ref refid="syn__qmath_8h_1a9c59677a95516b0b1f571520a670dfb0" kindref="member">q16_mul</ref>(<ref refid="syn__qmath_8h_1a403814e6ece6021eaba034176496dbae" kindref="member">Q16_FROM_INT</ref>(2),<sp/>cos_w);</highlight></codeline>
+<codeline lineno="142"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>a2<sp/>=<sp/><ref refid="syn__qmath_8h_1a393bf569f282debd95081de04610eb4c" kindref="member">Q16_ONE</ref><sp/>-<sp/>alpha;</highlight></codeline>
+<codeline lineno="143"><highlight class="normal"></highlight></codeline>
+<codeline lineno="144"><highlight class="normal"><sp/><sp/><sp/><sp/>f-&gt;<ref refid="structSYN__FilterBiquad_1abf41dca7c86f0b4991afed2261e7a058" kindref="member">b0</ref><sp/>=<sp/><ref refid="syn__qmath_8h_1a1103d3b63cffa202284e7a12eeada585" kindref="member">q16_div</ref>(b0,<sp/>a0);</highlight></codeline>
+<codeline lineno="145"><highlight class="normal"><sp/><sp/><sp/><sp/>f-&gt;<ref refid="structSYN__FilterBiquad_1a7f8af8732a15ee3e71a0661b8cd30ec3" kindref="member">b1</ref><sp/>=<sp/><ref refid="syn__qmath_8h_1a1103d3b63cffa202284e7a12eeada585" kindref="member">q16_div</ref>(b1,<sp/>a0);</highlight></codeline>
+<codeline lineno="146"><highlight class="normal"><sp/><sp/><sp/><sp/>f-&gt;<ref refid="structSYN__FilterBiquad_1ada3a9b74f75ae05eef42f7d366195df9" kindref="member">b2</ref><sp/>=<sp/><ref refid="syn__qmath_8h_1a1103d3b63cffa202284e7a12eeada585" kindref="member">q16_div</ref>(b2,<sp/>a0);</highlight></codeline>
+<codeline lineno="147"><highlight class="normal"><sp/><sp/><sp/><sp/>f-&gt;<ref refid="structSYN__FilterBiquad_1a5ae1ed116912292aeb41ba98335bb94e" kindref="member">a1</ref><sp/>=<sp/><ref refid="syn__qmath_8h_1a1103d3b63cffa202284e7a12eeada585" kindref="member">q16_div</ref>(a1,<sp/>a0);</highlight></codeline>
+<codeline lineno="148"><highlight class="normal"><sp/><sp/><sp/><sp/>f-&gt;<ref refid="structSYN__FilterBiquad_1ac6780ad777fd4974a3c967a95590c2b0" kindref="member">a2</ref><sp/>=<sp/><ref refid="syn__qmath_8h_1a1103d3b63cffa202284e7a12eeada585" kindref="member">q16_div</ref>(a2,<sp/>a0);</highlight></codeline>
+<codeline lineno="149"><highlight class="normal"></highlight></codeline>
+<codeline lineno="150"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__biquad_8c_1abbe4c75359961a9994be09b22a6d6d98" kindref="member">syn_filter_biquad_reset</ref>(f);</highlight></codeline>
+<codeline lineno="151"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="152"><highlight class="normal"></highlight></codeline>
+<codeline lineno="153"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__biquad_8c_1a1dff9105b8df94946661a02be55d88c1" kindref="member">syn_filter_biquad_notch</ref>(<ref refid="structSYN__FilterBiquad" kindref="compound">SYN_FilterBiquad</ref><sp/>*f,<sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>fc,<sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>fs,<sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>q)</highlight></codeline>
+<codeline lineno="154"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="155"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(f<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="156"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(fs<sp/>&gt;<sp/>0);</highlight></codeline>
+<codeline lineno="157"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(q<sp/>&gt;<sp/>0);</highlight></codeline>
+<codeline lineno="158"><highlight class="normal"></highlight></codeline>
+<codeline lineno="159"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>omega<sp/>=<sp/><ref refid="syn__qmath_8h_1a1103d3b63cffa202284e7a12eeada585" kindref="member">q16_div</ref>(<ref refid="syn__qmath_8h_1a9c59677a95516b0b1f571520a670dfb0" kindref="member">q16_mul</ref>(<ref refid="syn__qmath_8h_1a66565b2b7c53ef89a0d7afdd97cec206" kindref="member">Q16_2_PI</ref>,<sp/>fc),<sp/>fs);</highlight></codeline>
+<codeline lineno="160"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>sin_w<sp/>=<sp/><ref refid="syn__qmath_8c_1a0a59d0e19eb1aec35e6fed6875fee719" kindref="member">q16_sin</ref>(omega);</highlight></codeline>
+<codeline lineno="161"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>cos_w<sp/>=<sp/><ref refid="syn__qmath_8c_1a74949e55423f04de44c2e5a583b6bb9f" kindref="member">q16_cos</ref>(omega);</highlight></codeline>
+<codeline lineno="162"><highlight class="normal"></highlight></codeline>
+<codeline lineno="163"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>alpha<sp/>=<sp/>sin(w)<sp/>/<sp/>(2*Q)<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="164"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>alpha<sp/>=<sp/><ref refid="syn__qmath_8h_1a1103d3b63cffa202284e7a12eeada585" kindref="member">q16_div</ref>(sin_w,<sp/><ref refid="syn__qmath_8h_1a9c59677a95516b0b1f571520a670dfb0" kindref="member">q16_mul</ref>(<ref refid="syn__qmath_8h_1a403814e6ece6021eaba034176496dbae" kindref="member">Q16_FROM_INT</ref>(2),<sp/>q));</highlight></codeline>
+<codeline lineno="165"><highlight class="normal"></highlight></codeline>
+<codeline lineno="166"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>a0<sp/>=<sp/><ref refid="syn__qmath_8h_1a393bf569f282debd95081de04610eb4c" kindref="member">Q16_ONE</ref><sp/>+<sp/>alpha;</highlight></codeline>
+<codeline lineno="167"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>b0<sp/>=<sp/><ref refid="syn__qmath_8h_1a393bf569f282debd95081de04610eb4c" kindref="member">Q16_ONE</ref>;</highlight></codeline>
+<codeline lineno="168"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>b1<sp/>=<sp/>-<ref refid="syn__qmath_8h_1a9c59677a95516b0b1f571520a670dfb0" kindref="member">q16_mul</ref>(<ref refid="syn__qmath_8h_1a403814e6ece6021eaba034176496dbae" kindref="member">Q16_FROM_INT</ref>(2),<sp/>cos_w);</highlight></codeline>
+<codeline lineno="169"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>b2<sp/>=<sp/><ref refid="syn__qmath_8h_1a393bf569f282debd95081de04610eb4c" kindref="member">Q16_ONE</ref>;</highlight></codeline>
+<codeline lineno="170"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>a1<sp/>=<sp/>b1;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Same<sp/>as<sp/>b1<sp/>for<sp/>notch<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="171"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>a2<sp/>=<sp/><ref refid="syn__qmath_8h_1a393bf569f282debd95081de04610eb4c" kindref="member">Q16_ONE</ref><sp/>-<sp/>alpha;</highlight></codeline>
+<codeline lineno="172"><highlight class="normal"></highlight></codeline>
+<codeline lineno="173"><highlight class="normal"><sp/><sp/><sp/><sp/>f-&gt;<ref refid="structSYN__FilterBiquad_1abf41dca7c86f0b4991afed2261e7a058" kindref="member">b0</ref><sp/>=<sp/><ref refid="syn__qmath_8h_1a1103d3b63cffa202284e7a12eeada585" kindref="member">q16_div</ref>(b0,<sp/>a0);</highlight></codeline>
+<codeline lineno="174"><highlight class="normal"><sp/><sp/><sp/><sp/>f-&gt;<ref refid="structSYN__FilterBiquad_1a7f8af8732a15ee3e71a0661b8cd30ec3" kindref="member">b1</ref><sp/>=<sp/><ref refid="syn__qmath_8h_1a1103d3b63cffa202284e7a12eeada585" kindref="member">q16_div</ref>(b1,<sp/>a0);</highlight></codeline>
+<codeline lineno="175"><highlight class="normal"><sp/><sp/><sp/><sp/>f-&gt;<ref refid="structSYN__FilterBiquad_1ada3a9b74f75ae05eef42f7d366195df9" kindref="member">b2</ref><sp/>=<sp/><ref refid="syn__qmath_8h_1a1103d3b63cffa202284e7a12eeada585" kindref="member">q16_div</ref>(b2,<sp/>a0);</highlight></codeline>
+<codeline lineno="176"><highlight class="normal"><sp/><sp/><sp/><sp/>f-&gt;<ref refid="structSYN__FilterBiquad_1a5ae1ed116912292aeb41ba98335bb94e" kindref="member">a1</ref><sp/>=<sp/><ref refid="syn__qmath_8h_1a1103d3b63cffa202284e7a12eeada585" kindref="member">q16_div</ref>(a1,<sp/>a0);</highlight></codeline>
+<codeline lineno="177"><highlight class="normal"><sp/><sp/><sp/><sp/>f-&gt;<ref refid="structSYN__FilterBiquad_1ac6780ad777fd4974a3c967a95590c2b0" kindref="member">a2</ref><sp/>=<sp/><ref refid="syn__qmath_8h_1a1103d3b63cffa202284e7a12eeada585" kindref="member">q16_div</ref>(a2,<sp/>a0);</highlight></codeline>
+<codeline lineno="178"><highlight class="normal"></highlight></codeline>
+<codeline lineno="179"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__biquad_8c_1abbe4c75359961a9994be09b22a6d6d98" kindref="member">syn_filter_biquad_reset</ref>(f);</highlight></codeline>
+<codeline lineno="180"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="181"><highlight class="normal"></highlight></codeline>
+<codeline lineno="182"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_USE_BIQUAD<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/dsp/syn_biquad.c"/>
+  </compounddef>
+</doxygen>

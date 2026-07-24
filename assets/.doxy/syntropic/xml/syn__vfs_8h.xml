@@ -1,0 +1,716 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__vfs_8h" kind="file" language="C++">
+    <compoundname>syn_vfs.h</compoundname>
+    <includes refid="syn__defs_8h" local="yes">../common/syn_defs.h</includes>
+    <includes local="no">stdint.h</includes>
+    <includes local="no">stddef.h</includes>
+    <includes local="no">stdbool.h</includes>
+    <includedby refid="syn__fat_8h" local="yes">src/syntropic/storage/syn_fat.h</includedby>
+    <includedby refid="syn__lfs_8h" local="yes">src/syntropic/storage/syn_lfs.h</includedby>
+    <includedby refid="syn__vfs_8c" local="yes">src/syntropic/storage/syn_vfs.c</includedby>
+    <includedby refid="syntropic_8h" local="yes">src/syntropic/syntropic.h</includedby>
+    <incdepgraph>
+      <node id="2">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/storage/syn_vfs.h</label>
+        <link refid="syn__vfs_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>stdbool.h</label>
+      </node>
+      <node id="4">
+        <label>stddef.h</label>
+      </node>
+      <node id="3">
+        <label>stdint.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="2">
+        <label>src/syntropic/storage/syn_fat.h</label>
+        <link refid="syn__fat_8h"/>
+      </node>
+      <node id="4">
+        <label>src/syntropic/storage/syn_lfs.c</label>
+        <link refid="syn__lfs_8c"/>
+      </node>
+      <node id="3">
+        <label>src/syntropic/storage/syn_lfs.h</label>
+        <link refid="syn__lfs_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>src/syntropic/storage/syn_vfs.c</label>
+        <link refid="syn__vfs_8c"/>
+      </node>
+      <node id="1">
+        <label>src/syntropic/storage/syn_vfs.h</label>
+        <link refid="syn__vfs_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>src/syntropic/syntropic.h</label>
+        <link refid="syntropic_8h"/>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="structSYN__VfsDirEnt" prot="public">SYN_VfsDirEnt</innerclass>
+    <innerclass refid="structSYN__VfsOps" prot="public">SYN_VfsOps</innerclass>
+    <innerclass refid="structSYN__VfsFile" prot="public">SYN_VfsFile</innerclass>
+    <innerclass refid="structSYN__VfsDir" prot="public">SYN_VfsDir</innerclass>
+    <innerclass refid="structSYN__VfsMount" prot="public">SYN_VfsMount</innerclass>
+    <sectiondef kind="define">
+      <member refid="group__vfs__limits_1ga0fc1391c34060f289cc917a1fcb7926e" kind="define"><name>SYN_VFS_MAX_OPEN_FILES</name></member>
+      <member refid="group__vfs__limits_1gacbf65759261dd5af3362f7c8ea020d21" kind="define"><name>SYN_VFS_MAX_OPEN_DIRS</name></member>
+      <member refid="group__vfs__limits_1gaeef8ffd428f3a15cbe195a4fb0fbd7d4" kind="define"><name>SYN_VFS_MAX_MOUNTS</name></member>
+      <member refid="group__vfs__flags_1gaf51883741a6d01d5586090780dd8d0ff" kind="define"><name>SYN_O_RDONLY</name></member>
+      <member refid="group__vfs__flags_1ga23d22a4b017780b9a3b931c0bd61c2a2" kind="define"><name>SYN_O_WRONLY</name></member>
+      <member refid="group__vfs__flags_1ga9fc9d11827af2170bb4c5a47e9b86cc5" kind="define"><name>SYN_O_RDWR</name></member>
+      <member refid="group__vfs__flags_1gafa447abbb68068ad4c4e2910858bb62a" kind="define"><name>SYN_O_CREAT</name></member>
+      <member refid="group__vfs__flags_1ga3ae3e905ea733e035eb6ce4f5628923a" kind="define"><name>SYN_O_APPEND</name></member>
+      <member refid="group__vfs__flags_1gaacc1bbf2bf91a571aaa641f50937b49e" kind="define"><name>SYN_O_TRUNC</name></member>
+      <member refid="group__vfs__seek_1ga789bc383855f90fd557548847e49078d" kind="define"><name>SYN_SEEK_SET</name></member>
+      <member refid="group__vfs__seek_1gacf4961b85f1bb451a608e2f98898aa2c" kind="define"><name>SYN_SEEK_CUR</name></member>
+      <member refid="group__vfs__seek_1ga1e63e53cdba49827ed6736187689a9bb" kind="define"><name>SYN_SEEK_END</name></member>
+    </sectiondef>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__vfs_8h_1a61c9d80f00bb220eb6d7dc56a47dfe57" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_vfs_init</definition>
+        <argsstring>(void)</argsstring>
+        <name>syn_vfs_init</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Initialize the VFS registry. Clears all mounts and descriptors. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/storage/syn_vfs.h" line="112" column="6" bodyfile="src/syntropic/storage/syn_vfs.c" bodystart="22" bodyend="28" declfile="src/syntropic/storage/syn_vfs.h" declline="112" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__vfs_8h_1a88ba9f93df6f07e98cda88233e0031e4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_vfs_mount</definition>
+        <argsstring>(const char *prefix, const SYN_VfsOps *ops, void *fs_data)</argsstring>
+        <name>syn_vfs_mount</name>
+        <param>
+          <type>const char *</type>
+          <declname>prefix</declname>
+        </param>
+        <param>
+          <type>const <ref refid="structSYN__VfsOps" kindref="compound">SYN_VfsOps</ref> *</type>
+          <declname>ops</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>fs_data</declname>
+        </param>
+        <briefdescription>
+<para>Mount a filesystem at a path prefix. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>prefix</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Mount path prefix (e.g. &quot;/flash&quot;). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>ops</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Filesystem operations vtable. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>fs_data</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Opaque filesystem context (e.g. lfs_t *). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_ERROR if table is full or prefix exists. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/storage/syn_vfs.h" line="121" column="12" bodyfile="src/syntropic/storage/syn_vfs.c" bodystart="30" bodyend="53" declfile="src/syntropic/storage/syn_vfs.h" declline="121" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__vfs_8h_1a0e24b1025ab7e6fde35ce86a8d285dfb" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int syn_vfs_open</definition>
+        <argsstring>(const char *path, int flags)</argsstring>
+        <name>syn_vfs_open</name>
+        <param>
+          <type>const char *</type>
+          <declname>path</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>flags</declname>
+        </param>
+        <briefdescription>
+<para>Open a file. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>path</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Absolute path including mount prefix. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>flags</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Combination of SYN_O_* flags. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>File descriptor (&gt;= 0) on success, or negative error code. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/storage/syn_vfs.h" line="129" column="5" bodyfile="src/syntropic/storage/syn_vfs.c" bodystart="89" bodyend="123" declfile="src/syntropic/storage/syn_vfs.h" declline="129" declcolumn="5"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__vfs_8h_1a7ae72e25ca8b2c455ef1f7f696c30f9d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int syn_vfs_close</definition>
+        <argsstring>(int fd)</argsstring>
+        <name>syn_vfs_close</name>
+        <param>
+          <type>int</type>
+          <declname>fd</declname>
+        </param>
+        <briefdescription>
+<para>Close an open file descriptor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>fd</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>File descriptor returned by <ref refid="syn__vfs_8h_1a0e24b1025ab7e6fde35ce86a8d285dfb" kindref="member">syn_vfs_open()</ref>. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>0 on success, or negative error code. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/storage/syn_vfs.h" line="136" column="5" bodyfile="src/syntropic/storage/syn_vfs.c" bodystart="125" bodyend="138" declfile="src/syntropic/storage/syn_vfs.h" declline="136" declcolumn="5"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__vfs_8h_1acac97357ed8374c36d89debfd87bc096" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int syn_vfs_read</definition>
+        <argsstring>(int fd, void *buf, size_t len)</argsstring>
+        <name>syn_vfs_read</name>
+        <param>
+          <type>int</type>
+          <declname>fd</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>len</declname>
+        </param>
+        <briefdescription>
+<para>Read from an open file. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>fd</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>File descriptor. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Destination buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Maximum bytes to read. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Bytes read on success, or negative error code. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/storage/syn_vfs.h" line="145" column="5" bodyfile="src/syntropic/storage/syn_vfs.c" bodystart="140" bodyend="149" declfile="src/syntropic/storage/syn_vfs.h" declline="145" declcolumn="5"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__vfs_8h_1a6619505a63cec188a9c54a9aea38427e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int syn_vfs_write</definition>
+        <argsstring>(int fd, const void *buf, size_t len)</argsstring>
+        <name>syn_vfs_write</name>
+        <param>
+          <type>int</type>
+          <declname>fd</declname>
+        </param>
+        <param>
+          <type>const void *</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>len</declname>
+        </param>
+        <briefdescription>
+<para>Write to an open file. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>fd</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>File descriptor. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Source buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Bytes to write. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Bytes written on success, or negative error code. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/storage/syn_vfs.h" line="154" column="5" bodyfile="src/syntropic/storage/syn_vfs.c" bodystart="151" bodyend="160" declfile="src/syntropic/storage/syn_vfs.h" declline="154" declcolumn="5"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__vfs_8h_1a6c559c273036e1070f1c4bdea4d1f682" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int32_t</type>
+        <definition>int32_t syn_vfs_seek</definition>
+        <argsstring>(int fd, int32_t offset, int whence)</argsstring>
+        <name>syn_vfs_seek</name>
+        <param>
+          <type>int</type>
+          <declname>fd</declname>
+        </param>
+        <param>
+          <type>int32_t</type>
+          <declname>offset</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>whence</declname>
+        </param>
+        <briefdescription>
+<para>Seek in an open file. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>fd</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>File descriptor. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>offset</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Byte offset. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>whence</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>SYN_SEEK_SET, SYN_SEEK_CUR, or SYN_SEEK_END. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>New absolute offset on success, or negative error code. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/storage/syn_vfs.h" line="163" column="9" bodyfile="src/syntropic/storage/syn_vfs.c" bodystart="162" bodyend="171" declfile="src/syntropic/storage/syn_vfs.h" declline="163" declcolumn="9"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__vfs_8h_1a6def2ddb2269b177347ee01b8cd3e320" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int32_t</type>
+        <definition>int32_t syn_vfs_tell</definition>
+        <argsstring>(int fd)</argsstring>
+        <name>syn_vfs_tell</name>
+        <param>
+          <type>int</type>
+          <declname>fd</declname>
+        </param>
+        <briefdescription>
+<para>Get current position in an open file. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>fd</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>File descriptor. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Current offset, or negative error code. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/storage/syn_vfs.h" line="170" column="9" bodyfile="src/syntropic/storage/syn_vfs.c" bodystart="173" bodyend="182" declfile="src/syntropic/storage/syn_vfs.h" declline="170" declcolumn="9"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__vfs_8h_1ae5ced02d866a92017fc2a7c60b5eaa00" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int syn_vfs_unlink</definition>
+        <argsstring>(const char *path)</argsstring>
+        <name>syn_vfs_unlink</name>
+        <param>
+          <type>const char *</type>
+          <declname>path</declname>
+        </param>
+        <briefdescription>
+<para>Delete a file. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>path</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Absolute path including mount prefix. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>0 on success, or negative error code. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/storage/syn_vfs.h" line="177" column="5" bodyfile="src/syntropic/storage/syn_vfs.c" bodystart="184" bodyend="193" declfile="src/syntropic/storage/syn_vfs.h" declline="177" declcolumn="5"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__vfs_8h_1aed9d5773271b4078b15d04157ec9ccef" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int syn_vfs_mkdir</definition>
+        <argsstring>(const char *path)</argsstring>
+        <name>syn_vfs_mkdir</name>
+        <param>
+          <type>const char *</type>
+          <declname>path</declname>
+        </param>
+        <briefdescription>
+<para>Create a directory. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>path</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Absolute path including mount prefix. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>0 on success, or negative error code. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/storage/syn_vfs.h" line="184" column="5" bodyfile="src/syntropic/storage/syn_vfs.c" bodystart="195" bodyend="204" declfile="src/syntropic/storage/syn_vfs.h" declline="184" declcolumn="5"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__vfs_8h_1a5a3326c5e1de57751d18ccb9c90c2518" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int syn_vfs_opendir</definition>
+        <argsstring>(const char *path)</argsstring>
+        <name>syn_vfs_opendir</name>
+        <param>
+          <type>const char *</type>
+          <declname>path</declname>
+        </param>
+        <briefdescription>
+<para>Open a directory for iteration. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>path</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Absolute path including mount prefix. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Directory descriptor (&gt;= 0) on success, or negative error code. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/storage/syn_vfs.h" line="191" column="5" bodyfile="src/syntropic/storage/syn_vfs.c" bodystart="206" bodyend="239" declfile="src/syntropic/storage/syn_vfs.h" declline="191" declcolumn="5"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__vfs_8h_1a9473d201554fe284b26c865e62b1682b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int syn_vfs_readdir</definition>
+        <argsstring>(int dd, SYN_VfsDirEnt *ent)</argsstring>
+        <name>syn_vfs_readdir</name>
+        <param>
+          <type>int</type>
+          <declname>dd</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__VfsDirEnt" kindref="compound">SYN_VfsDirEnt</ref> *</type>
+          <declname>ent</declname>
+        </param>
+        <briefdescription>
+<para>Read the next directory entry. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>dd</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Directory descriptor returned by <ref refid="syn__vfs_8h_1a5a3326c5e1de57751d18ccb9c90c2518" kindref="member">syn_vfs_opendir()</ref>. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>ent</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>[out] Filled with the next entry. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>1 if an entry was read, 0 at end-of-directory, or negative error. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/storage/syn_vfs.h" line="199" column="5" bodyfile="src/syntropic/storage/syn_vfs.c" bodystart="241" bodyend="250" declfile="src/syntropic/storage/syn_vfs.h" declline="199" declcolumn="5"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__vfs_8h_1a230e6da609c8b700f4e73c475bd4782e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int syn_vfs_closedir</definition>
+        <argsstring>(int dd)</argsstring>
+        <name>syn_vfs_closedir</name>
+        <param>
+          <type>int</type>
+          <declname>dd</declname>
+        </param>
+        <briefdescription>
+<para>Close an open directory descriptor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>dd</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Directory descriptor. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>0 on success, or negative error code. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/storage/syn_vfs.h" line="206" column="5" bodyfile="src/syntropic/storage/syn_vfs.c" bodystart="252" bodyend="265" declfile="src/syntropic/storage/syn_vfs.h" declline="206" declcolumn="5"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Virtual File System (VFS) abstraction layer. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_VFS_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_VFS_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../common/syn_defs.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stddef.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_VFS_MAX_OPEN_FILES</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23" refid="group__vfs__limits_1ga0fc1391c34060f289cc917a1fcb7926e" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/>#define<sp/>SYN_VFS_MAX_OPEN_FILES<sp/><sp/>4<sp/><sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_VFS_MAX_OPEN_DIRS</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="27" refid="group__vfs__limits_1gacbf65759261dd5af3362f7c8ea020d21" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/>#define<sp/>SYN_VFS_MAX_OPEN_DIRS<sp/><sp/><sp/>2<sp/><sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_VFS_MAX_MOUNTS</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="31" refid="group__vfs__limits_1gaeef8ffd428f3a15cbe195a4fb0fbd7d4" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/>#define<sp/>SYN_VFS_MAX_MOUNTS<sp/><sp/><sp/><sp/><sp/><sp/>2<sp/><sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight></codeline>
+<codeline lineno="37" refid="group__vfs__flags_1gaf51883741a6d01d5586090780dd8d0ff" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_O_RDONLY<sp/><sp/>0x00<sp/><sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="38" refid="group__vfs__flags_1ga23d22a4b017780b9a3b931c0bd61c2a2" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_O_WRONLY<sp/><sp/>0x01<sp/><sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="39" refid="group__vfs__flags_1ga9fc9d11827af2170bb4c5a47e9b86cc5" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_O_RDWR<sp/><sp/><sp/><sp/>0x02<sp/><sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="40" refid="group__vfs__flags_1gafa447abbb68068ad4c4e2910858bb62a" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_O_CREAT<sp/><sp/><sp/>0x04<sp/><sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="41" refid="group__vfs__flags_1ga3ae3e905ea733e035eb6ce4f5628923a" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_O_APPEND<sp/><sp/>0x08<sp/><sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="42" refid="group__vfs__flags_1gaacc1bbf2bf91a571aaa641f50937b49e" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_O_TRUNC<sp/><sp/><sp/>0x10<sp/><sp/></highlight></codeline>
+<codeline lineno="47" refid="group__vfs__seek_1ga789bc383855f90fd557548847e49078d" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_SEEK_SET<sp/><sp/>0<sp/><sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="48" refid="group__vfs__seek_1gacf4961b85f1bb451a608e2f98898aa2c" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_SEEK_CUR<sp/><sp/>1<sp/><sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="49" refid="group__vfs__seek_1ga1e63e53cdba49827ed6736187689a9bb" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_SEEK_END<sp/><sp/>2<sp/><sp/></highlight></codeline>
+<codeline lineno="55" refid="structSYN__VfsDirEnt" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="56" refid="structSYN__VfsDirEnt_1aed59e3f2b9f3b69f1278e67764cb75f7" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/>name[64];<sp/><sp/></highlight></codeline>
+<codeline lineno="57" refid="structSYN__VfsDirEnt_1a16a50315c374237e807cd1e8a0fd1106" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structSYN__VfsDirEnt_1a16a50315c374237e807cd1e8a0fd1106" kindref="member">size</ref>;<sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="58" refid="structSYN__VfsDirEnt_1a1bbce735247a9caf103211e844df9437" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__VfsDirEnt_1a1bbce735247a9caf103211e844df9437" kindref="member">is_dir</ref>;<sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="59"><highlight class="normal">}<sp/><ref refid="structSYN__VfsDirEnt" kindref="compound">SYN_VfsDirEnt</ref>;</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"></highlight></codeline>
+<codeline lineno="61"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structSYN__VfsFile" kindref="compound">SYN_VfsFile</ref><sp/><ref refid="structSYN__VfsFile" kindref="compound">SYN_VfsFile</ref>;<sp/><sp/></highlight></codeline>
+<codeline lineno="62"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structSYN__VfsDir" kindref="compound">SYN_VfsDir</ref><sp/><ref refid="structSYN__VfsDir" kindref="compound">SYN_VfsDir</ref>;<sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="67" refid="structSYN__VfsOps" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="68" refid="structSYN__VfsOps_1a9677f90d558d96b0185a0efa35dc5fae" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>int<sp/><sp/><sp/><sp/><sp/>(*open)(<ref refid="structSYN__VfsFile" kindref="compound">SYN_VfsFile</ref><sp/>*file,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*path,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>flags,<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*fs_data);<sp/><sp/></highlight></codeline>
+<codeline lineno="69" refid="structSYN__VfsOps_1a15bd6661ec6f8553ca132da86a58ffbc" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>int<sp/><sp/><sp/><sp/><sp/>(*close)(<ref refid="structSYN__VfsFile" kindref="compound">SYN_VfsFile</ref><sp/>*file);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="70" refid="structSYN__VfsOps_1a2ca50c5b76571f5b46f660ba358daac3" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>int<sp/><sp/><sp/><sp/><sp/>(*read)(<ref refid="structSYN__VfsFile" kindref="compound">SYN_VfsFile</ref><sp/>*file,<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*buf,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>len);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="71" refid="structSYN__VfsOps_1a7eafc42043f18d9d704f4c829c4880ef" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>int<sp/><sp/><sp/><sp/><sp/>(*write)(<ref refid="structSYN__VfsFile" kindref="compound">SYN_VfsFile</ref><sp/>*file,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*buf,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>len);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="72" refid="structSYN__VfsOps_1ab5d10aa0d77eb29288ec184a6d127f72" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>int32_t<sp/>(*seek)(<ref refid="structSYN__VfsFile" kindref="compound">SYN_VfsFile</ref><sp/>*file,<sp/>int32_t<sp/>offset,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>whence);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="73" refid="structSYN__VfsOps_1a62caabec58696ee75ca963102ec0f310" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>int32_t<sp/>(*tell)(<ref refid="structSYN__VfsFile" kindref="compound">SYN_VfsFile</ref><sp/>*file);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="74" refid="structSYN__VfsOps_1ac246ca975efbffe64cc39762b9e85a27" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>int<sp/><sp/><sp/><sp/><sp/>(*unlink)(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*path,<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*fs_data);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="75" refid="structSYN__VfsOps_1a3df245942c29b26a9bd48aabe01797c8" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>int<sp/><sp/><sp/><sp/><sp/>(*mkdir)(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*path,<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*fs_data);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="76" refid="structSYN__VfsOps_1a8d2046cb72583ede2eae2da9a73d00f2" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>int<sp/><sp/><sp/><sp/><sp/>(*opendir)(<ref refid="structSYN__VfsDir" kindref="compound">SYN_VfsDir</ref><sp/>*dir,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*path,<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*fs_data);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="77" refid="structSYN__VfsOps_1ac3ef4339ee9b8fa45e7256871ac37bed" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>int<sp/><sp/><sp/><sp/><sp/>(*readdir)(<ref refid="structSYN__VfsDir" kindref="compound">SYN_VfsDir</ref><sp/>*dir,<sp/><ref refid="structSYN__VfsDirEnt" kindref="compound">SYN_VfsDirEnt</ref><sp/>*ent);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="78" refid="structSYN__VfsOps_1aabd2666fe9bef78ccbad382e61025257" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>int<sp/><sp/><sp/><sp/><sp/>(*closedir)(<ref refid="structSYN__VfsDir" kindref="compound">SYN_VfsDir</ref><sp/>*dir);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="79"><highlight class="normal">}<sp/><ref refid="structSYN__VfsOps" kindref="compound">SYN_VfsOps</ref>;</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"></highlight></codeline>
+<codeline lineno="84" refid="structSYN__VfsFile" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structSYN__VfsFile" kindref="compound">SYN_VfsFile</ref><sp/>{</highlight></codeline>
+<codeline lineno="85" refid="structSYN__VfsFile_1a0a47b870bfa2311dbd577387860777a9" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__VfsOps" kindref="compound">SYN_VfsOps</ref><sp/>*<ref refid="structSYN__VfsFile_1a0a47b870bfa2311dbd577387860777a9" kindref="member">ops</ref>;<sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="86" refid="structSYN__VfsFile_1a0058ac4b32841b87ea02928410f3fc40" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<ref refid="structSYN__VfsFile_1a0058ac4b32841b87ea02928410f3fc40" kindref="member">fs_file</ref>;<sp/><sp/></highlight></codeline>
+<codeline lineno="87" refid="structSYN__VfsFile_1a29407122e10c724e92858ac12027bb12" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__VfsFile_1a29407122e10c724e92858ac12027bb12" kindref="member">is_open</ref>;<sp/><sp/></highlight></codeline>
+<codeline lineno="88"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"></highlight></codeline>
+<codeline lineno="93" refid="structSYN__VfsDir" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structSYN__VfsDir" kindref="compound">SYN_VfsDir</ref><sp/>{</highlight></codeline>
+<codeline lineno="94" refid="structSYN__VfsDir_1abcd853e860e12d35d4122b37f55d72d3" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__VfsOps" kindref="compound">SYN_VfsOps</ref><sp/>*<ref refid="structSYN__VfsDir_1abcd853e860e12d35d4122b37f55d72d3" kindref="member">ops</ref>;<sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="95" refid="structSYN__VfsDir_1a454488293bc1d5489291feaa4e825dc1" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<ref refid="structSYN__VfsDir_1a454488293bc1d5489291feaa4e825dc1" kindref="member">fs_dir</ref>;<sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="96" refid="structSYN__VfsDir_1a34b88970b9ca206e035a76924f918d44" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__VfsDir_1a34b88970b9ca206e035a76924f918d44" kindref="member">is_open</ref>;<sp/><sp/></highlight></codeline>
+<codeline lineno="97"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"></highlight></codeline>
+<codeline lineno="102" refid="structSYN__VfsMount" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="103" refid="structSYN__VfsMount_1aeb0b74579d1fb58dcd05f663fd101bed" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<ref refid="structSYN__VfsMount_1aeb0b74579d1fb58dcd05f663fd101bed" kindref="member">prefix</ref>;<sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="104" refid="structSYN__VfsMount_1ab8604adb2a4cbe978b7d7851606743bb" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__VfsMount_1ab8604adb2a4cbe978b7d7851606743bb" kindref="member">prefix_len</ref>;<sp/><sp/></highlight></codeline>
+<codeline lineno="105" refid="structSYN__VfsMount_1a2198fc0dd6a86db1eb7b6c4985dc4c63" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__VfsOps" kindref="compound">SYN_VfsOps</ref><sp/>*<ref refid="structSYN__VfsMount_1a2198fc0dd6a86db1eb7b6c4985dc4c63" kindref="member">ops</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="106" refid="structSYN__VfsMount_1acdb770f84356efa0ddc2710f0adad7eb" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<ref refid="structSYN__VfsMount_1acdb770f84356efa0ddc2710f0adad7eb" kindref="member">fs_data</ref>;<sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="107"><highlight class="normal">}<sp/><ref refid="structSYN__VfsMount" kindref="compound">SYN_VfsMount</ref>;</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"></highlight></codeline>
+<codeline lineno="109"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>API<sp/>──────────────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="110"><highlight class="normal"></highlight></codeline>
+<codeline lineno="112"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__vfs_8h_1a61c9d80f00bb220eb6d7dc56a47dfe57" kindref="member">syn_vfs_init</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="113"><highlight class="normal"></highlight></codeline>
+<codeline lineno="121"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__vfs_8h_1a88ba9f93df6f07e98cda88233e0031e4" kindref="member">syn_vfs_mount</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*prefix,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__VfsOps" kindref="compound">SYN_VfsOps</ref><sp/>*ops,<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*fs_data);</highlight></codeline>
+<codeline lineno="122"><highlight class="normal"></highlight></codeline>
+<codeline lineno="129"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="syn__vfs_8h_1a0e24b1025ab7e6fde35ce86a8d285dfb" kindref="member">syn_vfs_open</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*path,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>flags);</highlight></codeline>
+<codeline lineno="130"><highlight class="normal"></highlight></codeline>
+<codeline lineno="136"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="syn__vfs_8h_1a7ae72e25ca8b2c455ef1f7f696c30f9d" kindref="member">syn_vfs_close</ref>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>fd);</highlight></codeline>
+<codeline lineno="137"><highlight class="normal"></highlight></codeline>
+<codeline lineno="145"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="syn__vfs_8h_1acac97357ed8374c36d89debfd87bc096" kindref="member">syn_vfs_read</ref>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>fd,<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*buf,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>len);</highlight></codeline>
+<codeline lineno="146"><highlight class="normal"></highlight></codeline>
+<codeline lineno="154"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="syn__vfs_8h_1a6619505a63cec188a9c54a9aea38427e" kindref="member">syn_vfs_write</ref>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>fd,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*buf,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>len);</highlight></codeline>
+<codeline lineno="155"><highlight class="normal"></highlight></codeline>
+<codeline lineno="163"><highlight class="normal">int32_t<sp/><ref refid="syn__vfs_8h_1a6c559c273036e1070f1c4bdea4d1f682" kindref="member">syn_vfs_seek</ref>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>fd,<sp/>int32_t<sp/>offset,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>whence);</highlight></codeline>
+<codeline lineno="164"><highlight class="normal"></highlight></codeline>
+<codeline lineno="170"><highlight class="normal">int32_t<sp/><ref refid="syn__vfs_8h_1a6def2ddb2269b177347ee01b8cd3e320" kindref="member">syn_vfs_tell</ref>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>fd);</highlight></codeline>
+<codeline lineno="171"><highlight class="normal"></highlight></codeline>
+<codeline lineno="177"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="syn__vfs_8h_1ae5ced02d866a92017fc2a7c60b5eaa00" kindref="member">syn_vfs_unlink</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*path);</highlight></codeline>
+<codeline lineno="178"><highlight class="normal"></highlight></codeline>
+<codeline lineno="184"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="syn__vfs_8h_1aed9d5773271b4078b15d04157ec9ccef" kindref="member">syn_vfs_mkdir</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*path);</highlight></codeline>
+<codeline lineno="185"><highlight class="normal"></highlight></codeline>
+<codeline lineno="191"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="syn__vfs_8h_1a5a3326c5e1de57751d18ccb9c90c2518" kindref="member">syn_vfs_opendir</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*path);</highlight></codeline>
+<codeline lineno="192"><highlight class="normal"></highlight></codeline>
+<codeline lineno="199"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="syn__vfs_8h_1a9473d201554fe284b26c865e62b1682b" kindref="member">syn_vfs_readdir</ref>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>dd,<sp/><ref refid="structSYN__VfsDirEnt" kindref="compound">SYN_VfsDirEnt</ref><sp/>*ent);</highlight></codeline>
+<codeline lineno="200"><highlight class="normal"></highlight></codeline>
+<codeline lineno="206"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="syn__vfs_8h_1a230e6da609c8b700f4e73c475bd4782e" kindref="member">syn_vfs_closedir</ref>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>dd);</highlight></codeline>
+<codeline lineno="207"><highlight class="normal"></highlight></codeline>
+<codeline lineno="208"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="209"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="210"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="211"><highlight class="normal"></highlight></codeline>
+<codeline lineno="212"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_VFS_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/storage/syn_vfs.h"/>
+  </compounddef>
+</doxygen>

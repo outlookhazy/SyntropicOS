@@ -1,0 +1,445 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__event_8h" kind="file" language="C++">
+    <compoundname>syn_event.h</compoundname>
+    <includes refid="syn__defs_8h" local="yes">../common/syn_defs.h</includes>
+    <includes refid="syn__bits_8h" local="yes">../util/syn_bits.h</includes>
+    <includes refid="syn__pt_8h" local="yes">../pt/syn_pt.h</includes>
+    <includes refid="syn__event__flags_8h" local="yes">../sched/syn_event_flags.h</includes>
+    <includes local="no">stdbool.h</includes>
+    <includedby refid="syn__sched_8c" local="yes">src/syntropic/sched/syn_sched.c</includedby>
+    <includedby refid="syntropic_8h" local="yes">src/syntropic/syntropic.h</includedby>
+    <incdepgraph>
+      <node id="7">
+        <label>../common/syn_compiler.h</label>
+        <link refid="syn__compiler_8h"/>
+      </node>
+      <node id="2">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>../pt/syn_pt.h</label>
+        <link refid="syn__pt_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>../sched/syn_event_flags.h</label>
+        <link refid="syn__event__flags_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>../util/syn_bits.h</label>
+        <link refid="syn__bits_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/util/syn_event.h</label>
+        <link refid="syn__event_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="9">
+        <label>stdbool.h</label>
+      </node>
+      <node id="4">
+        <label>stddef.h</label>
+      </node>
+      <node id="3">
+        <label>stdint.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="2">
+        <label>src/syntropic/sched/syn_sched.c</label>
+        <link refid="syn__sched_8c"/>
+      </node>
+      <node id="3">
+        <label>src/syntropic/syntropic.h</label>
+        <link refid="syntropic_8h"/>
+      </node>
+      <node id="1">
+        <label>src/syntropic/util/syn_event.h</label>
+        <link refid="syn__event_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <sectiondef kind="define">
+      <memberdef kind="define" id="syn__event_8h_1a0634670f370c269406567ac24e5899c5" prot="public" static="no">
+        <name>PT_WAIT_EVENT</name>
+        <param><defname>pt</defname></param>
+        <param><defname>grp</defname></param>
+        <param><defname>mask</defname></param>
+        <initializer>    do {                                                       \
+        <ref refid="syn__pt_8h_1a0a7f29e2a1e2caaf5bcc343412eef273" kindref="member">PT_WAIT_UNTIL</ref>(pt, <ref refid="syn__event_8h_1a06508084a64def416486923d8f463599" kindref="member">syn_event_check_all</ref>(grp, mask));    \
+        <ref refid="syn__event_8h_1abd64f6f73b4b3d1a2f98954b1b540dca" kindref="member">syn_event_clear</ref>(grp, mask);                           \
+    } while (0)</initializer>
+        <briefdescription>
+<para>Block the protothread until ALL bits in <computeroutput>mask</computeroutput> are set, then auto-clear. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_event.h" line="94" column="9" bodyfile="src/syntropic/util/syn_event.h" bodystart="94" bodyend="98"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__event_8h_1a53e522e618205946a5553b3325f6fe42" prot="public" static="no">
+        <name>PT_WAIT_EVENT_ANY</name>
+        <param><defname>pt</defname></param>
+        <param><defname>grp</defname></param>
+        <param><defname>mask</defname></param>
+        <initializer>    do {                                                       \
+        <ref refid="syn__pt_8h_1a0a7f29e2a1e2caaf5bcc343412eef273" kindref="member">PT_WAIT_UNTIL</ref>(pt, <ref refid="syn__event_8h_1a7882d94ed80d074f5ee8dbd5095a995c" kindref="member">syn_event_check_any</ref>(grp, mask));    \
+        <ref refid="syn__event_8h_1abd64f6f73b4b3d1a2f98954b1b540dca" kindref="member">syn_event_clear</ref>(grp, <ref refid="syn__event_8h_1a378ae7bcadf51e58efed2d1069f33ead" kindref="member">syn_event_get</ref>(grp) &amp; (mask));    \
+    } while (0)</initializer>
+        <briefdescription>
+<para>Block the protothread until ANY bit in <computeroutput>mask</computeroutput> is set, then auto-clear. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_event.h" line="103" column="9" bodyfile="src/syntropic/util/syn_event.h" bodystart="103" bodyend="107"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="typedef">
+      <memberdef kind="typedef" id="syn__event_8h_1a25a5b5121db890c23e17540ac7fa31c4" prot="public" static="no">
+        <type><ref refid="structSYN__EventFlags" kindref="compound">SYN_EventFlags</ref></type>
+        <definition>typedef SYN_EventFlags SYN_EventGroup</definition>
+        <argsstring></argsstring>
+        <name>SYN_EventGroup</name>
+        <briefdescription>
+<para>Event flag group — alias for <ref refid="structSYN__EventFlags" kindref="compound">SYN_EventFlags</ref>. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_event.h" line="26" column="24" bodyfile="src/syntropic/util/syn_event.h" bodystart="26" bodyend="-1"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__event_8h_1abf8e48ff26a2e08531bdc2b677b514d6" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void syn_event_init</definition>
+        <argsstring>(SYN_EventGroup *grp)</argsstring>
+        <name>syn_event_init</name>
+        <param>
+          <type><ref refid="syn__event_8h_1a25a5b5121db890c23e17540ac7fa31c4" kindref="member">SYN_EventGroup</ref> *</type>
+          <declname>grp</declname>
+        </param>
+        <briefdescription>
+<para>Initialize an event group. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>grp</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Event group. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_event.h" line="32" column="20" bodyfile="src/syntropic/util/syn_event.h" bodystart="32" bodyend="35"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__event_8h_1a0cc0085d2ca14a15de3b3abb0a688068" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void syn_event_set</definition>
+        <argsstring>(SYN_EventGroup *grp, uint32_t mask)</argsstring>
+        <name>syn_event_set</name>
+        <param>
+          <type><ref refid="syn__event_8h_1a25a5b5121db890c23e17540ac7fa31c4" kindref="member">SYN_EventGroup</ref> *</type>
+          <declname>grp</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>mask</declname>
+        </param>
+        <briefdescription>
+<para>Set one or more event flags. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>grp</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Event group. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>mask</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Bitmask of flags to set. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_event.h" line="42" column="20" bodyfile="src/syntropic/util/syn_event.h" bodystart="42" bodyend="45"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__event_8h_1abd64f6f73b4b3d1a2f98954b1b540dca" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void syn_event_clear</definition>
+        <argsstring>(SYN_EventGroup *grp, uint32_t mask)</argsstring>
+        <name>syn_event_clear</name>
+        <param>
+          <type><ref refid="syn__event_8h_1a25a5b5121db890c23e17540ac7fa31c4" kindref="member">SYN_EventGroup</ref> *</type>
+          <declname>grp</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>mask</declname>
+        </param>
+        <briefdescription>
+<para>Clear one or more event flags. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>grp</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Event group. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>mask</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Bitmask of flags to clear. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_event.h" line="52" column="20" bodyfile="src/syntropic/util/syn_event.h" bodystart="52" bodyend="55"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__event_8h_1a378ae7bcadf51e58efed2d1069f33ead" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>static uint32_t syn_event_get</definition>
+        <argsstring>(const SYN_EventGroup *grp)</argsstring>
+        <name>syn_event_get</name>
+        <param>
+          <type>const <ref refid="syn__event_8h_1a25a5b5121db890c23e17540ac7fa31c4" kindref="member">SYN_EventGroup</ref> *</type>
+          <declname>grp</declname>
+        </param>
+        <briefdescription>
+<para>Get the current value of all flags. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>grp</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Event group. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Current flags. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_event.h" line="62" column="24" bodyfile="src/syntropic/util/syn_event.h" bodystart="62" bodyend="65"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__event_8h_1a06508084a64def416486923d8f463599" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>static bool syn_event_check_all</definition>
+        <argsstring>(const SYN_EventGroup *grp, uint32_t mask)</argsstring>
+        <name>syn_event_check_all</name>
+        <param>
+          <type>const <ref refid="syn__event_8h_1a25a5b5121db890c23e17540ac7fa31c4" kindref="member">SYN_EventGroup</ref> *</type>
+          <declname>grp</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>mask</declname>
+        </param>
+        <briefdescription>
+<para>Check if ALL bits in <computeroutput>mask</computeroutput> are set. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>grp</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Event group. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>mask</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Bitmask to test. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if every bit in <computeroutput>mask</computeroutput> is set in the event group. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_event.h" line="73" column="20" bodyfile="src/syntropic/util/syn_event.h" bodystart="73" bodyend="76"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__event_8h_1a7882d94ed80d074f5ee8dbd5095a995c" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>static bool syn_event_check_any</definition>
+        <argsstring>(const SYN_EventGroup *grp, uint32_t mask)</argsstring>
+        <name>syn_event_check_any</name>
+        <param>
+          <type>const <ref refid="syn__event_8h_1a25a5b5121db890c23e17540ac7fa31c4" kindref="member">SYN_EventGroup</ref> *</type>
+          <declname>grp</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>mask</declname>
+        </param>
+        <briefdescription>
+<para>Check if ANY bit in <computeroutput>mask</computeroutput> is set. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>grp</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Event group. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>mask</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Bitmask to test. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if at least one bit in <computeroutput>mask</computeroutput> is set. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_event.h" line="84" column="20" bodyfile="src/syntropic/util/syn_event.h" bodystart="84" bodyend="87"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Event flag groups — 32-bit bitmask signaling. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Unified event signaling delegating directly to <ref refid="structSYN__EventFlags" kindref="compound">SYN_EventFlags</ref>. </para>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_EVENT_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_EVENT_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../common/syn_defs.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../util/syn_bits.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../pt/syn_pt.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../sched/syn_event_flags.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight></codeline>
+<codeline lineno="26" refid="syn__event_8h_1a25a5b5121db890c23e17540ac7fa31c4" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/><ref refid="structSYN__EventFlags" kindref="compound">SYN_EventFlags</ref><sp/><ref refid="syn__event_8h_1a25a5b5121db890c23e17540ac7fa31c4" kindref="member">SYN_EventGroup</ref>;</highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight></codeline>
+<codeline lineno="32" refid="syn__event_8h_1abf8e48ff26a2e08531bdc2b677b514d6" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__event_8h_1abf8e48ff26a2e08531bdc2b677b514d6" kindref="member">syn_event_init</ref>(<ref refid="structSYN__EventFlags" kindref="compound">SYN_EventGroup</ref><sp/>*grp)</highlight></codeline>
+<codeline lineno="33"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="34"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__event__flags_8c_1ac0398f3d2ae56a61cc1920184d5bfbab" kindref="member">syn_event_flags_init</ref>(grp);</highlight></codeline>
+<codeline lineno="35"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight></codeline>
+<codeline lineno="42" refid="syn__event_8h_1a0cc0085d2ca14a15de3b3abb0a688068" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__event_8h_1a0cc0085d2ca14a15de3b3abb0a688068" kindref="member">syn_event_set</ref>(<ref refid="structSYN__EventFlags" kindref="compound">SYN_EventGroup</ref><sp/>*grp,<sp/>uint32_t<sp/>mask)</highlight></codeline>
+<codeline lineno="43"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__event__flags_8c_1a19a7e78f1eab7dedce2aa0c06cdd90da" kindref="member">syn_event_flags_set</ref>(grp,<sp/>mask);</highlight></codeline>
+<codeline lineno="45"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"></highlight></codeline>
+<codeline lineno="52" refid="syn__event_8h_1abd64f6f73b4b3d1a2f98954b1b540dca" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__event_8h_1abd64f6f73b4b3d1a2f98954b1b540dca" kindref="member">syn_event_clear</ref>(<ref refid="structSYN__EventFlags" kindref="compound">SYN_EventGroup</ref><sp/>*grp,<sp/>uint32_t<sp/>mask)</highlight></codeline>
+<codeline lineno="53"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__event__flags_8c_1a6541f28bff28c4733c09b1a48f718c97" kindref="member">syn_event_flags_clear</ref>(grp,<sp/>mask);</highlight></codeline>
+<codeline lineno="55"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"></highlight></codeline>
+<codeline lineno="62" refid="syn__event_8h_1a378ae7bcadf51e58efed2d1069f33ead" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>uint32_t<sp/><ref refid="syn__event_8h_1a378ae7bcadf51e58efed2d1069f33ead" kindref="member">syn_event_get</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__EventFlags" kindref="compound">SYN_EventGroup</ref><sp/>*grp)</highlight></codeline>
+<codeline lineno="63"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__event__flags_8c_1aa2640754ff306fb172da45ceaaf58299" kindref="member">syn_event_flags_get</ref>(grp);</highlight></codeline>
+<codeline lineno="65"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"></highlight></codeline>
+<codeline lineno="73" refid="syn__event_8h_1a06508084a64def416486923d8f463599" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__event_8h_1a06508084a64def416486923d8f463599" kindref="member">syn_event_check_all</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__EventFlags" kindref="compound">SYN_EventGroup</ref><sp/>*grp,<sp/>uint32_t<sp/>mask)</highlight></codeline>
+<codeline lineno="74"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(<ref refid="syn__event__flags_8c_1aa2640754ff306fb172da45ceaaf58299" kindref="member">syn_event_flags_get</ref>(grp)<sp/>&amp;<sp/>mask)<sp/>==<sp/>mask;</highlight></codeline>
+<codeline lineno="76"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"></highlight></codeline>
+<codeline lineno="84" refid="syn__event_8h_1a7882d94ed80d074f5ee8dbd5095a995c" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__event_8h_1a7882d94ed80d074f5ee8dbd5095a995c" kindref="member">syn_event_check_any</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__EventFlags" kindref="compound">SYN_EventGroup</ref><sp/>*grp,<sp/>uint32_t<sp/>mask)</highlight></codeline>
+<codeline lineno="85"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(<ref refid="syn__event__flags_8c_1aa2640754ff306fb172da45ceaaf58299" kindref="member">syn_event_flags_get</ref>(grp)<sp/>&amp;<sp/>mask)<sp/>!=<sp/>0;</highlight></codeline>
+<codeline lineno="87"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"></highlight></codeline>
+<codeline lineno="89"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Protothread<sp/>integration<sp/>──────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="90"><highlight class="normal"></highlight></codeline>
+<codeline lineno="94" refid="syn__event_8h_1a0634670f370c269406567ac24e5899c5" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>PT_WAIT_EVENT(pt,<sp/>grp,<sp/>mask)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="95"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>do<sp/>{<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="96"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>PT_WAIT_UNTIL(pt,<sp/>syn_event_check_all(grp,<sp/>mask));<sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="97"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>syn_event_clear(grp,<sp/>mask);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="98"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>}<sp/>while<sp/>(0)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="99"><highlight class="normal"></highlight></codeline>
+<codeline lineno="103" refid="syn__event_8h_1a53e522e618205946a5553b3325f6fe42" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>PT_WAIT_EVENT_ANY(pt,<sp/>grp,<sp/>mask)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="104"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>do<sp/>{<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="105"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>PT_WAIT_UNTIL(pt,<sp/>syn_event_check_any(grp,<sp/>mask));<sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="106"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>syn_event_clear(grp,<sp/>syn_event_get(grp)<sp/>&amp;<sp/>(mask));<sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="107"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>}<sp/>while<sp/>(0)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="108"><highlight class="normal"></highlight></codeline>
+<codeline lineno="109"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="110"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="112"><highlight class="normal"></highlight></codeline>
+<codeline lineno="113"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_EVENT_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/util/syn_event.h"/>
+  </compounddef>
+</doxygen>

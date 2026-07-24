@@ -1,0 +1,529 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__timer_8h" kind="file" language="C++">
+    <compoundname>syn_timer.h</compoundname>
+    <includes refid="syn__defs_8h" local="yes">../common/syn_defs.h</includes>
+    <includes local="no">stdbool.h</includes>
+    <includedby refid="syn__timer_8c" local="yes">src/syntropic/sched/syn_timer.c</includedby>
+    <includedby refid="syntropic_8h" local="yes">src/syntropic/syntropic.h</includedby>
+    <incdepgraph>
+      <node id="2">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/sched/syn_timer.h</label>
+        <link refid="syn__timer_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>stdbool.h</label>
+      </node>
+      <node id="4">
+        <label>stddef.h</label>
+      </node>
+      <node id="3">
+        <label>stdint.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="2">
+        <label>src/syntropic/sched/syn_timer.c</label>
+        <link refid="syn__timer_8c"/>
+      </node>
+      <node id="1">
+        <label>src/syntropic/sched/syn_timer.h</label>
+        <link refid="syn__timer_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>src/syntropic/syntropic.h</label>
+        <link refid="syntropic_8h"/>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="structSYN__Timer" prot="public">SYN_Timer</innerclass>
+    <sectiondef kind="typedef">
+      <memberdef kind="typedef" id="syn__timer_8h_1a63dc3bfcc227b722ed97d3fc9c269aae" prot="public" static="no">
+        <type>void(*</type>
+        <definition>typedef void(* SYN_TimerCallback) (struct SYN_Timer *timer, void *user_data)</definition>
+        <argsstring>)(struct SYN_Timer *timer, void *user_data)</argsstring>
+        <name>SYN_TimerCallback</name>
+        <briefdescription>
+<para>Timer expiry callback. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>timer</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The timer that expired. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>user_data</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>User-provided context pointer. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/sched/syn_timer.h" line="53" column="9" bodyfile="src/syntropic/sched/syn_timer.h" bodystart="53" bodyend="-1"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__timer_8h_1af77b4cb799d5a240b851a5b74a1712d6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_timer_init</definition>
+        <argsstring>(SYN_Timer *timer, uint32_t period_ms, bool periodic, SYN_TimerCallback callback, void *user_data)</argsstring>
+        <name>syn_timer_init</name>
+        <param>
+          <type><ref refid="structSYN__Timer" kindref="compound">SYN_Timer</ref> *</type>
+          <declname>timer</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>period_ms</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+          <declname>periodic</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__timer_8h_1a63dc3bfcc227b722ed97d3fc9c269aae" kindref="member">SYN_TimerCallback</ref></type>
+          <declname>callback</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>user_data</declname>
+        </param>
+        <briefdescription>
+<para>Initialize a software timer. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>The timer is created in the stopped state. Call <ref refid="syn__timer_8h_1afe28882f9f48c2fc3f0cdc063a525662" kindref="member">syn_timer_start()</ref> to begin counting.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>timer</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Timer to initialize. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>period_ms</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Period in milliseconds. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>periodic</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>true for repeating timer, false for one-shot. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>callback</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function called on expiry (may be NULL if using polling). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>user_data</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>User context pointer passed to callback. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/sched/syn_timer.h" line="83" column="6" bodyfile="src/syntropic/sched/syn_timer.c" bodystart="18" bodyend="33" declfile="src/syntropic/sched/syn_timer.h" declline="83" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__timer_8h_1afe28882f9f48c2fc3f0cdc063a525662" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_timer_start</definition>
+        <argsstring>(SYN_Timer *timer)</argsstring>
+        <name>syn_timer_start</name>
+        <param>
+          <type><ref refid="structSYN__Timer" kindref="compound">SYN_Timer</ref> *</type>
+          <declname>timer</declname>
+        </param>
+        <briefdescription>
+<para>Start (or restart) the timer. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Sets the target tick to now + period_ms and marks the timer active.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>timer</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Timer to start. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/sched/syn_timer.h" line="96" column="6" bodyfile="src/syntropic/sched/syn_timer.c" bodystart="35" bodyend="41" declfile="src/syntropic/sched/syn_timer.h" declline="96" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__timer_8h_1a5bcac8f1a51b7bdb31f81f5adf23deff" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_timer_stop</definition>
+        <argsstring>(SYN_Timer *timer)</argsstring>
+        <name>syn_timer_stop</name>
+        <param>
+          <type><ref refid="structSYN__Timer" kindref="compound">SYN_Timer</ref> *</type>
+          <declname>timer</declname>
+        </param>
+        <briefdescription>
+<para>Stop the timer. It will not fire until started again. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>timer</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Timer to stop. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/sched/syn_timer.h" line="102" column="6" bodyfile="src/syntropic/sched/syn_timer.c" bodystart="43" bodyend="47" declfile="src/syntropic/sched/syn_timer.h" declline="102" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__timer_8h_1adc7787203ebe73d98e22c25ff1e1a625" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_timer_set_period</definition>
+        <argsstring>(SYN_Timer *timer, uint32_t period_ms)</argsstring>
+        <name>syn_timer_set_period</name>
+        <param>
+          <type><ref refid="structSYN__Timer" kindref="compound">SYN_Timer</ref> *</type>
+          <declname>timer</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>period_ms</declname>
+        </param>
+        <briefdescription>
+<para>Change the timer&apos;s period. Takes effect on next start or next periodic reload. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>timer</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Timer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>period_ms</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>New period in milliseconds. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/sched/syn_timer.h" line="110" column="6" bodyfile="src/syntropic/sched/syn_timer.c" bodystart="49" bodyend="54" declfile="src/syntropic/sched/syn_timer.h" declline="110" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__timer_8h_1a21dc8d3539749d3ba94ab1c374cab729" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_timer_expired</definition>
+        <argsstring>(SYN_Timer *timer)</argsstring>
+        <name>syn_timer_expired</name>
+        <param>
+          <type><ref refid="structSYN__Timer" kindref="compound">SYN_Timer</ref> *</type>
+          <declname>timer</declname>
+        </param>
+        <briefdescription>
+<para>Poll whether the timer has expired. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>If expired and periodic, the timer is automatically re-armed. If expired and one-shot, the timer is stopped.</para>
+<para>This can be used instead of (or in addition to) the callback.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>timer</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Timer to check. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if the timer has expired since the last check. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/sched/syn_timer.h" line="123" column="6" bodyfile="src/syntropic/sched/syn_timer.c" bodystart="56" bodyend="87" declfile="src/syntropic/sched/syn_timer.h" declline="123" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__timer_8h_1a0c0174789e236228d039a30d29bfe95d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_timer_service</definition>
+        <argsstring>(SYN_Timer *timers, size_t count)</argsstring>
+        <name>syn_timer_service</name>
+        <param>
+          <type><ref refid="structSYN__Timer" kindref="compound">SYN_Timer</ref> *</type>
+          <declname>timers</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>count</declname>
+        </param>
+        <briefdescription>
+<para>Service an array of timers. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Checks each timer for expiry and calls its callback if set. Call this from your main loop, a scheduler task, or a periodic ISR.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>timers</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Array of timers. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>count</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of timers in the array. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/sched/syn_timer.h" line="134" column="6" bodyfile="src/syntropic/sched/syn_timer.c" bodystart="89" bodyend="106" declfile="src/syntropic/sched/syn_timer.h" declline="134" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__timer_8h_1a56e3fa350c015122ddf2460cda982298" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>static bool syn_timer_is_active</definition>
+        <argsstring>(const SYN_Timer *timer)</argsstring>
+        <name>syn_timer_is_active</name>
+        <param>
+          <type>const <ref refid="structSYN__Timer" kindref="compound">SYN_Timer</ref> *</type>
+          <declname>timer</declname>
+        </param>
+        <briefdescription>
+<para>Check if a timer is currently active (running). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>timer</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Timer to query. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if active. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/sched/syn_timer.h" line="141" column="20" bodyfile="src/syntropic/sched/syn_timer.h" bodystart="141" bodyend="144"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__timer_8h_1a8784f3c5c5ec56a2d3c3f64fcd9f3c40" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>uint32_t syn_timer_remaining</definition>
+        <argsstring>(const SYN_Timer *timer)</argsstring>
+        <name>syn_timer_remaining</name>
+        <param>
+          <type>const <ref refid="structSYN__Timer" kindref="compound">SYN_Timer</ref> *</type>
+          <declname>timer</declname>
+        </param>
+        <briefdescription>
+<para>Get the remaining time until the next expiry. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>timer</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Timer to query. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Remaining milliseconds, or 0 if expired/stopped. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/sched/syn_timer.h" line="152" column="10" bodyfile="src/syntropic/sched/syn_timer.c" bodystart="108" bodyend="120" declfile="src/syntropic/sched/syn_timer.h" declline="152" declcolumn="10"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__timer_8h_1a754b70264f3e26c778e64d54ff64eda2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>uint32_t syn_timer_next_expiry</definition>
+        <argsstring>(const SYN_Timer *timers, size_t count)</argsstring>
+        <name>syn_timer_next_expiry</name>
+        <param>
+          <type>const <ref refid="structSYN__Timer" kindref="compound">SYN_Timer</ref> *</type>
+          <declname>timers</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>count</declname>
+        </param>
+        <briefdescription>
+<para>Get the earliest expiry tick among a set of active timers. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Scans the timer array and returns the minimum target_tick of any active timer whose deadline is in the future. Used by the tickless scheduler to account for software timer wakeups.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>timers</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Array of timers to scan. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>count</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of timers in the array. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Earliest expiry tick, or UINT32_MAX if no timers are active or all have already expired. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/sched/syn_timer.h" line="166" column="10" bodyfile="src/syntropic/sched/syn_timer.c" bodystart="122" bodyend="152" declfile="src/syntropic/sched/syn_timer.h" declline="166" declcolumn="10"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Software timer service — one-shot and periodic timers. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Timers are caller-owned structs with a callback. They can be used with or without the scheduler. In a bare main loop, call <ref refid="syn__timer_8h_1a0c0174789e236228d039a30d29bfe95d" kindref="member">syn_timer_service()</ref> each iteration. With the scheduler, run it from a high-priority task.</para>
+<para>Timers are driven by <ref refid="syn__port__system_8h_1a6c7d98587814b2c0d9c09da02d318873" kindref="member">syn_port_get_tick_ms()</ref> — resolution depends on how often you call <ref refid="syn__timer_8h_1a0c0174789e236228d039a30d29bfe95d" kindref="member">syn_timer_service()</ref>.</para>
+<para><simplesect kind="par"><title>Usage</title><para><programlisting><codeline><highlight class="keyword">static</highlight><highlight class="normal"><sp/><ref refid="structSYN__Timer" kindref="compound">SYN_Timer</ref><sp/>heartbeat;</highlight></codeline>
+<codeline><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>on_heartbeat(<ref refid="structSYN__Timer" kindref="compound">SYN_Timer</ref><sp/>*t,<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*ctx)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__gpio_8h_1a5fb76e41e0f60e4a24fe304a89baef04" kindref="member">syn_gpio_toggle</ref>(LED_PIN);</highlight></codeline>
+<codeline><highlight class="normal">}</highlight></codeline>
+<codeline><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__timer_8c_1af77b4cb799d5a240b851a5b74a1712d6" kindref="member">syn_timer_init</ref>(&amp;heartbeat,<sp/>1000,<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">,<sp/>on_heartbeat,<sp/>NULL);</highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__timer_8c_1afe28882f9f48c2fc3f0cdc063a525662" kindref="member">syn_timer_start</ref>(&amp;heartbeat);</highlight></codeline>
+<codeline><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="keywordflow">while</highlight><highlight class="normal"><sp/>(1)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__timer_8c_1a0c0174789e236228d039a30d29bfe95d" kindref="member">syn_timer_service</ref>(&amp;heartbeat,<sp/>1);</highlight></codeline>
+<codeline><highlight class="normal">}</highlight></codeline>
+</programlisting> </para>
+</simplesect>
+</para>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_TIMER_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_TIMER_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../common/syn_defs.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Forward<sp/>declaration<sp/>──────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structSYN__Timer" kindref="compound">SYN_Timer</ref>;</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Callback<sp/>type<sp/>────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="46"><highlight class="normal"></highlight></codeline>
+<codeline lineno="53" refid="syn__timer_8h_1a63dc3bfcc227b722ed97d3fc9c269aae" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>void<sp/>(*<ref refid="syn__timer_8h_1a63dc3bfcc227b722ed97d3fc9c269aae" kindref="member">SYN_TimerCallback</ref>)(</highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structSYN__Timer" kindref="compound">SYN_Timer</ref><sp/>*timer,<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*<ref refid="structSYN__Timer_1abd1ad76ba8ee3a2da1a15039881a2c02" kindref="member">user_data</ref>);</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"></highlight></codeline>
+<codeline lineno="55"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Timer<sp/>struct<sp/>─────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="56"><highlight class="normal"></highlight></codeline>
+<codeline lineno="60" refid="structSYN__Timer" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structSYN__Timer" kindref="compound">SYN_Timer</ref><sp/>{</highlight></codeline>
+<codeline lineno="61" refid="structSYN__Timer_1acf8238cd2a5190c3a4b63978339549e3" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__Timer_1acf8238cd2a5190c3a4b63978339549e3" kindref="member">period_ms</ref>;<sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="62" refid="structSYN__Timer_1abea97215ed7a596bed178d9d945bd740" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__Timer_1abea97215ed7a596bed178d9d945bd740" kindref="member">target_tick</ref>;<sp/><sp/></highlight></codeline>
+<codeline lineno="63" refid="structSYN__Timer_1a14caad8469994aeb3e60fe362954e267" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__timer_8h_1a63dc3bfcc227b722ed97d3fc9c269aae" kindref="member">SYN_TimerCallback</ref><sp/><sp/><ref refid="structSYN__Timer_1a14caad8469994aeb3e60fe362954e267" kindref="member">callback</ref>;<sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="64" refid="structSYN__Timer_1abd1ad76ba8ee3a2da1a15039881a2c02" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<ref refid="structSYN__Timer_1abd1ad76ba8ee3a2da1a15039881a2c02" kindref="member">user_data</ref>;<sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="65" refid="structSYN__Timer_1af90b660434b39995fd6d9ba48af3c952" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__Timer_1af90b660434b39995fd6d9ba48af3c952" kindref="member">periodic</ref>;<sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="66" refid="structSYN__Timer_1a998e55d8dcc63d52b6390aa98353e4c7" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__Timer_1a998e55d8dcc63d52b6390aa98353e4c7" kindref="member">active</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="67"><highlight class="normal">}<sp/><ref refid="structSYN__Timer" kindref="compound">SYN_Timer</ref>;</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"></highlight></codeline>
+<codeline lineno="69"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>API<sp/>──────────────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="70"><highlight class="normal"></highlight></codeline>
+<codeline lineno="83"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__timer_8h_1af77b4cb799d5a240b851a5b74a1712d6" kindref="member">syn_timer_init</ref>(<ref refid="structSYN__Timer" kindref="compound">SYN_Timer</ref><sp/>*timer,</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>period_ms,</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>periodic,</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__timer_8h_1a63dc3bfcc227b722ed97d3fc9c269aae" kindref="member">SYN_TimerCallback</ref><sp/>callback,</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*user_data);</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"></highlight></codeline>
+<codeline lineno="96"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__timer_8h_1afe28882f9f48c2fc3f0cdc063a525662" kindref="member">syn_timer_start</ref>(<ref refid="structSYN__Timer" kindref="compound">SYN_Timer</ref><sp/>*timer);</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"></highlight></codeline>
+<codeline lineno="102"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__timer_8h_1a5bcac8f1a51b7bdb31f81f5adf23deff" kindref="member">syn_timer_stop</ref>(<ref refid="structSYN__Timer" kindref="compound">SYN_Timer</ref><sp/>*timer);</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"></highlight></codeline>
+<codeline lineno="110"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__timer_8h_1adc7787203ebe73d98e22c25ff1e1a625" kindref="member">syn_timer_set_period</ref>(<ref refid="structSYN__Timer" kindref="compound">SYN_Timer</ref><sp/>*timer,<sp/>uint32_t<sp/>period_ms);</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"></highlight></codeline>
+<codeline lineno="123"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__timer_8h_1a21dc8d3539749d3ba94ab1c374cab729" kindref="member">syn_timer_expired</ref>(<ref refid="structSYN__Timer" kindref="compound">SYN_Timer</ref><sp/>*timer);</highlight></codeline>
+<codeline lineno="124"><highlight class="normal"></highlight></codeline>
+<codeline lineno="134"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__timer_8h_1a0c0174789e236228d039a30d29bfe95d" kindref="member">syn_timer_service</ref>(<ref refid="structSYN__Timer" kindref="compound">SYN_Timer</ref><sp/>*timers,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>count);</highlight></codeline>
+<codeline lineno="135"><highlight class="normal"></highlight></codeline>
+<codeline lineno="141" refid="syn__timer_8h_1a56e3fa350c015122ddf2460cda982298" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__timer_8h_1a56e3fa350c015122ddf2460cda982298" kindref="member">syn_timer_is_active</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__Timer" kindref="compound">SYN_Timer</ref><sp/>*timer)</highlight></codeline>
+<codeline lineno="142"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="143"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>timer-&gt;<ref refid="structSYN__Timer_1a998e55d8dcc63d52b6390aa98353e4c7" kindref="member">active</ref>;</highlight></codeline>
+<codeline lineno="144"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="145"><highlight class="normal"></highlight></codeline>
+<codeline lineno="152"><highlight class="normal">uint32_t<sp/><ref refid="syn__timer_8h_1a8784f3c5c5ec56a2d3c3f64fcd9f3c40" kindref="member">syn_timer_remaining</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__Timer" kindref="compound">SYN_Timer</ref><sp/>*timer);</highlight></codeline>
+<codeline lineno="153"><highlight class="normal"></highlight></codeline>
+<codeline lineno="166"><highlight class="normal">uint32_t<sp/><ref refid="syn__timer_8h_1a754b70264f3e26c778e64d54ff64eda2" kindref="member">syn_timer_next_expiry</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__Timer" kindref="compound">SYN_Timer</ref><sp/>*timers,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>count);</highlight></codeline>
+<codeline lineno="167"><highlight class="normal"></highlight></codeline>
+<codeline lineno="168"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="169"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="170"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="171"><highlight class="normal"></highlight></codeline>
+<codeline lineno="172"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_TIMER_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/sched/syn_timer.h"/>
+  </compounddef>
+</doxygen>

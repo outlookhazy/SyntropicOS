@@ -1,0 +1,1009 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__j1939_8h" kind="file" language="C++">
+    <compoundname>syn_j1939.h</compoundname>
+    <includes refid="syn__defs_8h" local="yes">../common/syn_defs.h</includes>
+    <includes refid="syn__can_8h" local="yes">../drivers/syn_can.h</includes>
+    <includes local="no">stdint.h</includes>
+    <includes local="no">stddef.h</includes>
+    <includes local="no">stdbool.h</includes>
+    <includedby refid="syn__j1939_8c" local="yes">src/syntropic/proto/syn_j1939.c</includedby>
+    <includedby refid="syn__n2k_8h" local="yes">src/syntropic/proto/syn_n2k.h</includedby>
+    <includedby refid="syntropic_8h" local="yes">src/syntropic/syntropic.h</includedby>
+    <incdepgraph>
+      <node id="2">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>../drivers/syn_can.h</label>
+        <link refid="syn__can_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>../port/syn_port_can.h</label>
+        <link refid="syn__port__can_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/proto/syn_j1939.h</label>
+        <link refid="syn__j1939_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>stdbool.h</label>
+      </node>
+      <node id="4">
+        <label>stddef.h</label>
+      </node>
+      <node id="3">
+        <label>stdint.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="2">
+        <label>src/syntropic/proto/syn_j1939.c</label>
+        <link refid="syn__j1939_8c"/>
+      </node>
+      <node id="1">
+        <label>src/syntropic/proto/syn_j1939.h</label>
+        <link refid="syn__j1939_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>src/syntropic/proto/syn_n2k.c</label>
+        <link refid="syn__n2k_8c"/>
+      </node>
+      <node id="3">
+        <label>src/syntropic/proto/syn_n2k.h</label>
+        <link refid="syn__n2k_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>src/syntropic/syntropic.h</label>
+        <link refid="syntropic_8h"/>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="structSYN__J1939__Header" prot="public">SYN_J1939_Header</innerclass>
+    <innerclass refid="structSYN__J1939__Name" prot="public">SYN_J1939_Name</innerclass>
+    <innerclass refid="structSYN__J1939__DTC" prot="public">SYN_J1939_DTC</innerclass>
+    <innerclass refid="structSYN__J1939__TpRxSession" prot="public">SYN_J1939_TpRxSession</innerclass>
+    <innerclass refid="structSYN__J1939__Node" prot="public">SYN_J1939_Node</innerclass>
+    <sectiondef kind="define">
+      <member refid="group__j1939__addresses_1ga9f29cc12048817503baa24b0a893f24b" kind="define"><name>SYN_J1939_ADDR_GLOBAL</name></member>
+      <member refid="group__j1939__addresses_1ga52bde46cf3908b3b22dbfa328f13f762" kind="define"><name>SYN_J1939_ADDR_NULL</name></member>
+      <member refid="group__j1939__pgns_1ga305b9ec5d0639a3aff7a0726522166b0" kind="define"><name>SYN_J1939_PGN_REQUEST</name></member>
+      <member refid="group__j1939__pgns_1gacc9e75b0adb6e7ccdfa88294aef2fa9d" kind="define"><name>SYN_J1939_PGN_TP_DT</name></member>
+      <member refid="group__j1939__pgns_1ga108f43fb0d9bef9b5e5e725fab87adde" kind="define"><name>SYN_J1939_PGN_TP_CM</name></member>
+      <member refid="group__j1939__pgns_1gad15b8080d64766f1cf0c19ee0032a611" kind="define"><name>SYN_J1939_PGN_ADDR_CLAIM</name></member>
+      <member refid="group__j1939__pgns_1ga3a6cb176607d2cc58d2d1640184223a8" kind="define"><name>SYN_J1939_PGN_PROPRIETARY_A</name></member>
+      <member refid="group__j1939__pgns_1ga6b915a33ae5db5dc60f3c6ccc8eaf696" kind="define"><name>SYN_J1939_PGN_EEC1</name></member>
+      <member refid="group__j1939__pgns_1ga2241796d06c9bb344d4c503ed1d42366" kind="define"><name>SYN_J1939_PGN_DM1</name></member>
+      <member refid="group__j1939__pgns_1gaed7e2fe3f1d2483e1286da8999e94fdc" kind="define"><name>SYN_J1939_PGN_BMS</name></member>
+      <member refid="group__j1939__pgns_1ga4fcd417103b8dfc2861d6967e905217d" kind="define"><name>SYN_J1939_PGN_ET1</name></member>
+      <member refid="group__j1939__pgns_1ga607f3891c7de9867e72a4f1b15a76ad5" kind="define"><name>SYN_J1939_PGN_PROPRIETARY_B</name></member>
+      <member refid="group__j1939__tp__control_1gad8a10c145eb00329aa0b148ceceb3300" kind="define"><name>SYN_J1939_TP_CTRL_RTS</name></member>
+      <member refid="group__j1939__tp__control_1gac5b8fecbc0e1c21af2e8f656cf5ce8d1" kind="define"><name>SYN_J1939_TP_CTRL_CTS</name></member>
+      <member refid="group__j1939__tp__control_1ga77866f043134b40751dcff63d862d483" kind="define"><name>SYN_J1939_TP_CTRL_ACK</name></member>
+      <member refid="group__j1939__tp__control_1ga45cf6e7c2464a05200c95ba35e7afc57" kind="define"><name>SYN_J1939_TP_CTRL_BAM</name></member>
+      <member refid="group__j1939__tp__control_1gaf2d58c3eed0ff64be50be29f956c2aa9" kind="define"><name>SYN_J1939_TP_CTRL_ABORT</name></member>
+    </sectiondef>
+    <sectiondef kind="enum">
+      <memberdef kind="enum" id="syn__j1939_8h_1ab90bf33cca2d0a57f26e93594ef7ca73" prot="public" static="no" strong="no">
+        <type></type>
+        <name>SYN_J1939_AddressState</name>
+        <enumvalue id="syn__j1939_8h_1ab90bf33cca2d0a57f26e93594ef7ca73a75a8f646d2b04a9abebbe0d107f19d33" prot="public">
+          <name>SYN_J1939_STATE_UNCLAIMED</name>
+          <initializer>= 0</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__j1939_8h_1ab90bf33cca2d0a57f26e93594ef7ca73afe2e62157c035b0075c6b4a6236c0f4d" prot="public">
+          <name>SYN_J1939_STATE_CLAIMING</name>
+          <initializer>= 1</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__j1939_8h_1ab90bf33cca2d0a57f26e93594ef7ca73a0ec38e61e5efcad16e33a3d92222bbaa" prot="public">
+          <name>SYN_J1939_STATE_CLAIMED</name>
+          <initializer>= 2</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__j1939_8h_1ab90bf33cca2d0a57f26e93594ef7ca73abaa196fc7014a6b7e79533db2de1a131" prot="public">
+          <name>SYN_J1939_STATE_CANNOT_CLAIM</name>
+          <initializer>= 3</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>J1939 Address Claiming States. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_j1939.h" line="93" column="1" bodyfile="src/syntropic/proto/syn_j1939.h" bodystart="93" bodyend="98"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__j1939_8h_1a42cc74674fd684d52c7e07517b399d74" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>uint32_t syn_j1939_id_pack</definition>
+        <argsstring>(uint8_t priority, uint32_t pgn, uint8_t sa, uint8_t da)</argsstring>
+        <name>syn_j1939_id_pack</name>
+        <param>
+          <type>uint8_t</type>
+          <declname>priority</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>pgn</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>sa</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>da</declname>
+        </param>
+        <briefdescription>
+<para>Pack J1939 bitfields into a 29-bit CAN Identifier. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>priority</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Priority (0-7, typically 6). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>pgn</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Parameter Group Number (18-bit). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>sa</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Source Address (0-255). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>da</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Destination Address (used if PGN is PDU1 format). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>29-bit CAN ID. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_j1939.h" line="134" column="10" bodyfile="src/syntropic/proto/syn_j1939.c" bodystart="19" bodyend="37" declfile="src/syntropic/proto/syn_j1939.h" declline="134" declcolumn="10"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__j1939_8h_1a8fc81171ee95746286f9ed99b8a420b9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_j1939_id_unpack</definition>
+        <argsstring>(uint32_t can_id, SYN_J1939_Header *header)</argsstring>
+        <name>syn_j1939_id_unpack</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>can_id</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__J1939__Header" kindref="compound">SYN_J1939_Header</ref> *</type>
+          <declname>header</declname>
+        </param>
+        <briefdescription>
+<para>Unpack a 29-bit CAN Identifier into a J1939 Header structure. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>can_id</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>29-bit Extended CAN Identifier. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>header</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output structure receiving parsed fields. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, or SYN_INVALID_PARAM if header is NULL. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_j1939.h" line="142" column="12" bodyfile="src/syntropic/proto/syn_j1939.c" bodystart="39" bodyend="59" declfile="src/syntropic/proto/syn_j1939.h" declline="142" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__j1939_8h_1af9723dde40b0b5ba2863662dd8f35fb0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>uint32_t syn_j1939_calc_pgn</definition>
+        <argsstring>(uint8_t dp, uint8_t pf, uint8_t ps)</argsstring>
+        <name>syn_j1939_calc_pgn</name>
+        <param>
+          <type>uint8_t</type>
+          <declname>dp</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>pf</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>ps</declname>
+        </param>
+        <briefdescription>
+<para>Compute 24-bit Parameter Group Number from Data Page, PF, and PS. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>dp</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Data Page (0 or 1). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>pf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>PDU Format (0-255). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>ps</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>PDU Specific (0-255). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>24-bit PGN value. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_j1939.h" line="151" column="10" bodyfile="src/syntropic/proto/syn_j1939.c" bodystart="11" bodyend="17" declfile="src/syntropic/proto/syn_j1939.h" declline="151" declcolumn="10"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__j1939_8h_1a426aee87dd3a6e15a6ffc884a964dcc6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_j1939_name_encode</definition>
+        <argsstring>(const SYN_J1939_Name *name, uint8_t buf[8])</argsstring>
+        <name>syn_j1939_name_encode</name>
+        <param>
+          <type>const <ref refid="structSYN__J1939__Name" kindref="compound">SYN_J1939_Name</ref> *</type>
+          <declname>name</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>buf</declname>
+          <array>[8]</array>
+        </param>
+        <briefdescription>
+<para>Encode a 64-bit J1939 NAME into an 8-byte buffer. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>name</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Source NAME structure. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output 8-byte buffer. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_j1939.h" line="158" column="6" bodyfile="src/syntropic/proto/syn_j1939.c" bodystart="61" bodyend="79" declfile="src/syntropic/proto/syn_j1939.h" declline="158" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__j1939_8h_1a2f17f295a7038af9bde2a2f960197524" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_j1939_name_decode</definition>
+        <argsstring>(const uint8_t buf[8], SYN_J1939_Name *name)</argsstring>
+        <name>syn_j1939_name_decode</name>
+        <param>
+          <type>const uint8_t</type>
+          <declname>buf</declname>
+          <array>[8]</array>
+        </param>
+        <param>
+          <type><ref refid="structSYN__J1939__Name" kindref="compound">SYN_J1939_Name</ref> *</type>
+          <declname>name</declname>
+        </param>
+        <briefdescription>
+<para>Decode an 8-byte buffer into a 64-bit J1939 NAME structure. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Source 8-byte buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>name</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output NAME structure. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_j1939.h" line="165" column="6" bodyfile="src/syntropic/proto/syn_j1939.c" bodystart="81" bodyend="98" declfile="src/syntropic/proto/syn_j1939.h" declline="165" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__j1939_8h_1a9ce709698d762e23aba2ae884d30a273" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_j1939_node_init</definition>
+        <argsstring>(SYN_J1939_Node *node, uint8_t sa, const SYN_J1939_Name *name)</argsstring>
+        <name>syn_j1939_node_init</name>
+        <param>
+          <type><ref refid="structSYN__J1939__Node" kindref="compound">SYN_J1939_Node</ref> *</type>
+          <declname>node</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>sa</declname>
+        </param>
+        <param>
+          <type>const <ref refid="structSYN__J1939__Name" kindref="compound">SYN_J1939_Name</ref> *</type>
+          <declname>name</declname>
+        </param>
+        <briefdescription>
+<para>Initialize a J1939 Node instance. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>node</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to node instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>sa</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Preferred Source Address (0-253). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>name</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Device 64-bit NAME configuration. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_j1939.h" line="174" column="12" bodyfile="src/syntropic/proto/syn_j1939.c" bodystart="100" bodyend="112" declfile="src/syntropic/proto/syn_j1939.h" declline="174" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__j1939_8h_1a3b9c6c335dc91674db27d2c0c3a2f217" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_j1939_build_address_claim</definition>
+        <argsstring>(const SYN_J1939_Node *node, SYN_CAN_Frame *frame)</argsstring>
+        <name>syn_j1939_build_address_claim</name>
+        <param>
+          <type>const <ref refid="structSYN__J1939__Node" kindref="compound">SYN_J1939_Node</ref> *</type>
+          <declname>node</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__CAN__Frame" kindref="compound">SYN_CAN_Frame</ref> *</type>
+          <declname>frame</declname>
+        </param>
+        <briefdescription>
+<para>Build an Address Claim CAN frame for the node. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>node</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to J1939 node instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>frame</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output CAN frame. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_j1939.h" line="182" column="12" bodyfile="src/syntropic/proto/syn_j1939.c" bodystart="114" bodyend="124" declfile="src/syntropic/proto/syn_j1939.h" declline="182" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__j1939_8h_1aab565db35b68856a5edf0e964f372acb" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_j1939_build_request</definition>
+        <argsstring>(uint8_t sa, uint8_t da, uint32_t requested_pgn, SYN_CAN_Frame *frame)</argsstring>
+        <name>syn_j1939_build_request</name>
+        <param>
+          <type>uint8_t</type>
+          <declname>sa</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>da</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>requested_pgn</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__CAN__Frame" kindref="compound">SYN_CAN_Frame</ref> *</type>
+          <declname>frame</declname>
+        </param>
+        <briefdescription>
+<para>Build a Request PGN CAN frame (PGN 59904). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>sa</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Source address sending request. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>da</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Destination address requested (0xFF for broadcast). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>requested_pgn</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>PGN being requested. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>frame</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output CAN frame. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_j1939.h" line="192" column="12" bodyfile="src/syntropic/proto/syn_j1939.c" bodystart="126" bodyend="139" declfile="src/syntropic/proto/syn_j1939.h" declline="192" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__j1939_8h_1a41b89747121083f2b2b83e3123e16c3f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_j1939_build_tp_bam</definition>
+        <argsstring>(uint8_t sa, uint32_t pgn, uint16_t total_bytes, SYN_CAN_Frame *frame)</argsstring>
+        <name>syn_j1939_build_tp_bam</name>
+        <param>
+          <type>uint8_t</type>
+          <declname>sa</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>pgn</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>total_bytes</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__CAN__Frame" kindref="compound">SYN_CAN_Frame</ref> *</type>
+          <declname>frame</declname>
+        </param>
+        <briefdescription>
+<para>Build a Transport Protocol Broadcast Announce Message (TP.CM_BAM). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>sa</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Source address. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>pgn</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>PGN of payload. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>total_bytes</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Total payload length in bytes (9 to 1785). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>frame</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output CAN frame. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_j1939.h" line="202" column="12" bodyfile="src/syntropic/proto/syn_j1939.c" bodystart="141" bodyend="161" declfile="src/syntropic/proto/syn_j1939.h" declline="202" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__j1939_8h_1a244afaed9940eb6230374f42a4c413dd" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_j1939_build_tp_dt</definition>
+        <argsstring>(uint8_t sa, uint8_t sequence, const uint8_t *payload, size_t payload_len, SYN_CAN_Frame *frame)</argsstring>
+        <name>syn_j1939_build_tp_dt</name>
+        <param>
+          <type>uint8_t</type>
+          <declname>sa</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>sequence</declname>
+        </param>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>payload</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>payload_len</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__CAN__Frame" kindref="compound">SYN_CAN_Frame</ref> *</type>
+          <declname>frame</declname>
+        </param>
+        <briefdescription>
+<para>Build a Transport Protocol Data Transfer packet (TP.DT). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>sa</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Source address. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>sequence</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Packet sequence number (1 to 255). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>payload</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to payload chunk (up to 7 bytes). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>payload_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Length of chunk (1 to 7 bytes). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>frame</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output CAN frame. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_j1939.h" line="213" column="12" bodyfile="src/syntropic/proto/syn_j1939.c" bodystart="163" bodyend="178" declfile="src/syntropic/proto/syn_j1939.h" declline="213" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__j1939_8h_1a0b2fbf9308461e2d849bf8ae7583ee09" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>size_t</type>
+        <definition>size_t syn_j1939_encode_dm1</definition>
+        <argsstring>(uint8_t *buf, size_t buf_size, const SYN_J1939_DTC *dtc_list, size_t dtc_count, uint8_t mil_lamp_status)</argsstring>
+        <name>syn_j1939_encode_dm1</name>
+        <param>
+          <type>uint8_t *</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>buf_size</declname>
+        </param>
+        <param>
+          <type>const <ref refid="structSYN__J1939__DTC" kindref="compound">SYN_J1939_DTC</ref> *</type>
+          <declname>dtc_list</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>dtc_count</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>mil_lamp_status</declname>
+        </param>
+        <briefdescription>
+<para>Encode Active Diagnostic Trouble Codes into a DM1 buffer (PGN 65226). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>buf_size</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Buffer capacity. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dtc_list</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Array of DTC structures. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dtc_count</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of DTCs in list. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>mil_lamp_status</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>2-bit MIL status. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Total bytes written to buffer. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_j1939.h" line="224" column="8" bodyfile="src/syntropic/proto/syn_j1939.c" bodystart="180" bodyend="213" declfile="src/syntropic/proto/syn_j1939.h" declline="224" declcolumn="8"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__j1939_8h_1ac2fab797f1e775f646d3b7698246c999" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_j1939_process_frame</definition>
+        <argsstring>(SYN_J1939_Node *node, const SYN_CAN_Frame *frame, uint32_t *out_pgn, const uint8_t **out_data, size_t *out_len)</argsstring>
+        <name>syn_j1939_process_frame</name>
+        <param>
+          <type><ref refid="structSYN__J1939__Node" kindref="compound">SYN_J1939_Node</ref> *</type>
+          <declname>node</declname>
+        </param>
+        <param>
+          <type>const <ref refid="structSYN__CAN__Frame" kindref="compound">SYN_CAN_Frame</ref> *</type>
+          <declname>frame</declname>
+        </param>
+        <param>
+          <type>uint32_t *</type>
+          <declname>out_pgn</declname>
+        </param>
+        <param>
+          <type>const uint8_t **</type>
+          <declname>out_data</declname>
+        </param>
+        <param>
+          <type>size_t *</type>
+          <declname>out_len</declname>
+        </param>
+        <briefdescription>
+<para>Process an incoming CAN frame in the J1939 node state machine. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>node</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to node. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>frame</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Incoming CAN frame. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out_pgn</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output received PGN. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out_data</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to receiving reassembled or single-frame payload. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output payload length. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK if a complete J1939 message is ready, or SYN_BUSY if multi-packet assembly is in progress. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_j1939.h" line="235" column="12" bodyfile="src/syntropic/proto/syn_j1939.c" bodystart="215" bodyend="285" declfile="src/syntropic/proto/syn_j1939.h" declline="235" declcolumn="12"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>SAE J1939 Heavy-Duty Vehicle CAN Protocol Stack. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Implements J1939 29-bit CAN ID parsing/packing, PGN definitions, Transport Protocol (TP.CM BAM &amp; RTS/CTS), Address Claiming (J1939-81), and Active Diagnostic Trouble Codes (DM1 J1939-73). </para>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_J1939_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_J1939_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../common/syn_defs.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../drivers/syn_can.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stddef.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight></codeline>
+<codeline lineno="26" refid="group__j1939__addresses_1ga9f29cc12048817503baa24b0a893f24b" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_J1939_ADDR_GLOBAL<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>0xFFU<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="27" refid="group__j1939__addresses_1ga52bde46cf3908b3b22dbfa328f13f762" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_J1939_ADDR_NULL<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>0xFEU<sp/></highlight></codeline>
+<codeline lineno="32" refid="group__j1939__pgns_1ga305b9ec5d0639a3aff7a0726522166b0" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_J1939_PGN_REQUEST<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>59904U<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33" refid="group__j1939__pgns_1gacc9e75b0adb6e7ccdfa88294aef2fa9d" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_J1939_PGN_TP_DT<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>60160U<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="34" refid="group__j1939__pgns_1ga108f43fb0d9bef9b5e5e725fab87adde" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_J1939_PGN_TP_CM<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>60416U<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35" refid="group__j1939__pgns_1gad15b8080d64766f1cf0c19ee0032a611" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_J1939_PGN_ADDR_CLAIM<sp/><sp/><sp/><sp/><sp/>60928U<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="36" refid="group__j1939__pgns_1ga3a6cb176607d2cc58d2d1640184223a8" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_J1939_PGN_PROPRIETARY_A<sp/><sp/>61184U<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37" refid="group__j1939__pgns_1ga6b915a33ae5db5dc60f3c6ccc8eaf696" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_J1939_PGN_EEC1<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>61444U<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="38" refid="group__j1939__pgns_1ga2241796d06c9bb344d4c503ed1d42366" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_J1939_PGN_DM1<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>65226U<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="39" refid="group__j1939__pgns_1gaed7e2fe3f1d2483e1286da8999e94fdc" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_J1939_PGN_BMS<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>65251U<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="40" refid="group__j1939__pgns_1ga4fcd417103b8dfc2861d6967e905217d" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_J1939_PGN_ET1<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>65262U<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="41" refid="group__j1939__pgns_1ga607f3891c7de9867e72a4f1b15a76ad5" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_J1939_PGN_PROPRIETARY_B<sp/><sp/>65280U<sp/></highlight></codeline>
+<codeline lineno="46" refid="group__j1939__tp__control_1gad8a10c145eb00329aa0b148ceceb3300" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_J1939_TP_CTRL_RTS<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>16U<sp/><sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="47" refid="group__j1939__tp__control_1gac5b8fecbc0e1c21af2e8f656cf5ce8d1" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_J1939_TP_CTRL_CTS<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>17U<sp/><sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="48" refid="group__j1939__tp__control_1ga77866f043134b40751dcff63d862d483" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_J1939_TP_CTRL_ACK<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>19U<sp/><sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="49" refid="group__j1939__tp__control_1ga45cf6e7c2464a05200c95ba35e7afc57" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_J1939_TP_CTRL_BAM<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>32U<sp/><sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="50" refid="group__j1939__tp__control_1gaf2d58c3eed0ff64be50be29f956c2aa9" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_J1939_TP_CTRL_ABORT<sp/><sp/><sp/><sp/><sp/><sp/>255U<sp/></highlight></codeline>
+<codeline lineno="56" refid="structSYN__J1939__Header" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="57" refid="structSYN__J1939__Header_1aa5096a4897ac046252681550158e23f1" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/><ref refid="structSYN__J1939__Header_1aa5096a4897ac046252681550158e23f1" kindref="member">priority</ref>;<sp/></highlight></codeline>
+<codeline lineno="58" refid="structSYN__J1939__Header_1a7f0640692f58172d465f09e2056d8f6b" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/><ref refid="structSYN__J1939__Header_1a7f0640692f58172d465f09e2056d8f6b" kindref="member">dp</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="59" refid="structSYN__J1939__Header_1adebe1bea24366239e3b94a0808ae051b" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/><ref refid="structSYN__J1939__Header_1adebe1bea24366239e3b94a0808ae051b" kindref="member">pf</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="60" refid="structSYN__J1939__Header_1a8288d6afcf5bb0f95aea68c5d1f0a69d" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/><ref refid="structSYN__J1939__Header_1a8288d6afcf5bb0f95aea68c5d1f0a69d" kindref="member">ps</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="61" refid="structSYN__J1939__Header_1a3bf51c7006dd209120d7794c78b4de7f" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/><ref refid="structSYN__J1939__Header_1a3bf51c7006dd209120d7794c78b4de7f" kindref="member">sa</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="62" refid="structSYN__J1939__Header_1ad311a783dbc9595312593930b3b72b44" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/><ref refid="structSYN__J1939__Header_1ad311a783dbc9595312593930b3b72b44" kindref="member">da</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="63" refid="structSYN__J1939__Header_1a138b1f1481e16f511d47c708f4452d18" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structSYN__J1939__Header_1a138b1f1481e16f511d47c708f4452d18" kindref="member">pgn</ref>;<sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="64" refid="structSYN__J1939__Header_1aaa7980a85b8b3fce905ca09e61069e46" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__J1939__Header_1aaa7980a85b8b3fce905ca09e61069e46" kindref="member">is_pdu1</ref>;<sp/><sp/></highlight></codeline>
+<codeline lineno="65"><highlight class="normal">}<sp/><ref refid="structSYN__J1939__Header" kindref="compound">SYN_J1939_Header</ref>;</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"></highlight></codeline>
+<codeline lineno="70" refid="structSYN__J1939__Name" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="71" refid="structSYN__J1939__Name_1ac6689317ec36b46be796f93e97484ad6" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structSYN__J1939__Name_1ac6689317ec36b46be796f93e97484ad6" kindref="member">identity_number</ref>;<sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="72" refid="structSYN__J1939__Name_1ae0f9048af918379149bffd83fc887f91" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/><ref refid="structSYN__J1939__Name_1ae0f9048af918379149bffd83fc887f91" kindref="member">manufacturer_code</ref>;<sp/></highlight></codeline>
+<codeline lineno="73" refid="structSYN__J1939__Name_1aa3c970cf451b839688ae04911ccfcaf1" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/><ref refid="structSYN__J1939__Name_1aa3c970cf451b839688ae04911ccfcaf1" kindref="member">ecu_instance</ref>;<sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="74" refid="structSYN__J1939__Name_1aba76d1c849f46bd3de5209f07913d17f" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/><ref refid="structSYN__J1939__Name_1aba76d1c849f46bd3de5209f07913d17f" kindref="member">function_instance</ref>;<sp/></highlight></codeline>
+<codeline lineno="75" refid="structSYN__J1939__Name_1a8719013181d7a3f69c883a9d9215b158" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/><ref refid="structSYN__J1939__Name_1a8719013181d7a3f69c883a9d9215b158" kindref="member">function</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="76" refid="structSYN__J1939__Name_1a58f4f6d28d0f9b65d5c814169b49a040" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/><ref refid="structSYN__J1939__Name_1a58f4f6d28d0f9b65d5c814169b49a040" kindref="member">vehicle_system</ref>;<sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="77" refid="structSYN__J1939__Name_1a8b4785660a28c170487856ede73437fd" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/><ref refid="structSYN__J1939__Name_1a8b4785660a28c170487856ede73437fd" kindref="member">vehicle_system_inst</ref>;</highlight></codeline>
+<codeline lineno="78" refid="structSYN__J1939__Name_1a6f43bc2b19f4bb4a1fee3cea9c6eb488" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/><ref refid="structSYN__J1939__Name_1a6f43bc2b19f4bb4a1fee3cea9c6eb488" kindref="member">industry_group</ref>;<sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="79" refid="structSYN__J1939__Name_1a74f5faa2abf6a7bdd148868e3e28a226" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__J1939__Name_1a74f5faa2abf6a7bdd148868e3e28a226" kindref="member">arbitrary_addr_cap</ref>;</highlight></codeline>
+<codeline lineno="80"><highlight class="normal">}<sp/><ref refid="structSYN__J1939__Name" kindref="compound">SYN_J1939_Name</ref>;</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"></highlight></codeline>
+<codeline lineno="85" refid="structSYN__J1939__DTC" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="86" refid="structSYN__J1939__DTC_1ad9db57bc8bdba1cddd7a3cddd59c7706" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structSYN__J1939__DTC_1ad9db57bc8bdba1cddd7a3cddd59c7706" kindref="member">spn</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="87" refid="structSYN__J1939__DTC_1a10066b141a17862e512ed9ed0da9b585" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/><ref refid="structSYN__J1939__DTC_1a10066b141a17862e512ed9ed0da9b585" kindref="member">fmi</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="88" refid="structSYN__J1939__DTC_1a788b726a0cb981a7f293c47509fc5e9c" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/><ref refid="structSYN__J1939__DTC_1a788b726a0cb981a7f293c47509fc5e9c" kindref="member">occurrence_count</ref>;<sp/></highlight></codeline>
+<codeline lineno="89" refid="structSYN__J1939__DTC_1a0caa9132752b8e592fddf6e0ad6e8bed" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/><ref refid="structSYN__J1939__DTC_1a0caa9132752b8e592fddf6e0ad6e8bed" kindref="member">conversion_method</ref>;</highlight></codeline>
+<codeline lineno="90"><highlight class="normal">}<sp/><ref refid="structSYN__J1939__DTC" kindref="compound">SYN_J1939_DTC</ref>;</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"></highlight></codeline>
+<codeline lineno="93" refid="syn__j1939_8h_1ab90bf33cca2d0a57f26e93594ef7ca73" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><sp/><sp/><sp/><sp/>SYN_J1939_STATE_UNCLAIMED<sp/>=<sp/>0,</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/>SYN_J1939_STATE_CLAIMING<sp/><sp/>=<sp/>1,</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/><sp/><sp/>SYN_J1939_STATE_CLAIMED<sp/><sp/><sp/>=<sp/>2,</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><sp/><sp/><sp/><sp/>SYN_J1939_STATE_CANNOT_CLAIM<sp/>=<sp/>3</highlight></codeline>
+<codeline lineno="98"><highlight class="normal">}<sp/><ref refid="syn__j1939_8h_1ab90bf33cca2d0a57f26e93594ef7ca73" kindref="member">SYN_J1939_AddressState</ref>;</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"></highlight></codeline>
+<codeline lineno="103" refid="structSYN__J1939__TpRxSession" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="104" refid="structSYN__J1939__TpRxSession_1a2ad36ecc5146f465631049892ac80113" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__J1939__TpRxSession_1a2ad36ecc5146f465631049892ac80113" kindref="member">active</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="105" refid="structSYN__J1939__TpRxSession_1a252507f00678649a7b3c837557ea79e7" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__J1939__TpRxSession_1a252507f00678649a7b3c837557ea79e7" kindref="member">is_bam</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="106" refid="structSYN__J1939__TpRxSession_1aa9321f09e4536b18329ce676c5129940" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/><ref refid="structSYN__J1939__TpRxSession_1aa9321f09e4536b18329ce676c5129940" kindref="member">sa</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="107" refid="structSYN__J1939__TpRxSession_1a80554274cd090f7b1017100b50adb79f" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/><ref refid="structSYN__J1939__TpRxSession_1a80554274cd090f7b1017100b50adb79f" kindref="member">da</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="108" refid="structSYN__J1939__TpRxSession_1a99ff6921d3b1c4edc6730cb741a287dc" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structSYN__J1939__TpRxSession_1a99ff6921d3b1c4edc6730cb741a287dc" kindref="member">pgn</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="109" refid="structSYN__J1939__TpRxSession_1acfef19451fc544de4df691c531add0a2" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/><ref refid="structSYN__J1939__TpRxSession_1acfef19451fc544de4df691c531add0a2" kindref="member">total_bytes</ref>;<sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="110" refid="structSYN__J1939__TpRxSession_1a3d0a57fd12a551948e37acddcf6448c4" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/><ref refid="structSYN__J1939__TpRxSession_1a3d0a57fd12a551948e37acddcf6448c4" kindref="member">total_packets</ref>;<sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="111" refid="structSYN__J1939__TpRxSession_1a8347f4c6fa6e0f6ffadfee42234f7199" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/><ref refid="structSYN__J1939__TpRxSession_1a8347f4c6fa6e0f6ffadfee42234f7199" kindref="member">next_seq</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="112" refid="structSYN__J1939__TpRxSession_1ae36dec3de259c2b2c2872b4691003f63" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/><ref refid="structSYN__J1939__TpRxSession_1ae36dec3de259c2b2c2872b4691003f63" kindref="member">received_packets</ref>;<sp/></highlight></codeline>
+<codeline lineno="113" refid="structSYN__J1939__TpRxSession_1af7b25fc716610270f246ba047fa7341b" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/>data[1785];<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="114"><highlight class="normal">}<sp/><ref refid="structSYN__J1939__TpRxSession" kindref="compound">SYN_J1939_TpRxSession</ref>;</highlight></codeline>
+<codeline lineno="115"><highlight class="normal"></highlight></codeline>
+<codeline lineno="119" refid="structSYN__J1939__Node" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="120" refid="structSYN__J1939__Node_1a15433ecb20d2eec5ff1525099096f9de" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__J1939__Node_1a15433ecb20d2eec5ff1525099096f9de" kindref="member">sa</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="121" refid="structSYN__J1939__Node_1a2be17c50ad6ec660e007f6145e93ea86" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structSYN__J1939__Name" kindref="compound">SYN_J1939_Name</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__J1939__Node_1a2be17c50ad6ec660e007f6145e93ea86" kindref="member">name</ref>;<sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="122" refid="structSYN__J1939__Node_1a6e52025f75c6a65804c9c6b462c5ab74" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__j1939_8h_1ab90bf33cca2d0a57f26e93594ef7ca73" kindref="member">SYN_J1939_AddressState</ref><sp/><ref refid="structSYN__J1939__Node_1a6e52025f75c6a65804c9c6b462c5ab74" kindref="member">state</ref>;<sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="123" refid="structSYN__J1939__Node_1a1be35b70e5e034a29b0a38fa18d52dd4" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structSYN__J1939__TpRxSession" kindref="compound">SYN_J1939_TpRxSession</ref><sp/><ref refid="structSYN__J1939__Node_1a1be35b70e5e034a29b0a38fa18d52dd4" kindref="member">tp_rx</ref>;<sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="124"><highlight class="normal">}<sp/><ref refid="structSYN__J1939__Node" kindref="compound">SYN_J1939_Node</ref>;</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"></highlight></codeline>
+<codeline lineno="134"><highlight class="normal">uint32_t<sp/><ref refid="syn__j1939_8h_1a42cc74674fd684d52c7e07517b399d74" kindref="member">syn_j1939_id_pack</ref>(uint8_t<sp/>priority,<sp/>uint32_t<sp/>pgn,<sp/>uint8_t<sp/>sa,<sp/>uint8_t<sp/>da);</highlight></codeline>
+<codeline lineno="135"><highlight class="normal"></highlight></codeline>
+<codeline lineno="142"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__j1939_8h_1a8fc81171ee95746286f9ed99b8a420b9" kindref="member">syn_j1939_id_unpack</ref>(uint32_t<sp/>can_id,<sp/><ref refid="structSYN__J1939__Header" kindref="compound">SYN_J1939_Header</ref><sp/>*header);</highlight></codeline>
+<codeline lineno="143"><highlight class="normal"></highlight></codeline>
+<codeline lineno="151"><highlight class="normal">uint32_t<sp/><ref refid="syn__j1939_8h_1af9723dde40b0b5ba2863662dd8f35fb0" kindref="member">syn_j1939_calc_pgn</ref>(uint8_t<sp/>dp,<sp/>uint8_t<sp/>pf,<sp/>uint8_t<sp/>ps);</highlight></codeline>
+<codeline lineno="152"><highlight class="normal"></highlight></codeline>
+<codeline lineno="158"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__j1939_8h_1a426aee87dd3a6e15a6ffc884a964dcc6" kindref="member">syn_j1939_name_encode</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__J1939__Name" kindref="compound">SYN_J1939_Name</ref><sp/>*name,<sp/>uint8_t<sp/>buf[8]);</highlight></codeline>
+<codeline lineno="159"><highlight class="normal"></highlight></codeline>
+<codeline lineno="165"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__j1939_8h_1a2f17f295a7038af9bde2a2f960197524" kindref="member">syn_j1939_name_decode</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>buf[8],<sp/><ref refid="structSYN__J1939__Name" kindref="compound">SYN_J1939_Name</ref><sp/>*name);</highlight></codeline>
+<codeline lineno="166"><highlight class="normal"></highlight></codeline>
+<codeline lineno="174"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__j1939_8h_1a9ce709698d762e23aba2ae884d30a273" kindref="member">syn_j1939_node_init</ref>(<ref refid="structSYN__J1939__Node" kindref="compound">SYN_J1939_Node</ref><sp/>*node,<sp/>uint8_t<sp/>sa,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__J1939__Name" kindref="compound">SYN_J1939_Name</ref><sp/>*name);</highlight></codeline>
+<codeline lineno="175"><highlight class="normal"></highlight></codeline>
+<codeline lineno="182"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__j1939_8h_1a3b9c6c335dc91674db27d2c0c3a2f217" kindref="member">syn_j1939_build_address_claim</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__J1939__Node" kindref="compound">SYN_J1939_Node</ref><sp/>*node,<sp/><ref refid="structSYN__CAN__Frame" kindref="compound">SYN_CAN_Frame</ref><sp/>*frame);</highlight></codeline>
+<codeline lineno="183"><highlight class="normal"></highlight></codeline>
+<codeline lineno="192"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__j1939_8h_1aab565db35b68856a5edf0e964f372acb" kindref="member">syn_j1939_build_request</ref>(uint8_t<sp/>sa,<sp/>uint8_t<sp/>da,<sp/>uint32_t<sp/>requested_pgn,<sp/><ref refid="structSYN__CAN__Frame" kindref="compound">SYN_CAN_Frame</ref><sp/>*frame);</highlight></codeline>
+<codeline lineno="193"><highlight class="normal"></highlight></codeline>
+<codeline lineno="202"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__j1939_8h_1a41b89747121083f2b2b83e3123e16c3f" kindref="member">syn_j1939_build_tp_bam</ref>(uint8_t<sp/>sa,<sp/>uint32_t<sp/>pgn,<sp/>uint16_t<sp/>total_bytes,<sp/><ref refid="structSYN__CAN__Frame" kindref="compound">SYN_CAN_Frame</ref><sp/>*frame);</highlight></codeline>
+<codeline lineno="203"><highlight class="normal"></highlight></codeline>
+<codeline lineno="213"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__j1939_8h_1a244afaed9940eb6230374f42a4c413dd" kindref="member">syn_j1939_build_tp_dt</ref>(uint8_t<sp/>sa,<sp/>uint8_t<sp/>sequence,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*payload,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>payload_len,<sp/><ref refid="structSYN__CAN__Frame" kindref="compound">SYN_CAN_Frame</ref><sp/>*frame);</highlight></codeline>
+<codeline lineno="214"><highlight class="normal"></highlight></codeline>
+<codeline lineno="224"><highlight class="normal"></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="syn__j1939_8h_1a0b2fbf9308461e2d849bf8ae7583ee09" kindref="member">syn_j1939_encode_dm1</ref>(uint8_t<sp/>*buf,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>buf_size,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__J1939__DTC" kindref="compound">SYN_J1939_DTC</ref><sp/>*dtc_list,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>dtc_count,<sp/>uint8_t<sp/>mil_lamp_status);</highlight></codeline>
+<codeline lineno="225"><highlight class="normal"></highlight></codeline>
+<codeline lineno="235"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__j1939_8h_1ac2fab797f1e775f646d3b7698246c999" kindref="member">syn_j1939_process_frame</ref>(<ref refid="structSYN__J1939__Node" kindref="compound">SYN_J1939_Node</ref><sp/>*node,</highlight></codeline>
+<codeline lineno="236"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__CAN__Frame" kindref="compound">SYN_CAN_Frame</ref><sp/>*frame,</highlight></codeline>
+<codeline lineno="237"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>*out_pgn,</highlight></codeline>
+<codeline lineno="238"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>**out_data,</highlight></codeline>
+<codeline lineno="239"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>*out_len);</highlight></codeline>
+<codeline lineno="240"><highlight class="normal"></highlight></codeline>
+<codeline lineno="241"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="242"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="243"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="244"><highlight class="normal"></highlight></codeline>
+<codeline lineno="245"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_J1939_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/proto/syn_j1939.h"/>
+  </compounddef>
+</doxygen>

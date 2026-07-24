@@ -1,0 +1,419 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__scurve_8c" kind="file" language="C++">
+    <compoundname>syn_scurve.c</compoundname>
+    <includes refid="syn__scurve_8h" local="yes">syn_scurve.h</includes>
+    <includes refid="syn__assert_8h" local="yes">syn_assert.h</includes>
+    <includes local="no">string.h</includes>
+    <includes refid="syn__qmath_8h" local="yes">syn_qmath.h</includes>
+    <incdepgraph>
+      <node id="8">
+        <label>../common/syn_compiler.h</label>
+        <link refid="syn__compiler_8h"/>
+      </node>
+      <node id="3">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>syn_assert.h</label>
+        <link refid="syn__assert_8h"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="10">
+        <label>syn_qmath.h</label>
+        <link refid="syn__qmath_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/util/syn_scurve.c</label>
+        <link refid="syn__scurve_8c"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>syn_scurve.h</label>
+        <link refid="syn__scurve_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>stdbool.h</label>
+      </node>
+      <node id="5">
+        <label>stddef.h</label>
+      </node>
+      <node id="4">
+        <label>stdint.h</label>
+      </node>
+      <node id="9">
+        <label>string.h</label>
+      </node>
+    </incdepgraph>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__scurve_8c_1a521ee0394a53db0a58fed010b5db81ab" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_scurve_init</definition>
+        <argsstring>(SYN_SCurve *sc, int32_t initial_p)</argsstring>
+        <name>syn_scurve_init</name>
+        <param>
+          <type><ref refid="structSYN__SCurve" kindref="compound">SYN_SCurve</ref> *</type>
+          <declname>sc</declname>
+        </param>
+        <param>
+          <type>int32_t</type>
+          <declname>initial_p</declname>
+        </param>
+        <briefdescription>
+<para>Initialize the S-Curve generator. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>sc</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to generator. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>initial_p</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Initial position. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_scurve.c" line="12" column="6" bodyfile="src/syntropic/util/syn_scurve.c" bodystart="12" bodyend="19"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__scurve_8c_1a6768e12fc8eb81aaabb479032641d7ca" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_scurve_set_constraints</definition>
+        <argsstring>(SYN_SCurve *sc, int32_t v_max, int32_t a_max, int32_t j_max)</argsstring>
+        <name>syn_scurve_set_constraints</name>
+        <param>
+          <type><ref refid="structSYN__SCurve" kindref="compound">SYN_SCurve</ref> *</type>
+          <declname>sc</declname>
+        </param>
+        <param>
+          <type>int32_t</type>
+          <declname>v_max</declname>
+        </param>
+        <param>
+          <type>int32_t</type>
+          <declname>a_max</declname>
+        </param>
+        <param>
+          <type>int32_t</type>
+          <declname>j_max</declname>
+        </param>
+        <briefdescription>
+<para>Configure the kinematic constraints. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>sc</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to generator. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>v_max</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Maximum velocity (units/tick). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>a_max</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Maximum acceleration (units/tick^2). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>j_max</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Maximum jerk (units/tick^3). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_scurve.c" line="21" column="6" bodyfile="src/syntropic/util/syn_scurve.c" bodystart="21" bodyend="26"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__scurve_8c_1a9839e30b08be07946607188c37148041" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>static uint32_t syn_isqrt</definition>
+        <argsstring>(uint32_t n)</argsstring>
+        <name>syn_isqrt</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_scurve.c" line="30" column="24" bodyfile="src/syntropic/util/syn_scurve.c" bodystart="30" bodyend="32"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__scurve_8c_1a9094013a8c922ca3605a16b09ac8e622" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_scurve_set_target</definition>
+        <argsstring>(SYN_SCurve *sc, int32_t target)</argsstring>
+        <name>syn_scurve_set_target</name>
+        <param>
+          <type><ref refid="structSYN__SCurve" kindref="compound">SYN_SCurve</ref> *</type>
+          <declname>sc</declname>
+        </param>
+        <param>
+          <type>int32_t</type>
+          <declname>target</declname>
+        </param>
+        <briefdescription>
+<para>Set a new target position. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>sc</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to generator. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>target</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Target position. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_scurve.c" line="34" column="6" bodyfile="src/syntropic/util/syn_scurve.c" bodystart="34" bodyend="108"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__scurve_8c_1a54796546290bf6a237dc32387aaea51a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int32_t</type>
+        <definition>int32_t syn_scurve_update</definition>
+        <argsstring>(SYN_SCurve *sc)</argsstring>
+        <name>syn_scurve_update</name>
+        <param>
+          <type><ref refid="structSYN__SCurve" kindref="compound">SYN_SCurve</ref> *</type>
+          <declname>sc</declname>
+        </param>
+        <briefdescription>
+<para>Update the trajectory generator by one time step (tick). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>sc</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to generator. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Current position. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_scurve.c" line="110" column="9" bodyfile="src/syntropic/util/syn_scurve.c" bodystart="110" bodyend="145"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#if<sp/>__has_include(&quot;syn_config.h&quot;)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/>#include<sp/>&quot;syn_config.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="4"><highlight class="normal"></highlight></codeline>
+<codeline lineno="5"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>!defined(SYN_USE_SCURVE)<sp/>||<sp/>SYN_USE_SCURVE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__scurve_8h" kindref="compound">syn_scurve.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__assert_8h" kindref="compound">syn_assert.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;string.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>syn_scurve_init(<ref refid="structSYN__SCurve" kindref="compound">SYN_SCurve</ref><sp/>*sc,<sp/>int32_t<sp/>initial_p)<sp/>{</highlight></codeline>
+<codeline lineno="13"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(sc<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="14"><highlight class="normal"><sp/><sp/><sp/><sp/>memset(sc,<sp/>0,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(*sc));</highlight></codeline>
+<codeline lineno="15"><highlight class="normal"><sp/><sp/><sp/><sp/>sc-&gt;<ref refid="structSYN__SCurve_1a98d6b858473f480fce8479928763a26d" kindref="member">p</ref><sp/>=<sp/>initial_p;</highlight></codeline>
+<codeline lineno="16"><highlight class="normal"><sp/><sp/><sp/><sp/>sc-&gt;<ref refid="structSYN__SCurve_1a3e361466432c178416a570349bb04b0c" kindref="member">target_p</ref><sp/>=<sp/>initial_p;</highlight></codeline>
+<codeline lineno="17"><highlight class="normal"><sp/><sp/><sp/><sp/>sc-&gt;<ref refid="structSYN__SCurve_1a4c42312aee176829de7ca3d6992ec6fe" kindref="member">done</ref><sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="18"><highlight class="normal"><sp/><sp/><sp/><sp/>sc-&gt;<ref refid="structSYN__SCurve_1ae24b9af41e323214dbdf93a8245067d6" kindref="member">current_phase</ref><sp/>=<sp/>7;</highlight></codeline>
+<codeline lineno="19"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>syn_scurve_set_constraints(<ref refid="structSYN__SCurve" kindref="compound">SYN_SCurve</ref><sp/>*sc,<sp/>int32_t<sp/>v_max,<sp/>int32_t<sp/>a_max,<sp/>int32_t<sp/>j_max)<sp/>{</highlight></codeline>
+<codeline lineno="22"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(sc<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="23"><highlight class="normal"><sp/><sp/><sp/><sp/>sc-&gt;<ref refid="structSYN__SCurve_1a40178906eafa0cfd99304a16c2f8bce1" kindref="member">v_max</ref><sp/>=<sp/>v_max;</highlight></codeline>
+<codeline lineno="24"><highlight class="normal"><sp/><sp/><sp/><sp/>sc-&gt;<ref refid="structSYN__SCurve_1a3d45e08e1c13774d194d885fadf4c206" kindref="member">a_max</ref><sp/>=<sp/>a_max;</highlight></codeline>
+<codeline lineno="25"><highlight class="normal"><sp/><sp/><sp/><sp/>sc-&gt;<ref refid="structSYN__SCurve_1a52574409b45c7b66332b22d0ef4adf6c" kindref="member">j_max</ref><sp/>=<sp/>j_max;</highlight></codeline>
+<codeline lineno="26"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__qmath_8h" kindref="compound">syn_qmath.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>uint32_t<sp/>syn_isqrt(uint32_t<sp/>n)<sp/>{</highlight></codeline>
+<codeline lineno="31"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__qmath_8c_1aa6fd8ac4326b98b180f4ec3a044b7c68" kindref="member">syn_isqrt32</ref>(n);</highlight></codeline>
+<codeline lineno="32"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>syn_scurve_set_target(<ref refid="structSYN__SCurve" kindref="compound">SYN_SCurve</ref><sp/>*sc,<sp/>int32_t<sp/>target)<sp/>{</highlight></codeline>
+<codeline lineno="35"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(sc<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="36"><highlight class="normal"><sp/><sp/><sp/><sp/>sc-&gt;<ref refid="structSYN__SCurve_1a3e361466432c178416a570349bb04b0c" kindref="member">target_p</ref><sp/>=<sp/>target;</highlight></codeline>
+<codeline lineno="37"><highlight class="normal"><sp/><sp/><sp/><sp/>int32_t<sp/>dist<sp/>=<sp/>target<sp/>-<sp/>sc-&gt;<ref refid="structSYN__SCurve_1a98d6b858473f480fce8479928763a26d" kindref="member">p</ref>;</highlight></codeline>
+<codeline lineno="38"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(dist<sp/>==<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>sc-&gt;<ref refid="structSYN__SCurve_1a4c42312aee176829de7ca3d6992ec6fe" kindref="member">done</ref><sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>sc-&gt;<ref refid="structSYN__SCurve_1ae24b9af41e323214dbdf93a8245067d6" kindref="member">current_phase</ref><sp/>=<sp/>7;</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="45"><highlight class="normal"><sp/><sp/><sp/><sp/>sc-&gt;<ref refid="structSYN__SCurve_1a7687cd920cc22201eb1afad8b53dc777" kindref="member">dir</ref><sp/>=<sp/><ref refid="syn__defs_8h_1a60746ccdf5ec7e8b925b5d5bfc55021a" kindref="member">SYN_SIGN</ref>(dist);</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/>d<sp/>=<sp/>(uint32_t)<ref refid="syn__defs_8h_1acab64a6917ff096055e372fec6d71716" kindref="member">SYN_ABS</ref>(dist);</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>We<sp/>assume<sp/>starting<sp/>from<sp/>v=0,<sp/>a=0.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Ticks<sp/>to<sp/>reach<sp/>a_max<sp/>at<sp/>j_max</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/>Tj<sp/>=<sp/>(uint32_t)sc-&gt;<ref refid="structSYN__SCurve_1a3d45e08e1c13774d194d885fadf4c206" kindref="member">a_max</ref><sp/>/<sp/>(uint32_t)sc-&gt;<ref refid="structSYN__SCurve_1a52574409b45c7b66332b22d0ef4adf6c" kindref="member">j_max</ref>;</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(Tj<sp/>==<sp/>0)<sp/>Tj<sp/>=<sp/>1;</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Max<sp/>velocity<sp/>we<sp/>can<sp/>reach<sp/>just<sp/>during<sp/>jerk<sp/>phases<sp/>(accel<sp/>up,<sp/>then<sp/>accel<sp/>down)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>a(t)<sp/>goes<sp/>to<sp/>a_max<sp/>in<sp/>Tj<sp/>ticks.<sp/>v<sp/>reached<sp/>is<sp/>j_max<sp/>*<sp/>Tj^2.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/>vj<sp/>=<sp/>(uint32_t)sc-&gt;<ref refid="structSYN__SCurve_1a52574409b45c7b66332b22d0ef4adf6c" kindref="member">j_max</ref><sp/>*<sp/>Tj<sp/>*<sp/>Tj;</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/>Ta<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>((uint32_t)sc-&gt;<ref refid="structSYN__SCurve_1a40178906eafa0cfd99304a16c2f8bce1" kindref="member">v_max</ref><sp/>&gt;<sp/>vj)<sp/>{</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>Ta<sp/>=<sp/>((uint32_t)sc-&gt;<ref refid="structSYN__SCurve_1a40178906eafa0cfd99304a16c2f8bce1" kindref="member">v_max</ref><sp/>-<sp/>vj)<sp/>/<sp/>(uint32_t)sc-&gt;<ref refid="structSYN__SCurve_1a3d45e08e1c13774d194d885fadf4c206" kindref="member">a_max</ref>;</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>v_max<sp/>is<sp/>reached<sp/>during<sp/>jerk!</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="62"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>Tj<sp/>=<sp/>syn_isqrt((uint32_t)sc-&gt;<ref refid="structSYN__SCurve_1a40178906eafa0cfd99304a16c2f8bce1" kindref="member">v_max</ref><sp/>/<sp/>(uint32_t)sc-&gt;<ref refid="structSYN__SCurve_1a52574409b45c7b66332b22d0ef4adf6c" kindref="member">j_max</ref>);</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(Tj<sp/>==<sp/>0)<sp/>Tj<sp/>=<sp/>1;</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>Ta<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Total<sp/>accel<sp/>time<sp/>=<sp/>2<sp/>*<sp/>Tj<sp/>+<sp/>Ta</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Distance<sp/>covered<sp/>during<sp/>accel<sp/>=<sp/>v_max<sp/>*<sp/>(2*Tj<sp/>+<sp/>Ta)<sp/>/<sp/>2</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Decel<sp/>is<sp/>symmetric.<sp/>So<sp/>total<sp/>distance<sp/>without<sp/>constant<sp/>v<sp/>phase<sp/>is<sp/>approx:</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>D_accel_decel<sp/>=<sp/>v_max<sp/>*<sp/>(2*Tj<sp/>+<sp/>Ta)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="71"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/>vmax_reached<sp/>=<sp/>(uint32_t)sc-&gt;<ref refid="structSYN__SCurve_1a52574409b45c7b66332b22d0ef4adf6c" kindref="member">j_max</ref><sp/>*<sp/>Tj<sp/>*<sp/>Tj<sp/>+<sp/>(uint32_t)sc-&gt;<ref refid="structSYN__SCurve_1a3d45e08e1c13774d194d885fadf4c206" kindref="member">a_max</ref><sp/>*<sp/>Ta;</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/>D_ad<sp/>=<sp/>vmax_reached<sp/>*<sp/>(2u<sp/>*<sp/>Tj<sp/>+<sp/>Ta);</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="74"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/>Tv<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(d<sp/>&gt;<sp/>D_ad)<sp/>{</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>Tv<sp/>=<sp/>(d<sp/>-<sp/>D_ad)<sp/>/<sp/>vmax_reached;</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>We<sp/>don&apos;t<sp/>reach<sp/>v_max.<sp/>Profile<sp/>is<sp/>triangular<sp/>or<sp/>just<sp/>jerk<sp/>pulses.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>For<sp/>simplicity<sp/>in<sp/>this<sp/>heuristic,<sp/>scale<sp/>everything<sp/>down.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>A<sp/>simple<sp/>trick<sp/>is<sp/>to<sp/>divide<sp/>Tj<sp/>and<sp/>Ta<sp/>by<sp/>2<sp/>until<sp/>it<sp/>fits,<sp/>but</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>an<sp/>exact<sp/>root<sp/>is<sp/>better.<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>We<sp/>will<sp/>just<sp/>do<sp/>a<sp/>simple<sp/>iterative<sp/>reduction<sp/>for<sp/>the<sp/>test.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">while</highlight><highlight class="normal"><sp/>(D_ad<sp/>&gt;<sp/>d<sp/>&amp;&amp;<sp/>(Tj<sp/>&gt;<sp/>1u<sp/>||<sp/>Ta<sp/>&gt;<sp/>0u))<sp/>{</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(Ta<sp/>&gt;<sp/>0u)<sp/>Ta--;</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(Tj<sp/>&gt;<sp/>1u)<sp/>Tj--;</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>vmax_reached<sp/>=<sp/>(uint32_t)sc-&gt;<ref refid="structSYN__SCurve_1a52574409b45c7b66332b22d0ef4adf6c" kindref="member">j_max</ref><sp/>*<sp/>Tj<sp/>*<sp/>Tj<sp/>+<sp/>(uint32_t)sc-&gt;<ref refid="structSYN__SCurve_1a3d45e08e1c13774d194d885fadf4c206" kindref="member">a_max</ref><sp/>*<sp/>Ta;</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>D_ad<sp/>=<sp/>vmax_reached<sp/>*<sp/>(2u<sp/>*<sp/>Tj<sp/>+<sp/>Ta);</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="91"><highlight class="normal"><sp/><sp/><sp/><sp/>sc-&gt;<ref refid="structSYN__SCurve_1ab5847cb01724eb78622f98fe56906a34" kindref="member">phase_ticks</ref>[0]<sp/>=<sp/>(int32_t)Tj;</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/><sp/><sp/>sc-&gt;<ref refid="structSYN__SCurve_1ab5847cb01724eb78622f98fe56906a34" kindref="member">phase_ticks</ref>[1]<sp/>=<sp/>(int32_t)Ta;</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><sp/><sp/><sp/><sp/>sc-&gt;<ref refid="structSYN__SCurve_1ab5847cb01724eb78622f98fe56906a34" kindref="member">phase_ticks</ref>[2]<sp/>=<sp/>(int32_t)Tj;</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><sp/><sp/><sp/><sp/>sc-&gt;<ref refid="structSYN__SCurve_1ab5847cb01724eb78622f98fe56906a34" kindref="member">phase_ticks</ref>[3]<sp/>=<sp/>(int32_t)Tv;</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/>sc-&gt;<ref refid="structSYN__SCurve_1ab5847cb01724eb78622f98fe56906a34" kindref="member">phase_ticks</ref>[4]<sp/>=<sp/>(int32_t)Tj;</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/><sp/><sp/>sc-&gt;<ref refid="structSYN__SCurve_1ab5847cb01724eb78622f98fe56906a34" kindref="member">phase_ticks</ref>[5]<sp/>=<sp/>(int32_t)Ta;</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><sp/><sp/><sp/><sp/>sc-&gt;<ref refid="structSYN__SCurve_1ab5847cb01724eb78622f98fe56906a34" kindref="member">phase_ticks</ref>[6]<sp/>=<sp/>(int32_t)Tj;</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"></highlight></codeline>
+<codeline lineno="99"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Handle<sp/>rounding<sp/>errors<sp/>by<sp/>putting<sp/>remaining<sp/>distance<sp/>into<sp/>Tv<sp/>phase,<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="101"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>or<sp/>just<sp/>let<sp/>it<sp/>snap<sp/>at<sp/>the<sp/>end.<sp/>We&apos;ll<sp/>snap<sp/>at<sp/>the<sp/>end<sp/>since<sp/>we<sp/>use<sp/>integer<sp/>math.</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="103"><highlight class="normal"><sp/><sp/><sp/><sp/>sc-&gt;<ref refid="structSYN__SCurve_1ae24b9af41e323214dbdf93a8245067d6" kindref="member">current_phase</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/><sp/><sp/><sp/>sc-&gt;<ref refid="structSYN__SCurve_1af34b67f8753b3252196424f03e986d0f" kindref="member">ticks_in_phase</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><sp/><sp/><sp/><sp/>sc-&gt;<ref refid="structSYN__SCurve_1a4c42312aee176829de7ca3d6992ec6fe" kindref="member">done</ref><sp/>=<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"><sp/><sp/><sp/><sp/>sc-&gt;<ref refid="structSYN__SCurve_1ac31db3e2509c9a2148ad0111285b1ea5" kindref="member">v</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"><sp/><sp/><sp/><sp/>sc-&gt;<ref refid="structSYN__SCurve_1a7d8636f820e4c48f4c7107d161b20366" kindref="member">a</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="108"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="109"><highlight class="normal"></highlight></codeline>
+<codeline lineno="110"><highlight class="normal">int32_t<sp/>syn_scurve_update(<ref refid="structSYN__SCurve" kindref="compound">SYN_SCurve</ref><sp/>*sc)<sp/>{</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(sc-&gt;<ref refid="structSYN__SCurve_1a4c42312aee176829de7ca3d6992ec6fe" kindref="member">done</ref>)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>sc-&gt;<ref refid="structSYN__SCurve_1a98d6b858473f480fce8479928763a26d" kindref="member">p</ref>;</highlight></codeline>
+<codeline lineno="112"><highlight class="normal"></highlight></codeline>
+<codeline lineno="113"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Advance<sp/>phase<sp/>if<sp/>needed</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="114"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">while</highlight><highlight class="normal"><sp/>(sc-&gt;<ref refid="structSYN__SCurve_1ae24b9af41e323214dbdf93a8245067d6" kindref="member">current_phase</ref><sp/>&lt;<sp/>7<sp/>&amp;&amp;<sp/>sc-&gt;<ref refid="structSYN__SCurve_1af34b67f8753b3252196424f03e986d0f" kindref="member">ticks_in_phase</ref><sp/>&gt;=<sp/>sc-&gt;<ref refid="structSYN__SCurve_1ab5847cb01724eb78622f98fe56906a34" kindref="member">phase_ticks</ref>[sc-&gt;<ref refid="structSYN__SCurve_1ae24b9af41e323214dbdf93a8245067d6" kindref="member">current_phase</ref>])<sp/>{</highlight></codeline>
+<codeline lineno="115"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>sc-&gt;<ref refid="structSYN__SCurve_1ae24b9af41e323214dbdf93a8245067d6" kindref="member">current_phase</ref>++;</highlight></codeline>
+<codeline lineno="116"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>sc-&gt;<ref refid="structSYN__SCurve_1af34b67f8753b3252196424f03e986d0f" kindref="member">ticks_in_phase</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="117"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="119"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(sc-&gt;<ref refid="structSYN__SCurve_1ae24b9af41e323214dbdf93a8245067d6" kindref="member">current_phase</ref><sp/>&gt;=<sp/>7)<sp/>{</highlight></codeline>
+<codeline lineno="120"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>sc-&gt;<ref refid="structSYN__SCurve_1a98d6b858473f480fce8479928763a26d" kindref="member">p</ref><sp/>=<sp/>sc-&gt;<ref refid="structSYN__SCurve_1a3e361466432c178416a570349bb04b0c" kindref="member">target_p</ref>;</highlight></codeline>
+<codeline lineno="121"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>sc-&gt;<ref refid="structSYN__SCurve_1ac31db3e2509c9a2148ad0111285b1ea5" kindref="member">v</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="122"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>sc-&gt;<ref refid="structSYN__SCurve_1a7d8636f820e4c48f4c7107d161b20366" kindref="member">a</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="123"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>sc-&gt;<ref refid="structSYN__SCurve_1a4c42312aee176829de7ca3d6992ec6fe" kindref="member">done</ref><sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="124"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>sc-&gt;<ref refid="structSYN__SCurve_1a98d6b858473f480fce8479928763a26d" kindref="member">p</ref>;</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="126"><highlight class="normal"></highlight></codeline>
+<codeline lineno="127"><highlight class="normal"><sp/><sp/><sp/><sp/>int32_t<sp/>j<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="128"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">switch</highlight><highlight class="normal"><sp/>(sc-&gt;<ref refid="structSYN__SCurve_1ae24b9af41e323214dbdf93a8245067d6" kindref="member">current_phase</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="129"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/>0:<sp/>j<sp/>=<sp/>sc-&gt;<ref refid="structSYN__SCurve_1a52574409b45c7b66332b22d0ef4adf6c" kindref="member">j_max</ref>;<sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="130"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/>1:<sp/>j<sp/>=<sp/>0;<sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="131"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/>2:<sp/>j<sp/>=<sp/>-sc-&gt;<ref refid="structSYN__SCurve_1a52574409b45c7b66332b22d0ef4adf6c" kindref="member">j_max</ref>;<sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="132"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/>3:<sp/>j<sp/>=<sp/>0;<sp/>sc-&gt;<ref refid="structSYN__SCurve_1a7d8636f820e4c48f4c7107d161b20366" kindref="member">a</ref><sp/>=<sp/>0;<sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;<sp/></highlight><highlight class="comment">//<sp/>Ensure<sp/>a=0<sp/>during<sp/>cruise</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="133"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/>4:<sp/>j<sp/>=<sp/>-sc-&gt;<ref refid="structSYN__SCurve_1a52574409b45c7b66332b22d0ef4adf6c" kindref="member">j_max</ref>;<sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="134"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/>5:<sp/>j<sp/>=<sp/>0;<sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="135"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/>6:<sp/>j<sp/>=<sp/>sc-&gt;<ref refid="structSYN__SCurve_1a52574409b45c7b66332b22d0ef4adf6c" kindref="member">j_max</ref>;<sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="137"><highlight class="normal"></highlight></codeline>
+<codeline lineno="138"><highlight class="normal"><sp/><sp/><sp/><sp/>sc-&gt;<ref refid="structSYN__SCurve_1afd6c27c0d3665628b5e1b61d6df38bec" kindref="member">j</ref><sp/>=<sp/>j<sp/>*<sp/>sc-&gt;<ref refid="structSYN__SCurve_1a7687cd920cc22201eb1afad8b53dc777" kindref="member">dir</ref>;</highlight></codeline>
+<codeline lineno="139"><highlight class="normal"><sp/><sp/><sp/><sp/>sc-&gt;<ref refid="structSYN__SCurve_1a7d8636f820e4c48f4c7107d161b20366" kindref="member">a</ref><sp/>+=<sp/>sc-&gt;<ref refid="structSYN__SCurve_1afd6c27c0d3665628b5e1b61d6df38bec" kindref="member">j</ref>;</highlight></codeline>
+<codeline lineno="140"><highlight class="normal"><sp/><sp/><sp/><sp/>sc-&gt;<ref refid="structSYN__SCurve_1ac31db3e2509c9a2148ad0111285b1ea5" kindref="member">v</ref><sp/>+=<sp/>sc-&gt;<ref refid="structSYN__SCurve_1a7d8636f820e4c48f4c7107d161b20366" kindref="member">a</ref>;</highlight></codeline>
+<codeline lineno="141"><highlight class="normal"><sp/><sp/><sp/><sp/>sc-&gt;<ref refid="structSYN__SCurve_1a98d6b858473f480fce8479928763a26d" kindref="member">p</ref><sp/>+=<sp/>sc-&gt;<ref refid="structSYN__SCurve_1ac31db3e2509c9a2148ad0111285b1ea5" kindref="member">v</ref>;</highlight></codeline>
+<codeline lineno="142"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="143"><highlight class="normal"><sp/><sp/><sp/><sp/>sc-&gt;<ref refid="structSYN__SCurve_1af34b67f8753b3252196424f03e986d0f" kindref="member">ticks_in_phase</ref>++;</highlight></codeline>
+<codeline lineno="144"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>sc-&gt;<ref refid="structSYN__SCurve_1a98d6b858473f480fce8479928763a26d" kindref="member">p</ref>;</highlight></codeline>
+<codeline lineno="145"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="146"><highlight class="normal"></highlight></codeline>
+<codeline lineno="147"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_USE_SCURVE<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/util/syn_scurve.c"/>
+  </compounddef>
+</doxygen>

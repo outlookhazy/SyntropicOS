@@ -1,0 +1,226 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__bits_8h" kind="file" language="C++">
+    <compoundname>syn_bits.h</compoundname>
+    <includes local="no">stdint.h</includes>
+    <includedby refid="syntropic_8h" local="yes">src/syntropic/syntropic.h</includedby>
+    <includedby refid="syn__event_8h" local="yes">src/syntropic/util/syn_event.h</includedby>
+    <incdepgraph>
+      <node id="1">
+        <label>src/syntropic/util/syn_bits.h</label>
+        <link refid="syn__bits_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>stdint.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="4">
+        <label>src/syntropic/sched/syn_sched.c</label>
+        <link refid="syn__sched_8c"/>
+      </node>
+      <node id="2">
+        <label>src/syntropic/syntropic.h</label>
+        <link refid="syntropic_8h"/>
+      </node>
+      <node id="1">
+        <label>src/syntropic/util/syn_bits.h</label>
+        <link refid="syn__bits_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>src/syntropic/util/syn_event.h</label>
+        <link refid="syn__event_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <sectiondef kind="define">
+      <memberdef kind="define" id="syn__bits_8h_1aff1b17d69c1244ed9a640e307df52b64" prot="public" static="no">
+        <name>SYN_BIT</name>
+        <param><defname>n</defname></param>
+        <initializer>((uint32_t)1U &lt;&lt; (n))</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Produce a bitmask with bit <computeroutput>n</computeroutput> set (0-indexed). </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_bits.h" line="19" column="9" bodyfile="src/syntropic/util/syn_bits.h" bodystart="19" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__bits_8h_1a4d8a5da24a033731f379f510be2c6508" prot="public" static="no">
+        <name>SYN_BIT_SET</name>
+        <param><defname>reg</defname></param>
+        <param><defname>bit</defname></param>
+        <initializer>((reg) |= <ref refid="syn__bits_8h_1aff1b17d69c1244ed9a640e307df52b64" kindref="member">SYN_BIT</ref>(bit))</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Set bit <computeroutput>bit</computeroutput> in register/variable <computeroutput>reg</computeroutput>. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_bits.h" line="22" column="9" bodyfile="src/syntropic/util/syn_bits.h" bodystart="22" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__bits_8h_1a8db6023931339352c686fd889d3f1122" prot="public" static="no">
+        <name>SYN_BIT_CLEAR</name>
+        <param><defname>reg</defname></param>
+        <param><defname>bit</defname></param>
+        <initializer>((reg) &amp;= ~<ref refid="syn__bits_8h_1aff1b17d69c1244ed9a640e307df52b64" kindref="member">SYN_BIT</ref>(bit))</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Clear bit <computeroutput>bit</computeroutput> in register/variable <computeroutput>reg</computeroutput>. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_bits.h" line="25" column="9" bodyfile="src/syntropic/util/syn_bits.h" bodystart="25" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__bits_8h_1afebd2f7f558cd999c6f82436f6538ddb" prot="public" static="no">
+        <name>SYN_BIT_TOGGLE</name>
+        <param><defname>reg</defname></param>
+        <param><defname>bit</defname></param>
+        <initializer>((reg) ^= <ref refid="syn__bits_8h_1aff1b17d69c1244ed9a640e307df52b64" kindref="member">SYN_BIT</ref>(bit))</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Toggle bit <computeroutput>bit</computeroutput> in register/variable <computeroutput>reg</computeroutput>. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_bits.h" line="28" column="9" bodyfile="src/syntropic/util/syn_bits.h" bodystart="28" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__bits_8h_1ac019ff30f3bb9b8f46f4c91f19e10ad5" prot="public" static="no">
+        <name>SYN_BIT_CHECK</name>
+        <param><defname>reg</defname></param>
+        <param><defname>bit</defname></param>
+        <initializer>((reg) &amp; <ref refid="syn__bits_8h_1aff1b17d69c1244ed9a640e307df52b64" kindref="member">SYN_BIT</ref>(bit))</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Check if bit <computeroutput>bit</computeroutput> is set in <computeroutput>reg</computeroutput>. Evaluates to non-zero if set. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_bits.h" line="31" column="9" bodyfile="src/syntropic/util/syn_bits.h" bodystart="31" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__bits_8h_1aa99596ce24514b542c399ef811e5c37e" prot="public" static="no">
+        <name>SYN_BITMASK</name>
+        <param><defname>width</defname></param>
+        <param><defname>offset</defname></param>
+        <initializer>    (((1U &lt;&lt; (width)) - 1U) &lt;&lt; (offset))</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Produce a bitmask of <computeroutput>width</computeroutput> bits starting at bit position <computeroutput>offset</computeroutput>. Example: <ref refid="syn__bits_8h_1aa99596ce24514b542c399ef811e5c37e" kindref="member">SYN_BITMASK(3, 4)</ref> → 0b0000&apos;0000&apos;0111&apos;0000 → 0x70 </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_bits.h" line="37" column="9" bodyfile="src/syntropic/util/syn_bits.h" bodystart="37" bodyend="38"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__bits_8h_1af9fd7263761328b1c365f5ba0ae7c290" prot="public" static="no">
+        <name>SYN_BITS_GET</name>
+        <param><defname>reg</defname></param>
+        <param><defname>width</defname></param>
+        <param><defname>offset</defname></param>
+        <initializer>    (((reg) &gt;&gt; (offset)) &amp; ((1U &lt;&lt; (width)) - 1U))</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Extract a bit-field of <computeroutput>width</computeroutput> bits starting at <computeroutput>offset</computeroutput> from <computeroutput>reg</computeroutput>. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_bits.h" line="43" column="9" bodyfile="src/syntropic/util/syn_bits.h" bodystart="43" bodyend="44"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__bits_8h_1abee560ae4bf3ec47202c27f1c7ca2ce1" prot="public" static="no">
+        <name>SYN_BITS_SET</name>
+        <param><defname>reg</defname></param>
+        <param><defname>width</defname></param>
+        <param><defname>offset</defname></param>
+        <param><defname>value</defname></param>
+        <initializer>    do {                                                      \
+        (reg) &amp;= ~<ref refid="syn__bits_8h_1aa99596ce24514b542c399ef811e5c37e" kindref="member">SYN_BITMASK</ref>(width, offset);               \
+        (reg) |= (((uint32_t)(value) &amp; ((1U &lt;&lt; (width)) - 1U)) &lt;&lt; (offset)); \
+    } while (0)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Set a bit-field: clear the field in <computeroutput>reg</computeroutput>, then OR in <computeroutput>value</computeroutput>. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_bits.h" line="49" column="9" bodyfile="src/syntropic/util/syn_bits.h" bodystart="49" bodyend="53"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__bits_8h_1a0a812d34aed203c051eab1e6b543f166" prot="public" static="no">
+        <name>SYN_BITS_TO_BYTES</name>
+        <param><defname>bits</defname></param>
+        <initializer>(((bits) + 7U) / 8U)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Number of bytes needed to store <computeroutput>bits</computeroutput>. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_bits.h" line="56" column="9" bodyfile="src/syntropic/util/syn_bits.h" bodystart="56" bodyend="-1"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Bit manipulation macros. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>All macros are pure preprocessor — zero overhead, no function calls. </para>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_BITS_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_BITS_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight></codeline>
+<codeline lineno="19" refid="syn__bits_8h_1aff1b17d69c1244ed9a640e307df52b64" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_BIT(n)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>((uint32_t)1U<sp/>&lt;&lt;<sp/>(n))</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight></codeline>
+<codeline lineno="22" refid="syn__bits_8h_1a4d8a5da24a033731f379f510be2c6508" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_BIT_SET(reg,<sp/>bit)<sp/><sp/><sp/><sp/><sp/>((reg)<sp/>|=<sp/>SYN_BIT(bit))</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight></codeline>
+<codeline lineno="25" refid="syn__bits_8h_1a8db6023931339352c686fd889d3f1122" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_BIT_CLEAR(reg,<sp/>bit)<sp/><sp/><sp/>((reg)<sp/>&amp;=<sp/>~SYN_BIT(bit))</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight></codeline>
+<codeline lineno="28" refid="syn__bits_8h_1afebd2f7f558cd999c6f82436f6538ddb" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_BIT_TOGGLE(reg,<sp/>bit)<sp/><sp/>((reg)<sp/>^=<sp/>SYN_BIT(bit))</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight></codeline>
+<codeline lineno="31" refid="syn__bits_8h_1ac019ff30f3bb9b8f46f4c91f19e10ad5" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_BIT_CHECK(reg,<sp/>bit)<sp/><sp/><sp/>((reg)<sp/>&amp;<sp/>SYN_BIT(bit))</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight></codeline>
+<codeline lineno="37" refid="syn__bits_8h_1aa99596ce24514b542c399ef811e5c37e" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_BITMASK(width,<sp/>offset)<sp/>\</highlight></codeline>
+<codeline lineno="38"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>(((1U<sp/>&lt;&lt;<sp/>(width))<sp/>-<sp/>1U)<sp/>&lt;&lt;<sp/>(offset))</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight></codeline>
+<codeline lineno="43" refid="syn__bits_8h_1af9fd7263761328b1c365f5ba0ae7c290" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_BITS_GET(reg,<sp/>width,<sp/>offset)<sp/>\</highlight></codeline>
+<codeline lineno="44"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>(((reg)<sp/>&gt;&gt;<sp/>(offset))<sp/>&amp;<sp/>((1U<sp/>&lt;&lt;<sp/>(width))<sp/>-<sp/>1U))</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight></codeline>
+<codeline lineno="49" refid="syn__bits_8h_1abee560ae4bf3ec47202c27f1c7ca2ce1" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_BITS_SET(reg,<sp/>width,<sp/>offset,<sp/>value)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="50"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>do<sp/>{<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="51"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(reg)<sp/>&amp;=<sp/>~SYN_BITMASK(width,<sp/>offset);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="52"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(reg)<sp/>|=<sp/>(((uint32_t)(value)<sp/>&amp;<sp/>((1U<sp/>&lt;&lt;<sp/>(width))<sp/>-<sp/>1U))<sp/>&lt;&lt;<sp/>(offset));<sp/>\</highlight></codeline>
+<codeline lineno="53"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>}<sp/>while<sp/>(0)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="54"><highlight class="normal"></highlight></codeline>
+<codeline lineno="56" refid="syn__bits_8h_1a0a812d34aed203c051eab1e6b543f166" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_BITS_TO_BYTES(bits)<sp/><sp/><sp/>(((bits)<sp/>+<sp/>7U)<sp/>/<sp/>8U)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="57"><highlight class="normal"></highlight></codeline>
+<codeline lineno="58"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="59"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="61"><highlight class="normal"></highlight></codeline>
+<codeline lineno="62"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_BITS_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/util/syn_bits.h"/>
+  </compounddef>
+</doxygen>

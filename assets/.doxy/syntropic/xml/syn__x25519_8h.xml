@@ -1,0 +1,235 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__x25519_8h" kind="file" language="C++">
+    <compoundname>syn_x25519.h</compoundname>
+    <includes local="no">stdint.h</includes>
+    <includedby refid="syn__x25519_8c" local="yes">src/syntropic/crypto/syn_x25519.c</includedby>
+    <includedby refid="syn__wg_8c" local="yes">src/syntropic/net/syn_wg.c</includedby>
+    <includedby refid="syntropic_8h" local="yes">src/syntropic/syntropic.h</includedby>
+    <incdepgraph>
+      <node id="1">
+        <label>src/syntropic/crypto/syn_x25519.h</label>
+        <link refid="syn__x25519_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>stdint.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="2">
+        <label>src/syntropic/crypto/syn_x25519.c</label>
+        <link refid="syn__x25519_8c"/>
+      </node>
+      <node id="1">
+        <label>src/syntropic/crypto/syn_x25519.h</label>
+        <link refid="syn__x25519_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>src/syntropic/net/syn_wg.c</label>
+        <link refid="syn__wg_8c"/>
+      </node>
+      <node id="4">
+        <label>src/syntropic/syntropic.h</label>
+        <link refid="syntropic_8h"/>
+      </node>
+    </invincdepgraph>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__x25519_8h_1a5ebffc18301fb84fc245bc7c9a2b0f56" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_x25519</definition>
+        <argsstring>(uint8_t shared_out[32], const uint8_t scalar[32], const uint8_t point[32])</argsstring>
+        <name>syn_x25519</name>
+        <param>
+          <type>uint8_t</type>
+          <declname>shared_out</declname>
+          <array>[32]</array>
+        </param>
+        <param>
+          <type>const uint8_t</type>
+          <declname>scalar</declname>
+          <array>[32]</array>
+        </param>
+        <param>
+          <type>const uint8_t</type>
+          <declname>point</declname>
+          <array>[32]</array>
+        </param>
+        <briefdescription>
+<para>X25519 scalar multiplication. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Computes shared = scalar * point on Curve25519.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>shared_out</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output: 32-byte shared secret. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>scalar</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>32-byte private scalar (should be clamped). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>point</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>32-byte public point (peer&apos;s public key). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/crypto/syn_x25519.h" line="51" column="6" bodyfile="src/syntropic/crypto/syn_x25519.c" bodystart="178" bodyend="226" declfile="src/syntropic/crypto/syn_x25519.h" declline="51" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__x25519_8h_1a0d775658b7a519f8cbc37a3cf0d8b815" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_x25519_pubkey</definition>
+        <argsstring>(uint8_t public_out[32], const uint8_t private_key[32])</argsstring>
+        <name>syn_x25519_pubkey</name>
+        <param>
+          <type>uint8_t</type>
+          <declname>public_out</declname>
+          <array>[32]</array>
+        </param>
+        <param>
+          <type>const uint8_t</type>
+          <declname>private_key</declname>
+          <array>[32]</array>
+        </param>
+        <briefdescription>
+<para>Derive a public key from a private key. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Computes public = scalar * basepoint (the Curve25519 generator, u=9).</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>public_out</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output: 32-byte public key. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>private_key</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>32-byte private key (should be clamped). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/crypto/syn_x25519.h" line="63" column="6" bodyfile="src/syntropic/crypto/syn_x25519.c" bodystart="228" bodyend="233" declfile="src/syntropic/crypto/syn_x25519.h" declline="63" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__x25519_8h_1a12e51be2c6468d04f027c360100581a4" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void syn_x25519_clamp</definition>
+        <argsstring>(uint8_t key[32])</argsstring>
+        <name>syn_x25519_clamp</name>
+        <param>
+          <type>uint8_t</type>
+          <declname>key</declname>
+          <array>[32]</array>
+        </param>
+        <briefdescription>
+<para>Clamp a 32-byte private key per RFC 7748. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Sets bits to ensure the scalar is a multiple of the cofactor (8) and has the high bit set for constant-time operation.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>key</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>32-byte key to clamp (modified in place). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/crypto/syn_x25519.h" line="74" column="20" bodyfile="src/syntropic/crypto/syn_x25519.h" bodystart="74" bodyend="79"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>X25519 Diffie-Hellman key exchange — RFC 7748, pure C99. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Elliptic-curve Diffie-Hellman on Curve25519 using the Montgomery ladder. Provides shared-secret computation and public-key derivation.</para>
+<para>This is the most computationally expensive WireGuard operation (~1–2 seconds on Cortex-M4 @ 64 MHz) but only runs during handshake, not on every packet.</para>
+<para><simplesect kind="par"><title>Usage</title><para><programlisting><codeline><highlight class="normal">uint8_t<sp/>my_priv[32],<sp/>my_pub[32],<sp/>shared[32];</highlight></codeline>
+<codeline><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="comment">//<sp/>Generate<sp/>keypair<sp/>(private<sp/>key<sp/>=<sp/>32<sp/>random<sp/>bytes,<sp/>then<sp/>clamp):</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal">fill_random(my_priv,<sp/>32);</highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__x25519_8h_1a12e51be2c6468d04f027c360100581a4" kindref="member">syn_x25519_clamp</ref>(my_priv);</highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__x25519_8c_1a0d775658b7a519f8cbc37a3cf0d8b815" kindref="member">syn_x25519_pubkey</ref>(my_pub,<sp/>my_priv);</highlight></codeline>
+<codeline><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="comment">//<sp/>Compute<sp/>shared<sp/>secret<sp/>with<sp/>peer&apos;s<sp/>public<sp/>key:</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__x25519_8c_1a5ebffc18301fb84fc245bc7c9a2b0f56" kindref="member">syn_x25519</ref>(shared,<sp/>my_priv,<sp/>peer_pub);</highlight></codeline>
+</programlisting> </para>
+</simplesect>
+</para>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_X25519_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_X25519_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>__has_include(&quot;syn_config.h&quot;)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/>#include<sp/>&quot;syn_config.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>!defined(SYN_USE_X25519)<sp/>||<sp/>SYN_USE_X25519</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight></codeline>
+<codeline lineno="51"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__x25519_8h_1a5ebffc18301fb84fc245bc7c9a2b0f56" kindref="member">syn_x25519</ref>(uint8_t<sp/>shared_out[32],</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>scalar[32],</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>point[32]);</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"></highlight></codeline>
+<codeline lineno="63"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__x25519_8h_1a0d775658b7a519f8cbc37a3cf0d8b815" kindref="member">syn_x25519_pubkey</ref>(uint8_t<sp/>public_out[32],</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>private_key[32]);</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"></highlight></codeline>
+<codeline lineno="74" refid="syn__x25519_8h_1a12e51be2c6468d04f027c360100581a4" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__x25519_8h_1a12e51be2c6468d04f027c360100581a4" kindref="member">syn_x25519_clamp</ref>(uint8_t<sp/>key[32])</highlight></codeline>
+<codeline lineno="75"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/><sp/><sp/>key[0]<sp/><sp/>&amp;=<sp/>248;<sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Clear<sp/>low<sp/>3<sp/>bits<sp/>(multiple<sp/>of<sp/>8)<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/><sp/><sp/>key[31]<sp/>&amp;=<sp/>127;<sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Clear<sp/>high<sp/>bit<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/><sp/><sp/>key[31]<sp/>|=<sp/>64;<sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Set<sp/>second-highest<sp/>bit<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="79"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"></highlight></codeline>
+<codeline lineno="81"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="82"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="84"><highlight class="normal"></highlight></codeline>
+<codeline lineno="85"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_USE_X25519<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="86"><highlight class="normal"></highlight></codeline>
+<codeline lineno="87"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_X25519_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/crypto/syn_x25519.h"/>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,739 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__led_8h" kind="file" language="C++">
+    <compoundname>syn_led.h</compoundname>
+    <includes refid="syn__defs_8h" local="yes">../common/syn_defs.h</includes>
+    <includes refid="syn__gpio_8h" local="yes">../drivers/syn_gpio.h</includes>
+    <includes refid="syn__port__system_8h" local="yes">../port/syn_port_system.h</includes>
+    <includes local="no">stdbool.h</includes>
+    <includedby refid="syn__led_8c" local="yes">src/syntropic/output/syn_led.c</includedby>
+    <includedby refid="syn__cia303_8h" local="yes">src/syntropic/proto/syn_cia303.h</includedby>
+    <includedby refid="syntropic_8h" local="yes">src/syntropic/syntropic.h</includedby>
+    <incdepgraph>
+      <node id="8">
+        <label>../common/syn_compiler.h</label>
+        <link refid="syn__compiler_8h"/>
+      </node>
+      <node id="2">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>../drivers/syn_gpio.h</label>
+        <link refid="syn__gpio_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/output/syn_led.h</label>
+        <link refid="syn__led_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>../port/syn_port_gpio.h</label>
+        <link refid="syn__port__gpio_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>../port/syn_port_system.h</label>
+        <link refid="syn__port__system_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="9">
+        <label>stdbool.h</label>
+      </node>
+      <node id="4">
+        <label>stddef.h</label>
+      </node>
+      <node id="3">
+        <label>stdint.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="2">
+        <label>src/syntropic/output/syn_led.c</label>
+        <link refid="syn__led_8c"/>
+      </node>
+      <node id="1">
+        <label>src/syntropic/output/syn_led.h</label>
+        <link refid="syn__led_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>src/syntropic/proto/syn_cia303.c</label>
+        <link refid="syn__cia303_8c"/>
+      </node>
+      <node id="3">
+        <label>src/syntropic/proto/syn_cia303.h</label>
+        <link refid="syn__cia303_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>src/syntropic/syntropic.h</label>
+        <link refid="syntropic_8h"/>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="structSYN__LED" prot="public">SYN_LED</innerclass>
+    <sectiondef kind="enum">
+      <memberdef kind="enum" id="syn__led_8h_1ad66a76e60f2e0d045b294acafcf8b661" prot="public" static="no" strong="no">
+        <type></type>
+        <name>SYN_LEDPolarity</name>
+        <enumvalue id="syn__led_8h_1ad66a76e60f2e0d045b294acafcf8b661a179e8c50616eba4f41b79913be6e0375" prot="public">
+          <name>SYN_LED_ACTIVE_HIGH</name>
+          <initializer>= 0</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>LED on when GPIO high </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__led_8h_1ad66a76e60f2e0d045b294acafcf8b661a1f4050d02b6fd7d9a91dfeb0770b20d7" prot="public">
+          <name>SYN_LED_ACTIVE_LOW</name>
+          <initializer>= 1</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>LED on when GPIO low (common anode) </para>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>LED output polarity. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/output/syn_led.h" line="35" column="1" bodyfile="src/syntropic/output/syn_led.h" bodystart="35" bodyend="38"/>
+      </memberdef>
+      <memberdef kind="enum" id="syn__led_8h_1a43205f03fc97a41b0ce98d64e8959cfd" prot="public" static="no" strong="no">
+        <type></type>
+        <name>SYN_LEDMode</name>
+        <enumvalue id="syn__led_8h_1a43205f03fc97a41b0ce98d64e8959cfdae16334ad01afad25bdc51514678a1825" prot="public">
+          <name>SYN_LED_MODE_OFF</name>
+          <initializer>= 0</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>LED is off <linebreak/>
+ </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__led_8h_1a43205f03fc97a41b0ce98d64e8959cfda6e454b3f1022e64b14a11714f923a73a" prot="public">
+          <name>SYN_LED_MODE_ON</name>
+          <initializer>= 1</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>LED is on (steady) <linebreak/>
+ </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__led_8h_1a43205f03fc97a41b0ce98d64e8959cfda9110697b8f92d492c091ea676fa6dc62" prot="public">
+          <name>SYN_LED_MODE_BLINK</name>
+          <initializer>= 2</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Continuous blink <linebreak/>
+ </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__led_8h_1a43205f03fc97a41b0ce98d64e8959cfda0c5468790acc0504599d99c25e61632f" prot="public">
+          <name>SYN_LED_MODE_FLASH</name>
+          <initializer>= 3</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Flash N times then stop <linebreak/>
+ </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__led_8h_1a43205f03fc97a41b0ce98d64e8959cfdaf0c2c75339e45f4d54cd9e82557819b2" prot="public">
+          <name>SYN_LED_MODE_PATTERN</name>
+          <initializer>= 4</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Play a pattern string <linebreak/>
+ </para>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>LED operating mode. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/output/syn_led.h" line="43" column="1" bodyfile="src/syntropic/output/syn_led.h" bodystart="43" bodyend="49"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__led_8h_1a59b4e3625b4e1c6e62e79ad03e8615b1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_led_init</definition>
+        <argsstring>(SYN_LED *led, SYN_GPIO_Pin pin, SYN_LEDPolarity polarity)</argsstring>
+        <name>syn_led_init</name>
+        <param>
+          <type><ref refid="structSYN__LED" kindref="compound">SYN_LED</ref> *</type>
+          <declname>led</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref></type>
+          <declname>pin</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__led_8h_1ad66a76e60f2e0d045b294acafcf8b661" kindref="member">SYN_LEDPolarity</ref></type>
+          <declname>polarity</declname>
+        </param>
+        <briefdescription>
+<para>Initialize an LED descriptor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>led</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>LED to initialize. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>pin</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>GPIO pin number. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>polarity</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Active-high or active-low. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/output/syn_led.h" line="84" column="6" bodyfile="src/syntropic/output/syn_led.c" bodystart="39" bodyend="50" declfile="src/syntropic/output/syn_led.h" declline="84" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__led_8h_1ad42921d420727ead1658a05ac8a65229" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_led_on</definition>
+        <argsstring>(SYN_LED *led)</argsstring>
+        <name>syn_led_on</name>
+        <param>
+          <type><ref refid="structSYN__LED" kindref="compound">SYN_LED</ref> *</type>
+          <declname>led</declname>
+        </param>
+        <briefdescription>
+<para>Turn the LED on (steady). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>led</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>LED instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/output/syn_led.h" line="90" column="6" bodyfile="src/syntropic/output/syn_led.c" bodystart="52" bodyend="57" declfile="src/syntropic/output/syn_led.h" declline="90" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__led_8h_1accad8b3372c6e82564f0e0673456f85b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_led_off</definition>
+        <argsstring>(SYN_LED *led)</argsstring>
+        <name>syn_led_off</name>
+        <param>
+          <type><ref refid="structSYN__LED" kindref="compound">SYN_LED</ref> *</type>
+          <declname>led</declname>
+        </param>
+        <briefdescription>
+<para>Turn the LED off. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>led</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>LED instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/output/syn_led.h" line="96" column="6" bodyfile="src/syntropic/output/syn_led.c" bodystart="59" bodyend="64" declfile="src/syntropic/output/syn_led.h" declline="96" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__led_8h_1a3cc7b3394db2cdc435f01226eb59dc3f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_led_toggle</definition>
+        <argsstring>(SYN_LED *led)</argsstring>
+        <name>syn_led_toggle</name>
+        <param>
+          <type><ref refid="structSYN__LED" kindref="compound">SYN_LED</ref> *</type>
+          <declname>led</declname>
+        </param>
+        <briefdescription>
+<para>Toggle the LED (only meaningful in ON/OFF modes). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>led</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>LED instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/output/syn_led.h" line="102" column="6" bodyfile="src/syntropic/output/syn_led.c" bodystart="66" bodyend="74" declfile="src/syntropic/output/syn_led.h" declline="102" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__led_8h_1a9cfe968960b3294b5614880222684691" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_led_blink</definition>
+        <argsstring>(SYN_LED *led, uint16_t on_ms, uint16_t off_ms)</argsstring>
+        <name>syn_led_blink</name>
+        <param>
+          <type><ref refid="structSYN__LED" kindref="compound">SYN_LED</ref> *</type>
+          <declname>led</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>on_ms</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>off_ms</declname>
+        </param>
+        <briefdescription>
+<para>Start a continuous blink. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>led</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>LED. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>on_ms</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>On time in milliseconds. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>off_ms</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Off time in milliseconds. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/output/syn_led.h" line="111" column="6" bodyfile="src/syntropic/output/syn_led.c" bodystart="76" bodyend="85" declfile="src/syntropic/output/syn_led.h" declline="111" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__led_8h_1a84b1685f2588202f2062947b0de402f9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_led_flash</definition>
+        <argsstring>(SYN_LED *led, uint16_t on_ms, uint16_t off_ms, uint8_t count)</argsstring>
+        <name>syn_led_flash</name>
+        <param>
+          <type><ref refid="structSYN__LED" kindref="compound">SYN_LED</ref> *</type>
+          <declname>led</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>on_ms</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>off_ms</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>count</declname>
+        </param>
+        <briefdescription>
+<para>Flash the LED N times, then turn off. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>led</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>LED. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>on_ms</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>On time per flash (ms). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>off_ms</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Off time between flashes (ms). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>count</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of flashes. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/output/syn_led.h" line="121" column="6" bodyfile="src/syntropic/output/syn_led.c" bodystart="87" bodyend="99" declfile="src/syntropic/output/syn_led.h" declline="121" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__led_8h_1a6782e6202beec3a5b77e23aff0180f34" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_led_pattern</definition>
+        <argsstring>(SYN_LED *led, const char *pattern, uint16_t unit_ms)</argsstring>
+        <name>syn_led_pattern</name>
+        <param>
+          <type><ref refid="structSYN__LED" kindref="compound">SYN_LED</ref> *</type>
+          <declname>led</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>pattern</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>unit_ms</declname>
+        </param>
+        <briefdescription>
+<para>Play a pattern string. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Pattern characters: &apos;.&apos; = short on (1 unit) &apos;-&apos; = long on (3 units) &apos; &apos; = pause (1 unit) &apos;|&apos; = long pause (3 units)</para>
+<para>The pattern repeats indefinitely. Set a null or empty string to stop.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>led</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>LED. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>pattern</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Null-terminated pattern string. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>unit_ms</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Base time unit in milliseconds (e.g., 100). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/output/syn_led.h" line="139" column="6" bodyfile="src/syntropic/output/syn_led.c" bodystart="101" bodyend="116" declfile="src/syntropic/output/syn_led.h" declline="139" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__led_8h_1a85314d01990c87e390a5c060a6fb3e63" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_led_update</definition>
+        <argsstring>(SYN_LED *led)</argsstring>
+        <name>syn_led_update</name>
+        <param>
+          <type><ref refid="structSYN__LED" kindref="compound">SYN_LED</ref> *</type>
+          <declname>led</declname>
+        </param>
+        <briefdescription>
+<para>Update the LED state machine. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Call from your main loop or a scheduler task.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>led</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>LED instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/output/syn_led.h" line="148" column="6" bodyfile="src/syntropic/output/syn_led.c" bodystart="120" bodyend="210" declfile="src/syntropic/output/syn_led.h" declline="148" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__led_8h_1a3d5aa3b274d1ad96dd96d062ec63d0a2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_led_service</definition>
+        <argsstring>(SYN_LED *leds, size_t count)</argsstring>
+        <name>syn_led_service</name>
+        <param>
+          <type><ref refid="structSYN__LED" kindref="compound">SYN_LED</ref> *</type>
+          <declname>leds</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>count</declname>
+        </param>
+        <briefdescription>
+<para>Service an array of LEDs. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>leds</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>LED array. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>count</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of LEDs. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/output/syn_led.h" line="155" column="6" bodyfile="src/syntropic/output/syn_led.c" bodystart="212" bodyend="219" declfile="src/syntropic/output/syn_led.h" declline="155" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__led_8h_1accd8e70428f5c1d96d57a1a31c7490d3" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>static bool syn_led_is_on</definition>
+        <argsstring>(const SYN_LED *led)</argsstring>
+        <name>syn_led_is_on</name>
+        <param>
+          <type>const <ref refid="structSYN__LED" kindref="compound">SYN_LED</ref> *</type>
+          <declname>led</declname>
+        </param>
+        <briefdescription>
+<para>Check if the LED is currently lit. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>led</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>LED instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if lit. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/output/syn_led.h" line="162" column="20" bodyfile="src/syntropic/output/syn_led.h" bodystart="162" bodyend="165"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__led_8h_1a88b4b7f90d45e32f1fb2492ae11ed86d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>uint32_t syn_led_next_ms</definition>
+        <argsstring>(const SYN_LED *led)</argsstring>
+        <name>syn_led_next_ms</name>
+        <param>
+          <type>const <ref refid="structSYN__LED" kindref="compound">SYN_LED</ref> *</type>
+          <declname>led</declname>
+        </param>
+        <briefdescription>
+<para>Milliseconds until the next state transition. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns 0 if a transition is overdue, UINT32_MAX if the LED is static (ON or OFF). Useful for sleeping in a protothread:</para>
+<para><programlisting><codeline><highlight class="normal">uint32_t<sp/>wait<sp/>=<sp/>syn_led_next_ms(&amp;led);</highlight></codeline>
+<codeline><highlight class="normal">if<sp/>(wait<sp/>&gt;<sp/>0<sp/>&amp;&amp;<sp/>wait<sp/>&lt;<sp/>UINT32_MAX)</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>PT_TASK_DELAY_MS(pt,<sp/>task,<sp/>wait);</highlight></codeline>
+</programlisting></para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>led</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>LED instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Milliseconds until the next toggle. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/output/syn_led.h" line="182" column="10" bodyfile="src/syntropic/output/syn_led.c" bodystart="221" bodyend="254" declfile="src/syntropic/output/syn_led.h" declline="182" declcolumn="10"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Non-blocking LED controller — blink, flash, patterns. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Drives LEDs through GPIO with non-blocking blink/flash/pattern sequencing. No timers or tasks required — just call <ref refid="syn__led_8h_1a85314d01990c87e390a5c060a6fb3e63" kindref="member">syn_led_update()</ref> from your main loop.</para>
+<para><simplesect kind="par"><title>Usage</title><para><programlisting><codeline><highlight class="keyword">static</highlight><highlight class="normal"><sp/><ref refid="structSYN__LED" kindref="compound">SYN_LED</ref><sp/>led;</highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__led_8c_1a59b4e3625b4e1c6e62e79ad03e8615b1" kindref="member">syn_led_init</ref>(&amp;led,<sp/>LED_PIN,<sp/><ref refid="syn__led_8h_1ad66a76e60f2e0d045b294acafcf8b661a179e8c50616eba4f41b79913be6e0375" kindref="member">SYN_LED_ACTIVE_HIGH</ref>);</highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__led_8c_1a9cfe968960b3294b5614880222684691" kindref="member">syn_led_blink</ref>(&amp;led,<sp/>500,<sp/>500);<sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>500ms<sp/>on,<sp/>500ms<sp/>off</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="keywordflow">while</highlight><highlight class="normal"><sp/>(1)<sp/>{<sp/><ref refid="syn__led_8c_1a85314d01990c87e390a5c060a6fb3e63" kindref="member">syn_led_update</ref>(&amp;led);<sp/>}</highlight></codeline>
+</programlisting> </para>
+</simplesect>
+</para>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_LED_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_LED_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../common/syn_defs.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../drivers/syn_gpio.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../port/syn_port_system.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>LED<sp/>polarity<sp/>─────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight></codeline>
+<codeline lineno="35" refid="syn__led_8h_1ad66a76e60f2e0d045b294acafcf8b661" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="36" refid="syn__led_8h_1ad66a76e60f2e0d045b294acafcf8b661a179e8c50616eba4f41b79913be6e0375" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__led_8h_1ad66a76e60f2e0d045b294acafcf8b661a179e8c50616eba4f41b79913be6e0375" kindref="member">SYN_LED_ACTIVE_HIGH</ref><sp/>=<sp/>0,<sp/><sp/></highlight></codeline>
+<codeline lineno="37" refid="syn__led_8h_1ad66a76e60f2e0d045b294acafcf8b661a1f4050d02b6fd7d9a91dfeb0770b20d7" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__led_8h_1ad66a76e60f2e0d045b294acafcf8b661a1f4050d02b6fd7d9a91dfeb0770b20d7" kindref="member">SYN_LED_ACTIVE_LOW</ref><sp/><sp/>=<sp/>1,<sp/><sp/></highlight></codeline>
+<codeline lineno="38"><highlight class="normal">}<sp/><ref refid="syn__led_8h_1ad66a76e60f2e0d045b294acafcf8b661" kindref="member">SYN_LEDPolarity</ref>;</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>LED<sp/>mode<sp/>─────────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight></codeline>
+<codeline lineno="43" refid="syn__led_8h_1a43205f03fc97a41b0ce98d64e8959cfd" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="44" refid="syn__led_8h_1a43205f03fc97a41b0ce98d64e8959cfdae16334ad01afad25bdc51514678a1825" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__led_8h_1a43205f03fc97a41b0ce98d64e8959cfdae16334ad01afad25bdc51514678a1825" kindref="member">SYN_LED_MODE_OFF</ref><sp/><sp/><sp/><sp/><sp/>=<sp/>0,<sp/><sp/></highlight></codeline>
+<codeline lineno="45" refid="syn__led_8h_1a43205f03fc97a41b0ce98d64e8959cfda6e454b3f1022e64b14a11714f923a73a" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__led_8h_1a43205f03fc97a41b0ce98d64e8959cfda6e454b3f1022e64b14a11714f923a73a" kindref="member">SYN_LED_MODE_ON</ref><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>1,<sp/><sp/></highlight></codeline>
+<codeline lineno="46" refid="syn__led_8h_1a43205f03fc97a41b0ce98d64e8959cfda9110697b8f92d492c091ea676fa6dc62" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__led_8h_1a43205f03fc97a41b0ce98d64e8959cfda9110697b8f92d492c091ea676fa6dc62" kindref="member">SYN_LED_MODE_BLINK</ref><sp/><sp/><sp/>=<sp/>2,<sp/><sp/></highlight></codeline>
+<codeline lineno="47" refid="syn__led_8h_1a43205f03fc97a41b0ce98d64e8959cfda0c5468790acc0504599d99c25e61632f" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__led_8h_1a43205f03fc97a41b0ce98d64e8959cfda0c5468790acc0504599d99c25e61632f" kindref="member">SYN_LED_MODE_FLASH</ref><sp/><sp/><sp/>=<sp/>3,<sp/><sp/></highlight></codeline>
+<codeline lineno="48" refid="syn__led_8h_1a43205f03fc97a41b0ce98d64e8959cfdaf0c2c75339e45f4d54cd9e82557819b2" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__led_8h_1a43205f03fc97a41b0ce98d64e8959cfdaf0c2c75339e45f4d54cd9e82557819b2" kindref="member">SYN_LED_MODE_PATTERN</ref><sp/>=<sp/>4,<sp/><sp/></highlight></codeline>
+<codeline lineno="49"><highlight class="normal">}<sp/><ref refid="syn__led_8h_1a43205f03fc97a41b0ce98d64e8959cfd" kindref="member">SYN_LEDMode</ref>;</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"></highlight></codeline>
+<codeline lineno="51"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>LED<sp/>descriptor<sp/>───────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="52"><highlight class="normal"></highlight></codeline>
+<codeline lineno="54" refid="structSYN__LED" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Configuration<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="56" refid="structSYN__LED_1a37dfe5a3198c3cb436eb078e6162bc6f" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__LED_1a37dfe5a3198c3cb436eb078e6162bc6f" kindref="member">pin</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="57" refid="structSYN__LED_1a2d83ee4fb47588443b28faa17cad296a" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__LED_1a2d83ee4fb47588443b28faa17cad296a" kindref="member">polarity</ref>;<sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>State<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="60" refid="structSYN__LED_1a38f1c565b655a21604b28a1bd70ccdcb" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__LED_1a38f1c565b655a21604b28a1bd70ccdcb" kindref="member">mode</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="61" refid="structSYN__LED_1a12b48f2936662482a45826217ff3bfe3" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__LED_1a12b48f2936662482a45826217ff3bfe3" kindref="member">lit</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="62" refid="structSYN__LED_1a12ff8cd7f234ed1c68910f76ff72f139" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__LED_1a12ff8cd7f234ed1c68910f76ff72f139" kindref="member">tick</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Blink<sp/>/<sp/>flash<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="65" refid="structSYN__LED_1a7410d0e1da09d5787b694e0cbb2d157c" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__LED_1a7410d0e1da09d5787b694e0cbb2d157c" kindref="member">on_ms</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="66" refid="structSYN__LED_1a1aa9a12e4214ddaa09bda85107da0ddd" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__LED_1a1aa9a12e4214ddaa09bda85107da0ddd" kindref="member">off_ms</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="67" refid="structSYN__LED_1acc07219d69c069c7a47ca0adf269a254" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__LED_1acc07219d69c069c7a47ca0adf269a254" kindref="member">flash_remain</ref>;<sp/><sp/></highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Pattern<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="70" refid="structSYN__LED_1a5ac4a0405cc9f78a8966164bb8fd690f" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<ref refid="structSYN__LED_1a5ac4a0405cc9f78a8966164bb8fd690f" kindref="member">pattern</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="71" refid="structSYN__LED_1a7a8f5d28d56ad4700727acc6ac520d25" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__LED_1a7a8f5d28d56ad4700727acc6ac520d25" kindref="member">pattern_idx</ref>;<sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="72" refid="structSYN__LED_1aab70ec087a268f76115055b0c5da26bd" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__LED_1aab70ec087a268f76115055b0c5da26bd" kindref="member">pattern_unit</ref>;<sp/><sp/></highlight></codeline>
+<codeline lineno="73"><highlight class="normal">}<sp/><ref refid="structSYN__LED" kindref="compound">SYN_LED</ref>;</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"></highlight></codeline>
+<codeline lineno="75"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>API<sp/>──────────────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="76"><highlight class="normal"></highlight></codeline>
+<codeline lineno="84"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__led_8h_1a59b4e3625b4e1c6e62e79ad03e8615b1" kindref="member">syn_led_init</ref>(<ref refid="structSYN__LED" kindref="compound">SYN_LED</ref><sp/>*led,<sp/><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref><sp/>pin,<sp/><ref refid="syn__led_8h_1ad66a76e60f2e0d045b294acafcf8b661" kindref="member">SYN_LEDPolarity</ref><sp/>polarity);</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"></highlight></codeline>
+<codeline lineno="90"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__led_8h_1ad42921d420727ead1658a05ac8a65229" kindref="member">syn_led_on</ref>(<ref refid="structSYN__LED" kindref="compound">SYN_LED</ref><sp/>*led);</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"></highlight></codeline>
+<codeline lineno="96"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__led_8h_1accad8b3372c6e82564f0e0673456f85b" kindref="member">syn_led_off</ref>(<ref refid="structSYN__LED" kindref="compound">SYN_LED</ref><sp/>*led);</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"></highlight></codeline>
+<codeline lineno="102"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__led_8h_1a3cc7b3394db2cdc435f01226eb59dc3f" kindref="member">syn_led_toggle</ref>(<ref refid="structSYN__LED" kindref="compound">SYN_LED</ref><sp/>*led);</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"></highlight></codeline>
+<codeline lineno="111"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__led_8h_1a9cfe968960b3294b5614880222684691" kindref="member">syn_led_blink</ref>(<ref refid="structSYN__LED" kindref="compound">SYN_LED</ref><sp/>*led,<sp/>uint16_t<sp/>on_ms,<sp/>uint16_t<sp/>off_ms);</highlight></codeline>
+<codeline lineno="112"><highlight class="normal"></highlight></codeline>
+<codeline lineno="121"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__led_8h_1a84b1685f2588202f2062947b0de402f9" kindref="member">syn_led_flash</ref>(<ref refid="structSYN__LED" kindref="compound">SYN_LED</ref><sp/>*led,<sp/>uint16_t<sp/>on_ms,<sp/>uint16_t<sp/>off_ms,</highlight></codeline>
+<codeline lineno="122"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>count);</highlight></codeline>
+<codeline lineno="123"><highlight class="normal"></highlight></codeline>
+<codeline lineno="139"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__led_8h_1a6782e6202beec3a5b77e23aff0180f34" kindref="member">syn_led_pattern</ref>(<ref refid="structSYN__LED" kindref="compound">SYN_LED</ref><sp/>*led,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*pattern,<sp/>uint16_t<sp/>unit_ms);</highlight></codeline>
+<codeline lineno="140"><highlight class="normal"></highlight></codeline>
+<codeline lineno="148"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__led_8h_1a85314d01990c87e390a5c060a6fb3e63" kindref="member">syn_led_update</ref>(<ref refid="structSYN__LED" kindref="compound">SYN_LED</ref><sp/>*led);</highlight></codeline>
+<codeline lineno="149"><highlight class="normal"></highlight></codeline>
+<codeline lineno="155"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__led_8h_1a3d5aa3b274d1ad96dd96d062ec63d0a2" kindref="member">syn_led_service</ref>(<ref refid="structSYN__LED" kindref="compound">SYN_LED</ref><sp/>*leds,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>count);</highlight></codeline>
+<codeline lineno="156"><highlight class="normal"></highlight></codeline>
+<codeline lineno="162" refid="syn__led_8h_1accd8e70428f5c1d96d57a1a31c7490d3" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__led_8h_1accd8e70428f5c1d96d57a1a31c7490d3" kindref="member">syn_led_is_on</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__LED" kindref="compound">SYN_LED</ref><sp/>*led)</highlight></codeline>
+<codeline lineno="163"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="164"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>led-&gt;<ref refid="structSYN__LED_1a12b48f2936662482a45826217ff3bfe3" kindref="member">lit</ref>;</highlight></codeline>
+<codeline lineno="165"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="166"><highlight class="normal"></highlight></codeline>
+<codeline lineno="182"><highlight class="normal">uint32_t<sp/><ref refid="syn__led_8h_1a88b4b7f90d45e32f1fb2492ae11ed86d" kindref="member">syn_led_next_ms</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__LED" kindref="compound">SYN_LED</ref><sp/>*led);</highlight></codeline>
+<codeline lineno="183"><highlight class="normal"></highlight></codeline>
+<codeline lineno="184"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="185"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="186"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="187"><highlight class="normal"></highlight></codeline>
+<codeline lineno="188"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_LED_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/output/syn_led.h"/>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,309 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__port__serial_8h" kind="file" language="C++">
+    <compoundname>syn_port_serial.h</compoundname>
+    <includes refid="syn__defs_8h" local="yes">../common/syn_defs.h</includes>
+    <includes local="no">stdint.h</includes>
+    <includes local="no">stddef.h</includes>
+    <includedby refid="syn__cli_8c" local="yes">src/syntropic/cli/syn_cli.c</includedby>
+    <includedby refid="syn__cli_8h" local="yes">src/syntropic/cli/syn_cli.h</includedby>
+    <includedby refid="syn__log_8c" local="yes">src/syntropic/log/syn_log.c</includedby>
+    <includedby refid="syn__port__stubs_8c" local="yes">src/syntropic/port_stubs/syn_port_stubs.c</includedby>
+    <incdepgraph>
+      <node id="2">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/port/syn_port_serial.h</label>
+        <link refid="syn__port__serial_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>stddef.h</label>
+      </node>
+      <node id="3">
+        <label>stdint.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="2">
+        <label>src/syntropic/cli/syn_cli.c</label>
+        <link refid="syn__cli_8c"/>
+      </node>
+      <node id="3">
+        <label>src/syntropic/cli/syn_cli.h</label>
+        <link refid="syn__cli_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>src/syntropic/log/syn_log.c</label>
+        <link refid="syn__log_8c"/>
+      </node>
+      <node id="1">
+        <label>src/syntropic/port/syn_port_serial.h</label>
+        <link refid="syn__port__serial_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>src/syntropic/port_stubs/syn_port_stubs.c</label>
+        <link refid="syn__port__stubs_8c"/>
+      </node>
+      <node id="4">
+        <label>src/syntropic/syntropic.h</label>
+        <link refid="syntropic_8h"/>
+      </node>
+    </invincdepgraph>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__port__serial_8h_1ac21bdc03e027b26f5130252471762dfc" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_port_serial_init</definition>
+        <argsstring>(uint32_t baudrate)</argsstring>
+        <name>syn_port_serial_init</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>baudrate</declname>
+        </param>
+        <briefdescription>
+<para>Initialize the console serial port. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>baudrate</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Desired baud rate. Pass 0 for default (or if the underlying transport ignores baud rate, e.g. USB CDC). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/port/syn_port_serial.h" line="41" column="12" bodyfile="src/syntropic/port_stubs/syn_port_stubs.c" bodystart="644" bodyend="649" declfile="src/syntropic/port/syn_port_serial.h" declline="41" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__port__serial_8h_1a7e38c5e7a13b7347a73613846b314f43" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int syn_port_serial_write</definition>
+        <argsstring>(const uint8_t *data, size_t len)</argsstring>
+        <name>syn_port_serial_write</name>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>len</declname>
+        </param>
+        <briefdescription>
+<para>Write bytes to the console. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Writes up to <computeroutput>len</computeroutput> bytes. May briefly block if the transmit buffer is full, but must not spin indefinitely.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>data</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Data to write. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of bytes. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Number of bytes actually written, or -1 on error. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/port/syn_port_serial.h" line="53" column="5" bodyfile="src/syntropic/port_stubs/syn_port_stubs.c" bodystart="651" bodyend="656" declfile="src/syntropic/port/syn_port_serial.h" declline="53" declcolumn="5"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__port__serial_8h_1a0739439305ea8512f8351bc25db3b6c5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int syn_port_serial_read</definition>
+        <argsstring>(uint8_t *buf, size_t max_len)</argsstring>
+        <name>syn_port_serial_read</name>
+        <param>
+          <type>uint8_t *</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>max_len</declname>
+        </param>
+        <briefdescription>
+<para>Read available bytes from the console (non-blocking). </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns immediately with however many bytes are available, up to <computeroutput>max_len</computeroutput>. Returns 0 if no data is available. <bold>Never blocks.</bold></para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Buffer to read into. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>max_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Maximum bytes to read. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Number of bytes read (0 if nothing available), or -1 on error. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/port/syn_port_serial.h" line="65" column="5" bodyfile="src/syntropic/port_stubs/syn_port_stubs.c" bodystart="658" bodyend="663" declfile="src/syntropic/port/syn_port_serial.h" declline="65" declcolumn="5"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__port__serial_8h_1a558606e68e58878235e6b3ec126d737b" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>int</type>
+        <definition>static int syn_port_serial_write_byte</definition>
+        <argsstring>(uint8_t byte)</argsstring>
+        <name>syn_port_serial_write_byte</name>
+        <param>
+          <type>uint8_t</type>
+          <declname>byte</declname>
+        </param>
+        <briefdescription>
+<para>Write a single byte to the console. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>byte</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Byte to write. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>1 on success, -1 on error. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/port/syn_port_serial.h" line="74" column="19" bodyfile="src/syntropic/port/syn_port_serial.h" bodystart="74" bodyend="77"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__port__serial_8h_1ade7c4a6ce0b9a5241a3d7861cdaa54ea" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>int</type>
+        <definition>static int syn_port_serial_read_byte</definition>
+        <argsstring>(uint8_t *byte)</argsstring>
+        <name>syn_port_serial_read_byte</name>
+        <param>
+          <type>uint8_t *</type>
+          <declname>byte</declname>
+        </param>
+        <briefdescription>
+<para>Read a single byte from the console (non-blocking). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>byte</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>[out] Received byte. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>1 if a byte was read, 0 if nothing available. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/port/syn_port_serial.h" line="84" column="19" bodyfile="src/syntropic/port/syn_port_serial.h" bodystart="84" bodyend="87"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Console serial port interface. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Provides the low-level byte I/O primitives for the system console. The console is a singleton — there is exactly one per project. It may be backed by a hardware UART, USB CDC, or any other byte stream.</para>
+<para>The CLI and logging system use this interface directly — no callback wiring is needed in application code.</para>
+<para><simplesect kind="par"><title>Contract</title><para><itemizedlist>
+<listitem><para><computeroutput>write</computeroutput> may briefly block for buffer space but must not spin indefinitely.</para>
+</listitem><listitem><para><computeroutput>read</computeroutput> is strictly <bold>non-blocking</bold>: returns 0 if nothing is available.</para>
+</listitem></itemizedlist>
+</para>
+</simplesect>
+<simplesect kind="par"><title>Peripheral UARTs</title><para>For non-console UARTs (Modbus, GPS, sensors), use <ref refid="syn__port__uart_8h" kindref="compound">syn_port_uart.h</ref> which provides instance-based access to hardware UART peripherals. </para>
+</simplesect>
+</para>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_PORT_SERIAL_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_PORT_SERIAL_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../common/syn_defs.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stddef.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__port__serial_8h_1ac21bdc03e027b26f5130252471762dfc" kindref="member">syn_port_serial_init</ref>(uint32_t<sp/>baudrate);</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight></codeline>
+<codeline lineno="53"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="syn__port__serial_8h_1a7e38c5e7a13b7347a73613846b314f43" kindref="member">syn_port_serial_write</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*data,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>len);</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"></highlight></codeline>
+<codeline lineno="65"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="syn__port__serial_8h_1a0739439305ea8512f8351bc25db3b6c5" kindref="member">syn_port_serial_read</ref>(uint8_t<sp/>*buf,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>max_len);</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"></highlight></codeline>
+<codeline lineno="67"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Inline<sp/>convenience<sp/>helpers<sp/>(not<sp/>port<sp/>obligations)<sp/>───────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="68"><highlight class="normal"></highlight></codeline>
+<codeline lineno="74" refid="syn__port__serial_8h_1a558606e68e58878235e6b3ec126d737b" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="syn__port__serial_8h_1a558606e68e58878235e6b3ec126d737b" kindref="member">syn_port_serial_write_byte</ref>(uint8_t<sp/></highlight><highlight class="keywordtype">byte</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="75"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__port__serial_8h_1a7e38c5e7a13b7347a73613846b314f43" kindref="member">syn_port_serial_write</ref>(&amp;</highlight><highlight class="keywordtype">byte</highlight><highlight class="normal">,<sp/>1);</highlight></codeline>
+<codeline lineno="77"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"></highlight></codeline>
+<codeline lineno="84" refid="syn__port__serial_8h_1ade7c4a6ce0b9a5241a3d7861cdaa54ea" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="syn__port__serial_8h_1ade7c4a6ce0b9a5241a3d7861cdaa54ea" kindref="member">syn_port_serial_read_byte</ref>(uint8_t<sp/>*</highlight><highlight class="keywordtype">byte</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="85"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__port__serial_8h_1a0739439305ea8512f8351bc25db3b6c5" kindref="member">syn_port_serial_read</ref>(</highlight><highlight class="keywordtype">byte</highlight><highlight class="normal">,<sp/>1);</highlight></codeline>
+<codeline lineno="87"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"></highlight></codeline>
+<codeline lineno="89"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="90"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="92"><highlight class="normal"></highlight></codeline>
+<codeline lineno="93"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_PORT_SERIAL_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/port/syn_port_serial.h"/>
+  </compounddef>
+</doxygen>

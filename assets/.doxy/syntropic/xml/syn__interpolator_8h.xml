@@ -1,0 +1,561 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__interpolator_8h" kind="file" language="C++">
+    <compoundname>syn_interpolator.h</compoundname>
+    <includes refid="syn__defs_8h" local="yes">../common/syn_defs.h</includes>
+    <includes refid="syn__scurve_8h" local="yes">../util/syn_scurve.h</includes>
+    <includes local="no">stdint.h</includes>
+    <includes local="no">stdbool.h</includes>
+    <includes local="no">stddef.h</includes>
+    <includedby refid="syn__interpolator_8c" local="yes">src/syntropic/motor/syn_interpolator.c</includedby>
+    <incdepgraph>
+      <node id="2">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/motor/syn_interpolator.h</label>
+        <link refid="syn__interpolator_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>../util/syn_scurve.h</label>
+        <link refid="syn__scurve_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>stdbool.h</label>
+      </node>
+      <node id="4">
+        <label>stddef.h</label>
+      </node>
+      <node id="3">
+        <label>stdint.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="2">
+        <label>src/syntropic/motor/syn_interpolator.c</label>
+        <link refid="syn__interpolator_8c"/>
+      </node>
+      <node id="1">
+        <label>src/syntropic/motor/syn_interpolator.h</label>
+        <link refid="syn__interpolator_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="structSYN__Vector3F" prot="public">SYN_Vector3F</innerclass>
+    <innerclass refid="structSYN__Interpolator" prot="public">SYN_Interpolator</innerclass>
+    <sectiondef kind="enum">
+      <memberdef kind="enum" id="syn__interpolator_8h_1a7ce3cc76ed1beee3730983930e84303d" prot="public" static="no" strong="no">
+        <type></type>
+        <name>SYN_Interp_Mode</name>
+        <enumvalue id="syn__interpolator_8h_1a7ce3cc76ed1beee3730983930e84303da4dd48056fdd313a17aa6e413fd76d6f2" prot="public">
+          <name>SYN_INTERP_MODE_IDLE</name>
+          <initializer>= 0</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__interpolator_8h_1a7ce3cc76ed1beee3730983930e84303da3d105941dc6282cbe4474e32615bda7e" prot="public">
+          <name>SYN_INTERP_MODE_LINEAR</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>2D or 3D linear segment </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__interpolator_8h_1a7ce3cc76ed1beee3730983930e84303daa0e1706ebb7798d69eaa91fd48704ecf" prot="public">
+          <name>SYN_INTERP_MODE_CIRCULAR_CW</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>2D Clockwise arc </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__interpolator_8h_1a7ce3cc76ed1beee3730983930e84303da0e27b493f3005674c90f44112380ed21" prot="public">
+          <name>SYN_INTERP_MODE_CIRCULAR_CCW</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>2D Counter-clockwise arc </para>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>Interpolation mode enum. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/motor/syn_interpolator.h" line="26" column="1" bodyfile="src/syntropic/motor/syn_interpolator.h" bodystart="26" bodyend="31"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__interpolator_8h_1a719059f3e0a8298d973938ba274c3336" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_interpolator_init</definition>
+        <argsstring>(SYN_Interpolator *interp)</argsstring>
+        <name>syn_interpolator_init</name>
+        <param>
+          <type><ref refid="structSYN__Interpolator" kindref="compound">SYN_Interpolator</ref> *</type>
+          <declname>interp</declname>
+        </param>
+        <briefdescription>
+<para>Initialize a Multi-Axis Interpolator. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>interp</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to interpolator struct. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/motor/syn_interpolator.h" line="69" column="6" bodyfile="src/syntropic/motor/syn_interpolator.c" bodystart="22" bodyend="27" declfile="src/syntropic/motor/syn_interpolator.h" declline="69" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__interpolator_8h_1ab795dde94b1f6deaf5f4d5a3a4c1ad1c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_interpolator_plan_linear</definition>
+        <argsstring>(SYN_Interpolator *interp, SYN_Vector3F start, SYN_Vector3F target, float feedrate, float max_accel, float max_jerk, float step_res)</argsstring>
+        <name>syn_interpolator_plan_linear</name>
+        <param>
+          <type><ref refid="structSYN__Interpolator" kindref="compound">SYN_Interpolator</ref> *</type>
+          <declname>interp</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__Vector3F" kindref="compound">SYN_Vector3F</ref></type>
+          <declname>start</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__Vector3F" kindref="compound">SYN_Vector3F</ref></type>
+          <declname>target</declname>
+        </param>
+        <param>
+          <type>float</type>
+          <declname>feedrate</declname>
+        </param>
+        <param>
+          <type>float</type>
+          <declname>max_accel</declname>
+        </param>
+        <param>
+          <type>float</type>
+          <declname>max_jerk</declname>
+        </param>
+        <param>
+          <type>float</type>
+          <declname>step_res</declname>
+        </param>
+        <briefdescription>
+<para>Plan a Linear 2D/3D motion move. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>interp</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to interpolator struct. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>start</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Start position (X, Y, Z). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>target</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Target position (X, Y, Z). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>feedrate</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Desired vector velocity (units/sec). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>max_accel</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Max acceleration (units/sec^2). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>max_jerk</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Max jerk (units/sec^3). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>step_res</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Spatial resolution per step (units per step, e.g. 0.001mm). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/motor/syn_interpolator.h" line="83" column="12" bodyfile="src/syntropic/motor/syn_interpolator.c" bodystart="29" bodyend="67" declfile="src/syntropic/motor/syn_interpolator.h" declline="83" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__interpolator_8h_1a3707ed0d61b225d4c47c39ef35194986" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_interpolator_plan_circular</definition>
+        <argsstring>(SYN_Interpolator *interp, SYN_Vector3F start, SYN_Vector3F target, SYN_Vector3F center_offset, bool is_cw, float feedrate, float max_accel, float max_jerk, float step_res)</argsstring>
+        <name>syn_interpolator_plan_circular</name>
+        <param>
+          <type><ref refid="structSYN__Interpolator" kindref="compound">SYN_Interpolator</ref> *</type>
+          <declname>interp</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__Vector3F" kindref="compound">SYN_Vector3F</ref></type>
+          <declname>start</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__Vector3F" kindref="compound">SYN_Vector3F</ref></type>
+          <declname>target</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__Vector3F" kindref="compound">SYN_Vector3F</ref></type>
+          <declname>center_offset</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+          <declname>is_cw</declname>
+        </param>
+        <param>
+          <type>float</type>
+          <declname>feedrate</declname>
+        </param>
+        <param>
+          <type>float</type>
+          <declname>max_accel</declname>
+        </param>
+        <param>
+          <type>float</type>
+          <declname>max_jerk</declname>
+        </param>
+        <param>
+          <type>float</type>
+          <declname>step_res</declname>
+        </param>
+        <briefdescription>
+<para>Plan a Circular 2D arc move in XY plane. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>interp</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to interpolator struct. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>start</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Start position (X, Y). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>target</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Target position (X, Y). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>center_offset</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Center offset relative to start (I = center.x - start.x, J = center.y - start.y). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>is_cw</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>true for Clockwise, false for Counter-Clockwise. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>feedrate</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Desired tangential speed (units/sec). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>max_accel</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Max acceleration (units/sec^2). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>max_jerk</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Max jerk (units/sec^3). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>step_res</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Spatial resolution per step (units per step). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/motor/syn_interpolator.h" line="102" column="12" bodyfile="src/syntropic/motor/syn_interpolator.c" bodystart="69" bodyend="123" declfile="src/syntropic/motor/syn_interpolator.h" declline="102" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__interpolator_8h_1a2a6e2fab5df344976f9b584484a16389" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_interpolator_step</definition>
+        <argsstring>(SYN_Interpolator *interp, SYN_Vector3F *out_pos)</argsstring>
+        <name>syn_interpolator_step</name>
+        <param>
+          <type><ref refid="structSYN__Interpolator" kindref="compound">SYN_Interpolator</ref> *</type>
+          <declname>interp</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__Vector3F" kindref="compound">SYN_Vector3F</ref> *</type>
+          <declname>out_pos</declname>
+        </param>
+        <briefdescription>
+<para>Advance the interpolator by one discrete step. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>interp</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to interpolator struct. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out_pos</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Out: Calculated position after step. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if move active and advanced, false if move complete. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/motor/syn_interpolator.h" line="115" column="6" bodyfile="src/syntropic/motor/syn_interpolator.c" bodystart="125" bodyend="168" declfile="src/syntropic/motor/syn_interpolator.h" declline="115" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__interpolator_8h_1acd996fa9b4709b189b4d861f64848e35" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_interpolator_eval_at_time</definition>
+        <argsstring>(SYN_Interpolator *interp, float t_sec, SYN_Vector3F *out_pos, SYN_Vector3F *out_vel)</argsstring>
+        <name>syn_interpolator_eval_at_time</name>
+        <param>
+          <type><ref refid="structSYN__Interpolator" kindref="compound">SYN_Interpolator</ref> *</type>
+          <declname>interp</declname>
+        </param>
+        <param>
+          <type>float</type>
+          <declname>t_sec</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__Vector3F" kindref="compound">SYN_Vector3F</ref> *</type>
+          <declname>out_pos</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__Vector3F" kindref="compound">SYN_Vector3F</ref> *</type>
+          <declname>out_vel</declname>
+        </param>
+        <briefdescription>
+<para>Evaluate the interpolator at a specific time offset <computeroutput>t</computeroutput> seconds. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>interp</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to interpolator struct. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>t_sec</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Time offset from start of move in seconds. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out_pos</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Out: Position vector at time t. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out_vel</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Out: Velocity vector at time t (optional, can be NULL). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if t &lt;= move total time. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/motor/syn_interpolator.h" line="126" column="6" bodyfile="src/syntropic/motor/syn_interpolator.c" bodystart="170" bodyend="221" declfile="src/syntropic/motor/syn_interpolator.h" declline="126" declcolumn="6"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Coordinated multi-axis linear &amp; circular arc trajectory interpolator. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Provides zero-allocation, fixed-step multi-axis DDA (Digital Differential Analyzer) vector trajectory generation for coordinated motion control across 2D/3D linear segments and 2D circular arcs. </para>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_INTERPOLATOR_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_INTERPOLATOR_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../common/syn_defs.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../util/syn_scurve.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stddef.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight></codeline>
+<codeline lineno="26" refid="syn__interpolator_8h_1a7ce3cc76ed1beee3730983930e84303d" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="27"><highlight class="normal"><sp/><sp/><sp/><sp/>SYN_INTERP_MODE_IDLE<sp/>=<sp/>0,</highlight></codeline>
+<codeline lineno="28" refid="syn__interpolator_8h_1a7ce3cc76ed1beee3730983930e84303da3d105941dc6282cbe4474e32615bda7e" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__interpolator_8h_1a7ce3cc76ed1beee3730983930e84303da3d105941dc6282cbe4474e32615bda7e" kindref="member">SYN_INTERP_MODE_LINEAR</ref>,<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="29" refid="syn__interpolator_8h_1a7ce3cc76ed1beee3730983930e84303daa0e1706ebb7798d69eaa91fd48704ecf" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__interpolator_8h_1a7ce3cc76ed1beee3730983930e84303daa0e1706ebb7798d69eaa91fd48704ecf" kindref="member">SYN_INTERP_MODE_CIRCULAR_CW</ref>,<sp/><sp/></highlight></codeline>
+<codeline lineno="30" refid="syn__interpolator_8h_1a7ce3cc76ed1beee3730983930e84303da0e27b493f3005674c90f44112380ed21" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__interpolator_8h_1a7ce3cc76ed1beee3730983930e84303da0e27b493f3005674c90f44112380ed21" kindref="member">SYN_INTERP_MODE_CIRCULAR_CCW</ref>,<sp/></highlight></codeline>
+<codeline lineno="31"><highlight class="normal">}<sp/><ref refid="syn__interpolator_8h_1a7ce3cc76ed1beee3730983930e84303d" kindref="member">SYN_Interp_Mode</ref>;</highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight></codeline>
+<codeline lineno="34" refid="structSYN__Vector3F" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="35" refid="structSYN__Vector3F_1a6cf92d17b3af69f5f18aa52d7d1bbf27" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/><ref refid="structSYN__Vector3F_1a6cf92d17b3af69f5f18aa52d7d1bbf27" kindref="member">x</ref>;<sp/></highlight></codeline>
+<codeline lineno="36" refid="structSYN__Vector3F_1a4936bcc1a4b74c6fda7ad2299c0b7e0e" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/><ref refid="structSYN__Vector3F_1a4936bcc1a4b74c6fda7ad2299c0b7e0e" kindref="member">y</ref>;<sp/></highlight></codeline>
+<codeline lineno="37" refid="structSYN__Vector3F_1a1aea4a71097cae2431428cb696fa3733" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/><ref refid="structSYN__Vector3F_1a1aea4a71097cae2431428cb696fa3733" kindref="member">z</ref>;<sp/></highlight></codeline>
+<codeline lineno="38"><highlight class="normal">}<sp/><ref refid="structSYN__Vector3F" kindref="compound">SYN_Vector3F</ref>;</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight></codeline>
+<codeline lineno="41" refid="structSYN__Interpolator" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="42" refid="structSYN__Interpolator_1a06ef6238dec60cec2f8350e23ad68768" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__interpolator_8h_1a7ce3cc76ed1beee3730983930e84303d" kindref="member">SYN_Interp_Mode</ref><sp/><ref refid="structSYN__Interpolator_1a06ef6238dec60cec2f8350e23ad68768" kindref="member">mode</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="44"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Endpoints<sp/>&amp;<sp/>Geometry<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="45" refid="structSYN__Interpolator_1a60442757ccdbc92188364b1d742d9638" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structSYN__Vector3F" kindref="compound">SYN_Vector3F</ref><sp/><ref refid="structSYN__Interpolator_1a60442757ccdbc92188364b1d742d9638" kindref="member">start_pos</ref>;<sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="46" refid="structSYN__Interpolator_1a6eafcd5d99000fc3f9b352949e586921" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structSYN__Vector3F" kindref="compound">SYN_Vector3F</ref><sp/><ref refid="structSYN__Interpolator_1a6eafcd5d99000fc3f9b352949e586921" kindref="member">target_pos</ref>;<sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="47" refid="structSYN__Interpolator_1a50cd0cc9cbfbb949eb9ea989a963f971" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structSYN__Vector3F" kindref="compound">SYN_Vector3F</ref><sp/><ref refid="structSYN__Interpolator_1a50cd0cc9cbfbb949eb9ea989a963f971" kindref="member">center_offset</ref>;<sp/><sp/></highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Current<sp/>State<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="50" refid="structSYN__Interpolator_1afdedb9c7d8d5c0703db3a29b0419e6b9" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structSYN__Vector3F" kindref="compound">SYN_Vector3F</ref><sp/><ref refid="structSYN__Interpolator_1afdedb9c7d8d5c0703db3a29b0419e6b9" kindref="member">current_pos</ref>;<sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="51" refid="structSYN__Interpolator_1a1aa5e1a24780e4819946ff93750e06f0" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__Interpolator_1a1aa5e1a24780e4819946ff93750e06f0" kindref="member">total_length</ref>;<sp/><sp/></highlight></codeline>
+<codeline lineno="52" refid="structSYN__Interpolator_1ad7475cacb5dc4179977fc8522a5ccc23" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__Interpolator_1ad7475cacb5dc4179977fc8522a5ccc23" kindref="member">current_dist</ref>;<sp/><sp/></highlight></codeline>
+<codeline lineno="53" refid="structSYN__Interpolator_1a1029b64edc9c8b0b9b25535e1608410d" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__Interpolator_1a1029b64edc9c8b0b9b25535e1608410d" kindref="member">radius</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="54" refid="structSYN__Interpolator_1a18fe0ce86fdf3e1f8661c639e2e56a3a" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__Interpolator_1a18fe0ce86fdf3e1f8661c639e2e56a3a" kindref="member">start_angle</ref>;<sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="55" refid="structSYN__Interpolator_1a7202329820474d9192b02a1fd3ede158" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__Interpolator_1a7202329820474d9192b02a1fd3ede158" kindref="member">sweep_angle</ref>;<sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Speed<sp/>&amp;<sp/>Acceleration<sp/>Profiling<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="58" refid="structSYN__Interpolator_1a19a0f393ac81102e5963f1be650a1100" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structSYN__SCurve" kindref="compound">SYN_SCurve</ref><sp/><sp/><sp/><ref refid="structSYN__Interpolator_1a19a0f393ac81102e5963f1be650a1100" kindref="member">scurve</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="59" refid="structSYN__Interpolator_1a68126e0945ffe02fb35825f3b840b153" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__Interpolator_1a68126e0945ffe02fb35825f3b840b153" kindref="member">target_feedrate</ref>;<sp/></highlight></codeline>
+<codeline lineno="61" refid="structSYN__Interpolator_1a0cc7f9bf9213a44c1b4ff66c2b0b094f" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__Interpolator_1a0cc7f9bf9213a44c1b4ff66c2b0b094f" kindref="member">total_steps</ref>;<sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="62" refid="structSYN__Interpolator_1ad69ddaf2ecc3c91a4c01648472639e0b" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__Interpolator_1ad69ddaf2ecc3c91a4c01648472639e0b" kindref="member">step_index</ref>;<sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="63"><highlight class="normal">}<sp/><ref refid="structSYN__Interpolator" kindref="compound">SYN_Interpolator</ref>;</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"></highlight></codeline>
+<codeline lineno="69"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__interpolator_8h_1a719059f3e0a8298d973938ba274c3336" kindref="member">syn_interpolator_init</ref>(<ref refid="structSYN__Interpolator" kindref="compound">SYN_Interpolator</ref><sp/>*interp);</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"></highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__interpolator_8h_1ab795dde94b1f6deaf5f4d5a3a4c1ad1c" kindref="member">syn_interpolator_plan_linear</ref>(<ref refid="structSYN__Interpolator" kindref="compound">SYN_Interpolator</ref><sp/>*interp,</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__Vector3F" kindref="compound">SYN_Vector3F</ref><sp/>start,<sp/><ref refid="structSYN__Vector3F" kindref="compound">SYN_Vector3F</ref><sp/>target,</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>feedrate,<sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>max_accel,<sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>max_jerk,</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>step_res);</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"></highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__interpolator_8h_1a3707ed0d61b225d4c47c39ef35194986" kindref="member">syn_interpolator_plan_circular</ref>(<ref refid="structSYN__Interpolator" kindref="compound">SYN_Interpolator</ref><sp/>*interp,</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__Vector3F" kindref="compound">SYN_Vector3F</ref><sp/>start,<sp/><ref refid="structSYN__Vector3F" kindref="compound">SYN_Vector3F</ref><sp/>target,</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__Vector3F" kindref="compound">SYN_Vector3F</ref><sp/>center_offset,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>is_cw,</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>feedrate,<sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>max_accel,<sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>max_jerk,</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>step_res);</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"></highlight></codeline>
+<codeline lineno="115"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__interpolator_8h_1a2a6e2fab5df344976f9b584484a16389" kindref="member">syn_interpolator_step</ref>(<ref refid="structSYN__Interpolator" kindref="compound">SYN_Interpolator</ref><sp/>*interp,<sp/><ref refid="structSYN__Vector3F" kindref="compound">SYN_Vector3F</ref><sp/>*out_pos);</highlight></codeline>
+<codeline lineno="116"><highlight class="normal"></highlight></codeline>
+<codeline lineno="126"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__interpolator_8h_1acd996fa9b4709b189b4d861f64848e35" kindref="member">syn_interpolator_eval_at_time</ref>(<ref refid="structSYN__Interpolator" kindref="compound">SYN_Interpolator</ref><sp/>*interp,<sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>t_sec,</highlight></codeline>
+<codeline lineno="127"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__Vector3F" kindref="compound">SYN_Vector3F</ref><sp/>*out_pos,<sp/><ref refid="structSYN__Vector3F" kindref="compound">SYN_Vector3F</ref><sp/>*out_vel);</highlight></codeline>
+<codeline lineno="128"><highlight class="normal"></highlight></codeline>
+<codeline lineno="129"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="130"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="131"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="132"><highlight class="normal"></highlight></codeline>
+<codeline lineno="133"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_INTERPOLATOR_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/motor/syn_interpolator.h"/>
+  </compounddef>
+</doxygen>

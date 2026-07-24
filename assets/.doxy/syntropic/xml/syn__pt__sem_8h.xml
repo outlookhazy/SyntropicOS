@@ -1,0 +1,282 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__pt__sem_8h" kind="file" language="C++">
+    <compoundname>syn_pt_sem.h</compoundname>
+    <includes refid="syn__pt_8h" local="yes">syn_pt.h</includes>
+    <includedby refid="syntropic_8h" local="yes">src/syntropic/syntropic.h</includedby>
+    <incdepgraph>
+      <node id="6">
+        <label>../common/syn_compiler.h</label>
+        <link refid="syn__compiler_8h"/>
+      </node>
+      <node id="3">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>syn_pt.h</label>
+        <link refid="syn__pt_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/pt/syn_pt_sem.h</label>
+        <link refid="syn__pt__sem_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>stddef.h</label>
+      </node>
+      <node id="4">
+        <label>stdint.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="1">
+        <label>src/syntropic/pt/syn_pt_sem.h</label>
+        <link refid="syn__pt__sem_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>src/syntropic/syntropic.h</label>
+        <link refid="syntropic_8h"/>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="structSYN__PT__Sem" prot="public">SYN_PT_Sem</innerclass>
+    <sectiondef kind="define">
+      <memberdef kind="define" id="syn__pt__sem_8h_1aa59eb927ba042e69a36c29b572283556" prot="public" static="no">
+        <name>PT_SEM_INIT</name>
+        <param><defname>sem</defname></param>
+        <param><defname>initial</defname></param>
+        <initializer>((sem)-&gt;count = (int16_t)(initial))</initializer>
+        <briefdescription>
+<para>Initialize a semaphore with the given count. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>sem</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to the semaphore. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>initial</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Initial count (typically 0 or 1). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/pt/syn_pt_sem.h" line="53" column="9" bodyfile="src/syntropic/pt/syn_pt_sem.h" bodystart="53" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__pt__sem_8h_1ab64fa11539f8b6db675fde7e6d0b348a" prot="public" static="no">
+        <name>PT_SEM_WAIT</name>
+        <param><defname>pt</defname></param>
+        <param><defname>sem</defname></param>
+        <initializer>    do {                                                       \
+        <ref refid="syn__pt_8h_1a0a7f29e2a1e2caaf5bcc343412eef273" kindref="member">PT_WAIT_UNTIL</ref>(pt, (sem)-&gt;count &gt; 0);                   \
+        (sem)-&gt;count--;                                        \
+    } while (0)</initializer>
+        <briefdescription>
+<para>Block the protothread until the semaphore count is &gt; 0, then decrement it. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Must be called from within a protothread (between PT_BEGIN/PT_END).</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>pt</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Protothread. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>sem</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Semaphore to wait on. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/pt/syn_pt_sem.h" line="66" column="9" bodyfile="src/syntropic/pt/syn_pt_sem.h" bodystart="66" bodyend="70"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__pt__sem_8h_1abe5d2800739243a0303a348de0e3c78a" prot="public" static="no">
+        <name>PT_SEM_SIGNAL</name>
+        <param><defname>sem</defname></param>
+        <initializer>((sem)-&gt;count++)</initializer>
+        <briefdescription>
+<para>Increment the semaphore count, unblocking a waiting protothread. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Safe to call from ISR context.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>sem</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Semaphore to signal. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/pt/syn_pt_sem.h" line="81" column="9" bodyfile="src/syntropic/pt/syn_pt_sem.h" bodystart="81" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__pt__sem_8h_1ab4d23918f5b8cb60ac7ac6c4c17f30a0" prot="public" static="no">
+        <name>PT_SEM_TRYWAIT</name>
+        <param><defname>sem</defname></param>
+        <initializer><ref refid="syn__pt__sem_8h_1a587974648bb609cb79db0068326fc22c" kindref="member">pt_sem_trywait</ref>(sem)</initializer>
+        <briefdescription>
+<para>Macro wrapper for pt_sem_trywait. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/pt/syn_pt_sem.h" line="103" column="9" bodyfile="src/syntropic/pt/syn_pt_sem.h" bodystart="103" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__pt__sem_8h_1a63705cc32cf52d6141faed1b087f3870" prot="public" static="no">
+        <name>PT_SEM_COUNT</name>
+        <param><defname>sem</defname></param>
+        <initializer>((sem)-&gt;count)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Return the current count. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/pt/syn_pt_sem.h" line="108" column="9" bodyfile="src/syntropic/pt/syn_pt_sem.h" bodystart="108" bodyend="-1"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__pt__sem_8h_1a587974648bb609cb79db0068326fc22c" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>int</type>
+        <definition>static int pt_sem_trywait</definition>
+        <argsstring>(SYN_PT_Sem *sem)</argsstring>
+        <name>pt_sem_trywait</name>
+        <param>
+          <type><ref refid="structSYN__PT__Sem" kindref="compound">SYN_PT_Sem</ref> *</type>
+          <declname>sem</declname>
+        </param>
+        <briefdescription>
+<para>Try to acquire the semaphore without blocking. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>sem</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Semaphore to try. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>1 if acquired (count was &gt; 0 and was decremented), 0 otherwise. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/pt/syn_pt_sem.h" line="91" column="19" bodyfile="src/syntropic/pt/syn_pt_sem.h" bodystart="91" bodyend="98"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Lightweight counting semaphores for protothreads. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Provides inter-protothread synchronization with zero RAM overhead beyond the 2-byte counter itself. All operations are macro/inline — no .c file is needed.</para>
+<para><simplesect kind="par"><title>Usage</title><para><programlisting><codeline><highlight class="keyword">static</highlight><highlight class="normal"><sp/><ref refid="structSYN__PT__Sem" kindref="compound">SYN_PT_Sem</ref><sp/>data_ready;</highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__pt__sem_8h_1aa59eb927ba042e69a36c29b572283556" kindref="member">PT_SEM_INIT</ref>(&amp;data_ready,<sp/>0);</highlight></codeline>
+<codeline><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="comment">//<sp/>Producer<sp/>(can<sp/>be<sp/>called<sp/>from<sp/>ISR):</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__pt__sem_8h_1abe5d2800739243a0303a348de0e3c78a" kindref="member">PT_SEM_SIGNAL</ref>(&amp;data_ready);</highlight></codeline>
+<codeline><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="comment">//<sp/>Consumer<sp/>(inside<sp/>a<sp/>protothread):</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__pt__sem_8h_1ab64fa11539f8b6db675fde7e6d0b348a" kindref="member">PT_SEM_WAIT</ref>(pt,<sp/>&amp;data_ready);</highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="comment">//<sp/>...<sp/>data<sp/>is<sp/>now<sp/>available<sp/>...</highlight></codeline>
+</programlisting> </para>
+</simplesect>
+</para>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_PT_SEM_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_PT_SEM_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__pt_8h" kindref="compound">syn_pt.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Semaphore<sp/>structure<sp/>──────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight></codeline>
+<codeline lineno="41" refid="structSYN__PT__Sem" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="42" refid="structSYN__PT__Sem_1ac80fd4e9dfe40cc085ba9751672bbd99" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">volatile</highlight><highlight class="normal"><sp/>int16_t<sp/><ref refid="structSYN__PT__Sem_1ac80fd4e9dfe40cc085ba9751672bbd99" kindref="member">count</ref>;<sp/><sp/></highlight></codeline>
+<codeline lineno="43"><highlight class="normal">}<sp/><ref refid="structSYN__PT__Sem" kindref="compound">SYN_PT_Sem</ref>;</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Initialization<sp/>───────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="46"><highlight class="normal"></highlight></codeline>
+<codeline lineno="53" refid="syn__pt__sem_8h_1aa59eb927ba042e69a36c29b572283556" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>PT_SEM_INIT(sem,<sp/>initial)<sp/><sp/><sp/>((sem)-&gt;count<sp/>=<sp/>(int16_t)(initial))</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="54"><highlight class="normal"></highlight></codeline>
+<codeline lineno="55"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Blocking<sp/>wait<sp/>(protothread<sp/>context)<sp/>──────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="56"><highlight class="normal"></highlight></codeline>
+<codeline lineno="66" refid="syn__pt__sem_8h_1ab64fa11539f8b6db675fde7e6d0b348a" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>PT_SEM_WAIT(pt,<sp/>sem)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="67"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>do<sp/>{<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="68"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>PT_WAIT_UNTIL(pt,<sp/>(sem)-&gt;count<sp/>&gt;<sp/>0);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="69"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(sem)-&gt;count--;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="70"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>}<sp/>while<sp/>(0)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="71"><highlight class="normal"></highlight></codeline>
+<codeline lineno="72"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Signal<sp/>(any<sp/>context)<sp/>─────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="73"><highlight class="normal"></highlight></codeline>
+<codeline lineno="81" refid="syn__pt__sem_8h_1abe5d2800739243a0303a348de0e3c78a" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>PT_SEM_SIGNAL(sem)<sp/><sp/><sp/>((sem)-&gt;count++)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="82"><highlight class="normal"></highlight></codeline>
+<codeline lineno="83"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Non-blocking<sp/>try<sp/>─────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="84"><highlight class="normal"></highlight></codeline>
+<codeline lineno="91" refid="syn__pt__sem_8h_1a587974648bb609cb79db0068326fc22c" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="syn__pt__sem_8h_1a587974648bb609cb79db0068326fc22c" kindref="member">pt_sem_trywait</ref>(<ref refid="structSYN__PT__Sem" kindref="compound">SYN_PT_Sem</ref><sp/>*sem)</highlight></codeline>
+<codeline lineno="92"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(sem-&gt;<ref refid="structSYN__PT__Sem_1ac80fd4e9dfe40cc085ba9751672bbd99" kindref="member">count</ref><sp/>&gt;<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>sem-&gt;<ref refid="structSYN__PT__Sem_1ac80fd4e9dfe40cc085ba9751672bbd99" kindref="member">count</ref>--;</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>1;</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0;</highlight></codeline>
+<codeline lineno="98"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"></highlight></codeline>
+<codeline lineno="103" refid="syn__pt__sem_8h_1ab4d23918f5b8cb60ac7ac6c4c17f30a0" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>PT_SEM_TRYWAIT(sem)<sp/><sp/><sp/>pt_sem_trywait(sem)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="104"><highlight class="normal"></highlight></codeline>
+<codeline lineno="105"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Query<sp/>────────────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="106"><highlight class="normal"></highlight></codeline>
+<codeline lineno="108" refid="syn__pt__sem_8h_1a63705cc32cf52d6141faed1b087f3870" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>PT_SEM_COUNT(sem)<sp/><sp/><sp/><sp/><sp/>((sem)-&gt;count)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="109"><highlight class="normal"></highlight></codeline>
+<codeline lineno="110"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="111"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="112"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="113"><highlight class="normal"></highlight></codeline>
+<codeline lineno="114"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_PT_SEM_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/pt/syn_pt_sem.h"/>
+  </compounddef>
+</doxygen>

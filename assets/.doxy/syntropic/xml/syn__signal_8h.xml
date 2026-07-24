@@ -1,0 +1,750 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__signal_8h" kind="file" language="C++">
+    <compoundname>syn_signal.h</compoundname>
+    <includes local="no">stdint.h</includes>
+    <includes local="no">stddef.h</includes>
+    <includes local="no">stdbool.h</includes>
+    <includedby refid="syn__adc_8h" local="yes">src/syntropic/drivers/syn_adc.h</includedby>
+    <includedby refid="syn__signal_8c" local="yes">src/syntropic/dsp/syn_signal.c</includedby>
+    <includedby refid="syn__encoder_8h" local="yes">src/syntropic/input/syn_encoder.h</includedby>
+    <includedby refid="syn__sensor_8h" local="yes">src/syntropic/sensor/syn_sensor.h</includedby>
+    <includedby refid="syntropic_8h" local="yes">src/syntropic/syntropic.h</includedby>
+    <includedby refid="syn__power_8h" local="yes">src/syntropic/system/syn_power.h</includedby>
+    <incdepgraph>
+      <node id="1">
+        <label>src/syntropic/dsp/syn_signal.h</label>
+        <link refid="syn__signal_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>stdbool.h</label>
+      </node>
+      <node id="3">
+        <label>stddef.h</label>
+      </node>
+      <node id="2">
+        <label>stdint.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="3">
+        <label>src/syntropic/drivers/syn_adc.c</label>
+        <link refid="syn__adc_8c"/>
+      </node>
+      <node id="2">
+        <label>src/syntropic/drivers/syn_adc.h</label>
+        <link refid="syn__adc_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>src/syntropic/dsp/syn_signal.c</label>
+        <link refid="syn__signal_8c"/>
+      </node>
+      <node id="1">
+        <label>src/syntropic/dsp/syn_signal.h</label>
+        <link refid="syn__signal_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="9">
+        <label>src/syntropic/input/syn_encoder.c</label>
+        <link refid="syn__encoder_8c"/>
+      </node>
+      <node id="8">
+        <label>src/syntropic/input/syn_encoder.h</label>
+        <link refid="syn__encoder_8h"/>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="11">
+        <label>src/syntropic/sensor/syn_sensor.c</label>
+        <link refid="syn__sensor_8c"/>
+      </node>
+      <node id="10">
+        <label>src/syntropic/sensor/syn_sensor.h</label>
+        <link refid="syn__sensor_8h"/>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>src/syntropic/syntropic.h</label>
+        <link refid="syntropic_8h"/>
+      </node>
+      <node id="6">
+        <label>src/syntropic/system/syn_power.c</label>
+        <link refid="syn__power_8c"/>
+      </node>
+      <node id="5">
+        <label>src/syntropic/system/syn_power.h</label>
+        <link refid="syn__power_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="structSYN__Signal" prot="public">SYN_Signal</innerclass>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__signal_8h_1abce0870abe2a723777536b23c99830a2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_signal_init</definition>
+        <argsstring>(SYN_Signal *sig, int32_t *buf, size_t capacity)</argsstring>
+        <name>syn_signal_init</name>
+        <param>
+          <type><ref refid="structSYN__Signal" kindref="compound">SYN_Signal</ref> *</type>
+          <declname>sig</declname>
+        </param>
+        <param>
+          <type>int32_t *</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>capacity</declname>
+        </param>
+        <briefdescription>
+<para>Initialize with a caller-provided sample buffer. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>sig</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Signal instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Sample buffer (caller-owned). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>capacity</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Buffer capacity (number of samples). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/dsp/syn_signal.h" line="65" column="6" bodyfile="src/syntropic/dsp/syn_signal.c" bodystart="29" bodyend="39" declfile="src/syntropic/dsp/syn_signal.h" declline="65" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__signal_8h_1a55cd1043c3a99e1b61b36904dec38e93" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_signal_push</definition>
+        <argsstring>(SYN_Signal *sig, int32_t sample)</argsstring>
+        <name>syn_signal_push</name>
+        <param>
+          <type><ref refid="structSYN__Signal" kindref="compound">SYN_Signal</ref> *</type>
+          <declname>sig</declname>
+        </param>
+        <param>
+          <type>int32_t</type>
+          <declname>sample</declname>
+        </param>
+        <briefdescription>
+<para>Push a new sample. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>If the window is full, the oldest sample is evicted.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>sig</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Signal instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>sample</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>New sample value. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/dsp/syn_signal.h" line="75" column="6" bodyfile="src/syntropic/dsp/syn_signal.c" bodystart="41" bodyend="57" declfile="src/syntropic/dsp/syn_signal.h" declline="75" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__signal_8h_1a1972069d766d935df182d9a07e72edc6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_signal_clear</definition>
+        <argsstring>(SYN_Signal *sig)</argsstring>
+        <name>syn_signal_clear</name>
+        <param>
+          <type><ref refid="structSYN__Signal" kindref="compound">SYN_Signal</ref> *</type>
+          <declname>sig</declname>
+        </param>
+        <briefdescription>
+<para>Clear all samples. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>sig</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Signal instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/dsp/syn_signal.h" line="81" column="6" bodyfile="src/syntropic/dsp/syn_signal.c" bodystart="59" bodyend="65" declfile="src/syntropic/dsp/syn_signal.h" declline="81" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__signal_8h_1ac641f26847e7c21e72f96f91aad75883" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>size_t</type>
+        <definition>static size_t syn_signal_count</definition>
+        <argsstring>(const SYN_Signal *sig)</argsstring>
+        <name>syn_signal_count</name>
+        <param>
+          <type>const <ref refid="structSYN__Signal" kindref="compound">SYN_Signal</ref> *</type>
+          <declname>sig</declname>
+        </param>
+        <briefdescription>
+<para>Number of samples in the window. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>sig</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Signal instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Sample count. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/dsp/syn_signal.h" line="88" column="22" bodyfile="src/syntropic/dsp/syn_signal.h" bodystart="88" bodyend="91"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__signal_8h_1ab6bcb60debd8e290e793494766d37c8c" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>static bool syn_signal_full</definition>
+        <argsstring>(const SYN_Signal *sig)</argsstring>
+        <name>syn_signal_full</name>
+        <param>
+          <type>const <ref refid="structSYN__Signal" kindref="compound">SYN_Signal</ref> *</type>
+          <declname>sig</declname>
+        </param>
+        <briefdescription>
+<para>True if the window is full. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>sig</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Signal instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if count == capacity. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/dsp/syn_signal.h" line="98" column="20" bodyfile="src/syntropic/dsp/syn_signal.h" bodystart="98" bodyend="101"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__signal_8h_1a86c3ebc6dd18bb654260407130ba4d55" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int32_t</type>
+        <definition>int32_t syn_signal_min</definition>
+        <argsstring>(SYN_Signal *sig)</argsstring>
+        <name>syn_signal_min</name>
+        <param>
+          <type><ref refid="structSYN__Signal" kindref="compound">SYN_Signal</ref> *</type>
+          <declname>sig</declname>
+        </param>
+        <briefdescription>
+<para>Minimum value in the window. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>sig</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Signal instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Min, or 0 if empty. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/dsp/syn_signal.h" line="108" column="9" bodyfile="src/syntropic/dsp/syn_signal.c" bodystart="101" bodyend="106" declfile="src/syntropic/dsp/syn_signal.h" declline="108" declcolumn="9"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__signal_8h_1ae5b819e718b82566f563d033fad541c4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int32_t</type>
+        <definition>int32_t syn_signal_max</definition>
+        <argsstring>(SYN_Signal *sig)</argsstring>
+        <name>syn_signal_max</name>
+        <param>
+          <type><ref refid="structSYN__Signal" kindref="compound">SYN_Signal</ref> *</type>
+          <declname>sig</declname>
+        </param>
+        <briefdescription>
+<para>Maximum value in the window. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>sig</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Signal instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Max, or 0 if empty. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/dsp/syn_signal.h" line="115" column="9" bodyfile="src/syntropic/dsp/syn_signal.c" bodystart="108" bodyend="113" declfile="src/syntropic/dsp/syn_signal.h" declline="115" declcolumn="9"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__signal_8h_1acb7814b2950592d453e9bec108ae248e" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>int32_t</type>
+        <definition>static int32_t syn_signal_peak_to_peak</definition>
+        <argsstring>(SYN_Signal *sig)</argsstring>
+        <name>syn_signal_peak_to_peak</name>
+        <param>
+          <type><ref refid="structSYN__Signal" kindref="compound">SYN_Signal</ref> *</type>
+          <declname>sig</declname>
+        </param>
+        <briefdescription>
+<para>Peak-to-peak = max - min. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>sig</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Signal instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Peak-to-peak value, or 0 if empty. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/dsp/syn_signal.h" line="122" column="23" bodyfile="src/syntropic/dsp/syn_signal.h" bodystart="122" bodyend="126"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__signal_8h_1a4053fec079a09433cd471a44461e9635" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>int32_t</type>
+        <definition>static int32_t syn_signal_mean</definition>
+        <argsstring>(const SYN_Signal *sig)</argsstring>
+        <name>syn_signal_mean</name>
+        <param>
+          <type>const <ref refid="structSYN__Signal" kindref="compound">SYN_Signal</ref> *</type>
+          <declname>sig</declname>
+        </param>
+        <briefdescription>
+<para>Integer mean (truncated). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>sig</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Signal instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Truncated mean, or 0 if empty. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/dsp/syn_signal.h" line="133" column="23" bodyfile="src/syntropic/dsp/syn_signal.h" bodystart="133" bodyend="137"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__signal_8h_1a2225acf0bff186058ad3a7ad7db0da41" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>int64_t</type>
+        <definition>static int64_t syn_signal_sum</definition>
+        <argsstring>(const SYN_Signal *sig)</argsstring>
+        <name>syn_signal_sum</name>
+        <param>
+          <type>const <ref refid="structSYN__Signal" kindref="compound">SYN_Signal</ref> *</type>
+          <declname>sig</declname>
+        </param>
+        <briefdescription>
+<para>Sum of all samples in window. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>sig</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Signal instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Running sum. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/dsp/syn_signal.h" line="144" column="23" bodyfile="src/syntropic/dsp/syn_signal.h" bodystart="144" bodyend="147"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__signal_8h_1a81af1db1354a9c2515b45f5da68f752b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int32_t</type>
+        <definition>int32_t syn_signal_variance_q16</definition>
+        <argsstring>(const SYN_Signal *sig)</argsstring>
+        <name>syn_signal_variance_q16</name>
+        <param>
+          <type>const <ref refid="structSYN__Signal" kindref="compound">SYN_Signal</ref> *</type>
+          <declname>sig</declname>
+        </param>
+        <briefdescription>
+<para>Variance in Q16.16 format. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Population variance: Σ(x - mean)² / N, returned as Q16.16. Returns 0 if fewer than 2 samples.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>sig</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Signal instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Variance in Q16.16. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/dsp/syn_signal.h" line="158" column="9" bodyfile="src/syntropic/dsp/syn_signal.c" bodystart="117" bodyend="146" declfile="src/syntropic/dsp/syn_signal.h" declline="158" declcolumn="9"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__signal_8h_1a5dfc0e3e36d3ca70083b28c1a431cabb" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int32_t</type>
+        <definition>int32_t syn_signal_latest</definition>
+        <argsstring>(const SYN_Signal *sig)</argsstring>
+        <name>syn_signal_latest</name>
+        <param>
+          <type>const <ref refid="structSYN__Signal" kindref="compound">SYN_Signal</ref> *</type>
+          <declname>sig</declname>
+        </param>
+        <briefdescription>
+<para>Get the most recent sample. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>sig</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Signal instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Latest sample, or 0 if empty. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/dsp/syn_signal.h" line="165" column="9" bodyfile="src/syntropic/dsp/syn_signal.c" bodystart="150" bodyend="155" declfile="src/syntropic/dsp/syn_signal.h" declline="165" declcolumn="9"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__signal_8h_1acc66463b9eb2276e86bbc31802e2b709" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int32_t</type>
+        <definition>int32_t syn_signal_at</definition>
+        <argsstring>(const SYN_Signal *sig, size_t index)</argsstring>
+        <name>syn_signal_at</name>
+        <param>
+          <type>const <ref refid="structSYN__Signal" kindref="compound">SYN_Signal</ref> *</type>
+          <declname>sig</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>index</declname>
+        </param>
+        <briefdescription>
+<para>Get sample at index (0 = oldest, count-1 = newest). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>sig</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Signal instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>index</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Sample index. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Sample value. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/dsp/syn_signal.h" line="173" column="9" bodyfile="src/syntropic/dsp/syn_signal.c" bodystart="157" bodyend="170" declfile="src/syntropic/dsp/syn_signal.h" declline="173" declcolumn="9"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__signal_8h_1ab2ea8bb0ce7cde5fb75f6289fcbe7c01" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int32_t</type>
+        <definition>int32_t syn_signal_delta</definition>
+        <argsstring>(const SYN_Signal *sig)</argsstring>
+        <name>syn_signal_delta</name>
+        <param>
+          <type>const <ref refid="structSYN__Signal" kindref="compound">SYN_Signal</ref> *</type>
+          <declname>sig</declname>
+        </param>
+        <briefdescription>
+<para>Rate of change: latest - previous. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns 0 if fewer than 2 samples.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>sig</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Signal instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Delta between last two samples. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/dsp/syn_signal.h" line="183" column="9" bodyfile="src/syntropic/dsp/syn_signal.c" bodystart="172" bodyend="180" declfile="src/syntropic/dsp/syn_signal.h" declline="183" declcolumn="9"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__signal_8h_1ada3128546059dbf2925853149f6acecd" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int32_t</type>
+        <definition>int32_t syn_signal_rms_q16</definition>
+        <argsstring>(const SYN_Signal *sig)</argsstring>
+        <name>syn_signal_rms_q16</name>
+        <param>
+          <type>const <ref refid="structSYN__Signal" kindref="compound">SYN_Signal</ref> *</type>
+          <declname>sig</declname>
+        </param>
+        <briefdescription>
+<para>Root-Mean-Square in Q16.16: sqrt(Σ(x²) / N). </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns 0 if the window is empty.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>sig</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Signal instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>RMS value in Q16.16. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/dsp/syn_signal.h" line="193" column="9" bodyfile="src/syntropic/dsp/syn_signal.c" bodystart="184" bodyend="212" declfile="src/syntropic/dsp/syn_signal.h" declline="193" declcolumn="9"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__signal_8h_1a52a7f0e4f7a70a41a149dcf731d08235" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int32_t</type>
+        <definition>int32_t syn_signal_std_dev_q16</definition>
+        <argsstring>(const SYN_Signal *sig)</argsstring>
+        <name>syn_signal_std_dev_q16</name>
+        <param>
+          <type>const <ref refid="structSYN__Signal" kindref="compound">SYN_Signal</ref> *</type>
+          <declname>sig</declname>
+        </param>
+        <briefdescription>
+<para>Standard deviation in Q16.16: sqrt(variance). </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Returns 0 if fewer than 2 samples.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>sig</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Signal instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Standard deviation in Q16.16. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/dsp/syn_signal.h" line="203" column="9" bodyfile="src/syntropic/dsp/syn_signal.c" bodystart="214" bodyend="219" declfile="src/syntropic/dsp/syn_signal.h" declline="203" declcolumn="9"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Signal statistics — sliding window min/max/mean/variance/RMS. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Maintains a circular buffer of samples and computes statistics incrementally. Designed for sensor data conditioning.</para>
+<para>All math is integer-only. Mean and variance use Q16.16 for fractional precision without floating point.</para>
+<para><simplesect kind="par"><title>Usage</title><para><programlisting><codeline><highlight class="normal">int32_t<sp/>samples[32];</highlight></codeline>
+<codeline><highlight class="normal"><ref refid="structSYN__Signal" kindref="compound">SYN_Signal</ref><sp/>sig;</highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__signal_8c_1abce0870abe2a723777536b23c99830a2" kindref="member">syn_signal_init</ref>(&amp;sig,<sp/>samples,<sp/>32);</highlight></codeline>
+<codeline><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="comment">//<sp/>Feed<sp/>samples:</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__signal_8c_1a55cd1043c3a99e1b61b36904dec38e93" kindref="member">syn_signal_push</ref>(&amp;sig,<sp/>adc_read());</highlight></codeline>
+<codeline><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="comment">//<sp/>Query<sp/>stats:</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal">int32_t<sp/>min<sp/>=<sp/><ref refid="syn__signal_8c_1a86c3ebc6dd18bb654260407130ba4d55" kindref="member">syn_signal_min</ref>(&amp;sig);</highlight></codeline>
+<codeline><highlight class="normal">int32_t<sp/>max<sp/>=<sp/><ref refid="syn__signal_8c_1ae5b819e718b82566f563d033fad541c4" kindref="member">syn_signal_max</ref>(&amp;sig);</highlight></codeline>
+<codeline><highlight class="normal">int32_t<sp/>avg<sp/>=<sp/><ref refid="syn__signal_8h_1a4053fec079a09433cd471a44461e9635" kindref="member">syn_signal_mean</ref>(&amp;sig);<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>integer<sp/>mean</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal">int32_t<sp/>pp<sp/><sp/>=<sp/><ref refid="syn__signal_8h_1acb7814b2950592d453e9bec108ae248e" kindref="member">syn_signal_peak_to_peak</ref>(&amp;sig);</highlight></codeline>
+<codeline><highlight class="normal">int32_t<sp/>var<sp/>=<sp/><ref refid="syn__signal_8c_1a81af1db1354a9c2515b45f5da68f752b" kindref="member">syn_signal_variance_q16</ref>(&amp;sig);<sp/></highlight><highlight class="comment">//<sp/>Q16.16</highlight></codeline>
+</programlisting> </para>
+</simplesect>
+</para>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_SIGNAL_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_SIGNAL_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stddef.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Instance<sp/>─────────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight></codeline>
+<codeline lineno="44" refid="structSYN__Signal" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="45" refid="structSYN__Signal_1a74d9c350d575eda04d537c8433b953b5" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>int32_t<sp/><sp/>*<ref refid="structSYN__Signal_1a74d9c350d575eda04d537c8433b953b5" kindref="member">buf</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="46" refid="structSYN__Signal_1aab03c1dac77050c0831e411b606e3372" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structSYN__Signal_1aab03c1dac77050c0831e411b606e3372" kindref="member">capacity</ref>;<sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="47" refid="structSYN__Signal_1a46e59825c93b8714e485159a209356da" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structSYN__Signal_1a46e59825c93b8714e485159a209356da" kindref="member">head</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="48" refid="structSYN__Signal_1a2d4781c7c0832209f02f412bc414e910" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structSYN__Signal_1a2d4781c7c0832209f02f412bc414e910" kindref="member">count</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Running<sp/>accumulators<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="51" refid="structSYN__Signal_1a78b3a635bb36fec9dd5e8ccf5b5fbb4e" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>int64_t<sp/><sp/><sp/><ref refid="structSYN__Signal_1a78b3a635bb36fec9dd5e8ccf5b5fbb4e" kindref="member">sum</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="52" refid="structSYN__Signal_1af9974aaf293bf6829f465029a95c1c6e" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>int32_t<sp/><sp/><sp/><ref refid="structSYN__Signal_1af9974aaf293bf6829f465029a95c1c6e" kindref="member">cached_min</ref>;<sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="53" refid="structSYN__Signal_1a697b9e0c20c028b2f00106e40114fe00" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>int32_t<sp/><sp/><sp/><ref refid="structSYN__Signal_1a697b9e0c20c028b2f00106e40114fe00" kindref="member">cached_max</ref>;<sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="54" refid="structSYN__Signal_1a80ec3150519660161d8ff8687b34e85a" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__Signal_1a80ec3150519660161d8ff8687b34e85a" kindref="member">cache_valid</ref>;<sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="55"><highlight class="normal">}<sp/><ref refid="structSYN__Signal" kindref="compound">SYN_Signal</ref>;</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"></highlight></codeline>
+<codeline lineno="57"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>API<sp/>──────────────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="58"><highlight class="normal"></highlight></codeline>
+<codeline lineno="65"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__signal_8h_1abce0870abe2a723777536b23c99830a2" kindref="member">syn_signal_init</ref>(<ref refid="structSYN__Signal" kindref="compound">SYN_Signal</ref><sp/>*sig,<sp/>int32_t<sp/>*buf,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>capacity);</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"></highlight></codeline>
+<codeline lineno="75"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__signal_8h_1a55cd1043c3a99e1b61b36904dec38e93" kindref="member">syn_signal_push</ref>(<ref refid="structSYN__Signal" kindref="compound">SYN_Signal</ref><sp/>*sig,<sp/>int32_t<sp/>sample);</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"></highlight></codeline>
+<codeline lineno="81"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__signal_8h_1a1972069d766d935df182d9a07e72edc6" kindref="member">syn_signal_clear</ref>(<ref refid="structSYN__Signal" kindref="compound">SYN_Signal</ref><sp/>*sig);</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"></highlight></codeline>
+<codeline lineno="88" refid="syn__signal_8h_1ac641f26847e7c21e72f96f91aad75883" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="syn__signal_8h_1ac641f26847e7c21e72f96f91aad75883" kindref="member">syn_signal_count</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__Signal" kindref="compound">SYN_Signal</ref><sp/>*sig)</highlight></codeline>
+<codeline lineno="89"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>sig-&gt;<ref refid="structSYN__Signal_1a2d4781c7c0832209f02f412bc414e910" kindref="member">count</ref>;</highlight></codeline>
+<codeline lineno="91"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"></highlight></codeline>
+<codeline lineno="98" refid="syn__signal_8h_1ab6bcb60debd8e290e793494766d37c8c" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__signal_8h_1ab6bcb60debd8e290e793494766d37c8c" kindref="member">syn_signal_full</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__Signal" kindref="compound">SYN_Signal</ref><sp/>*sig)</highlight></codeline>
+<codeline lineno="99"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>sig-&gt;<ref refid="structSYN__Signal_1a2d4781c7c0832209f02f412bc414e910" kindref="member">count</ref><sp/>==<sp/>sig-&gt;<ref refid="structSYN__Signal_1aab03c1dac77050c0831e411b606e3372" kindref="member">capacity</ref>;</highlight></codeline>
+<codeline lineno="101"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"></highlight></codeline>
+<codeline lineno="108"><highlight class="normal">int32_t<sp/><ref refid="syn__signal_8h_1a86c3ebc6dd18bb654260407130ba4d55" kindref="member">syn_signal_min</ref>(<ref refid="structSYN__Signal" kindref="compound">SYN_Signal</ref><sp/>*sig);</highlight></codeline>
+<codeline lineno="109"><highlight class="normal"></highlight></codeline>
+<codeline lineno="115"><highlight class="normal">int32_t<sp/><ref refid="syn__signal_8h_1ae5b819e718b82566f563d033fad541c4" kindref="member">syn_signal_max</ref>(<ref refid="structSYN__Signal" kindref="compound">SYN_Signal</ref><sp/>*sig);</highlight></codeline>
+<codeline lineno="116"><highlight class="normal"></highlight></codeline>
+<codeline lineno="122" refid="syn__signal_8h_1acb7814b2950592d453e9bec108ae248e" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>int32_t<sp/><ref refid="syn__signal_8h_1acb7814b2950592d453e9bec108ae248e" kindref="member">syn_signal_peak_to_peak</ref>(<ref refid="structSYN__Signal" kindref="compound">SYN_Signal</ref><sp/>*sig)</highlight></codeline>
+<codeline lineno="123"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="124"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(sig-&gt;<ref refid="structSYN__Signal_1a2d4781c7c0832209f02f412bc414e910" kindref="member">count</ref><sp/>==<sp/>0)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0;</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__signal_8h_1ae5b819e718b82566f563d033fad541c4" kindref="member">syn_signal_max</ref>(sig)<sp/>-<sp/><ref refid="syn__signal_8h_1a86c3ebc6dd18bb654260407130ba4d55" kindref="member">syn_signal_min</ref>(sig);</highlight></codeline>
+<codeline lineno="126"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="127"><highlight class="normal"></highlight></codeline>
+<codeline lineno="133" refid="syn__signal_8h_1a4053fec079a09433cd471a44461e9635" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>int32_t<sp/><ref refid="syn__signal_8h_1a4053fec079a09433cd471a44461e9635" kindref="member">syn_signal_mean</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__Signal" kindref="compound">SYN_Signal</ref><sp/>*sig)</highlight></codeline>
+<codeline lineno="134"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="135"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(sig-&gt;<ref refid="structSYN__Signal_1a2d4781c7c0832209f02f412bc414e910" kindref="member">count</ref><sp/>==<sp/>0)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0;</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(int32_t)(sig-&gt;<ref refid="structSYN__Signal_1a78b3a635bb36fec9dd5e8ccf5b5fbb4e" kindref="member">sum</ref><sp/>/<sp/>(int64_t)sig-&gt;<ref refid="structSYN__Signal_1a2d4781c7c0832209f02f412bc414e910" kindref="member">count</ref>);</highlight></codeline>
+<codeline lineno="137"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="138"><highlight class="normal"></highlight></codeline>
+<codeline lineno="144" refid="syn__signal_8h_1a2225acf0bff186058ad3a7ad7db0da41" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>int64_t<sp/><ref refid="syn__signal_8h_1a2225acf0bff186058ad3a7ad7db0da41" kindref="member">syn_signal_sum</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__Signal" kindref="compound">SYN_Signal</ref><sp/>*sig)</highlight></codeline>
+<codeline lineno="145"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="146"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>sig-&gt;<ref refid="structSYN__Signal_1a78b3a635bb36fec9dd5e8ccf5b5fbb4e" kindref="member">sum</ref>;</highlight></codeline>
+<codeline lineno="147"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="148"><highlight class="normal"></highlight></codeline>
+<codeline lineno="158"><highlight class="normal">int32_t<sp/><ref refid="syn__signal_8h_1a81af1db1354a9c2515b45f5da68f752b" kindref="member">syn_signal_variance_q16</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__Signal" kindref="compound">SYN_Signal</ref><sp/>*sig);</highlight></codeline>
+<codeline lineno="159"><highlight class="normal"></highlight></codeline>
+<codeline lineno="165"><highlight class="normal">int32_t<sp/><ref refid="syn__signal_8h_1a5dfc0e3e36d3ca70083b28c1a431cabb" kindref="member">syn_signal_latest</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__Signal" kindref="compound">SYN_Signal</ref><sp/>*sig);</highlight></codeline>
+<codeline lineno="166"><highlight class="normal"></highlight></codeline>
+<codeline lineno="173"><highlight class="normal">int32_t<sp/><ref refid="syn__signal_8h_1acc66463b9eb2276e86bbc31802e2b709" kindref="member">syn_signal_at</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__Signal" kindref="compound">SYN_Signal</ref><sp/>*sig,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>index);</highlight></codeline>
+<codeline lineno="174"><highlight class="normal"></highlight></codeline>
+<codeline lineno="183"><highlight class="normal">int32_t<sp/><ref refid="syn__signal_8h_1ab2ea8bb0ce7cde5fb75f6289fcbe7c01" kindref="member">syn_signal_delta</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__Signal" kindref="compound">SYN_Signal</ref><sp/>*sig);</highlight></codeline>
+<codeline lineno="184"><highlight class="normal"></highlight></codeline>
+<codeline lineno="193"><highlight class="normal">int32_t<sp/><ref refid="syn__signal_8h_1ada3128546059dbf2925853149f6acecd" kindref="member">syn_signal_rms_q16</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__Signal" kindref="compound">SYN_Signal</ref><sp/>*sig);</highlight></codeline>
+<codeline lineno="194"><highlight class="normal"></highlight></codeline>
+<codeline lineno="203"><highlight class="normal">int32_t<sp/><ref refid="syn__signal_8h_1a52a7f0e4f7a70a41a149dcf731d08235" kindref="member">syn_signal_std_dev_q16</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__Signal" kindref="compound">SYN_Signal</ref><sp/>*sig);</highlight></codeline>
+<codeline lineno="204"><highlight class="normal"></highlight></codeline>
+<codeline lineno="205"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="206"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="207"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="208"><highlight class="normal"></highlight></codeline>
+<codeline lineno="209"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_SIGNAL_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/dsp/syn_signal.h"/>
+  </compounddef>
+</doxygen>

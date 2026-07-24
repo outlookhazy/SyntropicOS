@@ -1,0 +1,929 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__fft_8c" kind="file" language="C++">
+    <compoundname>syn_fft.c</compoundname>
+    <includes refid="syn__fft_8h" local="yes">syn_fft.h</includes>
+    <includes refid="syn__assert_8h" local="yes">../util/syn_assert.h</includes>
+    <incdepgraph>
+      <node id="8">
+        <label>../common/syn_compiler.h</label>
+        <link refid="syn__compiler_8h"/>
+      </node>
+      <node id="3">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/dsp/syn_fft.c</label>
+        <link refid="syn__fft_8c"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>syn_fft.h</label>
+        <link refid="syn__fft_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>../util/syn_assert.h</label>
+        <link refid="syn__assert_8h"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>../util/syn_qmath.h</label>
+        <link refid="syn__qmath_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>stddef.h</label>
+      </node>
+      <node id="4">
+        <label>stdint.h</label>
+      </node>
+    </incdepgraph>
+    <sectiondef kind="var">
+      <memberdef kind="variable" id="syn__fft_8c_1abe476ff5e8006aa4095526cbcac7fdcc" prot="public" static="yes" mutable="no">
+        <type>const <ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+        <definition>const q16_t g_sin_table[65]</definition>
+        <argsstring>[65]</argsstring>
+        <name>g_sin_table</name>
+        <initializer>= {
+    0x00000000, 0x00000648, 0x00000C90, 0x000012D5, 0x00001918, 0x00001F56, 0x00002590, 0x00002BC4,
+    0x000031F1, 0x00003817, 0x00003E34, 0x00004447, 0x00004A50, 0x0000504D, 0x0000563E, 0x00005C22,
+    0x000061F8, 0x000067BE, 0x00006D74, 0x0000731A, 0x000078AD, 0x00007E2F, 0x0000839C, 0x000088F6,
+    0x00008E3A, 0x00009368, 0x00009880, 0x00009D80, 0x0000A268, 0x0000A736, 0x0000ABEB, 0x0000B086,
+    0x0000B505, 0x0000B968, 0x0000BDAF, 0x0000C1D8, 0x0000C5E4, 0x0000C9D1, 0x0000CD9F, 0x0000D14D,
+    0x0000D4DB, 0x0000D848, 0x0000DB94, 0x0000DEBE, 0x0000E1C6, 0x0000E4AA, 0x0000E76C, 0x0000EA0A,
+    0x0000EC83, 0x0000EED9, 0x0000F109, 0x0000F314, 0x0000F4FA, 0x0000F6BA, 0x0000F854, 0x0000F9C8,
+    0x0000FB15, 0x0000FC3B, 0x0000FD3B, 0x0000FE13, 0x0000FEC4, 0x0000FF4E, 0x0000FFB1, 0x0000FFEC,
+    0x00010000,
+}</initializer>
+        <briefdescription>
+<para>Quarter-sine lookup table for N=256 FFT (Q16 fixed-point). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/dsp/syn_fft.c" line="17" column="20" bodyfile="src/syntropic/dsp/syn_fft.c" bodystart="17" bodyend="27"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__fft_8c_1a246a2e05e3b38115f8c17f135b5fcb21" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint16_t</type>
+        <definition>static uint16_t reverse_bits</definition>
+        <argsstring>(uint16_t x, uint16_t stages)</argsstring>
+        <name>reverse_bits</name>
+        <param>
+          <type>uint16_t</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>stages</declname>
+        </param>
+        <briefdescription>
+<para>Reverse the low bits of a value. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>x</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Value to reverse. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>stages</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of bits. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Bit-reversed value. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/dsp/syn_fft.c" line="35" column="17" bodyfile="src/syntropic/dsp/syn_fft.c" bodystart="35" bodyend="43"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__fft_8c_1aa095d0aa1ff8b19a3b1261b4a224b672" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void bit_reverse_sort</definition>
+        <argsstring>(q16_t *real, q16_t *imag, uint16_t n, uint16_t stages)</argsstring>
+        <name>bit_reverse_sort</name>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref> *</type>
+          <declname>real</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref> *</type>
+          <declname>imag</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>n</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>stages</declname>
+        </param>
+        <briefdescription>
+<para>Reorder samples by bit-reversed index. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>real</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Real components. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>imag</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Imaginary components. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>n</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of samples. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>stages</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>log2(n). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/dsp/syn_fft.c" line="52" column="13" bodyfile="src/syntropic/dsp/syn_fft.c" bodystart="52" bodyend="67"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__fft_8c_1affb424bb43d91c6b2a4618a05820361b" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void get_twiddle</definition>
+        <argsstring>(uint16_t k, uint16_t stage, q16_t *wr, q16_t *wi)</argsstring>
+        <name>get_twiddle</name>
+        <param>
+          <type>uint16_t</type>
+          <declname>k</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>stage</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref> *</type>
+          <declname>wr</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref> *</type>
+          <declname>wi</declname>
+        </param>
+        <briefdescription>
+<para>Compute twiddle factor (cos, -sin) for a butterfly stage. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>k</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Butterfly index within group (0 &lt;= k &lt; m/2). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>stage</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Current FFT stage (1-based). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>wr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>[out] Twiddle real (cosine). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>wi</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>[out] Twiddle imaginary (-sine).</para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+The Cooley-Tukey butterfly calls this with k &lt; 2^(stage-1), so idx = (256*k) &gt;&gt; stage is always &lt; 128. Only quadrants 0 and 1 of the sine table are reachable. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/dsp/syn_fft.c" line="80" column="13" bodyfile="src/syntropic/dsp/syn_fft.c" bodystart="80" bodyend="99"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__fft_8c_1a0f97f3d786441daa7c015423ba00c623" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_dsp_fft</definition>
+        <argsstring>(q16_t *real, q16_t *imag, uint16_t n)</argsstring>
+        <name>syn_dsp_fft</name>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref> *</type>
+          <declname>real</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref> *</type>
+          <declname>imag</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Computes the in-place Radix-2 Decimation-in-Time FFT. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>n must be a power of 2 (e.g., 8, 16, 32, 64, 128, 256). Max supported size is 256.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>real</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Array of real parts (size n). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>imag</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Array of imaginary parts (size n). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>n</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Size of the FFT (must be power of 2). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_ERROR on invalid parameters (e.g. not power of 2). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/dsp/syn_fft.c" line="102" column="12" bodyfile="src/syntropic/dsp/syn_fft.c" bodystart="102" bodyend="152"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__fft_8c_1a1879f0d76e4a8ed060a9bd0307f8e7f6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_fft_window_hanning</definition>
+        <argsstring>(q16_t *out, uint16_t n)</argsstring>
+        <name>syn_fft_window_hanning</name>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref> *</type>
+          <declname>out</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Generate Hanning window: w[i] = 0.5 * (1 - cos(2*pi*i / (n-1))). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>out</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output buffer of size n. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>n</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Window length. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_INVALID_PARAM if NULL or n &lt;= 1. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/dsp/syn_fft.c" line="154" column="12" bodyfile="src/syntropic/dsp/syn_fft.c" bodystart="154" bodyend="167"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__fft_8c_1ac16d20695d8338a432461d3ce0edd470" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_fft_window_hamming</definition>
+        <argsstring>(q16_t *out, uint16_t n)</argsstring>
+        <name>syn_fft_window_hamming</name>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref> *</type>
+          <declname>out</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Generate Hamming window: w[i] = 0.54 - 0.46 * cos(2*pi*i / (n-1)). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>out</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output buffer of size n. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>n</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Window length. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_INVALID_PARAM if NULL or n &lt;= 1. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/dsp/syn_fft.c" line="169" column="12" bodyfile="src/syntropic/dsp/syn_fft.c" bodystart="169" bodyend="184"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__fft_8c_1a0ffa4e67ec0d8ba162d1eb2b4b6b9aa0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_fft_window_blackman</definition>
+        <argsstring>(q16_t *out, uint16_t n)</argsstring>
+        <name>syn_fft_window_blackman</name>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref> *</type>
+          <declname>out</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Generate Blackman-Harris window: w[i] = 0.42 - 0.5*cos(2*pi*i/(n-1)) + 0.08*cos(4*pi*i/(n-1)). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>out</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output buffer of size n. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>n</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Window length. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_INVALID_PARAM if NULL or n &lt;= 1. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/dsp/syn_fft.c" line="186" column="12" bodyfile="src/syntropic/dsp/syn_fft.c" bodystart="186" bodyend="203"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__fft_8c_1ac18fc262b8e7c1beba09e33afaee37d1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_fft_magnitude_spectrum</definition>
+        <argsstring>(const q16_t *real, const q16_t *imag, q16_t *mag, uint16_t n)</argsstring>
+        <name>syn_fft_magnitude_spectrum</name>
+        <param>
+          <type>const <ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref> *</type>
+          <declname>real</declname>
+        </param>
+        <param>
+          <type>const <ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref> *</type>
+          <declname>imag</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref> *</type>
+          <declname>mag</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Compute magnitude spectrum: mag[k] = sqrt(real[k]^2 + imag[k]^2). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>real</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Real part array (size n). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>imag</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Imaginary part array (size n). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>mag</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output magnitude array (size n/2 + 1). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>n</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>FFT size (number of points). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_INVALID_PARAM on invalid inputs. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/dsp/syn_fft.c" line="205" column="12" bodyfile="src/syntropic/dsp/syn_fft.c" bodystart="205" bodyend="214"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__fft_8c_1a296f75f9da47ba08c9f1a31722544141" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_fft_find_peaks</definition>
+        <argsstring>(const q16_t *mag, uint16_t n_bins, q16_t sample_rate_hz, SYN_FFTPeak *peaks, uint8_t max_peaks, uint8_t *num_peaks_found)</argsstring>
+        <name>syn_fft_find_peaks</name>
+        <param>
+          <type>const <ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref> *</type>
+          <declname>mag</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>n_bins</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+          <declname>sample_rate_hz</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__FFTPeak" kindref="compound">SYN_FFTPeak</ref> *</type>
+          <declname>peaks</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>max_peaks</declname>
+        </param>
+        <param>
+          <type>uint8_t *</type>
+          <declname>num_peaks_found</declname>
+        </param>
+        <briefdescription>
+<para>Find dominant peaks in magnitude spectrum. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>mag</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Magnitude array (size n_bins). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>n_bins</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of bins (typically n/2 + 1). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>sample_rate_hz</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Sampling rate in Hz (Q16.16). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>peaks</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output peak array. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>max_peaks</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Capacity of peaks array. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>num_peaks_found</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output count of detected peaks. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_INVALID_PARAM on invalid inputs. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/dsp/syn_fft.c" line="216" column="12" bodyfile="src/syntropic/dsp/syn_fft.c" bodystart="216" bodyend="248"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__fft_8c_1a772825ea1dded2786bb38d62b9333a26" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_fft_thd</definition>
+        <argsstring>(const q16_t *mag, uint16_t n_bins, uint16_t fundamental_bin, uint8_t max_harmonics, q16_t *thd_pct)</argsstring>
+        <name>syn_fft_thd</name>
+        <param>
+          <type>const <ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref> *</type>
+          <declname>mag</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>n_bins</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>fundamental_bin</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>max_harmonics</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref> *</type>
+          <declname>thd_pct</declname>
+        </param>
+        <briefdescription>
+<para>Compute Total Harmonic Distortion (THD) percentage. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>THD = sqrt(sum(V_h^2)) / V_1 * 100%</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>mag</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Magnitude array (size n_bins). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>n_bins</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of bins. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>fundamental_bin</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Bin index of the fundamental frequency. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>max_harmonics</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of harmonics to sum (e.g. 5). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>thd_pct</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output THD percentage in Q16.16 (e.g., 5.2% = Q16_FROM_FLOAT(5.2)). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_INVALID_PARAM on invalid inputs. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/dsp/syn_fft.c" line="250" column="12" bodyfile="src/syntropic/dsp/syn_fft.c" bodystart="250" bodyend="276"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Fixed-point Q16.16 Radix-2 Decimation-in-Time Fast Fourier Transform implementation. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#if<sp/>__has_include(&quot;syn_config.h&quot;)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/>#include<sp/>&quot;syn_config.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="4"><highlight class="normal"></highlight></codeline>
+<codeline lineno="5"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>!defined(SYN_USE_FFT)<sp/>||<sp/>SYN_USE_FFT</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__fft_8h" kindref="compound">syn_fft.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../util/syn_assert.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>Quarter-sine<sp/>lookup<sp/>table<sp/>for<sp/>N=256.<sp/>Covers<sp/>i=0..64<sp/>(0<sp/>to<sp/>PI/2<sp/>radians).<sp/>*/</highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/><ref refid="syn__fft_8c_1abe476ff5e8006aa4095526cbcac7fdcc" kindref="member">g_sin_table</ref>[65]<sp/>=<sp/>{</highlight></codeline>
+<codeline lineno="18"><highlight class="normal"><sp/><sp/><sp/><sp/>0x00000000,<sp/>0x00000648,<sp/>0x00000C90,<sp/>0x000012D5,<sp/>0x00001918,<sp/>0x00001F56,<sp/>0x00002590,<sp/>0x00002BC4,</highlight></codeline>
+<codeline lineno="19"><highlight class="normal"><sp/><sp/><sp/><sp/>0x000031F1,<sp/>0x00003817,<sp/>0x00003E34,<sp/>0x00004447,<sp/>0x00004A50,<sp/>0x0000504D,<sp/>0x0000563E,<sp/>0x00005C22,</highlight></codeline>
+<codeline lineno="20"><highlight class="normal"><sp/><sp/><sp/><sp/>0x000061F8,<sp/>0x000067BE,<sp/>0x00006D74,<sp/>0x0000731A,<sp/>0x000078AD,<sp/>0x00007E2F,<sp/>0x0000839C,<sp/>0x000088F6,</highlight></codeline>
+<codeline lineno="21"><highlight class="normal"><sp/><sp/><sp/><sp/>0x00008E3A,<sp/>0x00009368,<sp/>0x00009880,<sp/>0x00009D80,<sp/>0x0000A268,<sp/>0x0000A736,<sp/>0x0000ABEB,<sp/>0x0000B086,</highlight></codeline>
+<codeline lineno="22"><highlight class="normal"><sp/><sp/><sp/><sp/>0x0000B505,<sp/>0x0000B968,<sp/>0x0000BDAF,<sp/>0x0000C1D8,<sp/>0x0000C5E4,<sp/>0x0000C9D1,<sp/>0x0000CD9F,<sp/>0x0000D14D,</highlight></codeline>
+<codeline lineno="23"><highlight class="normal"><sp/><sp/><sp/><sp/>0x0000D4DB,<sp/>0x0000D848,<sp/>0x0000DB94,<sp/>0x0000DEBE,<sp/>0x0000E1C6,<sp/>0x0000E4AA,<sp/>0x0000E76C,<sp/>0x0000EA0A,</highlight></codeline>
+<codeline lineno="24"><highlight class="normal"><sp/><sp/><sp/><sp/>0x0000EC83,<sp/>0x0000EED9,<sp/>0x0000F109,<sp/>0x0000F314,<sp/>0x0000F4FA,<sp/>0x0000F6BA,<sp/>0x0000F854,<sp/>0x0000F9C8,</highlight></codeline>
+<codeline lineno="25"><highlight class="normal"><sp/><sp/><sp/><sp/>0x0000FB15,<sp/>0x0000FC3B,<sp/>0x0000FD3B,<sp/>0x0000FE13,<sp/>0x0000FEC4,<sp/>0x0000FF4E,<sp/>0x0000FFB1,<sp/>0x0000FFEC,</highlight></codeline>
+<codeline lineno="26"><highlight class="normal"><sp/><sp/><sp/><sp/>0x00010000,</highlight></codeline>
+<codeline lineno="27"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/>uint16_t<sp/><ref refid="syn__fft_8c_1a246a2e05e3b38115f8c17f135b5fcb21" kindref="member">reverse_bits</ref>(uint16_t<sp/>x,<sp/>uint16_t<sp/>stages)</highlight></codeline>
+<codeline lineno="36"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="37"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/>rev<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="38"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(uint16_t<sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>stages;<sp/>i++)<sp/>{</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rev<sp/>=<sp/>(rev<sp/>&lt;&lt;<sp/>1)<sp/>|<sp/>(x<sp/>&amp;<sp/>1);</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>x<sp/>&gt;&gt;=<sp/>1;</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>rev;</highlight></codeline>
+<codeline lineno="43"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight></codeline>
+<codeline lineno="52"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__fft_8c_1aa095d0aa1ff8b19a3b1261b4a224b672" kindref="member">bit_reverse_sort</ref>(<ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>*real,<sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>*imag,<sp/>uint16_t<sp/>n,<sp/>uint16_t<sp/>stages)</highlight></codeline>
+<codeline lineno="53"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(uint16_t<sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>n;<sp/>i++)<sp/>{</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint16_t<sp/>rev<sp/>=<sp/><ref refid="syn__fft_8c_1a246a2e05e3b38115f8c17f135b5fcb21" kindref="member">reverse_bits</ref>(i,<sp/>stages);</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(i<sp/>&lt;<sp/>rev)<sp/>{</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Swap<sp/>real<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>temp<sp/>=<sp/>real[i];</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>real[i]<sp/>=<sp/>real[rev];</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>real[rev]<sp/>=<sp/>temp;</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Swap<sp/>imaginary<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="62"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>temp<sp/>=<sp/>imag[i];</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>imag[i]<sp/>=<sp/>imag[rev];</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>imag[rev]<sp/>=<sp/>temp;</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="67"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"></highlight></codeline>
+<codeline lineno="80"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__fft_8c_1affb424bb43d91c6b2a4618a05820361b" kindref="member">get_twiddle</ref>(uint16_t<sp/>k,<sp/>uint16_t<sp/>stage,<sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>*wr,<sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>*wi)</highlight></codeline>
+<codeline lineno="81"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/>idx<sp/>=<sp/>(uint16_t)((256u<sp/>*<sp/>k)<sp/>&gt;&gt;<sp/>stage);</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/>theta<sp/>=<sp/>idx<sp/>&amp;<sp/>0x3F;<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>idx<sp/>%<sp/>64<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/>quad<sp/><sp/>=<sp/>(idx<sp/>&gt;&gt;<sp/>6)<sp/>&amp;<sp/>0x03;<sp/></highlight><highlight class="comment">/*<sp/>idx<sp/>/<sp/>64<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="85"><highlight class="normal"></highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(quad<sp/>&lt;=<sp/>1);<sp/></highlight><highlight class="comment">/*<sp/>k<sp/>&lt;<sp/>m/2<sp/>guarantees<sp/>idx<sp/>&lt;<sp/>128<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="87"><highlight class="normal"></highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>s,<sp/>c;</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(quad<sp/>==<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>s<sp/>=<sp/><ref refid="syn__fft_8c_1abe476ff5e8006aa4095526cbcac7fdcc" kindref="member">g_sin_table</ref>[theta];</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>c<sp/>=<sp/><ref refid="syn__fft_8c_1abe476ff5e8006aa4095526cbcac7fdcc" kindref="member">g_sin_table</ref>[64<sp/>-<sp/>theta];</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>s<sp/>=<sp/><ref refid="syn__fft_8c_1abe476ff5e8006aa4095526cbcac7fdcc" kindref="member">g_sin_table</ref>[64<sp/>-<sp/>theta];</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>c<sp/>=<sp/>-<ref refid="syn__fft_8c_1abe476ff5e8006aa4095526cbcac7fdcc" kindref="member">g_sin_table</ref>[theta];</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"></highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><sp/><sp/><sp/><sp/>*wr<sp/>=<sp/>c;</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"><sp/><sp/><sp/><sp/>*wi<sp/>=<sp/>-s;<sp/></highlight><highlight class="comment">/*<sp/>e^(-i*theta)<sp/>=<sp/>cos(theta)<sp/>-<sp/>i*sin(theta)<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="99"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"></highlight></codeline>
+<codeline lineno="101"><highlight class="normal"></highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__fft_8c_1a0f97f3d786441daa7c015423ba00c623" kindref="member">syn_dsp_fft</ref>(<ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>*real,<sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>*imag,<sp/>uint16_t<sp/>n)</highlight></codeline>
+<codeline lineno="103"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(real<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(imag<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"></highlight></codeline>
+<codeline lineno="107"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Validate<sp/>n:<sp/>must<sp/>be<sp/>a<sp/>power<sp/>of<sp/>2,<sp/>8<sp/>&lt;=<sp/>n<sp/>&lt;=<sp/>256<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="108"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(n<sp/>&lt;<sp/>2<sp/>||<sp/>n<sp/>&gt;<sp/>256<sp/>||<sp/>(n<sp/>&amp;<sp/>(n<sp/>-<sp/>1))<sp/>!=<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="109"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00acd5d2701b7cfa9fb446640ecbeb19fc9" kindref="member">SYN_ERROR</ref>;</highlight></codeline>
+<codeline lineno="110"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"></highlight></codeline>
+<codeline lineno="112"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Compute<sp/>stages<sp/>=<sp/>log2(n)<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="113"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/>stages<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/>temp<sp/>=<sp/>n;</highlight></codeline>
+<codeline lineno="115"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">while</highlight><highlight class="normal"><sp/>(temp<sp/>&gt;<sp/>1)<sp/>{</highlight></codeline>
+<codeline lineno="116"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>temp<sp/>&gt;&gt;=<sp/>1;</highlight></codeline>
+<codeline lineno="117"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>stages++;</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"></highlight></codeline>
+<codeline lineno="120"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>1.<sp/>Bit-reversal<sp/>sorting<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="121"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__fft_8c_1aa095d0aa1ff8b19a3b1261b4a224b672" kindref="member">bit_reverse_sort</ref>(real,<sp/>imag,<sp/>n,<sp/>stages);</highlight></codeline>
+<codeline lineno="122"><highlight class="normal"></highlight></codeline>
+<codeline lineno="123"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>2.<sp/>Cooley-Tukey<sp/>Radix-2<sp/>butterflies<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="124"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(uint16_t<sp/>stage<sp/>=<sp/>1;<sp/>stage<sp/>&lt;=<sp/>stages;<sp/>stage++)<sp/>{</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint16_t<sp/>m<sp/>=<sp/>1<sp/>&lt;&lt;<sp/>stage;</highlight></codeline>
+<codeline lineno="126"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint16_t<sp/>m2<sp/>=<sp/>m<sp/>&gt;&gt;<sp/>1;</highlight></codeline>
+<codeline lineno="127"><highlight class="normal"></highlight></codeline>
+<codeline lineno="128"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(uint16_t<sp/>k<sp/>=<sp/>0;<sp/>k<sp/>&lt;<sp/>m2;<sp/>k++)<sp/>{</highlight></codeline>
+<codeline lineno="129"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>wr,<sp/>wi;</highlight></codeline>
+<codeline lineno="130"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__fft_8c_1affb424bb43d91c6b2a4618a05820361b" kindref="member">get_twiddle</ref>(k,<sp/>stage,<sp/>&amp;wr,<sp/>&amp;wi);</highlight></codeline>
+<codeline lineno="131"><highlight class="normal"></highlight></codeline>
+<codeline lineno="132"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(uint16_t<sp/>j<sp/>=<sp/>0;<sp/>j<sp/>&lt;<sp/>n;<sp/>j<sp/>+=<sp/>m)<sp/>{</highlight></codeline>
+<codeline lineno="133"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint16_t<sp/>i<sp/>=<sp/>j<sp/>+<sp/>k;</highlight></codeline>
+<codeline lineno="134"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint16_t<sp/>ip<sp/>=<sp/>i<sp/>+<sp/>m2;</highlight></codeline>
+<codeline lineno="135"><highlight class="normal"></highlight></codeline>
+<codeline lineno="136"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>complex<sp/>multiply:<sp/>t<sp/>=<sp/>w<sp/>*<sp/>input[ip]<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="137"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>tr<sp/>=<sp/><ref refid="syn__qmath_8h_1a9c59677a95516b0b1f571520a670dfb0" kindref="member">q16_mul</ref>(wr,<sp/>real[ip])<sp/>-<sp/><ref refid="syn__qmath_8h_1a9c59677a95516b0b1f571520a670dfb0" kindref="member">q16_mul</ref>(wi,<sp/>imag[ip]);</highlight></codeline>
+<codeline lineno="138"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>ti<sp/>=<sp/><ref refid="syn__qmath_8h_1a9c59677a95516b0b1f571520a670dfb0" kindref="member">q16_mul</ref>(wr,<sp/>imag[ip])<sp/>+<sp/><ref refid="syn__qmath_8h_1a9c59677a95516b0b1f571520a670dfb0" kindref="member">q16_mul</ref>(wi,<sp/>real[ip]);</highlight></codeline>
+<codeline lineno="139"><highlight class="normal"></highlight></codeline>
+<codeline lineno="140"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>input[ip]<sp/>=<sp/>input[i]<sp/>-<sp/>t<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="141"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>real[ip]<sp/>=<sp/>real[i]<sp/>-<sp/>tr;</highlight></codeline>
+<codeline lineno="142"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>imag[ip]<sp/>=<sp/>imag[i]<sp/>-<sp/>ti;</highlight></codeline>
+<codeline lineno="143"><highlight class="normal"></highlight></codeline>
+<codeline lineno="144"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>input[i]<sp/>=<sp/>input[i]<sp/>+<sp/>t<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="145"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>real[i]<sp/>=<sp/>real[i]<sp/>+<sp/>tr;</highlight></codeline>
+<codeline lineno="146"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>imag[i]<sp/>=<sp/>imag[i]<sp/>+<sp/>ti;</highlight></codeline>
+<codeline lineno="147"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="148"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="149"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="150"><highlight class="normal"></highlight></codeline>
+<codeline lineno="151"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="152"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="153"><highlight class="normal"></highlight></codeline>
+<codeline lineno="154"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__fft_8c_1a1879f0d76e4a8ed060a9bd0307f8e7f6" kindref="member">syn_fft_window_hanning</ref>(<ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>*out,<sp/>uint16_t<sp/>n)</highlight></codeline>
+<codeline lineno="155"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="156"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(out<sp/>==<sp/>NULL<sp/>||<sp/>n<sp/>&lt;=<sp/>1)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="157"><highlight class="normal"></highlight></codeline>
+<codeline lineno="158"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>two_pi<sp/>=<sp/><ref refid="syn__qmath_8h_1a66565b2b7c53ef89a0d7afdd97cec206" kindref="member">Q16_2_PI</ref>;</highlight></codeline>
+<codeline lineno="159"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>n_minus_1<sp/>=<sp/><ref refid="syn__qmath_8h_1a403814e6ece6021eaba034176496dbae" kindref="member">Q16_FROM_INT</ref>(n<sp/>-<sp/>1);</highlight></codeline>
+<codeline lineno="160"><highlight class="normal"></highlight></codeline>
+<codeline lineno="161"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(uint16_t<sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>n;<sp/>i++)<sp/>{</highlight></codeline>
+<codeline lineno="162"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>theta<sp/>=<sp/><ref refid="syn__qmath_8h_1a1103d3b63cffa202284e7a12eeada585" kindref="member">q16_div</ref>(<ref refid="syn__qmath_8h_1a9c59677a95516b0b1f571520a670dfb0" kindref="member">q16_mul</ref>(two_pi,<sp/><ref refid="syn__qmath_8h_1a403814e6ece6021eaba034176496dbae" kindref="member">Q16_FROM_INT</ref>(i)),<sp/>n_minus_1);</highlight></codeline>
+<codeline lineno="163"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>cos_t<sp/>=<sp/><ref refid="syn__qmath_8c_1a74949e55423f04de44c2e5a583b6bb9f" kindref="member">q16_cos</ref>(theta);</highlight></codeline>
+<codeline lineno="164"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>out[i]<sp/>=<sp/><ref refid="syn__qmath_8h_1a9c59677a95516b0b1f571520a670dfb0" kindref="member">q16_mul</ref>(<ref refid="syn__qmath_8h_1a5c76b91dcbb8c4ded9f8c88cd672d2e5" kindref="member">Q16_HALF</ref>,<sp/><ref refid="syn__qmath_8h_1a393bf569f282debd95081de04610eb4c" kindref="member">Q16_ONE</ref><sp/>-<sp/>cos_t);</highlight></codeline>
+<codeline lineno="165"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="166"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="167"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="168"><highlight class="normal"></highlight></codeline>
+<codeline lineno="169"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__fft_8c_1ac16d20695d8338a432461d3ce0edd470" kindref="member">syn_fft_window_hamming</ref>(<ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>*out,<sp/>uint16_t<sp/>n)</highlight></codeline>
+<codeline lineno="170"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="171"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(out<sp/>==<sp/>NULL<sp/>||<sp/>n<sp/>&lt;=<sp/>1)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="172"><highlight class="normal"></highlight></codeline>
+<codeline lineno="173"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>two_pi<sp/>=<sp/><ref refid="syn__qmath_8h_1a66565b2b7c53ef89a0d7afdd97cec206" kindref="member">Q16_2_PI</ref>;</highlight></codeline>
+<codeline lineno="174"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>n_minus_1<sp/>=<sp/><ref refid="syn__qmath_8h_1a403814e6ece6021eaba034176496dbae" kindref="member">Q16_FROM_INT</ref>(n<sp/>-<sp/>1);</highlight></codeline>
+<codeline lineno="175"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>a0<sp/>=<sp/><ref refid="syn__qmath_8h_1aa37bed636cdf9d76bb06c4022215e3ea" kindref="member">Q16_FROM_FRAC</ref>(54,<sp/>100);</highlight></codeline>
+<codeline lineno="176"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>a1<sp/>=<sp/><ref refid="syn__qmath_8h_1aa37bed636cdf9d76bb06c4022215e3ea" kindref="member">Q16_FROM_FRAC</ref>(46,<sp/>100);</highlight></codeline>
+<codeline lineno="177"><highlight class="normal"></highlight></codeline>
+<codeline lineno="178"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(uint16_t<sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>n;<sp/>i++)<sp/>{</highlight></codeline>
+<codeline lineno="179"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>theta<sp/>=<sp/><ref refid="syn__qmath_8h_1a1103d3b63cffa202284e7a12eeada585" kindref="member">q16_div</ref>(<ref refid="syn__qmath_8h_1a9c59677a95516b0b1f571520a670dfb0" kindref="member">q16_mul</ref>(two_pi,<sp/><ref refid="syn__qmath_8h_1a403814e6ece6021eaba034176496dbae" kindref="member">Q16_FROM_INT</ref>(i)),<sp/>n_minus_1);</highlight></codeline>
+<codeline lineno="180"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>cos_t<sp/>=<sp/><ref refid="syn__qmath_8c_1a74949e55423f04de44c2e5a583b6bb9f" kindref="member">q16_cos</ref>(theta);</highlight></codeline>
+<codeline lineno="181"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>out[i]<sp/>=<sp/>a0<sp/>-<sp/><ref refid="syn__qmath_8h_1a9c59677a95516b0b1f571520a670dfb0" kindref="member">q16_mul</ref>(a1,<sp/>cos_t);</highlight></codeline>
+<codeline lineno="182"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="183"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="184"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="185"><highlight class="normal"></highlight></codeline>
+<codeline lineno="186"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__fft_8c_1a0ffa4e67ec0d8ba162d1eb2b4b6b9aa0" kindref="member">syn_fft_window_blackman</ref>(<ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>*out,<sp/>uint16_t<sp/>n)</highlight></codeline>
+<codeline lineno="187"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="188"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(out<sp/>==<sp/>NULL<sp/>||<sp/>n<sp/>&lt;=<sp/>1)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="189"><highlight class="normal"></highlight></codeline>
+<codeline lineno="190"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>two_pi<sp/>=<sp/><ref refid="syn__qmath_8h_1a66565b2b7c53ef89a0d7afdd97cec206" kindref="member">Q16_2_PI</ref>;</highlight></codeline>
+<codeline lineno="191"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>n_minus_1<sp/>=<sp/><ref refid="syn__qmath_8h_1a403814e6ece6021eaba034176496dbae" kindref="member">Q16_FROM_INT</ref>(n<sp/>-<sp/>1);</highlight></codeline>
+<codeline lineno="192"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>a0<sp/>=<sp/><ref refid="syn__qmath_8h_1aa37bed636cdf9d76bb06c4022215e3ea" kindref="member">Q16_FROM_FRAC</ref>(42,<sp/>100);</highlight></codeline>
+<codeline lineno="193"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>a1<sp/>=<sp/><ref refid="syn__qmath_8h_1a5c76b91dcbb8c4ded9f8c88cd672d2e5" kindref="member">Q16_HALF</ref>;</highlight></codeline>
+<codeline lineno="194"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>a2<sp/>=<sp/><ref refid="syn__qmath_8h_1aa37bed636cdf9d76bb06c4022215e3ea" kindref="member">Q16_FROM_FRAC</ref>(8,<sp/>100);</highlight></codeline>
+<codeline lineno="195"><highlight class="normal"></highlight></codeline>
+<codeline lineno="196"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(uint16_t<sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>n;<sp/>i++)<sp/>{</highlight></codeline>
+<codeline lineno="197"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>theta<sp/>=<sp/><ref refid="syn__qmath_8h_1a1103d3b63cffa202284e7a12eeada585" kindref="member">q16_div</ref>(<ref refid="syn__qmath_8h_1a9c59677a95516b0b1f571520a670dfb0" kindref="member">q16_mul</ref>(two_pi,<sp/><ref refid="syn__qmath_8h_1a403814e6ece6021eaba034176496dbae" kindref="member">Q16_FROM_INT</ref>(i)),<sp/>n_minus_1);</highlight></codeline>
+<codeline lineno="198"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>cos_t1<sp/>=<sp/><ref refid="syn__qmath_8c_1a74949e55423f04de44c2e5a583b6bb9f" kindref="member">q16_cos</ref>(theta);</highlight></codeline>
+<codeline lineno="199"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>cos_t2<sp/>=<sp/><ref refid="syn__qmath_8c_1a74949e55423f04de44c2e5a583b6bb9f" kindref="member">q16_cos</ref>(<ref refid="syn__qmath_8h_1a9c59677a95516b0b1f571520a670dfb0" kindref="member">q16_mul</ref>(<ref refid="syn__qmath_8h_1a403814e6ece6021eaba034176496dbae" kindref="member">Q16_FROM_INT</ref>(2),<sp/>theta));</highlight></codeline>
+<codeline lineno="200"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>out[i]<sp/>=<sp/>a0<sp/>-<sp/><ref refid="syn__qmath_8h_1a9c59677a95516b0b1f571520a670dfb0" kindref="member">q16_mul</ref>(a1,<sp/>cos_t1)<sp/>+<sp/><ref refid="syn__qmath_8h_1a9c59677a95516b0b1f571520a670dfb0" kindref="member">q16_mul</ref>(a2,<sp/>cos_t2);</highlight></codeline>
+<codeline lineno="201"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="202"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="203"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="204"><highlight class="normal"></highlight></codeline>
+<codeline lineno="205"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__fft_8c_1ac18fc262b8e7c1beba09e33afaee37d1" kindref="member">syn_fft_magnitude_spectrum</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>*real,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>*imag,<sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>*mag,<sp/>uint16_t<sp/>n)</highlight></codeline>
+<codeline lineno="206"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="207"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(real<sp/>==<sp/>NULL<sp/>||<sp/>imag<sp/>==<sp/>NULL<sp/>||<sp/>mag<sp/>==<sp/>NULL<sp/>||<sp/>n<sp/>==<sp/>0)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="208"><highlight class="normal"></highlight></codeline>
+<codeline lineno="209"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/>n_bins<sp/>=<sp/>(n<sp/>&gt;&gt;<sp/>1)<sp/>+<sp/>1;</highlight></codeline>
+<codeline lineno="210"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(uint16_t<sp/>k<sp/>=<sp/>0;<sp/>k<sp/>&lt;<sp/>n_bins;<sp/>k++)<sp/>{</highlight></codeline>
+<codeline lineno="211"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>mag[k]<sp/>=<sp/><ref refid="syn__qmath_8c_1ae9535d4d778e5ef7029be9f6b436543f" kindref="member">q16_hypot</ref>(real[k],<sp/>imag[k]);</highlight></codeline>
+<codeline lineno="212"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="213"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="214"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="215"><highlight class="normal"></highlight></codeline>
+<codeline lineno="216"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__fft_8c_1a296f75f9da47ba08c9f1a31722544141" kindref="member">syn_fft_find_peaks</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>*mag,<sp/>uint16_t<sp/>n_bins,<sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>sample_rate_hz,</highlight></codeline>
+<codeline lineno="217"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__FFTPeak" kindref="compound">SYN_FFTPeak</ref><sp/>*peaks,<sp/>uint8_t<sp/>max_peaks,<sp/>uint8_t<sp/>*num_peaks_found)</highlight></codeline>
+<codeline lineno="218"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="219"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(mag<sp/>==<sp/>NULL<sp/>||<sp/>peaks<sp/>==<sp/>NULL<sp/>||<sp/>num_peaks_found<sp/>==<sp/>NULL<sp/>||<sp/>n_bins<sp/>&lt;=<sp/>2<sp/>||<sp/>max_peaks<sp/>==<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="220"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="221"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="222"><highlight class="normal"></highlight></codeline>
+<codeline lineno="223"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>count<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="224"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>bin_resolution<sp/>=<sp/><ref refid="syn__qmath_8h_1a1103d3b63cffa202284e7a12eeada585" kindref="member">q16_div</ref>(sample_rate_hz,<sp/><ref refid="syn__qmath_8h_1a403814e6ece6021eaba034176496dbae" kindref="member">Q16_FROM_INT</ref>((n_bins<sp/>-<sp/>1)<sp/>*<sp/>2));</highlight></codeline>
+<codeline lineno="225"><highlight class="normal"></highlight></codeline>
+<codeline lineno="226"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(uint16_t<sp/>k<sp/>=<sp/>1;<sp/>k<sp/>&lt;<sp/>n_bins<sp/>-<sp/>1<sp/>&amp;&amp;<sp/>count<sp/>&lt;<sp/>max_peaks;<sp/>k++)<sp/>{</highlight></codeline>
+<codeline lineno="227"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(mag[k]<sp/>&gt;<sp/>mag[k<sp/>-<sp/>1]<sp/>&amp;&amp;<sp/>mag[k]<sp/>&gt;<sp/>mag[k<sp/>+<sp/>1])<sp/>{</highlight></codeline>
+<codeline lineno="228"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>peaks[count].<ref refid="structSYN__FFTPeak_1af32be2f9998a0adfa9149fd137262db3" kindref="member">bin</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>k;</highlight></codeline>
+<codeline lineno="229"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>peaks[count].<ref refid="structSYN__FFTPeak_1aab07e0f1e4259f72ef3e1adc0b6e27bb" kindref="member">magnitude</ref><sp/>=<sp/>mag[k];</highlight></codeline>
+<codeline lineno="230"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>peaks[count].<ref refid="structSYN__FFTPeak_1ae37ffe939a0aefdc5409573e87a53cf1" kindref="member">freq_hz</ref><sp/><sp/><sp/>=<sp/><ref refid="syn__qmath_8h_1a9c59677a95516b0b1f571520a670dfb0" kindref="member">q16_mul</ref>(<ref refid="syn__qmath_8h_1a403814e6ece6021eaba034176496dbae" kindref="member">Q16_FROM_INT</ref>(k),<sp/>bin_resolution);</highlight></codeline>
+<codeline lineno="231"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>count++;</highlight></codeline>
+<codeline lineno="232"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="233"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="234"><highlight class="normal"></highlight></codeline>
+<codeline lineno="235"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Sort<sp/>detected<sp/>peaks<sp/>descending<sp/>by<sp/>magnitude<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="236"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(uint8_t<sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>count;<sp/>i++)<sp/>{</highlight></codeline>
+<codeline lineno="237"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(uint8_t<sp/>j<sp/>=<sp/>i<sp/>+<sp/>1;<sp/>j<sp/>&lt;<sp/>count;<sp/>j++)<sp/>{</highlight></codeline>
+<codeline lineno="238"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(peaks[j].magnitude<sp/>&gt;<sp/>peaks[i].magnitude)<sp/>{</highlight></codeline>
+<codeline lineno="239"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__FFTPeak" kindref="compound">SYN_FFTPeak</ref><sp/>tmp<sp/>=<sp/>peaks[i];</highlight></codeline>
+<codeline lineno="240"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>peaks[i]<sp/>=<sp/>peaks[j];</highlight></codeline>
+<codeline lineno="241"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>peaks[j]<sp/>=<sp/>tmp;</highlight></codeline>
+<codeline lineno="242"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="243"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="244"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="245"><highlight class="normal"></highlight></codeline>
+<codeline lineno="246"><highlight class="normal"><sp/><sp/><sp/><sp/>*num_peaks_found<sp/>=<sp/>count;</highlight></codeline>
+<codeline lineno="247"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="248"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="249"><highlight class="normal"></highlight></codeline>
+<codeline lineno="250"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__fft_8c_1a772825ea1dded2786bb38d62b9333a26" kindref="member">syn_fft_thd</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>*mag,<sp/>uint16_t<sp/>n_bins,<sp/>uint16_t<sp/>fundamental_bin,</highlight></codeline>
+<codeline lineno="251"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>max_harmonics,<sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>*thd_pct)</highlight></codeline>
+<codeline lineno="252"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="253"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(mag<sp/>==<sp/>NULL<sp/>||<sp/>thd_pct<sp/>==<sp/>NULL<sp/>||<sp/>fundamental_bin<sp/>==<sp/>0<sp/>||<sp/>fundamental_bin<sp/>&gt;=<sp/>n_bins<sp/>||<sp/>max_harmonics<sp/>==<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="254"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="255"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="256"><highlight class="normal"></highlight></codeline>
+<codeline lineno="257"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>v1<sp/>=<sp/>mag[fundamental_bin];</highlight></codeline>
+<codeline lineno="258"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(v1<sp/>==<sp/>0)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="259"><highlight class="normal"></highlight></codeline>
+<codeline lineno="260"><highlight class="normal"><sp/><sp/><sp/><sp/>int64_t<sp/>sum_h2<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="261"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(uint8_t<sp/>h<sp/>=<sp/>2;<sp/>h<sp/>&lt;=<sp/>max_harmonics<sp/>+<sp/>1;<sp/>h++)<sp/>{</highlight></codeline>
+<codeline lineno="262"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>h_bin<sp/>=<sp/>(uint32_t)fundamental_bin<sp/>*<sp/>h;</highlight></codeline>
+<codeline lineno="263"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(h_bin<sp/>&lt;<sp/>n_bins)<sp/>{</highlight></codeline>
+<codeline lineno="264"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>v_h<sp/>=<sp/>mag[h_bin];</highlight></codeline>
+<codeline lineno="265"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int64_t<sp/>v_h_q16<sp/>=<sp/>v_h;</highlight></codeline>
+<codeline lineno="266"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>sum_h2<sp/>+=<sp/>(v_h_q16<sp/>*<sp/>v_h_q16)<sp/>&gt;&gt;<sp/><ref refid="syn__qmath_8h_1a0a06e0f48f9cc549761d6ab0ea368627" kindref="member">Q16_SHIFT</ref>;</highlight></codeline>
+<codeline lineno="267"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="268"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="269"><highlight class="normal"></highlight></codeline>
+<codeline lineno="270"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>harmonic_rms<sp/>=<sp/><ref refid="syn__qmath_8c_1adb640d74128466ba9249e34637389a30" kindref="member">q16_sqrt</ref>((<ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref>)sum_h2);</highlight></codeline>
+<codeline lineno="271"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>THD<sp/>%<sp/>=<sp/>(V_harmonics<sp/>/<sp/>V_1)<sp/>*<sp/>100<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="272"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>ratio<sp/>=<sp/><ref refid="syn__qmath_8h_1a1103d3b63cffa202284e7a12eeada585" kindref="member">q16_div</ref>(harmonic_rms,<sp/>v1);</highlight></codeline>
+<codeline lineno="273"><highlight class="normal"><sp/><sp/><sp/><sp/>*thd_pct<sp/>=<sp/><ref refid="syn__qmath_8h_1a9c59677a95516b0b1f571520a670dfb0" kindref="member">q16_mul</ref>(ratio,<sp/><ref refid="syn__qmath_8h_1a403814e6ece6021eaba034176496dbae" kindref="member">Q16_FROM_INT</ref>(100));</highlight></codeline>
+<codeline lineno="274"><highlight class="normal"></highlight></codeline>
+<codeline lineno="275"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="276"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="277"><highlight class="normal"></highlight></codeline>
+<codeline lineno="278"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_USE_FFT<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/dsp/syn_fft.c"/>
+  </compounddef>
+</doxygen>

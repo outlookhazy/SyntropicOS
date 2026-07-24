@@ -1,0 +1,295 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__dns_8h" kind="file" language="C++">
+    <compoundname>syn_dns.h</compoundname>
+    <includes refid="syn__defs_8h" local="yes">../common/syn_defs.h</includes>
+    <includes refid="syn__port__socket_8h" local="yes">../port/syn_port_socket.h</includes>
+    <includes refid="syn__pt_8h" local="yes">../pt/syn_pt.h</includes>
+    <includes refid="syn__task_8h" local="yes">../sched/syn_task.h</includes>
+    <includedby refid="syn__dns_8c" local="yes">src/syntropic/net/syn_dns.c</includedby>
+    <incdepgraph>
+      <node id="7">
+        <label>../common/syn_compiler.h</label>
+        <link refid="syn__compiler_8h"/>
+      </node>
+      <node id="2">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/net/syn_dns.h</label>
+        <link refid="syn__dns_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>../port/syn_port_socket.h</label>
+        <link refid="syn__port__socket_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>../pt/syn_pt.h</label>
+        <link refid="syn__pt_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="9">
+        <label>syn_event_flags.h</label>
+        <link refid="syn__event__flags_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>../sched/syn_task.h</label>
+        <link refid="syn__task_8h"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="10">
+        <label>stdbool.h</label>
+      </node>
+      <node id="4">
+        <label>stddef.h</label>
+      </node>
+      <node id="3">
+        <label>stdint.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="2">
+        <label>src/syntropic/net/syn_dns.c</label>
+        <link refid="syn__dns_8c"/>
+      </node>
+      <node id="1">
+        <label>src/syntropic/net/syn_dns.h</label>
+        <link refid="syn__dns_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="structSYN__DnsResolver" prot="public">SYN_DnsResolver</innerclass>
+    <innerclass refid="structSYN__Mdns" prot="public">SYN_Mdns</innerclass>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__dns_8h_1a9752a1df7d1d8eb6002ec583e8780616" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__pt_8h_1a837fcf03fa24b6b73d66bb133b95d79e" kindref="member">SYN_PT_Status</ref></type>
+        <definition>SYN_PT_Status syn_dns_resolve_task</definition>
+        <argsstring>(SYN_PT *pt, SYN_Task *task)</argsstring>
+        <name>syn_dns_resolve_task</name>
+        <param>
+          <type><ref refid="structSYN__PT" kindref="compound">SYN_PT</ref> *</type>
+          <declname>pt</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__Task" kindref="compound">SYN_Task</ref> *</type>
+          <declname>task</declname>
+        </param>
+        <briefdescription>
+<para>Cooperative task for resolving a hostname via DNS. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Register this as a SYN_TaskFunc with user_data pointing to a <ref refid="structSYN__DnsResolver" kindref="compound">SYN_DnsResolver</ref> instance. The task runs non-blocking UDP queries, yielding via PT_YIELD until resolution completes or times out.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>pt</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Protothread pointer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>task</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Task structure whose user_data points to a <ref refid="structSYN__DnsResolver" kindref="compound">SYN_DnsResolver</ref>. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>PT_WAITING while running, PT_EXITED when done, or PT_ENDED on early exit. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/net/syn_dns.h" line="52" column="15" bodyfile="src/syntropic/net/syn_dns.c" bodystart="134" bodyend="205" declfile="src/syntropic/net/syn_dns.h" declline="52" declcolumn="15"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__dns_8h_1a99f09e9994e6b5612627c4bf66008279" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_mdns_init</definition>
+        <argsstring>(SYN_Mdns *mdns, const char *hostname, const uint8_t ip[4])</argsstring>
+        <name>syn_mdns_init</name>
+        <param>
+          <type><ref refid="structSYN__Mdns" kindref="compound">SYN_Mdns</ref> *</type>
+          <declname>mdns</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>hostname</declname>
+        </param>
+        <param>
+          <type>const uint8_t</type>
+          <declname>ip</declname>
+          <array>[4]</array>
+        </param>
+        <briefdescription>
+<para>Initialize the mDNS responder. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>mdns</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>mDNS instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>hostname</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Hostname to respond to (without .local suffix). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>ip</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>IPv4 address to advertise. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/net/syn_dns.h" line="68" column="12" bodyfile="src/syntropic/net/syn_dns.c" bodystart="209" bodyend="228" declfile="src/syntropic/net/syn_dns.h" declline="68" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__dns_8h_1a1fcb55d1c278a1d5e7c09b8a936435e3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__pt_8h_1a837fcf03fa24b6b73d66bb133b95d79e" kindref="member">SYN_PT_Status</ref></type>
+        <definition>SYN_PT_Status syn_mdns_task</definition>
+        <argsstring>(SYN_PT *pt, SYN_Task *task)</argsstring>
+        <name>syn_mdns_task</name>
+        <param>
+          <type><ref refid="structSYN__PT" kindref="compound">SYN_PT</ref> *</type>
+          <declname>pt</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__Task" kindref="compound">SYN_Task</ref> *</type>
+          <declname>task</declname>
+        </param>
+        <briefdescription>
+<para>Cooperative task for responding to local mDNS queries. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>pt</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Protothread pointer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>task</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Task structure whose user_data points to a <ref refid="structSYN__Mdns" kindref="compound">SYN_Mdns</ref>. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>PT_WAITING while running, PT_EXITED when done. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/net/syn_dns.h" line="76" column="15" bodyfile="src/syntropic/net/syn_dns.c" bodystart="267" bodyend="340" declfile="src/syntropic/net/syn_dns.h" declline="76" declcolumn="15"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>UDP DNS resolver and mDNS responder. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_DNS_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_DNS_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../common/syn_defs.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../port/syn_port_socket.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../pt/syn_pt.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../sched/syn_task.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight></codeline>
+<codeline lineno="22" refid="structSYN__DnsResolver" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="23"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Inputs<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="24" refid="structSYN__DnsResolver_1a33459eb488b86ab32aeb204efbd6e859" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__SockAddr" kindref="compound">SYN_SockAddr</ref><sp/>*<ref refid="structSYN__DnsResolver_1a33459eb488b86ab32aeb204efbd6e859" kindref="member">dns_server</ref>;<sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="25" refid="structSYN__DnsResolver_1ada956b711e87043a904359c9c3798f0b" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<ref refid="structSYN__DnsResolver_1ada956b711e87043a904359c9c3798f0b" kindref="member">hostname</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="26" refid="structSYN__DnsResolver_1a9f7ed8477a9ae02600a9f6ba553b5606" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structSYN__SockAddr" kindref="compound">SYN_SockAddr</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<ref refid="structSYN__DnsResolver_1a9f7ed8477a9ae02600a9f6ba553b5606" kindref="member">addr_out</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="27" refid="structSYN__DnsResolver_1a8e9ca9b9622c187544b8f45fb2c58025" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__DnsResolver_1a8e9ca9b9622c187544b8f45fb2c58025" kindref="member">timeout_ms</ref>;<sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Output<sp/>status<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="30" refid="structSYN__DnsResolver_1a619221769bf8a5ff6c06f409bf8dbdc4" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__DnsResolver_1a619221769bf8a5ff6c06f409bf8dbdc4" kindref="member">status</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="32"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Internal<sp/>State<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33" refid="structSYN__DnsResolver_1a33af966a9dce90fd0639a23852226a3b" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__port__socket_8h_1ae94da9613781abe2f50b7c00dcaf103f" kindref="member">SYN_Socket</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__DnsResolver_1a33af966a9dce90fd0639a23852226a3b" kindref="member">sock</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="34" refid="structSYN__DnsResolver_1a7f2b71f7b6aeb040465a03026530b975" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structSYN__SockAddr" kindref="compound">SYN_SockAddr</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__DnsResolver_1a7f2b71f7b6aeb040465a03026530b975" kindref="member">server_addr</ref>;<sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="35" refid="structSYN__DnsResolver_1ae641ce2ee644c1952d308ba55b8dc521" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__DnsResolver_1ae641ce2ee644c1952d308ba55b8dc521" kindref="member">start_ms</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="36" refid="structSYN__DnsResolver_1a0f417f35e1f2d2ddee3de4ee7d9c45b2" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__DnsResolver_1a0f417f35e1f2d2ddee3de4ee7d9c45b2" kindref="member">query_len</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="37" refid="structSYN__DnsResolver_1a56eb2eb3768e215fac3b0d7e3e4df693" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__DnsResolver_1a56eb2eb3768e215fac3b0d7e3e4df693" kindref="member">txid</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="38" refid="structSYN__DnsResolver_1a9e8e0eef657ed9e940f1e16cd5ead1bb" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>buf[256];<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="39"><highlight class="normal">}<sp/><ref refid="structSYN__DnsResolver" kindref="compound">SYN_DnsResolver</ref>;</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><ref refid="syn__pt_8h_1a837fcf03fa24b6b73d66bb133b95d79e" kindref="member">SYN_PT_Status</ref><sp/><ref refid="syn__dns_8h_1a9752a1df7d1d8eb6002ec583e8780616" kindref="member">syn_dns_resolve_task</ref>(<ref refid="structSYN__PT" kindref="compound">SYN_PT</ref><sp/>*pt,<sp/><ref refid="structSYN__Task" kindref="compound">SYN_Task</ref><sp/>*task);</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"></highlight></codeline>
+<codeline lineno="55" refid="structSYN__Mdns" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="56" refid="structSYN__Mdns_1a02c2856a188e543fa574227c21ba4239" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*<ref refid="structSYN__Mdns_1a02c2856a188e543fa574227c21ba4239" kindref="member">hostname</ref>;<sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="57" refid="structSYN__Mdns_1a875a0f0633eb373980dca2dd1d8f65c1" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/><sp/><sp/><sp/>ip[4];<sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="58" refid="structSYN__Mdns_1a2d69695743676ed655edf402f253dbf7" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__port__socket_8h_1ae94da9613781abe2f50b7c00dcaf103f" kindref="member">SYN_Socket</ref><sp/><sp/><ref refid="structSYN__Mdns_1a2d69695743676ed655edf402f253dbf7" kindref="member">sock</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="59"><highlight class="normal">}<sp/><ref refid="structSYN__Mdns" kindref="compound">SYN_Mdns</ref>;</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"></highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__dns_8h_1a99f09e9994e6b5612627c4bf66008279" kindref="member">syn_mdns_init</ref>(<ref refid="structSYN__Mdns" kindref="compound">SYN_Mdns</ref><sp/>*mdns,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*hostname,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>ip[4]);</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"></highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><ref refid="syn__pt_8h_1a837fcf03fa24b6b73d66bb133b95d79e" kindref="member">SYN_PT_Status</ref><sp/><ref refid="syn__dns_8h_1a1fcb55d1c278a1d5e7c09b8a936435e3" kindref="member">syn_mdns_task</ref>(<ref refid="structSYN__PT" kindref="compound">SYN_PT</ref><sp/>*pt,<sp/><ref refid="structSYN__Task" kindref="compound">SYN_Task</ref><sp/>*task);</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"></highlight></codeline>
+<codeline lineno="78"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="79"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="81"><highlight class="normal"></highlight></codeline>
+<codeline lineno="82"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_DNS_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/net/syn_dns.h"/>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,3543 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Modular cooperative OS & application framework for microcontrollers">
+      
+      
+      
+        <link rel="canonical" href="https://outlookhazy.github.io/SyntropicOS/syntropic/syn__port__stubs_8c/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>File syn_port_stubs.c - SyntropicOS</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="cyan">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#file-syn_port_stubsc" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="SyntropicOS" class="md-header__button md-logo" aria-label="SyntropicOS" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SyntropicOS
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              File syn_port_stubs.c
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="cyan"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="cyan"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/outlookhazy/SyntropicOS" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    outlookhazy/SyntropicOS
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="SyntropicOS" class="md-nav__button md-logo" aria-label="SyntropicOS" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SyntropicOS
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/outlookhazy/SyntropicOS" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    outlookhazy/SyntropicOS
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../arduino/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Arduino Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Modules
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Modules
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../modules/core/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Core & Utilities
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../modules/drivers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Drivers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../modules/multitasking/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Multitasking
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../modules/services/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../modules/io/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Input / Output
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../modules/display/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Display & UI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../modules/control/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Control & Motor
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../modules/dsp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DSP & Filters
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../modules/communication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Communication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../modules/crypto/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Crypto & VPN
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../modules/storage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Storage
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../modules/system/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    System
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../modules/debug/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Debug
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../modules/integration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Cross-Module Integration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../group__syn__core/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Core & Utilities
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../group__syn__sched/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scheduling
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../group__syn__drivers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Drivers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../group__syn__io/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Input / Output
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../group__syn__motor/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Motor & Control
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../group__syn__display/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Display & UI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../group__syn__net/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Networking
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../group__syn__protocol/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Protocols
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../group__syn__storage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Storage
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../group__syn__system/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    System
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../group__syn__dsp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DSP & Filters
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../group__syn__debug/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Debug & Diagnostics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../files/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    All Files
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../annotated/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    All Structs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../porting-guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Porting Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../testing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../directory-structure/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Directory Structure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#public-functions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Public Functions
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#detailed-description" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Detailed Description
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#public-functions-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Public Functions Documentation
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Public Functions Documentation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_assert_failed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_assert_failed
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_port_adc_init" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_port_adc_init
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_port_adc_read" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_port_adc_read
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_port_adc_reference_mv" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_port_adc_reference_mv
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_port_adc_resolution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_port_adc_resolution
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_port_can_init" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_port_can_init
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_port_can_receive" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_port_can_receive
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_port_can_send" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_port_can_send
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_port_can_set_filter" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_port_can_set_filter
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_port_delay_ms" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_port_delay_ms
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_port_enter_critical" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_port_enter_critical
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_port_exit_critical" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_port_exit_critical
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_port_exti_clear_pending" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_port_exti_clear_pending
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_port_exti_configure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_port_exti_configure
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_port_exti_disable" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_port_exti_disable
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_port_exti_enable" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_port_exti_enable
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_port_flash_erase" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_port_flash_erase
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_port_flash_read" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_port_flash_read
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_port_flash_sector_size" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_port_flash_sector_size
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_port_flash_write" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_port_flash_write
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_port_get_tick_ms" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_port_get_tick_ms
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_port_gpio_deinit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_port_gpio_deinit
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_port_gpio_init" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_port_gpio_init
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_port_gpio_read" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_port_gpio_read
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_port_gpio_toggle" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_port_gpio_toggle
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_port_gpio_write" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_port_gpio_write
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_port_i2c_deinit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_port_i2c_deinit
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_port_i2c_init" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_port_i2c_init
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_port_i2c_read" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_port_i2c_read
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_port_i2c_write" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_port_i2c_write
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_port_i2c_write_read" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_port_i2c_write_read
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_port_memory_barrier" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_port_memory_barrier
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_port_pwm_enable" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_port_pwm_enable
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_port_pwm_init" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_port_pwm_init
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_port_pwm_set_duty" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_port_pwm_set_duty
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_port_pwm_set_duty_raw" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_port_pwm_set_duty_raw
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_port_pwm_set_freq" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_port_pwm_set_freq
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_port_serial_init" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_port_serial_init
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_port_serial_read" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_port_serial_read
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_port_serial_write" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_port_serial_write
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_port_sleep" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_port_sleep
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_port_sleep_until" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_port_sleep_until
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_port_sock_accept" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_port_sock_accept
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_port_sock_close" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_port_sock_close
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_port_sock_connect" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_port_sock_connect
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_port_sock_connect_host" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_port_sock_connect_host
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_port_sock_listen" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_port_sock_listen
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_port_sock_recv" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_port_sock_recv
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_port_sock_send" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_port_sock_send
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_port_sock_send_all" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_port_sock_send_all
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_port_spi_cs_assert" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_port_spi_cs_assert
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_port_spi_cs_deassert" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_port_spi_cs_deassert
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_port_spi_deinit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_port_spi_deinit
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_port_spi_init" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_port_spi_init
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_port_spi_transfer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_port_spi_transfer
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_port_system_reset" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_port_system_reset
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_port_uart_deinit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_port_uart_deinit
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_port_uart_init" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_port_uart_init
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_port_uart_receive" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_port_uart_receive
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_port_uart_receive_byte" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_port_uart_receive_byte
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_port_uart_transmit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_port_uart_transmit
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_port_uart_transmit_byte" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_port_uart_transmit_byte
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_port_udp_join_multicast" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_port_udp_join_multicast
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_port_udp_open" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_port_udp_open
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_port_udp_recvfrom" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_port_udp_recvfrom
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_port_udp_sendto" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_port_udp_sendto
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="file-syn_port_stubsc">File syn_port_stubs.c<a class="headerlink" href="#file-syn_port_stubsc" title="Permanent link">&para;</a></h1>
+<p><a href="../files/"><strong>FileList</strong></a> <strong>&gt;</strong> <a href="../dir_faf66d44489c906207a31f15a9acbcc2/"><strong>port_stubs</strong></a> <strong>&gt;</strong> <a href="./"><strong>syn_port_stubs.c</strong></a></p>
+<p><a href="../syn__port__stubs_8c_source/">Go to the source code of this file</a></p>
+<p><em>Weak default implementations for all port functions.</em> <a href="#detailed-description">More...</a></p>
+<ul>
+<li><code>#include "../common/syn_compiler.h"</code></li>
+<li><code>#include "../common/syn_defs.h"</code></li>
+<li><code>#include "../util/syn_assert.h"</code></li>
+<li><code>#include "../port/syn_port_spi.h"</code></li>
+<li><code>#include "../port/syn_port_i2c.h"</code></li>
+<li><code>#include "../port/syn_port_flash.h"</code></li>
+<li><code>#include "../port/syn_port_adc.h"</code></li>
+<li><code>#include "../port/syn_port_pwm.h"</code></li>
+<li><code>#include "../system/syn_sleep.h"</code></li>
+<li><code>#include "../port/syn_port_exti.h"</code></li>
+<li><code>#include "../port/syn_port_can.h"</code></li>
+<li><code>#include "../port/syn_port_dma.h"</code></li>
+<li><code>#include "../port/syn_port_i2c_async.h"</code></li>
+<li><code>#include "../port/syn_port_spi_async.h"</code></li>
+<li><code>#include "../common/syn_barrier.h"</code></li>
+<li><code>#include "../port/syn_port_socket.h"</code></li>
+<li><code>#include "../port/syn_port_serial.h"</code></li>
+</ul>
+<h2 id="public-functions">Public Functions<a class="headerlink" href="#public-functions" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: right;">Type</th>
+<th style="text-align: left;">Name</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;"><a href="../syn__compiler_8h/#define-syn_weak"><strong>SYN_WEAK</strong></a> <a href="../syn__compiler_8h/#define-syn_noreturn"><strong>SYN_NORETURN</strong></a> void</td>
+<td style="text-align: left;"><a href="#function-syn_assert_failed"><strong>syn_assert_failed</strong></a> (const char * file, int line) <br><em>Called when an assertion fails.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;"><a href="../syn__compiler_8h/#define-syn_weak"><strong>SYN_WEAK</strong></a> <a href="../syn__defs_8h/#enum-syn_status"><strong>SYN_Status</strong></a></td>
+<td style="text-align: left;"><a href="#function-syn_port_adc_init"><strong>syn_port_adc_init</strong></a> (uint8_t channel) <br><em>Initialize an ADC channel.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;"><a href="../syn__compiler_8h/#define-syn_weak"><strong>SYN_WEAK</strong></a> uint16_t</td>
+<td style="text-align: left;"><a href="#function-syn_port_adc_read"><strong>syn_port_adc_read</strong></a> (uint8_t channel) <br><em>Read a single ADC sample.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;"><a href="../syn__compiler_8h/#define-syn_weak"><strong>SYN_WEAK</strong></a> uint16_t</td>
+<td style="text-align: left;"><a href="#function-syn_port_adc_reference_mv"><strong>syn_port_adc_reference_mv</strong></a> (void) <br><em>Get the ADC reference voltage in millivolts.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;"><a href="../syn__compiler_8h/#define-syn_weak"><strong>SYN_WEAK</strong></a> uint8_t</td>
+<td style="text-align: left;"><a href="#function-syn_port_adc_resolution"><strong>syn_port_adc_resolution</strong></a> (void) <br><em>Get the ADC resolution in bits.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;"><a href="../syn__compiler_8h/#define-syn_weak"><strong>SYN_WEAK</strong></a> <a href="../syn__defs_8h/#enum-bool"><strong>bool</strong></a></td>
+<td style="text-align: left;"><a href="#function-syn_port_can_init"><strong>syn_port_can_init</strong></a> (uint8_t port, uint32_t bitrate) <br><em>Initialize CAN peripheral.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;"><a href="../syn__compiler_8h/#define-syn_weak"><strong>SYN_WEAK</strong></a> <a href="../syn__defs_8h/#enum-bool"><strong>bool</strong></a></td>
+<td style="text-align: left;"><a href="#function-syn_port_can_receive"><strong>syn_port_can_receive</strong></a> (uint8_t port, uint32_t * id, <a href="../syn__defs_8h/#enum-bool"><strong>bool</strong></a> * extended, uint8_t * data, uint8_t * dlc) <br><em>Receive a CAN frame (non-blocking).</em></td>
+</tr>
+<tr>
+<td style="text-align: right;"><a href="../syn__compiler_8h/#define-syn_weak"><strong>SYN_WEAK</strong></a> <a href="../syn__defs_8h/#enum-bool"><strong>bool</strong></a></td>
+<td style="text-align: left;"><a href="#function-syn_port_can_send"><strong>syn_port_can_send</strong></a> (uint8_t port, uint32_t id, <a href="../syn__defs_8h/#enum-bool"><strong>bool</strong></a> extended, const uint8_t * data, uint8_t dlc) <br><em>Send a CAN frame.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;"><a href="../syn__compiler_8h/#define-syn_weak"><strong>SYN_WEAK</strong></a> void</td>
+<td style="text-align: left;"><a href="#function-syn_port_can_set_filter"><strong>syn_port_can_set_filter</strong></a> (uint8_t port, uint32_t id, uint32_t mask) <br><em>Set hardware acceptance filter.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;"><a href="../syn__compiler_8h/#define-syn_weak"><strong>SYN_WEAK</strong></a> void</td>
+<td style="text-align: left;"><a href="#function-syn_port_delay_ms"><strong>syn_port_delay_ms</strong></a> (uint32_t ms) <br><em>Blocking delay for the specified number of milliseconds.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;"><a href="../syn__compiler_8h/#define-syn_weak"><strong>SYN_WEAK</strong></a> void</td>
+<td style="text-align: left;"><a href="#function-syn_port_enter_critical"><strong>syn_port_enter_critical</strong></a> (void) <br><em>Enter a critical section (disable interrupts).</em></td>
+</tr>
+<tr>
+<td style="text-align: right;"><a href="../syn__compiler_8h/#define-syn_weak"><strong>SYN_WEAK</strong></a> void</td>
+<td style="text-align: left;"><a href="#function-syn_port_exit_critical"><strong>syn_port_exit_critical</strong></a> (void) <br><em>Exit a critical section (re-enable interrupts).</em></td>
+</tr>
+<tr>
+<td style="text-align: right;"><a href="../syn__compiler_8h/#define-syn_weak"><strong>SYN_WEAK</strong></a> void</td>
+<td style="text-align: left;"><a href="#function-syn_port_exti_clear_pending"><strong>syn_port_exti_clear_pending</strong></a> (<a href="../syn__defs_8h/#typedef-syn_gpio_pin"><strong>SYN_GPIO_Pin</strong></a> pin) <br><em>Clear pending interrupt flag for a pin.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;"><a href="../syn__compiler_8h/#define-syn_weak"><strong>SYN_WEAK</strong></a> <a href="../syn__defs_8h/#enum-syn_status"><strong>SYN_Status</strong></a></td>
+<td style="text-align: left;"><a href="#function-syn_port_exti_configure"><strong>syn_port_exti_configure</strong></a> (<a href="../syn__defs_8h/#typedef-syn_gpio_pin"><strong>SYN_GPIO_Pin</strong></a> pin, <a href="../syn__port__exti_8h/#enum-syn_exti_edge"><strong>SYN_EXTI_Edge</strong></a> edge) <br><em>Configure a pin for interrupt generation.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;"><a href="../syn__compiler_8h/#define-syn_weak"><strong>SYN_WEAK</strong></a> void</td>
+<td style="text-align: left;"><a href="#function-syn_port_exti_disable"><strong>syn_port_exti_disable</strong></a> (<a href="../syn__defs_8h/#typedef-syn_gpio_pin"><strong>SYN_GPIO_Pin</strong></a> pin) <br><em>Disable interrupt on a pin (without deconfiguring).</em></td>
+</tr>
+<tr>
+<td style="text-align: right;"><a href="../syn__compiler_8h/#define-syn_weak"><strong>SYN_WEAK</strong></a> void</td>
+<td style="text-align: left;"><a href="#function-syn_port_exti_enable"><strong>syn_port_exti_enable</strong></a> (<a href="../syn__defs_8h/#typedef-syn_gpio_pin"><strong>SYN_GPIO_Pin</strong></a> pin) <br><em>Enable interrupt on a configured pin.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;"><a href="../syn__compiler_8h/#define-syn_weak"><strong>SYN_WEAK</strong></a> <a href="../syn__defs_8h/#enum-syn_status"><strong>SYN_Status</strong></a></td>
+<td style="text-align: left;"><a href="#function-syn_port_flash_erase"><strong>syn_port_flash_erase</strong></a> (uint32_t addr) <br><em>Erase a flash sector.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;"><a href="../syn__compiler_8h/#define-syn_weak"><strong>SYN_WEAK</strong></a> <a href="../syn__defs_8h/#enum-syn_status"><strong>SYN_Status</strong></a></td>
+<td style="text-align: left;"><a href="#function-syn_port_flash_read"><strong>syn_port_flash_read</strong></a> (uint32_t addr, void * buf, size_t len) <br><em>Read from flash.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;"><a href="../syn__compiler_8h/#define-syn_weak"><strong>SYN_WEAK</strong></a> uint32_t</td>
+<td style="text-align: left;"><a href="#function-syn_port_flash_sector_size"><strong>syn_port_flash_sector_size</strong></a> (uint32_t addr) <br><em>Get the sector size for the given address.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;"><a href="../syn__compiler_8h/#define-syn_weak"><strong>SYN_WEAK</strong></a> <a href="../syn__defs_8h/#enum-syn_status"><strong>SYN_Status</strong></a></td>
+<td style="text-align: left;"><a href="#function-syn_port_flash_write"><strong>syn_port_flash_write</strong></a> (uint32_t addr, const void * buf, size_t len) <br><em>Write to flash.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;"><a href="../syn__compiler_8h/#define-syn_weak"><strong>SYN_WEAK</strong></a> uint32_t</td>
+<td style="text-align: left;"><a href="#function-syn_port_get_tick_ms"><strong>syn_port_get_tick_ms</strong></a> (void) <br><em>Return the current system tick in milliseconds.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;"><a href="../syn__compiler_8h/#define-syn_weak"><strong>SYN_WEAK</strong></a> <a href="../syn__defs_8h/#enum-syn_status"><strong>SYN_Status</strong></a></td>
+<td style="text-align: left;"><a href="#function-syn_port_gpio_deinit"><strong>syn_port_gpio_deinit</strong></a> (<a href="../syn__defs_8h/#typedef-syn_gpio_pin"><strong>SYN_GPIO_Pin</strong></a> pin) <br><em>De-initialize a GPIO pin, returning it to its reset state.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;"><a href="../syn__compiler_8h/#define-syn_weak"><strong>SYN_WEAK</strong></a> <a href="../syn__defs_8h/#enum-syn_status"><strong>SYN_Status</strong></a></td>
+<td style="text-align: left;"><a href="#function-syn_port_gpio_init"><strong>syn_port_gpio_init</strong></a> (<a href="../syn__defs_8h/#typedef-syn_gpio_pin"><strong>SYN_GPIO_Pin</strong></a> pin, <a href="../syn__defs_8h/#enum-syn_gpio_mode"><strong>SYN_GPIO_Mode</strong></a> mode) <br><em>Initialize a GPIO pin with the given mode.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;"><a href="../syn__compiler_8h/#define-syn_weak"><strong>SYN_WEAK</strong></a> <a href="../syn__defs_8h/#enum-syn_gpio_state"><strong>SYN_GPIO_State</strong></a></td>
+<td style="text-align: left;"><a href="#function-syn_port_gpio_read"><strong>syn_port_gpio_read</strong></a> (<a href="../syn__defs_8h/#typedef-syn_gpio_pin"><strong>SYN_GPIO_Pin</strong></a> pin) <br><em>Read the current logical state of a pin.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;"><a href="../syn__compiler_8h/#define-syn_weak"><strong>SYN_WEAK</strong></a> <a href="../syn__defs_8h/#enum-syn_status"><strong>SYN_Status</strong></a></td>
+<td style="text-align: left;"><a href="#function-syn_port_gpio_toggle"><strong>syn_port_gpio_toggle</strong></a> (<a href="../syn__defs_8h/#typedef-syn_gpio_pin"><strong>SYN_GPIO_Pin</strong></a> pin) <br><em>Toggle the state of an output pin.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;"><a href="../syn__compiler_8h/#define-syn_weak"><strong>SYN_WEAK</strong></a> <a href="../syn__defs_8h/#enum-syn_status"><strong>SYN_Status</strong></a></td>
+<td style="text-align: left;"><a href="#function-syn_port_gpio_write"><strong>syn_port_gpio_write</strong></a> (<a href="../syn__defs_8h/#typedef-syn_gpio_pin"><strong>SYN_GPIO_Pin</strong></a> pin, <a href="../syn__defs_8h/#enum-syn_gpio_state"><strong>SYN_GPIO_State</strong></a> state) <br><em>Write a logical state to an output pin.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;"><a href="../syn__compiler_8h/#define-syn_weak"><strong>SYN_WEAK</strong></a> <a href="../syn__defs_8h/#enum-syn_status"><strong>SYN_Status</strong></a></td>
+<td style="text-align: left;"><a href="#function-syn_port_i2c_deinit"><strong>syn_port_i2c_deinit</strong></a> (uint8_t bus) <br><em>Deinitialize an I2C bus.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;"><a href="../syn__compiler_8h/#define-syn_weak"><strong>SYN_WEAK</strong></a> <a href="../syn__defs_8h/#enum-syn_status"><strong>SYN_Status</strong></a></td>
+<td style="text-align: left;"><a href="#function-syn_port_i2c_init"><strong>syn_port_i2c_init</strong></a> (const <a href="../structSYN__I2C__Config/"><strong>SYN_I2C_Config</strong></a> * cfg) <br><em>Initialize an I2C bus.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;"><a href="../syn__compiler_8h/#define-syn_weak"><strong>SYN_WEAK</strong></a> <a href="../syn__defs_8h/#enum-syn_status"><strong>SYN_Status</strong></a></td>
+<td style="text-align: left;"><a href="#function-syn_port_i2c_read"><strong>syn_port_i2c_read</strong></a> (uint8_t bus, uint8_t addr, uint8_t * data, size_t len) <br><em>Read data from an I2C device.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;"><a href="../syn__compiler_8h/#define-syn_weak"><strong>SYN_WEAK</strong></a> <a href="../syn__defs_8h/#enum-syn_status"><strong>SYN_Status</strong></a></td>
+<td style="text-align: left;"><a href="#function-syn_port_i2c_write"><strong>syn_port_i2c_write</strong></a> (uint8_t bus, uint8_t addr, const uint8_t * data, size_t len) <br><em>Write data to an I2C device.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;"><a href="../syn__compiler_8h/#define-syn_weak"><strong>SYN_WEAK</strong></a> <a href="../syn__defs_8h/#enum-syn_status"><strong>SYN_Status</strong></a></td>
+<td style="text-align: left;"><a href="#function-syn_port_i2c_write_read"><strong>syn_port_i2c_write_read</strong></a> (uint8_t bus, uint8_t addr, const uint8_t * tx_data, size_t tx_len, uint8_t * rx_data, size_t rx_len) <br><em>Write then read (register access pattern).</em></td>
+</tr>
+<tr>
+<td style="text-align: right;"><a href="../syn__compiler_8h/#define-syn_weak"><strong>SYN_WEAK</strong></a> void</td>
+<td style="text-align: left;"><a href="#function-syn_port_memory_barrier"><strong>syn_port_memory_barrier</strong></a> (void) <br></td>
+</tr>
+<tr>
+<td style="text-align: right;"><a href="../syn__compiler_8h/#define-syn_weak"><strong>SYN_WEAK</strong></a> void</td>
+<td style="text-align: left;"><a href="#function-syn_port_pwm_enable"><strong>syn_port_pwm_enable</strong></a> (uint8_t channel, <a href="../syn__defs_8h/#enum-bool"><strong>bool</strong></a> enable) <br><em>Enable/disable PWM output.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;"><a href="../syn__compiler_8h/#define-syn_weak"><strong>SYN_WEAK</strong></a> <a href="../syn__defs_8h/#enum-syn_status"><strong>SYN_Status</strong></a></td>
+<td style="text-align: left;"><a href="#function-syn_port_pwm_init"><strong>syn_port_pwm_init</strong></a> (uint8_t channel, uint32_t freq_hz) <br><em>Initialize a PWM channel.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;"><a href="../syn__compiler_8h/#define-syn_weak"><strong>SYN_WEAK</strong></a> void</td>
+<td style="text-align: left;"><a href="#function-syn_port_pwm_set_duty"><strong>syn_port_pwm_set_duty</strong></a> (uint8_t channel, uint8_t duty_pct) <br><em>Set PWM duty cycle.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;"><a href="../syn__compiler_8h/#define-syn_weak"><strong>SYN_WEAK</strong></a> void</td>
+<td style="text-align: left;"><a href="#function-syn_port_pwm_set_duty_raw"><strong>syn_port_pwm_set_duty_raw</strong></a> (uint8_t channel, uint16_t duty_u16) <br><em>Set PWM duty cycle with fine resolution.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;"><a href="../syn__compiler_8h/#define-syn_weak"><strong>SYN_WEAK</strong></a> void</td>
+<td style="text-align: left;"><a href="#function-syn_port_pwm_set_freq"><strong>syn_port_pwm_set_freq</strong></a> (uint8_t channel, uint32_t freq_hz) <br><em>Set PWM frequency (runtime change).</em></td>
+</tr>
+<tr>
+<td style="text-align: right;"><a href="../syn__compiler_8h/#define-syn_weak"><strong>SYN_WEAK</strong></a> <a href="../syn__defs_8h/#enum-syn_status"><strong>SYN_Status</strong></a></td>
+<td style="text-align: left;"><a href="#function-syn_port_serial_init"><strong>syn_port_serial_init</strong></a> (uint32_t baudrate) <br><em>Initialize the console serial port.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;"><a href="../syn__compiler_8h/#define-syn_weak"><strong>SYN_WEAK</strong></a> int</td>
+<td style="text-align: left;"><a href="#function-syn_port_serial_read"><strong>syn_port_serial_read</strong></a> (uint8_t * buf, size_t max_len) <br><em>Read available bytes from the console (non-blocking).</em></td>
+</tr>
+<tr>
+<td style="text-align: right;"><a href="../syn__compiler_8h/#define-syn_weak"><strong>SYN_WEAK</strong></a> int</td>
+<td style="text-align: left;"><a href="#function-syn_port_serial_write"><strong>syn_port_serial_write</strong></a> (const uint8_t * data, size_t len) <br><em>Write bytes to the console.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;"><a href="../syn__compiler_8h/#define-syn_weak"><strong>SYN_WEAK</strong></a> void</td>
+<td style="text-align: left;"><a href="#function-syn_port_sleep"><strong>syn_port_sleep</strong></a> (<a href="../syn__sleep_8h/#enum-syn_sleepmode"><strong>SYN_SleepMode</strong></a> mode) <br><em>Enter low-power mode. Implement for your platform.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;"><a href="../syn__compiler_8h/#define-syn_weak"><strong>SYN_WEAK</strong></a> void</td>
+<td style="text-align: left;"><a href="#function-syn_port_sleep_until"><strong>syn_port_sleep_until</strong></a> (uint32_t wake_tick_ms) <br></td>
+</tr>
+<tr>
+<td style="text-align: right;"><a href="../syn__compiler_8h/#define-syn_weak"><strong>SYN_WEAK</strong></a> <a href="../syn__port__socket_8h/#typedef-syn_socket"><strong>SYN_Socket</strong></a></td>
+<td style="text-align: left;"><a href="#function-syn_port_sock_accept"><strong>syn_port_sock_accept</strong></a> (<a href="../syn__port__socket_8h/#typedef-syn_socket"><strong>SYN_Socket</strong></a> listener, uint32_t timeout_ms) <br><em>Accept an incoming connection on a listener socket.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;"><a href="../syn__compiler_8h/#define-syn_weak"><strong>SYN_WEAK</strong></a> void</td>
+<td style="text-align: left;"><a href="#function-syn_port_sock_close"><strong>syn_port_sock_close</strong></a> (<a href="../syn__port__socket_8h/#typedef-syn_socket"><strong>SYN_Socket</strong></a> sock) <br><em>Close a socket and release resources.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;"><a href="../syn__compiler_8h/#define-syn_weak"><strong>SYN_WEAK</strong></a> <a href="../syn__port__socket_8h/#typedef-syn_socket"><strong>SYN_Socket</strong></a></td>
+<td style="text-align: left;"><a href="#function-syn_port_sock_connect"><strong>syn_port_sock_connect</strong></a> (const <a href="../structSYN__SockAddr/"><strong>SYN_SockAddr</strong></a> * addr) <br><em>Connect to a remote host by IP address.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;"><a href="../syn__compiler_8h/#define-syn_weak"><strong>SYN_WEAK</strong></a> <a href="../syn__port__socket_8h/#typedef-syn_socket"><strong>SYN_Socket</strong></a></td>
+<td style="text-align: left;"><a href="#function-syn_port_sock_connect_host"><strong>syn_port_sock_connect_host</strong></a> (const char * host, uint16_t port) <br><em>Connect to a remote host by hostname.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;"><a href="../syn__compiler_8h/#define-syn_weak"><strong>SYN_WEAK</strong></a> <a href="../syn__port__socket_8h/#typedef-syn_socket"><strong>SYN_Socket</strong></a></td>
+<td style="text-align: left;"><a href="#function-syn_port_sock_listen"><strong>syn_port_sock_listen</strong></a> (uint16_t port, int backlog) <br><em>Create a listening TCP socket on the given port.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;"><a href="../syn__compiler_8h/#define-syn_weak"><strong>SYN_WEAK</strong></a> int</td>
+<td style="text-align: left;"><a href="#function-syn_port_sock_recv"><strong>syn_port_sock_recv</strong></a> (<a href="../syn__port__socket_8h/#typedef-syn_socket"><strong>SYN_Socket</strong></a> sock, void * buf, size_t max_len, uint32_t timeout_ms) <br><em>Receive data from a connected socket.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;"><a href="../syn__compiler_8h/#define-syn_weak"><strong>SYN_WEAK</strong></a> int</td>
+<td style="text-align: left;"><a href="#function-syn_port_sock_send"><strong>syn_port_sock_send</strong></a> (<a href="../syn__port__socket_8h/#typedef-syn_socket"><strong>SYN_Socket</strong></a> sock, const void * data, size_t len) <br><em>Send data over a connected socket.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;"><a href="../syn__compiler_8h/#define-syn_weak"><strong>SYN_WEAK</strong></a> int</td>
+<td style="text-align: left;"><a href="#function-syn_port_sock_send_all"><strong>syn_port_sock_send_all</strong></a> (<a href="../syn__port__socket_8h/#typedef-syn_socket"><strong>SYN_Socket</strong></a> sock, const void * data, size_t len) <br><em>Send all data over a connected socket.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;"><a href="../syn__compiler_8h/#define-syn_weak"><strong>SYN_WEAK</strong></a> <a href="../syn__defs_8h/#enum-syn_status"><strong>SYN_Status</strong></a></td>
+<td style="text-align: left;"><a href="#function-syn_port_spi_cs_assert"><strong>syn_port_spi_cs_assert</strong></a> (uint8_t bus, <a href="../syn__defs_8h/#typedef-syn_gpio_pin"><strong>SYN_GPIO_Pin</strong></a> cs_pin) <br><em>Assert (pull low) an SPI chip-select pin.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;"><a href="../syn__compiler_8h/#define-syn_weak"><strong>SYN_WEAK</strong></a> <a href="../syn__defs_8h/#enum-syn_status"><strong>SYN_Status</strong></a></td>
+<td style="text-align: left;"><a href="#function-syn_port_spi_cs_deassert"><strong>syn_port_spi_cs_deassert</strong></a> (uint8_t bus, <a href="../syn__defs_8h/#typedef-syn_gpio_pin"><strong>SYN_GPIO_Pin</strong></a> cs_pin) <br><em>Deassert (release high) an SPI chip-select pin.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;"><a href="../syn__compiler_8h/#define-syn_weak"><strong>SYN_WEAK</strong></a> <a href="../syn__defs_8h/#enum-syn_status"><strong>SYN_Status</strong></a></td>
+<td style="text-align: left;"><a href="#function-syn_port_spi_deinit"><strong>syn_port_spi_deinit</strong></a> (uint8_t bus) <br><em>Deinitialize an SPI bus.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;"><a href="../syn__compiler_8h/#define-syn_weak"><strong>SYN_WEAK</strong></a> <a href="../syn__defs_8h/#enum-syn_status"><strong>SYN_Status</strong></a></td>
+<td style="text-align: left;"><a href="#function-syn_port_spi_init"><strong>syn_port_spi_init</strong></a> (const <a href="../structSYN__SPI__Config/"><strong>SYN_SPI_Config</strong></a> * cfg) <br><em>Initialize an SPI bus.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;"><a href="../syn__compiler_8h/#define-syn_weak"><strong>SYN_WEAK</strong></a> <a href="../syn__defs_8h/#enum-syn_status"><strong>SYN_Status</strong></a></td>
+<td style="text-align: left;"><a href="#function-syn_port_spi_transfer"><strong>syn_port_spi_transfer</strong></a> (uint8_t bus, const uint8_t * tx_buf, uint8_t * rx_buf, size_t len) <br><em>Full-duplex SPI transfer.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;"><a href="../syn__compiler_8h/#define-syn_weak"><strong>SYN_WEAK</strong></a> <a href="../syn__compiler_8h/#define-syn_noreturn"><strong>SYN_NORETURN</strong></a> void</td>
+<td style="text-align: left;"><a href="#function-syn_port_system_reset"><strong>syn_port_system_reset</strong></a> (void) <br><em>Perform a system reset.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;"><a href="../syn__compiler_8h/#define-syn_weak"><strong>SYN_WEAK</strong></a> <a href="../syn__defs_8h/#enum-syn_status"><strong>SYN_Status</strong></a></td>
+<td style="text-align: left;"><a href="#function-syn_port_uart_deinit"><strong>syn_port_uart_deinit</strong></a> (<a href="../syn__defs_8h/#typedef-syn_uartinstance"><strong>SYN_UARTInstance</strong></a> instance) <br><em>De-initialize a UART peripheral.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;"><a href="../syn__compiler_8h/#define-syn_weak"><strong>SYN_WEAK</strong></a> <a href="../syn__defs_8h/#enum-syn_status"><strong>SYN_Status</strong></a></td>
+<td style="text-align: left;"><a href="#function-syn_port_uart_init"><strong>syn_port_uart_init</strong></a> (<a href="../syn__defs_8h/#typedef-syn_uartinstance"><strong>SYN_UARTInstance</strong></a> instance, uint32_t baudrate) <br><em>Initialize a UART peripheral.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;"><a href="../syn__compiler_8h/#define-syn_weak"><strong>SYN_WEAK</strong></a> <a href="../syn__defs_8h/#enum-syn_status"><strong>SYN_Status</strong></a></td>
+<td style="text-align: left;"><a href="#function-syn_port_uart_receive"><strong>syn_port_uart_receive</strong></a> (<a href="../syn__defs_8h/#typedef-syn_uartinstance"><strong>SYN_UARTInstance</strong></a> instance, uint8_t * data, size_t len, size_t * received, uint32_t timeout_ms) <br><em>Receive bytes into a buffer (blocking).</em></td>
+</tr>
+<tr>
+<td style="text-align: right;"><a href="../syn__compiler_8h/#define-syn_weak"><strong>SYN_WEAK</strong></a> <a href="../syn__defs_8h/#enum-syn_status"><strong>SYN_Status</strong></a></td>
+<td style="text-align: left;"><a href="#function-syn_port_uart_receive_byte"><strong>syn_port_uart_receive_byte</strong></a> (<a href="../syn__defs_8h/#typedef-syn_uartinstance"><strong>SYN_UARTInstance</strong></a> instance, uint8_t * byte, uint32_t timeout_ms) <br><em>Receive a single byte (blocking).</em></td>
+</tr>
+<tr>
+<td style="text-align: right;"><a href="../syn__compiler_8h/#define-syn_weak"><strong>SYN_WEAK</strong></a> <a href="../syn__defs_8h/#enum-syn_status"><strong>SYN_Status</strong></a></td>
+<td style="text-align: left;"><a href="#function-syn_port_uart_transmit"><strong>syn_port_uart_transmit</strong></a> (<a href="../syn__defs_8h/#typedef-syn_uartinstance"><strong>SYN_UARTInstance</strong></a> instance, const uint8_t * data, size_t len, uint32_t timeout_ms) <br><em>Transmit a buffer of bytes (blocking).</em></td>
+</tr>
+<tr>
+<td style="text-align: right;"><a href="../syn__compiler_8h/#define-syn_weak"><strong>SYN_WEAK</strong></a> <a href="../syn__defs_8h/#enum-syn_status"><strong>SYN_Status</strong></a></td>
+<td style="text-align: left;"><a href="#function-syn_port_uart_transmit_byte"><strong>syn_port_uart_transmit_byte</strong></a> (<a href="../syn__defs_8h/#typedef-syn_uartinstance"><strong>SYN_UARTInstance</strong></a> instance, uint8_t byte) <br><em>Transmit a single byte (blocking).</em></td>
+</tr>
+<tr>
+<td style="text-align: right;"><a href="../syn__compiler_8h/#define-syn_weak"><strong>SYN_WEAK</strong></a> <a href="../syn__defs_8h/#enum-syn_status"><strong>SYN_Status</strong></a></td>
+<td style="text-align: left;"><a href="#function-syn_port_udp_join_multicast"><strong>syn_port_udp_join_multicast</strong></a> (<a href="../syn__port__socket_8h/#typedef-syn_socket"><strong>SYN_Socket</strong></a> sock, const char * multicast_ip) <br><em>Join a multicast group.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;"><a href="../syn__compiler_8h/#define-syn_weak"><strong>SYN_WEAK</strong></a> <a href="../syn__port__socket_8h/#typedef-syn_socket"><strong>SYN_Socket</strong></a></td>
+<td style="text-align: left;"><a href="#function-syn_port_udp_open"><strong>syn_port_udp_open</strong></a> (uint16_t port) <br><em>Open a UDP socket bound to the given port.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;"><a href="../syn__compiler_8h/#define-syn_weak"><strong>SYN_WEAK</strong></a> int</td>
+<td style="text-align: left;"><a href="#function-syn_port_udp_recvfrom"><strong>syn_port_udp_recvfrom</strong></a> (<a href="../syn__port__socket_8h/#typedef-syn_socket"><strong>SYN_Socket</strong></a> sock, void * buf, size_t max_len, <a href="../structSYN__SockAddr/"><strong>SYN_SockAddr</strong></a> * from, uint32_t timeout_ms) <br><em>Receive a UDP packet.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;"><a href="../syn__compiler_8h/#define-syn_weak"><strong>SYN_WEAK</strong></a> int</td>
+<td style="text-align: left;"><a href="#function-syn_port_udp_sendto"><strong>syn_port_udp_sendto</strong></a> (<a href="../syn__port__socket_8h/#typedef-syn_socket"><strong>SYN_Socket</strong></a> sock, const void * data, size_t len, const <a href="../structSYN__SockAddr/"><strong>SYN_SockAddr</strong></a> * to) <br><em>Send a UDP packet to a destination address.</em></td>
+</tr>
+</tbody>
+</table>
+<h2 id="detailed-description">Detailed Description<a class="headerlink" href="#detailed-description" title="Permanent link">&para;</a></h2>
+<p>Compile this file into your project to catch unimplemented port functions at runtime. Each stub calls <a href="./#function-syn_assert_failed"><strong>syn_assert_failed()</strong></a> with a descriptive message, making it immediately obvious which function you forgot to implement.</p>
+<p>If you provide a strong definition of a function in your platform port file, the linker will silently discard the weak stub.</p>
+<p>You can also omit this file entirely and rely on the linker to report unresolved symbols at link time — this is a perfectly valid approach. </p>
+<h2 id="public-functions-documentation">Public Functions Documentation<a class="headerlink" href="#public-functions-documentation" title="Permanent link">&para;</a></h2>
+<h3 id="function-syn_assert_failed">function syn_assert_failed<a class="headerlink" href="#function-syn_assert_failed" title="Permanent link">&para;</a></h3>
+<p><em>Called when an assertion fails.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">SYN_WEAK</span><span class="w">  </span><span class="n">SYN_NORETURN</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">syn_assert_failed</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">file</span><span class="p">,</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">line</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p>This function is declared weak so you can provide your own implementation. The default (in <a href="./"><strong>syn_port_stubs.c</strong></a>) enters an infinite loop.</p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>file</code> Source file name where the assertion failed. </li>
+<li><code>line</code> Line number where the assertion failed. </li>
+</ul>
+<hr>
+
+<h3 id="function-syn_port_adc_init">function syn_port_adc_init<a class="headerlink" href="#function-syn_port_adc_init" title="Permanent link">&para;</a></h3>
+<p><em>Initialize an ADC channel.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="n">SYN_WEAK</span><span class="w">  </span><span class="n">SYN_Status</span><span class="w"> </span><span class="n">syn_port_adc_init</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">    </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">channel</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>channel</code> ADC channel number. </li>
+</ul>
+<p><strong>Returns:</strong></p>
+<p>SYN_OK on success. </p>
+<hr>
+
+<h3 id="function-syn_port_adc_read">function syn_port_adc_read<a class="headerlink" href="#function-syn_port_adc_read" title="Permanent link">&para;</a></h3>
+<p><em>Read a single ADC sample.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="n">SYN_WEAK</span><span class="w"> </span><span class="kt">uint16_t</span><span class="w"> </span><span class="n">syn_port_adc_read</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">    </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">channel</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>channel</code> ADC channel number. </li>
+</ul>
+<p><strong>Returns:</strong></p>
+<p>Raw ADC value (resolution depends on platform). </p>
+<hr>
+
+<h3 id="function-syn_port_adc_reference_mv">function syn_port_adc_reference_mv<a class="headerlink" href="#function-syn_port_adc_reference_mv" title="Permanent link">&para;</a></h3>
+<p><em>Get the ADC reference voltage in millivolts.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="n">SYN_WEAK</span><span class="w"> </span><span class="kt">uint16_t</span><span class="w"> </span><span class="n">syn_port_adc_reference_mv</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">    </span><span class="kt">void</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p><strong>Returns:</strong></p>
+<p>Reference voltage (e.g., 3300 for 3.3V). </p>
+<hr>
+
+<h3 id="function-syn_port_adc_resolution">function syn_port_adc_resolution<a class="headerlink" href="#function-syn_port_adc_resolution" title="Permanent link">&para;</a></h3>
+<p><em>Get the ADC resolution in bits.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="n">SYN_WEAK</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">syn_port_adc_resolution</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">    </span><span class="kt">void</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p><strong>Returns:</strong></p>
+<p>Resolution (e.g., 10, 12, 16). </p>
+<hr>
+
+<h3 id="function-syn_port_can_init">function syn_port_can_init<a class="headerlink" href="#function-syn_port_can_init" title="Permanent link">&para;</a></h3>
+<p><em>Initialize CAN peripheral.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="n">SYN_WEAK</span><span class="w">  </span><span class="kt">bool</span><span class="w"> </span><span class="n">syn_port_can_init</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">    </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">port</span><span class="p">,</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">    </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">bitrate</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>port</code> CAN port number (0, 1, ...). </li>
+<li><code>bitrate</code> Bitrate in bits/sec (e.g. 500000 for 500kbps). </li>
+</ul>
+<p><strong>Returns:</strong></p>
+<p>true on success. </p>
+<hr>
+
+<h3 id="function-syn_port_can_receive">function syn_port_can_receive<a class="headerlink" href="#function-syn_port_can_receive" title="Permanent link">&para;</a></h3>
+<p><em>Receive a CAN frame (non-blocking).</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="n">SYN_WEAK</span><span class="w">  </span><span class="kt">bool</span><span class="w"> </span><span class="n">syn_port_can_receive</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">    </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">port</span><span class="p">,</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">    </span><span class="kt">uint32_t</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">id</span><span class="p">,</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="w">    </span><span class="kt">bool</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">extended</span><span class="p">,</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="w">    </span><span class="kt">uint8_t</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">data</span><span class="p">,</span>
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="w">    </span><span class="kt">uint8_t</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">dlc</span>
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>port</code> CAN port. </li>
+<li><code>id</code> [out] CAN identifier. </li>
+<li><code>extended</code> [out] true if 29-bit ID. </li>
+<li><code>data</code> [out] Frame data buffer (at least 8 bytes). </li>
+<li><code>dlc</code> [out] Data length code. </li>
+</ul>
+<p><strong>Returns:</strong></p>
+<p>true if a frame was received. </p>
+<hr>
+
+<h3 id="function-syn_port_can_send">function syn_port_can_send<a class="headerlink" href="#function-syn_port_can_send" title="Permanent link">&para;</a></h3>
+<p><em>Send a CAN frame.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="n">SYN_WEAK</span><span class="w">  </span><span class="kt">bool</span><span class="w"> </span><span class="n">syn_port_can_send</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">    </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">port</span><span class="p">,</span>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="w">    </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">id</span><span class="p">,</span>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="w">    </span><span class="kt">bool</span><span class="w"> </span><span class="n">extended</span><span class="p">,</span>
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">data</span><span class="p">,</span>
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="w">    </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">dlc</span>
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>port</code> CAN port. </li>
+<li><code>id</code> CAN identifier (11-bit or 29-bit). </li>
+<li><code>extended</code> true for 29-bit ID. </li>
+<li><code>data</code> Frame data (up to 8 bytes). </li>
+<li><code>dlc</code> Data length code (0-8). </li>
+</ul>
+<p><strong>Returns:</strong></p>
+<p>true if frame was queued for transmission. </p>
+<hr>
+
+<h3 id="function-syn_port_can_set_filter">function syn_port_can_set_filter<a class="headerlink" href="#function-syn_port_can_set_filter" title="Permanent link">&para;</a></h3>
+<p><em>Set hardware acceptance filter.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="n">SYN_WEAK</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">syn_port_can_set_filter</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="w">    </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">port</span><span class="p">,</span>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="w">    </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">id</span><span class="p">,</span>
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="w">    </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">mask</span>
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>port</code> CAN port. </li>
+<li><code>id</code> Filter ID. </li>
+<li><code>mask</code> Filter mask (1 = must match, 0 = don't care). </li>
+</ul>
+<hr>
+
+<h3 id="function-syn_port_delay_ms">function syn_port_delay_ms<a class="headerlink" href="#function-syn_port_delay_ms" title="Permanent link">&para;</a></h3>
+<p><em>Blocking delay for the specified number of milliseconds.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="n">SYN_WEAK</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">syn_port_delay_ms</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="w">    </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">ms</span>
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p>The implementation may busy-wait or yield to an RTOS. The delay must be at least <code>ms</code> milliseconds.</p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>ms</code> Number of milliseconds to delay. </li>
+</ul>
+<hr>
+
+<h3 id="function-syn_port_enter_critical">function syn_port_enter_critical<a class="headerlink" href="#function-syn_port_enter_critical" title="Permanent link">&para;</a></h3>
+<p><em>Enter a critical section (disable interrupts).</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="n">SYN_WEAK</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">syn_port_enter_critical</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="w">    </span><span class="kt">void</span>
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p>Calls may be nested; the implementation must track nesting depth and only re-enable interrupts when the outermost critical section exits. </p>
+<hr>
+
+<h3 id="function-syn_port_exit_critical">function syn_port_exit_critical<a class="headerlink" href="#function-syn_port_exit_critical" title="Permanent link">&para;</a></h3>
+<p><em>Exit a critical section (re-enable interrupts).</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="n">SYN_WEAK</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">syn_port_exit_critical</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="w">    </span><span class="kt">void</span>
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p>Must be called once for each corresponding <a href="../syn__port__system_8h/#function-syn_port_enter_critical"><strong>syn_port_enter_critical()</strong></a>. </p>
+<hr>
+
+<h3 id="function-syn_port_exti_clear_pending">function syn_port_exti_clear_pending<a class="headerlink" href="#function-syn_port_exti_clear_pending" title="Permanent link">&para;</a></h3>
+<p><em>Clear pending interrupt flag for a pin.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="n">SYN_WEAK</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">syn_port_exti_clear_pending</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="w">    </span><span class="n">SYN_GPIO_Pin</span><span class="w"> </span><span class="n">pin</span>
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>pin</code> GPIO pin. </li>
+</ul>
+<hr>
+
+<h3 id="function-syn_port_exti_configure">function syn_port_exti_configure<a class="headerlink" href="#function-syn_port_exti_configure" title="Permanent link">&para;</a></h3>
+<p><em>Configure a pin for interrupt generation.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="n">SYN_WEAK</span><span class="w">  </span><span class="n">SYN_Status</span><span class="w"> </span><span class="n">syn_port_exti_configure</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="w">    </span><span class="n">SYN_GPIO_Pin</span><span class="w"> </span><span class="n">pin</span><span class="p">,</span>
+<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a><span class="w">    </span><span class="n">SYN_EXTI_Edge</span><span class="w"> </span><span class="n">edge</span>
+<a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>pin</code> GPIO pin number. </li>
+<li><code>edge</code> Trigger edge. </li>
+</ul>
+<p><strong>Returns:</strong></p>
+<p>SYN_OK on success. </p>
+<hr>
+
+<h3 id="function-syn_port_exti_disable">function syn_port_exti_disable<a class="headerlink" href="#function-syn_port_exti_disable" title="Permanent link">&para;</a></h3>
+<p><em>Disable interrupt on a pin (without deconfiguring).</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="n">SYN_WEAK</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">syn_port_exti_disable</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="w">    </span><span class="n">SYN_GPIO_Pin</span><span class="w"> </span><span class="n">pin</span>
+<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>pin</code> GPIO pin. </li>
+</ul>
+<hr>
+
+<h3 id="function-syn_port_exti_enable">function syn_port_exti_enable<a class="headerlink" href="#function-syn_port_exti_enable" title="Permanent link">&para;</a></h3>
+<p><em>Enable interrupt on a configured pin.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="n">SYN_WEAK</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">syn_port_exti_enable</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a><span class="w">    </span><span class="n">SYN_GPIO_Pin</span><span class="w"> </span><span class="n">pin</span>
+<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>pin</code> GPIO pin. </li>
+</ul>
+<hr>
+
+<h3 id="function-syn_port_flash_erase">function syn_port_flash_erase<a class="headerlink" href="#function-syn_port_flash_erase" title="Permanent link">&para;</a></h3>
+<p><em>Erase a flash sector.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="n">SYN_WEAK</span><span class="w">  </span><span class="n">SYN_Status</span><span class="w"> </span><span class="n">syn_port_flash_erase</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a><span class="w">    </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">addr</span>
+<a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>addr</code> Start address of the sector (must be sector-aligned). </li>
+</ul>
+<p><strong>Returns:</strong></p>
+<p>SYN_OK on success. </p>
+<hr>
+
+<h3 id="function-syn_port_flash_read">function syn_port_flash_read<a class="headerlink" href="#function-syn_port_flash_read" title="Permanent link">&para;</a></h3>
+<p><em>Read from flash.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="n">SYN_WEAK</span><span class="w">  </span><span class="n">SYN_Status</span><span class="w"> </span><span class="n">syn_port_flash_read</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a><span class="w">    </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">addr</span><span class="p">,</span>
+<a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a><span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">buf</span><span class="p">,</span>
+<a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a><span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="n">len</span>
+<a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>addr</code> Source address in flash. </li>
+<li><code>buf</code> Destination buffer. </li>
+<li><code>len</code> Number of bytes to read. </li>
+</ul>
+<p><strong>Returns:</strong></p>
+<p>SYN_OK on success. </p>
+<hr>
+
+<h3 id="function-syn_port_flash_sector_size">function syn_port_flash_sector_size<a class="headerlink" href="#function-syn_port_flash_sector_size" title="Permanent link">&para;</a></h3>
+<p><em>Get the sector size for the given address.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="n">SYN_WEAK</span><span class="w"> </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">syn_port_flash_sector_size</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a><span class="w">    </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">addr</span>
+<a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>addr</code> Address within the sector. </li>
+</ul>
+<p><strong>Returns:</strong></p>
+<p>Sector size in bytes. </p>
+<hr>
+
+<h3 id="function-syn_port_flash_write">function syn_port_flash_write<a class="headerlink" href="#function-syn_port_flash_write" title="Permanent link">&para;</a></h3>
+<p><em>Write to flash.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="n">SYN_WEAK</span><span class="w">  </span><span class="n">SYN_Status</span><span class="w"> </span><span class="n">syn_port_flash_write</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a><span class="w">    </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">addr</span><span class="p">,</span>
+<a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">buf</span><span class="p">,</span>
+<a id="__codelineno-19-4" name="__codelineno-19-4" href="#__codelineno-19-4"></a><span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="n">len</span>
+<a id="__codelineno-19-5" name="__codelineno-19-5" href="#__codelineno-19-5"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p>Flash must be erased before writing (writes can only clear bits). The implementation should handle any alignment requirements.</p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>addr</code> Destination address in flash. </li>
+<li><code>buf</code> Source data. </li>
+<li><code>len</code> Number of bytes to write. </li>
+</ul>
+<p><strong>Returns:</strong></p>
+<p>SYN_OK on success. </p>
+<hr>
+
+<h3 id="function-syn_port_get_tick_ms">function syn_port_get_tick_ms<a class="headerlink" href="#function-syn_port_get_tick_ms" title="Permanent link">&para;</a></h3>
+<p><em>Return the current system tick in milliseconds.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="n">SYN_WEAK</span><span class="w"> </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">syn_port_get_tick_ms</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a><span class="w">    </span><span class="kt">void</span>
+<a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p>This value must be monotonically increasing and should wrap naturally at UINT32_MAX. Typical sources: SysTick, a hardware timer, or an RTOS tick.</p>
+<p><strong>Returns:</strong></p>
+<p>Milliseconds since system start (or last wrap). </p>
+<hr>
+
+<h3 id="function-syn_port_gpio_deinit">function syn_port_gpio_deinit<a class="headerlink" href="#function-syn_port_gpio_deinit" title="Permanent link">&para;</a></h3>
+<p><em>De-initialize a GPIO pin, returning it to its reset state.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="n">SYN_WEAK</span><span class="w">  </span><span class="n">SYN_Status</span><span class="w"> </span><span class="n">syn_port_gpio_deinit</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a><span class="w">    </span><span class="n">SYN_GPIO_Pin</span><span class="w"> </span><span class="n">pin</span>
+<a id="__codelineno-21-3" name="__codelineno-21-3" href="#__codelineno-21-3"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>pin</code> Pin to de-initialize. </li>
+</ul>
+<p><strong>Returns:</strong></p>
+<p>SYN_OK on success. </p>
+<hr>
+
+<h3 id="function-syn_port_gpio_init">function syn_port_gpio_init<a class="headerlink" href="#function-syn_port_gpio_init" title="Permanent link">&para;</a></h3>
+<p><em>Initialize a GPIO pin with the given mode.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a><span class="n">SYN_WEAK</span><span class="w">  </span><span class="n">SYN_Status</span><span class="w"> </span><span class="n">syn_port_gpio_init</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a><span class="w">    </span><span class="n">SYN_GPIO_Pin</span><span class="w"> </span><span class="n">pin</span><span class="p">,</span>
+<a id="__codelineno-22-3" name="__codelineno-22-3" href="#__codelineno-22-3"></a><span class="w">    </span><span class="n">SYN_GPIO_Mode</span><span class="w"> </span><span class="n">mode</span>
+<a id="__codelineno-22-4" name="__codelineno-22-4" href="#__codelineno-22-4"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>pin</code> Platform-specific pin identifier. </li>
+<li><code>mode</code> Desired pin mode (input, output, etc.). </li>
+</ul>
+<p><strong>Returns:</strong></p>
+<p>SYN_OK on success, or an error code. </p>
+<hr>
+
+<h3 id="function-syn_port_gpio_read">function syn_port_gpio_read<a class="headerlink" href="#function-syn_port_gpio_read" title="Permanent link">&para;</a></h3>
+<p><em>Read the current logical state of a pin.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a><span class="n">SYN_WEAK</span><span class="w">  </span><span class="n">SYN_GPIO_State</span><span class="w"> </span><span class="n">syn_port_gpio_read</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-23-2" name="__codelineno-23-2" href="#__codelineno-23-2"></a><span class="w">    </span><span class="n">SYN_GPIO_Pin</span><span class="w"> </span><span class="n">pin</span>
+<a id="__codelineno-23-3" name="__codelineno-23-3" href="#__codelineno-23-3"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>pin</code> Pin to read. </li>
+</ul>
+<p><strong>Returns:</strong></p>
+<p>SYN_GPIO_HIGH or SYN_GPIO_LOW. </p>
+<hr>
+
+<h3 id="function-syn_port_gpio_toggle">function syn_port_gpio_toggle<a class="headerlink" href="#function-syn_port_gpio_toggle" title="Permanent link">&para;</a></h3>
+<p><em>Toggle the state of an output pin.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a><span class="n">SYN_WEAK</span><span class="w">  </span><span class="n">SYN_Status</span><span class="w"> </span><span class="n">syn_port_gpio_toggle</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-24-2" name="__codelineno-24-2" href="#__codelineno-24-2"></a><span class="w">    </span><span class="n">SYN_GPIO_Pin</span><span class="w"> </span><span class="n">pin</span>
+<a id="__codelineno-24-3" name="__codelineno-24-3" href="#__codelineno-24-3"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>pin</code> Pin to toggle. </li>
+</ul>
+<p><strong>Returns:</strong></p>
+<p>SYN_OK on success. </p>
+<hr>
+
+<h3 id="function-syn_port_gpio_write">function syn_port_gpio_write<a class="headerlink" href="#function-syn_port_gpio_write" title="Permanent link">&para;</a></h3>
+<p><em>Write a logical state to an output pin.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a><span class="n">SYN_WEAK</span><span class="w">  </span><span class="n">SYN_Status</span><span class="w"> </span><span class="n">syn_port_gpio_write</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-25-2" name="__codelineno-25-2" href="#__codelineno-25-2"></a><span class="w">    </span><span class="n">SYN_GPIO_Pin</span><span class="w"> </span><span class="n">pin</span><span class="p">,</span>
+<a id="__codelineno-25-3" name="__codelineno-25-3" href="#__codelineno-25-3"></a><span class="w">    </span><span class="n">SYN_GPIO_State</span><span class="w"> </span><span class="n">state</span>
+<a id="__codelineno-25-4" name="__codelineno-25-4" href="#__codelineno-25-4"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>pin</code> Pin to write. </li>
+<li><code>state</code> SYN_GPIO_HIGH or SYN_GPIO_LOW. </li>
+</ul>
+<p><strong>Returns:</strong></p>
+<p>SYN_OK on success. </p>
+<hr>
+
+<h3 id="function-syn_port_i2c_deinit">function syn_port_i2c_deinit<a class="headerlink" href="#function-syn_port_i2c_deinit" title="Permanent link">&para;</a></h3>
+<p><em>Deinitialize an I2C bus.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a><span class="n">SYN_WEAK</span><span class="w">  </span><span class="n">SYN_Status</span><span class="w"> </span><span class="n">syn_port_i2c_deinit</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-26-2" name="__codelineno-26-2" href="#__codelineno-26-2"></a><span class="w">    </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">bus</span>
+<a id="__codelineno-26-3" name="__codelineno-26-3" href="#__codelineno-26-3"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>bus</code> I2C bus index. </li>
+</ul>
+<p><strong>Returns:</strong></p>
+<p>SYN_OK on success. </p>
+<hr>
+
+<h3 id="function-syn_port_i2c_init">function syn_port_i2c_init<a class="headerlink" href="#function-syn_port_i2c_init" title="Permanent link">&para;</a></h3>
+<p><em>Initialize an I2C bus.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a><span class="n">SYN_WEAK</span><span class="w">  </span><span class="n">SYN_Status</span><span class="w"> </span><span class="n">syn_port_i2c_init</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-27-2" name="__codelineno-27-2" href="#__codelineno-27-2"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">SYN_I2C_Config</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">cfg</span>
+<a id="__codelineno-27-3" name="__codelineno-27-3" href="#__codelineno-27-3"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>cfg</code> I2C configuration. </li>
+</ul>
+<p><strong>Returns:</strong></p>
+<p>SYN_OK on success. </p>
+<hr>
+
+<h3 id="function-syn_port_i2c_read">function syn_port_i2c_read<a class="headerlink" href="#function-syn_port_i2c_read" title="Permanent link">&para;</a></h3>
+<p><em>Read data from an I2C device.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a><span class="n">SYN_WEAK</span><span class="w">  </span><span class="n">SYN_Status</span><span class="w"> </span><span class="n">syn_port_i2c_read</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-28-2" name="__codelineno-28-2" href="#__codelineno-28-2"></a><span class="w">    </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">bus</span><span class="p">,</span>
+<a id="__codelineno-28-3" name="__codelineno-28-3" href="#__codelineno-28-3"></a><span class="w">    </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">addr</span><span class="p">,</span>
+<a id="__codelineno-28-4" name="__codelineno-28-4" href="#__codelineno-28-4"></a><span class="w">    </span><span class="kt">uint8_t</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">data</span><span class="p">,</span>
+<a id="__codelineno-28-5" name="__codelineno-28-5" href="#__codelineno-28-5"></a><span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="n">len</span>
+<a id="__codelineno-28-6" name="__codelineno-28-6" href="#__codelineno-28-6"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>bus</code> I2C bus index. </li>
+<li><code>addr</code> 7-bit device address. </li>
+<li><code>data</code> Buffer to receive data. </li>
+<li><code>len</code> Number of bytes to read. </li>
+</ul>
+<p><strong>Returns:</strong></p>
+<p>SYN_OK on ACK, SYN_ERROR on NACK/timeout. </p>
+<hr>
+
+<h3 id="function-syn_port_i2c_write">function syn_port_i2c_write<a class="headerlink" href="#function-syn_port_i2c_write" title="Permanent link">&para;</a></h3>
+<p><em>Write data to an I2C device.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-29-1" name="__codelineno-29-1" href="#__codelineno-29-1"></a><span class="n">SYN_WEAK</span><span class="w">  </span><span class="n">SYN_Status</span><span class="w"> </span><span class="n">syn_port_i2c_write</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-29-2" name="__codelineno-29-2" href="#__codelineno-29-2"></a><span class="w">    </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">bus</span><span class="p">,</span>
+<a id="__codelineno-29-3" name="__codelineno-29-3" href="#__codelineno-29-3"></a><span class="w">    </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">addr</span><span class="p">,</span>
+<a id="__codelineno-29-4" name="__codelineno-29-4" href="#__codelineno-29-4"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">data</span><span class="p">,</span>
+<a id="__codelineno-29-5" name="__codelineno-29-5" href="#__codelineno-29-5"></a><span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="n">len</span>
+<a id="__codelineno-29-6" name="__codelineno-29-6" href="#__codelineno-29-6"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>bus</code> I2C bus index. </li>
+<li><code>addr</code> 7-bit device address. </li>
+<li><code>data</code> Data to write. </li>
+<li><code>len</code> Number of bytes. </li>
+</ul>
+<p><strong>Returns:</strong></p>
+<p>SYN_OK on ACK, SYN_ERROR on NACK/timeout. </p>
+<hr>
+
+<h3 id="function-syn_port_i2c_write_read">function syn_port_i2c_write_read<a class="headerlink" href="#function-syn_port_i2c_write_read" title="Permanent link">&para;</a></h3>
+<p><em>Write then read (register access pattern).</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-30-1" name="__codelineno-30-1" href="#__codelineno-30-1"></a><span class="n">SYN_WEAK</span><span class="w">  </span><span class="n">SYN_Status</span><span class="w"> </span><span class="n">syn_port_i2c_write_read</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-30-2" name="__codelineno-30-2" href="#__codelineno-30-2"></a><span class="w">    </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">bus</span><span class="p">,</span>
+<a id="__codelineno-30-3" name="__codelineno-30-3" href="#__codelineno-30-3"></a><span class="w">    </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">addr</span><span class="p">,</span>
+<a id="__codelineno-30-4" name="__codelineno-30-4" href="#__codelineno-30-4"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">tx_data</span><span class="p">,</span>
+<a id="__codelineno-30-5" name="__codelineno-30-5" href="#__codelineno-30-5"></a><span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="n">tx_len</span><span class="p">,</span>
+<a id="__codelineno-30-6" name="__codelineno-30-6" href="#__codelineno-30-6"></a><span class="w">    </span><span class="kt">uint8_t</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">rx_data</span><span class="p">,</span>
+<a id="__codelineno-30-7" name="__codelineno-30-7" href="#__codelineno-30-7"></a><span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="n">rx_len</span>
+<a id="__codelineno-30-8" name="__codelineno-30-8" href="#__codelineno-30-8"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p>Sends a write (typically a register address) followed by a repeated start and read. This is the most common I2C transaction pattern.</p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>bus</code> I2C bus index. </li>
+<li><code>addr</code> 7-bit device address. </li>
+<li><code>tx_data</code> Data to write (e.g., register address). </li>
+<li><code>tx_len</code> Write length. </li>
+<li><code>rx_data</code> Buffer for read data. </li>
+<li><code>rx_len</code> Read length. </li>
+</ul>
+<p><strong>Returns:</strong></p>
+<p>SYN_OK on success. </p>
+<hr>
+
+<h3 id="function-syn_port_memory_barrier">function syn_port_memory_barrier<a class="headerlink" href="#function-syn_port_memory_barrier" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-31-1" name="__codelineno-31-1" href="#__codelineno-31-1"></a><span class="n">SYN_WEAK</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">syn_port_memory_barrier</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-31-2" name="__codelineno-31-2" href="#__codelineno-31-2"></a><span class="w">    </span><span class="kt">void</span>
+<a id="__codelineno-31-3" name="__codelineno-31-3" href="#__codelineno-31-3"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div>
+<hr>
+
+<h3 id="function-syn_port_pwm_enable">function syn_port_pwm_enable<a class="headerlink" href="#function-syn_port_pwm_enable" title="Permanent link">&para;</a></h3>
+<p><em>Enable/disable PWM output.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-32-1" name="__codelineno-32-1" href="#__codelineno-32-1"></a><span class="n">SYN_WEAK</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">syn_port_pwm_enable</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-32-2" name="__codelineno-32-2" href="#__codelineno-32-2"></a><span class="w">    </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">channel</span><span class="p">,</span>
+<a id="__codelineno-32-3" name="__codelineno-32-3" href="#__codelineno-32-3"></a><span class="w">    </span><span class="kt">bool</span><span class="w"> </span><span class="n">enable</span>
+<a id="__codelineno-32-4" name="__codelineno-32-4" href="#__codelineno-32-4"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>channel</code> PWM channel index. </li>
+<li><code>enable</code> true to enable, false to disable. </li>
+</ul>
+<hr>
+
+<h3 id="function-syn_port_pwm_init">function syn_port_pwm_init<a class="headerlink" href="#function-syn_port_pwm_init" title="Permanent link">&para;</a></h3>
+<p><em>Initialize a PWM channel.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-33-1" name="__codelineno-33-1" href="#__codelineno-33-1"></a><span class="n">SYN_WEAK</span><span class="w">  </span><span class="n">SYN_Status</span><span class="w"> </span><span class="n">syn_port_pwm_init</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-33-2" name="__codelineno-33-2" href="#__codelineno-33-2"></a><span class="w">    </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">channel</span><span class="p">,</span>
+<a id="__codelineno-33-3" name="__codelineno-33-3" href="#__codelineno-33-3"></a><span class="w">    </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">freq_hz</span>
+<a id="__codelineno-33-4" name="__codelineno-33-4" href="#__codelineno-33-4"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>channel</code> PWM channel number. </li>
+<li><code>freq_hz</code> PWM frequency in Hz. </li>
+</ul>
+<p><strong>Returns:</strong></p>
+<p>SYN_OK on success. </p>
+<hr>
+
+<h3 id="function-syn_port_pwm_set_duty">function syn_port_pwm_set_duty<a class="headerlink" href="#function-syn_port_pwm_set_duty" title="Permanent link">&para;</a></h3>
+<p><em>Set PWM duty cycle.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-34-1" name="__codelineno-34-1" href="#__codelineno-34-1"></a><span class="n">SYN_WEAK</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">syn_port_pwm_set_duty</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-34-2" name="__codelineno-34-2" href="#__codelineno-34-2"></a><span class="w">    </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">channel</span><span class="p">,</span>
+<a id="__codelineno-34-3" name="__codelineno-34-3" href="#__codelineno-34-3"></a><span class="w">    </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">duty_pct</span>
+<a id="__codelineno-34-4" name="__codelineno-34-4" href="#__codelineno-34-4"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>channel</code> PWM channel number. </li>
+<li><code>duty_pct</code> Duty cycle 0–100 (percent). </li>
+</ul>
+<hr>
+
+<h3 id="function-syn_port_pwm_set_duty_raw">function syn_port_pwm_set_duty_raw<a class="headerlink" href="#function-syn_port_pwm_set_duty_raw" title="Permanent link">&para;</a></h3>
+<p><em>Set PWM duty cycle with fine resolution.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-35-1" name="__codelineno-35-1" href="#__codelineno-35-1"></a><span class="n">SYN_WEAK</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">syn_port_pwm_set_duty_raw</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-35-2" name="__codelineno-35-2" href="#__codelineno-35-2"></a><span class="w">    </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">channel</span><span class="p">,</span>
+<a id="__codelineno-35-3" name="__codelineno-35-3" href="#__codelineno-35-3"></a><span class="w">    </span><span class="kt">uint16_t</span><span class="w"> </span><span class="n">duty_u16</span>
+<a id="__codelineno-35-4" name="__codelineno-35-4" href="#__codelineno-35-4"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>channel</code> PWM channel number. </li>
+<li><code>duty_u16</code> Duty cycle 0–65535 (0 = off, 65535 = 100%). </li>
+</ul>
+<hr>
+
+<h3 id="function-syn_port_pwm_set_freq">function syn_port_pwm_set_freq<a class="headerlink" href="#function-syn_port_pwm_set_freq" title="Permanent link">&para;</a></h3>
+<p><em>Set PWM frequency (runtime change).</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-36-1" name="__codelineno-36-1" href="#__codelineno-36-1"></a><span class="n">SYN_WEAK</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">syn_port_pwm_set_freq</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-36-2" name="__codelineno-36-2" href="#__codelineno-36-2"></a><span class="w">    </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">channel</span><span class="p">,</span>
+<a id="__codelineno-36-3" name="__codelineno-36-3" href="#__codelineno-36-3"></a><span class="w">    </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">freq_hz</span>
+<a id="__codelineno-36-4" name="__codelineno-36-4" href="#__codelineno-36-4"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>channel</code> PWM channel number. </li>
+<li><code>freq_hz</code> New frequency in Hz. </li>
+</ul>
+<hr>
+
+<h3 id="function-syn_port_serial_init">function syn_port_serial_init<a class="headerlink" href="#function-syn_port_serial_init" title="Permanent link">&para;</a></h3>
+<p><em>Initialize the console serial port.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-37-1" name="__codelineno-37-1" href="#__codelineno-37-1"></a><span class="n">SYN_WEAK</span><span class="w">  </span><span class="n">SYN_Status</span><span class="w"> </span><span class="n">syn_port_serial_init</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-37-2" name="__codelineno-37-2" href="#__codelineno-37-2"></a><span class="w">    </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">baudrate</span>
+<a id="__codelineno-37-3" name="__codelineno-37-3" href="#__codelineno-37-3"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>baudrate</code> Desired baud rate. Pass 0 for default (or if the underlying transport ignores baud rate, e.g. USB CDC). </li>
+</ul>
+<p><strong>Returns:</strong></p>
+<p>SYN_OK on success. </p>
+<hr>
+
+<h3 id="function-syn_port_serial_read">function syn_port_serial_read<a class="headerlink" href="#function-syn_port_serial_read" title="Permanent link">&para;</a></h3>
+<p><em>Read available bytes from the console (non-blocking).</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-38-1" name="__codelineno-38-1" href="#__codelineno-38-1"></a><span class="n">SYN_WEAK</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">syn_port_serial_read</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-38-2" name="__codelineno-38-2" href="#__codelineno-38-2"></a><span class="w">    </span><span class="kt">uint8_t</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">buf</span><span class="p">,</span>
+<a id="__codelineno-38-3" name="__codelineno-38-3" href="#__codelineno-38-3"></a><span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="n">max_len</span>
+<a id="__codelineno-38-4" name="__codelineno-38-4" href="#__codelineno-38-4"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p>Returns immediately with however many bytes are available, up to <code>max_len</code>. Returns 0 if no data is available. <strong>Never blocks.</strong></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>buf</code> Buffer to read into. </li>
+<li><code>max_len</code> Maximum bytes to read. </li>
+</ul>
+<p><strong>Returns:</strong></p>
+<p>Number of bytes read (0 if nothing available), or -1 on error. </p>
+<hr>
+
+<h3 id="function-syn_port_serial_write">function syn_port_serial_write<a class="headerlink" href="#function-syn_port_serial_write" title="Permanent link">&para;</a></h3>
+<p><em>Write bytes to the console.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-39-1" name="__codelineno-39-1" href="#__codelineno-39-1"></a><span class="n">SYN_WEAK</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">syn_port_serial_write</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-39-2" name="__codelineno-39-2" href="#__codelineno-39-2"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">data</span><span class="p">,</span>
+<a id="__codelineno-39-3" name="__codelineno-39-3" href="#__codelineno-39-3"></a><span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="n">len</span>
+<a id="__codelineno-39-4" name="__codelineno-39-4" href="#__codelineno-39-4"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p>Writes up to <code>len</code> bytes. May briefly block if the transmit buffer is full, but must not spin indefinitely.</p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>data</code> Data to write. </li>
+<li><code>len</code> Number of bytes. </li>
+</ul>
+<p><strong>Returns:</strong></p>
+<p>Number of bytes actually written, or -1 on error. </p>
+<hr>
+
+<h3 id="function-syn_port_sleep">function syn_port_sleep<a class="headerlink" href="#function-syn_port_sleep" title="Permanent link">&para;</a></h3>
+<p><em>Enter low-power mode. Implement for your platform.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-40-1" name="__codelineno-40-1" href="#__codelineno-40-1"></a><span class="n">SYN_WEAK</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">syn_port_sleep</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-40-2" name="__codelineno-40-2" href="#__codelineno-40-2"></a><span class="w">    </span><span class="n">SYN_SleepMode</span><span class="w"> </span><span class="n">mode</span>
+<a id="__codelineno-40-3" name="__codelineno-40-3" href="#__codelineno-40-3"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p>For Cortex-M: SYN_SLEEP_LIGHT → WFI, SYN_SLEEP_DEEP → STOP mode. Must return when an interrupt wakes the MCU.</p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>mode</code> Requested sleep depth. </li>
+</ul>
+<hr>
+
+<h3 id="function-syn_port_sleep_until">function syn_port_sleep_until<a class="headerlink" href="#function-syn_port_sleep_until" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-41-1" name="__codelineno-41-1" href="#__codelineno-41-1"></a><span class="n">SYN_WEAK</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">syn_port_sleep_until</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-41-2" name="__codelineno-41-2" href="#__codelineno-41-2"></a><span class="w">    </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">wake_tick_ms</span>
+<a id="__codelineno-41-3" name="__codelineno-41-3" href="#__codelineno-41-3"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div>
+<hr>
+
+<h3 id="function-syn_port_sock_accept">function syn_port_sock_accept<a class="headerlink" href="#function-syn_port_sock_accept" title="Permanent link">&para;</a></h3>
+<p><em>Accept an incoming connection on a listener socket.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-42-1" name="__codelineno-42-1" href="#__codelineno-42-1"></a><span class="n">SYN_WEAK</span><span class="w">  </span><span class="n">SYN_Socket</span><span class="w"> </span><span class="n">syn_port_sock_accept</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-42-2" name="__codelineno-42-2" href="#__codelineno-42-2"></a><span class="w">    </span><span class="n">SYN_Socket</span><span class="w"> </span><span class="n">listener</span><span class="p">,</span>
+<a id="__codelineno-42-3" name="__codelineno-42-3" href="#__codelineno-42-3"></a><span class="w">    </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">timeout_ms</span>
+<a id="__codelineno-42-4" name="__codelineno-42-4" href="#__codelineno-42-4"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p>Blocks until a connection arrives or the timeout expires.</p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>listener</code> Listener socket from <a href="../syn__port__socket_8h/#function-syn_port_sock_listen"><strong>syn_port_sock_listen()</strong></a>. </li>
+<li><code>timeout_ms</code> Timeout in milliseconds (0 = block indefinitely). </li>
+</ul>
+<p><strong>Returns:</strong></p>
+<p>Connected socket handle, or SYN_SOCKET_INVALID on timeout/error. </p>
+<hr>
+
+<h3 id="function-syn_port_sock_close">function syn_port_sock_close<a class="headerlink" href="#function-syn_port_sock_close" title="Permanent link">&para;</a></h3>
+<p><em>Close a socket and release resources.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-43-1" name="__codelineno-43-1" href="#__codelineno-43-1"></a><span class="n">SYN_WEAK</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">syn_port_sock_close</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-43-2" name="__codelineno-43-2" href="#__codelineno-43-2"></a><span class="w">    </span><span class="n">SYN_Socket</span><span class="w"> </span><span class="n">sock</span>
+<a id="__codelineno-43-3" name="__codelineno-43-3" href="#__codelineno-43-3"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>sock</code> Socket handle to close. </li>
+</ul>
+<hr>
+
+<h3 id="function-syn_port_sock_connect">function syn_port_sock_connect<a class="headerlink" href="#function-syn_port_sock_connect" title="Permanent link">&para;</a></h3>
+<p><em>Connect to a remote host by IP address.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-44-1" name="__codelineno-44-1" href="#__codelineno-44-1"></a><span class="n">SYN_WEAK</span><span class="w">  </span><span class="n">SYN_Socket</span><span class="w"> </span><span class="n">syn_port_sock_connect</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-44-2" name="__codelineno-44-2" href="#__codelineno-44-2"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">SYN_SockAddr</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">addr</span>
+<a id="__codelineno-44-3" name="__codelineno-44-3" href="#__codelineno-44-3"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p>Opens a TCP connection. Blocking.</p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>addr</code> Remote address (IPv4 + port). </li>
+</ul>
+<p><strong>Returns:</strong></p>
+<p>Socket handle on success, SYN_SOCKET_INVALID on failure. </p>
+<hr>
+
+<h3 id="function-syn_port_sock_connect_host">function syn_port_sock_connect_host<a class="headerlink" href="#function-syn_port_sock_connect_host" title="Permanent link">&para;</a></h3>
+<p><em>Connect to a remote host by hostname.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-45-1" name="__codelineno-45-1" href="#__codelineno-45-1"></a><span class="n">SYN_WEAK</span><span class="w">  </span><span class="n">SYN_Socket</span><span class="w"> </span><span class="n">syn_port_sock_connect_host</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-45-2" name="__codelineno-45-2" href="#__codelineno-45-2"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">host</span><span class="p">,</span>
+<a id="__codelineno-45-3" name="__codelineno-45-3" href="#__codelineno-45-3"></a><span class="w">    </span><span class="kt">uint16_t</span><span class="w"> </span><span class="n">port</span>
+<a id="__codelineno-45-4" name="__codelineno-45-4" href="#__codelineno-45-4"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p>Performs DNS resolution and opens a TCP connection. Blocking.</p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>host</code> Hostname or dotted-decimal IP string. </li>
+<li><code>port</code> Port number. </li>
+</ul>
+<p><strong>Returns:</strong></p>
+<p>Socket handle on success, SYN_SOCKET_INVALID on failure. </p>
+<hr>
+
+<h3 id="function-syn_port_sock_listen">function syn_port_sock_listen<a class="headerlink" href="#function-syn_port_sock_listen" title="Permanent link">&para;</a></h3>
+<p><em>Create a listening TCP socket on the given port.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-46-1" name="__codelineno-46-1" href="#__codelineno-46-1"></a><span class="n">SYN_WEAK</span><span class="w">  </span><span class="n">SYN_Socket</span><span class="w"> </span><span class="n">syn_port_sock_listen</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-46-2" name="__codelineno-46-2" href="#__codelineno-46-2"></a><span class="w">    </span><span class="kt">uint16_t</span><span class="w"> </span><span class="n">port</span><span class="p">,</span>
+<a id="__codelineno-46-3" name="__codelineno-46-3" href="#__codelineno-46-3"></a><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">backlog</span>
+<a id="__codelineno-46-4" name="__codelineno-46-4" href="#__codelineno-46-4"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p>Binds to all interfaces and begins listening for connections.</p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>port</code> Port number to listen on. </li>
+<li><code>backlog</code> Maximum pending connections (typically 1–5). </li>
+</ul>
+<p><strong>Returns:</strong></p>
+<p>Listener socket handle, or SYN_SOCKET_INVALID on failure. </p>
+<hr>
+
+<h3 id="function-syn_port_sock_recv">function syn_port_sock_recv<a class="headerlink" href="#function-syn_port_sock_recv" title="Permanent link">&para;</a></h3>
+<p><em>Receive data from a connected socket.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-47-1" name="__codelineno-47-1" href="#__codelineno-47-1"></a><span class="n">SYN_WEAK</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">syn_port_sock_recv</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-47-2" name="__codelineno-47-2" href="#__codelineno-47-2"></a><span class="w">    </span><span class="n">SYN_Socket</span><span class="w"> </span><span class="n">sock</span><span class="p">,</span>
+<a id="__codelineno-47-3" name="__codelineno-47-3" href="#__codelineno-47-3"></a><span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">buf</span><span class="p">,</span>
+<a id="__codelineno-47-4" name="__codelineno-47-4" href="#__codelineno-47-4"></a><span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="n">max_len</span><span class="p">,</span>
+<a id="__codelineno-47-5" name="__codelineno-47-5" href="#__codelineno-47-5"></a><span class="w">    </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">timeout_ms</span>
+<a id="__codelineno-47-6" name="__codelineno-47-6" href="#__codelineno-47-6"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p>Returns available data up to max_len. Blocks up to timeout_ms.</p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>sock</code> Socket handle. </li>
+<li><code>buf</code> Receive buffer. </li>
+<li><code>max_len</code> Buffer capacity. </li>
+<li><code>timeout_ms</code> Timeout in milliseconds (0 = non-blocking). </li>
+</ul>
+<p><strong>Returns:</strong></p>
+<p>Number of bytes received, 0 if connection closed, -1 on error/timeout. </p>
+<hr>
+
+<h3 id="function-syn_port_sock_send">function syn_port_sock_send<a class="headerlink" href="#function-syn_port_sock_send" title="Permanent link">&para;</a></h3>
+<p><em>Send data over a connected socket.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-48-1" name="__codelineno-48-1" href="#__codelineno-48-1"></a><span class="n">SYN_WEAK</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">syn_port_sock_send</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-48-2" name="__codelineno-48-2" href="#__codelineno-48-2"></a><span class="w">    </span><span class="n">SYN_Socket</span><span class="w"> </span><span class="n">sock</span><span class="p">,</span>
+<a id="__codelineno-48-3" name="__codelineno-48-3" href="#__codelineno-48-3"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">data</span><span class="p">,</span>
+<a id="__codelineno-48-4" name="__codelineno-48-4" href="#__codelineno-48-4"></a><span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="n">len</span>
+<a id="__codelineno-48-5" name="__codelineno-48-5" href="#__codelineno-48-5"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p>May send fewer bytes than requested (partial send).</p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>sock</code> Socket handle. </li>
+<li><code>data</code> Data to send. </li>
+<li><code>len</code> Number of bytes to send. </li>
+</ul>
+<p><strong>Returns:</strong></p>
+<p>Number of bytes sent, or -1 on error. </p>
+<hr>
+
+<h3 id="function-syn_port_sock_send_all">function syn_port_sock_send_all<a class="headerlink" href="#function-syn_port_sock_send_all" title="Permanent link">&para;</a></h3>
+<p><em>Send all data over a connected socket.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-49-1" name="__codelineno-49-1" href="#__codelineno-49-1"></a><span class="n">SYN_WEAK</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">syn_port_sock_send_all</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-49-2" name="__codelineno-49-2" href="#__codelineno-49-2"></a><span class="w">    </span><span class="n">SYN_Socket</span><span class="w"> </span><span class="n">sock</span><span class="p">,</span>
+<a id="__codelineno-49-3" name="__codelineno-49-3" href="#__codelineno-49-3"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">data</span><span class="p">,</span>
+<a id="__codelineno-49-4" name="__codelineno-49-4" href="#__codelineno-49-4"></a><span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="n">len</span>
+<a id="__codelineno-49-5" name="__codelineno-49-5" href="#__codelineno-49-5"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p>Loops internally until all bytes are sent or an error occurs.</p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>sock</code> Socket handle. </li>
+<li><code>data</code> Data to send. </li>
+<li><code>len</code> Number of bytes to send. </li>
+</ul>
+<p><strong>Returns:</strong></p>
+<p>Number of bytes sent (== len on success), or -1 on error. </p>
+<hr>
+
+<h3 id="function-syn_port_spi_cs_assert">function syn_port_spi_cs_assert<a class="headerlink" href="#function-syn_port_spi_cs_assert" title="Permanent link">&para;</a></h3>
+<p><em>Assert (pull low) an SPI chip-select pin.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-50-1" name="__codelineno-50-1" href="#__codelineno-50-1"></a><span class="n">SYN_WEAK</span><span class="w">  </span><span class="n">SYN_Status</span><span class="w"> </span><span class="n">syn_port_spi_cs_assert</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-50-2" name="__codelineno-50-2" href="#__codelineno-50-2"></a><span class="w">    </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">bus</span><span class="p">,</span>
+<a id="__codelineno-50-3" name="__codelineno-50-3" href="#__codelineno-50-3"></a><span class="w">    </span><span class="n">SYN_GPIO_Pin</span><span class="w"> </span><span class="n">cs_pin</span>
+<a id="__codelineno-50-4" name="__codelineno-50-4" href="#__codelineno-50-4"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>bus</code> SPI bus index. </li>
+<li><code>cs_pin</code> Chip-select GPIO pin. </li>
+</ul>
+<p><strong>Returns:</strong></p>
+<p>SYN_OK on success. </p>
+<hr>
+
+<h3 id="function-syn_port_spi_cs_deassert">function syn_port_spi_cs_deassert<a class="headerlink" href="#function-syn_port_spi_cs_deassert" title="Permanent link">&para;</a></h3>
+<p><em>Deassert (release high) an SPI chip-select pin.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-51-1" name="__codelineno-51-1" href="#__codelineno-51-1"></a><span class="n">SYN_WEAK</span><span class="w">  </span><span class="n">SYN_Status</span><span class="w"> </span><span class="n">syn_port_spi_cs_deassert</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-51-2" name="__codelineno-51-2" href="#__codelineno-51-2"></a><span class="w">    </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">bus</span><span class="p">,</span>
+<a id="__codelineno-51-3" name="__codelineno-51-3" href="#__codelineno-51-3"></a><span class="w">    </span><span class="n">SYN_GPIO_Pin</span><span class="w"> </span><span class="n">cs_pin</span>
+<a id="__codelineno-51-4" name="__codelineno-51-4" href="#__codelineno-51-4"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>bus</code> SPI bus index. </li>
+<li><code>cs_pin</code> Chip-select GPIO pin. </li>
+</ul>
+<p><strong>Returns:</strong></p>
+<p>SYN_OK on success. </p>
+<hr>
+
+<h3 id="function-syn_port_spi_deinit">function syn_port_spi_deinit<a class="headerlink" href="#function-syn_port_spi_deinit" title="Permanent link">&para;</a></h3>
+<p><em>Deinitialize an SPI bus.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-52-1" name="__codelineno-52-1" href="#__codelineno-52-1"></a><span class="n">SYN_WEAK</span><span class="w">  </span><span class="n">SYN_Status</span><span class="w"> </span><span class="n">syn_port_spi_deinit</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-52-2" name="__codelineno-52-2" href="#__codelineno-52-2"></a><span class="w">    </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">bus</span>
+<a id="__codelineno-52-3" name="__codelineno-52-3" href="#__codelineno-52-3"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>bus</code> SPI bus index. </li>
+</ul>
+<p><strong>Returns:</strong></p>
+<p>SYN_OK on success. </p>
+<hr>
+
+<h3 id="function-syn_port_spi_init">function syn_port_spi_init<a class="headerlink" href="#function-syn_port_spi_init" title="Permanent link">&para;</a></h3>
+<p><em>Initialize an SPI bus.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-53-1" name="__codelineno-53-1" href="#__codelineno-53-1"></a><span class="n">SYN_WEAK</span><span class="w">  </span><span class="n">SYN_Status</span><span class="w"> </span><span class="n">syn_port_spi_init</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-53-2" name="__codelineno-53-2" href="#__codelineno-53-2"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">SYN_SPI_Config</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">cfg</span>
+<a id="__codelineno-53-3" name="__codelineno-53-3" href="#__codelineno-53-3"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>cfg</code> SPI configuration. </li>
+</ul>
+<p><strong>Returns:</strong></p>
+<p>SYN_OK on success. </p>
+<hr>
+
+<h3 id="function-syn_port_spi_transfer">function syn_port_spi_transfer<a class="headerlink" href="#function-syn_port_spi_transfer" title="Permanent link">&para;</a></h3>
+<p><em>Full-duplex SPI transfer.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-54-1" name="__codelineno-54-1" href="#__codelineno-54-1"></a><span class="n">SYN_WEAK</span><span class="w">  </span><span class="n">SYN_Status</span><span class="w"> </span><span class="n">syn_port_spi_transfer</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-54-2" name="__codelineno-54-2" href="#__codelineno-54-2"></a><span class="w">    </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">bus</span><span class="p">,</span>
+<a id="__codelineno-54-3" name="__codelineno-54-3" href="#__codelineno-54-3"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">tx_buf</span><span class="p">,</span>
+<a id="__codelineno-54-4" name="__codelineno-54-4" href="#__codelineno-54-4"></a><span class="w">    </span><span class="kt">uint8_t</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">rx_buf</span><span class="p">,</span>
+<a id="__codelineno-54-5" name="__codelineno-54-5" href="#__codelineno-54-5"></a><span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="n">len</span>
+<a id="__codelineno-54-6" name="__codelineno-54-6" href="#__codelineno-54-6"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p>Simultaneously transmits from tx_buf and receives into rx_buf. Either buffer can be NULL for half-duplex operation.</p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>bus</code> SPI bus index. </li>
+<li><code>tx_buf</code> Transmit buffer (NULL to send 0x00/0xFF). </li>
+<li><code>rx_buf</code> Receive buffer (NULL to discard received data). </li>
+<li><code>len</code> Number of bytes to transfer. </li>
+</ul>
+<p><strong>Returns:</strong></p>
+<p>SYN_OK on success. </p>
+<hr>
+
+<h3 id="function-syn_port_system_reset">function syn_port_system_reset<a class="headerlink" href="#function-syn_port_system_reset" title="Permanent link">&para;</a></h3>
+<p><em>Perform a system reset.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-55-1" name="__codelineno-55-1" href="#__codelineno-55-1"></a><span class="n">SYN_WEAK</span><span class="w">  </span><span class="n">SYN_NORETURN</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">syn_port_system_reset</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-55-2" name="__codelineno-55-2" href="#__codelineno-55-2"></a><span class="w">    </span><span class="kt">void</span>
+<a id="__codelineno-55-3" name="__codelineno-55-3" href="#__codelineno-55-3"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p>This function should not return. On Cortex-M, this is typically NVIC_SystemReset(). </p>
+<hr>
+
+<h3 id="function-syn_port_uart_deinit">function syn_port_uart_deinit<a class="headerlink" href="#function-syn_port_uart_deinit" title="Permanent link">&para;</a></h3>
+<p><em>De-initialize a UART peripheral.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-56-1" name="__codelineno-56-1" href="#__codelineno-56-1"></a><span class="n">SYN_WEAK</span><span class="w">  </span><span class="n">SYN_Status</span><span class="w"> </span><span class="n">syn_port_uart_deinit</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-56-2" name="__codelineno-56-2" href="#__codelineno-56-2"></a><span class="w">    </span><span class="n">SYN_UARTInstance</span><span class="w"> </span><span class="n">instance</span>
+<a id="__codelineno-56-3" name="__codelineno-56-3" href="#__codelineno-56-3"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>instance</code> UART instance to de-initialize. </li>
+</ul>
+<p><strong>Returns:</strong></p>
+<p>SYN_OK on success. </p>
+<hr>
+
+<h3 id="function-syn_port_uart_init">function syn_port_uart_init<a class="headerlink" href="#function-syn_port_uart_init" title="Permanent link">&para;</a></h3>
+<p><em>Initialize a UART peripheral.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-57-1" name="__codelineno-57-1" href="#__codelineno-57-1"></a><span class="n">SYN_WEAK</span><span class="w">  </span><span class="n">SYN_Status</span><span class="w"> </span><span class="n">syn_port_uart_init</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-57-2" name="__codelineno-57-2" href="#__codelineno-57-2"></a><span class="w">    </span><span class="n">SYN_UARTInstance</span><span class="w"> </span><span class="n">instance</span><span class="p">,</span>
+<a id="__codelineno-57-3" name="__codelineno-57-3" href="#__codelineno-57-3"></a><span class="w">    </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">baudrate</span>
+<a id="__codelineno-57-4" name="__codelineno-57-4" href="#__codelineno-57-4"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>instance</code> UART instance number (0, 1, 2, …). </li>
+<li><code>baudrate</code> Desired baud rate. </li>
+</ul>
+<p><strong>Returns:</strong></p>
+<p>SYN_OK on success. </p>
+<hr>
+
+<h3 id="function-syn_port_uart_receive">function syn_port_uart_receive<a class="headerlink" href="#function-syn_port_uart_receive" title="Permanent link">&para;</a></h3>
+<p><em>Receive bytes into a buffer (blocking).</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-58-1" name="__codelineno-58-1" href="#__codelineno-58-1"></a><span class="n">SYN_WEAK</span><span class="w">  </span><span class="n">SYN_Status</span><span class="w"> </span><span class="n">syn_port_uart_receive</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-58-2" name="__codelineno-58-2" href="#__codelineno-58-2"></a><span class="w">    </span><span class="n">SYN_UARTInstance</span><span class="w"> </span><span class="n">instance</span><span class="p">,</span>
+<a id="__codelineno-58-3" name="__codelineno-58-3" href="#__codelineno-58-3"></a><span class="w">    </span><span class="kt">uint8_t</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">data</span><span class="p">,</span>
+<a id="__codelineno-58-4" name="__codelineno-58-4" href="#__codelineno-58-4"></a><span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="n">len</span><span class="p">,</span>
+<a id="__codelineno-58-5" name="__codelineno-58-5" href="#__codelineno-58-5"></a><span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">received</span><span class="p">,</span>
+<a id="__codelineno-58-6" name="__codelineno-58-6" href="#__codelineno-58-6"></a><span class="w">    </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">timeout_ms</span>
+<a id="__codelineno-58-7" name="__codelineno-58-7" href="#__codelineno-58-7"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>instance</code> UART instance. </li>
+<li><code>data</code> Buffer to receive into. </li>
+<li><code>len</code> Maximum number of bytes to receive. </li>
+<li><code>received</code> [out] Actual number of bytes received. </li>
+<li><code>timeout_ms</code> Timeout in milliseconds (0 = no timeout). </li>
+</ul>
+<p><strong>Returns:</strong></p>
+<p>SYN_OK on success, SYN_TIMEOUT if the timeout elapsed. </p>
+<hr>
+
+<h3 id="function-syn_port_uart_receive_byte">function syn_port_uart_receive_byte<a class="headerlink" href="#function-syn_port_uart_receive_byte" title="Permanent link">&para;</a></h3>
+<p><em>Receive a single byte (blocking).</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-59-1" name="__codelineno-59-1" href="#__codelineno-59-1"></a><span class="n">SYN_WEAK</span><span class="w">  </span><span class="n">SYN_Status</span><span class="w"> </span><span class="n">syn_port_uart_receive_byte</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-59-2" name="__codelineno-59-2" href="#__codelineno-59-2"></a><span class="w">    </span><span class="n">SYN_UARTInstance</span><span class="w"> </span><span class="n">instance</span><span class="p">,</span>
+<a id="__codelineno-59-3" name="__codelineno-59-3" href="#__codelineno-59-3"></a><span class="w">    </span><span class="kt">uint8_t</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">byte</span><span class="p">,</span>
+<a id="__codelineno-59-4" name="__codelineno-59-4" href="#__codelineno-59-4"></a><span class="w">    </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">timeout_ms</span>
+<a id="__codelineno-59-5" name="__codelineno-59-5" href="#__codelineno-59-5"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>instance</code> UART instance. </li>
+<li><code>byte</code> [out] Received byte. </li>
+<li><code>timeout_ms</code> Timeout in milliseconds (0 = no timeout). </li>
+</ul>
+<p><strong>Returns:</strong></p>
+<p>SYN_OK if a byte was received, SYN_TIMEOUT otherwise. </p>
+<hr>
+
+<h3 id="function-syn_port_uart_transmit">function syn_port_uart_transmit<a class="headerlink" href="#function-syn_port_uart_transmit" title="Permanent link">&para;</a></h3>
+<p><em>Transmit a buffer of bytes (blocking).</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-60-1" name="__codelineno-60-1" href="#__codelineno-60-1"></a><span class="n">SYN_WEAK</span><span class="w">  </span><span class="n">SYN_Status</span><span class="w"> </span><span class="n">syn_port_uart_transmit</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-60-2" name="__codelineno-60-2" href="#__codelineno-60-2"></a><span class="w">    </span><span class="n">SYN_UARTInstance</span><span class="w"> </span><span class="n">instance</span><span class="p">,</span>
+<a id="__codelineno-60-3" name="__codelineno-60-3" href="#__codelineno-60-3"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">data</span><span class="p">,</span>
+<a id="__codelineno-60-4" name="__codelineno-60-4" href="#__codelineno-60-4"></a><span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="n">len</span><span class="p">,</span>
+<a id="__codelineno-60-5" name="__codelineno-60-5" href="#__codelineno-60-5"></a><span class="w">    </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">timeout_ms</span>
+<a id="__codelineno-60-6" name="__codelineno-60-6" href="#__codelineno-60-6"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>instance</code> UART instance. </li>
+<li><code>data</code> Pointer to data to transmit. </li>
+<li><code>len</code> Number of bytes to transmit. </li>
+<li><code>timeout_ms</code> Timeout in milliseconds (0 = no timeout). </li>
+</ul>
+<p><strong>Returns:</strong></p>
+<p>SYN_OK on success, SYN_TIMEOUT if the timeout elapsed. </p>
+<hr>
+
+<h3 id="function-syn_port_uart_transmit_byte">function syn_port_uart_transmit_byte<a class="headerlink" href="#function-syn_port_uart_transmit_byte" title="Permanent link">&para;</a></h3>
+<p><em>Transmit a single byte (blocking).</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-61-1" name="__codelineno-61-1" href="#__codelineno-61-1"></a><span class="n">SYN_WEAK</span><span class="w">  </span><span class="n">SYN_Status</span><span class="w"> </span><span class="n">syn_port_uart_transmit_byte</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-61-2" name="__codelineno-61-2" href="#__codelineno-61-2"></a><span class="w">    </span><span class="n">SYN_UARTInstance</span><span class="w"> </span><span class="n">instance</span><span class="p">,</span>
+<a id="__codelineno-61-3" name="__codelineno-61-3" href="#__codelineno-61-3"></a><span class="w">    </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">byte</span>
+<a id="__codelineno-61-4" name="__codelineno-61-4" href="#__codelineno-61-4"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>instance</code> UART instance. </li>
+<li><code>byte</code> Byte to transmit. </li>
+</ul>
+<p><strong>Returns:</strong></p>
+<p>SYN_OK on success. </p>
+<hr>
+
+<h3 id="function-syn_port_udp_join_multicast">function syn_port_udp_join_multicast<a class="headerlink" href="#function-syn_port_udp_join_multicast" title="Permanent link">&para;</a></h3>
+<p><em>Join a multicast group.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-62-1" name="__codelineno-62-1" href="#__codelineno-62-1"></a><span class="n">SYN_WEAK</span><span class="w">  </span><span class="n">SYN_Status</span><span class="w"> </span><span class="n">syn_port_udp_join_multicast</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-62-2" name="__codelineno-62-2" href="#__codelineno-62-2"></a><span class="w">    </span><span class="n">SYN_Socket</span><span class="w"> </span><span class="n">sock</span><span class="p">,</span>
+<a id="__codelineno-62-3" name="__codelineno-62-3" href="#__codelineno-62-3"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">multicast_ip</span>
+<a id="__codelineno-62-4" name="__codelineno-62-4" href="#__codelineno-62-4"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>sock</code> UDP socket handle. </li>
+<li><code>multicast_ip</code> Multicast IP string (e.g. "224.0.0.251"). </li>
+</ul>
+<p><strong>Returns:</strong></p>
+<p>SYN_OK on success, SYN_ERROR on failure. </p>
+<hr>
+
+<h3 id="function-syn_port_udp_open">function syn_port_udp_open<a class="headerlink" href="#function-syn_port_udp_open" title="Permanent link">&para;</a></h3>
+<p><em>Open a UDP socket bound to the given port.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-63-1" name="__codelineno-63-1" href="#__codelineno-63-1"></a><span class="n">SYN_WEAK</span><span class="w">  </span><span class="n">SYN_Socket</span><span class="w"> </span><span class="n">syn_port_udp_open</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-63-2" name="__codelineno-63-2" href="#__codelineno-63-2"></a><span class="w">    </span><span class="kt">uint16_t</span><span class="w"> </span><span class="n">port</span>
+<a id="__codelineno-63-3" name="__codelineno-63-3" href="#__codelineno-63-3"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>port</code> Local port to bind to, or 0 for ephemeral. </li>
+</ul>
+<p><strong>Returns:</strong></p>
+<p>Socket handle on success, SYN_SOCKET_INVALID on failure. </p>
+<hr>
+
+<h3 id="function-syn_port_udp_recvfrom">function syn_port_udp_recvfrom<a class="headerlink" href="#function-syn_port_udp_recvfrom" title="Permanent link">&para;</a></h3>
+<p><em>Receive a UDP packet.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-64-1" name="__codelineno-64-1" href="#__codelineno-64-1"></a><span class="n">SYN_WEAK</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">syn_port_udp_recvfrom</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-64-2" name="__codelineno-64-2" href="#__codelineno-64-2"></a><span class="w">    </span><span class="n">SYN_Socket</span><span class="w"> </span><span class="n">sock</span><span class="p">,</span>
+<a id="__codelineno-64-3" name="__codelineno-64-3" href="#__codelineno-64-3"></a><span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">buf</span><span class="p">,</span>
+<a id="__codelineno-64-4" name="__codelineno-64-4" href="#__codelineno-64-4"></a><span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="n">max_len</span><span class="p">,</span>
+<a id="__codelineno-64-5" name="__codelineno-64-5" href="#__codelineno-64-5"></a><span class="w">    </span><span class="n">SYN_SockAddr</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">from</span><span class="p">,</span>
+<a id="__codelineno-64-6" name="__codelineno-64-6" href="#__codelineno-64-6"></a><span class="w">    </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">timeout_ms</span>
+<a id="__codelineno-64-7" name="__codelineno-64-7" href="#__codelineno-64-7"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>sock</code> Socket handle. </li>
+<li><code>buf</code> Receive buffer. </li>
+<li><code>max_len</code> Buffer capacity. </li>
+<li><code>from</code> [out] Source address. </li>
+<li><code>timeout_ms</code> Receive timeout in milliseconds. <strong>If 0, must return immediately (non-blocking poll).</strong> Cooperative tasks (protothreads) rely on this to avoid blocking the scheduler. Port implementations MUST NOT treat 0 as "block forever." </li>
+</ul>
+<p><strong>Returns:</strong></p>
+<p>Number of bytes received, 0 if no data available (non-blocking), or -1 on error. </p>
+<hr>
+
+<h3 id="function-syn_port_udp_sendto">function syn_port_udp_sendto<a class="headerlink" href="#function-syn_port_udp_sendto" title="Permanent link">&para;</a></h3>
+<p><em>Send a UDP packet to a destination address.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-65-1" name="__codelineno-65-1" href="#__codelineno-65-1"></a><span class="n">SYN_WEAK</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">syn_port_udp_sendto</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-65-2" name="__codelineno-65-2" href="#__codelineno-65-2"></a><span class="w">    </span><span class="n">SYN_Socket</span><span class="w"> </span><span class="n">sock</span><span class="p">,</span>
+<a id="__codelineno-65-3" name="__codelineno-65-3" href="#__codelineno-65-3"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">data</span><span class="p">,</span>
+<a id="__codelineno-65-4" name="__codelineno-65-4" href="#__codelineno-65-4"></a><span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="n">len</span><span class="p">,</span>
+<a id="__codelineno-65-5" name="__codelineno-65-5" href="#__codelineno-65-5"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">SYN_SockAddr</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">to</span>
+<a id="__codelineno-65-6" name="__codelineno-65-6" href="#__codelineno-65-6"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>sock</code> Socket handle. </li>
+<li><code>data</code> Payload to send. </li>
+<li><code>len</code> Payload length. </li>
+<li><code>to</code> Destination address (IP + port). </li>
+</ul>
+<p><strong>Returns:</strong></p>
+<p>Number of bytes sent, or -1 on error. </p>
+<hr>
+
+<hr />
+<p>The documentation for this class was generated from the following file <code>src/syntropic/port_stubs/syn_port_stubs.c</code></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.expand", "navigation.top", "search.highlight", "content.code.copy", "content.code.annotate"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>

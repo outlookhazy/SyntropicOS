@@ -1,0 +1,530 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__rtc_8c" kind="file" language="C++">
+    <compoundname>syn_rtc.c</compoundname>
+    <includes refid="syn__rtc_8h" local="yes">syn_rtc.h</includes>
+    <includes refid="syn__assert_8h" local="yes">../util/syn_assert.h</includes>
+    <incdepgraph>
+      <node id="8">
+        <label>../common/syn_compiler.h</label>
+        <link refid="syn__compiler_8h"/>
+      </node>
+      <node id="5">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/drivers/syn_rtc.c</label>
+        <link refid="syn__rtc_8c"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>syn_rtc.h</label>
+        <link refid="syn__rtc_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>../port/syn_port_rtc.h</label>
+        <link refid="syn__port__rtc_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>../util/syn_assert.h</label>
+        <link refid="syn__assert_8h"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>stddef.h</label>
+      </node>
+      <node id="4">
+        <label>stdint.h</label>
+      </node>
+    </incdepgraph>
+    <sectiondef kind="var">
+      <memberdef kind="variable" id="syn__rtc_8c_1afaa4da3bf51d9c1d06bb7381035067f6" prot="public" static="yes" mutable="no">
+        <type>const uint8_t</type>
+        <definition>const uint8_t s_days_in_month[12]</definition>
+        <argsstring>[12]</argsstring>
+        <name>s_days_in_month</name>
+        <initializer>= {
+    31u, 28u, 31u, 30u, 31u, 30u, 31u, 31u, 30u, 31u, 30u, 31u
+}</initializer>
+        <briefdescription>
+<para>Days per month (non-leap year). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_rtc.c" line="18" column="22" bodyfile="src/syntropic/drivers/syn_rtc.c" bodystart="18" bodyend="20"/>
+      </memberdef>
+      <memberdef kind="variable" id="syn__rtc_8c_1a9f282d09d26f41d38c654263a1653919" prot="public" static="yes" mutable="no">
+        <type>int32_t</type>
+        <definition>int32_t s_drift_ppm</definition>
+        <argsstring></argsstring>
+        <name>s_drift_ppm</name>
+        <initializer>= 0</initializer>
+        <briefdescription>
+<para>Calibrated clock drift compensation in parts-per-million (PPM). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_rtc.c" line="61" column="16" bodyfile="src/syntropic/drivers/syn_rtc.c" bodystart="61" bodyend="-1"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__rtc_8c_1a261f9501ebdee9355181c0578a468a32" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>static bool rtc_is_leap</definition>
+        <argsstring>(uint16_t year)</argsstring>
+        <name>rtc_is_leap</name>
+        <param>
+          <type>uint16_t</type>
+          <declname>year</declname>
+        </param>
+        <briefdescription>
+<para>Test if a year is a leap year. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>year</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Gregorian year. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if leap year. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_rtc.c" line="27" column="13" bodyfile="src/syntropic/drivers/syn_rtc.c" bodystart="27" bodyend="30"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__rtc_8c_1adeeb3b8537b8e24f42f0df17490d6332" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint8_t</type>
+        <definition>static uint8_t rtc_days_in_month</definition>
+        <argsstring>(uint8_t month, uint16_t year)</argsstring>
+        <name>rtc_days_in_month</name>
+        <param>
+          <type>uint8_t</type>
+          <declname>month</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>year</declname>
+        </param>
+        <briefdescription>
+<para>Get days in a given month. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>month</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Month (1–12). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>year</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Gregorian year. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Day count. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_rtc.c" line="38" column="16" bodyfile="src/syntropic/drivers/syn_rtc.c" bodystart="38" bodyend="45"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__rtc_8c_1a152f2514a836021b32ef7351c6a7f6b8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_rtc_is_valid</definition>
+        <argsstring>(const SYN_RTC_DateTime *dt)</argsstring>
+        <name>syn_rtc_is_valid</name>
+        <param>
+          <type>const <ref refid="structSYN__RTC__DateTime" kindref="compound">SYN_RTC_DateTime</ref> *</type>
+          <declname>dt</declname>
+        </param>
+        <briefdescription>
+<para>Check whether all fields of a <ref refid="structSYN__RTC__DateTime" kindref="compound">SYN_RTC_DateTime</ref> are in range. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>dt</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Date/time to validate. Must not be NULL. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if valid, false if any field is out of range. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_rtc.c" line="47" column="6" bodyfile="src/syntropic/drivers/syn_rtc.c" bodystart="47" bodyend="58"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__rtc_8c_1a67ae62050487193c6d607b4d427fa38f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_rtc_init</definition>
+        <argsstring>(void)</argsstring>
+        <name>syn_rtc_init</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Initialize the RTC peripheral. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>SYN_OK on success, SYN_ERROR on failure. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_rtc.c" line="63" column="12" bodyfile="src/syntropic/drivers/syn_rtc.c" bodystart="63" bodyend="67"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__rtc_8c_1ae2646aacdf9852cd85fdff37227a16fc" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_rtc_set_drift_ppm</definition>
+        <argsstring>(int32_t drift_ppm)</argsstring>
+        <name>syn_rtc_set_drift_ppm</name>
+        <param>
+          <type>int32_t</type>
+          <declname>drift_ppm</declname>
+        </param>
+        <briefdescription>
+<para>Set the RTC clock drift compensation in Parts-Per-Million (PPM). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>drift_ppm</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Drift in Parts-Per-Million (+ = fast, - = slow). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_rtc.c" line="69" column="6" bodyfile="src/syntropic/drivers/syn_rtc.c" bodystart="69" bodyend="76"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__rtc_8c_1a926241f6738030cde97cf098e1a113a0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_rtc_get</definition>
+        <argsstring>(SYN_RTC_DateTime *dt)</argsstring>
+        <name>syn_rtc_get</name>
+        <param>
+          <type><ref refid="structSYN__RTC__DateTime" kindref="compound">SYN_RTC_DateTime</ref> *</type>
+          <declname>dt</declname>
+        </param>
+        <briefdescription>
+<para>Read the current date/time. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>dt</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output, must not be NULL. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_ERROR on hardware failure. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_rtc.c" line="78" column="12" bodyfile="src/syntropic/drivers/syn_rtc.c" bodystart="78" bodyend="91"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__rtc_8c_1a5f25f12ab63bed6d1198f490c168941f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_rtc_set</definition>
+        <argsstring>(const SYN_RTC_DateTime *dt)</argsstring>
+        <name>syn_rtc_set</name>
+        <param>
+          <type>const <ref refid="structSYN__RTC__DateTime" kindref="compound">SYN_RTC_DateTime</ref> *</type>
+          <declname>dt</declname>
+        </param>
+        <briefdescription>
+<para>Set the RTC to a new date/time. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Validates all fields before writing to hardware.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>dt</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>New time. Must not be NULL and must pass <ref refid="syn__rtc_8h_1a152f2514a836021b32ef7351c6a7f6b8" kindref="member">syn_rtc_is_valid()</ref>. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_INVALID_PARAM if fields are out of range, SYN_ERROR on hardware failure. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_rtc.c" line="93" column="12" bodyfile="src/syntropic/drivers/syn_rtc.c" bodystart="93" bodyend="100"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__rtc_8c_1a395c6dce5393ad644d2e2bd36a513779" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>uint32_t syn_rtc_to_epoch</definition>
+        <argsstring>(const SYN_RTC_DateTime *dt)</argsstring>
+        <name>syn_rtc_to_epoch</name>
+        <param>
+          <type>const <ref refid="structSYN__RTC__DateTime" kindref="compound">SYN_RTC_DateTime</ref> *</type>
+          <declname>dt</declname>
+        </param>
+        <briefdescription>
+<para>Convert a date/time to a Unix epoch timestamp. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Epoch = seconds since 1970-01-01 00:00:00 UTC. Leap seconds are not accounted for (standard POSIX convention).</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>dt</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Date/time to convert. Must be valid. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Seconds since Unix epoch. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_rtc.c" line="104" column="10" bodyfile="src/syntropic/drivers/syn_rtc.c" bodystart="104" bodyend="128"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__rtc_8c_1a0fe9cf60f8a3a269d83e4ca402010a88" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_rtc_from_epoch</definition>
+        <argsstring>(uint32_t epoch, SYN_RTC_DateTime *dt)</argsstring>
+        <name>syn_rtc_from_epoch</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>epoch</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__RTC__DateTime" kindref="compound">SYN_RTC_DateTime</ref> *</type>
+          <declname>dt</declname>
+        </param>
+        <briefdescription>
+<para>Convert a Unix epoch timestamp to a date/time. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>epoch</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Seconds since 1970-01-01 00:00:00 UTC. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dt</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output. Must not be NULL. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_rtc.c" line="132" column="6" bodyfile="src/syntropic/drivers/syn_rtc.c" bodystart="132" bodyend="164"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>RTC driver implementation — port delegation + epoch math. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#if<sp/>__has_include(&quot;syn_config.h&quot;)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/>#include<sp/>&quot;syn_config.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="4"><highlight class="normal"></highlight></codeline>
+<codeline lineno="5"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>!defined(SYN_USE_RTC)<sp/>||<sp/>SYN_USE_RTC</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__rtc_8h" kindref="compound">syn_rtc.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../util/syn_assert.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Days<sp/>in<sp/>each<sp/>month<sp/>(non-leap<sp/>year)<sp/>───────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/><ref refid="syn__rtc_8c_1afaa4da3bf51d9c1d06bb7381035067f6" kindref="member">s_days_in_month</ref>[12]<sp/>=<sp/>{</highlight></codeline>
+<codeline lineno="19"><highlight class="normal"><sp/><sp/><sp/><sp/>31u,<sp/>28u,<sp/>31u,<sp/>30u,<sp/>31u,<sp/>30u,<sp/>31u,<sp/>31u,<sp/>30u,<sp/>31u,<sp/>30u,<sp/>31u</highlight></codeline>
+<codeline lineno="20"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__rtc_8c_1a261f9501ebdee9355181c0578a468a32" kindref="member">rtc_is_leap</ref>(uint16_t<sp/>year)</highlight></codeline>
+<codeline lineno="28"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="29"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>((year<sp/>%<sp/>4u<sp/>==<sp/>0u)<sp/>&amp;&amp;<sp/>(year<sp/>%<sp/>100u<sp/>!=<sp/>0u<sp/>||<sp/>year<sp/>%<sp/>400u<sp/>==<sp/>0u));</highlight></codeline>
+<codeline lineno="30"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/>uint8_t<sp/><ref refid="syn__rtc_8c_1adeeb3b8537b8e24f42f0df17490d6332" kindref="member">rtc_days_in_month</ref>(uint8_t<sp/>month,<sp/>uint16_t<sp/>year)</highlight></codeline>
+<codeline lineno="39"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>d<sp/>=<sp/><ref refid="syn__rtc_8c_1afaa4da3bf51d9c1d06bb7381035067f6" kindref="member">s_days_in_month</ref>[(uint8_t)(month<sp/>-<sp/>1u)];</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(month<sp/>==<sp/>2u<sp/>&amp;&amp;<sp/><ref refid="syn__rtc_8c_1a261f9501ebdee9355181c0578a468a32" kindref="member">rtc_is_leap</ref>(year))<sp/>{</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>d++;</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>d;</highlight></codeline>
+<codeline lineno="45"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"></highlight></codeline>
+<codeline lineno="47"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__rtc_8c_1a152f2514a836021b32ef7351c6a7f6b8" kindref="member">syn_rtc_is_valid</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__RTC__DateTime" kindref="compound">SYN_RTC_DateTime</ref><sp/>*dt)</highlight></codeline>
+<codeline lineno="48"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(dt<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(dt-&gt;<ref refid="structSYN__RTC__DateTime_1aa1d199dfe090313cbed0669888f96344" kindref="member">year</ref><sp/><sp/>&lt;<sp/>1970u)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(dt-&gt;<ref refid="structSYN__RTC__DateTime_1aa969a5f58416bcf4b7458bd256a03af0" kindref="member">month</ref><sp/>&lt;<sp/>1u<sp/>||<sp/>dt-&gt;<ref refid="structSYN__RTC__DateTime_1aa969a5f58416bcf4b7458bd256a03af0" kindref="member">month</ref><sp/>&gt;<sp/>12u)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(dt-&gt;<ref refid="structSYN__RTC__DateTime_1add339e38b4c451ea7eaf1f0a66a2657f" kindref="member">day</ref><sp/><sp/><sp/>&lt;<sp/>1u<sp/>||<sp/>dt-&gt;<ref refid="structSYN__RTC__DateTime_1add339e38b4c451ea7eaf1f0a66a2657f" kindref="member">day</ref><sp/>&gt;<sp/><ref refid="syn__rtc_8c_1adeeb3b8537b8e24f42f0df17490d6332" kindref="member">rtc_days_in_month</ref>(dt-&gt;<ref refid="structSYN__RTC__DateTime_1aa969a5f58416bcf4b7458bd256a03af0" kindref="member">month</ref>,<sp/>dt-&gt;<ref refid="structSYN__RTC__DateTime_1aa1d199dfe090313cbed0669888f96344" kindref="member">year</ref>))</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(dt-&gt;<ref refid="structSYN__RTC__DateTime_1a05b6b36fa4e4e9d68a08e45df3d383b6" kindref="member">hour</ref><sp/><sp/><sp/>&gt;<sp/>23u)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(dt-&gt;<ref refid="structSYN__RTC__DateTime_1a0b237199691a89c5445ad0a44868002a" kindref="member">minute</ref><sp/>&gt;<sp/>59u)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(dt-&gt;<ref refid="structSYN__RTC__DateTime_1a8092716fcdd0c8ed902d1e60e24b56de" kindref="member">second</ref><sp/>&gt;<sp/>59u)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="58"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"></highlight></codeline>
+<codeline lineno="61"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/>int32_t<sp/><ref refid="syn__rtc_8c_1a9f282d09d26f41d38c654263a1653919" kindref="member">s_drift_ppm</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"></highlight></codeline>
+<codeline lineno="63"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__rtc_8c_1a67ae62050487193c6d607b4d427fa38f" kindref="member">syn_rtc_init</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="64"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__rtc_8c_1a9f282d09d26f41d38c654263a1653919" kindref="member">s_drift_ppm</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__port__rtc_8h_1a65a03d5c01a833c27e712e1df8415aa7" kindref="member">syn_port_rtc_init</ref>();</highlight></codeline>
+<codeline lineno="67"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"></highlight></codeline>
+<codeline lineno="69"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__rtc_8c_1ae2646aacdf9852cd85fdff37227a16fc" kindref="member">syn_rtc_set_drift_ppm</ref>(int32_t<sp/>drift_ppm)</highlight></codeline>
+<codeline lineno="70"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__rtc_8c_1a9f282d09d26f41d38c654263a1653919" kindref="member">s_drift_ppm</ref><sp/>=<sp/>drift_ppm;</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Forward<sp/>to<sp/>port<sp/>layer<sp/>if<sp/>port<sp/>provides<sp/>hardware<sp/>calibration<sp/>support<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="73"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(SYN_PORT_HAS_RTC_DRIFT)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="74"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__port__rtc_8h_1aef22712d6e31dd9a1e4a3c72b91a6229" kindref="member">syn_port_rtc_set_drift_ppm</ref>(drift_ppm);</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="76"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"></highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__rtc_8c_1a926241f6738030cde97cf098e1a113a0" kindref="member">syn_rtc_get</ref>(<ref refid="structSYN__RTC__DateTime" kindref="compound">SYN_RTC_DateTime</ref><sp/>*dt)</highlight></codeline>
+<codeline lineno="79"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(dt<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/>status<sp/>=<sp/><ref refid="syn__port__rtc_8h_1a74c9f9e6b5c3d8fcc3da8d4155b0c8fa" kindref="member">syn_port_rtc_get</ref>(dt);</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(status<sp/>!=<sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>status;</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"></highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="syn__rtc_8c_1a9f282d09d26f41d38c654263a1653919" kindref="member">s_drift_ppm</ref><sp/>!=<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>epoch<sp/>=<sp/><ref refid="syn__rtc_8c_1a395c6dce5393ad644d2e2bd36a513779" kindref="member">syn_rtc_to_epoch</ref>(dt);</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Apply<sp/>cross-platform<sp/>PPM<sp/>scaling<sp/>formula<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int64_t<sp/>comp_s<sp/>=<sp/>(int64_t)epoch<sp/>*<sp/>1000000LL<sp/>/<sp/>(1000000LL<sp/>+<sp/>(int64_t)<ref refid="syn__rtc_8c_1a9f282d09d26f41d38c654263a1653919" kindref="member">s_drift_ppm</ref>);</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__rtc_8c_1a0fe9cf60f8a3a269d83e4ca402010a88" kindref="member">syn_rtc_from_epoch</ref>((uint32_t)comp_s,<sp/>dt);</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="91"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"></highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__rtc_8c_1a5f25f12ab63bed6d1198f490c168941f" kindref="member">syn_rtc_set</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__RTC__DateTime" kindref="compound">SYN_RTC_DateTime</ref><sp/>*dt)</highlight></codeline>
+<codeline lineno="94"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(dt<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!<ref refid="syn__rtc_8c_1a152f2514a836021b32ef7351c6a7f6b8" kindref="member">syn_rtc_is_valid</ref>(dt))<sp/>{</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__port__rtc_8h_1af3c136610b8615bcee06531e7d503d89" kindref="member">syn_port_rtc_set</ref>(dt);</highlight></codeline>
+<codeline lineno="100"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"></highlight></codeline>
+<codeline lineno="102"><highlight class="normal"></highlight></codeline>
+<codeline lineno="103"><highlight class="normal"></highlight></codeline>
+<codeline lineno="104"><highlight class="normal">uint32_t<sp/><ref refid="syn__rtc_8c_1a395c6dce5393ad644d2e2bd36a513779" kindref="member">syn_rtc_to_epoch</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__RTC__DateTime" kindref="compound">SYN_RTC_DateTime</ref><sp/>*dt)</highlight></codeline>
+<codeline lineno="105"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(dt<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"></highlight></codeline>
+<codeline lineno="108"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Count<sp/>days<sp/>from<sp/>1970-01-01<sp/>to<sp/>the<sp/>start<sp/>of<sp/>dt-&gt;year<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="109"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/>days<sp/>=<sp/>0u;</highlight></codeline>
+<codeline lineno="110"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/>y;</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(y<sp/>=<sp/>1970u;<sp/>y<sp/>&lt;<sp/>dt-&gt;<ref refid="structSYN__RTC__DateTime_1aa1d199dfe090313cbed0669888f96344" kindref="member">year</ref>;<sp/>y++)<sp/>{</highlight></codeline>
+<codeline lineno="112"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>days<sp/>+=<sp/><ref refid="syn__rtc_8c_1a261f9501ebdee9355181c0578a468a32" kindref="member">rtc_is_leap</ref>(y)<sp/>?<sp/>366u<sp/>:<sp/>365u;</highlight></codeline>
+<codeline lineno="113"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"></highlight></codeline>
+<codeline lineno="115"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Add<sp/>days<sp/>for<sp/>elapsed<sp/>months<sp/>in<sp/>the<sp/>current<sp/>year<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="116"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>m;</highlight></codeline>
+<codeline lineno="117"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(m<sp/>=<sp/>1u;<sp/>m<sp/>&lt;<sp/>dt-&gt;<ref refid="structSYN__RTC__DateTime_1aa969a5f58416bcf4b7458bd256a03af0" kindref="member">month</ref>;<sp/>m++)<sp/>{</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>days<sp/>+=<sp/>(uint32_t)<ref refid="syn__rtc_8c_1adeeb3b8537b8e24f42f0df17490d6332" kindref="member">rtc_days_in_month</ref>(m,<sp/>dt-&gt;<ref refid="structSYN__RTC__DateTime_1aa1d199dfe090313cbed0669888f96344" kindref="member">year</ref>);</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="120"><highlight class="normal"></highlight></codeline>
+<codeline lineno="121"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Add<sp/>elapsed<sp/>days<sp/>in<sp/>the<sp/>current<sp/>month<sp/>(day<sp/>is<sp/>1-indexed)<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="122"><highlight class="normal"><sp/><sp/><sp/><sp/>days<sp/>+=<sp/>(uint32_t)dt-&gt;<ref refid="structSYN__RTC__DateTime_1add339e38b4c451ea7eaf1f0a66a2657f" kindref="member">day</ref><sp/>-<sp/>1u;</highlight></codeline>
+<codeline lineno="123"><highlight class="normal"></highlight></codeline>
+<codeline lineno="124"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>days<sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>86400u</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>+<sp/>(uint32_t)dt-&gt;<ref refid="structSYN__RTC__DateTime_1a05b6b36fa4e4e9d68a08e45df3d383b6" kindref="member">hour</ref><sp/><sp/><sp/>*<sp/>3600u</highlight></codeline>
+<codeline lineno="126"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>+<sp/>(uint32_t)dt-&gt;<ref refid="structSYN__RTC__DateTime_1a0b237199691a89c5445ad0a44868002a" kindref="member">minute</ref><sp/>*<sp/>60u</highlight></codeline>
+<codeline lineno="127"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>+<sp/>(uint32_t)dt-&gt;<ref refid="structSYN__RTC__DateTime_1a8092716fcdd0c8ed902d1e60e24b56de" kindref="member">second</ref>;</highlight></codeline>
+<codeline lineno="128"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="129"><highlight class="normal"></highlight></codeline>
+<codeline lineno="130"><highlight class="normal"></highlight></codeline>
+<codeline lineno="131"><highlight class="normal"></highlight></codeline>
+<codeline lineno="132"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__rtc_8c_1a0fe9cf60f8a3a269d83e4ca402010a88" kindref="member">syn_rtc_from_epoch</ref>(uint32_t<sp/>epoch,<sp/><ref refid="structSYN__RTC__DateTime" kindref="compound">SYN_RTC_DateTime</ref><sp/>*dt)</highlight></codeline>
+<codeline lineno="133"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="134"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(dt<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="135"><highlight class="normal"></highlight></codeline>
+<codeline lineno="136"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Extract<sp/>time-of-day<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="137"><highlight class="normal"><sp/><sp/><sp/><sp/>dt-&gt;<ref refid="structSYN__RTC__DateTime_1a8092716fcdd0c8ed902d1e60e24b56de" kindref="member">second</ref><sp/>=<sp/>(uint8_t)(epoch<sp/>%<sp/>60u);<sp/>epoch<sp/>/=<sp/>60u;</highlight></codeline>
+<codeline lineno="138"><highlight class="normal"><sp/><sp/><sp/><sp/>dt-&gt;<ref refid="structSYN__RTC__DateTime_1a0b237199691a89c5445ad0a44868002a" kindref="member">minute</ref><sp/>=<sp/>(uint8_t)(epoch<sp/>%<sp/>60u);<sp/>epoch<sp/>/=<sp/>60u;</highlight></codeline>
+<codeline lineno="139"><highlight class="normal"><sp/><sp/><sp/><sp/>dt-&gt;<ref refid="structSYN__RTC__DateTime_1a05b6b36fa4e4e9d68a08e45df3d383b6" kindref="member">hour</ref><sp/><sp/><sp/>=<sp/>(uint8_t)(epoch<sp/>%<sp/>24u);<sp/>epoch<sp/>/=<sp/>24u;</highlight></codeline>
+<codeline lineno="140"><highlight class="normal"></highlight></codeline>
+<codeline lineno="141"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>epoch<sp/>now<sp/>=<sp/>days<sp/>since<sp/>1970-01-01<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="142"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/>days<sp/>=<sp/>epoch;</highlight></codeline>
+<codeline lineno="143"><highlight class="normal"></highlight></codeline>
+<codeline lineno="144"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Find<sp/>year<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="145"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/>year<sp/>=<sp/>1970u;</highlight></codeline>
+<codeline lineno="146"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(;;)<sp/>{</highlight></codeline>
+<codeline lineno="147"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>days_in_year<sp/>=<sp/><ref refid="syn__rtc_8c_1a261f9501ebdee9355181c0578a468a32" kindref="member">rtc_is_leap</ref>(year)<sp/>?<sp/>366u<sp/>:<sp/>365u;</highlight></codeline>
+<codeline lineno="148"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(days<sp/>&lt;<sp/>days_in_year)<sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="149"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>days<sp/>-=<sp/>days_in_year;</highlight></codeline>
+<codeline lineno="150"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>year++;</highlight></codeline>
+<codeline lineno="151"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="152"><highlight class="normal"><sp/><sp/><sp/><sp/>dt-&gt;<ref refid="structSYN__RTC__DateTime_1aa1d199dfe090313cbed0669888f96344" kindref="member">year</ref><sp/>=<sp/>year;</highlight></codeline>
+<codeline lineno="153"><highlight class="normal"></highlight></codeline>
+<codeline lineno="154"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Find<sp/>month<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="155"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>month<sp/>=<sp/>1u;</highlight></codeline>
+<codeline lineno="156"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(;;)<sp/>{</highlight></codeline>
+<codeline lineno="157"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>dim<sp/>=<sp/>(uint32_t)<ref refid="syn__rtc_8c_1adeeb3b8537b8e24f42f0df17490d6332" kindref="member">rtc_days_in_month</ref>(month,<sp/>year);</highlight></codeline>
+<codeline lineno="158"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(days<sp/>&lt;<sp/>dim)<sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="159"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>days<sp/>-=<sp/>dim;</highlight></codeline>
+<codeline lineno="160"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>month++;</highlight></codeline>
+<codeline lineno="161"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="162"><highlight class="normal"><sp/><sp/><sp/><sp/>dt-&gt;<ref refid="structSYN__RTC__DateTime_1aa969a5f58416bcf4b7458bd256a03af0" kindref="member">month</ref><sp/>=<sp/>month;</highlight></codeline>
+<codeline lineno="163"><highlight class="normal"><sp/><sp/><sp/><sp/>dt-&gt;<ref refid="structSYN__RTC__DateTime_1add339e38b4c451ea7eaf1f0a66a2657f" kindref="member">day</ref><sp/><sp/><sp/>=<sp/>(uint8_t)(days<sp/>+<sp/>1u);</highlight></codeline>
+<codeline lineno="164"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="165"><highlight class="normal"></highlight></codeline>
+<codeline lineno="166"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_USE_RTC<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/drivers/syn_rtc.c"/>
+  </compounddef>
+</doxygen>

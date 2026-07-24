@@ -1,0 +1,525 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__fft_8h" kind="file" language="C++">
+    <compoundname>syn_fft.h</compoundname>
+    <includes refid="syn__defs_8h" local="yes">../common/syn_defs.h</includes>
+    <includes refid="syn__qmath_8h" local="yes">../util/syn_qmath.h</includes>
+    <includedby refid="syn__fft_8c" local="yes">src/syntropic/dsp/syn_fft.c</includedby>
+    <includedby refid="syntropic_8h" local="yes">src/syntropic/syntropic.h</includedby>
+    <incdepgraph>
+      <node id="2">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/dsp/syn_fft.h</label>
+        <link refid="syn__fft_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>../util/syn_qmath.h</label>
+        <link refid="syn__qmath_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>stddef.h</label>
+      </node>
+      <node id="3">
+        <label>stdint.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="2">
+        <label>src/syntropic/dsp/syn_fft.c</label>
+        <link refid="syn__fft_8c"/>
+      </node>
+      <node id="1">
+        <label>src/syntropic/dsp/syn_fft.h</label>
+        <link refid="syn__fft_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>src/syntropic/syntropic.h</label>
+        <link refid="syntropic_8h"/>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="structSYN__FFTPeak" prot="public">SYN_FFTPeak</innerclass>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__fft_8h_1a0f97f3d786441daa7c015423ba00c623" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_dsp_fft</definition>
+        <argsstring>(q16_t *real, q16_t *imag, uint16_t n)</argsstring>
+        <name>syn_dsp_fft</name>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref> *</type>
+          <declname>real</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref> *</type>
+          <declname>imag</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Computes the in-place Radix-2 Decimation-in-Time FFT. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>n must be a power of 2 (e.g., 8, 16, 32, 64, 128, 256). Max supported size is 256.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>real</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Array of real parts (size n). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>imag</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Array of imaginary parts (size n). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>n</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Size of the FFT (must be power of 2). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_ERROR on invalid parameters (e.g. not power of 2). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/dsp/syn_fft.h" line="28" column="12" bodyfile="src/syntropic/dsp/syn_fft.c" bodystart="102" bodyend="152" declfile="src/syntropic/dsp/syn_fft.h" declline="28" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__fft_8h_1a1879f0d76e4a8ed060a9bd0307f8e7f6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_fft_window_hanning</definition>
+        <argsstring>(q16_t *out, uint16_t n)</argsstring>
+        <name>syn_fft_window_hanning</name>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref> *</type>
+          <declname>out</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Generate Hanning window: w[i] = 0.5 * (1 - cos(2*pi*i / (n-1))). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>out</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output buffer of size n. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>n</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Window length. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_INVALID_PARAM if NULL or n &lt;= 1. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/dsp/syn_fft.h" line="36" column="12" bodyfile="src/syntropic/dsp/syn_fft.c" bodystart="154" bodyend="167" declfile="src/syntropic/dsp/syn_fft.h" declline="36" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__fft_8h_1ac16d20695d8338a432461d3ce0edd470" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_fft_window_hamming</definition>
+        <argsstring>(q16_t *out, uint16_t n)</argsstring>
+        <name>syn_fft_window_hamming</name>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref> *</type>
+          <declname>out</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Generate Hamming window: w[i] = 0.54 - 0.46 * cos(2*pi*i / (n-1)). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>out</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output buffer of size n. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>n</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Window length. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_INVALID_PARAM if NULL or n &lt;= 1. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/dsp/syn_fft.h" line="44" column="12" bodyfile="src/syntropic/dsp/syn_fft.c" bodystart="169" bodyend="184" declfile="src/syntropic/dsp/syn_fft.h" declline="44" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__fft_8h_1a0ffa4e67ec0d8ba162d1eb2b4b6b9aa0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_fft_window_blackman</definition>
+        <argsstring>(q16_t *out, uint16_t n)</argsstring>
+        <name>syn_fft_window_blackman</name>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref> *</type>
+          <declname>out</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Generate Blackman-Harris window: w[i] = 0.42 - 0.5*cos(2*pi*i/(n-1)) + 0.08*cos(4*pi*i/(n-1)). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>out</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output buffer of size n. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>n</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Window length. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_INVALID_PARAM if NULL or n &lt;= 1. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/dsp/syn_fft.h" line="52" column="12" bodyfile="src/syntropic/dsp/syn_fft.c" bodystart="186" bodyend="203" declfile="src/syntropic/dsp/syn_fft.h" declline="52" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__fft_8h_1ac18fc262b8e7c1beba09e33afaee37d1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_fft_magnitude_spectrum</definition>
+        <argsstring>(const q16_t *real, const q16_t *imag, q16_t *mag, uint16_t n)</argsstring>
+        <name>syn_fft_magnitude_spectrum</name>
+        <param>
+          <type>const <ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref> *</type>
+          <declname>real</declname>
+        </param>
+        <param>
+          <type>const <ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref> *</type>
+          <declname>imag</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref> *</type>
+          <declname>mag</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>n</declname>
+        </param>
+        <briefdescription>
+<para>Compute magnitude spectrum: mag[k] = sqrt(real[k]^2 + imag[k]^2). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>real</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Real part array (size n). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>imag</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Imaginary part array (size n). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>mag</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output magnitude array (size n/2 + 1). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>n</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>FFT size (number of points). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_INVALID_PARAM on invalid inputs. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/dsp/syn_fft.h" line="69" column="12" bodyfile="src/syntropic/dsp/syn_fft.c" bodystart="205" bodyend="214" declfile="src/syntropic/dsp/syn_fft.h" declline="69" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__fft_8h_1a296f75f9da47ba08c9f1a31722544141" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_fft_find_peaks</definition>
+        <argsstring>(const q16_t *mag, uint16_t n_bins, q16_t sample_rate_hz, SYN_FFTPeak *peaks, uint8_t max_peaks, uint8_t *num_peaks_found)</argsstring>
+        <name>syn_fft_find_peaks</name>
+        <param>
+          <type>const <ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref> *</type>
+          <declname>mag</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>n_bins</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+          <declname>sample_rate_hz</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__FFTPeak" kindref="compound">SYN_FFTPeak</ref> *</type>
+          <declname>peaks</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>max_peaks</declname>
+        </param>
+        <param>
+          <type>uint8_t *</type>
+          <declname>num_peaks_found</declname>
+        </param>
+        <briefdescription>
+<para>Find dominant peaks in magnitude spectrum. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>mag</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Magnitude array (size n_bins). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>n_bins</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of bins (typically n/2 + 1). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>sample_rate_hz</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Sampling rate in Hz (Q16.16). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>peaks</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output peak array. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>max_peaks</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Capacity of peaks array. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>num_peaks_found</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output count of detected peaks. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_INVALID_PARAM on invalid inputs. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/dsp/syn_fft.h" line="81" column="12" bodyfile="src/syntropic/dsp/syn_fft.c" bodystart="216" bodyend="248" declfile="src/syntropic/dsp/syn_fft.h" declline="81" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__fft_8h_1a772825ea1dded2786bb38d62b9333a26" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_fft_thd</definition>
+        <argsstring>(const q16_t *mag, uint16_t n_bins, uint16_t fundamental_bin, uint8_t max_harmonics, q16_t *thd_pct)</argsstring>
+        <name>syn_fft_thd</name>
+        <param>
+          <type>const <ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref> *</type>
+          <declname>mag</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>n_bins</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>fundamental_bin</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>max_harmonics</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref> *</type>
+          <declname>thd_pct</declname>
+        </param>
+        <briefdescription>
+<para>Compute Total Harmonic Distortion (THD) percentage. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>THD = sqrt(sum(V_h^2)) / V_1 * 100%</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>mag</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Magnitude array (size n_bins). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>n_bins</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of bins. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>fundamental_bin</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Bin index of the fundamental frequency. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>max_harmonics</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of harmonics to sum (e.g. 5). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>thd_pct</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output THD percentage in Q16.16 (e.g., 5.2% = Q16_FROM_FLOAT(5.2)). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_INVALID_PARAM on invalid inputs. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/dsp/syn_fft.h" line="96" column="12" bodyfile="src/syntropic/dsp/syn_fft.c" bodystart="250" bodyend="276" declfile="src/syntropic/dsp/syn_fft.h" declline="96" declcolumn="12"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Fixed-point Q16.16 Fast Fourier Transform (FFT). </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_FFT_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_FFT_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../common/syn_defs.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../util/syn_qmath.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__fft_8h_1a0f97f3d786441daa7c015423ba00c623" kindref="member">syn_dsp_fft</ref>(<ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>*real,<sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>*imag,<sp/>uint16_t<sp/>n);</highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__fft_8h_1a1879f0d76e4a8ed060a9bd0307f8e7f6" kindref="member">syn_fft_window_hanning</ref>(<ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>*out,<sp/>uint16_t<sp/>n);</highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__fft_8h_1ac16d20695d8338a432461d3ce0edd470" kindref="member">syn_fft_window_hamming</ref>(<ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>*out,<sp/>uint16_t<sp/>n);</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__fft_8h_1a0ffa4e67ec0d8ba162d1eb2b4b6b9aa0" kindref="member">syn_fft_window_blackman</ref>(<ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>*out,<sp/>uint16_t<sp/>n);</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"></highlight></codeline>
+<codeline lineno="55" refid="structSYN__FFTPeak" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="56" refid="structSYN__FFTPeak_1af32be2f9998a0adfa9149fd137262db3" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/><ref refid="structSYN__FFTPeak_1af32be2f9998a0adfa9149fd137262db3" kindref="member">bin</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="57" refid="structSYN__FFTPeak_1aab07e0f1e4259f72ef3e1adc0b6e27bb" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/><sp/><sp/><sp/><ref refid="structSYN__FFTPeak_1aab07e0f1e4259f72ef3e1adc0b6e27bb" kindref="member">magnitude</ref>;<sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="58" refid="structSYN__FFTPeak_1ae37ffe939a0aefdc5409573e87a53cf1" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/><sp/><sp/><sp/><ref refid="structSYN__FFTPeak_1ae37ffe939a0aefdc5409573e87a53cf1" kindref="member">freq_hz</ref>;<sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="59"><highlight class="normal">}<sp/><ref refid="structSYN__FFTPeak" kindref="compound">SYN_FFTPeak</ref>;</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"></highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__fft_8h_1ac18fc262b8e7c1beba09e33afaee37d1" kindref="member">syn_fft_magnitude_spectrum</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>*real,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>*imag,<sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>*mag,<sp/>uint16_t<sp/>n);</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"></highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__fft_8h_1a296f75f9da47ba08c9f1a31722544141" kindref="member">syn_fft_find_peaks</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>*mag,<sp/>uint16_t<sp/>n_bins,<sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>sample_rate_hz,</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__FFTPeak" kindref="compound">SYN_FFTPeak</ref><sp/>*peaks,<sp/>uint8_t<sp/>max_peaks,<sp/>uint8_t<sp/>*num_peaks_found);</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"></highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__fft_8h_1a772825ea1dded2786bb38d62b9333a26" kindref="member">syn_fft_thd</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>*mag,<sp/>uint16_t<sp/>n_bins,<sp/>uint16_t<sp/>fundamental_bin,</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>max_harmonics,<sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>*thd_pct);</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"></highlight></codeline>
+<codeline lineno="99"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="100"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="102"><highlight class="normal"></highlight></codeline>
+<codeline lineno="103"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_FFT_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/dsp/syn_fft.h"/>
+  </compounddef>
+</doxygen>

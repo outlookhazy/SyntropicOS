@@ -1,0 +1,424 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__soft__onewire_8h" kind="file" language="C++">
+    <compoundname>syn_soft_onewire.h</compoundname>
+    <includes local="no">stdint.h</includes>
+    <includes local="no">stdbool.h</includes>
+    <includes refid="syn__defs_8h" local="yes">../common/syn_defs.h</includes>
+    <includes refid="syn__port__gpio_8h" local="yes">../port/syn_port_gpio.h</includes>
+    <includedby refid="syn__soft__onewire_8c" local="yes">src/syntropic/drivers/syn_soft_onewire.c</includedby>
+    <includedby refid="syntropic_8h" local="yes">src/syntropic/syntropic.h</includedby>
+    <incdepgraph>
+      <node id="4">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/drivers/syn_soft_onewire.h</label>
+        <link refid="syn__soft__onewire_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>../port/syn_port_gpio.h</label>
+        <link refid="syn__port__gpio_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>stdbool.h</label>
+      </node>
+      <node id="5">
+        <label>stddef.h</label>
+      </node>
+      <node id="2">
+        <label>stdint.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="2">
+        <label>src/syntropic/drivers/syn_soft_onewire.c</label>
+        <link refid="syn__soft__onewire_8c"/>
+      </node>
+      <node id="1">
+        <label>src/syntropic/drivers/syn_soft_onewire.h</label>
+        <link refid="syn__soft__onewire_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>src/syntropic/syntropic.h</label>
+        <link refid="syntropic_8h"/>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="structSYN__SoftOneWire" prot="public">SYN_SoftOneWire</innerclass>
+    <sectiondef kind="define">
+      <memberdef kind="define" id="syn__soft__onewire_8h_1ace9ab98b08b738aa959b862366c1acde" prot="public" static="no">
+        <name>SYN_SOFT_ONEWIRE_LOOPS_PER_US</name>
+        <param><defname>freq_hz</defname></param>
+        <initializer>    ((uint32_t)(((uint32_t)(freq_hz)) / 4000000UL))</initializer>
+        <briefdescription>
+<para>Compute the delay_loops value for a given CPU frequency. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>The NOP loop body compiles to approximately 4 clock cycles on most architectures (load, decrement, compare, branch-not-taken). Dividing the CPU frequency by 4 gives loops per second; dividing again by 1 000 000 gives loops per microsecond.</para>
+<para>Use this macro when initialising the bus: <programlisting><codeline><highlight class="normal">syn_soft_onewire_init(&amp;ow,<sp/>PIN_OW_DATA,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>SYN_SOFT_ONEWIRE_LOOPS_PER_US(F_CPU));</highlight></codeline>
+</programlisting></para>
+<para>Or with an explicit frequency: <programlisting><codeline><highlight class="normal">//<sp/>16<sp/>MHz<sp/>Arduino<sp/>Uno</highlight></codeline>
+<codeline><highlight class="normal">syn_soft_onewire_init(&amp;ow,<sp/>PIN_OW_DATA,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>SYN_SOFT_ONEWIRE_LOOPS_PER_US(16000000UL));</highlight></codeline>
+<codeline><highlight class="normal">//<sp/>8<sp/>MHz<sp/>AVR<sp/>/<sp/>STM32<sp/>at<sp/>8<sp/>MHz</highlight></codeline>
+<codeline><highlight class="normal">syn_soft_onewire_init(&amp;ow,<sp/>PIN_OW_DATA,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>SYN_SOFT_ONEWIRE_LOOPS_PER_US(8000000UL));</highlight></codeline>
+</programlisting></para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>freq_hz</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>CPU frequency in Hz (e.g. F_CPU, 16000000UL).</para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="note"><para>The divisor (4) is a conservative estimate for an optimised build. If timing measurements show pulses running consistently long or short, tune by replacing 4 with the actual loop-body cycle count from the generated disassembly. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_soft_onewire.h" line="92" column="9" bodyfile="src/syntropic/drivers/syn_soft_onewire.h" bodystart="92" bodyend="93"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__soft__onewire_8h_1ac974009210fd7474d945df26f9b5a35d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_soft_onewire_init</definition>
+        <argsstring>(SYN_SoftOneWire *ow, SYN_GPIO_Pin pin, uint32_t delay_loops)</argsstring>
+        <name>syn_soft_onewire_init</name>
+        <param>
+          <type><ref refid="structSYN__SoftOneWire" kindref="compound">SYN_SoftOneWire</ref> *</type>
+          <declname>ow</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref></type>
+          <declname>pin</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>delay_loops</declname>
+        </param>
+        <briefdescription>
+<para>Initialize a 1-Wire bus instance. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ow</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Bus handle to initialize. Must not be NULL. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>pin</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>GPIO pin for the data line. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>delay_loops</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>NOP loop iterations per µs at your CPU frequency. Use <ref refid="syn__soft__onewire_8h_1ace9ab98b08b738aa959b862366c1acde" kindref="member">SYN_SOFT_ONEWIRE_LOOPS_PER_US(F_CPU)</ref> or <ref refid="syn__soft__onewire_8h_1ace9ab98b08b738aa959b862366c1acde" kindref="member">SYN_SOFT_ONEWIRE_LOOPS_PER_US(16000000UL)</ref> for 16 MHz. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_soft_onewire.h" line="110" column="6" bodyfile="src/syntropic/drivers/syn_soft_onewire.c" bodystart="97" bodyend="107" declfile="src/syntropic/drivers/syn_soft_onewire.h" declline="110" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__soft__onewire_8h_1ad500fc8f2d65f92bb52365e2a168aa8a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_soft_onewire_reset</definition>
+        <argsstring>(const SYN_SoftOneWire *ow)</argsstring>
+        <name>syn_soft_onewire_reset</name>
+        <param>
+          <type>const <ref refid="structSYN__SoftOneWire" kindref="compound">SYN_SoftOneWire</ref> *</type>
+          <declname>ow</declname>
+        </param>
+        <briefdescription>
+<para>Issue a 1-Wire reset pulse and detect device presence. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ow</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Initialized bus handle. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if at least one device acknowledged (presence pulse detected), false if the bus is empty. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_soft_onewire.h" line="120" column="6" bodyfile="src/syntropic/drivers/syn_soft_onewire.c" bodystart="109" bodyend="126" declfile="src/syntropic/drivers/syn_soft_onewire.h" declline="120" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__soft__onewire_8h_1a231840b2e4718fc0e9e60593df0303cf" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_soft_onewire_write_byte</definition>
+        <argsstring>(const SYN_SoftOneWire *ow, uint8_t byte)</argsstring>
+        <name>syn_soft_onewire_write_byte</name>
+        <param>
+          <type>const <ref refid="structSYN__SoftOneWire" kindref="compound">SYN_SoftOneWire</ref> *</type>
+          <declname>ow</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>byte</declname>
+        </param>
+        <briefdescription>
+<para>Write one byte LSB-first onto the 1-Wire bus. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ow</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Initialized bus handle. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>byte</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Byte to transmit. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_soft_onewire.h" line="127" column="6" bodyfile="src/syntropic/drivers/syn_soft_onewire.c" bodystart="128" bodyend="136" declfile="src/syntropic/drivers/syn_soft_onewire.h" declline="127" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__soft__onewire_8h_1ad4b2ca7a71c265d2c8a834be4cbd0fe5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint8_t</type>
+        <definition>uint8_t syn_soft_onewire_read_byte</definition>
+        <argsstring>(const SYN_SoftOneWire *ow)</argsstring>
+        <name>syn_soft_onewire_read_byte</name>
+        <param>
+          <type>const <ref refid="structSYN__SoftOneWire" kindref="compound">SYN_SoftOneWire</ref> *</type>
+          <declname>ow</declname>
+        </param>
+        <briefdescription>
+<para>Read one byte LSB-first from the 1-Wire bus. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ow</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Initialized bus handle. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Byte received. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_soft_onewire.h" line="134" column="9" bodyfile="src/syntropic/drivers/syn_soft_onewire.c" bodystart="138" bodyend="149" declfile="src/syntropic/drivers/syn_soft_onewire.h" declline="134" declcolumn="9"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__soft__onewire_8h_1aa397e7199fe2f31f5f064d66f8fc57ee" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_soft_onewire_write_rom</definition>
+        <argsstring>(const SYN_SoftOneWire *ow, const uint8_t rom[8])</argsstring>
+        <name>syn_soft_onewire_write_rom</name>
+        <param>
+          <type>const <ref refid="structSYN__SoftOneWire" kindref="compound">SYN_SoftOneWire</ref> *</type>
+          <declname>ow</declname>
+        </param>
+        <param>
+          <type>const uint8_t</type>
+          <declname>rom</declname>
+          <array>[8]</array>
+        </param>
+        <briefdescription>
+<para>Write an 8-byte ROM code to the bus (for MATCH ROM command). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ow</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Initialized bus handle. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>rom</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>8-byte ROM code, LSB first. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_soft_onewire.h" line="141" column="6" bodyfile="src/syntropic/drivers/syn_soft_onewire.c" bodystart="151" bodyend="160" declfile="src/syntropic/drivers/syn_soft_onewire.h" declline="141" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__soft__onewire_8h_1af6be20607e9d5146b93c4f7282b5c207" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_soft_onewire_read_rom</definition>
+        <argsstring>(const SYN_SoftOneWire *ow, uint8_t rom[8])</argsstring>
+        <name>syn_soft_onewire_read_rom</name>
+        <param>
+          <type>const <ref refid="structSYN__SoftOneWire" kindref="compound">SYN_SoftOneWire</ref> *</type>
+          <declname>ow</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>rom</declname>
+          <array>[8]</array>
+        </param>
+        <briefdescription>
+<para>Read an 8-byte ROM code from the bus (after READ ROM command). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ow</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Initialized bus handle. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>rom</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output buffer, must be at least 8 bytes. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_soft_onewire.h" line="149" column="6" bodyfile="src/syntropic/drivers/syn_soft_onewire.c" bodystart="162" bodyend="171" declfile="src/syntropic/drivers/syn_soft_onewire.h" declline="149" declcolumn="6"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Software bit-bang 1-Wire master driver. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Implements the Dallas/Maxim 1-Wire protocol on any GPIO pin. Timing is controlled by a caller-provided loop count (delay_loops), analogous to <ref refid="syn__soft__i2c_8h" kindref="compound">syn_soft_i2c.h</ref> — calibrate for your CPU frequency.</para>
+<para>Supports standard-speed 1-Wire (15.4 kbps). No parasitic-power or overdrive mode.</para>
+<para>Typical use (DS18B20 temperature sensor, protothread-safe): <programlisting><codeline><highlight class="comment">//<sp/>In<sp/>a<sp/>protothread<sp/>—<sp/>conversion<sp/>wait<sp/>is<sp/>a<sp/>yield<sp/>point,<sp/>not<sp/>a<sp/>busy-wait.</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/>uint32_t<sp/>ow_start_ms;</highlight></codeline>
+<codeline><highlight class="normal"><ref refid="structSYN__SoftOneWire" kindref="compound">SYN_SoftOneWire</ref><sp/>ow;</highlight></codeline>
+<codeline><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="comment">//<sp/>---<sp/>Phase<sp/>1:<sp/>start<sp/>conversion<sp/>---</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__soft__onewire_8c_1ac974009210fd7474d945df26f9b5a35d" kindref="member">syn_soft_onewire_init</ref>(&amp;ow,<sp/>PIN_OW_DATA,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__soft__onewire_8h_1ace9ab98b08b738aa959b862366c1acde" kindref="member">SYN_SOFT_ONEWIRE_LOOPS_PER_US</ref>(F_CPU));</highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="syn__soft__onewire_8c_1ad500fc8f2d65f92bb52365e2a168aa8a" kindref="member">syn_soft_onewire_reset</ref>(&amp;ow))<sp/>{<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>~960<sp/>µs<sp/>busy</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__soft__onewire_8c_1a231840b2e4718fc0e9e60593df0303cf" kindref="member">syn_soft_onewire_write_byte</ref>(&amp;ow,<sp/>0xCC);<sp/><sp/></highlight><highlight class="comment">//<sp/>SKIP<sp/>ROM<sp/><sp/><sp/>(~560<sp/>µs)</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__soft__onewire_8c_1a231840b2e4718fc0e9e60593df0303cf" kindref="member">syn_soft_onewire_write_byte</ref>(&amp;ow,<sp/>0x44);<sp/><sp/></highlight><highlight class="comment">//<sp/>CONVERT<sp/>T<sp/><sp/>(~560<sp/>µs)</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>ow_start_ms<sp/>=<sp/><ref refid="syn__port__system_8h_1a6c7d98587814b2c0d9c09da02d318873" kindref="member">syn_port_get_tick_ms</ref>();</highlight></codeline>
+<codeline><highlight class="normal">}</highlight></codeline>
+<codeline><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="comment">//<sp/>---<sp/>Phase<sp/>2:<sp/>yield<sp/>until<sp/>conversion<sp/>done<sp/>(~750<sp/>ms)<sp/>---</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__pt_8h_1a0a7f29e2a1e2caaf5bcc343412eef273" kindref="member">PT_WAIT_UNTIL</ref>(pt,<sp/><ref refid="syn__port__system_8h_1a6c7d98587814b2c0d9c09da02d318873" kindref="member">syn_port_get_tick_ms</ref>()<sp/>-<sp/>ow_start_ms<sp/>&gt;=<sp/>750u);</highlight></codeline>
+<codeline><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="comment">//<sp/>---<sp/>Phase<sp/>3:<sp/>read<sp/>result<sp/>---</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="syn__soft__onewire_8c_1ad500fc8f2d65f92bb52365e2a168aa8a" kindref="member">syn_soft_onewire_reset</ref>(&amp;ow))<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__soft__onewire_8c_1a231840b2e4718fc0e9e60593df0303cf" kindref="member">syn_soft_onewire_write_byte</ref>(&amp;ow,<sp/>0xCC);<sp/><sp/></highlight><highlight class="comment">//<sp/>SKIP<sp/>ROM</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__soft__onewire_8c_1a231840b2e4718fc0e9e60593df0303cf" kindref="member">syn_soft_onewire_write_byte</ref>(&amp;ow,<sp/>0xBE);<sp/><sp/></highlight><highlight class="comment">//<sp/>READ<sp/>SCRATCHPAD</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>lsb<sp/>=<sp/><ref refid="syn__soft__onewire_8c_1ad4b2ca7a71c265d2c8a834be4cbd0fe5" kindref="member">syn_soft_onewire_read_byte</ref>(&amp;ow);</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>msb<sp/>=<sp/><ref refid="syn__soft__onewire_8c_1ad4b2ca7a71c265d2c8a834be4cbd0fe5" kindref="member">syn_soft_onewire_read_byte</ref>(&amp;ow);</highlight></codeline>
+<codeline><highlight class="normal">}</highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="comment">//<sp/>DO<sp/>NOT<sp/>use<sp/>syn_port_delay_ms(750)<sp/>—<sp/>that<sp/>blocks<sp/>the<sp/>entire<sp/>scheduler.</highlight></codeline>
+</programlisting></para>
+<para><simplesect kind="note"><para>Each byte write/read blocks the CPU for ~560 µs (8 × 70 µs slots). Each reset() blocks for ~960 µs. Hardware PWM and timer ISRs continue to fire normally during these windows. Do not call these functions from a tight control loop that must execute faster than ~2 ms/cycle. </para>
+</simplesect>
+</para>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="47"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_SOFT_ONEWIRE_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="48"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_SOFT_ONEWIRE_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="49"><highlight class="normal"></highlight></codeline>
+<codeline lineno="50"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="51"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="52"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../common/syn_defs.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="53"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../port/syn_port_gpio.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="54"><highlight class="normal"></highlight></codeline>
+<codeline lineno="55"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="56"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="58"><highlight class="normal"></highlight></codeline>
+<codeline lineno="59"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Timing<sp/>calibration<sp/>macro<sp/>────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="60"><highlight class="normal"></highlight></codeline>
+<codeline lineno="92" refid="syn__soft__onewire_8h_1ace9ab98b08b738aa959b862366c1acde" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_SOFT_ONEWIRE_LOOPS_PER_US(freq_hz)<sp/>\</highlight></codeline>
+<codeline lineno="93"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>((uint32_t)(((uint32_t)(freq_hz))<sp/>/<sp/>4000000UL))</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="94"><highlight class="normal"></highlight></codeline>
+<codeline lineno="96" refid="structSYN__SoftOneWire" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="97" refid="structSYN__SoftOneWire_1a9efc4b8b0c239e1d2922aa961814aef3" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref><sp/><ref refid="structSYN__SoftOneWire_1a9efc4b8b0c239e1d2922aa961814aef3" kindref="member">pin</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="98" refid="structSYN__SoftOneWire_1a3bce80e04e8716890c63bc6ad92d93e9" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__SoftOneWire_1a3bce80e04e8716890c63bc6ad92d93e9" kindref="member">delay_loops</ref>;<sp/><sp/></highlight></codeline>
+<codeline lineno="100"><highlight class="normal">}<sp/><ref refid="structSYN__SoftOneWire" kindref="compound">SYN_SoftOneWire</ref>;</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"></highlight></codeline>
+<codeline lineno="110"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__soft__onewire_8h_1ac974009210fd7474d945df26f9b5a35d" kindref="member">syn_soft_onewire_init</ref>(<ref refid="structSYN__SoftOneWire" kindref="compound">SYN_SoftOneWire</ref><sp/>*ow,</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref><sp/><sp/><sp/><sp/><sp/>pin,</highlight></codeline>
+<codeline lineno="112"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>delay_loops);</highlight></codeline>
+<codeline lineno="113"><highlight class="normal"></highlight></codeline>
+<codeline lineno="120"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__soft__onewire_8h_1ad500fc8f2d65f92bb52365e2a168aa8a" kindref="member">syn_soft_onewire_reset</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__SoftOneWire" kindref="compound">SYN_SoftOneWire</ref><sp/>*ow);</highlight></codeline>
+<codeline lineno="121"><highlight class="normal"></highlight></codeline>
+<codeline lineno="127"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__soft__onewire_8h_1a231840b2e4718fc0e9e60593df0303cf" kindref="member">syn_soft_onewire_write_byte</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__SoftOneWire" kindref="compound">SYN_SoftOneWire</ref><sp/>*ow,<sp/>uint8_t<sp/></highlight><highlight class="keywordtype">byte</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="128"><highlight class="normal"></highlight></codeline>
+<codeline lineno="134"><highlight class="normal">uint8_t<sp/><ref refid="syn__soft__onewire_8h_1ad4b2ca7a71c265d2c8a834be4cbd0fe5" kindref="member">syn_soft_onewire_read_byte</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__SoftOneWire" kindref="compound">SYN_SoftOneWire</ref><sp/>*ow);</highlight></codeline>
+<codeline lineno="135"><highlight class="normal"></highlight></codeline>
+<codeline lineno="141"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__soft__onewire_8h_1aa397e7199fe2f31f5f064d66f8fc57ee" kindref="member">syn_soft_onewire_write_rom</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__SoftOneWire" kindref="compound">SYN_SoftOneWire</ref><sp/>*ow,</highlight></codeline>
+<codeline lineno="142"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rom[8]);</highlight></codeline>
+<codeline lineno="143"><highlight class="normal"></highlight></codeline>
+<codeline lineno="149"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__soft__onewire_8h_1af6be20607e9d5146b93c4f7282b5c207" kindref="member">syn_soft_onewire_read_rom</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__SoftOneWire" kindref="compound">SYN_SoftOneWire</ref><sp/>*ow,</highlight></codeline>
+<codeline lineno="150"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rom[8]);</highlight></codeline>
+<codeline lineno="151"><highlight class="normal"></highlight></codeline>
+<codeline lineno="152"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="153"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="154"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="155"><highlight class="normal"></highlight></codeline>
+<codeline lineno="156"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_SOFT_ONEWIRE_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/drivers/syn_soft_onewire.h"/>
+  </compounddef>
+</doxygen>

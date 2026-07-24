@@ -1,0 +1,282 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__barrier_8h" kind="file" language="C++">
+    <compoundname>syn_barrier.h</compoundname>
+    <includes refid="syn__compiler_8h" local="yes">syn_compiler.h</includes>
+    <includes local="no">stddef.h</includes>
+    <includedby refid="syn__port__stubs_8c" local="yes">src/syntropic/port_stubs/syn_port_stubs.c</includedby>
+    <includedby refid="syn__mailbox_8h" local="yes">src/syntropic/sched/syn_mailbox.h</includedby>
+    <includedby refid="syn__ringbuf_8c" local="yes">src/syntropic/util/syn_ringbuf.c</includedby>
+    <includedby refid="syn__spsc__queue_8c" local="yes">src/syntropic/util/syn_spsc_queue.c</includedby>
+    <incdepgraph>
+      <node id="1">
+        <label>src/syntropic/common/syn_barrier.h</label>
+        <link refid="syn__barrier_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>syn_compiler.h</label>
+        <link refid="syn__compiler_8h"/>
+      </node>
+      <node id="3">
+        <label>stddef.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="1">
+        <label>src/syntropic/common/syn_barrier.h</label>
+        <link refid="syn__barrier_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>src/syntropic/port_stubs/syn_port_stubs.c</label>
+        <link refid="syn__port__stubs_8c"/>
+      </node>
+      <node id="5">
+        <label>src/syntropic/sched/syn_ao.c</label>
+        <link refid="syn__ao_8c"/>
+      </node>
+      <node id="4">
+        <label>src/syntropic/sched/syn_ao.h</label>
+        <link refid="syn__ao_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>src/syntropic/sched/syn_mailbox.h</label>
+        <link refid="syn__mailbox_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>src/syntropic/syntropic.h</label>
+        <link refid="syntropic_8h"/>
+      </node>
+      <node id="7">
+        <label>src/syntropic/util/syn_ringbuf.c</label>
+        <link refid="syn__ringbuf_8c"/>
+      </node>
+      <node id="8">
+        <label>src/syntropic/util/syn_spsc_queue.c</label>
+        <link refid="syn__spsc__queue_8c"/>
+      </node>
+    </invincdepgraph>
+    <sectiondef kind="define">
+      <memberdef kind="define" id="syn__barrier_8h_1a46c96e264c231fce46e1bafba6f0475a" prot="public" static="no">
+        <name>SYN_STORE_RELEASE</name>
+        <param><defname>ptr</defname></param>
+        <param><defname>val</defname></param>
+        <initializer><ref refid="syn__barrier_8h_1a2470a2b4ffae602a4d01d4ed132ebc8c" kindref="member">syn_store_release</ref>((ptr), (val))</initializer>
+        <briefdescription>
+<para>Store with release semantics (macro form). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/common/syn_barrier.h" line="148" column="9" bodyfile="src/syntropic/common/syn_barrier.h" bodystart="148" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__barrier_8h_1a3910188c1e4ab3953dd7a9c2ff88e9e6" prot="public" static="no">
+        <name>SYN_LOAD_ACQUIRE</name>
+        <param><defname>ptr</defname></param>
+        <initializer><ref refid="syn__barrier_8h_1a008378b2cafe4bc38bac47b59667343c" kindref="member">syn_load_acquire</ref>((ptr))</initializer>
+        <briefdescription>
+<para>Load with acquire semantics (macro form). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/common/syn_barrier.h" line="151" column="9" bodyfile="src/syntropic/common/syn_barrier.h" bodystart="151" bodyend="-1"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__barrier_8h_1a2470a2b4ffae602a4d01d4ed132ebc8c" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>static void syn_store_release</definition>
+        <argsstring>(volatile size_t *ptr, size_t val)</argsstring>
+        <name>syn_store_release</name>
+        <param>
+          <type>volatile size_t *</type>
+          <declname>ptr</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>val</declname>
+        </param>
+        <briefdescription>
+<para>Store with release semantics (single-core path). </para>
+        </briefdescription>
+        <detaileddescription>
+<para>On single-core targets, volatile access is sufficient because interrupts imply a full pipeline flush. This compiles to a plain store — zero overhead.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ptr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to volatile size_t. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>val</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Value to store. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/common/syn_barrier.h" line="124" column="20" bodyfile="src/syntropic/common/syn_barrier.h" bodystart="124" bodyend="127"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__barrier_8h_1a008378b2cafe4bc38bac47b59667343c" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>size_t</type>
+        <definition>static size_t syn_load_acquire</definition>
+        <argsstring>(const volatile size_t *ptr)</argsstring>
+        <name>syn_load_acquire</name>
+        <param>
+          <type>const volatile size_t *</type>
+          <declname>ptr</declname>
+        </param>
+        <briefdescription>
+<para>Load with acquire semantics (single-core path). </para>
+        </briefdescription>
+        <detaileddescription>
+<para>On single-core targets, volatile access is sufficient. This compiles to a plain load — zero overhead.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ptr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to volatile size_t. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>The loaded value. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/common/syn_barrier.h" line="138" column="22" bodyfile="src/syntropic/common/syn_barrier.h" bodystart="138" bodyend="141"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Memory ordering primitives for cross-core and ISR safety. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Provides acquire/release semantics for lock-free data structures that are shared between CPU cores (AMP multicore) or between ISR and main context.</para>
+<para><simplesect kind="par"><title>Compile-time cost model</title><para></para>
+</simplesect>
+When <computeroutput>SYN_USE_MULTICORE</computeroutput> is <bold>off</bold> (the default), the acquire/release functions compile to plain volatile reads and writes — identical to what the code would do without barriers. Zero overhead.</para>
+<para>When <computeroutput>SYN_USE_MULTICORE</computeroutput> is <bold>on</bold>, the functions insert hardware memory barriers (via <computeroutput>syn_port_memory_barrier()</computeroutput>) at the correct points to ensure cross-core visibility.</para>
+<para><simplesect kind="par"><title>Memory ordering model</title><para></para>
+</simplesect>
+<itemizedlist>
+<listitem><para><bold>STORE_RELEASE:</bold> All prior writes are visible before this store. Use after writing data, before publishing the index.</para>
+</listitem><listitem><para><bold>LOAD_ACQUIRE:</bold> No subsequent reads can be reordered before this load. Use after reading an index, before accessing the data it guards.</para>
+</listitem></itemizedlist>
+</para>
+<para><simplesect kind="par"><title>Example: SPSC ring buffer with correct ordering</title><para><programlisting><codeline><highlight class="comment">//<sp/>Producer<sp/>(core<sp/>0):</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal">buf[head]<sp/>=<sp/>data;</highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__barrier_8h_1a46c96e264c231fce46e1bafba6f0475a" kindref="member">SYN_STORE_RELEASE</ref>(&amp;rb-&gt;head,<sp/>next_head);</highlight></codeline>
+<codeline><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="comment">//<sp/>Consumer<sp/>(core<sp/>1):</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>h<sp/>=<sp/><ref refid="syn__barrier_8h_1a3910188c1e4ab3953dd7a9c2ff88e9e6" kindref="member">SYN_LOAD_ACQUIRE</ref>(&amp;rb-&gt;head);</highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(h<sp/>!=<sp/>tail)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>x<sp/>=<sp/>buf[tail];<sp/><sp/></highlight><highlight class="comment">//<sp/>guaranteed<sp/>to<sp/>see<sp/>data<sp/>written<sp/>before<sp/>head</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal">}</highlight></codeline>
+</programlisting> </para>
+</simplesect>
+</para>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_BARRIER_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_BARRIER_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight></codeline>
+<codeline lineno="46"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>__has_include(&quot;syn_config.h&quot;)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="47"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/>#include<sp/>&quot;syn_config.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="48"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="49"><highlight class="normal"></highlight></codeline>
+<codeline lineno="50"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__compiler_8h" kindref="compound">syn_compiler.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="51"><highlight class="normal"></highlight></codeline>
+<codeline lineno="52"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stddef.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="53"><highlight class="normal"></highlight></codeline>
+<codeline lineno="54"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="55"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="57"><highlight class="normal"></highlight></codeline>
+<codeline lineno="58"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Hardware<sp/>memory<sp/>barrier<sp/>(port<sp/>function)<sp/>─────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="59"><highlight class="normal"></highlight></codeline>
+<codeline lineno="60"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(SYN_USE_MULTICORE)<sp/>&amp;&amp;<sp/>SYN_USE_MULTICORE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="61"><highlight class="normal"></highlight></codeline>
+<codeline lineno="70"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>syn_port_memory_barrier(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"></highlight></codeline>
+<codeline lineno="72"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_USE_MULTICORE<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="73"><highlight class="normal"></highlight></codeline>
+<codeline lineno="74"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Acquire<sp/>/<sp/>Release<sp/>───────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="75"><highlight class="normal"></highlight></codeline>
+<codeline lineno="76"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(SYN_USE_MULTICORE)<sp/>&amp;&amp;<sp/>SYN_USE_MULTICORE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="77"><highlight class="normal"></highlight></codeline>
+<codeline lineno="88"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__barrier_8h_1a2470a2b4ffae602a4d01d4ed132ebc8c" kindref="member">syn_store_release</ref>(</highlight><highlight class="keyword">volatile</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>*ptr,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>val)</highlight></codeline>
+<codeline lineno="89"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__compiler_8h_1a1afb4c3dfe60fc42928a5619e3100c23" kindref="member">SYN_COMPILER_BARRIER</ref>();</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"><sp/><sp/><sp/><sp/>syn_port_memory_barrier();</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/><sp/><sp/>*ptr<sp/>=<sp/>val;</highlight></codeline>
+<codeline lineno="93"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"></highlight></codeline>
+<codeline lineno="104"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="syn__barrier_8h_1a008378b2cafe4bc38bac47b59667343c" kindref="member">syn_load_acquire</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">volatile</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>*ptr)</highlight></codeline>
+<codeline lineno="105"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>val<sp/>=<sp/>*ptr;</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"><sp/><sp/><sp/><sp/>syn_port_memory_barrier();</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__compiler_8h_1a1afb4c3dfe60fc42928a5619e3100c23" kindref="member">SYN_COMPILER_BARRIER</ref>();</highlight></codeline>
+<codeline lineno="109"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>val;</highlight></codeline>
+<codeline lineno="110"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"></highlight></codeline>
+<codeline lineno="112"><highlight class="normal"></highlight><highlight class="preprocessor">#else<sp/></highlight><highlight class="comment">/*<sp/>!SYN_USE_MULTICORE<sp/>—<sp/>single-core:<sp/>volatile<sp/>is<sp/>sufficient<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="113"><highlight class="normal"></highlight></codeline>
+<codeline lineno="124" refid="syn__barrier_8h_1a2470a2b4ffae602a4d01d4ed132ebc8c" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__barrier_8h_1a2470a2b4ffae602a4d01d4ed132ebc8c" kindref="member">syn_store_release</ref>(</highlight><highlight class="keyword">volatile</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>*ptr,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>val)</highlight></codeline>
+<codeline lineno="125"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="126"><highlight class="normal"><sp/><sp/><sp/><sp/>*ptr<sp/>=<sp/>val;</highlight></codeline>
+<codeline lineno="127"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="128"><highlight class="normal"></highlight></codeline>
+<codeline lineno="138" refid="syn__barrier_8h_1a008378b2cafe4bc38bac47b59667343c" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="syn__barrier_8h_1a008378b2cafe4bc38bac47b59667343c" kindref="member">syn_load_acquire</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">volatile</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>*ptr)</highlight></codeline>
+<codeline lineno="139"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="140"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>*ptr;</highlight></codeline>
+<codeline lineno="141"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="142"><highlight class="normal"></highlight></codeline>
+<codeline lineno="143"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_USE_MULTICORE<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="144"><highlight class="normal"></highlight></codeline>
+<codeline lineno="145"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Convenience<sp/>macros<sp/>──────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="146"><highlight class="normal"></highlight></codeline>
+<codeline lineno="148" refid="syn__barrier_8h_1a46c96e264c231fce46e1bafba6f0475a" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_STORE_RELEASE(ptr,<sp/>val)<sp/><sp/>syn_store_release((ptr),<sp/>(val))</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="149"><highlight class="normal"></highlight></codeline>
+<codeline lineno="151" refid="syn__barrier_8h_1a3910188c1e4ab3953dd7a9c2ff88e9e6" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_LOAD_ACQUIRE(ptr)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>syn_load_acquire((ptr))</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="152"><highlight class="normal"></highlight></codeline>
+<codeline lineno="153"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="154"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="155"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="156"><highlight class="normal"></highlight></codeline>
+<codeline lineno="157"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_BARRIER_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/common/syn_barrier.h"/>
+  </compounddef>
+</doxygen>

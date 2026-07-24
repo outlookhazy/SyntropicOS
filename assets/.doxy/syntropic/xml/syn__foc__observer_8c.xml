@@ -1,0 +1,402 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__foc__observer_8c" kind="file" language="C++">
+    <compoundname>syn_foc_observer.c</compoundname>
+    <includes refid="syn__foc__observer_8h" local="yes">syn_foc_observer.h</includes>
+    <includes refid="syn__assert_8h" local="yes">../util/syn_assert.h</includes>
+    <includes local="no">string.h</includes>
+    <incdepgraph>
+      <node id="8">
+        <label>../common/syn_compiler.h</label>
+        <link refid="syn__compiler_8h"/>
+      </node>
+      <node id="3">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/motor/syn_foc_observer.c</label>
+        <link refid="syn__foc__observer_8c"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>syn_foc_observer.h</label>
+        <link refid="syn__foc__observer_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>../util/syn_assert.h</label>
+        <link refid="syn__assert_8h"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>../util/syn_qmath.h</label>
+        <link refid="syn__qmath_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>stddef.h</label>
+      </node>
+      <node id="4">
+        <label>stdint.h</label>
+      </node>
+      <node id="9">
+        <label>string.h</label>
+      </node>
+    </incdepgraph>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__foc__observer_8c_1ac13bc569e080f76aad28e08819590324" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_foc_observer_init</definition>
+        <argsstring>(SYN_FOCObserver *obs, const SYN_FOCObserverConfig *cfg)</argsstring>
+        <name>syn_foc_observer_init</name>
+        <param>
+          <type><ref refid="structSYN__FOCObserver" kindref="compound">SYN_FOCObserver</ref> *</type>
+          <declname>obs</declname>
+        </param>
+        <param>
+          <type>const <ref refid="structSYN__FOCObserverConfig" kindref="compound">SYN_FOCObserverConfig</ref> *</type>
+          <declname>cfg</declname>
+        </param>
+        <briefdescription>
+<para>Initialize the sensorless FOC Sliding Mode Observer. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>obs</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to observer instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>cfg</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Observer configuration parameters. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_INVALID_PARAM if NULL or invalid parameters. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/motor/syn_foc_observer.c" line="10" column="12" bodyfile="src/syntropic/motor/syn_foc_observer.c" bodystart="10" bodyend="19"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__foc__observer_8c_1a1c10bd643f70ac6180b977c5fb5a3e08" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_foc_observer_reset</definition>
+        <argsstring>(SYN_FOCObserver *obs)</argsstring>
+        <name>syn_foc_observer_reset</name>
+        <param>
+          <type><ref refid="structSYN__FOCObserver" kindref="compound">SYN_FOCObserver</ref> *</type>
+          <declname>obs</declname>
+        </param>
+        <briefdescription>
+<para>Reset observer state to zero. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>obs</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Observer instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/motor/syn_foc_observer.c" line="21" column="6" bodyfile="src/syntropic/motor/syn_foc_observer.c" bodystart="21" bodyend="32"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__foc__observer_8c_1a528267269ad28340428c13af7d7fafe7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_foc_observer_update</definition>
+        <argsstring>(SYN_FOCObserver *obs, q16_t V_alpha, q16_t V_beta, q16_t I_alpha, q16_t I_beta)</argsstring>
+        <name>syn_foc_observer_update</name>
+        <param>
+          <type><ref refid="structSYN__FOCObserver" kindref="compound">SYN_FOCObserver</ref> *</type>
+          <declname>obs</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+          <declname>V_alpha</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+          <declname>V_beta</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+          <declname>I_alpha</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+          <declname>I_beta</declname>
+        </param>
+        <briefdescription>
+<para>Update observer with latest phase voltages and measured phase currents. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>obs</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Observer instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>V_alpha</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Applied alpha-axis voltage in Volts (Q16.16). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>V_beta</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Applied beta-axis voltage in Volts (Q16.16). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>I_alpha</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Measured alpha-axis current in Amps (Q16.16). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>I_beta</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Measured beta-axis current in Amps (Q16.16). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_INVALID_PARAM if NULL. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/motor/syn_foc_observer.c" line="34" column="12" bodyfile="src/syntropic/motor/syn_foc_observer.c" bodystart="34" bodyend="112"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__foc__observer_8c_1aedb9664a847c06e226ede85c428aa2aa" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+        <definition>q16_t syn_foc_observer_get_angle</definition>
+        <argsstring>(const SYN_FOCObserver *obs)</argsstring>
+        <name>syn_foc_observer_get_angle</name>
+        <param>
+          <type>const <ref refid="structSYN__FOCObserver" kindref="compound">SYN_FOCObserver</ref> *</type>
+          <declname>obs</declname>
+        </param>
+        <briefdescription>
+<para>Get current estimated rotor electrical angle. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>obs</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Observer instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Estimated angle in radians (Q16.16, 0 to 2pi). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/motor/syn_foc_observer.c" line="114" column="7" bodyfile="src/syntropic/motor/syn_foc_observer.c" bodystart="114" bodyend="118"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__foc__observer_8c_1aa92a39ce0cc73dd0a8c3c5196fa64a64" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+        <definition>q16_t syn_foc_observer_get_speed</definition>
+        <argsstring>(const SYN_FOCObserver *obs)</argsstring>
+        <name>syn_foc_observer_get_speed</name>
+        <param>
+          <type>const <ref refid="structSYN__FOCObserver" kindref="compound">SYN_FOCObserver</ref> *</type>
+          <declname>obs</declname>
+        </param>
+        <briefdescription>
+<para>Get current estimated rotor electrical angular speed. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>obs</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Observer instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Estimated angular speed in rad/s (Q16.16). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/motor/syn_foc_observer.c" line="120" column="7" bodyfile="src/syntropic/motor/syn_foc_observer.c" bodystart="120" bodyend="124"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Sensorless FOC Rotor Position &amp; Speed Sliding Mode Observer implementation. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__foc__observer_8h" kindref="compound">syn_foc_observer.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../util/syn_assert.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;string.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__foc__observer_8c_1ac13bc569e080f76aad28e08819590324" kindref="member">syn_foc_observer_init</ref>(<ref refid="structSYN__FOCObserver" kindref="compound">SYN_FOCObserver</ref><sp/>*obs,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__FOCObserverConfig" kindref="compound">SYN_FOCObserverConfig</ref><sp/>*cfg)</highlight></codeline>
+<codeline lineno="11"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="12"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(obs<sp/>==<sp/>NULL<sp/>||<sp/>cfg<sp/>==<sp/>NULL)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="13"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(cfg-&gt;<ref refid="structSYN__FOCObserverConfig_1ae9f676696e16ca8967a487b9faa0e157" kindref="member">R</ref><sp/>&lt;=<sp/>0<sp/>||<sp/>cfg-&gt;<ref refid="structSYN__FOCObserverConfig_1aaa05bc7c28370414bcf5301fa1dffff4" kindref="member">L</ref><sp/>&lt;=<sp/>0<sp/>||<sp/>cfg-&gt;<ref refid="structSYN__FOCObserverConfig_1a6a4f0d66baaf8402d9186b1d9672e935" kindref="member">G</ref><sp/>&lt;=<sp/>0<sp/>||<sp/>cfg-&gt;<ref refid="structSYN__FOCObserverConfig_1abb7ef25e93309e6169f801ca236b66a6" kindref="member">dt</ref><sp/>&lt;=<sp/>0)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"><sp/><sp/><sp/><sp/>memset(obs,<sp/>0,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(*obs));</highlight></codeline>
+<codeline lineno="16"><highlight class="normal"><sp/><sp/><sp/><sp/>obs-&gt;<ref refid="structSYN__FOCObserver_1a23fdcc7cd9873167048fa1df2e251b8e" kindref="member">cfg</ref><sp/>=<sp/>*cfg;</highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="19"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__foc__observer_8c_1a1c10bd643f70ac6180b977c5fb5a3e08" kindref="member">syn_foc_observer_reset</ref>(<ref refid="structSYN__FOCObserver" kindref="compound">SYN_FOCObserver</ref><sp/>*obs)</highlight></codeline>
+<codeline lineno="22"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="23"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(obs<sp/>==<sp/>NULL)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"><sp/><sp/><sp/><sp/>obs-&gt;<ref refid="structSYN__FOCObserver_1acc9de8c177edcd03460a500578f67ce6" kindref="member">I_alpha_est</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="26"><highlight class="normal"><sp/><sp/><sp/><sp/>obs-&gt;<ref refid="structSYN__FOCObserver_1a93c19955bfddae42d0c273a8eb1365cb" kindref="member">I_beta_est</ref><sp/><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="27"><highlight class="normal"><sp/><sp/><sp/><sp/>obs-&gt;<ref refid="structSYN__FOCObserver_1ac7c89b8dfdd0c7252ed1c4efc069112a" kindref="member">E_alpha_est</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="28"><highlight class="normal"><sp/><sp/><sp/><sp/>obs-&gt;<ref refid="structSYN__FOCObserver_1a08a58df64b775ac2342fbaecd49ca621" kindref="member">E_beta_est</ref><sp/><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="29"><highlight class="normal"><sp/><sp/><sp/><sp/>obs-&gt;<ref refid="structSYN__FOCObserver_1afa7dd721d6d56a9049835524c2a03407" kindref="member">theta_e</ref><sp/><sp/><sp/><sp/><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="30"><highlight class="normal"><sp/><sp/><sp/><sp/>obs-&gt;<ref refid="structSYN__FOCObserver_1af2212c27909027c7f526438d8b3244f2" kindref="member">omega_e</ref><sp/><sp/><sp/><sp/><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="31"><highlight class="normal"><sp/><sp/><sp/><sp/>obs-&gt;<ref refid="structSYN__FOCObserver_1abbac17bb75f5bea422f174d91fc895e2" kindref="member">pll_i_accum</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="32"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__foc__observer_8c_1a528267269ad28340428c13af7d7fafe7" kindref="member">syn_foc_observer_update</ref>(<ref refid="structSYN__FOCObserver" kindref="compound">SYN_FOCObserver</ref><sp/>*obs,<sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>V_alpha,<sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>V_beta,</highlight></codeline>
+<codeline lineno="35"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>I_alpha,<sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>I_beta)</highlight></codeline>
+<codeline lineno="36"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="37"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(obs<sp/>==<sp/>NULL)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>R<sp/><sp/>=<sp/>obs-&gt;<ref refid="structSYN__FOCObserver_1a23fdcc7cd9873167048fa1df2e251b8e" kindref="member">cfg</ref>.<ref refid="structSYN__FOCObserverConfig_1ae9f676696e16ca8967a487b9faa0e157" kindref="member">R</ref>;</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>L<sp/><sp/>=<sp/>obs-&gt;<ref refid="structSYN__FOCObserver_1a23fdcc7cd9873167048fa1df2e251b8e" kindref="member">cfg</ref>.<ref refid="structSYN__FOCObserverConfig_1aaa05bc7c28370414bcf5301fa1dffff4" kindref="member">L</ref>;</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/><ref refid="syn__blake2s_8c_1a822a1369008e96e3885172300c861522" kindref="member">G</ref><sp/><sp/>=<sp/>obs-&gt;<ref refid="structSYN__FOCObserver_1a23fdcc7cd9873167048fa1df2e251b8e" kindref="member">cfg</ref>.<ref refid="structSYN__FOCObserverConfig_1a6a4f0d66baaf8402d9186b1d9672e935" kindref="member">G</ref>;</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>dt<sp/>=<sp/>obs-&gt;<ref refid="structSYN__FOCObserver_1a23fdcc7cd9873167048fa1df2e251b8e" kindref="member">cfg</ref>.<ref refid="structSYN__FOCObserverConfig_1abb7ef25e93309e6169f801ca236b66a6" kindref="member">dt</ref>;</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Current<sp/>estimation<sp/>error:<sp/>I_est<sp/>-<sp/>I_meas<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>err_ia<sp/>=<sp/>obs-&gt;<ref refid="structSYN__FOCObserver_1acc9de8c177edcd03460a500578f67ce6" kindref="member">I_alpha_est</ref><sp/>-<sp/>I_alpha;</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>err_ib<sp/>=<sp/>obs-&gt;<ref refid="structSYN__FOCObserver_1a93c19955bfddae42d0c273a8eb1365cb" kindref="member">I_beta_est</ref><sp/>-<sp/>I_beta;</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"></highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Sliding<sp/>mode<sp/>switching<sp/>control<sp/>with<sp/>linear<sp/>boundary<sp/>layer<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>Z_alpha<sp/>=<sp/><ref refid="syn__qmath_8h_1a00cbd4c0eaa2ed4aede02d1d5bab55b9" kindref="member">q16_clamp</ref>(<ref refid="syn__qmath_8h_1a9c59677a95516b0b1f571520a670dfb0" kindref="member">q16_mul</ref>(<ref refid="syn__blake2s_8c_1a822a1369008e96e3885172300c861522" kindref="member">G</ref>,<sp/>err_ia),<sp/>-<ref refid="syn__blake2s_8c_1a822a1369008e96e3885172300c861522" kindref="member">G</ref>,<sp/><ref refid="syn__blake2s_8c_1a822a1369008e96e3885172300c861522" kindref="member">G</ref>);</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>Z_beta<sp/><sp/>=<sp/><ref refid="syn__qmath_8h_1a00cbd4c0eaa2ed4aede02d1d5bab55b9" kindref="member">q16_clamp</ref>(<ref refid="syn__qmath_8h_1a9c59677a95516b0b1f571520a670dfb0" kindref="member">q16_mul</ref>(<ref refid="syn__blake2s_8c_1a822a1369008e96e3885172300c861522" kindref="member">G</ref>,<sp/>err_ib),<sp/>-<ref refid="syn__blake2s_8c_1a822a1369008e96e3885172300c861522" kindref="member">G</ref>,<sp/><ref refid="syn__blake2s_8c_1a822a1369008e96e3885172300c861522" kindref="member">G</ref>);</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"></highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Current<sp/>estimator<sp/>integration:<sp/>dI<sp/>=<sp/>(V<sp/>-<sp/>R*I_est<sp/>-<sp/>Z)<sp/>*<sp/>(dt<sp/>/<sp/>L)<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>dt_over_L<sp/>=<sp/><ref refid="syn__qmath_8h_1a1103d3b63cffa202284e7a12eeada585" kindref="member">q16_div</ref>(dt,<sp/>L);</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"></highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>delta_I_alpha<sp/>=<sp/><ref refid="syn__qmath_8h_1a9c59677a95516b0b1f571520a670dfb0" kindref="member">q16_mul</ref>(V_alpha<sp/>-<sp/><ref refid="syn__qmath_8h_1a9c59677a95516b0b1f571520a670dfb0" kindref="member">q16_mul</ref>(R,<sp/>obs-&gt;<ref refid="structSYN__FOCObserver_1acc9de8c177edcd03460a500578f67ce6" kindref="member">I_alpha_est</ref>)<sp/>-<sp/>Z_alpha,<sp/>dt_over_L);</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>delta_I_beta<sp/><sp/>=<sp/><ref refid="syn__qmath_8h_1a9c59677a95516b0b1f571520a670dfb0" kindref="member">q16_mul</ref>(V_beta<sp/><sp/>-<sp/><ref refid="syn__qmath_8h_1a9c59677a95516b0b1f571520a670dfb0" kindref="member">q16_mul</ref>(R,<sp/>obs-&gt;<ref refid="structSYN__FOCObserver_1a93c19955bfddae42d0c273a8eb1365cb" kindref="member">I_beta_est</ref>)<sp/><sp/>-<sp/>Z_beta,<sp/><sp/>dt_over_L);</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"></highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/>obs-&gt;<ref refid="structSYN__FOCObserver_1acc9de8c177edcd03460a500578f67ce6" kindref="member">I_alpha_est</ref><sp/>+=<sp/>delta_I_alpha;</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><sp/><sp/><sp/><sp/>obs-&gt;<ref refid="structSYN__FOCObserver_1a93c19955bfddae42d0c273a8eb1365cb" kindref="member">I_beta_est</ref><sp/><sp/>+=<sp/>delta_I_beta;</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"></highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Lowpass<sp/>filter<sp/>sliding<sp/>control<sp/>output<sp/>Z<sp/>to<sp/>extract<sp/>estimated<sp/>back-EMF<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="62"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>alpha_lpf<sp/>=<sp/><ref refid="syn__qmath_8h_1a6fb4c3fddeda3a2e145765b2e69af7fc" kindref="member">Q16_FROM_FLOAT</ref>(0.15);<sp/></highlight><highlight class="comment">/*<sp/>LPF<sp/>smoothing<sp/>factor<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="63"><highlight class="normal"><sp/><sp/><sp/><sp/>obs-&gt;<ref refid="structSYN__FOCObserver_1ac7c89b8dfdd0c7252ed1c4efc069112a" kindref="member">E_alpha_est</ref><sp/>+=<sp/><ref refid="syn__qmath_8h_1a9c59677a95516b0b1f571520a670dfb0" kindref="member">q16_mul</ref>(alpha_lpf,<sp/>Z_alpha<sp/>-<sp/>obs-&gt;<ref refid="structSYN__FOCObserver_1ac7c89b8dfdd0c7252ed1c4efc069112a" kindref="member">E_alpha_est</ref>);</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/><sp/><sp/>obs-&gt;<ref refid="structSYN__FOCObserver_1a08a58df64b775ac2342fbaecd49ca621" kindref="member">E_beta_est</ref><sp/><sp/>+=<sp/><ref refid="syn__qmath_8h_1a9c59677a95516b0b1f571520a670dfb0" kindref="member">q16_mul</ref>(alpha_lpf,<sp/>Z_beta<sp/><sp/>-<sp/>obs-&gt;<ref refid="structSYN__FOCObserver_1a08a58df64b775ac2342fbaecd49ca621" kindref="member">E_beta_est</ref>);</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"></highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Software<sp/>PLL<sp/>Phase<sp/>Detector<sp/>with<sp/>normalized<sp/>back-EMF<sp/>vector<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/><sp/><sp/>int64_t<sp/>E_sq<sp/>=<sp/>((int64_t)obs-&gt;<ref refid="structSYN__FOCObserver_1ac7c89b8dfdd0c7252ed1c4efc069112a" kindref="member">E_alpha_est</ref><sp/>*<sp/>obs-&gt;<ref refid="structSYN__FOCObserver_1ac7c89b8dfdd0c7252ed1c4efc069112a" kindref="member">E_alpha_est</ref>)<sp/>+<sp/>((int64_t)obs-&gt;<ref refid="structSYN__FOCObserver_1a08a58df64b775ac2342fbaecd49ca621" kindref="member">E_beta_est</ref><sp/>*<sp/>obs-&gt;<ref refid="structSYN__FOCObserver_1a08a58df64b775ac2342fbaecd49ca621" kindref="member">E_beta_est</ref>);</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/><sp/><sp/>E_sq<sp/>&gt;&gt;=<sp/><ref refid="syn__qmath_8h_1a0a06e0f48f9cc549761d6ab0ea368627" kindref="member">Q16_SHIFT</ref>;</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"></highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>pll_err<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>min_E_sq<sp/>=<sp/><ref refid="syn__qmath_8h_1a6fb4c3fddeda3a2e145765b2e69af7fc" kindref="member">Q16_FROM_FLOAT</ref>(0.0001);</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"></highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(E_sq<sp/>&gt;<sp/>min_E_sq)<sp/>{</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>E_mag<sp/>=<sp/><ref refid="syn__qmath_8c_1adb640d74128466ba9249e34637389a30" kindref="member">q16_sqrt</ref>((<ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref>)E_sq);</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(E_mag<sp/>&gt;<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>E_alpha_n<sp/>=<sp/><ref refid="syn__qmath_8h_1a1103d3b63cffa202284e7a12eeada585" kindref="member">q16_div</ref>(obs-&gt;<ref refid="structSYN__FOCObserver_1ac7c89b8dfdd0c7252ed1c4efc069112a" kindref="member">E_alpha_est</ref>,<sp/>E_mag);</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>E_beta_n<sp/><sp/>=<sp/><ref refid="syn__qmath_8h_1a1103d3b63cffa202284e7a12eeada585" kindref="member">q16_div</ref>(obs-&gt;<ref refid="structSYN__FOCObserver_1a08a58df64b775ac2342fbaecd49ca621" kindref="member">E_beta_est</ref>,<sp/><sp/>E_mag);</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"></highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>If<sp/>starting<sp/>up<sp/>from<sp/>zero<sp/>speed,<sp/>seed<sp/>angle<sp/>and<sp/>initial<sp/>speed<sp/>estimate<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(obs-&gt;<ref refid="structSYN__FOCObserver_1af2212c27909027c7f526438d8b3244f2" kindref="member">omega_e</ref><sp/>==<sp/>0<sp/>&amp;&amp;<sp/>obs-&gt;<ref refid="structSYN__FOCObserver_1abbac17bb75f5bea422f174d91fc895e2" kindref="member">pll_i_accum</ref><sp/>==<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>obs-&gt;<ref refid="structSYN__FOCObserver_1afa7dd721d6d56a9049835524c2a03407" kindref="member">theta_e</ref><sp/>=<sp/><ref refid="syn__qmath_8c_1aaca7eaefac311fd8c7c7e23ae7ef5ba2" kindref="member">q16_atan2</ref>(-obs-&gt;<ref refid="structSYN__FOCObserver_1ac7c89b8dfdd0c7252ed1c4efc069112a" kindref="member">E_alpha_est</ref>,<sp/>obs-&gt;<ref refid="structSYN__FOCObserver_1a08a58df64b775ac2342fbaecd49ca621" kindref="member">E_beta_est</ref>);</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>obs-&gt;<ref refid="structSYN__FOCObserver_1abbac17bb75f5bea422f174d91fc895e2" kindref="member">pll_i_accum</ref><sp/>=<sp/><ref refid="syn__qmath_8h_1a403814e6ece6021eaba034176496dbae" kindref="member">Q16_FROM_INT</ref>(80);</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"></highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>cos_th<sp/>=<sp/><ref refid="syn__qmath_8c_1a74949e55423f04de44c2e5a583b6bb9f" kindref="member">q16_cos</ref>(obs-&gt;<ref refid="structSYN__FOCObserver_1afa7dd721d6d56a9049835524c2a03407" kindref="member">theta_e</ref>);</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>sin_th<sp/>=<sp/><ref refid="syn__qmath_8c_1a0a59d0e19eb1aec35e6fed6875fee719" kindref="member">q16_sin</ref>(obs-&gt;<ref refid="structSYN__FOCObserver_1afa7dd721d6d56a9049835524c2a03407" kindref="member">theta_e</ref>);</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"></highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>pll_err<sp/>=<sp/>-<ref refid="syn__qmath_8h_1a9c59677a95516b0b1f571520a670dfb0" kindref="member">q16_mul</ref>(E_alpha_n,<sp/>cos_th)<sp/>-<sp/><ref refid="syn__qmath_8h_1a9c59677a95516b0b1f571520a670dfb0" kindref="member">q16_mul</ref>(E_beta_n,<sp/>sin_th);</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"></highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>PI<sp/>loop<sp/>filter<sp/>with<sp/>anti-windup<sp/>clamp<sp/>(using<sp/>64-bit<sp/>int<sp/>to<sp/>prevent<sp/>Q16<sp/>underflow)<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><sp/><sp/><sp/><sp/>int64_t<sp/>Ki_err<sp/>=<sp/>((int64_t)obs-&gt;<ref refid="structSYN__FOCObserver_1a23fdcc7cd9873167048fa1df2e251b8e" kindref="member">cfg</ref>.<ref refid="structSYN__FOCObserverConfig_1afcfbc640cdce1758ef6380336b3b8642" kindref="member">Ki_pll</ref><sp/>*<sp/>pll_err)<sp/>&gt;&gt;<sp/><ref refid="syn__qmath_8h_1a0a06e0f48f9cc549761d6ab0ea368627" kindref="member">Q16_SHIFT</ref>;</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>delta_i<sp/>=<sp/>(<ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref>)((Ki_err<sp/>*<sp/>dt)<sp/>&gt;&gt;<sp/><ref refid="syn__qmath_8h_1a0a06e0f48f9cc549761d6ab0ea368627" kindref="member">Q16_SHIFT</ref>);</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"></highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/><sp/><sp/>obs-&gt;<ref refid="structSYN__FOCObserver_1abbac17bb75f5bea422f174d91fc895e2" kindref="member">pll_i_accum</ref><sp/>+=<sp/>delta_i;</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>max_speed<sp/>=<sp/><ref refid="syn__qmath_8h_1a403814e6ece6021eaba034176496dbae" kindref="member">Q16_FROM_INT</ref>(2000);</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"><sp/><sp/><sp/><sp/>obs-&gt;<ref refid="structSYN__FOCObserver_1abbac17bb75f5bea422f174d91fc895e2" kindref="member">pll_i_accum</ref><sp/>=<sp/><ref refid="syn__qmath_8h_1a00cbd4c0eaa2ed4aede02d1d5bab55b9" kindref="member">q16_clamp</ref>(obs-&gt;<ref refid="structSYN__FOCObserver_1abbac17bb75f5bea422f174d91fc895e2" kindref="member">pll_i_accum</ref>,<sp/>-max_speed,<sp/>max_speed);</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"></highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><sp/><sp/><sp/><sp/>obs-&gt;<ref refid="structSYN__FOCObserver_1af2212c27909027c7f526438d8b3244f2" kindref="member">omega_e</ref><sp/>=<sp/><ref refid="syn__qmath_8h_1a00cbd4c0eaa2ed4aede02d1d5bab55b9" kindref="member">q16_clamp</ref>(obs-&gt;<ref refid="structSYN__FOCObserver_1abbac17bb75f5bea422f174d91fc895e2" kindref="member">pll_i_accum</ref><sp/>+<sp/><ref refid="syn__qmath_8h_1a9c59677a95516b0b1f571520a670dfb0" kindref="member">q16_mul</ref>(obs-&gt;<ref refid="structSYN__FOCObserver_1a23fdcc7cd9873167048fa1df2e251b8e" kindref="member">cfg</ref>.<ref refid="structSYN__FOCObserverConfig_1ae4fa0d4b21c71051bc370c8e8ebbce6c" kindref="member">Kp_pll</ref>,<sp/>pll_err),<sp/>-max_speed,<sp/>max_speed);</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"></highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Position<sp/>integrator:<sp/>theta<sp/>=<sp/>theta<sp/>+<sp/>omega<sp/>*<sp/>dt,<sp/>wrapped<sp/>to<sp/>[0,<sp/>2pi)<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="103"><highlight class="normal"><sp/><sp/><sp/><sp/>obs-&gt;<ref refid="structSYN__FOCObserver_1afa7dd721d6d56a9049835524c2a03407" kindref="member">theta_e</ref><sp/>+=<sp/><ref refid="syn__qmath_8h_1a9c59677a95516b0b1f571520a670dfb0" kindref="member">q16_mul</ref>(obs-&gt;<ref refid="structSYN__FOCObserver_1af2212c27909027c7f526438d8b3244f2" kindref="member">omega_e</ref>,<sp/>dt);</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">while</highlight><highlight class="normal"><sp/>(obs-&gt;<ref refid="structSYN__FOCObserver_1afa7dd721d6d56a9049835524c2a03407" kindref="member">theta_e</ref><sp/>&gt;=<sp/><ref refid="syn__qmath_8h_1a66565b2b7c53ef89a0d7afdd97cec206" kindref="member">Q16_2_PI</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>obs-&gt;<ref refid="structSYN__FOCObserver_1afa7dd721d6d56a9049835524c2a03407" kindref="member">theta_e</ref><sp/>-=<sp/><ref refid="syn__qmath_8h_1a66565b2b7c53ef89a0d7afdd97cec206" kindref="member">Q16_2_PI</ref>;</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">while</highlight><highlight class="normal"><sp/>(obs-&gt;<ref refid="structSYN__FOCObserver_1afa7dd721d6d56a9049835524c2a03407" kindref="member">theta_e</ref><sp/>&lt;<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>obs-&gt;<ref refid="structSYN__FOCObserver_1afa7dd721d6d56a9049835524c2a03407" kindref="member">theta_e</ref><sp/>+=<sp/><ref refid="syn__qmath_8h_1a66565b2b7c53ef89a0d7afdd97cec206" kindref="member">Q16_2_PI</ref>;</highlight></codeline>
+<codeline lineno="109"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="110"><highlight class="normal"></highlight></codeline>
+<codeline lineno="111"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="112"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="113"><highlight class="normal"></highlight></codeline>
+<codeline lineno="114"><highlight class="normal"><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/><ref refid="syn__foc__observer_8c_1aedb9664a847c06e226ede85c428aa2aa" kindref="member">syn_foc_observer_get_angle</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__FOCObserver" kindref="compound">SYN_FOCObserver</ref><sp/>*obs)</highlight></codeline>
+<codeline lineno="115"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="116"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(obs<sp/>==<sp/>NULL)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0;</highlight></codeline>
+<codeline lineno="117"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>obs-&gt;<ref refid="structSYN__FOCObserver_1afa7dd721d6d56a9049835524c2a03407" kindref="member">theta_e</ref>;</highlight></codeline>
+<codeline lineno="118"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"></highlight></codeline>
+<codeline lineno="120"><highlight class="normal"><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/><ref refid="syn__foc__observer_8c_1aa92a39ce0cc73dd0a8c3c5196fa64a64" kindref="member">syn_foc_observer_get_speed</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__FOCObserver" kindref="compound">SYN_FOCObserver</ref><sp/>*obs)</highlight></codeline>
+<codeline lineno="121"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="122"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(obs<sp/>==<sp/>NULL)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0;</highlight></codeline>
+<codeline lineno="123"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>obs-&gt;<ref refid="structSYN__FOCObserver_1af2212c27909027c7f526438d8b3244f2" kindref="member">omega_e</ref>;</highlight></codeline>
+<codeline lineno="124"><highlight class="normal">}</highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/motor/syn_foc_observer.c"/>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,296 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__backoff_8c" kind="file" language="C++">
+    <compoundname>syn_backoff.c</compoundname>
+    <includes refid="syn__backoff_8h" local="yes">syn_backoff.h</includes>
+    <includes refid="syn__random_8h" local="yes">syn_random.h</includes>
+    <includes refid="syn__assert_8h" local="yes">syn_assert.h</includes>
+    <incdepgraph>
+      <node id="8">
+        <label>../common/syn_compiler.h</label>
+        <link refid="syn__compiler_8h"/>
+      </node>
+      <node id="3">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="9">
+        <label>syn_assert.h</label>
+        <link refid="syn__assert_8h"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/util/syn_backoff.c</label>
+        <link refid="syn__backoff_8c"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>syn_backoff.h</label>
+        <link refid="syn__backoff_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>syn_random.h</label>
+        <link refid="syn__random_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>stdbool.h</label>
+      </node>
+      <node id="5">
+        <label>stddef.h</label>
+      </node>
+      <node id="4">
+        <label>stdint.h</label>
+      </node>
+    </incdepgraph>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__backoff_8c_1aca16b010170444749f10f3773a8872ab" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_backoff_init</definition>
+        <argsstring>(SYN_Backoff *b, uint32_t min_ms, uint32_t max_ms, uint8_t factor, uint8_t max_attempts)</argsstring>
+        <name>syn_backoff_init</name>
+        <param>
+          <type><ref refid="structSYN__Backoff" kindref="compound">SYN_Backoff</ref> *</type>
+          <declname>b</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>min_ms</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>max_ms</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>factor</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>max_attempts</declname>
+        </param>
+        <briefdescription>
+<para>Initialize backoff state. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>b</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Backoff context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>min_ms</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Initial delay (e.g., 1000). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>max_ms</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Maximum delay (e.g., 60000). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>factor</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Exponential factor (usually 2). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>max_attempts</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Maximum number of attempts. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_backoff.c" line="10" column="6" bodyfile="src/syntropic/util/syn_backoff.c" bodystart="10" bodyend="18"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__backoff_8c_1af8e6902b4cdb078c617844e49028f8d9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_backoff_reset</definition>
+        <argsstring>(SYN_Backoff *b)</argsstring>
+        <name>syn_backoff_reset</name>
+        <param>
+          <type><ref refid="structSYN__Backoff" kindref="compound">SYN_Backoff</ref> *</type>
+          <declname>b</declname>
+        </param>
+        <briefdescription>
+<para>Reset the backoff state to the initial minimum delay. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>b</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Backoff context. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_backoff.c" line="20" column="6" bodyfile="src/syntropic/util/syn_backoff.c" bodystart="20" bodyend="25"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__backoff_8c_1a3a5dcbb902a5bef897525412224f06ec" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>uint32_t syn_backoff_next_ms</definition>
+        <argsstring>(SYN_Backoff *b)</argsstring>
+        <name>syn_backoff_next_ms</name>
+        <param>
+          <type><ref refid="structSYN__Backoff" kindref="compound">SYN_Backoff</ref> *</type>
+          <declname>b</declname>
+        </param>
+        <briefdescription>
+<para>Get the next delay in milliseconds. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Each call increases the delay exponentially (up to max_ms). Includes RFC 7252-style jitter (1.0x to 1.5x) to avoid synchronization.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>b</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Backoff context. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Next delay duration in milliseconds. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_backoff.c" line="27" column="10" bodyfile="src/syntropic/util/syn_backoff.c" bodystart="27" bodyend="49"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__backoff_8c_1add7b73c673d90104f1ae2a49e9e93053" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_backoff_exhausted</definition>
+        <argsstring>(const SYN_Backoff *b)</argsstring>
+        <name>syn_backoff_exhausted</name>
+        <param>
+          <type>const <ref refid="structSYN__Backoff" kindref="compound">SYN_Backoff</ref> *</type>
+          <declname>b</declname>
+        </param>
+        <briefdescription>
+<para>Check if the maximum number of attempts has been reached. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>b</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Backoff context. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if attempts &gt;= max_attempts. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_backoff.c" line="51" column="6" bodyfile="src/syntropic/util/syn_backoff.c" bodystart="51" bodyend="55"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Exponential backoff implementation. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__backoff_8h" kindref="compound">syn_backoff.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__random_8h" kindref="compound">syn_random.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__assert_8h" kindref="compound">syn_assert.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__backoff_8c_1aca16b010170444749f10f3773a8872ab" kindref="member">syn_backoff_init</ref>(<ref refid="structSYN__Backoff" kindref="compound">SYN_Backoff</ref><sp/>*b,<sp/>uint32_t<sp/>min_ms,<sp/>uint32_t<sp/>max_ms,<sp/>uint8_t<sp/>factor,<sp/>uint8_t<sp/>max_attempts)</highlight></codeline>
+<codeline lineno="11"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="12"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(b<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="13"><highlight class="normal"><sp/><sp/><sp/><sp/>b-&gt;<ref refid="structSYN__Backoff_1a655c23392cbf6afc9726b6fc662c4b9a" kindref="member">min_ms</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>min_ms;</highlight></codeline>
+<codeline lineno="14"><highlight class="normal"><sp/><sp/><sp/><sp/>b-&gt;<ref refid="structSYN__Backoff_1a0c1613850486816259d1832c7feebef5" kindref="member">max_ms</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>max_ms;</highlight></codeline>
+<codeline lineno="15"><highlight class="normal"><sp/><sp/><sp/><sp/>b-&gt;<ref refid="structSYN__Backoff_1abce94134bf8ae88088682e229ab84977" kindref="member">max_attempts</ref><sp/>=<sp/>max_attempts;</highlight></codeline>
+<codeline lineno="16"><highlight class="normal"><sp/><sp/><sp/><sp/>b-&gt;<ref refid="structSYN__Backoff_1a69102f408ebc217d98fff838cbc88f11" kindref="member">factor</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>(factor<sp/>&lt;<sp/>1)<sp/>?<sp/>1<sp/>:<sp/>factor;</highlight></codeline>
+<codeline lineno="17"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__backoff_8c_1af8e6902b4cdb078c617844e49028f8d9" kindref="member">syn_backoff_reset</ref>(b);</highlight></codeline>
+<codeline lineno="18"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__backoff_8c_1af8e6902b4cdb078c617844e49028f8d9" kindref="member">syn_backoff_reset</ref>(<ref refid="structSYN__Backoff" kindref="compound">SYN_Backoff</ref><sp/>*b)</highlight></codeline>
+<codeline lineno="21"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="22"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(b<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="23"><highlight class="normal"><sp/><sp/><sp/><sp/>b-&gt;<ref refid="structSYN__Backoff_1a68dfe84b56d9a82b587dc33dc2d884f3" kindref="member">current_ms</ref><sp/>=<sp/>b-&gt;<ref refid="structSYN__Backoff_1a655c23392cbf6afc9726b6fc662c4b9a" kindref="member">min_ms</ref>;</highlight></codeline>
+<codeline lineno="24"><highlight class="normal"><sp/><sp/><sp/><sp/>b-&gt;<ref refid="structSYN__Backoff_1a1a250e54c6e0f212e1d08663ec370193" kindref="member">attempts</ref><sp/><sp/><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="25"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal">uint32_t<sp/><ref refid="syn__backoff_8c_1a3a5dcbb902a5bef897525412224f06ec" kindref="member">syn_backoff_next_ms</ref>(<ref refid="structSYN__Backoff" kindref="compound">SYN_Backoff</ref><sp/>*b)</highlight></codeline>
+<codeline lineno="28"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="29"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(b<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight></codeline>
+<codeline lineno="31"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>1.<sp/>Calculate<sp/>delay<sp/>for<sp/>THIS<sp/>attempt<sp/>(including<sp/>jitter)<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="32"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/>base<sp/>=<sp/>b-&gt;<ref refid="structSYN__Backoff_1a68dfe84b56d9a82b587dc33dc2d884f3" kindref="member">current_ms</ref>;</highlight></codeline>
+<codeline lineno="33"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/>jitter_max<sp/>=<sp/>base<sp/>/<sp/>2;</highlight></codeline>
+<codeline lineno="34"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/>delay<sp/>=<sp/>base;</highlight></codeline>
+<codeline lineno="35"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(jitter_max<sp/>&gt;<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="36"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>delay<sp/>+=<sp/><ref refid="syn__random_8c_1ac474baecd1bfc785cfecc4863e99af6e" kindref="member">syn_random_range</ref>(0,<sp/>jitter_max);</highlight></codeline>
+<codeline lineno="37"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>2.<sp/>Update<sp/>state<sp/>for<sp/>NEXT<sp/>attempt<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"><sp/><sp/><sp/><sp/>uint64_t<sp/>next<sp/>=<sp/>(uint64_t)b-&gt;<ref refid="structSYN__Backoff_1a68dfe84b56d9a82b587dc33dc2d884f3" kindref="member">current_ms</ref><sp/>*<sp/>b-&gt;<ref refid="structSYN__Backoff_1a69102f408ebc217d98fff838cbc88f11" kindref="member">factor</ref>;</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(next<sp/>&gt;<sp/>b-&gt;<ref refid="structSYN__Backoff_1a0c1613850486816259d1832c7feebef5" kindref="member">max_ms</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>b-&gt;<ref refid="structSYN__Backoff_1a68dfe84b56d9a82b587dc33dc2d884f3" kindref="member">current_ms</ref><sp/>=<sp/>b-&gt;<ref refid="structSYN__Backoff_1a0c1613850486816259d1832c7feebef5" kindref="member">max_ms</ref>;</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>b-&gt;<ref refid="structSYN__Backoff_1a68dfe84b56d9a82b587dc33dc2d884f3" kindref="member">current_ms</ref><sp/>=<sp/>(uint32_t)next;</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/><sp/><sp/>b-&gt;<ref refid="structSYN__Backoff_1a1a250e54c6e0f212e1d08663ec370193" kindref="member">attempts</ref>++;</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"></highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>delay;</highlight></codeline>
+<codeline lineno="49"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"></highlight></codeline>
+<codeline lineno="51"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__backoff_8c_1add7b73c673d90104f1ae2a49e9e93053" kindref="member">syn_backoff_exhausted</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__Backoff" kindref="compound">SYN_Backoff</ref><sp/>*b)</highlight></codeline>
+<codeline lineno="52"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(b<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>b-&gt;<ref refid="structSYN__Backoff_1a1a250e54c6e0f212e1d08663ec370193" kindref="member">attempts</ref><sp/>&gt;=<sp/>b-&gt;<ref refid="structSYN__Backoff_1abce94134bf8ae88088682e229ab84977" kindref="member">max_attempts</ref>;</highlight></codeline>
+<codeline lineno="55"><highlight class="normal">}</highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/util/syn_backoff.c"/>
+  </compounddef>
+</doxygen>

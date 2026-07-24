@@ -1,0 +1,198 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__control__stats_8h" kind="file" language="C++">
+    <compoundname>syn_control_stats.h</compoundname>
+    <includes local="no">stdint.h</includes>
+    <includes local="no">stdbool.h</includes>
+    <includedby refid="syn__control__stats_8c" local="yes">src/syntropic/control/syn_control_stats.c</includedby>
+    <incdepgraph>
+      <node id="1">
+        <label>src/syntropic/control/syn_control_stats.h</label>
+        <link refid="syn__control__stats_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>stdbool.h</label>
+      </node>
+      <node id="2">
+        <label>stdint.h</label>
+      </node>
+    </incdepgraph>
+    <innerclass refid="structSYN__ControlStats" prot="public">SYN_ControlStats</innerclass>
+    <innerclass refid="structSYN__ControlReport" prot="public">SYN_ControlReport</innerclass>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__control__stats_8h_1a4af0762d2c5529c738186be17d39dd7f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_control_stats_reset</definition>
+        <argsstring>(SYN_ControlStats *stats)</argsstring>
+        <name>syn_control_stats_reset</name>
+        <param>
+          <type><ref refid="structSYN__ControlStats" kindref="compound">SYN_ControlStats</ref> *</type>
+          <declname>stats</declname>
+        </param>
+        <briefdescription>
+<para>Reset all accumulators. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>stats</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Stats instance to reset. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/control/syn_control_stats.h" line="45" column="6" bodyfile="src/syntropic/control/syn_control_stats.c" bodystart="6" bodyend="10" declfile="src/syntropic/control/syn_control_stats.h" declline="45" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__control__stats_8h_1a00a0a4815c37e143cab37b753f490176" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_control_stats_update</definition>
+        <argsstring>(SYN_ControlStats *stats, int32_t error, int32_t output)</argsstring>
+        <name>syn_control_stats_update</name>
+        <param>
+          <type><ref refid="structSYN__ControlStats" kindref="compound">SYN_ControlStats</ref> *</type>
+          <declname>stats</declname>
+        </param>
+        <param>
+          <type>int32_t</type>
+          <declname>error</declname>
+        </param>
+        <param>
+          <type>int32_t</type>
+          <declname>output</declname>
+        </param>
+        <briefdescription>
+<para>Update stats with a new sample. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>stats</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Stats instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>error</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Current servo error (target - measured). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>output</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Current motor output (-100 to 100, or raw counts). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/control/syn_control_stats.h" line="53" column="6" bodyfile="src/syntropic/control/syn_control_stats.c" bodystart="12" bodyend="39" declfile="src/syntropic/control/syn_control_stats.h" declline="53" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__control__stats_8h_1aaa118c3401a7b1828dd0f7d13451239d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_control_stats_report</definition>
+        <argsstring>(const SYN_ControlStats *stats, SYN_ControlReport *report)</argsstring>
+        <name>syn_control_stats_report</name>
+        <param>
+          <type>const <ref refid="structSYN__ControlStats" kindref="compound">SYN_ControlStats</ref> *</type>
+          <declname>stats</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__ControlReport" kindref="compound">SYN_ControlReport</ref> *</type>
+          <declname>report</declname>
+        </param>
+        <briefdescription>
+<para>Calculate a report from the current accumulators. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>stats</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Stats instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>report</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output report structure. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/control/syn_control_stats.h" line="60" column="6" bodyfile="src/syntropic/control/syn_control_stats.c" bodystart="41" bodyend="66" declfile="src/syntropic/control/syn_control_stats.h" declline="60" declcolumn="6"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Performance monitoring and &quot;Tuning Scorecard&quot; for control loops. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>This module provides a way to quantify the performance of a control loop beyond simple error tracking. It measures precision, efficiency, and mechanical stress (jitter). </para>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_CONTROL_STATS_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_CONTROL_STATS_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight></codeline>
+<codeline lineno="21" refid="structSYN__ControlStats" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="22" refid="structSYN__ControlStats_1a98230c901f1f13567a31feb83daf9b7e" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>int64_t<sp/><sp/><ref refid="structSYN__ControlStats_1a98230c901f1f13567a31feb83daf9b7e" kindref="member">sum_sq_err</ref>;<sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="23" refid="structSYN__ControlStats_1a319209ddc218d1a00327c2c351d78226" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>int64_t<sp/><sp/><ref refid="structSYN__ControlStats_1a319209ddc218d1a00327c2c351d78226" kindref="member">sum_sq_out</ref>;<sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="24" refid="structSYN__ControlStats_1ab0230e845c5420f292849e180c043144" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>int64_t<sp/><sp/><ref refid="structSYN__ControlStats_1ab0230e845c5420f292849e180c043144" kindref="member">sum_abs_delta</ref>;<sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="25" refid="structSYN__ControlStats_1adc96f18cfe76cb14e82837e3f2e5c65e" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>int64_t<sp/><sp/><ref refid="structSYN__ControlStats_1adc96f18cfe76cb14e82837e3f2e5c65e" kindref="member">sum_itae</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="27" refid="structSYN__ControlStats_1a612e2a2940e064aaf15efa537cb6018f" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>int32_t<sp/><sp/><ref refid="structSYN__ControlStats_1a612e2a2940e064aaf15efa537cb6018f" kindref="member">max_error</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="28" refid="structSYN__ControlStats_1a214c736bf4873ddd101c9ba5fe339af2" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>int32_t<sp/><sp/><ref refid="structSYN__ControlStats_1a214c736bf4873ddd101c9ba5fe339af2" kindref="member">last_output</ref>;<sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="29" refid="structSYN__ControlStats_1ac6df3f38d6288007c721d7678232eae5" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structSYN__ControlStats_1ac6df3f38d6288007c721d7678232eae5" kindref="member">samples</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="30"><highlight class="normal">}<sp/><ref refid="structSYN__ControlStats" kindref="compound">SYN_ControlStats</ref>;</highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight></codeline>
+<codeline lineno="33" refid="structSYN__ControlReport" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="34" refid="structSYN__ControlReport_1a2e66493d806a3e6859088924423d1665" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>int32_t<sp/><sp/><ref refid="structSYN__ControlReport_1a2e66493d806a3e6859088924423d1665" kindref="member">rms_error</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="35" refid="structSYN__ControlReport_1aa55a67f1fa17f94b64e5f0261601e24a" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>int32_t<sp/><sp/><ref refid="structSYN__ControlReport_1aa55a67f1fa17f94b64e5f0261601e24a" kindref="member">max_error</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="36" refid="structSYN__ControlReport_1a75caa51f746cca8d3d405dd05488dc56" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>int32_t<sp/><sp/><ref refid="structSYN__ControlReport_1a75caa51f746cca8d3d405dd05488dc56" kindref="member">control_effort</ref>;<sp/><sp/></highlight></codeline>
+<codeline lineno="37" refid="structSYN__ControlReport_1ae3b72bd88ef45c83a0de5d0ef67dc944" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>int32_t<sp/><sp/><ref refid="structSYN__ControlReport_1ae3b72bd88ef45c83a0de5d0ef67dc944" kindref="member">jitter</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="38" refid="structSYN__ControlReport_1aa23ee757dbd4dee0796eaa44062d67f9" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>int32_t<sp/><sp/><ref refid="structSYN__ControlReport_1aa23ee757dbd4dee0796eaa44062d67f9" kindref="member">itae</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="39"><highlight class="normal">}<sp/><ref refid="structSYN__ControlReport" kindref="compound">SYN_ControlReport</ref>;</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__control__stats_8h_1a4af0762d2c5529c738186be17d39dd7f" kindref="member">syn_control_stats_reset</ref>(<ref refid="structSYN__ControlStats" kindref="compound">SYN_ControlStats</ref><sp/>*stats);</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"></highlight></codeline>
+<codeline lineno="53"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__control__stats_8h_1a00a0a4815c37e143cab37b753f490176" kindref="member">syn_control_stats_update</ref>(<ref refid="structSYN__ControlStats" kindref="compound">SYN_ControlStats</ref><sp/>*stats,<sp/>int32_t<sp/>error,<sp/>int32_t<sp/>output);</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"></highlight></codeline>
+<codeline lineno="60"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__control__stats_8h_1aaa118c3401a7b1828dd0f7d13451239d" kindref="member">syn_control_stats_report</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__ControlStats" kindref="compound">SYN_ControlStats</ref><sp/>*stats,<sp/><ref refid="structSYN__ControlReport" kindref="compound">SYN_ControlReport</ref><sp/>*report);</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"></highlight></codeline>
+<codeline lineno="62"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="63"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="65"><highlight class="normal"></highlight></codeline>
+<codeline lineno="66"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_CONTROL_STATS_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/control/syn_control_stats.h"/>
+  </compounddef>
+</doxygen>

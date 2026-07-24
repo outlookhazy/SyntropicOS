@@ -1,0 +1,494 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__boot_8c" kind="file" language="C++">
+    <compoundname>syn_boot.c</compoundname>
+    <includes refid="syn__boot_8h" local="yes">syn_boot.h</includes>
+    <includes refid="syn__assert_8h" local="yes">../util/syn_assert.h</includes>
+    <includes refid="syn__errlog_8h" local="yes">../system/syn_errlog.h</includes>
+    <includes local="no">string.h</includes>
+    <incdepgraph>
+      <node id="11">
+        <label>../common/syn_compiler.h</label>
+        <link refid="syn__compiler_8h"/>
+      </node>
+      <node id="3">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>../port/syn_port_flash.h</label>
+        <link refid="syn__port__flash_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>../storage/syn_param.h</label>
+        <link refid="syn__param_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/system/syn_boot.c</label>
+        <link refid="syn__boot_8c"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>syn_boot.h</label>
+        <link refid="syn__boot_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="9">
+        <label>../system/syn_errlog.h</label>
+        <link refid="syn__errlog_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="10">
+        <label>../util/syn_assert.h</label>
+        <link refid="syn__assert_8h"/>
+        <childnode refid="11" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>stdbool.h</label>
+      </node>
+      <node id="5">
+        <label>stddef.h</label>
+      </node>
+      <node id="4">
+        <label>stdint.h</label>
+      </node>
+      <node id="12">
+        <label>string.h</label>
+      </node>
+    </incdepgraph>
+    <sectiondef kind="define">
+      <memberdef kind="define" id="syn__boot_8c_1adb2fc9b910034c74dcd3741a7f6eba95" prot="public" static="no">
+        <name>SYN_BOOT_ERR_CRASH_LOOP</name>
+        <initializer>0x0300</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Repeated crash detected. <linebreak/>
+ </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/system/syn_boot.c" line="18" column="9" bodyfile="src/syntropic/system/syn_boot.c" bodystart="18" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__boot_8c_1a52593bf05be0a692d7dae85fbd85c107" prot="public" static="no">
+        <name>SYN_BOOT_ERR_SAFE_MODE</name>
+        <initializer>0x0301</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Entered safe mode. <linebreak/>
+ </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/system/syn_boot.c" line="19" column="9" bodyfile="src/syntropic/system/syn_boot.c" bodystart="19" bodyend="-1"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__boot_8c_1a8f53eb98f63e471107ee0e520fd42476" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_boot_init</definition>
+        <argsstring>(SYN_Boot *boot, SYN_ParamStore *store, uint16_t safe_threshold)</argsstring>
+        <name>syn_boot_init</name>
+        <param>
+          <type><ref refid="structSYN__Boot" kindref="compound">SYN_Boot</ref> *</type>
+          <declname>boot</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__ParamStore" kindref="compound">SYN_ParamStore</ref> *</type>
+          <declname>store</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>safe_threshold</declname>
+        </param>
+        <briefdescription>
+<para>Initialize the boot manager. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Loads boot data from flash, increments boot counter, checks for crash loops. Call this very early in boot.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>boot</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Boot manager instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>store</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Initialized parameter store for boot data. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>safe_threshold</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of consecutive failed boots before safe mode. Set to 0 to disable safe mode detection. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on normal boot, SYN_ERROR on first-ever boot (no data). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/system/syn_boot.c" line="21" column="12" bodyfile="src/syntropic/system/syn_boot.c" bodystart="21" bodyend="75"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__boot_8c_1a6a35efa162e5a681981dd3eafefe943c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_boot_mark_healthy</definition>
+        <argsstring>(SYN_Boot *boot)</argsstring>
+        <name>syn_boot_mark_healthy</name>
+        <param>
+          <type><ref refid="structSYN__Boot" kindref="compound">SYN_Boot</ref> *</type>
+          <declname>boot</declname>
+        </param>
+        <briefdescription>
+<para>Mark this boot as healthy. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Call after your application has started successfully (e.g., after all peripherals initialized, comms established). Resets the fail counter.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>boot</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Boot manager. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/system/syn_boot.c" line="77" column="12" bodyfile="src/syntropic/system/syn_boot.c" bodystart="77" bodyend="86"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__boot_8c_1aa88a2b1956cc3a8ce4ef6e0b970f114c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_boot_set_reset_reason</definition>
+        <argsstring>(SYN_Boot *boot, uint8_t reason)</argsstring>
+        <name>syn_boot_set_reset_reason</name>
+        <param>
+          <type><ref refid="structSYN__Boot" kindref="compound">SYN_Boot</ref> *</type>
+          <declname>boot</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>reason</declname>
+        </param>
+        <briefdescription>
+<para>Set the reset reason for the current boot. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Call before saving (or it gets saved on next boot_init).</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>boot</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Boot manager. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>reason</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Reset reason code (SYN_ResetReason or custom). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/system/syn_boot.c" line="88" column="6" bodyfile="src/syntropic/system/syn_boot.c" bodystart="88" bodyend="92"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__boot_8c_1ab4226b5cb562ba15c2426a88a57df07e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_boot_clear_safe_mode</definition>
+        <argsstring>(SYN_Boot *boot)</argsstring>
+        <name>syn_boot_clear_safe_mode</name>
+        <param>
+          <type><ref refid="structSYN__Boot" kindref="compound">SYN_Boot</ref> *</type>
+          <declname>boot</declname>
+        </param>
+        <briefdescription>
+<para>Force clear safe mode and reset fail counter. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Use from CLI to recover from safe mode.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>boot</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Boot manager. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/system/syn_boot.c" line="94" column="12" bodyfile="src/syntropic/system/syn_boot.c" bodystart="94" bodyend="104"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__boot_8c_1a99534ccc9cbd355bc69d115c6b9863df" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_boot_set_errlog</definition>
+        <argsstring>(SYN_Boot *boot, SYN_ErrLog *errlog)</argsstring>
+        <name>syn_boot_set_errlog</name>
+        <param>
+          <type><ref refid="structSYN__Boot" kindref="compound">SYN_Boot</ref> *</type>
+          <declname>boot</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__ErrLog" kindref="compound">SYN_ErrLog</ref> *</type>
+          <declname>errlog</declname>
+        </param>
+        <briefdescription>
+<para>Set the errlog instance for boot event recording. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Call after both boot and errlog are initialized, then call <ref refid="syn__boot_8h_1a31fc1af9f0c9633a7d7902d7573d9695" kindref="member">syn_boot_log_events()</ref> to retroactively log boot-related events.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>boot</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Boot manager. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>errlog</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Initialized error log instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/system/syn_boot.c" line="106" column="6" bodyfile="src/syntropic/system/syn_boot.c" bodystart="106" bodyend="110"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__boot_8c_1a31fc1af9f0c9633a7d7902d7573d9695" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_boot_log_events</definition>
+        <argsstring>(SYN_Boot *boot)</argsstring>
+        <name>syn_boot_log_events</name>
+        <param>
+          <type><ref refid="structSYN__Boot" kindref="compound">SYN_Boot</ref> *</type>
+          <declname>boot</declname>
+        </param>
+        <briefdescription>
+<para>Log boot events to errlog. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Records crash-loop (non-healthy previous boot) and safe-mode entry events. Call after <ref refid="syn__boot_8h_1a99534ccc9cbd355bc69d115c6b9863df" kindref="member">syn_boot_set_errlog()</ref>.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>boot</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Boot manager. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/system/syn_boot.c" line="112" column="6" bodyfile="src/syntropic/system/syn_boot.c" bodystart="112" bodyend="130"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Boot manager implementation. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#if<sp/>__has_include(&quot;syn_config.h&quot;)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="preprocessor"><sp/><sp/>#include<sp/>&quot;syn_config.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="4"><highlight class="normal"></highlight></codeline>
+<codeline lineno="5"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>!defined(SYN_USE_BOOT)<sp/>||<sp/>SYN_USE_BOOT</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__boot_8h" kindref="compound">syn_boot.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../util/syn_assert.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../system/syn_errlog.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;string.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_BOOT_ERR_CRASH_LOOP<sp/><sp/>0x0300<sp/><sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_BOOT_ERR_SAFE_MODE<sp/><sp/><sp/>0x0301<sp/><sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__boot_8c_1a8f53eb98f63e471107ee0e520fd42476" kindref="member">syn_boot_init</ref>(<ref refid="structSYN__Boot" kindref="compound">SYN_Boot</ref><sp/>*boot,<sp/><ref refid="structSYN__ParamStore" kindref="compound">SYN_ParamStore</ref><sp/>*store,</highlight></codeline>
+<codeline lineno="22"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint16_t<sp/>safe_threshold)</highlight></codeline>
+<codeline lineno="23"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="24"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(boot<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="25"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(store<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"><sp/><sp/><sp/><sp/>memset(boot,<sp/>0,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(*boot));</highlight></codeline>
+<codeline lineno="28"><highlight class="normal"><sp/><sp/><sp/><sp/>boot-&gt;<ref refid="structSYN__Boot_1aa3d30aace5ba9854c3e017370bc8609d" kindref="member">store</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>store;</highlight></codeline>
+<codeline lineno="29"><highlight class="normal"><sp/><sp/><sp/><sp/>boot-&gt;<ref refid="structSYN__Boot_1ac80992dbf8dd2ddf2b0be0c0d90804ab" kindref="member">safe_threshold</ref><sp/>=<sp/>safe_threshold;</highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight></codeline>
+<codeline lineno="31"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Try<sp/>to<sp/>load<sp/>existing<sp/>boot<sp/>data<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="32"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/>st<sp/>=<sp/><ref refid="syn__param_8c_1a7517212cf1902fee3b9887367f6c21d8" kindref="member">syn_param_load</ref>(store,<sp/>&amp;boot-&gt;<ref refid="structSYN__Boot_1aadf13f86b7eb44e9b2ae17aba5fd6c86" kindref="member">data</ref>);</highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(st<sp/>!=<sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="35"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>First<sp/>boot<sp/>ever<sp/>—<sp/>initialize<sp/>defaults<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>memset(&amp;boot-&gt;<ref refid="structSYN__Boot_1aadf13f86b7eb44e9b2ae17aba5fd6c86" kindref="member">data</ref>,<sp/>0,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(boot-&gt;<ref refid="structSYN__Boot_1aadf13f86b7eb44e9b2ae17aba5fd6c86" kindref="member">data</ref>));</highlight></codeline>
+<codeline lineno="37"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>boot-&gt;<ref refid="structSYN__Boot_1aadf13f86b7eb44e9b2ae17aba5fd6c86" kindref="member">data</ref>.<ref refid="structSYN__BootData_1a0cb3af91712b57bb6c9d26168e7b1397" kindref="member">boot_count</ref><sp/><sp/>=<sp/>1;</highlight></codeline>
+<codeline lineno="38"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>boot-&gt;<ref refid="structSYN__Boot_1aadf13f86b7eb44e9b2ae17aba5fd6c86" kindref="member">data</ref>.<ref refid="structSYN__BootData_1a6d6bd00438c008c00275893dd3f4fbf8" kindref="member">fail_count</ref><sp/><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>boot-&gt;<ref refid="structSYN__Boot_1aadf13f86b7eb44e9b2ae17aba5fd6c86" kindref="member">data</ref>.<ref refid="structSYN__BootData_1a98161d69fcaeb29af5ec65b821c225fc" kindref="member">was_healthy</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>boot-&gt;<ref refid="structSYN__Boot_1aadf13f86b7eb44e9b2ae17aba5fd6c86" kindref="member">data</ref>.<ref refid="structSYN__BootData_1aa248c63b0226183a7d41dba901d6f906" kindref="member">last_reset</ref><sp/><sp/>=<sp/><ref refid="syn__boot_8h_1a492793955a003f40206edf385d54c7eaaac55a9cb8930d5a2903d3022633c33c6" kindref="member">SYN_RESET_UNKNOWN</ref>;</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__param_8c_1aef66a1a23d4eff45902d26273b143afa" kindref="member">syn_param_save</ref>(store,<sp/>&amp;boot-&gt;<ref refid="structSYN__Boot_1aadf13f86b7eb44e9b2ae17aba5fd6c86" kindref="member">data</ref>);</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>boot-&gt;<ref refid="structSYN__Boot_1aec02c7f403978db5e236a6795e0fbf5c" kindref="member">initialized</ref><sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00acd5d2701b7cfa9fb446640ecbeb19fc9" kindref="member">SYN_ERROR</ref>;<sp/></highlight><highlight class="comment">/*<sp/>first<sp/>boot,<sp/>no<sp/>prior<sp/>data<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"></highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Increment<sp/>boot<sp/>count<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/><sp/><sp/>boot-&gt;<ref refid="structSYN__Boot_1aadf13f86b7eb44e9b2ae17aba5fd6c86" kindref="member">data</ref>.<ref refid="structSYN__BootData_1a0cb3af91712b57bb6c9d26168e7b1397" kindref="member">boot_count</ref>++;</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"></highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Check<sp/>if<sp/>last<sp/>boot<sp/>was<sp/>healthy<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!boot-&gt;<ref refid="structSYN__Boot_1aadf13f86b7eb44e9b2ae17aba5fd6c86" kindref="member">data</ref>.<ref refid="structSYN__BootData_1a98161d69fcaeb29af5ec65b821c225fc" kindref="member">was_healthy</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>boot-&gt;<ref refid="structSYN__Boot_1aadf13f86b7eb44e9b2ae17aba5fd6c86" kindref="member">data</ref>.<ref refid="structSYN__BootData_1a6d6bd00438c008c00275893dd3f4fbf8" kindref="member">fail_count</ref>++;</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>boot-&gt;<ref refid="structSYN__Boot_1aadf13f86b7eb44e9b2ae17aba5fd6c86" kindref="member">data</ref>.<ref refid="structSYN__BootData_1a6d6bd00438c008c00275893dd3f4fbf8" kindref="member">fail_count</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"></highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Mark<sp/>this<sp/>boot<sp/>as<sp/>NOT<sp/>yet<sp/>healthy<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/>boot-&gt;<ref refid="structSYN__Boot_1aadf13f86b7eb44e9b2ae17aba5fd6c86" kindref="member">data</ref>.<ref refid="structSYN__BootData_1a98161d69fcaeb29af5ec65b821c225fc" kindref="member">was_healthy</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"></highlight></codeline>
+<codeline lineno="60"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Check<sp/>for<sp/>safe<sp/>mode<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(safe_threshold<sp/>&gt;<sp/>0<sp/>&amp;&amp;<sp/>boot-&gt;<ref refid="structSYN__Boot_1aadf13f86b7eb44e9b2ae17aba5fd6c86" kindref="member">data</ref>.<ref refid="structSYN__BootData_1a6d6bd00438c008c00275893dd3f4fbf8" kindref="member">fail_count</ref><sp/>&gt;=<sp/>safe_threshold)<sp/>{</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>boot-&gt;<ref refid="structSYN__Boot_1aca88ec518f8cae503f9e770e0885845d" kindref="member">safe_mode</ref><sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"></highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Save<sp/>updated<sp/>boot<sp/>data<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__param_8c_1aef66a1a23d4eff45902d26273b143afa" kindref="member">syn_param_save</ref>(store,<sp/>&amp;boot-&gt;<ref refid="structSYN__Boot_1aadf13f86b7eb44e9b2ae17aba5fd6c86" kindref="member">data</ref>);</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/><sp/><sp/>boot-&gt;<ref refid="structSYN__Boot_1aec02c7f403978db5e236a6795e0fbf5c" kindref="member">initialized</ref><sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/><sp/><sp/>boot-&gt;<ref refid="structSYN__Boot_1a7907c477bd6d8650474af0c697a0dbf9" kindref="member">errlog</ref><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/>NULL;</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"></highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Log<sp/>crash-loop<sp/>and<sp/>safe-mode<sp/>events<sp/>if<sp/>errlog<sp/>is<sp/>later<sp/>attached.</highlight></codeline>
+<codeline lineno="71"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/>*<sp/>Since<sp/>errlog<sp/>is<sp/>typically<sp/>initialized<sp/>after<sp/>boot,<sp/>users<sp/>should</highlight></codeline>
+<codeline lineno="72"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/>*<sp/>call<sp/>syn_boot_set_errlog()<sp/>then<sp/>syn_boot_log_events().<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="73"><highlight class="normal"></highlight></codeline>
+<codeline lineno="74"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="75"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"></highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__boot_8c_1a6a35efa162e5a681981dd3eafefe943c" kindref="member">syn_boot_mark_healthy</ref>(<ref refid="structSYN__Boot" kindref="compound">SYN_Boot</ref><sp/>*boot)</highlight></codeline>
+<codeline lineno="78"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(boot<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(boot-&gt;<ref refid="structSYN__Boot_1aec02c7f403978db5e236a6795e0fbf5c" kindref="member">initialized</ref>);</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"></highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/>boot-&gt;<ref refid="structSYN__Boot_1aadf13f86b7eb44e9b2ae17aba5fd6c86" kindref="member">data</ref>.<ref refid="structSYN__BootData_1a98161d69fcaeb29af5ec65b821c225fc" kindref="member">was_healthy</ref><sp/>=<sp/>1;</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/>boot-&gt;<ref refid="structSYN__Boot_1aadf13f86b7eb44e9b2ae17aba5fd6c86" kindref="member">data</ref>.<ref refid="structSYN__BootData_1a6d6bd00438c008c00275893dd3f4fbf8" kindref="member">fail_count</ref><sp/><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"></highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__param_8c_1aef66a1a23d4eff45902d26273b143afa" kindref="member">syn_param_save</ref>(boot-&gt;<ref refid="structSYN__Boot_1aa3d30aace5ba9854c3e017370bc8609d" kindref="member">store</ref>,<sp/>&amp;boot-&gt;<ref refid="structSYN__Boot_1aadf13f86b7eb44e9b2ae17aba5fd6c86" kindref="member">data</ref>);</highlight></codeline>
+<codeline lineno="86"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"></highlight></codeline>
+<codeline lineno="88"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__boot_8c_1aa88a2b1956cc3a8ce4ef6e0b970f114c" kindref="member">syn_boot_set_reset_reason</ref>(<ref refid="structSYN__Boot" kindref="compound">SYN_Boot</ref><sp/>*boot,<sp/>uint8_t<sp/>reason)</highlight></codeline>
+<codeline lineno="89"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(boot<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"><sp/><sp/><sp/><sp/>boot-&gt;<ref refid="structSYN__Boot_1aadf13f86b7eb44e9b2ae17aba5fd6c86" kindref="member">data</ref>.<ref refid="structSYN__BootData_1aa248c63b0226183a7d41dba901d6f906" kindref="member">last_reset</ref><sp/>=<sp/>reason;</highlight></codeline>
+<codeline lineno="92"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"></highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__boot_8c_1ab4226b5cb562ba15c2426a88a57df07e" kindref="member">syn_boot_clear_safe_mode</ref>(<ref refid="structSYN__Boot" kindref="compound">SYN_Boot</ref><sp/>*boot)</highlight></codeline>
+<codeline lineno="95"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(boot<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(boot-&gt;<ref refid="structSYN__Boot_1aec02c7f403978db5e236a6795e0fbf5c" kindref="member">initialized</ref>);</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"></highlight></codeline>
+<codeline lineno="99"><highlight class="normal"><sp/><sp/><sp/><sp/>boot-&gt;<ref refid="structSYN__Boot_1aca88ec518f8cae503f9e770e0885845d" kindref="member">safe_mode</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>=<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><sp/><sp/><sp/><sp/>boot-&gt;<ref refid="structSYN__Boot_1aadf13f86b7eb44e9b2ae17aba5fd6c86" kindref="member">data</ref>.<ref refid="structSYN__BootData_1a6d6bd00438c008c00275893dd3f4fbf8" kindref="member">fail_count</ref><sp/><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"><sp/><sp/><sp/><sp/>boot-&gt;<ref refid="structSYN__Boot_1aadf13f86b7eb44e9b2ae17aba5fd6c86" kindref="member">data</ref>.<ref refid="structSYN__BootData_1a98161d69fcaeb29af5ec65b821c225fc" kindref="member">was_healthy</ref><sp/>=<sp/>1;</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"></highlight></codeline>
+<codeline lineno="103"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__param_8c_1aef66a1a23d4eff45902d26273b143afa" kindref="member">syn_param_save</ref>(boot-&gt;<ref refid="structSYN__Boot_1aa3d30aace5ba9854c3e017370bc8609d" kindref="member">store</ref>,<sp/>&amp;boot-&gt;<ref refid="structSYN__Boot_1aadf13f86b7eb44e9b2ae17aba5fd6c86" kindref="member">data</ref>);</highlight></codeline>
+<codeline lineno="104"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"></highlight></codeline>
+<codeline lineno="106"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__boot_8c_1a99534ccc9cbd355bc69d115c6b9863df" kindref="member">syn_boot_set_errlog</ref>(<ref refid="structSYN__Boot" kindref="compound">SYN_Boot</ref><sp/>*boot,<sp/><ref refid="structSYN__ErrLog" kindref="compound">SYN_ErrLog</ref><sp/>*errlog)</highlight></codeline>
+<codeline lineno="107"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(boot<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="109"><highlight class="normal"><sp/><sp/><sp/><sp/>boot-&gt;<ref refid="structSYN__Boot_1a7907c477bd6d8650474af0c697a0dbf9" kindref="member">errlog</ref><sp/>=<sp/>errlog;</highlight></codeline>
+<codeline lineno="110"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"></highlight></codeline>
+<codeline lineno="112"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__boot_8c_1a31fc1af9f0c9633a7d7902d7573d9695" kindref="member">syn_boot_log_events</ref>(<ref refid="structSYN__Boot" kindref="compound">SYN_Boot</ref><sp/>*boot)</highlight></codeline>
+<codeline lineno="113"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(boot<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="115"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(boot-&gt;<ref refid="structSYN__Boot_1a7907c477bd6d8650474af0c697a0dbf9" kindref="member">errlog</ref><sp/>==<sp/>NULL)<sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="116"><highlight class="normal"></highlight></codeline>
+<codeline lineno="117"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Log<sp/>crash-loop<sp/>if<sp/>previous<sp/>boot<sp/>wasn&apos;t<sp/>healthy<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="118"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(boot-&gt;<ref refid="structSYN__Boot_1aadf13f86b7eb44e9b2ae17aba5fd6c86" kindref="member">data</ref>.<ref refid="structSYN__BootData_1a6d6bd00438c008c00275893dd3f4fbf8" kindref="member">fail_count</ref><sp/>&gt;<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__errlog_8c_1a3d982c5a6ca2ded81a16b87cc139f30f" kindref="member">syn_errlog_record</ref>(boot-&gt;<ref refid="structSYN__Boot_1a7907c477bd6d8650474af0c697a0dbf9" kindref="member">errlog</ref>,<sp/><ref refid="syn__boot_8c_1adb2fc9b910034c74dcd3741a7f6eba95" kindref="member">SYN_BOOT_ERR_CRASH_LOOP</ref>,</highlight></codeline>
+<codeline lineno="120"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__errlog_8h_1aedfaf77999e34bb2ed005704ccc91933ab4fed99f37b22b019af71738cb22dc3d" kindref="member">SYN_ERR_WARNING</ref>,</highlight></codeline>
+<codeline lineno="121"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(uint32_t)boot-&gt;<ref refid="structSYN__Boot_1aadf13f86b7eb44e9b2ae17aba5fd6c86" kindref="member">data</ref>.<ref refid="structSYN__BootData_1a6d6bd00438c008c00275893dd3f4fbf8" kindref="member">fail_count</ref>);</highlight></codeline>
+<codeline lineno="122"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="123"><highlight class="normal"></highlight></codeline>
+<codeline lineno="124"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Log<sp/>safe<sp/>mode<sp/>entry<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="125"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(boot-&gt;<ref refid="structSYN__Boot_1aca88ec518f8cae503f9e770e0885845d" kindref="member">safe_mode</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="126"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__errlog_8c_1a3d982c5a6ca2ded81a16b87cc139f30f" kindref="member">syn_errlog_record</ref>(boot-&gt;<ref refid="structSYN__Boot_1a7907c477bd6d8650474af0c697a0dbf9" kindref="member">errlog</ref>,<sp/><ref refid="syn__boot_8c_1a52593bf05be0a692d7dae85fbd85c107" kindref="member">SYN_BOOT_ERR_SAFE_MODE</ref>,</highlight></codeline>
+<codeline lineno="127"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__errlog_8h_1aedfaf77999e34bb2ed005704ccc91933aefd6598ce85ab4126d9499f490396dd9" kindref="member">SYN_ERR_FATAL</ref>,</highlight></codeline>
+<codeline lineno="128"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(uint32_t)boot-&gt;<ref refid="structSYN__Boot_1aadf13f86b7eb44e9b2ae17aba5fd6c86" kindref="member">data</ref>.<ref refid="structSYN__BootData_1a0cb3af91712b57bb6c9d26168e7b1397" kindref="member">boot_count</ref>);</highlight></codeline>
+<codeline lineno="129"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="130"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="131"><highlight class="normal"></highlight></codeline>
+<codeline lineno="132"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_USE_BOOT<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/system/syn_boot.c"/>
+  </compounddef>
+</doxygen>
