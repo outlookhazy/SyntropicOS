@@ -246,7 +246,7 @@ uint32_t syn_sched_next_wakeup(const SYN_Sched *sched)
          * last syn_sched_run() (e.g. from an ISR or timer service). */
         if (task->state == (uint8_t)SYN_TASK_BLOCKED) {
             if (task->wait_event != NULL &&
-                (task->wait_event->flags & task->wait_mask)) {
+                (syn_event_flags_get(task->wait_event) & task->wait_mask)) {
                 any_ready_now = true;  /* Event fired — don't sleep */
             }
             continue;
