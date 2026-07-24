@@ -64,6 +64,8 @@ void run_cli_tests(void);
 void run_param_tests(void);
 void run_trace_tests(void);
 void run_profiler_tests(void);
+void run_task_profile_tests(void);
+void run_dds_tests(void);
 void run_boot_tests(void);
 void run_errlog_tests(void);
 void run_power_tests(void);
@@ -334,6 +336,10 @@ int main(void)
 
     /* NMEA 2000 Marine CAN Protocol */
     run_n2k_tests();
+
+    /* Task Profiler & DDS Synthesizer */
+    run_task_profile_tests();
+    run_dds_tests();
 
     return UNITY_END();
 }

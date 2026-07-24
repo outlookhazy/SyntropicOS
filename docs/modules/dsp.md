@@ -8,6 +8,7 @@ All DSP modules use integer-only math — no floating point.
 |---|---|---|---|
 | Filters | `dsp/syn_filter.h` | `SYN_USE_FILTER` | Moving average, exponential moving average (EMA), median filters, and direct-form FIR filter (`SYN_FilterFIR`) with 64-bit fixed-point circular buffer accumulation. |
 | Biquad | `dsp/syn_biquad.h` | `SYN_USE_BIQUAD` | Direct Form I biquad filter with built-in Butterworth design functions for lowpass, highpass, bandpass, and notch configurations. Uses Q16.16 coefficients with int64 accumulator. |
+| DDS Synthesizer | `dsp/syn_dds.h` | `SYN_USE_DDS` | Direct Digital Synthesis signal generator in Q16.16 fixed-point math supporting Sine, Triangle, Sawtooth, Square/PWM, and Noise waveforms with direct DAC buffer filling. |
 
 ### Biquad Filter Design
 

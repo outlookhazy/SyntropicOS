@@ -247,6 +247,10 @@ extern "C" {
   #include "dsp/syn_fft.h"
 #endif
 
+#if !defined(SYN_USE_DDS) || SYN_USE_DDS
+  #include "dsp/syn_dds.h"
+#endif
+
 /* ── Control ────────────────────────────────────────────────────────────── */
 
 #if !defined(SYN_USE_PID) || SYN_USE_PID
