@@ -325,7 +325,6 @@ void syn_motor_ctrl_move_to_scurve(SYN_MotorCtrl *ctrl, int32_t target,
     ctrl->stall_active = false;
     ctrl->trajectory_active = true;
     ctrl->profile_active = false;
-    ctrl->scurve_active = false;
     ctrl->scurve_active = true;
 
     syn_pid_reset(&ctrl->pid);
@@ -694,24 +693,7 @@ void syn_motor_ctrl_reset_metrics(SYN_MotorCtrl *ctrl)
     ctrl->metrics.move_start_tick = syn_port_get_tick_ms();
 }
 
-/**
- * @brief Integer square root via binary search.
- * @param n  Input value.
- * @return Floor of sqrt(n).
- */
-static int32_t isqrt(int64_t n)
-{
-    if (n <= 0) return 0;
-    int64_t x = 1;
-    while (x * x <= n) x <<= 1;
-    int64_t lo = x >> 1, hi = x;
-    while (lo <= hi) {
-        int64_t mid = (lo + hi) / 2;
-        if (mid * mid <= n) lo = mid + 1;
-        else                hi = mid - 1;
-    }
-    return (int32_t)hi;
-}
+#include "../util/syn_qmath.h"
 
 int32_t syn_motor_ctrl_rms_error(const SYN_MotorCtrl *ctrl)
 {
@@ -719,7 +701,8 @@ int32_t syn_motor_ctrl_rms_error(const SYN_MotorCtrl *ctrl)
     if (ctrl->metrics.sample_count == 0) return 0;
     int64_t mean_sq = ctrl->metrics.error_sq_sum
                     / (int64_t)ctrl->metrics.sample_count;
-    return isqrt(mean_sq);
+    if (mean_sq <= 0) return 0;
+    return (int32_t)syn_isqrt64((uint64_t)mean_sq);
 }
 
 #endif /* SYN_USE_MOTOR_CTRL */

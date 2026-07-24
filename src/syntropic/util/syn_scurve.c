@@ -25,16 +25,10 @@ void syn_scurve_set_constraints(SYN_SCurve *sc, int32_t v_max, int32_t a_max, in
     sc->j_max = j_max;
 }
 
-static uint32_t syn_isqrt(uint32_t n) {
-    uint32_t root = 0;
-    uint32_t bit = 1UL << 30;
-    while (bit > n) bit >>= 2;
-    while (bit != 0) {
-        if (n >= root + bit) { n -= root + bit; root = (root >> 1) + bit; }
-        else { root >>= 1; }
-        bit >>= 2;
-    }
-    return root;
+#include "syn_qmath.h"
+
+static inline uint32_t syn_isqrt(uint32_t n) {
+    return syn_isqrt32(n);
 }
 
 void syn_scurve_set_target(SYN_SCurve *sc, int32_t target) {

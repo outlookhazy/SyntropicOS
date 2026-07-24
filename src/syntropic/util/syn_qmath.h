@@ -199,6 +199,20 @@ static inline q16_t q16_clamp(q16_t val, q16_t lo, q16_t hi)
 /* ── Transcendental functions (compiled in syn_qmath.c) ─────────────────── */
 
 /**
+ * @brief Compute floor of 32-bit unsigned integer square root: ⌊√n⌋.
+ * @param n  Unsigned 32-bit integer.
+ * @return ⌊√n⌋.
+ */
+uint32_t syn_isqrt32(uint32_t n);
+
+/**
+ * @brief Compute floor of 64-bit unsigned integer square root: ⌊√n⌋.
+ * @param n  Unsigned 64-bit integer.
+ * @return ⌊√n⌋.
+ */
+uint64_t syn_isqrt64(uint64_t n);
+
+/**
  * @brief Sine approximation (5th-order Taylor series).
  * @param x  Angle in Q16 radians.
  * @return sin(x) in Q16.

@@ -167,43 +167,45 @@ q16_t q16_acos(q16_t x)
 /*  Algebraic — sqrt, hypot                                                */
 /* ════════════════════════════════════════════════════════════════════════ */
 
-q16_t q16_sqrt(q16_t x)
+uint32_t syn_isqrt32(uint32_t n)
 {
-    if (x <= 0) return 0;
-
-    /*
-     * Binary restoring square root on the Q16.16 value.
-     *
-     * We want sqrt(x) where x is in Q16.16. Treat x as a 32-bit integer
-     * value representing x * 2^16. Then:
-     *   sqrt(x * 2^16) = sqrt(x) * 2^8
-     *
-     * To get the result in Q16.16 (i.e., sqrt(x) * 2^16), we need to
-     * shift the input left by 16 before taking the integer sqrt.
-     * That means we compute isqrt(x << 16) which gives sqrt(x) * 2^16.
-     *
-     * We operate on a 64-bit value: val = (uint64_t)x << 16.
-     */
-    uint64_t val = (uint64_t)(uint32_t)x << 16;
-    uint64_t root = 0;
-    uint64_t bit = (uint64_t)1 << 46;  /* Start at highest even bit <= 62 */
-
-    while (bit > val) {
-        bit >>= 2;
-    }
-
+    uint32_t root = 0;
+    uint32_t bit = 1UL << 30;
+    while (bit > n) bit >>= 2;
     while (bit != 0) {
-        uint64_t trial = root + bit;
-        if (val >= trial) {
-            val -= trial;
+        if (n >= root + bit) {
+            n -= root + bit;
             root = (root >> 1) + bit;
         } else {
             root >>= 1;
         }
         bit >>= 2;
     }
+    return root;
+}
 
-    return (q16_t)root;
+uint64_t syn_isqrt64(uint64_t n)
+{
+    uint64_t root = 0;
+    uint64_t bit = (uint64_t)1 << 62;
+    while (bit > n) bit >>= 2;
+    while (bit != 0) {
+        uint64_t trial = root + bit;
+        if (n >= trial) {
+            n -= trial;
+            root = (root >> 1) + bit;
+        } else {
+            root >>= 1;
+        }
+        bit >>= 2;
+    }
+    return root;
+}
+
+q16_t q16_sqrt(q16_t x)
+{
+    if (x <= 0) return 0;
+    return (q16_t)syn_isqrt64((uint64_t)(uint32_t)x << 16);
 }
 
 q16_t q16_hypot(q16_t x, q16_t y)
