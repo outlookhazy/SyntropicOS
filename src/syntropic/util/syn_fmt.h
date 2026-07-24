@@ -57,6 +57,18 @@ size_t syn_fmt_uint(char *buf, size_t size, uint32_t val);
 size_t syn_fmt_hex(char *buf, size_t size, uint32_t val, uint8_t min_digits);
 
 /**
+ * @brief Parse a hex string into a binary byte array.
+ *
+ * Supports both uppercase and lowercase hex characters.
+ *
+ * @param hex_str    Input hex string.
+ * @param out_bin    [out] Output binary byte buffer.
+ * @param max_bytes  Capacity of out_bin in bytes.
+ * @return Number of binary bytes parsed.
+ */
+size_t syn_fmt_hex_parse(const char *hex_str, uint8_t *out_bin, size_t max_bytes);
+
+/**
  * @brief Format a Q16.16 fixed-point value.
  *
  * @param buf         Output buffer.

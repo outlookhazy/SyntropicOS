@@ -148,6 +148,29 @@ size_t syn_fmt_hex(char *buf, size_t size, uint32_t val, uint8_t min_digits)
     return (pos < size) ? pos : size - 1;
 }
 
+static int hex_char_to_nibble(char c)
+{
+    if (c >= '0' && c <= '9') return (c - '0');
+    if (c >= 'a' && c <= 'f') return (c - 'a' + 10);
+    if (c >= 'A' && c <= 'F') return (c - 'A' + 10);
+    return -1;
+}
+
+size_t syn_fmt_hex_parse(const char *hex_str, uint8_t *out_bin, size_t max_bytes)
+{
+    if (!hex_str || !out_bin || max_bytes == 0) return 0;
+
+    size_t bytes = 0;
+    while (hex_str[0] != '\0' && hex_str[1] != '\0' && bytes < max_bytes) {
+        int hi = hex_char_to_nibble(hex_str[0]);
+        int lo = hex_char_to_nibble(hex_str[1]);
+        if (hi < 0 || lo < 0) break;
+        out_bin[bytes++] = (uint8_t)((hi << 4) | lo);
+        hex_str += 2;
+    }
+    return bytes;
+}
+
 /* ── Q16.16 fixed-point ─────────────────────────────────────────────────── */
 
 size_t syn_fmt_q16(char *buf, size_t size, int32_t q16_val,

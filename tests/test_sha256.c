@@ -15,31 +15,11 @@
 
 /* ── Helper ─────────────────────────────────────────────────────────────── */
 
-/**
- * @brief Convert a hex string to binary.
- * @param hex   Hex string (even length, lowercase).
- * @param out   Output buffer.
- * @param len   Number of bytes to produce.
- */
+#include "syntropic/util/syn_fmt.h"
+
 static void hex_to_bin(const char *hex, uint8_t *out, size_t len)
 {
-    size_t i;
-    for (i = 0; i < len; i++) {
-        unsigned hi, lo;
-        char c;
-
-        c = hex[i * 2];
-        if (c >= '0' && c <= '9')      hi = (unsigned)(c - '0');
-        else if (c >= 'a' && c <= 'f') hi = (unsigned)(c - 'a' + 10);
-        else                           hi = 0;
-
-        c = hex[i * 2 + 1];
-        if (c >= '0' && c <= '9')      lo = (unsigned)(c - '0');
-        else if (c >= 'a' && c <= 'f') lo = (unsigned)(c - 'a' + 10);
-        else                           lo = 0;
-
-        out[i] = (uint8_t)((hi << 4) | lo);
-    }
+    syn_fmt_hex_parse(hex, out, len);
 }
 
 /* ── SHA-256 Tests ──────────────────────────────────────────────────────── */

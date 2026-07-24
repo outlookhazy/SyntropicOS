@@ -18,15 +18,11 @@
 #include <string.h>
 #include <stdio.h>
 
-/* ── Hex-parse helper ──────────────────────────────────────────────────── */
+#include "syntropic/util/syn_fmt.h"
 
 static void wg_hex2bin(const char *hex, uint8_t *out, size_t len)
 {
-    for (size_t i = 0; i < len; i++) {
-        unsigned byte;
-        sscanf(hex + 2 * i, "%02x", &byte);
-        out[i] = (uint8_t)byte;
-    }
+    syn_fmt_hex_parse(hex, out, len);
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
