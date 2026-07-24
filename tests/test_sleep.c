@@ -55,6 +55,13 @@ static void test_sleep(void)
     TEST_ASSERT_EQUAL_INT(3, sl.enter_count);
     TEST_ASSERT_TRUE(sl.veto_count > 0);
     TEST_ASSERT_EQUAL_INT(0, syn_sleep_locks(&sl));
+
+    /* Test SYN_SLEEP_NONE and SYN_SLEEP_DEEP modes */
+    syn_sleep_init(&sl, SYN_SLEEP_NONE);
+    TEST_ASSERT_TRUE(syn_sleep_enter(&sl));
+
+    syn_sleep_init(&sl, SYN_SLEEP_DEEP);
+    TEST_ASSERT_TRUE(syn_sleep_enter(&sl));
 }
 
 void run_sleep_tests(void)

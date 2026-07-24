@@ -46,11 +46,12 @@ Hardware abstraction drivers. Each is guarded by a `SYN_USE_*` config switch.
 | 1-Wire | `drivers/syn_soft_onewire.h` | `SYN_USE_ONEWIRE` | Bit-bang 1-Wire master: reset, byte read/write, ROM search. Suitable for DS18B20 temperature sensors. |
 | Hardware WDT | `system/syn_hwwdt.h` | `SYN_USE_HWWDT` | Hardware watchdog timer: init and feed. Complements the software task-level watchdog in `syn_watchdog`. |
 
-## DMA
+## DMA & Acceleration
 
 | Module | Header | Config | Description |
 |---|---|---|---|
-| DMA Port | `port/syn_port_dma.h` | `SYN_USE_DMA` | Portable DMA channel abstraction with completion callbacks |
+| DMA Engine | `drivers/syn_dma.h` | `SYN_USE_DMA` | Bare-metal safe DMA transaction engine with address alignment verification, D-cache coherency invalidation, and atomic busy protection |
+| DMA Port | `port/syn_port_dma.h` | `SYN_USE_DMA` | Portable hardware DMA channel abstraction with completion callbacks |
 
 Provides `init`, `start`, `stop`, `busy`, and `remaining` operations. The completion callback fires from ISR context — use `syn_workqueue_post()` to defer heavy processing to the main context.
 

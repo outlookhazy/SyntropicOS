@@ -14,6 +14,8 @@ SyntropicOS is a zero-overhead, production-grade C99 framework designed for deep
 - **Stackless cooperative threads** — Protothread coroutines (2 bytes RAM continuation; ~16–28 bytes per scheduled task)
 - **Zero heap allocation** — All state is caller-owned or static
 - **70+ native modules** — Drivers, DSP, fixed-point math, Kalman filter, FOC motor control, networking, graphics, CLI, logging, and more
+- **Industrial & Commercial Vehicle Protocols** — Complete SAE J1939 (heavy machinery/BMS), CANopen (CiA 401/402/LSS), Modbus RTU/TCP, NMEA 0183
+- **Hardware Peripherals & DMA Safety** — Bare-metal safe DMA transaction engine with address alignment verification, D-cache coherency invalidation, and atomic busy protection
 - **Cooperative-by-design** — All modules use non-blocking state machines built specifically for coroutines
 - **Pure C99** — GCC, Clang, Keil, IAR — any C99 compiler
 - **Integer-only math** — Full Q16.16 fixed-point library: trigonometry, sqrt, exp/log, matrix algebra, and string I/O — no floating point, no `libm.a`

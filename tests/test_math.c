@@ -67,6 +67,14 @@ static void test_rate_limit(void)
     mock_tick_advance(1000);
     TEST_ASSERT_TRUE(syn_rate_limit_allow(&rl));
 
+    /* Partial refill test: advance by 500ms (half interval) */
+    syn_rate_limit_allow(&rl);
+    syn_rate_limit_allow(&rl);
+    syn_rate_limit_allow(&rl);
+    TEST_ASSERT_FALSE(syn_rate_limit_allow(&rl));
+    mock_tick_advance(500);
+    TEST_ASSERT_TRUE(syn_rate_limit_allow(&rl));
+
     /* Reset */
     syn_rate_limit_reset(&rl);
     TEST_ASSERT_EQUAL_INT(3, syn_rate_limit_remaining(&rl));

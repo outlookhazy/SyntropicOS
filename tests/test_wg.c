@@ -611,6 +611,47 @@ static void test_wg_established_transport_and_keepalive(void)
     TEST_ASSERT_EQUAL(SYN_WG_HANDSHAKE_INIT, s_wg.state);
 }
 
+static void test_wg_send_disconnected_or_null(void)
+{
+    SYN_WG wg;
+    memset(&wg, 0, sizeof(wg));
+    wg.state = SYN_WG_DISCONNECTED;
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_wg_send(&wg, (const uint8_t*)"test", 4));
+}
+
+static void test_wg_reject_after_time_expiry(void)
+{
+    test_wg_init_state();
+    s_wg.state = SYN_WG_ESTABLISHED;
+    s_wg.session.established_ms = 1000;
+    mock_tick_ms = 250000; /* > SYN_WG_REJECT_AFTER_TIME (180s) */
+
+    SYN_PT pt;
+    PT_INIT(&pt);
+    SYN_Task task = { .user_data = &s_wg };
+    syn_wg_task(&pt, &task);
+    TEST_ASSERT_EQUAL(SYN_WG_HANDSHAKE_INIT, s_wg.state);
+}
+
+static void test_wg_cookie_packet_handling(void)
+{
+    test_wg_init_state();
+    s_wg.state = SYN_WG_ESTABLISHED;
+
+    /* Inject MSG_COOKIE (type 3) and verify it does not crash or corrupt state */
+    uint8_t cookie_pkt[64];
+    memset(cookie_pkt, 0, sizeof(cookie_pkt));
+    store32_le(cookie_pkt, 3); /* SYN_WG_MSG_COOKIE */
+    SYN_SockAddr from = { .port = 51820 };
+    mock_udp_inject_packet(cookie_pkt, sizeof(cookie_pkt), &from);
+
+    SYN_PT pt;
+    PT_INIT(&pt);
+    SYN_Task task = { .user_data = &s_wg };
+    syn_wg_task(&pt, &task);
+    TEST_ASSERT_EQUAL(SYN_WG_HANDSHAKE_INIT, s_wg.state);
+}
+
 void run_wg_tests(void)
 {
     /* Handshake internals */
@@ -644,4 +685,7 @@ void run_wg_tests(void)
     RUN_TEST(test_wg_initiation_on_task);
     RUN_TEST(test_wg_handshake_response_invalid);
     RUN_TEST(test_wg_established_transport_and_keepalive);
+    RUN_TEST(test_wg_send_disconnected_or_null);
+    RUN_TEST(test_wg_reject_after_time_expiry);
+    RUN_TEST(test_wg_cookie_packet_handling);
 }
