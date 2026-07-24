@@ -49,7 +49,7 @@ static inline void write_u16(uint8_t *buf, uint16_t val)
 static bool check_crc(const uint8_t *buf, uint16_t len)
 {
     if (len < 2) return false;
-    uint16_t received = (uint16_t)(buf[len - 1] << 8 | buf[len - 2]);
+    uint16_t received = syn_peek_u16_le(buf, len - 2);
     uint16_t computed = syn_crc16_modbus(buf, len - 2);
     return received == computed;
 }
@@ -62,8 +62,7 @@ static bool check_crc(const uint8_t *buf, uint16_t len)
 static void append_crc(uint8_t *buf, uint16_t len)
 {
     uint16_t crc = syn_crc16_modbus(buf, len);
-    buf[len]     = (uint8_t)(crc & 0xFF);         /* CRC low */
-    buf[len + 1] = (uint8_t)((crc >> 8) & 0xFF);  /* CRC high */
+    syn_poke_u16_le(crc, buf, len);
 }
 
 /* ── Send helpers ───────────────────────────────────────────────────────── */

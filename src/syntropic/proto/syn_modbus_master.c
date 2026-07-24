@@ -59,13 +59,11 @@ static SYN_Status send_request(SYN_ModbusMaster *m, uint8_t slave_addr, uint8_t 
 
     if (fc == SYN_MB_FC_READ_HOLDING || fc == SYN_MB_FC_READ_INPUT) {
         write_u16_be(&m->buf[4], count);
-        uint16_t crc = syn_crc16_modbus(m->buf, 6);
-        write_u16_be(&m->buf[6], (uint16_t)((crc >> 8) | (crc << 8)));
+        syn_poke_u16_le(syn_crc16_modbus(m->buf, 6), m->buf, 6);
         m->tx_len = 8;
     } else if (fc == SYN_MB_FC_WRITE_SINGLE) {
         write_u16_be(&m->buf[4], count); /* count parameter holds write value */
-        uint16_t crc = syn_crc16_modbus(m->buf, 6);
-        write_u16_be(&m->buf[6], (uint16_t)((crc >> 8) | (crc << 8)));
+        syn_poke_u16_le(syn_crc16_modbus(m->buf, 6), m->buf, 6);
         m->tx_len = 8;
     } else if (fc == SYN_MB_FC_WRITE_MULTIPLE) {
         write_u16_be(&m->buf[4], count);
@@ -74,8 +72,7 @@ static SYN_Status send_request(SYN_ModbusMaster *m, uint8_t slave_addr, uint8_t 
             write_u16_be(&m->buf[7 + i * 2], write_vals[i]);
         }
         uint16_t len = 7 + count * 2;
-        uint16_t crc = syn_crc16_modbus(m->buf, len);
-        write_u16_be(&m->buf[len], (uint16_t)((crc >> 8) | (crc << 8)));
+        syn_poke_u16_le(syn_crc16_modbus(m->buf, len), m->buf, len);
         m->tx_len = len + 2;
     }
 
@@ -105,10 +102,10 @@ SYN_Status syn_modbus_master_write_single(SYN_ModbusMaster *m, uint8_t slave_add
 }
 
 SYN_Status syn_modbus_master_write_multiple(SYN_ModbusMaster *m, uint8_t slave_addr,
-                                            uint16_t start_addr, uint16_t count,
-                                            const uint16_t *values)
+                                             uint16_t start_addr, uint16_t count,
+                                             const uint16_t *values)
 {
-    if (m == NULL || slave_addr == 0 || count == 0 || count > 121 || values == NULL) return SYN_INVALID_PARAM;
+    if (m == NULL || slave_addr == 0 || count == 0 || count > 123 || values == NULL) return SYN_INVALID_PARAM;
     return send_request(m, slave_addr, SYN_MB_FC_WRITE_MULTIPLE, start_addr, count, values);
 }
 
@@ -160,8 +157,7 @@ SYN_Status syn_modbus_master_write_multiple_coils(SYN_ModbusMaster *m, uint8_t s
     memcpy(&m->buf[7], coil_bytes, num_bytes);
 
     uint16_t len = (uint16_t)(7 + num_bytes);
-    uint16_t crc = syn_crc16_modbus(m->buf, len);
-    write_u16_be(&m->buf[len], (uint16_t)((crc >> 8) | (crc << 8)));
+    syn_poke_u16_le(syn_crc16_modbus(m->buf, len), m->buf, len);
     m->tx_len = (uint16_t)(len + 2);
 
     m->state = SYN_MB_MASTER_STATE_WAITING_RESPONSE;
@@ -190,8 +186,7 @@ SYN_Status syn_modbus_master_mask_write_register(SYN_ModbusMaster *m, uint8_t sl
     write_u16_be(&m->buf[4], and_mask);
     write_u16_be(&m->buf[6], or_mask);
 
-    uint16_t crc = syn_crc16_modbus(m->buf, 8);
-    write_u16_be(&m->buf[8], (uint16_t)((crc >> 8) | (crc << 8)));
+    syn_poke_u16_le(syn_crc16_modbus(m->buf, 8), m->buf, 8);
     m->tx_len = 10;
 
     m->state = SYN_MB_MASTER_STATE_WAITING_RESPONSE;
@@ -217,8 +212,7 @@ SYN_Status syn_modbus_master_read_fifo_queue(SYN_ModbusMaster *m, uint8_t slave_
     m->buf[1] = SYN_MB_FC_READ_FIFO_QUEUE;
     write_u16_be(&m->buf[2], fifo_addr);
 
-    uint16_t crc = syn_crc16_modbus(m->buf, 4);
-    write_u16_be(&m->buf[4], (uint16_t)((crc >> 8) | (crc << 8)));
+    syn_poke_u16_le(syn_crc16_modbus(m->buf, 4), m->buf, 4);
     m->tx_len = 6;
 
     m->state = SYN_MB_MASTER_STATE_WAITING_RESPONSE;
@@ -242,8 +236,7 @@ SYN_Status syn_modbus_master_report_server_id(SYN_ModbusMaster *m, uint8_t slave
     m->buf[0] = slave_addr;
     m->buf[1] = SYN_MB_FC_REPORT_SERVER_ID;
 
-    uint16_t crc = syn_crc16_modbus(m->buf, 2);
-    write_u16_be(&m->buf[2], (uint16_t)((crc >> 8) | (crc << 8)));
+    syn_poke_u16_le(syn_crc16_modbus(m->buf, 2), m->buf, 2);
     m->tx_len = 4;
 
     m->state = SYN_MB_MASTER_STATE_WAITING_RESPONSE;
@@ -285,7 +278,7 @@ SYN_ModbusMaster_State syn_modbus_master_process(SYN_ModbusMaster *m, uint32_t c
 
     /* Verify response CRC */
     uint16_t crc_calc = syn_crc16_modbus(m->buf, m->rx_len - 2);
-    uint16_t crc_rx   = (uint16_t)((uint16_t)m->buf[m->rx_len - 2] | ((uint16_t)m->buf[m->rx_len - 1] << 8));
+    uint16_t crc_rx   = syn_peek_u16_le(m->buf, m->rx_len - 2);
     if (crc_calc != crc_rx) {
         return m->state; /* Incomplete or corrupted frame — keep waiting or timeout */
     }
