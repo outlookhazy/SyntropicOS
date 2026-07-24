@@ -195,6 +195,9 @@ extern "C" {
   #include "sched/syn_ao.h"
 #endif
 
+#include "sched/syn_timer_wheel.h"
+#include "util/syn_netbuf.h"
+
 /* ── Logging & CLI ──────────────────────────────────────────────────────── */
 
 #if !defined(SYN_USE_LOG) || SYN_USE_LOG

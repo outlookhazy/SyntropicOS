@@ -33,6 +33,8 @@ void run_pubsub_tests(void);
 void run_pack_tests(void);
 void run_cobs_tests(void);
 void run_timer_tests(void);
+void run_timer_wheel_tests(void);
+void run_netbuf_tests(void);
 void run_datalog_tests(void);
 void run_soft_i2c_tests(void);
 void run_soft_spi_tests(void);
@@ -340,6 +342,10 @@ int main(void)
     /* Task Profiler & DDS Synthesizer */
     run_task_profile_tests();
     run_dds_tests();
+
+    /* OS Kernel Primitives */
+    run_netbuf_tests();
+    run_timer_wheel_tests();
 
     return UNITY_END();
 }
