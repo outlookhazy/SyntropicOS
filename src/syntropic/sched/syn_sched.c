@@ -108,7 +108,7 @@ bool syn_sched_run(SYN_Sched *sched)
      *
      * Bounded by task_count so we stop if every task is waiting.
      */
-    SYN_Task *executed_task = NULL;
+    const SYN_Task *executed_task = NULL;
     size_t    executed_idx  = 0;
     size_t    attempts      = 0;
 
@@ -136,7 +136,7 @@ bool syn_sched_run(SYN_Sched *sched)
             /* Blocked on event — check if the event has fired */
             if (task->state == (uint8_t)SYN_TASK_BLOCKED) {
                 if (task->wait_event != NULL &&
-                    (task->wait_event->flags & task->wait_mask)) {
+                    (syn_event_flags_get(task->wait_event) & task->wait_mask)) {
                     /* Event fired — transition to READY */
                     task->wait_event = NULL;
                     task->state = (uint8_t)SYN_TASK_READY;

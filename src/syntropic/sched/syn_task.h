@@ -58,6 +58,8 @@ typedef SYN_PT_Status (*SYN_TaskFunc)(SYN_PT *pt, struct SYN_Task *task);
 
 /* ── Task control block ─────────────────────────────────────────────────── */
 
+#include "syn_event_flags.h"
+
 /**
  * @brief Task descriptor — binds a protothread to scheduler metadata.
  *
@@ -71,7 +73,7 @@ typedef struct SYN_Task {
     uint8_t          state;        /**< SYN_TaskState                           */
     uint32_t         delay_until;  /**< Tick deadline for PT_TASK_DELAY_MS       */
     void            *user_data;    /**< Optional pointer to task-private state   */
-    struct SYN_EventGroup *wait_event;  /**< Event group task blocks on (NULL if not blocking) */
+    SYN_EventFlags  *wait_event;   /**< Event flags task blocks on (NULL if not blocking) */
     uint32_t         wait_mask;    /**< Bitmask of event flags to wait for       */
 } SYN_Task;
 

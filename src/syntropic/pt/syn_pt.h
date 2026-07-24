@@ -281,7 +281,7 @@ typedef enum {
  */
 #define PT_BLOCK_EVENT(pt, task, grp, mask)                    \
     do {                                                       \
-        (task)->wait_event = (struct SYN_EventGroup *)(grp);   \
+        (task)->wait_event = (SYN_EventFlags *)(grp);          \
         (task)->wait_mask  = (mask);                            \
         (task)->state = (uint8_t)SYN_TASK_BLOCKED;             \
         PT_YIELD(pt);                                          \
