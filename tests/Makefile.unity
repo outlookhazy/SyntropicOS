@@ -2,7 +2,7 @@
 # Usage: make -f tests/Makefile.unity [test|clean]
 
 CC      := gcc
-CFLAGS  := -std=c99 -pedantic -Wall -Wextra -Werror -I. -Isrc -Itests -Itests/mocks -DSYN_LOG_COLOR=1 -DSYN_USE_COREDUMP=1 -DSYN_COREDUMP_FLASH_ADDR=0 -DSYN_USE_TICKLESS=1 -DSYN_USE_DMA=1 -DSYN_USE_I2C_ASYNC=1 -DSYN_USE_SPI_ASYNC=1 -DSYN_FW_USE_HMAC=1 -DSYN_USE_MULTICORE=1 -DUNITY_INCLUDE_DOUBLE
+CFLAGS  := -std=c99 -pedantic -Wall -Wextra -Werror -I. -Isrc -Itests -Itests/mocks -DSYN_LOG_COLOR=1 -DSYN_USE_COREDUMP=1 -DSYN_COREDUMP_FLASH_ADDR=0 -DSYN_USE_TICKLESS=1 -DSYN_USE_DMA=1 -DSYN_USE_I2C_ASYNC=1 -DSYN_USE_SPI_ASYNC=1 -DSYN_FW_USE_HMAC=1 -DSYN_USE_MULTICORE=1 -DUNITY_INCLUDE_DOUBLE -DSYN_USE_METRICS=1 -DSYN_USE_ROUTER=1
 
 # All SyntropicOS source files
 SYN_SRCS := \
@@ -100,9 +100,8 @@ clean:
 
 coverage:
 	find . \( -name "*.gcda" -o -name "*.gcno" \) -delete
-	$(MAKE) -f tests/Makefile.unity test CFLAGS="$(CFLAGS) --coverage -O0 -DSYN_USE_METRICS=1" TARGET="test_unity_cov"
+	$(MAKE) -f tests/Makefile.unity test CFLAGS="$(CFLAGS) --coverage -O0 -DSYN_USE_METRICS=1 -DSYN_USE_ROUTER=1" TARGET="test_unity_cov"
 	lcov --capture --directory . --output-file coverage.info --no-external
 	lcov --remove coverage.info '*/tests/*' '*/unity/*' '*/mocks/*' --output-file coverage_filtered.info
 	genhtml coverage_filtered.info --output-directory coverage_html
 	@echo "Coverage report generated in coverage_html/index.html"
-

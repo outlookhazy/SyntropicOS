@@ -21,30 +21,27 @@ void syn_metrics_init(void) {}
 #if SYN_USE_ROUTER
 #include "../net/syn_router.h"
 
+static struct SYN_Router *g_metrics_router = NULL;
+
+void syn_metrics_set_router(struct SYN_Router *r) {
+    g_metrics_router = r;
+}
+
 void syn_metrics_record(const char *name, float value) {
+    if (!g_metrics_router) return;
     char buf[64];
-    size_t len = 0;
-    
-    /* Format: name:value|g */
-    size_t name_len = strlen(name);
-    if (name_len > 32) name_len = 32;
-    memcpy(buf, name, name_len);
-    len = name_len;
-    buf[len++] = ':';
-    
-    len += syn_fmt_float(buf + len, sizeof(buf) - len - 3, value, 2);
-    buf[len++] = '|';
-    buf[len++] = 'g';
-    buf[len] = '\0';
-    
-    syn_router_send(0x0001 /* GATEWAY */, 0x04, buf, len);
+    int slen = snprintf(buf, sizeof(buf), "%s:%.2f|g", name, (double)value);
+    if (slen > 0 && slen < (int)sizeof(buf)) {
+        syn_router_send(g_metrics_router, 0x01 /* GATEWAY */, 0x04, (const uint8_t *)buf, (uint8_t)slen, false);
+    }
 }
 
 void syn_metrics_count(const char *name, int32_t delta) {
+    if (!g_metrics_router) return;
     char buf[64];
     int slen = snprintf(buf, sizeof(buf), "%s:%d|c", name, (int)delta);
-    if (slen > 0) {
-        syn_router_send(0x0001 /* GATEWAY */, 0x04, buf, (size_t)slen);
+    if (slen > 0 && slen < (int)sizeof(buf)) {
+        syn_router_send(g_metrics_router, 0x01 /* GATEWAY */, 0x04, (const uint8_t *)buf, (uint8_t)slen, false);
     }
 }
 #endif /* SYN_USE_ROUTER */

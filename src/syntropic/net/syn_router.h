@@ -112,7 +112,7 @@ typedef struct {
 /* ── Router instance ────────────────────────────────────────────────────── */
 
 /** @brief Router instance — node ID, transport, handler table, ACK tracking. */
-typedef struct {
+typedef struct SYN_Router {
     uint8_t            node_id;        /**< Our node ID                   */
     SYN_Transport    *transport;      /**< Underlying transport          */
 

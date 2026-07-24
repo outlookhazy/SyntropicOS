@@ -89,6 +89,19 @@ typedef struct SYN_Metric {
 /** @brief Set a gauge value. */
 #define SYN_METRIC_SET(m, v) do { if ((m).type == SYN_METRIC_TYPE_GAUGE) (m).val.gauge = (v); } while(0)
 
+/** @brief Initialize metrics module. */
+void syn_metrics_init(void);
+
+/** @brief Set the router instance for telemetry transmission. */
+struct SYN_Router;
+void syn_metrics_set_router(struct SYN_Router *r);
+
+/** @brief Record a gauge metric via router (StatsD format). */
+void syn_metrics_record(const char *name, float value);
+
+/** @brief Record a counter metric via router (StatsD format). */
+void syn_metrics_count(const char *name, int32_t delta);
+
 /** 
  * @brief Register a metric in the global registry.
  * @param m Metric to register.
@@ -118,6 +131,10 @@ void syn_metrics_foreach(void (*cb)(const SYN_Metric *m, void *ctx), void *ctx);
 #define SYN_METRIC_SUB(m, v)   ((void)0)
 /** @brief Set a metric value (disabled). */
 #define SYN_METRIC_SET(m, v)   ((void)0)
+
+static inline void syn_metrics_init(void) {}
+static inline void syn_metrics_record(const char *name, float value) { (void)name; (void)value; }
+static inline void syn_metrics_count(const char *name, int32_t delta) { (void)name; (void)delta; }
 
 /**
  * @brief Iterate over all registered metrics (no-op when disabled).

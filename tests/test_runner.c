@@ -106,6 +106,8 @@ void run_foc_tests(void);
 void run_foc_observer_tests(void);
 void run_fault_tests(void);
 void run_autotune_tests(void);
+void run_metrics_tests(void);
+void run_random_tests(void);
 
 void run_gpio_tests(void);
 void run_uart_tests(void);
@@ -308,6 +310,12 @@ int main(void)
 
     /* Multi-Axis Motion Interpolator */
     run_interpolator_tests();
+
+    /* System Metrics */
+    run_metrics_tests();
+
+    /* Random Utilities */
+    run_random_tests();
 
     return UNITY_END();
 }
