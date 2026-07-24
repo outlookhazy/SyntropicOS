@@ -1,6 +1,7 @@
 /**
  * @file syn_modbus_master.h
  * @brief Non-blocking Modbus RTU Master / Client protocol engine.
+ * @ingroup syn_protocol
  */
 
 #ifndef SYN_MODBUS_MASTER_H
@@ -167,6 +168,14 @@ SYN_Status syn_modbus_master_mask_write_register(SYN_ModbusMaster *m, uint8_t sl
  */
 SYN_Status syn_modbus_master_read_fifo_queue(SYN_ModbusMaster *m, uint8_t slave_addr,
                                               uint16_t fifo_addr);
+
+/**
+ * @brief Issue a Report Server ID (FC 0x11) request.
+ * @param m           Master instance.
+ * @param slave_addr  Target slave address (1–247).
+ * @return SYN_OK on success, SYN_BUSY if transaction in progress.
+ */
+SYN_Status syn_modbus_master_report_server_id(SYN_ModbusMaster *m, uint8_t slave_addr);
 
 /**
  * @brief Feed a received byte into the Master RX stream buffer.

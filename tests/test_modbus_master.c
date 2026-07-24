@@ -265,6 +265,24 @@ static void test_modbus_master_new_queries(void)
     TEST_ASSERT_EQUAL(SYN_INVALID_PARAM, syn_modbus_master_write_multiple_coils(NULL, 1, 0, 8, coil_bits));
     TEST_ASSERT_EQUAL(SYN_INVALID_PARAM, syn_modbus_master_mask_write_register(NULL, 1, 0, 0, 0));
     TEST_ASSERT_EQUAL(SYN_INVALID_PARAM, syn_modbus_master_read_fifo_queue(NULL, 1, 0));
+
+    /* SYN_BUSY state checks when transaction active */
+    syn_modbus_master_init(&master, 500);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_modbus_master_read_holding(&master, 1, 0, 2));
+    TEST_ASSERT_EQUAL(SYN_BUSY, syn_modbus_master_read_holding(&master, 1, 0, 2));
+    TEST_ASSERT_EQUAL(SYN_BUSY, syn_modbus_master_write_multiple_coils(&master, 1, 0, 8, coil_bits));
+    TEST_ASSERT_EQUAL(SYN_BUSY, syn_modbus_master_mask_write_register(&master, 1, 0, 0, 0));
+    TEST_ASSERT_EQUAL(SYN_BUSY, syn_modbus_master_read_fifo_queue(&master, 1, 0));
+    TEST_ASSERT_EQUAL(SYN_BUSY, syn_modbus_master_report_server_id(&master, 1));
+
+    /* Report Server ID (FC 0x11) */
+    syn_modbus_master_init(&master, 500);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_modbus_master_report_server_id(&master, 1));
+    uint8_t resp_srv[10] = { 1, 0x11, 5, 'T', 'E', 'S', 'T', 0xFF, 0, 0 };
+    crc = syn_crc16_modbus(resp_srv, 8);
+    resp_srv[8] = (uint8_t)(crc & 0xFF); resp_srv[9] = (uint8_t)(crc >> 8);
+    for (int i = 0; i < 10; i++) syn_modbus_master_feed(&master, resp_srv[i]);
+    TEST_ASSERT_EQUAL(SYN_MB_MASTER_STATE_COMPLETE, syn_modbus_master_process(&master, 10));
 }
 
 void run_modbus_master_tests(void)

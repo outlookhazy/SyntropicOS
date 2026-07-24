@@ -2,17 +2,22 @@
  * @file syn_modbus.h
  * @brief Modbus RTU slave implementation.
  *
- * Implements a Modbus RTU slave using UART, CRC-16/Modbus (already in
- * syn_crc), and a register map. Supports the most common function codes:
+ * Implements a Modbus RTU slave using UART, CRC-16/Modbus (in
+ * syn_crc), and register/bit maps. Supports all 19 function codes:
  *
- *   - 0x03: Read Holding Registers
- *   - 0x04: Read Input Registers
- *   - 0x06: Write Single Register
- *   - 0x10: Write Multiple Registers
+ *   - 0x01: Read Coils                      - 0x0F: Write Multiple Coils
+ *   - 0x02: Read Discrete Inputs            - 0x10: Write Multiple Registers
+ *   - 0x03: Read Holding Registers          - 0x11: Report Server ID
+ *   - 0x04: Read Input Registers            - 0x14: Read File Record
+ *   - 0x05: Write Single Coil               - 0x15: Write File Record
+ *   - 0x06: Write Single Register           - 0x16: Mask Write Register
+ *   - 0x07: Read Exception Status           - 0x17: Read/Write Multiple Registers
+ *   - 0x08: Serial Line Diagnostics         - 0x18: Read FIFO Queue
+ *   - 0x0B: Get Comm Event Counter          - 0x2B: Read Device Identification
+ *   - 0x0C: Get Comm Event Log
  *
- * The register map is a flat array of uint16_t that your application
- * reads/writes directly. The Modbus module handles framing, CRC, and
- * exception responses.
+ * The register/coil maps are application-owned arrays. The Modbus module
+ * handles framing, CRC validation, and exception responses.
  *
  * @par Usage
  * @code
@@ -74,6 +79,7 @@ extern "C" {
 #define SYN_MB_FC_GET_COMM_EVENT_LOG    0x0C  /**< Get comm event log           */
 #define SYN_MB_FC_WRITE_MULTIPLE_COILS  0x0F  /**< Write multiple coils (bits)  */
 #define SYN_MB_FC_WRITE_MULTIPLE        0x10  /**< Write multiple registers     */
+#define SYN_MB_FC_REPORT_SERVER_ID      0x11  /**< Report server ID             */
 #define SYN_MB_FC_READ_FILE_RECORD      0x14  /**< Read file record             */
 #define SYN_MB_FC_WRITE_FILE_RECORD     0x15  /**< Write file record            */
 #define SYN_MB_FC_MASK_WRITE_REGISTER   0x16  /**< Mask write register          */
@@ -169,6 +175,8 @@ typedef struct {
     uint32_t         silence_ms;          /**< Custom inter-frame silence gap in ms (0 = default 5ms) */
     uint8_t          exception_status;    /**< Status byte for FC 0x07    */
     const SYN_Modbus_DeviceInfo *device_info; /**< Device Info for FC 0x2B/0x0E */
+    const uint8_t   *server_id;           /**< Server ID bytes for FC 0x11 (NULL = "SYN-MB") */
+    uint8_t          server_id_len;       /**< Length of server_id bytes (max 240) */
     SYN_Modbus_ReadFileRecordCallback  on_read_file;  /**< File read callback FC 0x14 */
     SYN_Modbus_WriteFileRecordCallback on_write_file; /**< File write callback FC 0x15 */
     void            *file_cb_ctx;         /**< Context for file callbacks */

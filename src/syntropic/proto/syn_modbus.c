@@ -644,6 +644,31 @@ static void handle_get_comm_event_log(SYN_Modbus *mb)
 }
 
 /**
+ * @brief Handle Report Server ID (FC 0x11).
+ */
+static void handle_report_server_id(SYN_Modbus *mb)
+{
+    const uint8_t *id_bytes = mb->cfg.server_id;
+    uint8_t id_len = mb->cfg.server_id_len;
+
+    if (id_bytes == NULL) {
+        id_bytes = (const uint8_t *)"SYN-MB";
+        id_len = 6;
+    }
+
+    if (id_len > 240) {
+        id_len = 240;
+    }
+
+    mb->buf[2] = (uint8_t)(id_len + 1); /* Byte count: ID bytes + Run Status indicator */
+    memcpy(&mb->buf[3], id_bytes, id_len);
+    mb->buf[3 + id_len] = 0xFFU; /* Run status: 0xFF = ON */
+
+    send_response(mb, (uint16_t)(4 + id_len));
+    mb->comm_event_counter++;
+}
+
+/**
  * @brief Handle Mask Write Register (FC 0x16).
  */
 static void handle_mask_write_register(SYN_Modbus *mb)
@@ -794,6 +819,11 @@ bool syn_modbus_process(SYN_Modbus *mb)
         handle_write_multiple(mb);
         mb->comm_event_counter++;
         return !is_broadcast;
+
+    case SYN_MB_FC_REPORT_SERVER_ID:
+        if (is_broadcast) break;
+        handle_report_server_id(mb);
+        return true;
 
     case SYN_MB_FC_READ_FILE_RECORD:
         if (is_broadcast) break;

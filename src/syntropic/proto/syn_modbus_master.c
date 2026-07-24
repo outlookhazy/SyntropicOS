@@ -234,6 +234,31 @@ SYN_Status syn_modbus_master_read_fifo_queue(SYN_ModbusMaster *m, uint8_t slave_
     return SYN_OK;
 }
 
+SYN_Status syn_modbus_master_report_server_id(SYN_ModbusMaster *m, uint8_t slave_addr)
+{
+    if (m == NULL || slave_addr == 0) return SYN_INVALID_PARAM;
+
+    if (m->state == SYN_MB_MASTER_STATE_WAITING_RESPONSE) return SYN_BUSY;
+
+    m->slave_addr = slave_addr;
+    m->func_code  = SYN_MB_FC_REPORT_SERVER_ID;
+    m->start_addr = 0;
+    m->count      = 0;
+    m->rx_len     = 0;
+    m->read_count = 0;
+    m->exception_code = 0;
+
+    m->buf[0] = slave_addr;
+    m->buf[1] = SYN_MB_FC_REPORT_SERVER_ID;
+
+    uint16_t crc = syn_crc16_modbus(m->buf, 2);
+    write_u16_be(&m->buf[2], (uint16_t)((crc >> 8) | (crc << 8)));
+    m->tx_len = 4;
+
+    m->state = SYN_MB_MASTER_STATE_WAITING_RESPONSE;
+    return SYN_OK;
+}
+
 void syn_modbus_master_feed(SYN_ModbusMaster *m, uint8_t byte)
 {
     SYN_ASSERT(m != NULL);
@@ -304,7 +329,8 @@ SYN_ModbusMaster_State syn_modbus_master_process(SYN_ModbusMaster *m, uint32_t c
         }
         m->read_count = words;
         m->state = SYN_MB_MASTER_STATE_COMPLETE;
-    } else if (fc == SYN_MB_FC_READ_COILS || fc == SYN_MB_FC_READ_DISCRETE_INPUTS) {
+    } else if (fc == SYN_MB_FC_READ_COILS || fc == SYN_MB_FC_READ_DISCRETE_INPUTS ||
+               fc == SYN_MB_FC_REPORT_SERVER_ID) {
         uint8_t byte_count = m->buf[2];
         if (byte_count > 250) byte_count = 250;
         for (uint16_t i = 0; i < byte_count; i++) {
