@@ -11,6 +11,7 @@
 
 #include "syn_isotp.h"
 #include "../util/syn_assert.h"
+#include "../util/syn_pack.h"
 
 #include <string.h>
 
@@ -187,10 +188,7 @@ bool syn_isotp_get_tx_frame(SYN_ISOTP_Link *link, SYN_CAN_Frame *frame)
             } else {
                 frame->data[0] = SYN_ISOTP_PCI_FF;
                 frame->data[1] = 0;
-                frame->data[2] = (uint8_t)((link->tx_len >> 24) & 0xFF);
-                frame->data[3] = (uint8_t)((link->tx_len >> 16) & 0xFF);
-                frame->data[4] = (uint8_t)((link->tx_len >> 8) & 0xFF);
-                frame->data[5] = (uint8_t)(link->tx_len & 0xFF);
+                syn_poke_u32((uint32_t)link->tx_len, frame->data, 2);
                 payload_in_ff = (link->tx_len > 58) ? 58 : link->tx_len;
                 memcpy(&frame->data[6], link->tx_buf, payload_in_ff);
                 frame->dlc = syn_can_fd_pad_len((uint8_t)(payload_in_ff + 6));
@@ -304,16 +302,13 @@ void syn_isotp_process_rx_frame(SYN_ISOTP_Link *link, const SYN_CAN_Frame *frame
         size_t ff_len;
         size_t data_offset;
 
-        uint16_t len_12 = ((uint16_t)(frame->data[0] & 0x0FU) << 8) | frame->data[1];
+        uint16_t len_12 = syn_peek_u16(frame->data, 0) & 0x0FFFU;
         if (len_12 != 0) {
             ff_len = len_12;
             data_offset = 2;
         } else {
             /* 32-bit Extended First Frame */
-            ff_len = (size_t)(((uint32_t)frame->data[2] << 24) |
-                              ((uint32_t)frame->data[3] << 16) |
-                              ((uint32_t)frame->data[4] << 8)  |
-                              (uint32_t)frame->data[5]);
+            ff_len = (size_t)syn_peek_u32(frame->data, 2);
             data_offset = 6;
         }
 
