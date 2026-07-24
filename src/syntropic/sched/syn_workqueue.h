@@ -23,6 +23,7 @@
 #ifndef SYN_WORKQUEUE_H
 #define SYN_WORKQUEUE_H
 
+#include "../util/syn_spsc_queue.h"
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
@@ -42,11 +43,8 @@ typedef struct {
 
 /** Work queue (lock-free SPSC ring). */
 typedef struct {
-    SYN_WorkItem  *items;        /**< Array of work item slots (caller-owned) */
-    size_t          capacity;     /**< Maximum items the queue can hold */
-    volatile size_t head;     /**< Written by producer (ISR)              */
-    volatile size_t tail;     /**< Written by consumer (main loop)        */
-    uint32_t        overflow; /**< Counter: posts dropped due to full     */
+    SYN_SPSC_Queue queue;    /**< Embedded lock-free SPSC queue */
+    uint32_t       overflow; /**< Counter: posts dropped due to full */
 } SYN_WorkQueue;
 
 /**
@@ -88,7 +86,7 @@ size_t syn_workqueue_process(SYN_WorkQueue *wq);
  */
 static inline bool syn_workqueue_empty(const SYN_WorkQueue *wq)
 {
-    return wq->head == wq->tail;
+    return syn_spsc_queue_is_empty(&wq->queue);
 }
 
 /**
@@ -99,9 +97,7 @@ static inline bool syn_workqueue_empty(const SYN_WorkQueue *wq)
  */
 static inline size_t syn_workqueue_pending(const SYN_WorkQueue *wq)
 {
-    return (wq->head >= wq->tail)
-         ? wq->head - wq->tail
-         : wq->capacity - wq->tail + wq->head;
+    return syn_spsc_queue_count(&wq->queue);
 }
 
 /**

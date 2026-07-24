@@ -21,10 +21,7 @@ void syn_workqueue_init(SYN_WorkQueue *wq,
     SYN_ASSERT(buf != NULL);
     SYN_ASSERT(capacity > 1);
 
-    wq->items    = buf;
-    wq->capacity = capacity;
-    wq->head     = 0;
-    wq->tail     = 0;
+    syn_spsc_queue_init(&wq->queue, buf, sizeof(SYN_WorkItem), capacity);
     wq->overflow = 0;
 
     memset(buf, 0, sizeof(SYN_WorkItem) * capacity);
@@ -33,39 +30,28 @@ void syn_workqueue_init(SYN_WorkQueue *wq,
 bool syn_workqueue_post(SYN_WorkQueue *wq,
                          SYN_WorkFunc func, void *ctx)
 {
-    size_t next = wq->head + 1;
-    if (next >= wq->capacity) next = 0;
+    if (!wq || !func) return false;
 
-    if (next == wq->tail) {
-        /* Queue full */
+    SYN_WorkItem item = {.func = func, .ctx = ctx};
+    SYN_Status status = syn_spsc_queue_push(&wq->queue, &item);
+
+    if (status != SYN_OK) {
         wq->overflow++;
         return false;
     }
-
-    wq->items[wq->head].func = func;
-    wq->items[wq->head].ctx  = ctx;
-
-    /* Memory barrier hint for ISR→main ordering.
-     * On Cortex-M this is sufficient as stores are ordered. */
-    wq->head = next;
 
     return true;
 }
 
 size_t syn_workqueue_process(SYN_WorkQueue *wq)
 {
+    if (!wq) return 0;
     size_t count = 0;
+    SYN_WorkItem item;
 
-    while (wq->tail != wq->head) {
-        SYN_WorkFunc func = wq->items[wq->tail].func;
-        void         *ctx  = wq->items[wq->tail].ctx;
-
-        size_t next = wq->tail + 1;
-        if (next >= wq->capacity) next = 0;
-        wq->tail = next;
-
-        if (func != NULL) {
-            func(ctx);
+    while (syn_spsc_queue_pop(&wq->queue, &item) == SYN_OK) {
+        if (item.func != NULL) {
+            item.func(item.ctx);
             count++;
         }
     }
