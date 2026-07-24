@@ -22,15 +22,47 @@ extern "C" {
 #endif
 
 /** @defgroup n2k_pgns Standard NMEA 2000 Parameter Group Numbers
- *  @{ */
-#define SYN_N2K_PGN_SYSTEM_TIME      126992U /**< System Time (0x1F010) */
-#define SYN_N2K_PGN_VESSEL_HEADING   127250U /**< Vessel Heading (0x1F112) */
-#define SYN_N2K_PGN_BATTERY_STATUS   127508U /**< Battery Status (0x1F214) */
-#define SYN_N2K_PGN_DC_DETAILED_STATUS 127506U /**< DC Detailed Status (0x1F212) */
-#define SYN_N2K_PGN_SPEED_WATER      128259U /**< Speed Through Water (0x1F503) */
-#define SYN_N2K_PGN_POS_RAPID        129025U /**< Position, Rapid Update (0x1F801) */
-#define SYN_N2K_PGN_COG_SOG_RAPID    129026U /**< COG & SOG, Rapid Update (0x1F802) */
-#define SYN_N2K_PGN_ENV_PARAMS       130310U /**< Environmental Parameters (0x1FD06) */
+  * @{ */
+/* Network Management */
+#define SYN_N2K_PGN_ISO_ACKNOWLEDGEMENT 59392U  /**< ISO Acknowledgement (0x0E800) */
+#define SYN_N2K_PGN_ISO_REQUEST         59904U  /**< ISO Request (0x0EA00) */
+#define SYN_N2K_PGN_ISO_ADDRESS_CLAIM   60928U  /**< ISO Address Claim (0x0EE00) */
+#define SYN_N2K_PGN_SYSTEM_TIME         126992U /**< System Time (0x1F010) */
+#define SYN_N2K_PGN_PRODUCT_INFO        126996U /**< Product Information (0x1F014) */
+
+/* Steering, Heading & Navigation */
+#define SYN_N2K_PGN_RUDDER               127245U /**< Rudder Angle (0x1F10D) */
+#define SYN_N2K_PGN_VESSEL_HEADING      127250U /**< Vessel Heading (0x1F112) */
+#define SYN_N2K_PGN_RATE_OF_TURN        127251U /**< Rate of Turn (0x1F113) */
+#define SYN_N2K_PGN_ATTITUDE            127257U /**< Attitude (Pitch/Roll/Yaw) (0x1F119) */
+#define SYN_N2K_PGN_MAGNETIC_VARIATION  127258U /**< Magnetic Variation (0x1F11A) */
+#define SYN_N2K_PGN_SPEED_WATER         128259U /**< Speed Through Water (0x1F503) */
+#define SYN_N2K_PGN_WATER_DEPTH         128267U /**< Water Depth (0x1F50B) */
+#define SYN_N2K_PGN_DISTANCE_LOG        128275U /**< Distance Log (0x1F513) */
+#define SYN_N2K_PGN_POS_RAPID           129025U /**< Position, Rapid Update (0x1F801) */
+#define SYN_N2K_PGN_COG_SOG_RAPID       129026U /**< COG & SOG, Rapid Update (0x1F802) */
+#define SYN_N2K_PGN_GNSS_POS            129029U /**< GNSS Position Data (0x1F805) */
+
+/* Power & Battery Systems */
+#define SYN_N2K_PGN_INVERTER_STATUS     127501U /**< Inverter Status (0x1F20D) */
+#define SYN_N2K_PGN_AC_INPUT_STATUS     127503U /**< AC Input Status (0x1F20F) */
+#define SYN_N2K_PGN_AC_OUTPUT_STATUS    127504U /**< AC Output Status (0x1F210) */
+#define SYN_N2K_PGN_FLUID_LEVEL         127505U /**< Fluid Level (Fuel/Water/Waste) (0x1F211) */
+#define SYN_N2K_PGN_DC_DETAILED_STATUS  127506U /**< DC Detailed Status (0x1F212) */
+#define SYN_N2K_PGN_CHARGER_STATUS      127507U /**< Charger Status (0x1F213) */
+#define SYN_N2K_PGN_BATTERY_STATUS      127508U /**< Battery Status (0x1F214) */
+#define SYN_N2K_PGN_CHARGER_CONFIG      127509U /**< Charger Configuration (0x1F215) */
+
+/* Engine & Transmission */
+#define SYN_N2K_PGN_ENGINE_RAPID        127488U /**< Engine Parameters, Rapid Update (0x1F200) */
+#define SYN_N2K_PGN_ENGINE_DYNAMIC      127489U /**< Engine Parameters, Dynamic (0x1F201) */
+#define SYN_N2K_PGN_TRANSMISSION_PARAMS 127493U /**< Transmission Parameters (0x1F205) */
+#define SYN_N2K_PGN_TRIM_TAB            127497U /**< Trim Tab Position (0x1F209) */
+
+/* Environment */
+#define SYN_N2K_PGN_WIND_DATA           130306U /**< Wind Data (0x1FD02) */
+#define SYN_N2K_PGN_ENV_PARAMS          130310U /**< Environmental Parameters (0x1FD06) */
+#define SYN_N2K_PGN_ENVIRONMENTAL_ACT   130311U /**< Environmental Parameters (Actual) (0x1FD07) */
 /** @} */
 
 /**
