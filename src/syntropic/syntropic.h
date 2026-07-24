@@ -150,6 +150,10 @@ extern "C" {
   #include "drivers/syn_dac.h"
 #endif
 
+#if !defined(SYN_USE_DMA) || SYN_USE_DMA
+  #include "drivers/syn_dma.h"
+#endif
+
 #if !defined(SYN_USE_ONEWIRE) || SYN_USE_ONEWIRE
   #include "drivers/syn_soft_onewire.h"
 #endif

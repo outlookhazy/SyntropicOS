@@ -83,6 +83,7 @@ void run_heartbeat_tests(void);
 void run_protothread_tests(void);
 void run_sched_tests(void);
 void run_exti_tests(void);
+void run_dma_tests(void);
 void run_mailbox_tests(void);
 void run_sleep_tests(void);
 void run_version_tests(void);
@@ -322,6 +323,9 @@ int main(void)
 
     /* Random Utilities */
     run_random_tests();
+
+    /* DMA Driver Engine */
+    run_dma_tests();
 
     return UNITY_END();
 }

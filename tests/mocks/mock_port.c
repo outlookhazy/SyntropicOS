@@ -793,61 +793,52 @@ MockDmaChannel mock_dma[MOCK_DMA_MAX_CHANNELS];
 int            mock_dma_start_count = 0;
 int            mock_dma_stop_count = 0;
 
-SYN_Status syn_port_dma_init(const SYN_DMA_Config *cfg)
+SYN_Status syn_port_dma_start(const SYN_PortDmaTransfer *xfer)
 {
-    if (cfg == NULL || cfg->channel >= MOCK_DMA_MAX_CHANNELS) return SYN_ERROR;
-    mock_dma[cfg->channel].cfg = *cfg;
-    mock_dma[cfg->channel].initialized = true;
-    mock_dma[cfg->channel].busy = false;
-    mock_dma[cfg->channel].remaining = 0;
-    return SYN_OK;
-}
-
-SYN_Status syn_port_dma_start(uint8_t channel,
-                               const volatile void *src,
-                               volatile void *dst,
-                               size_t count)
-{
-    (void)src; (void)dst;
-    if (channel >= MOCK_DMA_MAX_CHANNELS) return SYN_ERROR;
-    if (!mock_dma[channel].initialized) return SYN_ERROR;
-    if (mock_dma[channel].busy) return SYN_BUSY;
-    mock_dma[channel].busy = true;
-    mock_dma[channel].remaining = count;
+    if (!xfer || xfer->channel_id >= MOCK_DMA_MAX_CHANNELS) return SYN_INVALID_PARAM;
     mock_dma_start_count++;
+    mock_dma[xfer->channel_id].busy = true;
+    mock_dma[xfer->channel_id].remaining = xfer->count;
+    if (xfer->src && xfer->dst && xfer->count > 0) {
+        size_t total_bytes = xfer->count * (size_t)xfer->data_size;
+        memcpy(xfer->dst, (const void *)xfer->src, total_bytes);
+    }
     return SYN_OK;
 }
 
-SYN_Status syn_port_dma_stop(uint8_t channel)
+SYN_Status syn_port_dma_stop(uint8_t channel_id)
 {
-    if (channel >= MOCK_DMA_MAX_CHANNELS) return SYN_ERROR;
-    mock_dma[channel].busy = false;
-    mock_dma[channel].remaining = 0;
+    if (channel_id >= MOCK_DMA_MAX_CHANNELS) return SYN_INVALID_PARAM;
+    mock_dma[channel_id].busy = false;
+    mock_dma[channel_id].remaining = 0;
     mock_dma_stop_count++;
     return SYN_OK;
 }
 
-bool syn_port_dma_busy(uint8_t channel)
+bool syn_port_dma_is_busy(uint8_t channel_id)
 {
-    if (channel >= MOCK_DMA_MAX_CHANNELS) return false;
-    return mock_dma[channel].busy;
+    if (channel_id >= MOCK_DMA_MAX_CHANNELS) return false;
+    return mock_dma[channel_id].busy;
 }
 
-size_t syn_port_dma_remaining(uint8_t channel)
+void syn_port_cache_clean(const void *addr, size_t len)
 {
-    if (channel >= MOCK_DMA_MAX_CHANNELS) return 0;
-    return mock_dma[channel].remaining;
+    (void)addr;
+    (void)len;
+}
+
+void syn_port_cache_invalidate(void *addr, size_t len)
+{
+    (void)addr;
+    (void)len;
 }
 
 void mock_dma_complete(uint8_t channel, SYN_Status result)
 {
+    (void)result;
     if (channel >= MOCK_DMA_MAX_CHANNELS) return;
     mock_dma[channel].busy = false;
     mock_dma[channel].remaining = 0;
-    if (mock_dma[channel].cfg.callback != NULL) {
-        mock_dma[channel].cfg.callback(channel, result,
-                                        mock_dma[channel].cfg.user_data);
-    }
 }
 
 #endif /* SYN_USE_DMA */
@@ -976,9 +967,9 @@ void syn_port_ipc_notify(void)
     mock_ipc_notify_count++;
 }
 
+#endif /* SYN_USE_MULTICORE */
+
 void syn_port_memory_barrier(void)
 {
     mock_barrier_count++;
 }
-
-#endif /* SYN_USE_MULTICORE */

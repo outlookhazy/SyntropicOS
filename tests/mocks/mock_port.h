@@ -164,7 +164,7 @@ extern bool     mock_dac_init_ok;                       /**< Controls syn_port_d
 
 /* ── DMA ────────────────────────────────────────────────────────────────── */
 
-#include "syntropic/port/syn_port_dma.h"
+#include "syntropic/drivers/syn_dma.h"
 
 #if defined(SYN_USE_DMA) && SYN_USE_DMA
 
