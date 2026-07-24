@@ -289,6 +289,10 @@ extern "C" {
   #include "proto/syn_nmea.h"
 #endif
 
+#if !defined(SYN_USE_J1939) || SYN_USE_J1939
+  #include "proto/syn_j1939.h"
+#endif
+
 /* ── Storage ────────────────────────────────────────────────────────────── */
 
 #if !defined(SYN_USE_PARAM) || SYN_USE_PARAM

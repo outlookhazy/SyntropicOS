@@ -74,6 +74,7 @@ void run_cia402_tests(void);
 void run_lss_tests(void);
 void run_cia401_tests(void);
 void run_canopen_mgr_tests(void);
+void run_j1939_tests(void);
 void run_canvas_tests(void);
 void run_menu_tests(void);
 void run_imgui_tests(void);
@@ -326,6 +327,9 @@ int main(void)
 
     /* DMA Driver Engine */
     run_dma_tests();
+
+    /* SAE J1939 Heavy Duty Vehicle Protocol */
+    run_j1939_tests();
 
     return UNITY_END();
 }
