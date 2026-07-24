@@ -67,4 +67,73 @@ uint32_t epoch = syn_sntp_get_epoch_s(&sntp);
 uint32_t ns    = syn_sntp_get_epoch_ns(&sntp);
 ```
 
+---
+
+## CANopen Ecosystem (CiA 301, 302, 305, 401, 402)
+
+SyntropicOS features a complete, zero-allocation, bare-metal CANopen suite suitable for motor drives, sensor blocks, battery management systems (BMS), and central motion controllers.
+
+### CANopen Layer Setting Services (CiA 305 LSS)
+
+Configures Node-ID allocation and CAN bitrate over the CAN bus without physical DIP switches.
+
+```c
+#include "syntropic/proto/syn_lss.h"
+
+static SYN_LSSSlave lss;
+static SYN_LSSAddress lss_addr = {
+    .vendor_id = 0x000000A5,
+    .product_code = 0x12345678,
+    .revision_no = 0x00010000,
+    .serial_no = 0x88776655
+};
+
+/* Initialize slave with default unconfigured node ID 0xFF */
+syn_lss_slave_init(&lss, &lss_addr, 0xFF);
+
+/* Process incoming CAN frames on COB-ID 0x7E5 */
+SYN_CAN_Frame rx_frame, tx_resp;
+if (syn_lss_slave_process(&lss, &rx_frame, &tx_resp)) {
+    syn_can_send(&can, &tx_resp); /* Transmit response on 0x7E4 */
+}
+```
+
+### CANopen Generic I/O Profile (CiA 401)
+
+Binds digital and analog I/O lines to standard CANopen Object Dictionary indices (`0x6000`, `0x6200`, `0x6401`, `0x6411`).
+
+```c
+#include "syntropic/proto/syn_cia401.h"
+
+static SYN_CiA401_Device io_dev;
+static SYN_CANOpenODEntry od_table[32];
+
+/* Initialize 2 digital input bytes, 2 digital output bytes, 4 analog inputs, 2 analog outputs */
+syn_cia401_init(&io_dev, 2, 2, 4, 2);
+
+/* Populate Object Dictionary table */
+size_t od_count = syn_cia401_populate_od(&io_dev, od_table, 32);
+```
+
+### CANopen Network Manager & Master (CiA 302)
+
+Acts as a central CANopen Master node commanding remote slaves via NMT, reading/writing Object Dictionaries via non-blocking SDO, and monitoring remote node heartbeats.
+
+```c
+#include "syntropic/proto/syn_canopen_mgr.h"
+
+static SYN_CANOpenManager mgr;
+syn_canopen_mgr_init(&mgr);
+
+/* Broadcast NMT Start Node to all slave nodes */
+SYN_CAN_Frame nmt_frame;
+syn_canopen_mgr_build_nmt(&nmt_frame, 0x00, SYN_CANOPEN_NMT_CMD_START);
+syn_can_send(&can, &nmt_frame);
+
+/* Issue SDO Read request to Node 5, Index 0x1000, Subindex 0x00 */
+SYN_CAN_Frame sdo_req;
+syn_canopen_mgr_sdo_read_init(&mgr, &sdo_req, 5, 0x1000, 0x00);
+syn_can_send(&can, &sdo_req);
+```
+
 Used as a prerequisite by the [WireGuard VPN client](crypto.md#wireguard-vpn-client) for TAI64N handshake timestamps.
