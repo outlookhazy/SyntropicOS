@@ -45,8 +45,7 @@ size_t syn_coap_serialize(const SYN_CoapMsg *msg, const SYN_CoapOption *options,
     /* Encode 4-byte header */
     buf[0] = (uint8_t)((COAP_VERSION << 6) | ((msg->type & 0x03) << 4) | (msg->token_len & 0x0F));
     buf[1] = msg->code;
-    buf[2] = (uint8_t)(msg->msg_id >> 8);
-    buf[3] = (uint8_t)(msg->msg_id & 0xFF);
+    syn_poke_u16(msg->msg_id, buf, 2);
 
     size_t pos = 4;
     for (size_t i = 0; i < msg->token_len; i++) {
