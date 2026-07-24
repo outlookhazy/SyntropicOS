@@ -1675,9 +1675,7 @@ void syn_imgui_progress_bar_ex(SYN_IMGUI_Context *ctx, int32_t value,
         const char *text = overlay;
         if (text == NULL && max > min) {
             /* Auto-generate "XX%" */
-            int32_t pct = ((value - min) * 100) / (max - min);
-            if (pct < 0) pct = 0;
-            if (pct > 100) pct = 100;
+            int32_t pct = SYN_CLAMP(((value - min) * 100) / (max - min), 0, 100);
             uint8_t i = 0;
             if (pct >= 100) { auto_buf[i++] = '1'; auto_buf[i++] = '0'; auto_buf[i++] = '0'; }
             else if (pct >= 10) { auto_buf[i++] = (char)('0' + pct / 10); auto_buf[i++] = (char)('0' + pct % 10); }
