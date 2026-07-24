@@ -14,6 +14,10 @@
 
 #include "syn_foc.h"
 #include "../util/syn_assert.h"
+#include "../common/syn_defs.h"
+
+/** @brief Precomputed √3 in Q16.16 (≈ 1.73205). */
+#define Q16_SQRT3         113512
 
 /** @brief Precomputed 1/√3 in Q16.16 (≈ 0.57735). */
 #define Q16_INV_SQRT3     37837
@@ -50,7 +54,7 @@ void syn_foc_inv_clarke(const SYN_FOC_AB *ab, SYN_FOC_ABC *abc)
      *   c = (-α - √3·β) / 2
      *   where √3 ≈ 1.73205 (113512 in Q16.16)
      */
-    q16_t s3b = (q16_t)(((int64_t)ab->beta * 113512) >> 16);
+    q16_t s3b = q16_mul(ab->beta, Q16_SQRT3);
 
     abc->a = ab->alpha;
     abc->b = (-ab->alpha + s3b) / 2;
@@ -96,6 +100,7 @@ void syn_foc_svpwm(const SYN_FOC_AB *ab, q16_t v_bus,
 {
     SYN_ASSERT(ab != NULL && duty_a != NULL && duty_b != NULL && duty_c != NULL);
     SYN_ASSERT(v_bus > 0);
+    if (v_bus <= 0) return;
 
     /*
      * Standard 7-segment SVPWM via inverse Clarke with center-aligned PWM.
@@ -105,7 +110,7 @@ void syn_foc_svpwm(const SYN_FOC_AB *ab, q16_t v_bus,
      *   vb = (-α + √3·β) / 2
      *   vc = (-α - √3·β) / 2
      */
-    q16_t s3b = (q16_t)(((int64_t)ab->beta * 113512) >> 16);  /* √3·β */
+    q16_t s3b = q16_mul(ab->beta, Q16_SQRT3);  /* √3·β */
 
     q16_t va = ab->alpha;
     q16_t vb = (-ab->alpha + s3b) / 2;
@@ -116,12 +121,8 @@ void syn_foc_svpwm(const SYN_FOC_AB *ab, q16_t v_bus,
      * The center offset shifts all three voltages so the midpoint
      * aligns with v_bus/2, maximizing linear modulation range.
      */
-    q16_t v_min = va;
-    q16_t v_max = va;
-    if (vb < v_min) v_min = vb;
-    if (vc < v_min) v_min = vc;
-    if (vb > v_max) v_max = vb;
-    if (vc > v_max) v_max = vc;
+    q16_t v_min = SYN_MIN(va, SYN_MIN(vb, vc));
+    q16_t v_max = SYN_MAX(va, SYN_MAX(vb, vc));
 
     q16_t v_offset = -(v_max + v_min) / 2;
 
@@ -129,12 +130,9 @@ void syn_foc_svpwm(const SYN_FOC_AB *ab, q16_t v_bus,
      * Step 3: Normalize to [0, 1] duty cycle.
      *   duty = (v + offset) / v_bus + 0.5
      */
-    q16_t half_vbus = v_bus / 2;
     *duty_a = q16_clamp(q16_div(va + v_offset, v_bus) + Q16_HALF, 0, Q16_ONE);
     *duty_b = q16_clamp(q16_div(vb + v_offset, v_bus) + Q16_HALF, 0, Q16_ONE);
     *duty_c = q16_clamp(q16_div(vc + v_offset, v_bus) + Q16_HALF, 0, Q16_ONE);
-
-    (void)half_vbus;  /* Used in the concept, duty calc uses full v_bus */
 }
 
 #endif /* SYN_USE_FOC */
