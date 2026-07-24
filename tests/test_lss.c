@@ -100,6 +100,69 @@ void test_lss_inquire_address(void)
     TEST_ASSERT_EQUAL(0x000000A5, vendor);
 }
 
+void test_lss_extra_coverage(void)
+{
+    syn_lss_slave_init(&g_lss_slave, &g_lss_addr, 0x10);
+
+    SYN_CAN_Frame req, resp;
+    memset(&req, 0, sizeof(req));
+    req.id = SYN_LSS_COB_ID_MASTER;
+    req.dlc = 8;
+
+    /* Invalid COB-ID or DLC */
+    req.id = 0x100;
+    TEST_ASSERT_FALSE(syn_lss_slave_process(&g_lss_slave, &req, &resp));
+    req.id = SYN_LSS_COB_ID_MASTER;
+    req.dlc = 4;
+    TEST_ASSERT_FALSE(syn_lss_slave_process(&g_lss_slave, &req, &resp));
+    req.dlc = 8;
+
+    /* In operational mode (not config mode), config commands return false */
+    req.data[0] = SYN_LSS_CS_CONFIGURE_NODE_ID;
+    req.data[1] = 0x30;
+    TEST_ASSERT_FALSE(syn_lss_slave_process(&g_lss_slave, &req, &resp));
+
+    /* Switch to configuration mode */
+    g_lss_slave.mode = SYN_LSS_MODE_CONFIGURATION;
+
+    /* Invalid Node-ID (> 127) */
+    req.data[0] = SYN_LSS_CS_CONFIGURE_NODE_ID;
+    req.data[1] = 200;
+    TEST_ASSERT_TRUE(syn_lss_slave_process(&g_lss_slave, &req, &resp));
+    TEST_ASSERT_EQUAL(1, resp.data[1]); /* Error */
+
+    /* Invalid Baud Table Index (> 8) */
+    req.data[0] = SYN_LSS_CS_CONFIGURE_BIT_TIMING;
+    req.data[2] = 0xFF;
+    TEST_ASSERT_TRUE(syn_lss_slave_process(&g_lss_slave, &req, &resp));
+    TEST_ASSERT_EQUAL(1, resp.data[1]); /* Error */
+
+    /* Inquire Product Code */
+    req.data[0] = SYN_LSS_CS_INQUIRE_PRODUCT;
+    TEST_ASSERT_TRUE(syn_lss_slave_process(&g_lss_slave, &req, &resp));
+    uint32_t prod = (uint32_t)resp.data[1] | ((uint32_t)resp.data[2] << 8) |
+                    ((uint32_t)resp.data[3] << 16) | ((uint32_t)resp.data[4] << 24);
+    TEST_ASSERT_EQUAL(0x12345678, prod);
+
+    /* Inquire Revision */
+    req.data[0] = SYN_LSS_CS_INQUIRE_REV;
+    TEST_ASSERT_TRUE(syn_lss_slave_process(&g_lss_slave, &req, &resp));
+    uint32_t rev = (uint32_t)resp.data[1] | ((uint32_t)resp.data[2] << 8) |
+                   ((uint32_t)resp.data[3] << 16) | ((uint32_t)resp.data[4] << 24);
+    TEST_ASSERT_EQUAL(0x00010002, rev);
+
+    /* Inquire Serial Number */
+    req.data[0] = SYN_LSS_CS_INQUIRE_SERIAL;
+    TEST_ASSERT_TRUE(syn_lss_slave_process(&g_lss_slave, &req, &resp));
+    uint32_t serial = (uint32_t)resp.data[1] | ((uint32_t)resp.data[2] << 8) |
+                      ((uint32_t)resp.data[3] << 16) | ((uint32_t)resp.data[4] << 24);
+    TEST_ASSERT_EQUAL(0x99887766, serial);
+
+    /* Unknown Command Specifier */
+    req.data[0] = 0xFF;
+    TEST_ASSERT_FALSE(syn_lss_slave_process(&g_lss_slave, &req, &resp));
+}
+
 void run_lss_tests(void)
 {
     RUN_TEST(test_lss_init);
@@ -108,4 +171,5 @@ void run_lss_tests(void)
     RUN_TEST(test_lss_configure_bit_timing);
     RUN_TEST(test_lss_store_config);
     RUN_TEST(test_lss_inquire_address);
+    RUN_TEST(test_lss_extra_coverage);
 }
