@@ -11,6 +11,7 @@
 
 #include "syn_dc_motor.h"
 #include "../util/syn_assert.h"
+#include "../util/syn_ramp.h"
 
 #include <string.h>
 
@@ -123,6 +124,7 @@ void syn_dc_motor_init(SYN_DCMotor *motor, SYN_GPIO_Pin pin_a,
     motor->pin_b    = pin_b;
     motor->mode     = (uint8_t)mode;
     motor->duty_max = SYN_DC_MOTOR_DUTY_MAX_DEFAULT;
+    syn_ramp_init(&motor->ramp, 0);
 
     syn_port_gpio_write(pin_a, SYN_GPIO_LOW);
     syn_port_gpio_write(pin_b, SYN_GPIO_LOW);
@@ -144,6 +146,7 @@ void syn_dc_motor_set_speed(SYN_DCMotor *motor, int32_t speed)
     motor->speed     = speed;
     motor->target    = speed;
     motor->ramp_rate = 0;
+    syn_ramp_jump(&motor->ramp, speed);
     apply_speed(motor);
 }
 
@@ -157,6 +160,7 @@ void syn_dc_motor_ramp_to(SYN_DCMotor *motor, int32_t speed,
     if (duration == 0) {
         motor->speed = speed;
         motor->ramp_rate = 0;
+        syn_ramp_jump(&motor->ramp, speed);
         apply_speed(motor);
         return;
     }
@@ -167,6 +171,14 @@ void syn_dc_motor_ramp_to(SYN_DCMotor *motor, int32_t speed,
     if (motor->ramp_rate == 0 && delta != 0) {
         motor->ramp_rate = (delta > 0) ? 1 : -1;
     }
+
+    int32_t step_rate = (delta >= 0 ? delta : -delta) / (int32_t)duration;
+    if (step_rate == 0 && delta != 0) {
+        step_rate = 1;
+    }
+    syn_ramp_init(&motor->ramp, motor->speed);
+    syn_ramp_set_target(&motor->ramp, speed, step_rate);
+
     motor->last_tick = syn_port_get_tick_ms();
 }
 
@@ -193,6 +205,7 @@ void syn_dc_motor_update(SYN_DCMotor *motor)
         (motor->ramp_rate < 0 && new_speed <= motor->target)) {
         motor->speed     = motor->target;
         motor->ramp_rate = 0;
+        syn_ramp_jump(&motor->ramp, motor->target);
     } else {
         motor->speed = clamp_speed(motor, new_speed);
     }

@@ -10,7 +10,8 @@
  */
 
 #include "syn_router.h"
-#include "../util/syn_assert.h"
+#include "syntropic/util/syn_assert.h"
+#include "syntropic/util/syn_pack.h"
 
 #include <string.h>
 
@@ -24,16 +25,17 @@
  */
 static size_t serialize_packet(const SYN_Packet *pkt, uint8_t *buf)
 {
-    buf[0] = pkt->src;
-    buf[1] = pkt->dst;
-    buf[2] = pkt->type;
-    buf[3] = pkt->seq;
-    buf[4] = pkt->flags;
-    buf[5] = pkt->len;
+    size_t pos = 0;
+    syn_pack_u8(buf, &pos, pkt->src);
+    syn_pack_u8(buf, &pos, pkt->dst);
+    syn_pack_u8(buf, &pos, pkt->type);
+    syn_pack_u8(buf, &pos, pkt->seq);
+    syn_pack_u8(buf, &pos, pkt->flags);
+    syn_pack_u8(buf, &pos, pkt->len);
     if (pkt->len > 0) {
-        memcpy(&buf[SYN_ROUTER_HEADER_SIZE], pkt->payload, pkt->len);
+        syn_pack_bytes(buf, &pos, pkt->payload, pkt->len);
     }
-    return SYN_ROUTER_HEADER_SIZE + pkt->len;
+    return pos;
 }
 
 /**
@@ -47,18 +49,19 @@ static bool deserialize_packet(const uint8_t *buf, size_t len, SYN_Packet *pkt)
 {
     if (len < SYN_ROUTER_HEADER_SIZE) return false;
 
-    pkt->src   = buf[0];
-    pkt->dst   = buf[1];
-    pkt->type  = buf[2];
-    pkt->seq   = buf[3];
-    pkt->flags = buf[4];
-    pkt->len   = buf[5];
+    size_t pos = 0;
+    pkt->src   = syn_unpack_u8(buf, &pos);
+    pkt->dst   = syn_unpack_u8(buf, &pos);
+    pkt->type  = syn_unpack_u8(buf, &pos);
+    pkt->seq   = syn_unpack_u8(buf, &pos);
+    pkt->flags = syn_unpack_u8(buf, &pos);
+    pkt->len   = syn_unpack_u8(buf, &pos);
 
     if (pkt->len > SYN_ROUTER_MAX_PAYLOAD) return false;
     if (len < (size_t)SYN_ROUTER_HEADER_SIZE + pkt->len) return false;
 
     if (pkt->len > 0) {
-        memcpy(pkt->payload, &buf[SYN_ROUTER_HEADER_SIZE], pkt->len);
+        syn_unpack_bytes(buf, &pos, pkt->payload, pkt->len);
     }
     return true;
 }

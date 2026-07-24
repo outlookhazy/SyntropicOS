@@ -32,6 +32,7 @@
 #include "../drivers/syn_gpio.h"
 #include "../motor/syn_motor_output.h"
 #include "../port/syn_port_system.h"
+#include "../util/syn_ramp.h"
 
 #include <stdbool.h>
 
@@ -67,6 +68,7 @@ typedef struct {
     int32_t         target;      /**< Target speed for ramping              */
     int32_t         ramp_rate;   /**< Rate of speed change (per ms, Q8)     */
     uint32_t        last_tick;   /**< Last ramp update tick                 */
+    SYN_Ramp        ramp;        /**< Internal velocity ramp generator      */
 
     /** Maximum duty cycle value. Output range is [-duty_max, +duty_max].
      *  Set to match your PWM timer resolution (e.g., 255 for 8-bit,
