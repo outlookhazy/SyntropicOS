@@ -97,8 +97,59 @@ static void test_signal_wrapped_stats(void)
     TEST_ASSERT_TRUE(var > 0);
 }
 
+static void test_signal_rms_std_dev(void)
+{
+    int32_t samples[4];
+    SYN_Signal sig;
+    syn_signal_init(&sig, samples, 4);
+
+    TEST_ASSERT_EQUAL_INT(0, syn_signal_rms_q16(&sig));
+    TEST_ASSERT_EQUAL_INT(0, syn_signal_std_dev_q16(&sig));
+
+    /* Push 10, 10, 10, 10 -> mean=10, RMS=10 (in Q16: 10<<16 = 655360), std_dev=0 */
+    syn_signal_push(&sig, 10);
+    syn_signal_push(&sig, 10);
+    syn_signal_push(&sig, 10);
+    syn_signal_push(&sig, 10);
+
+    TEST_ASSERT_INT_WITHIN(100, 655360, syn_signal_rms_q16(&sig));
+    TEST_ASSERT_EQUAL_INT(0, syn_signal_std_dev_q16(&sig));
+
+    /* Push 0, 10, 0, 10 -> variance > 0 -> std_dev > 0 */
+    syn_signal_clear(&sig);
+    syn_signal_push(&sig, 0);
+    syn_signal_push(&sig, 10);
+    TEST_ASSERT_TRUE(syn_signal_std_dev_q16(&sig) > 0);
+}
+
+static void test_signal_edge_cases(void)
+{
+    int32_t samples[2];
+    SYN_Signal sig;
+    syn_signal_init(&sig, samples, 2);
+
+    TEST_ASSERT_EQUAL_INT(0, syn_signal_min(&sig));
+    TEST_ASSERT_EQUAL_INT(0, syn_signal_max(&sig));
+    TEST_ASSERT_EQUAL_INT(0, syn_signal_latest(&sig));
+    TEST_ASSERT_EQUAL_INT(0, syn_signal_delta(&sig));
+    TEST_ASSERT_EQUAL_INT(0, syn_signal_at(&sig, 5));
+
+    syn_signal_push(&sig, 42);
+    TEST_ASSERT_EQUAL_INT(0, syn_signal_delta(&sig));
+    TEST_ASSERT_EQUAL_INT(42, syn_signal_latest(&sig));
+
+    syn_signal_push(&sig, 50);
+    /* Delta = 50 - 42 = 8 */
+    TEST_ASSERT_EQUAL_INT(8, syn_signal_delta(&sig));
+    /* Wrap ring buffer with 60 */
+    syn_signal_push(&sig, 60);
+    TEST_ASSERT_EQUAL_INT(10, syn_signal_delta(&sig));
+}
+
 void run_signal_tests(void)
 {
     RUN_TEST(test_signal);
     RUN_TEST(test_signal_wrapped_stats);
+    RUN_TEST(test_signal_rms_std_dev);
+    RUN_TEST(test_signal_edge_cases);
 }

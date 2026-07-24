@@ -2,7 +2,7 @@
 # Usage: make -f tests/Makefile.unity [test|clean]
 
 CC      := gcc
-CFLAGS  := -std=c99 -pedantic -Wall -Wextra -Werror -I. -Isrc -Itests -Itests/mocks -DSYN_LOG_COLOR=1 -DSYN_USE_COREDUMP=1 -DSYN_COREDUMP_FLASH_ADDR=0 -DSYN_USE_TICKLESS=1 -DSYN_USE_DMA=1 -DSYN_USE_I2C_ASYNC=1 -DSYN_USE_SPI_ASYNC=1 -DSYN_FW_USE_HMAC=1 -DSYN_USE_MULTICORE=1
+CFLAGS  := -std=c99 -pedantic -Wall -Wextra -Werror -I. -Isrc -Itests -Itests/mocks -DSYN_LOG_COLOR=1 -DSYN_USE_COREDUMP=1 -DSYN_COREDUMP_FLASH_ADDR=0 -DSYN_USE_TICKLESS=1 -DSYN_USE_DMA=1 -DSYN_USE_I2C_ASYNC=1 -DSYN_USE_SPI_ASYNC=1 -DSYN_FW_USE_HMAC=1 -DSYN_USE_MULTICORE=1 -DUNITY_INCLUDE_DOUBLE
 
 # All SyntropicOS source files
 SYN_SRCS := \
@@ -69,7 +69,9 @@ SYN_SRCS := \
 	src/syntropic/util/syn_qmath.c \
 	src/syntropic/util/syn_matrix.c \
 	src/syntropic/dsp/syn_kalman.c src/syntropic/motor/syn_foc.c \
-	src/syntropic/motor/syn_foc_observer.c
+	src/syntropic/motor/syn_foc_observer.c \
+	src/syntropic/proto/syn_modbus_tcp.c src/syntropic/proto/syn_nmea.c \
+	src/syntropic/motor/syn_interpolator.c
 
 # Unity framework
 UNITY_SRCS := tests/unity/unity.c

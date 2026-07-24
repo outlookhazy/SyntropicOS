@@ -69,6 +69,30 @@ static void test_sntp_not_synced_returns_zero(void)
     TEST_ASSERT_FALSE(syn_sntp_is_synced(&sntp));
 }
 
+static void test_sntp_drift_and_consecutive_sync(void)
+{
+    SYN_SNTP sntp;
+    SYN_SockAddr server = { .ip = {1, 2, 3, 4}, .port = 123 };
+    uint8_t pkt[SYN_SNTP_PACKET_SIZE];
+
+    syn_sntp_init(&sntp, &server, 3600);
+
+    /* Sync 1 */
+    build_ntp_response(pkt, 1000, 0);
+    mock_udp_set_response(pkt, sizeof(pkt), &server);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_sntp_query(&sntp));
+
+    /* Sync 2 after 5 seconds (5000 ms tick advance) */
+    mock_tick_advance(5000);
+    build_ntp_response(pkt, 1005, 0);
+    mock_udp_set_response(pkt, sizeof(pkt), &server);
+    TEST_ASSERT_EQUAL(SYN_OK, syn_sntp_query(&sntp));
+
+    TEST_ASSERT_EQUAL_UINT32(1005, syn_sntp_get_epoch_s(&sntp));
+    TEST_ASSERT_EQUAL_INT32(sntp.drift_ppm, syn_sntp_get_drift_ppm(&sntp));
+    TEST_ASSERT_EQUAL_INT32(0, syn_sntp_get_drift_ppm(NULL));
+}
+
 static void test_sntp_query_success(void)
 {
     SYN_SNTP sntp;
@@ -387,6 +411,7 @@ void run_sntp_tests(void)
     RUN_TEST(test_sntp_init);
     RUN_TEST(test_sntp_not_synced_returns_zero);
     RUN_TEST(test_sntp_query_success);
+    RUN_TEST(test_sntp_drift_and_consecutive_sync);
     RUN_TEST(test_sntp_get_epoch_advances_with_tick);
     RUN_TEST(test_sntp_get_epoch_ns);
     RUN_TEST(test_sntp_query_timeout);

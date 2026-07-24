@@ -25,6 +25,7 @@ The **Auto-Tune** module provides automatic PID gain tuning and feedforward iden
 | Actuator | `motor/syn_actuator.h` | `SYN_USE_ACTUATOR` | Linear actuator controller (requires DC Motor + Motor Ctrl) |
 | FOC | `motor/syn_foc.h` | `SYN_USE_FOC` | Field-Oriented Control transforms for BLDC/PMSM motors: Clarke, Park, inverse transforms, and Space Vector PWM (SVPWM). All Q16.16 fixed-point. |
 | FOC Observer | `motor/syn_foc_observer.h` | `SYN_USE_FOC_OBSERVER` | Sensorless FOC Rotor Position & Speed Sliding Mode Observer (SMO) with software PLL phase/speed tracking. |
+| Multi-Axis Interpolator | `motor/syn_interpolator.h` | `SYN_USE_INTERPOLATOR` | Multi-axis CNC/motion trajectory interpolator: 3D linear coordinated movement and 2D circular arc interpolation (CW/CCW) combined with S-Curve motion profiles. |
 
 ### FOC (Field-Oriented Control) & Observer
 

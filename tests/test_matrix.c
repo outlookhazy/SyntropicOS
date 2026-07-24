@@ -825,13 +825,87 @@ static void test_mat_eigen_sym3(void)
     ASSERT_Q16_NEAR(expected_l2, evals2[2], Q16_MAT_TOL * 2);
 }
 
-/* ════════════════════════════════════════════════════════════════════════ */
-/*  Test runner                                                            */
-/* ════════════════════════════════════════════════════════════════════════ */
+static void test_matrix_transforms_and_errors(void)
+{
+    /* 2D transforms */
+    q16_t t2d_store[9], s2d_store[9];
+    SYN_MAT_INIT(T2D, t2d_store, 3, 3);
+    SYN_MAT_INIT(S2D, s2d_store, 3, 3);
+    syn_matrix_translate_2d(&T2D, Q16_FROM_INT(5), Q16_FROM_INT(-3));
+    TEST_ASSERT_EQUAL(Q16_FROM_INT(5), SYN_MAT_AT(&T2D, 0, 2));
+    TEST_ASSERT_EQUAL(Q16_FROM_INT(-3), SYN_MAT_AT(&T2D, 1, 2));
+
+    syn_matrix_scale_2d(&S2D, Q16_FROM_INT(2), Q16_FROM_INT(4));
+    TEST_ASSERT_EQUAL(Q16_FROM_INT(2), SYN_MAT_AT(&S2D, 0, 0));
+    TEST_ASSERT_EQUAL(Q16_FROM_INT(4), SYN_MAT_AT(&S2D, 1, 1));
+
+    /* 3D transforms */
+    q16_t rx_store[16], ry_store[16], rz_store[16], t3d_store[16];
+    SYN_MAT_INIT(Rx, rx_store, 4, 4);
+    SYN_MAT_INIT(Ry, ry_store, 4, 4);
+    SYN_MAT_INIT(Rz, rz_store, 4, 4);
+    SYN_MAT_INIT(T3D, t3d_store, 4, 4);
+
+    syn_matrix_rotate_x(&Rx, Q16_PI_2);
+    syn_matrix_rotate_y(&Ry, Q16_PI_2);
+    syn_matrix_rotate_z(&Rz, Q16_PI_2);
+    syn_matrix_translate_3d(&T3D, Q16_FROM_INT(1), Q16_FROM_INT(2), Q16_FROM_INT(3));
+
+    TEST_ASSERT_EQUAL(Q16_FROM_INT(1), SYN_MAT_AT(&T3D, 0, 3));
+    TEST_ASSERT_EQUAL(Q16_FROM_INT(2), SYN_MAT_AT(&T3D, 1, 3));
+    TEST_ASSERT_EQUAL(Q16_FROM_INT(3), SYN_MAT_AT(&T3D, 2, 3));
+
+    /* Error paths */
+    q16_t sing_store[4] = { 0, 0, 0, 0 };
+    SYN_MAT_INIT(Sing, sing_store, 2, 2);
+    q16_t out_store[4];
+    SYN_MAT_INIT(Out, out_store, 2, 2);
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_matrix_inv(&Sing, &Out));
+
+    q16_t m5_store[25] = { 0 };
+    SYN_MAT_INIT(M5, m5_store, 5, 5);
+    SYN_MAT_INIT(Out5, m5_store, 5, 5);
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_matrix_inv(&M5, &Out5));
+    TEST_ASSERT_EQUAL(0, syn_matrix_det(&M5));
+}
+
+static void test_matrix_extra_coverage(void)
+{
+    /* 1x1 matrix det and inv */
+    q16_t d1[1] = { Q16_FROM_INT(5) };
+    q16_t inv1[1] = { 0 };
+    SYN_MAT_INIT(M1, d1, 1, 1);
+    SYN_MAT_INIT(Inv1, inv1, 1, 1);
+    TEST_ASSERT_EQUAL(Q16_FROM_INT(5), syn_matrix_det(&M1));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_matrix_inv(&M1, &Inv1));
+    TEST_ASSERT_INT_WITHIN(Q16_TOL, Q16_FROM_FRAC(1, 5), inv1[0]);
+
+    /* Trace */
+    q16_t d2[4] = { Q16_FROM_INT(3), Q16_ONE, Q16_FROM_INT(2), Q16_FROM_INT(4) };
+    SYN_MAT_INIT(M2, d2, 2, 2);
+    TEST_ASSERT_EQUAL(Q16_FROM_INT(7), syn_matrix_trace(&M2));
+
+    /* Vector norm test */
+    TEST_ASSERT_TRUE(syn_vec_norm(d2, 4) > 0);
+
+    /* 4x4 matrix det & inverse */
+    q16_t d4[16] = {
+        Q16_ONE, 0, 0, 0,
+        0, Q16_FROM_INT(2), 0, 0,
+        0, 0, Q16_FROM_INT(3), 0,
+        0, 0, 0, Q16_FROM_INT(4)
+    };
+    q16_t inv4[16] = { 0 };
+    SYN_MAT_INIT(M4, d4, 4, 4);
+    SYN_MAT_INIT(Inv4, inv4, 4, 4);
+    TEST_ASSERT_EQUAL(Q16_FROM_INT(24), syn_matrix_det(&M4));
+    TEST_ASSERT_EQUAL(SYN_OK, syn_matrix_inv(&M4, &Inv4));
+    TEST_ASSERT_INT_WITHIN(Q16_TOL, Q16_ONE, inv4[0]);
+    TEST_ASSERT_INT_WITHIN(Q16_TOL, Q16_FROM_FRAC(1, 4), inv4[15]);
+}
 
 void run_matrix_tests(void)
 {
-    /* Extended qmath */
     RUN_TEST(test_q16_sqrt);
     RUN_TEST(test_q16_hypot);
     RUN_TEST(test_q16_trig);
@@ -865,5 +939,10 @@ void run_matrix_tests(void)
     RUN_TEST(test_mat_solve_lu);
     RUN_TEST(test_mat_solve_cholesky);
     RUN_TEST(test_mat_least_squares);
+
+    RUN_TEST(test_matrix_extra_coverage);
+    RUN_TEST(test_matrix_transforms_and_errors);
 }
+
+
 

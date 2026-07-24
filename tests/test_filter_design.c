@@ -111,10 +111,47 @@ static void test_filter_design_invalid_params(void)
     TEST_ASSERT_EQUAL(SYN_INVALID_PARAM, syn_filter_design_lowpass(fc, fs, 0, &coeffs));
 }
 
+static void test_biquad_direct_methods(void)
+{
+    SYN_FilterBiquad f;
+    q16_t fc = Q16_FROM_INT(100);
+    q16_t fs = Q16_FROM_INT(1000);
+    q16_t q  = Q16_FROM_INT(2);
+
+    syn_filter_biquad_init(&f, Q16_ONE, 0, 0, 0, 0);
+    TEST_ASSERT_EQUAL(Q16_ONE, syn_filter_biquad_update(&f, Q16_ONE));
+    syn_filter_biquad_reset(&f);
+
+    syn_filter_biquad_lowpass(&f, fc, fs);
+    q16_t out_lp = 0;
+    for (int i = 0; i < 30; i++) {
+        out_lp = syn_filter_biquad_update(&f, Q16_ONE);
+    }
+    TEST_ASSERT_INT_WITHIN(Q16_FROM_FLOAT(0.1), Q16_ONE, out_lp);
+
+    syn_filter_biquad_highpass(&f, fc, fs);
+    q16_t out_hp = 0;
+    for (int i = 0; i < 30; i++) {
+        out_hp = syn_filter_biquad_update(&f, Q16_ONE);
+    }
+    TEST_ASSERT_INT_WITHIN(Q16_FROM_FLOAT(0.1), 0, out_hp);
+
+    syn_filter_biquad_bandpass(&f, fc, fs, q);
+    for (int i = 0; i < 10; i++) {
+        syn_filter_biquad_update(&f, Q16_ONE);
+    }
+
+    syn_filter_biquad_notch(&f, fc, fs, q);
+    for (int i = 0; i < 10; i++) {
+        syn_filter_biquad_update(&f, Q16_ONE);
+    }
+}
+
 void run_filter_design_tests(void)
 {
     RUN_TEST(test_filter_design_lowpass);
     RUN_TEST(test_filter_design_highpass);
     RUN_TEST(test_filter_design_bandpass_and_notch);
     RUN_TEST(test_filter_design_invalid_params);
+    RUN_TEST(test_biquad_direct_methods);
 }

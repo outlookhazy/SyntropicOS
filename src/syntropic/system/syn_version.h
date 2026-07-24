@@ -36,12 +36,12 @@ extern "C" {
 
 #ifndef SYN_VERSION_MONTH
 /** @brief Release month (CalVer). */
-#define SYN_VERSION_MONTH  6
+#define SYN_VERSION_MONTH  7
 #endif
 
 #ifndef SYN_VERSION_RELEASE
 /** @brief Release number within the month (CalVer). */
-#define SYN_VERSION_RELEASE 2
+#define SYN_VERSION_RELEASE 0
 #endif
 
 /** Packed version: 0xYYYYMMRR (year.month.release). */

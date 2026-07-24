@@ -128,6 +128,9 @@ void run_stream_tests(void);
 void run_matrix_tests(void);
 void run_kalman_tests(void);
 void run_foc_tests(void);
+void run_modbus_tcp_tests(void);
+void run_nmea_tests(void);
+void run_interpolator_tests(void);
 
 /* ── Main ───────────────────────────────────────────────────────────────── */
 
@@ -296,8 +299,15 @@ int main(void)
     /* Filter Design Generator */
     run_filter_design_tests();
 
-    /* Modbus Master */
+    /* Modbus Master & TCP */
     run_modbus_master_tests();
+    run_modbus_tcp_tests();
+
+    /* NMEA 0183 Navigation */
+    run_nmea_tests();
+
+    /* Multi-Axis Motion Interpolator */
+    run_interpolator_tests();
 
     return UNITY_END();
 }
