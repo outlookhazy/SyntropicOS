@@ -65,9 +65,9 @@ q16_t syn_dds_step(SYN_DDS *dds)
     case SYN_DDS_SINE: {
         /* Convert 32-bit phase (0..2^32-1) to Q16.16 angle (0 to 2*PI), then wrap to -PI..+PI */
         int64_t norm_phase = (int64_t)(phase >> 16); /* 0..65535 */
-        q16_t angle = (q16_t)((norm_phase * 411774LL) >> 16); /* 0 to 6.28318 */
-        if (angle > 205887LL) {
-            angle -= 411774LL;
+        q16_t angle = (q16_t)((norm_phase * (int64_t)Q16_2_PI) >> 16); /* 0 to 6.28318 */
+        if (angle > Q16_PI) {
+            angle -= Q16_2_PI;
         }
         raw_sample = q16_sin(angle);
         break;

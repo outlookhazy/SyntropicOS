@@ -155,7 +155,7 @@ SYN_Status syn_fft_window_hanning(q16_t *out, uint16_t n)
 {
     if (out == NULL || n <= 1) return SYN_INVALID_PARAM;
 
-    q16_t two_pi = q16_mul(Q16_FROM_INT(2), Q16_PI);
+    q16_t two_pi = Q16_2_PI;
     q16_t n_minus_1 = Q16_FROM_INT(n - 1);
 
     for (uint16_t i = 0; i < n; i++) {
@@ -170,7 +170,7 @@ SYN_Status syn_fft_window_hamming(q16_t *out, uint16_t n)
 {
     if (out == NULL || n <= 1) return SYN_INVALID_PARAM;
 
-    q16_t two_pi = q16_mul(Q16_FROM_INT(2), Q16_PI);
+    q16_t two_pi = Q16_2_PI;
     q16_t n_minus_1 = Q16_FROM_INT(n - 1);
     q16_t a0 = Q16_FROM_FRAC(54, 100);
     q16_t a1 = Q16_FROM_FRAC(46, 100);
@@ -187,7 +187,7 @@ SYN_Status syn_fft_window_blackman(q16_t *out, uint16_t n)
 {
     if (out == NULL || n <= 1) return SYN_INVALID_PARAM;
 
-    q16_t two_pi = q16_mul(Q16_FROM_INT(2), Q16_PI);
+    q16_t two_pi = Q16_2_PI;
     q16_t n_minus_1 = Q16_FROM_INT(n - 1);
     q16_t a0 = Q16_FROM_FRAC(42, 100);
     q16_t a1 = Q16_HALF;
