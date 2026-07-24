@@ -196,7 +196,10 @@ extern "C" {
 #endif
 
 #include "sched/syn_timer_wheel.h"
+#include "sched/syn_event_flags.h"
 #include "util/syn_netbuf.h"
+#include "util/syn_spsc_queue.h"
+#include "util/syn_slab.h"
 
 /* ── Logging & CLI ──────────────────────────────────────────────────────── */
 

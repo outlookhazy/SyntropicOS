@@ -22,6 +22,9 @@ void tearDown(void) { /* nothing */ }
 void run_ringbuf_tests(void);
 void run_crc_tests(void);
 void run_pid_tests(void);
+void run_spsc_queue_tests(void);
+void run_slab_tests(void);
+void run_event_flags_tests(void);
 void run_hysteresis_tests(void);
 void run_lut_tests(void);
 void run_fsm_tests(void);
@@ -346,6 +349,9 @@ int main(void)
     /* OS Kernel Primitives */
     run_netbuf_tests();
     run_timer_wheel_tests();
+    run_spsc_queue_tests();
+    run_slab_tests();
+    run_event_flags_tests();
 
     return UNITY_END();
 }
