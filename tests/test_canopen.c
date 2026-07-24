@@ -347,8 +347,23 @@ static void test_cia303_indicators(void)
     syn_cia303_set_error_state(&ind, SYN_CIA303_ERR_TRIPLE_FLASH);
     TEST_ASSERT_EQUAL(SYN_CIA303_ERR_TRIPLE_FLASH, ind.err_state);
 
+    /* Test NMT default / unknown state -> OFF */
+    syn_cia303_set_nmt_state(&ind, 0x00U);
+    TEST_ASSERT_EQUAL(SYN_CIA303_RUN_OFF, ind.run_state);
+
+    /* Test ERR OFF */
+    syn_cia303_set_error_state(&ind, SYN_CIA303_ERR_OFF);
+    TEST_ASSERT_EQUAL(SYN_CIA303_ERR_OFF, ind.err_state);
+
     /* Step simulation */
     syn_cia303_step(&ind);
+
+    /* Test NULL LED guards */
+    SYN_CiA303_Indicator null_ind;
+    syn_cia303_init(&null_ind, NULL, NULL);
+    syn_cia303_set_nmt_state(&null_ind, 0x05U);
+    syn_cia303_set_error_state(&null_ind, SYN_CIA303_ERR_SOLID_ON);
+    syn_cia303_step(&null_ind);
 }
 
 void run_canopen_tests(void)
