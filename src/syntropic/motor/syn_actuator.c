@@ -40,9 +40,7 @@ static int16_t adc_to_pct(const SYN_Actuator *act, int32_t adc)
     if (act->stroke_range == 0) return 0;
 
     int32_t pct = ((adc - act->stroke_min) * 1000) / act->stroke_range;
-    if (pct < 0)    pct = 0;
-    if (pct > 1000) pct = 1000;
-    return (int16_t)pct;
+    return (int16_t)SYN_CLAMP(pct, 0, 1000);
 }
 
 /* ── API ────────────────────────────────────────────────────────────────── */

@@ -4,6 +4,7 @@
  */
 
 #include "syn_dds.h"
+#include "../util/syn_random.h"
 #include <string.h>
 
 SYN_Status syn_dds_init(SYN_DDS *dds, SYN_DDS_Waveform type, uint32_t freq_hz, uint32_t sample_rate_hz)
@@ -97,11 +98,8 @@ q16_t syn_dds_step(SYN_DDS *dds)
         break;
     }
     case SYN_DDS_NOISE: {
-        /* XOR-shift PRNG */
-        dds->rand_state ^= dds->rand_state << 13;
-        dds->rand_state ^= dds->rand_state >> 17;
-        dds->rand_state ^= dds->rand_state << 5;
-        int32_t signed_val = (int32_t)(dds->rand_state & 0xFFFFU) - 32768;
+        uint32_t rnd = syn_random_u32();
+        int32_t signed_val = (int32_t)(rnd & 0xFFFFU) - 32768;
         raw_sample = (q16_t)(signed_val * 2);
         break;
     }
