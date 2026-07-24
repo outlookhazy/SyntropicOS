@@ -175,22 +175,11 @@ static void base64_encode(const uint8_t *src, size_t len, char *dst)
 
 /* ── Websocket Upgrading ────────────────────────────────────────────────── */
 
-/**
- * @brief Case-insensitive prefix match.
- * @param str     String to test.
- * @param prefix  Prefix to match.
- * @return true if match.
- */
-static bool prefix_icase(const char *str, const char *prefix)
+#include "../util/syn_fmt.h"
+
+static inline bool prefix_icase(const char *str, const char *prefix)
 {
-    while (*prefix) {
-        char a = *str++;
-        char b = *prefix++;
-        if (a >= 'A' && a <= 'Z') a += 32;
-        if (b >= 'A' && b <= 'Z') b += 32;
-        if (a != b) return false;
-    }
-    return true;
+    return syn_str_prefix_icase(str, prefix);
 }
 
 SYN_Status syn_websocket_upgrade(const SYN_HttpdRequest *req, SYN_HttpdResponse *resp,

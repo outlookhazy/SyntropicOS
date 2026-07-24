@@ -29,14 +29,7 @@
  */
 static bool prefix_icase(const char *str, const char *prefix)
 {
-    while (*prefix) {
-        char a = *str++;
-        char b = *prefix++;
-        if (a >= 'A' && a <= 'Z') a += 32;
-        if (b >= 'A' && b <= 'Z') b += 32;
-        if (a != b) return false;
-    }
-    return true;
+    return syn_str_prefix_icase(str, prefix);
 }
 
 /**
@@ -46,12 +39,7 @@ static bool prefix_icase(const char *str, const char *prefix)
  */
 static uint32_t parse_uint(const char *s)
 {
-    uint32_t val = 0;
-    while (*s >= '0' && *s <= '9') {
-        val = val * 10 + (uint32_t)(*s - '0');
-        s++;
-    }
-    return val;
+    return syn_fmt_parse_uint(s);
 }
 
 /**

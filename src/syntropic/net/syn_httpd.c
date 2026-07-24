@@ -30,22 +30,11 @@
 
 /* ── Internal helpers ──────────────────────────────────────────────────── */
 
-/**
- * @brief Case-insensitive prefix match.
- * @param str     String to test.
- * @param prefix  Prefix to match.
- * @return true if @p str starts with @p prefix (case-insensitive).
- */
-static bool prefix_icase(const char *str, const char *prefix)
+#include "../util/syn_fmt.h"
+
+static inline bool prefix_icase(const char *str, const char *prefix)
 {
-    while (*prefix) {
-        char a = *str++;
-        char b = *prefix++;
-        if (a >= 'A' && a <= 'Z') a += 32;
-        if (b >= 'A' && b <= 'Z') b += 32;
-        if (a != b) return false;
-    }
-    return true;
+    return syn_str_prefix_icase(str, prefix);
 }
 
 /**
@@ -75,19 +64,9 @@ static SYN_HttpMethod parse_method(const char *str, size_t len)
     return SYN_HTTP_GET; /* default fallback */
 }
 
-/**
- * @brief Parse a decimal integer from a string.
- * @param s  Null-terminated decimal string.
- * @return Parsed unsigned integer value.
- */
-static uint32_t parse_uint(const char *s)
+static inline uint32_t parse_uint(const char *s)
 {
-    uint32_t val = 0;
-    while (*s >= '0' && *s <= '9') {
-        val = val * 10 + (uint32_t)(*s - '0');
-        s++;
-    }
-    return val;
+    return syn_fmt_parse_uint(s);
 }
 
 /**
@@ -148,6 +127,7 @@ static int parse_headers_from_buf(SYN_Socket sock, SYN_HttpdRequest *req,
             while (*val == ' ') val++;
             req->content_length = parse_uint(val);
         } else if (prefix_icase(hdr_start, "content-type:")) {
+            /* cppcheck-suppress constVariablePointer */
             char *val = hdr_start + 13;
             while (*val == ' ') val++;
             req->content_type = val;

@@ -121,6 +121,39 @@ size_t syn_fmt_fixed(char *buf, size_t size, int32_t val, uint8_t places);
 size_t syn_fmt_concat(char *buf, size_t size,
                        const char *const *parts, size_t n);
 
+/**
+ * @brief Case-insensitive prefix match (ASCII).
+ * @param str     String to test.
+ * @param prefix  Prefix to match.
+ * @return true if @p str starts with @p prefix (case-insensitive).
+ */
+static inline bool syn_str_prefix_icase(const char *str, const char *prefix)
+{
+    while (*prefix) {
+        char a = *str++;
+        char b = *prefix++;
+        if (a >= 'A' && a <= 'Z') a = (char)(a + 32);
+        if (b >= 'A' && b <= 'Z') b = (char)(b + 32);
+        if (a != b) return false;
+    }
+    return true;
+}
+
+/**
+ * @brief Parse a decimal integer from a string.
+ * @param s  Null-terminated decimal string.
+ * @return Parsed unsigned 32-bit integer.
+ */
+static inline uint32_t syn_fmt_parse_uint(const char *s)
+{
+    uint32_t val = 0;
+    while (*s >= '0' && *s <= '9') {
+        val = val * 10 + (uint32_t)(*s - '0');
+        s++;
+    }
+    return val;
+}
+
 #ifdef __cplusplus
 }
 #endif
