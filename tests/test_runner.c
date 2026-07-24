@@ -82,6 +82,7 @@ void run_lss_tests(void);
 void run_cia401_tests(void);
 void run_canopen_mgr_tests(void);
 void run_dmx512_tests(void);
+void run_isotp_tests(void);
 void run_j1939_tests(void);
 void run_n2k_tests(void);
 void run_canvas_tests(void);
@@ -207,6 +208,7 @@ int main(void)
     run_cia401_tests();
     run_canopen_mgr_tests();
     run_dmx512_tests();
+    run_isotp_tests();
     run_j1939_tests();
     run_motor_ctrl_tests();
     run_actuator_tests();

@@ -314,6 +314,10 @@ extern "C" {
   #include "proto/syn_dmx512.h"
 #endif
 
+#if !defined(SYN_USE_ISOTP) || SYN_USE_ISOTP
+  #include "proto/syn_isotp.h"
+#endif
+
 /* ── Storage ────────────────────────────────────────────────────────────── */
 
 #if !defined(SYN_USE_PARAM) || SYN_USE_PARAM
