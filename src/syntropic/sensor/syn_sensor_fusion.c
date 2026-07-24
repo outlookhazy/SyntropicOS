@@ -5,6 +5,7 @@
 
 #include "syn_sensor_fusion.h"
 #include "../util/syn_assert.h"
+#include "../util/syn_matrix.h"
 #include <string.h>
 
 void syn_sensor_fusion_init(SYN_SensorFusion *f, q16_t Kp, q16_t Ki, q16_t dt)
@@ -66,9 +67,11 @@ SYN_Status syn_sensor_fusion_update(SYN_SensorFusion *f, q16_t gx, q16_t gy, q16
             q16_t vz = q16_mul(qw, qw) - q16_mul(qx, qx) - q16_mul(qy, qy) + q16_mul(qz, qz);
 
             /* Cross product error vector e = a x v */
-            q16_t ex = q16_mul(ay, vz) - q16_mul(az, vy);
-            q16_t ey = q16_mul(az, vx) - q16_mul(ax, vz);
-            q16_t ez = q16_mul(ax, vy) - q16_mul(ay, vx);
+            q16_t a_vec[3] = {ax, ay, az};
+            q16_t v_vec[3] = {vx, vy, vz};
+            q16_t e_vec[3];
+            syn_vec3_cross(a_vec, v_vec, e_vec);
+            q16_t ex = e_vec[0], ey = e_vec[1], ez = e_vec[2];
 
             /* Accumulate integral error */
             if (f->Ki > 0) {
