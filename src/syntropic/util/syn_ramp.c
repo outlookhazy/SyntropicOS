@@ -127,8 +127,8 @@ static int32_t update_trapezoid(SYN_Ramp *ramp)
      * must be in integer units, so: decel_dist = v² / (2*a) >> frac_bits.
      * Use 64-bit to avoid overflow in v².
      */
-    int32_t abs_vel  = (ramp->velocity < 0) ? -ramp->velocity : ramp->velocity;
-    int32_t abs_diff = (diff < 0) ? -diff : diff;
+    int32_t abs_vel  = SYN_ABS(ramp->velocity);
+    int32_t abs_diff = SYN_ABS(diff);
     int32_t decel_dist = 0;
     if (ramp->accel > 0) {
         int64_t v2 = (int64_t)abs_vel * abs_vel;
