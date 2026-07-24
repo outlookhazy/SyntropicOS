@@ -88,6 +88,18 @@ typedef struct {
 } SYN_N2K_DcDetailedStatus;
 
 /**
+ * @brief BMS Cell Extreme Status (Fast-Packet PGN 127508 / 127513 Extension).
+ */
+typedef struct {
+    uint8_t  sid;                  /**< Sequence ID */
+    uint8_t  instance;             /**< Battery Instance ID */
+    uint16_t cell_min_voltage_mv;  /**< Lowest cell voltage in pack in mV (e.g. 3250 = 3.250V) */
+    uint16_t cell_max_voltage_mv;  /**< Highest cell voltage in pack in mV (e.g. 3420 = 3.420V) */
+    uint16_t cell_min_temp_1e1;    /**< Lowest cell temperature in 0.1K (e.g. 2932 = 20.0C) */
+    uint16_t cell_max_temp_1e1;    /**< Highest cell temperature in 0.1K (e.g. 3082 = 35.0C) */
+} SYN_N2K_BmsCellStatus;
+
+/**
  * @brief Environmental Parameters (PGN 130310).
  */
 typedef struct {
@@ -195,6 +207,24 @@ SYN_Status syn_n2k_encode_dc_detailed(uint8_t sa, const SYN_N2K_DcDetailedStatus
  * @return SYN_OK on success.
  */
 SYN_Status syn_n2k_decode_dc_detailed(const SYN_CAN_Frame *frame, SYN_N2K_DcDetailedStatus *dc);
+
+/**
+ * @brief Encode BMS Cell Extreme Status into a Fast-Packet payload buffer.
+ * @param bms BMS cell status structure.
+ * @param out_payload Output buffer pointer (must be >= 10 bytes).
+ * @param out_len Output payload length.
+ * @return SYN_OK on success.
+ */
+SYN_Status syn_n2k_encode_bms_cell_status(const SYN_N2K_BmsCellStatus *bms, uint8_t *out_payload, size_t *out_len);
+
+/**
+ * @brief Decode BMS Cell Extreme Status from a Fast-Packet payload buffer.
+ * @param payload Received Fast-Packet payload buffer.
+ * @param len Payload length in bytes.
+ * @param bms Output BMS cell status structure.
+ * @return SYN_OK on success.
+ */
+SYN_Status syn_n2k_decode_bms_cell_status(const uint8_t *payload, size_t len, SYN_N2K_BmsCellStatus *bms);
 
 /**
  * @brief Encode PGN 130310 (Environmental Parameters) into an 8-byte CAN frame.

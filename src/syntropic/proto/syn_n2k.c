@@ -183,6 +183,39 @@ SYN_Status syn_n2k_decode_dc_detailed(const SYN_CAN_Frame *frame, SYN_N2K_DcDeta
     return SYN_OK;
 }
 
+SYN_Status syn_n2k_encode_bms_cell_status(const SYN_N2K_BmsCellStatus *bms, uint8_t *out_payload, size_t *out_len)
+{
+    if (!bms || !out_payload || !out_len) return SYN_INVALID_PARAM;
+
+    out_payload[0] = bms->sid;
+    out_payload[1] = bms->instance;
+    out_payload[2] = (uint8_t)(bms->cell_min_voltage_mv & 0xFFU);
+    out_payload[3] = (uint8_t)((bms->cell_min_voltage_mv >> 8) & 0xFFU);
+    out_payload[4] = (uint8_t)(bms->cell_max_voltage_mv & 0xFFU);
+    out_payload[5] = (uint8_t)((bms->cell_max_voltage_mv >> 8) & 0xFFU);
+    out_payload[6] = (uint8_t)(bms->cell_min_temp_1e1 & 0xFFU);
+    out_payload[7] = (uint8_t)((bms->cell_min_temp_1e1 >> 8) & 0xFFU);
+    out_payload[8] = (uint8_t)(bms->cell_max_temp_1e1 & 0xFFU);
+    out_payload[9] = (uint8_t)((bms->cell_max_temp_1e1 >> 8) & 0xFFU);
+
+    *out_len = 10;
+    return SYN_OK;
+}
+
+SYN_Status syn_n2k_decode_bms_cell_status(const uint8_t *payload, size_t len, SYN_N2K_BmsCellStatus *bms)
+{
+    if (!payload || !bms || len < 10) return SYN_INVALID_PARAM;
+
+    bms->sid                 = payload[0];
+    bms->instance            = payload[1];
+    bms->cell_min_voltage_mv = (uint16_t)payload[2] | ((uint16_t)payload[3] << 8);
+    bms->cell_max_voltage_mv = (uint16_t)payload[4] | ((uint16_t)payload[5] << 8);
+    bms->cell_min_temp_1e1   = (uint16_t)payload[6] | ((uint16_t)payload[7] << 8);
+    bms->cell_max_temp_1e1   = (uint16_t)payload[8] | ((uint16_t)payload[9] << 8);
+
+    return SYN_OK;
+}
+
 SYN_Status syn_n2k_encode_environment(uint8_t sa, const SYN_N2K_EnvParams *env, SYN_CAN_Frame *frame)
 {
     if (!env || !frame) return SYN_INVALID_PARAM;
