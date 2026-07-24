@@ -69,6 +69,24 @@ void test_dds_buffer_fill(void)
     /* Null checks */
     TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM, syn_dds_fill_q16(NULL, qbuf, 16));
     TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM, syn_dds_fill_u16(NULL, dac_buf, 16, 2048, 2047));
+
+    /* Duty cycle boundary clamping */
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_dds_set_duty(&dds, -10.0f));
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_dds_set_duty(&dds, 150.0f));
+
+    /* Gain & null checks */
+    TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM, syn_dds_init(NULL, SYN_DDS_SINE, 100, 1000));
+    TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM, syn_dds_init(&dds, SYN_DDS_SINE, 100, 0));
+    TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM, syn_dds_set_freq(NULL, 100, 1000));
+    TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM, syn_dds_set_freq(&dds, 100, 0));
+    TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM, syn_dds_set_gain(NULL, 1, 0));
+    TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM, syn_dds_set_duty(NULL, 50.0f));
+    TEST_ASSERT_EQUAL_INT(0, syn_dds_step(NULL));
+
+    /* DAC buffer clamping under high gain */
+    syn_dds_init(&dds, SYN_DDS_SAWTOOTH, 100, 1000);
+    syn_dds_set_gain(&dds, Q16_FROM_INT(100), Q16_FROM_INT(50));
+    syn_dds_fill_u16(&dds, dac_buf, 16, 2048, 2047);
 }
 
 void run_dds_tests(void)

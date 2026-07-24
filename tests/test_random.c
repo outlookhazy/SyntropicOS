@@ -46,6 +46,10 @@ void test_random_u32(void)
 
 void test_random_range(void)
 {
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_random_fill(NULL, 0));
+    TEST_ASSERT_EQUAL_UINT32(10, syn_random_range(10, 5));
+    TEST_ASSERT_EQUAL_UINT32(10, syn_random_range(10, 10));
+
     for (int i = 0; i < 100; i++) {
         uint32_t r = syn_random_range(10, 20);
         TEST_ASSERT_TRUE(r >= 10 && r <= 20);

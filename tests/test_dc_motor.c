@@ -283,6 +283,13 @@ static void test_dc_motor_clamp_negative(void)
     syn_dc_motor_init(&motor, 1, 2, SYN_DC_MODE_PWM_DIR);
     syn_dc_motor_set_speed(&motor, -2000);
     TEST_ASSERT_EQUAL_INT(-1000, syn_dc_motor_get_speed(&motor));
+
+    /* Dual PWM without callback reverse */
+    syn_dc_motor_init(&motor, 1, 2, SYN_DC_MODE_DUAL_PWM);
+    syn_dc_motor_set_speed(&motor, -500);
+    TEST_ASSERT_EQUAL_INT(-500, syn_dc_motor_get_speed(&motor));
+    TEST_ASSERT_EQUAL(SYN_GPIO_LOW, mock_gpio_states[1]);
+    TEST_ASSERT_EQUAL(SYN_GPIO_HIGH, mock_gpio_states[2]);
 }
 
 /* ── Test runner ─────────────────────────────────────────────────────── */
