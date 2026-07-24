@@ -11,6 +11,7 @@
 
 #include "syn_dns.h"
 #include "../util/syn_assert.h"
+#include "../util/syn_pack.h"
 #include "../port/syn_port_system.h"
 #include <string.h>
 
@@ -89,12 +90,12 @@ static bool parse_qname(const uint8_t *buf, size_t buf_len, size_t *pos)
 static SYN_Status parse_response(const uint8_t *buf, size_t rx_len, SYN_SockAddr *addr_out, uint16_t expected_txid)
 {
     if (rx_len < 12) return SYN_ERROR;
-    uint16_t rx_txid = (uint16_t)(((uint16_t)buf[0] << 8) | buf[1]);
+    uint16_t rx_txid = syn_peek_u16(buf, 0);
     if (rx_txid != expected_txid) return SYN_ERROR; /* Bad ID */
     if ((buf[3] & 0x0F) != 0) return SYN_ERROR;             /* RCODE != 0 (error) */
 
-    uint16_t questions = (uint16_t)(((uint16_t)buf[4] << 8) | buf[5]);
-    uint16_t answers   = (uint16_t)(((uint16_t)buf[6] << 8) | buf[7]);
+    uint16_t questions = syn_peek_u16(buf, 4);
+    uint16_t answers   = syn_peek_u16(buf, 6);
 
     if (answers == 0) return SYN_ERROR;
 
@@ -110,8 +111,8 @@ static SYN_Status parse_response(const uint8_t *buf, size_t rx_len, SYN_SockAddr
         if (!parse_qname(buf, rx_len, &pos)) return SYN_ERROR;
         if (pos + 10 > rx_len) return SYN_ERROR;
 
-        uint16_t type  = (uint16_t)(((uint16_t)buf[pos]   << 8) | buf[pos+1]);
-        uint16_t rdlen = (uint16_t)(((uint16_t)buf[pos+8]  << 8) | buf[pos+9]);
+        uint16_t type  = syn_peek_u16(buf, pos);
+        uint16_t rdlen = syn_peek_u16(buf, pos + 8);
         pos += 10;
 
         if (type == 1 && rdlen == 4) {

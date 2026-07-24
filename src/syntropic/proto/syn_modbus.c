@@ -25,27 +25,19 @@
 #define MB_MIN_FRAME_LEN   4    /**< Minimum: addr + func + CRC16.   */
 #define MB_MAX_PDU_DATA    252  /**< Max PDU data bytes.             */
 
+#include "../util/syn_pack.h"
+
 /* ── Helpers ────────────────────────────────────────────────────────────── */
 
-/**
- * @brief Read big-endian uint16 from a byte buffer.
- * @param buf  Source buffer.
- * @return Decoded value.
- */
-static uint16_t read_u16(const uint8_t *buf)
+static inline uint16_t read_u16(const uint8_t *buf)
 {
-    return (uint16_t)((buf[0] << 8) | buf[1]);
+    return syn_peek_u16(buf, 0);
 }
 
-/**
- * @brief Write big-endian uint16 to a byte buffer.
- * @param buf  Destination buffer.
- * @param val  Value to encode.
- */
-static void write_u16(uint8_t *buf, uint16_t val)
+static inline void write_u16(uint8_t *buf, uint16_t val)
 {
-    buf[0] = (uint8_t)(val >> 8);
-    buf[1] = (uint8_t)(val & 0xFF);
+    size_t pos = 0;
+    syn_pack_u16(buf, &pos, val);
 }
 
 /**

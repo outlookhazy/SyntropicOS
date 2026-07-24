@@ -12,6 +12,7 @@
 #include "syn_coap.h"
 #include "../port/syn_port_system.h"
 #include "../util/syn_assert.h"
+#include "../util/syn_pack.h"
 #include <string.h>
 
 size_t syn_coap_serialize(const SYN_CoapMsg *msg, const SYN_CoapOption *options, size_t option_count,
@@ -142,11 +143,10 @@ SYN_Status syn_coap_parse(SYN_CoapMsg *msg, SYN_CoapOption *options, size_t max_
     if (ver != COAP_VERSION) {
         return SYN_ERROR;
     }
-
     msg->type = (buf[0] >> 4) & 0x03;
     msg->token_len = buf[0] & 0x0F;
     msg->code = buf[1];
-    msg->msg_id = (uint16_t)(((uint16_t)buf[2] << 8) | buf[3]);
+    msg->msg_id = syn_peek_u16(buf, 2);
 
     if (msg->token_len > 8) {
         return SYN_ERROR;

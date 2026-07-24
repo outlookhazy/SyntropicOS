@@ -6,27 +6,18 @@
 #include "syn_modbus_master.h"
 #include "../util/syn_crc.h"
 #include "../util/syn_assert.h"
+#include "../util/syn_pack.h"
 #include <string.h>
 
-/**
- * @brief Write 16-bit big-endian integer to byte buffer.
- * @param p   Output buffer pointer.
- * @param val Value to write.
- */
-static void write_u16_be(uint8_t *p, uint16_t val)
+static inline void write_u16_be(uint8_t *p, uint16_t val)
 {
-    p[0] = (uint8_t)(val >> 8);
-    p[1] = (uint8_t)(val & 0xFF);
+    size_t pos = 0;
+    syn_pack_u16(p, &pos, val);
 }
 
-/**
- * @brief Read 16-bit big-endian integer from byte buffer.
- * @param p Input buffer pointer.
- * @return Read 16-bit value.
- */
-static uint16_t read_u16_be(const uint8_t *p)
+static inline uint16_t read_u16_be(const uint8_t *p)
 {
-    return (uint16_t)(((uint16_t)p[0] << 8) | p[1]);
+    return syn_peek_u16(p, 0);
 }
 
 void syn_modbus_master_init(SYN_ModbusMaster *m, uint32_t timeout_ms)

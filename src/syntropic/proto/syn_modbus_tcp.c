@@ -11,6 +11,7 @@
 
 #include "syn_modbus_tcp.h"
 #include "../util/syn_assert.h"
+#include "../util/syn_pack.h"
 
 #include <string.h>
 
@@ -19,13 +20,11 @@ void syn_mbap_encode_header(const SYN_MBAP_Header *hdr, uint8_t *buf)
     SYN_ASSERT(hdr != NULL);
     SYN_ASSERT(buf != NULL);
 
-    buf[0] = (uint8_t)(hdr->transaction_id >> 8);
-    buf[1] = (uint8_t)(hdr->transaction_id & 0xFF);
-    buf[2] = (uint8_t)(hdr->protocol_id >> 8);
-    buf[3] = (uint8_t)(hdr->protocol_id & 0xFF);
-    buf[4] = (uint8_t)(hdr->length >> 8);
-    buf[5] = (uint8_t)(hdr->length & 0xFF);
-    buf[6] = hdr->unit_id;
+    size_t pos = 0;
+    syn_pack_u16(buf, &pos, hdr->transaction_id);
+    syn_pack_u16(buf, &pos, hdr->protocol_id);
+    syn_pack_u16(buf, &pos, hdr->length);
+    syn_pack_u8(buf, &pos, hdr->unit_id);
 }
 
 bool syn_mbap_decode_header(const uint8_t *buf, SYN_MBAP_Header *hdr)
@@ -33,10 +32,11 @@ bool syn_mbap_decode_header(const uint8_t *buf, SYN_MBAP_Header *hdr)
     SYN_ASSERT(buf != NULL);
     SYN_ASSERT(hdr != NULL);
 
-    hdr->transaction_id = (uint16_t)((buf[0] << 8) | buf[1]);
-    hdr->protocol_id    = (uint16_t)((buf[2] << 8) | buf[3]);
-    hdr->length         = (uint16_t)((buf[4] << 8) | buf[5]);
-    hdr->unit_id        = buf[6];
+    size_t pos = 0;
+    hdr->transaction_id = syn_unpack_u16(buf, &pos);
+    hdr->protocol_id    = syn_unpack_u16(buf, &pos);
+    hdr->length         = syn_unpack_u16(buf, &pos);
+    hdr->unit_id        = syn_unpack_u8(buf, &pos);
 
     return (hdr->protocol_id == 0x0000);
 }
