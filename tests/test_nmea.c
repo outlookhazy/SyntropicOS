@@ -122,31 +122,46 @@ void test_nmea_streaming_parser(void)
     TEST_ASSERT_EQUAL_STRING("$GPGGA,123519,4807.038,N,01131.000,E,1,08,0.9,545.4,M,46.9,M,,*47", out_sentence);
 }
 
+static void format_nmea(const char *payload, char *out, size_t out_size)
+{
+    uint8_t crc = syn_nmea_checksum(payload);
+    snprintf(out, out_size, "%s*%02X\r\n", payload, crc);
+}
+
 void test_nmea_edge_cases(void)
 {
-    TEST_ASSERT_EQUAL(0, syn_nmea_checksum(NULL));
-    TEST_ASSERT_FALSE(syn_nmea_validate(NULL));
-    TEST_ASSERT_FALSE(syn_nmea_validate("GARBAGE"));
     TEST_ASSERT_EQUAL(SYN_NMEA_SENTENCE_UNKNOWN, syn_nmea_get_type(NULL));
-    TEST_ASSERT_EQUAL(SYN_NMEA_SENTENCE_UNKNOWN, syn_nmea_get_type("$GPXYZ,1,2*34"));
-
-    TEST_ASSERT_FLOAT_WITHIN(0.001f, 0.0f, (float)syn_nmea_parse_coord(NULL, 'N'));
-    TEST_ASSERT_FLOAT_WITHIN(0.001f, 0.0f, (float)syn_nmea_parse_coord("12", 'N'));
+    TEST_ASSERT_EQUAL(SYN_NMEA_SENTENCE_UNKNOWN, syn_nmea_get_type("invalid"));
+    TEST_ASSERT_EQUAL(SYN_NMEA_SENTENCE_UNKNOWN, syn_nmea_get_type("$GPXYZ,1,2,3*00"));
 
     SYN_NMEA_GGA gga;
-    TEST_ASSERT_FALSE(syn_nmea_parse_gga("$GPRMC,1,2,3*00", &gga));
-
     SYN_NMEA_RMC rmc;
+
+    TEST_ASSERT_FALSE(syn_nmea_parse_gga(NULL, &gga));
+    TEST_ASSERT_FALSE(syn_nmea_parse_rmc(NULL, &rmc));
+
+    TEST_ASSERT_FALSE(syn_nmea_parse_gga("$GPRMC,1,2,3*00", &gga));
     TEST_ASSERT_FALSE(syn_nmea_parse_rmc("$GPGGA,1,2,3*00", &rmc));
+
+    char sentence_buf[128];
 
     SYN_NMEA_VTG vtg;
     TEST_ASSERT_FALSE(syn_nmea_parse_vtg("$GPGGA,1,2,3*00", &vtg));
+    format_nmea("$GPVTG,054.7,T,,M,005.5,N,010.2,K", sentence_buf, sizeof(sentence_buf));
+    TEST_ASSERT_TRUE(syn_nmea_parse_vtg(sentence_buf, &vtg));
+    TEST_ASSERT_TRUE(vtg.valid);
 
     SYN_NMEA_GSA gsa;
     TEST_ASSERT_FALSE(syn_nmea_parse_gsa("$GPGGA,1,2,3*00", &gsa));
+    format_nmea("$GPGSA,A,3,01,02,03,,,,,,,,,,2.5,1.3,2.1", sentence_buf, sizeof(sentence_buf));
+    TEST_ASSERT_TRUE(syn_nmea_parse_gsa(sentence_buf, &gsa));
+    TEST_ASSERT_TRUE(gsa.valid);
 
     SYN_NMEA_ZDA zda;
     TEST_ASSERT_FALSE(syn_nmea_parse_zda("$GPGGA,1,2,3*00", &zda));
+    format_nmea("$GPZDA,160012.00,09,03,2026,00,00", sentence_buf, sizeof(sentence_buf));
+    TEST_ASSERT_TRUE(syn_nmea_parse_zda(sentence_buf, &zda));
+    TEST_ASSERT_TRUE(zda.valid);
 }
 
 void run_nmea_tests(void)

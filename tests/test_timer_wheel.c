@@ -54,6 +54,26 @@ void test_timer_wheel_add_step_cancel(void)
     }
     TEST_ASSERT_EQUAL_INT(0, s_timer2_fired); /* Canceled, should not fire */
 
+    /* Test collision: two timers in the same bucket */
+    SYN_TimerWheelNode t_a, t_b, t_c;
+    memset(&t_a, 0, sizeof(t_a));
+    memset(&t_b, 0, sizeof(t_b));
+    memset(&t_c, 0, sizeof(t_c));
+
+    syn_timer_wheel_add(&wheel, &t_a, 5, timer1_cb, NULL);
+    syn_timer_wheel_add(&wheel, &t_b, 5, timer2_cb, NULL);
+    syn_timer_wheel_add(&wheel, &t_c, 5, timer1_cb, NULL);
+
+    /* Re-add active timer t_b (triggers cancel before re-add) */
+    syn_timer_wheel_add(&wheel, &t_b, 5, timer2_cb, NULL);
+
+    /* Cancel middle element t_b */
+    syn_timer_wheel_cancel(&wheel, &t_b);
+
+    /* Step 5 ticks to fire t_a and t_c */
+    for (int i = 0; i < 4; i++) syn_timer_wheel_step(&wheel);
+    TEST_ASSERT_EQUAL_UINT32(2, syn_timer_wheel_step(&wheel));
+
     /* Null & param checks */
     TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM, syn_timer_wheel_init(NULL));
     TEST_ASSERT_EQUAL_INT(SYN_INVALID_PARAM, syn_timer_wheel_add(NULL, &n1, 5, timer1_cb, NULL));

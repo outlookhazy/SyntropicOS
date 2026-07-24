@@ -646,6 +646,16 @@ void test_httpd_extra_coverage(void)
     syn_httpd_step(&srv);
 }
 
+static void test_httpd_body_str_direct(void)
+{
+    setup_server();
+    SYN_HttpdResponse resp = { .sock = 1, .buf = work_buf, .headers_sent = false };
+    syn_httpd_status(&resp, 200, "OK");
+    syn_httpd_header(&resp, "Content-Type", "text/plain");
+    syn_httpd_body_str(&resp, "Body String Direct Test");
+    TEST_ASSERT_TRUE(resp.headers_sent);
+}
+
 void run_httpd_tests(void)
 {
     RUN_TEST(test_httpd_get_root);
@@ -678,4 +688,5 @@ void run_httpd_tests(void)
     /* Protothread */
     RUN_TEST(test_httpd_task_protothread);
     RUN_TEST(test_httpd_extra_coverage);
+    RUN_TEST(test_httpd_body_str_direct);
 }
