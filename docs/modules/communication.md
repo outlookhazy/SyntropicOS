@@ -11,6 +11,9 @@
 | NMEA 0183 Navigation | `proto/syn_nmea.h` | `SYN_USE_NMEA` | Streaming NMEA 0183 sentence parser and decoder for GNSS/GPS devices (GGA, RMC, VTG, GSA, ZDA), XOR checksum validation, and DDMM.MMMM coordinate conversion. |
 | CANopen DS301 Slave | `proto/syn_canopen.h` | `SYN_USE_CANOPEN` | Zero-allocation CANopen DS301 slave protocol engine supporting Object Dictionary (OD) lookup, SDO Server (expedited download/upload, segmented SDO, SDO Aborts), up to 4 RPDOs & 4 TPDOs, Heartbeat Producer, Emergency (EMCY) alarms, and NMT state machine management. |
 | CANopen CiA 402 Drive | `proto/syn_cia402.h` | `SYN_USE_CIA402` | CANopen CiA 402 Servo Drive & Motion Control profile engine supporting standard 8-state power drive state machine, Controlword (0x6040), Statusword (0x6041), Profile Position (PP), Profile Velocity (PV), Profile Torque (PT), and Cyclic Synchronous (CSP/CSV) modes with S-Curve trajectory generation. |
+| CANopen CiA 305 LSS | `proto/syn_lss.h` | `SYN_USE_CANOPEN` | Layer Setting Services (LSS) master and slave protocol engines for dynamic Node-ID allocation, bit-timing baud rate selection, fastscan, and non-volatile configuration store. |
+| CANopen CiA 401 I/O | `proto/syn_cia401.h` | `SYN_USE_CANOPEN` | Device Profile for Generic I/O Modules providing standardized Object Dictionary entries for 8-bit digital inputs/outputs and 16-bit analog inputs/outputs with interrupt delta thresholds. |
+| CANopen CiA 302 Manager | `proto/syn_canopen_mgr.h` | `SYN_USE_CANOPEN` | Network Manager, NMT Master, non-blocking SDO Client (expedited read/write), and 128-node heartbeat monitoring engine. |
 
 ## Cooperative Network Stack
 
