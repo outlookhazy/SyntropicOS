@@ -22,6 +22,7 @@ void tearDown(void) { /* nothing */ }
 void run_ringbuf_tests(void);
 void run_crc_tests(void);
 void run_pid_tests(void);
+void run_cia418_tests(void);
 void run_hysteresis_tests(void);
 void run_lut_tests(void);
 void run_fsm_tests(void);
@@ -336,8 +337,9 @@ int main(void)
     /* SAE J1939 Heavy Duty Vehicle Protocol */
     run_j1939_tests();
 
-    /* NMEA 2000 Marine CAN Protocol */
+    /* NMEA 2000 Marine CAN Protocol & CiA 418 BMS Profile */
     run_n2k_tests();
+    run_cia418_tests();
 
     /* Task Profiler & DDS Synthesizer */
     run_task_profile_tests();

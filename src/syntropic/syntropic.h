@@ -304,6 +304,8 @@ extern "C" {
   #include "proto/syn_n2k.h"
 #endif
 
+#include "proto/syn_cia418.h"
+
 /* ── Storage ────────────────────────────────────────────────────────────── */
 
 #if !defined(SYN_USE_PARAM) || SYN_USE_PARAM
