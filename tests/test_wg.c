@@ -521,6 +521,96 @@ static void test_wg_handshake_response_invalid(void)
     TEST_ASSERT_EQUAL(SYN_WG_HANDSHAKE_INIT, s_wg.state);
 }
 
+static bool s_recv_called = false;
+static void test_on_recv(const uint8_t *buf, size_t len, void *ctx)
+{
+    (void)buf; (void)len; (void)ctx;
+    s_recv_called = true;
+}
+
+static void test_wg_established_transport_and_keepalive(void)
+{
+    wg_state_setup();
+    mock_tick_ms = 1000;
+    mock_udp_tx_len = 0;
+    s_recv_called = false;
+    s_wg.on_recv = test_on_recv;
+
+    /* Manually put state into ESTABLISHED with keys */
+    s_wg.state = SYN_WG_ESTABLISHED;
+    s_wg.udp_sock = 1;
+    s_wg.session.sender_index = 100;
+    s_wg.session.receiver_index = 200;
+    memset(s_wg.session.send_key, 0x11, 32);
+    memset(s_wg.session.recv_key, 0x22, 32);
+    s_wg.session.established_ms = 1000;
+    s_wg.last_sent_ms = 1000;
+
+    /* 1. Test syn_wg_send */
+    uint8_t payload[10] = "HELLO_WG!";
+    SYN_Status st = syn_wg_send(&s_wg, payload, sizeof(payload));
+    TEST_ASSERT_EQUAL(SYN_OK, st);
+    TEST_ASSERT_EQUAL_UINT64(1, s_wg.session.send_counter);
+
+    /* 2. Test syn_wg_send when disconnected (fails) */
+    s_wg.state = SYN_WG_DISCONNECTED;
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_wg_send(&s_wg, payload, sizeof(payload)));
+    s_wg.state = SYN_WG_ESTABLISHED;
+
+    /* 3. Build & receive encrypted transport message with on_recv callback */
+    uint8_t tx_msg[64];
+    uint8_t nonce[12];
+    memset(nonce, 0, 4);
+    store64_le(nonce + 4, 1); /* counter = 1 */
+
+    store32_le(tx_msg, SYN_WG_MSG_TRANSPORT);
+    store32_le(tx_msg + 4, 100); /* receiver index = sender index of active session */
+    store64_le(tx_msg + 8, 1);   /* counter = 1 */
+
+    syn_aead_encrypt(s_wg.session.recv_key, nonce, NULL, 0,
+                     payload, sizeof(payload),
+                     tx_msg + 16, tx_msg + 16 + sizeof(payload));
+
+    size_t tx_msg_len = 16 + sizeof(payload) + 16;
+    bool handled = wg_handle_transport(&s_wg, tx_msg, tx_msg_len);
+    TEST_ASSERT_TRUE(handled);
+    TEST_ASSERT_TRUE(s_recv_called);
+
+    /* 4. Test receiving transport message in syn_wg_task with counter=2 */
+    uint8_t tx_msg2[64];
+    memset(nonce, 0, 4);
+    store64_le(nonce + 4, 2);
+
+    store32_le(tx_msg2, SYN_WG_MSG_TRANSPORT);
+    store32_le(tx_msg2 + 4, 100);
+    store64_le(tx_msg2 + 8, 2);
+
+    syn_aead_encrypt(s_wg.session.recv_key, nonce, NULL, 0,
+                     payload, sizeof(payload),
+                     tx_msg2 + 16, tx_msg2 + 16 + sizeof(payload));
+
+    SYN_SockAddr from = { .port = 51820 };
+    from.ip[0] = 1; from.ip[1] = 2; from.ip[2] = 3; from.ip[3] = 4;
+    mock_udp_inject_packet(tx_msg2, tx_msg_len, &from);
+
+    SYN_PT pt;
+    PT_INIT(&pt);
+    SYN_Task task = { .user_data = &s_wg };
+    syn_wg_task(&pt, &task);
+
+    TEST_ASSERT_EQUAL(SYN_WG_ESTABLISHED, s_wg.state);
+    TEST_ASSERT_NOT_EQUAL(SYN_SOCKET_INVALID, s_wg.udp_sock);
+    s_wg.last_sent_ms = 100;
+    st = syn_wg_send(&s_wg, NULL, 0);
+    TEST_ASSERT_EQUAL(SYN_OK, st);
+
+    /* 6. Session expiry / rekey in task */
+    s_wg.session.established_ms = 100;
+    mock_tick_ms = 200000; /* > SYN_WG_REKEY_AFTER_TIME (120s) */
+    syn_wg_task(&pt, &task);
+    TEST_ASSERT_EQUAL(SYN_WG_HANDSHAKE_INIT, s_wg.state);
+}
+
 void run_wg_tests(void)
 {
     /* Handshake internals */
@@ -549,8 +639,9 @@ void run_wg_tests(void)
     /* Full handshake construction */
     RUN_TEST(test_wg_handshake_intermediates);
 
-    /* State machine */
+    /* State machine & transport */
     RUN_TEST(test_wg_init_state);
     RUN_TEST(test_wg_initiation_on_task);
     RUN_TEST(test_wg_handshake_response_invalid);
+    RUN_TEST(test_wg_established_transport_and_keepalive);
 }

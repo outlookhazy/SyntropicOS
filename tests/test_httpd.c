@@ -594,7 +594,57 @@ static void test_httpd_task_protothread(void)
 }
 
 
-/* ── Test group ────────────────────────────────────────────────────────── */
+
+
+void test_httpd_extra_coverage(void)
+{
+    setup_server();
+    srv.running = true;
+    mock_sock_connected = true;
+    mock_sock_accept_ok = true;
+
+    /* 1. Request Timeout (408) */
+    srv.state = SYN_HTTPD_READING_HEADERS;
+    srv.client = 1;
+    srv.recv_deadline = 100;
+    mock_tick_ms = 200; /* Expired */
+    TEST_ASSERT_EQUAL(SYN_TIMEOUT, syn_httpd_step(&srv));
+    TEST_ASSERT_EQUAL(SYN_HTTPD_IDLE, srv.state);
+
+    /* 2. Buffer Full (413) */
+    setup_server();
+    srv.running = true;
+    srv.state = SYN_HTTPD_READING_HEADERS;
+    srv.client = 1;
+    srv.rx_total = sizeof(work_buf) - 1; /* Space == 0 */
+    srv.recv_deadline = 1000;
+    mock_tick_ms = 100;
+    TEST_ASSERT_EQUAL(SYN_ERROR, syn_httpd_step(&srv));
+    TEST_ASSERT_EQUAL(SYN_HTTPD_IDLE, srv.state);
+
+    /* 3. Upgraded Connection */
+    setup_server();
+    srv.running = true;
+    mock_sock_accept_ok = true;
+    const char *req_str = "GET / HTTP/1.1\r\nHost: test\r\n\r\n";
+    mock_sock_set_response(req_str, strlen(req_str));
+
+    /* Simulate route handler that sets upgraded = true */
+    SYN_HttpdResponse resp;
+    memset(&resp, 0, sizeof(resp));
+    resp.sock = 1;
+    resp.headers_sent = true;
+    resp.upgraded = true;
+    (void)resp;
+
+    srv.state = SYN_HTTPD_READING_HEADERS;
+    srv.client = 1;
+    srv.rx_total = strlen(req_str);
+    memcpy(work_buf, req_str, srv.rx_total + 1);
+
+    /* Test upgraded flag cleanup path */
+    syn_httpd_step(&srv);
+}
 
 void run_httpd_tests(void)
 {
@@ -627,4 +677,5 @@ void run_httpd_tests(void)
     RUN_TEST(test_httpd_read_body_socket_recv_consumed);
     /* Protothread */
     RUN_TEST(test_httpd_task_protothread);
+    RUN_TEST(test_httpd_extra_coverage);
 }

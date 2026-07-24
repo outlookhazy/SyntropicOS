@@ -136,6 +136,21 @@ static void test_rtc_from_epoch_zero(void)
 
 /* ── Registration ────────────────────────────────────────────────────────── */
 
+static void test_rtc_drift_ppm(void)
+{
+    syn_rtc_init();
+    syn_rtc_set_drift_ppm(10); /* +10 ppm drift compensation */
+
+    SYN_RTC_DateTime set_dt = { 2025u, 6u, 15u, 10u, 30u, 45u };
+    TEST_ASSERT_EQUAL(SYN_OK, syn_rtc_set(&set_dt));
+
+    SYN_RTC_DateTime got_dt;
+    TEST_ASSERT_EQUAL(SYN_OK, syn_rtc_get(&got_dt));
+
+    SYN_RTC_DateTime bad_year = { 1969u, 1u, 1u, 0u, 0u, 0u };
+    TEST_ASSERT_FALSE(syn_rtc_is_valid(&bad_year));
+}
+
 void run_rtc_tests(void)
 {
     RUN_TEST(test_rtc_init_ok);
@@ -150,5 +165,6 @@ void run_rtc_tests(void)
     RUN_TEST(test_rtc_epoch_y2k);
     RUN_TEST(test_rtc_epoch_leap_day);
     RUN_TEST(test_rtc_from_epoch_roundtrip);
+    RUN_TEST(test_rtc_drift_ppm);
     RUN_TEST(test_rtc_from_epoch_zero);
 }

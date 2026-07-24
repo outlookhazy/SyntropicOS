@@ -585,6 +585,49 @@ void test_autotune_ka_tuning(void) {
 }
 
 
+void test_autotune_relay_zero_crossings(void) {
+    mock_tick_ms = 0;
+    mock_pos = 0;
+
+    SYN_MotorCtrl ctrl;
+    SYN_MotorCtrl_Config mcfg = SYN_MOTOR_CTRL_DEFAULTS(
+        ((SYN_MotorOutput){ .set_output = mock_set_output, .ctx = NULL }),
+        mock_read_pos, NULL, 100, 1000
+    );
+    ctrl.cfg.position_deadband = 5;
+    syn_motor_ctrl_init(&ctrl, &mcfg);
+
+    SYN_AutoTune at;
+    SYN_AutoTune_Config cfg = {
+        .mode = SYN_ATUNE_MODE_RELAY,
+        .test_output = 50,
+        .setpoint = 100,
+        .relay_cycles = 2,
+        .watchdog_ms = 5000
+    };
+    syn_autotune_init(&at, &ctrl, &cfg);
+
+    at.state = SYN_ATUNE_RELAY;
+    at.above_setpoint = false;
+    at.relay_output = 50;
+
+    /* Pos moves above setpoint + hysteresis (100 + 10 = 110) */
+    mock_pos = 120;
+    mock_tick_ms = 100;
+    syn_autotune_update(&at);
+    TEST_ASSERT_EQUAL(1, at.half_cycles);
+    TEST_ASSERT_TRUE(at.above_setpoint);
+    TEST_ASSERT_EQUAL(-50, at.relay_output);
+
+    /* Pos drops below setpoint - hysteresis (100 - 10 = 90) */
+    mock_pos = 80;
+    mock_tick_ms = 200;
+    syn_autotune_update(&at);
+    TEST_ASSERT_EQUAL(2, at.half_cycles);
+    TEST_ASSERT_FALSE(at.above_setpoint);
+    TEST_ASSERT_EQUAL(50, at.relay_output);
+}
+
 void run_autotune_tests(void) {
     RUN_TEST(test_autotune_probe_phase);
     RUN_TEST(test_autotune_datalog);
@@ -604,4 +647,5 @@ void run_autotune_tests(void) {
     RUN_TEST(test_autotune_abort_no_motion);
     RUN_TEST(test_autotune_abort_watchdog);
     RUN_TEST(test_autotune_ka_tuning);
+    RUN_TEST(test_autotune_relay_zero_crossings);
 }
