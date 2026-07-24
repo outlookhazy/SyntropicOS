@@ -432,6 +432,57 @@ static inline uint32_t syn_peek_u32(const uint8_t *buf, size_t pos)
            ((uint32_t)buf[pos + 3]);
 }
 
+/**
+ * @brief Peek a uint16_t value (Little Endian) without advancing position.
+ * @param buf Source buffer.
+ * @param pos Source offset byte index.
+ * @return Value at the offset index.
+ */
+static inline uint16_t syn_peek_u16_le(const uint8_t *buf, size_t pos)
+{
+    return (uint16_t)buf[pos] | (uint16_t)((uint16_t)buf[pos + 1] << 8);
+}
+
+/**
+ * @brief Peek a uint32_t value (Little Endian) without advancing position.
+ * @param buf Source buffer.
+ * @param pos Source offset byte index.
+ * @return Value at the offset index.
+ */
+static inline uint32_t syn_peek_u32_le(const uint8_t *buf, size_t pos)
+{
+    return ((uint32_t)buf[pos]) |
+           ((uint32_t)buf[pos + 1] << 8)  |
+           ((uint32_t)buf[pos + 2] << 16) |
+           ((uint32_t)buf[pos + 3] << 24);
+}
+
+/**
+ * @brief Poke a uint16_t value (Little Endian) at a fixed offset.
+ * @param val Value to write.
+ * @param buf Target buffer.
+ * @param pos Destination offset byte index.
+ */
+static inline void syn_poke_u16_le(uint16_t val, uint8_t *buf, size_t pos)
+{
+    buf[pos]     = (uint8_t)(val & 0xFF);
+    buf[pos + 1] = (uint8_t)((val >> 8) & 0xFF);
+}
+
+/**
+ * @brief Poke a uint32_t value (Little Endian) at a fixed offset.
+ * @param val Value to write.
+ * @param buf Target buffer.
+ * @param pos Destination offset byte index.
+ */
+static inline void syn_poke_u32_le(uint32_t val, uint8_t *buf, size_t pos)
+{
+    buf[pos]     = (uint8_t)(val & 0xFF);
+    buf[pos + 1] = (uint8_t)((val >> 8) & 0xFF);
+    buf[pos + 2] = (uint8_t)((val >> 16) & 0xFF);
+    buf[pos + 3] = (uint8_t)((val >> 24) & 0xFF);
+}
+
 #ifdef __cplusplus
 }
 #endif
