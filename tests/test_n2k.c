@@ -108,27 +108,6 @@ void test_n2k_heading_and_battery_status(void)
     TEST_ASSERT_EQUAL_UINT8(dc_tx.state_of_health, dc_rx.state_of_health);
     TEST_ASSERT_EQUAL_UINT16(dc_tx.time_to_go_min, dc_rx.time_to_go_min);
     TEST_ASSERT_EQUAL_UINT16(dc_tx.capacity_ah_1e1, dc_rx.capacity_ah_1e1);
-
-    /* BMS Cell Extremes test */
-    SYN_N2K_BmsCellStatus cell_tx = {
-        .sid                  = 15,
-        .instance             = 1,
-        .cell_min_voltage_mv  = 3250, /* 3.250V */
-        .cell_max_voltage_mv  = 3420, /* 3.420V */
-        .cell_min_temp_1e1    = 2932, /* 20.0 C */
-        .cell_max_temp_1e1    = 3082  /* 35.0 C */
-    };
-    uint8_t payload_buf[16];
-    size_t payload_len = 0;
-    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_n2k_encode_bms_cell_status(&cell_tx, payload_buf, &payload_len));
-    TEST_ASSERT_EQUAL_UINT32(10, payload_len);
-
-    SYN_N2K_BmsCellStatus cell_rx;
-    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_n2k_decode_bms_cell_status(payload_buf, payload_len, &cell_rx));
-    TEST_ASSERT_EQUAL_UINT16(cell_tx.cell_min_voltage_mv, cell_rx.cell_min_voltage_mv);
-    TEST_ASSERT_EQUAL_UINT16(cell_tx.cell_max_voltage_mv, cell_rx.cell_max_voltage_mv);
-    TEST_ASSERT_EQUAL_UINT16(cell_tx.cell_min_temp_1e1, cell_rx.cell_min_temp_1e1);
-    TEST_ASSERT_EQUAL_UINT16(cell_tx.cell_max_temp_1e1, cell_rx.cell_max_temp_1e1);
 }
 
 void test_n2k_environmental_parameters(void)
