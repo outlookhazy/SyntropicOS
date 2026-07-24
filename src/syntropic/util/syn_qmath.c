@@ -147,13 +147,13 @@ q16_t q16_asin(q16_t x)
     static const q16_t c3 = 10923;  /* 0.16667  */
     static const q16_t c5 = 4915;   /* 0.07500  */
 
-    int64_t x2 = ((int64_t)x * x) >> 16;
-    int64_t x3 = (x2 * x) >> 16;
-    int64_t x5 = ((x3 * x) >> 16) * x >> 16;
+    int64_t x2 = ((int64_t)x * x) / 65536LL;
+    int64_t x3 = (x2 * x) / 65536LL;
+    int64_t x5 = ((x3 * x) / 65536LL) * x / 65536LL;
 
-    int64_t result = ((int64_t)c1 * x) >> 16;
-    result += ((int64_t)c3 * x3) >> 16;
-    result += ((int64_t)c5 * x5) >> 16;
+    int64_t result = ((int64_t)c1 * x) / 65536LL;
+    result += ((int64_t)c3 * x3) / 65536LL;
+    result += ((int64_t)c5 * x5) / 65536LL;
 
     return (q16_t)result;
 }

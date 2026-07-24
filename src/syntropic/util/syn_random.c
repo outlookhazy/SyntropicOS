@@ -16,10 +16,8 @@ SYN_Status syn_random_fill(void *buf, size_t len)
 uint32_t syn_random_u32(void)
 {
     uint32_t val = 0;
-    if (syn_random_fill(&val, sizeof(val)) == SYN_OK) {
-        return val;
-    }
-    return 0;
+    syn_random_fill(&val, sizeof(val));
+    return val;
 }
 
 uint32_t syn_random_range(uint32_t min, uint32_t max)
