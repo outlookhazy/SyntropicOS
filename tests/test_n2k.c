@@ -87,6 +87,27 @@ void test_n2k_heading_and_battery_status(void)
     TEST_ASSERT_EQUAL_UINT16(b_tx.voltage_1e2, b_rx.voltage_1e2);
     TEST_ASSERT_EQUAL_INT16(b_tx.current_1e1, b_rx.current_1e1);
     TEST_ASSERT_EQUAL_UINT16(b_tx.temperature_1e1, b_rx.temperature_1e1);
+
+    /* DC Detailed status test (PGN 127506) */
+    SYN_N2K_DcDetailedStatus dc_tx = {
+        .sid             = 12,
+        .instance        = 1,
+        .dc_type         = 0,  /* Battery */
+        .state_of_charge = 85, /* 85% */
+        .state_of_health = 98, /* 98% */
+        .time_to_go_min  = 420,/* 7 hours */
+        .capacity_ah_1e1 = 200 /* 200.0 AH */
+    };
+    SYN_CAN_Frame frame_dc;
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_n2k_encode_dc_detailed(0x01, &dc_tx, &frame_dc));
+
+    SYN_N2K_DcDetailedStatus dc_rx;
+    TEST_ASSERT_EQUAL_INT(SYN_OK, syn_n2k_decode_dc_detailed(&frame_dc, &dc_rx));
+    TEST_ASSERT_EQUAL_UINT8(dc_tx.instance, dc_rx.instance);
+    TEST_ASSERT_EQUAL_UINT8(dc_tx.state_of_charge, dc_rx.state_of_charge);
+    TEST_ASSERT_EQUAL_UINT8(dc_tx.state_of_health, dc_rx.state_of_health);
+    TEST_ASSERT_EQUAL_UINT16(dc_tx.time_to_go_min, dc_rx.time_to_go_min);
+    TEST_ASSERT_EQUAL_UINT16(dc_tx.capacity_ah_1e1, dc_rx.capacity_ah_1e1);
 }
 
 void test_n2k_environmental_parameters(void)

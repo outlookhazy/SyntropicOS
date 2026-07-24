@@ -148,6 +148,41 @@ SYN_Status syn_n2k_decode_battery(const SYN_CAN_Frame *frame, SYN_N2K_BatterySta
     return SYN_OK;
 }
 
+SYN_Status syn_n2k_encode_dc_detailed(uint8_t sa, const SYN_N2K_DcDetailedStatus *dc, SYN_CAN_Frame *frame)
+{
+    if (!dc || !frame) return SYN_INVALID_PARAM;
+
+    frame->id = syn_j1939_id_pack(6, SYN_N2K_PGN_DC_DETAILED_STATUS, sa, SYN_J1939_ADDR_GLOBAL);
+    frame->dlc = 8;
+    frame->extended = true;
+
+    frame->data[0] = dc->sid;
+    frame->data[1] = dc->instance;
+    frame->data[2] = dc->dc_type;
+    frame->data[3] = dc->state_of_charge;
+    frame->data[4] = dc->state_of_health;
+    frame->data[5] = (uint8_t)(dc->time_to_go_min & 0xFFU);
+    frame->data[6] = (uint8_t)((dc->time_to_go_min >> 8) & 0xFFU);
+    frame->data[7] = (uint8_t)(dc->capacity_ah_1e1 & 0xFFU);
+
+    return SYN_OK;
+}
+
+SYN_Status syn_n2k_decode_dc_detailed(const SYN_CAN_Frame *frame, SYN_N2K_DcDetailedStatus *dc)
+{
+    if (!frame || !dc || frame->dlc < 8) return SYN_INVALID_PARAM;
+
+    dc->sid             = frame->data[0];
+    dc->instance        = frame->data[1];
+    dc->dc_type         = frame->data[2];
+    dc->state_of_charge = frame->data[3];
+    dc->state_of_health = frame->data[4];
+    dc->time_to_go_min  = (uint16_t)frame->data[5] | ((uint16_t)frame->data[6] << 8);
+    dc->capacity_ah_1e1 = (uint16_t)frame->data[7];
+
+    return SYN_OK;
+}
+
 SYN_Status syn_n2k_encode_environment(uint8_t sa, const SYN_N2K_EnvParams *env, SYN_CAN_Frame *frame)
 {
     if (!env || !frame) return SYN_INVALID_PARAM;

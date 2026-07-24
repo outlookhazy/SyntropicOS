@@ -26,6 +26,7 @@ extern "C" {
 #define SYN_N2K_PGN_SYSTEM_TIME      126992U /**< System Time (0x1F010) */
 #define SYN_N2K_PGN_VESSEL_HEADING   127250U /**< Vessel Heading (0x1F112) */
 #define SYN_N2K_PGN_BATTERY_STATUS   127508U /**< Battery Status (0x1F214) */
+#define SYN_N2K_PGN_DC_DETAILED_STATUS 127506U /**< DC Detailed Status (0x1F212) */
 #define SYN_N2K_PGN_SPEED_WATER      128259U /**< Speed Through Water (0x1F503) */
 #define SYN_N2K_PGN_POS_RAPID        129025U /**< Position, Rapid Update (0x1F801) */
 #define SYN_N2K_PGN_COG_SOG_RAPID    129026U /**< COG & SOG, Rapid Update (0x1F802) */
@@ -66,12 +67,25 @@ typedef struct {
  * @brief Battery Status (PGN 127508).
  */
 typedef struct {
+    uint8_t  sid;             /**< Sequence ID */
     uint8_t  instance;        /**< Battery Instance ID (0-254) */
     uint16_t voltage_1e2;     /**< Battery Voltage in 0.01 Volts (e.g. 1250 = 12.50V) */
     int16_t  current_1e1;     /**< Battery Current in 0.1 Amperes (e.g. 150 = 15.0A) */
     uint16_t temperature_1e1; /**< Battery Temperature in 0.1 Kelvin (e.g. 2982 = 298.2K / 25C) */
-    uint8_t  sid;             /**< Sequence ID */
 } SYN_N2K_BatteryStatus;
+
+/**
+ * @brief DC Detailed Status (PGN 127506).
+ */
+typedef struct {
+    uint8_t  sid;             /**< Sequence ID */
+    uint8_t  instance;        /**< DC Instance ID (0-254) */
+    uint8_t  dc_type;         /**< DC Source Type (0=Battery, 1=Alternator, 2=Convertor, 3=Solar, 4=Wind) */
+    uint8_t  state_of_charge; /**< State of Charge in 1% (0 to 100%) */
+    uint8_t  state_of_health; /**< State of Health in 1% (0 to 100%) */
+    uint16_t time_to_go_min;  /**< Time Remaining in minutes (0 to 65532 min) */
+    uint16_t capacity_ah_1e1; /**< Capacity / Ripple Voltage in 0.1 AH */
+} SYN_N2K_DcDetailedStatus;
 
 /**
  * @brief Environmental Parameters (PGN 130310).
@@ -164,6 +178,23 @@ SYN_Status syn_n2k_encode_battery(uint8_t sa, const SYN_N2K_BatteryStatus *batte
  * @return SYN_OK on success.
  */
 SYN_Status syn_n2k_decode_battery(const SYN_CAN_Frame *frame, SYN_N2K_BatteryStatus *battery);
+
+/**
+ * @brief Encode PGN 127506 (DC Detailed Status) into an 8-byte CAN frame.
+ * @param sa Source address.
+ * @param dc DC detailed status structure.
+ * @param frame Output CAN frame.
+ * @return SYN_OK on success.
+ */
+SYN_Status syn_n2k_encode_dc_detailed(uint8_t sa, const SYN_N2K_DcDetailedStatus *dc, SYN_CAN_Frame *frame);
+
+/**
+ * @brief Decode PGN 127506 (DC Detailed Status) from an 8-byte CAN frame.
+ * @param frame Source CAN frame.
+ * @param dc Output DC detailed status structure.
+ * @return SYN_OK on success.
+ */
+SYN_Status syn_n2k_decode_dc_detailed(const SYN_CAN_Frame *frame, SYN_N2K_DcDetailedStatus *dc);
 
 /**
  * @brief Encode PGN 130310 (Environmental Parameters) into an 8-byte CAN frame.
