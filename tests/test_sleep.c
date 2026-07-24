@@ -39,9 +39,13 @@ static void test_sleep(void)
     /* Multiple locks */
     syn_sleep_lock(&sl, SYN_SLEEP_LOCK_UART);
     syn_sleep_lock(&sl, SYN_SLEEP_LOCK_SPI);
+    TEST_ASSERT_TRUE(syn_sleep_is_locked(&sl, SYN_SLEEP_LOCK_UART));
+    TEST_ASSERT_TRUE(syn_sleep_any_locked(&sl));
     TEST_ASSERT_FALSE(syn_sleep_enter(&sl));
 
     syn_sleep_unlock(&sl, SYN_SLEEP_LOCK_UART);
+    TEST_ASSERT_FALSE(syn_sleep_is_locked(&sl, SYN_SLEEP_LOCK_UART));
+    TEST_ASSERT_TRUE(syn_sleep_any_locked(&sl));
     TEST_ASSERT_FALSE(syn_sleep_enter(&sl));
 
     syn_sleep_unlock(&sl, SYN_SLEEP_LOCK_SPI);
