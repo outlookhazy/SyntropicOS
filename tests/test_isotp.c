@@ -259,11 +259,43 @@ static void test_isotp_errors_and_edge_cases(void)
     TEST_ASSERT_EQUAL(SYN_ISOTP_TX_WAIT_FC, link.tx_state);
 }
 
+static void test_isotp_network_layer_timeouts(void)
+{
+    SYN_ISOTP_Link link;
+    syn_isotp_init(&link, 0x100, 0x200, rx_buf_a, 64, tx_buf_a, 64);
+    syn_isotp_set_timeouts(&link, 500, 500); /* 500ms custom N_Bs & N_Cr */
+
+    /* 1. N_Bs timeout check (Sender waiting for Flow Control) */
+    uint8_t payload[20] = {1, 2, 3};
+    TEST_ASSERT_EQUAL(SYN_OK, syn_isotp_send(&link, payload, sizeof(payload)));
+    SYN_CAN_Frame ff;
+    TEST_ASSERT_TRUE(syn_isotp_get_tx_frame(&link, &ff)); /* FF sent, entering SYN_ISOTP_TX_WAIT_FC */
+    TEST_ASSERT_EQUAL(SYN_ISOTP_TX_WAIT_FC, link.tx_state);
+
+    syn_isotp_step(&link, 400); /* 400 ms passed */
+    TEST_ASSERT_EQUAL(SYN_ISOTP_TX_WAIT_FC, link.tx_state); /* Still waiting */
+
+    syn_isotp_step(&link, 150); /* Total 550 ms passed -> N_Bs timeout! */
+    TEST_ASSERT_EQUAL(SYN_ISOTP_TX_IDLE, link.tx_state); /* Aborted to IDLE */
+
+    /* 2. N_Cr timeout check (Receiver waiting for Consecutive Frame) */
+    SYN_CAN_Frame incoming_ff = { .id = 0x100, .dlc = 8, .data = { 0x10, 20, 1, 2, 3, 4, 5, 6 } };
+    syn_isotp_process_rx_frame(&link, &incoming_ff);
+    TEST_ASSERT_EQUAL(SYN_ISOTP_RX_WAIT_CF, link.rx_state);
+
+    syn_isotp_step(&link, 400); /* 400 ms passed */
+    TEST_ASSERT_EQUAL(SYN_ISOTP_RX_WAIT_CF, link.rx_state); /* Still waiting */
+
+    syn_isotp_step(&link, 150); /* Total 550 ms passed -> N_Cr timeout! */
+    TEST_ASSERT_EQUAL(SYN_ISOTP_RX_IDLE, link.rx_state); /* Aborted to IDLE */
+}
+
 void run_isotp_tests(void)
 {
     RUN_TEST(test_isotp_single_frame);
     RUN_TEST(test_isotp_multi_frame_flow);
     RUN_TEST(test_isotp_errors_and_edge_cases);
+    RUN_TEST(test_isotp_network_layer_timeouts);
 #if defined(SYN_USE_CAN_FD) && SYN_USE_CAN_FD
     RUN_TEST(test_isotp_canfd_single_frame);
     RUN_TEST(test_isotp_canfd_multi_frame);

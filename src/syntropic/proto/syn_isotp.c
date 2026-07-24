@@ -41,6 +41,13 @@ static uint32_t syn_isotp_decode_stmin_us(uint8_t st_min)
     return 0;
 }
 
+void syn_isotp_set_timeouts(SYN_ISOTP_Link *link, uint32_t n_bs_ms, uint32_t n_cr_ms)
+{
+    if (link == NULL) return;
+    link->n_bs_timeout_us = (n_bs_ms > 0) ? (n_bs_ms * 1000U) : (SYN_ISOTP_DEFAULT_N_BS_MS * 1000U);
+    link->n_cr_timeout_us = (n_cr_ms > 0) ? (n_cr_ms * 1000U) : (SYN_ISOTP_DEFAULT_N_CR_MS * 1000U);
+}
+
 void syn_isotp_init(SYN_ISOTP_Link *link, uint32_t rx_id, uint32_t tx_id,
                     uint8_t *rx_buf, size_t rx_buf_size,
                     uint8_t *tx_buf, size_t tx_buf_size)
@@ -59,6 +66,8 @@ void syn_isotp_init(SYN_ISOTP_Link *link, uint32_t rx_id, uint32_t tx_id,
     link->tx_buf_size  = tx_buf_size;
     link->tx_state     = SYN_ISOTP_TX_IDLE;
     link->rx_state     = SYN_ISOTP_RX_IDLE;
+    link->n_bs_timeout_us = SYN_ISOTP_DEFAULT_N_BS_MS * 1000U;
+    link->n_cr_timeout_us = SYN_ISOTP_DEFAULT_N_CR_MS * 1000U;
 #endif
 }
 
@@ -79,6 +88,8 @@ void syn_isotp_init_fd(SYN_ISOTP_Link *link, uint32_t rx_id, uint32_t tx_id,
     link->tx_buf_size  = tx_buf_size;
     link->tx_state     = SYN_ISOTP_TX_IDLE;
     link->rx_state     = SYN_ISOTP_RX_IDLE;
+    link->n_bs_timeout_us = SYN_ISOTP_DEFAULT_N_BS_MS * 1000U;
+    link->n_cr_timeout_us = SYN_ISOTP_DEFAULT_N_CR_MS * 1000U;
 }
 #endif
 
@@ -138,95 +149,129 @@ bool syn_isotp_get_tx_frame(SYN_ISOTP_Link *link, SYN_CAN_Frame *frame)
     switch (link->tx_state) {
     case SYN_ISOTP_TX_SEND_SF:
 #if defined(SYN_USE_CAN_FD) && SYN_USE_CAN_FD
-        if (link->tx_len <= 7) {
-            frame->data[0] = SYN_ISOTP_PCI_SF | (uint8_t)(link->tx_len & 0x0F);
-            memcpy(&frame->data[1], link->tx_buf, link->tx_len);
-            frame->dlc = link->is_fd ? syn_can_fd_pad_len((uint8_t)(1 + link->tx_len)) : 8;
+        if (link->is_fd) {
+            size_t sf_len = link->tx_len;
+            if (sf_len <= 7) {
+                frame->data[0] = SYN_ISOTP_PCI_SF | (uint8_t)sf_len;
+                memcpy(&frame->data[1], link->tx_buf, sf_len);
+                frame->dlc = syn_can_fd_pad_len((uint8_t)(sf_len + 1));
+            } else {
+                frame->data[0] = SYN_ISOTP_PCI_SF;
+                frame->data[1] = (uint8_t)sf_len;
+                memcpy(&frame->data[2], link->tx_buf, sf_len);
+                frame->dlc = syn_can_fd_pad_len((uint8_t)(sf_len + 2));
+            }
         } else {
-            frame->data[0] = 0x00; /* SF Escape */
-            frame->data[1] = (uint8_t)link->tx_len;
-            memcpy(&frame->data[2], link->tx_buf, link->tx_len);
-            frame->dlc = syn_can_fd_pad_len((uint8_t)(2 + link->tx_len));
+            frame->data[0] = SYN_ISOTP_PCI_SF | (uint8_t)link->tx_len;
+            memcpy(&frame->data[1], link->tx_buf, link->tx_len);
+            frame->dlc = 8;
         }
 #else
-        frame->data[0] = SYN_ISOTP_PCI_SF | (uint8_t)(link->tx_len & 0x0F);
+        frame->data[0] = SYN_ISOTP_PCI_SF | (uint8_t)link->tx_len;
         memcpy(&frame->data[1], link->tx_buf, link->tx_len);
         frame->dlc = 8;
 #endif
         link->tx_state = SYN_ISOTP_TX_IDLE;
         return true;
 
-    case SYN_ISOTP_TX_SEND_FF:
-        if (link->tx_len <= 4095) {
-            /* Standard 12-bit First Frame */
+    case SYN_ISOTP_TX_SEND_FF: {
+        size_t payload_in_ff;
+#if defined(SYN_USE_CAN_FD) && SYN_USE_CAN_FD
+        if (link->is_fd) {
+            if (link->tx_len <= 4095) {
+                frame->data[0] = SYN_ISOTP_PCI_FF | (uint8_t)((link->tx_len >> 8) & 0x0F);
+                frame->data[1] = (uint8_t)(link->tx_len & 0xFF);
+                payload_in_ff = (link->tx_len > 62) ? 62 : link->tx_len;
+                memcpy(&frame->data[2], link->tx_buf, payload_in_ff);
+                frame->dlc = syn_can_fd_pad_len((uint8_t)(payload_in_ff + 2));
+            } else {
+                frame->data[0] = SYN_ISOTP_PCI_FF;
+                frame->data[1] = 0;
+                frame->data[2] = (uint8_t)((link->tx_len >> 24) & 0xFF);
+                frame->data[3] = (uint8_t)((link->tx_len >> 16) & 0xFF);
+                frame->data[4] = (uint8_t)((link->tx_len >> 8) & 0xFF);
+                frame->data[5] = (uint8_t)(link->tx_len & 0xFF);
+                payload_in_ff = (link->tx_len > 58) ? 58 : link->tx_len;
+                memcpy(&frame->data[6], link->tx_buf, payload_in_ff);
+                frame->dlc = syn_can_fd_pad_len((uint8_t)(payload_in_ff + 6));
+            }
+        } else {
             frame->data[0] = SYN_ISOTP_PCI_FF | (uint8_t)((link->tx_len >> 8) & 0x0F);
             frame->data[1] = (uint8_t)(link->tx_len & 0xFF);
-#if defined(SYN_USE_CAN_FD) && SYN_USE_CAN_FD
-            size_t chunk = link->is_fd ? 62 : 6;
-            frame->dlc = link->is_fd ? 64 : 8;
-#else
-            size_t chunk = 6;
+            payload_in_ff = 6;
+            memcpy(&frame->data[2], link->tx_buf, payload_in_ff);
             frame->dlc = 8;
-#endif
-            if (chunk > link->tx_len) chunk = link->tx_len;
-            memcpy(&frame->data[2], link->tx_buf, chunk);
-            link->tx_offset = chunk;
-        } else {
-            /* ISO 15765-2:2016 32-bit Extended First Frame */
-            frame->data[0] = 0x10; /* FF Escape */
-            frame->data[1] = 0x00;
-            frame->data[2] = (uint8_t)((uint32_t)link->tx_len >> 24);
-            frame->data[3] = (uint8_t)((uint32_t)link->tx_len >> 16);
-            frame->data[4] = (uint8_t)((uint32_t)link->tx_len >> 8);
-            frame->data[5] = (uint8_t)((uint32_t)link->tx_len & 0xFF);
-#if defined(SYN_USE_CAN_FD) && SYN_USE_CAN_FD
-            size_t chunk = link->is_fd ? 58 : 2;
-            frame->dlc = link->is_fd ? 64 : 8;
-#else
-            size_t chunk = 2;
-            frame->dlc = 8;
-#endif
-            if (chunk > link->tx_len) chunk = link->tx_len;
-            memcpy(&frame->data[6], link->tx_buf, chunk);
-            link->tx_offset = chunk;
         }
-        link->tx_state = SYN_ISOTP_TX_WAIT_FC;
+#else
+        frame->data[0] = SYN_ISOTP_PCI_FF | (uint8_t)((link->tx_len >> 8) & 0x0F);
+        frame->data[1] = (uint8_t)(link->tx_len & 0xFF);
+        payload_in_ff = 6;
+        memcpy(&frame->data[2], link->tx_buf, payload_in_ff);
+        frame->dlc = 8;
+#endif
+        link->tx_offset = payload_in_ff;
+        link->tx_state  = SYN_ISOTP_TX_WAIT_FC;
+        link->tx_timeout_timer_us = link->n_bs_timeout_us;
         return true;
+    }
 
-    case SYN_ISOTP_TX_SEND_CF:
+    case SYN_ISOTP_TX_WAIT_FC:
+        return false;
+
+    case SYN_ISOTP_TX_SEND_CF: {
         if (link->tx_st_timer_us > 0) {
-            return false; /* Enforce STmin separation time */
+            return false;
+        }
+
+        size_t rem = link->tx_len - link->tx_offset;
+        if (rem == 0) {
+            link->tx_state = SYN_ISOTP_TX_IDLE;
+            return false;
         }
 
         frame->data[0] = SYN_ISOTP_PCI_CF | (link->tx_seq & 0x0F);
-        size_t rem = link->tx_len - link->tx_offset;
+        size_t payload_len;
+
 #if defined(SYN_USE_CAN_FD) && SYN_USE_CAN_FD
-        size_t max_chunk = link->is_fd ? 63 : 7;
-        size_t chunk = (rem > max_chunk) ? max_chunk : rem;
-        memcpy(&frame->data[1], &link->tx_buf[link->tx_offset], chunk);
-        frame->dlc = link->is_fd ? syn_can_fd_pad_len((uint8_t)(1 + chunk)) : 8;
+        if (link->is_fd) {
+            payload_len = (rem > 63) ? 63 : rem;
+            memcpy(&frame->data[1], &link->tx_buf[link->tx_offset], payload_len);
+            frame->dlc = syn_can_fd_pad_len((uint8_t)(payload_len + 1));
+        } else {
+            payload_len = (rem > 7) ? 7 : rem;
+            memcpy(&frame->data[1], &link->tx_buf[link->tx_offset], payload_len);
+            frame->dlc = 8;
+        }
 #else
-        size_t chunk = (rem > 7) ? 7 : rem;
-        memcpy(&frame->data[1], &link->tx_buf[link->tx_offset], chunk);
+        payload_len = (rem > 7) ? 7 : rem;
+        memcpy(&frame->data[1], &link->tx_buf[link->tx_offset], payload_len);
         frame->dlc = 8;
 #endif
 
-        link->tx_offset += chunk;
+        link->tx_offset += payload_len;
         link->tx_seq = (uint8_t)((link->tx_seq + 1) & 0x0F);
-        link->tx_bs_count++;
         link->tx_st_timer_us = syn_isotp_decode_stmin_us(link->tx_st_min);
+
+        if (link->tx_bs > 0) {
+            link->tx_bs_count++;
+            if (link->tx_bs_count >= link->tx_bs && link->tx_offset < link->tx_len) {
+                link->tx_bs_count = 0;
+                link->tx_state    = SYN_ISOTP_TX_WAIT_FC;
+                link->tx_timeout_timer_us = link->n_bs_timeout_us;
+            }
+        }
 
         if (link->tx_offset >= link->tx_len) {
             link->tx_state = SYN_ISOTP_TX_IDLE;
-        } else if (link->tx_bs > 0 && link->tx_bs_count >= link->tx_bs) {
-            link->tx_bs_count = 0;
-            link->tx_state    = SYN_ISOTP_TX_WAIT_FC;
         }
         return true;
+    }
 
     default:
-        return false;
+        break;
     }
+
+    return false;
 }
 
 void syn_isotp_process_rx_frame(SYN_ISOTP_Link *link, const SYN_CAN_Frame *frame)
@@ -238,15 +283,11 @@ void syn_isotp_process_rx_frame(SYN_ISOTP_Link *link, const SYN_CAN_Frame *frame
 
     switch (pci_type) {
     case SYN_ISOTP_PCI_SF: {
-        size_t sf_len;
-        size_t data_offset;
+        size_t sf_len = frame->data[0] & 0x0FU;
+        size_t data_offset = 1;
 
-        if ((frame->data[0] & 0x0FU) != 0) {
-            /* Standard Single Frame */
-            sf_len = frame->data[0] & 0x0FU;
-            data_offset = 1;
-        } else {
-            /* CAN FD Extended Single Frame */
+        if (sf_len == 0) {
+            /* 8-bit length SF in CAN FD */
             sf_len = frame->data[1];
             data_offset = 2;
         }
@@ -293,6 +334,7 @@ void syn_isotp_process_rx_frame(SYN_ISOTP_Link *link, const SYN_CAN_Frame *frame
                 link->rx_fc_pending = true;
                 link->rx_fc_status  = SYN_ISOTP_FC_CTS;
                 link->rx_state      = SYN_ISOTP_RX_WAIT_CF;
+                link->rx_timeout_timer_us = link->n_cr_timeout_us;
             }
         }
         break;
@@ -314,10 +356,14 @@ void syn_isotp_process_rx_frame(SYN_ISOTP_Link *link, const SYN_CAN_Frame *frame
 
                 if (link->rx_len >= link->rx_expected) {
                     link->rx_state = SYN_ISOTP_RX_COMPLETE;
+                    link->rx_timeout_timer_us = 0;
+                } else {
+                    link->rx_timeout_timer_us = link->n_cr_timeout_us;
                 }
             } else {
                 /* Sequence mismatch error */
                 link->rx_state = SYN_ISOTP_RX_IDLE;
+                link->rx_timeout_timer_us = 0;
             }
         }
         break;
@@ -330,9 +376,11 @@ void syn_isotp_process_rx_frame(SYN_ISOTP_Link *link, const SYN_CAN_Frame *frame
                 link->tx_bs          = frame->data[1];
                 link->tx_st_min      = frame->data[2];
                 link->tx_st_timer_us = 0;
+                link->tx_timeout_timer_us = 0;
                 link->tx_state       = SYN_ISOTP_TX_SEND_CF;
             } else if (fc_status == SYN_ISOTP_FC_OVERFLOW) {
                 link->tx_state       = SYN_ISOTP_TX_IDLE;
+                link->tx_timeout_timer_us = 0;
             }
         }
         break;
@@ -374,6 +422,26 @@ void syn_isotp_step_us(SYN_ISOTP_Link *link, uint32_t dt_us)
             link->tx_st_timer_us = 0;
         } else {
             link->tx_st_timer_us -= dt_us;
+        }
+    }
+
+    /* N_Bs timeout (waiting for Flow Control frame on sender side) */
+    if (link->tx_state == SYN_ISOTP_TX_WAIT_FC && link->tx_timeout_timer_us > 0) {
+        if (dt_us >= link->tx_timeout_timer_us) {
+            link->tx_timeout_timer_us = 0;
+            link->tx_state = SYN_ISOTP_TX_IDLE; /* Abort Tx on N_Bs timeout */
+        } else {
+            link->tx_timeout_timer_us -= dt_us;
+        }
+    }
+
+    /* N_Cr timeout (waiting for Consecutive Frame on receiver side) */
+    if (link->rx_state == SYN_ISOTP_RX_WAIT_CF && link->rx_timeout_timer_us > 0) {
+        if (dt_us >= link->rx_timeout_timer_us) {
+            link->rx_timeout_timer_us = 0;
+            link->rx_state = SYN_ISOTP_RX_IDLE; /* Abort Rx on N_Cr timeout */
+        } else {
+            link->rx_timeout_timer_us -= dt_us;
         }
     }
 }
