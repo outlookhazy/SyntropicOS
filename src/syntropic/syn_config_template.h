@@ -99,6 +99,7 @@
 
 #define SYN_USE_COBS           1   /**< COBS packet framing                 */
 #define SYN_USE_LIN            1   /**< LIN bus 2.1/2.2a & ISO 17987 stack  */
+#define SYN_USE_DALI           1   /**< DALI / IEC 62386 lighting stack    */
 #define SYN_USE_MODBUS         1   /**< Modbus RTU slave (requires: CRC)    */
 #define SYN_USE_MQTT           1   /**< MQTT 3.1.1 client                   */
 #define SYN_USE_HTTP           1   /**< HTTP client                         */

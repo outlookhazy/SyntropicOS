@@ -295,6 +295,10 @@ extern "C" {
   #include "proto/syn_lin.h"
 #endif
 
+#if !defined(SYN_USE_DALI) || SYN_USE_DALI
+  #include "proto/syn_dali.h"
+#endif
+
 #if !defined(SYN_USE_MODBUS) || SYN_USE_MODBUS
   #include "proto/syn_modbus.h"
 #endif

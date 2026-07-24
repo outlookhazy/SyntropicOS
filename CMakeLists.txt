@@ -24,6 +24,7 @@ set(SYN_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/src/syntropic/motor/syn_motor_ctrl.c
     ${CMAKE_CURRENT_SOURCE_DIR}/src/syntropic/proto/syn_cobs.c
     ${CMAKE_CURRENT_SOURCE_DIR}/src/syntropic/proto/syn_lin.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/syntropic/proto/syn_dali.c
     ${CMAKE_CURRENT_SOURCE_DIR}/src/syntropic/proto/syn_isotp.c
     ${CMAKE_CURRENT_SOURCE_DIR}/src/syntropic/sensor/syn_sensor.c
     ${CMAKE_CURRENT_SOURCE_DIR}/src/syntropic/storage/syn_param.c
