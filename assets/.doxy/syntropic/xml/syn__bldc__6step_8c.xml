@@ -1,0 +1,714 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__bldc__6step_8c" kind="file" language="C++">
+    <compoundname>syn_bldc_6step.c</compoundname>
+    <includes refid="syn__bldc__6step_8h" local="yes">syntropic/motor/syn_bldc_6step.h</includes>
+    <incdepgraph>
+      <node id="3">
+        <label>syntropic/common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>syntropic/control/syn_pid.h</label>
+        <link refid="syn__pid_8h"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/motor/syn_bldc_6step.c</label>
+        <link refid="syn__bldc__6step_8c"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>syntropic/motor/syn_bldc_6step.h</label>
+        <link refid="syn__bldc__6step_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>syntropic/util/syn_qmath.h</label>
+        <link refid="syn__qmath_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>stdbool.h</label>
+      </node>
+      <node id="4">
+        <label>stddef.h</label>
+      </node>
+      <node id="5">
+        <label>stdint.h</label>
+      </node>
+    </incdepgraph>
+    <innerclass refid="structPhaseGatePattern" prot="public">PhaseGatePattern</innerclass>
+    <sectiondef kind="var">
+      <memberdef kind="variable" id="syn__bldc__6step_8c_1a97c36e30f28f1a49a3198dd99407b023" prot="public" static="yes" mutable="no">
+        <type>const <ref refid="structPhaseGatePattern" kindref="compound">PhaseGatePattern</ref></type>
+        <definition>const PhaseGatePattern s_step_table_cw[7]</definition>
+        <argsstring>[7]</argsstring>
+        <name>s_step_table_cw</name>
+        <initializer>= {
+    {<ref refid="syn__bldc__6step_8h_1af822dc2b03825578e8d9ace2ec127e79ace19f9a139b574882bb7d23b0cbb88c4" kindref="member">SYN_BLDC_GATE_OFF</ref>, <ref refid="syn__bldc__6step_8h_1af822dc2b03825578e8d9ace2ec127e79ace19f9a139b574882bb7d23b0cbb88c4" kindref="member">SYN_BLDC_GATE_OFF</ref>, <ref refid="syn__bldc__6step_8h_1af822dc2b03825578e8d9ace2ec127e79ace19f9a139b574882bb7d23b0cbb88c4" kindref="member">SYN_BLDC_GATE_OFF</ref>}, 
+    {<ref refid="syn__bldc__6step_8h_1af822dc2b03825578e8d9ace2ec127e79afb955989aeedf87480b41260c859d687" kindref="member">SYN_BLDC_GATE_PWM</ref>, <ref refid="syn__bldc__6step_8h_1af822dc2b03825578e8d9ace2ec127e79ace19f9a139b574882bb7d23b0cbb88c4" kindref="member">SYN_BLDC_GATE_OFF</ref>, <ref refid="syn__bldc__6step_8h_1af822dc2b03825578e8d9ace2ec127e79a4bcd475d12eedbe073b2ab0a5191c7cb" kindref="member">SYN_BLDC_GATE_LOW</ref>}, 
+    {<ref refid="syn__bldc__6step_8h_1af822dc2b03825578e8d9ace2ec127e79a4bcd475d12eedbe073b2ab0a5191c7cb" kindref="member">SYN_BLDC_GATE_LOW</ref>, <ref refid="syn__bldc__6step_8h_1af822dc2b03825578e8d9ace2ec127e79afb955989aeedf87480b41260c859d687" kindref="member">SYN_BLDC_GATE_PWM</ref>, <ref refid="syn__bldc__6step_8h_1af822dc2b03825578e8d9ace2ec127e79ace19f9a139b574882bb7d23b0cbb88c4" kindref="member">SYN_BLDC_GATE_OFF</ref>}, 
+    {<ref refid="syn__bldc__6step_8h_1af822dc2b03825578e8d9ace2ec127e79ace19f9a139b574882bb7d23b0cbb88c4" kindref="member">SYN_BLDC_GATE_OFF</ref>, <ref refid="syn__bldc__6step_8h_1af822dc2b03825578e8d9ace2ec127e79afb955989aeedf87480b41260c859d687" kindref="member">SYN_BLDC_GATE_PWM</ref>, <ref refid="syn__bldc__6step_8h_1af822dc2b03825578e8d9ace2ec127e79a4bcd475d12eedbe073b2ab0a5191c7cb" kindref="member">SYN_BLDC_GATE_LOW</ref>}, 
+    {<ref refid="syn__bldc__6step_8h_1af822dc2b03825578e8d9ace2ec127e79ace19f9a139b574882bb7d23b0cbb88c4" kindref="member">SYN_BLDC_GATE_OFF</ref>, <ref refid="syn__bldc__6step_8h_1af822dc2b03825578e8d9ace2ec127e79a4bcd475d12eedbe073b2ab0a5191c7cb" kindref="member">SYN_BLDC_GATE_LOW</ref>, <ref refid="syn__bldc__6step_8h_1af822dc2b03825578e8d9ace2ec127e79afb955989aeedf87480b41260c859d687" kindref="member">SYN_BLDC_GATE_PWM</ref>}, 
+    {<ref refid="syn__bldc__6step_8h_1af822dc2b03825578e8d9ace2ec127e79afb955989aeedf87480b41260c859d687" kindref="member">SYN_BLDC_GATE_PWM</ref>, <ref refid="syn__bldc__6step_8h_1af822dc2b03825578e8d9ace2ec127e79a4bcd475d12eedbe073b2ab0a5191c7cb" kindref="member">SYN_BLDC_GATE_LOW</ref>, <ref refid="syn__bldc__6step_8h_1af822dc2b03825578e8d9ace2ec127e79ace19f9a139b574882bb7d23b0cbb88c4" kindref="member">SYN_BLDC_GATE_OFF</ref>}, 
+    {<ref refid="syn__bldc__6step_8h_1af822dc2b03825578e8d9ace2ec127e79a4bcd475d12eedbe073b2ab0a5191c7cb" kindref="member">SYN_BLDC_GATE_LOW</ref>, <ref refid="syn__bldc__6step_8h_1af822dc2b03825578e8d9ace2ec127e79ace19f9a139b574882bb7d23b0cbb88c4" kindref="member">SYN_BLDC_GATE_OFF</ref>, <ref refid="syn__bldc__6step_8h_1af822dc2b03825578e8d9ace2ec127e79afb955989aeedf87480b41260c859d687" kindref="member">SYN_BLDC_GATE_PWM</ref>}, 
+}</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Clockwise commutation step table </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/motor/syn_bldc_6step.c" line="30" column="31" bodyfile="src/syntropic/motor/syn_bldc_6step.c" bodystart="30" bodyend="38"/>
+      </memberdef>
+      <memberdef kind="variable" id="syn__bldc__6step_8c_1a5aabbf0da985d0ffa0f9662f5c492e93" prot="public" static="yes" mutable="no">
+        <type>const <ref refid="structPhaseGatePattern" kindref="compound">PhaseGatePattern</ref></type>
+        <definition>const PhaseGatePattern s_step_table_ccw[7]</definition>
+        <argsstring>[7]</argsstring>
+        <name>s_step_table_ccw</name>
+        <initializer>= {
+    {<ref refid="syn__bldc__6step_8h_1af822dc2b03825578e8d9ace2ec127e79ace19f9a139b574882bb7d23b0cbb88c4" kindref="member">SYN_BLDC_GATE_OFF</ref>, <ref refid="syn__bldc__6step_8h_1af822dc2b03825578e8d9ace2ec127e79ace19f9a139b574882bb7d23b0cbb88c4" kindref="member">SYN_BLDC_GATE_OFF</ref>, <ref refid="syn__bldc__6step_8h_1af822dc2b03825578e8d9ace2ec127e79ace19f9a139b574882bb7d23b0cbb88c4" kindref="member">SYN_BLDC_GATE_OFF</ref>}, 
+    {<ref refid="syn__bldc__6step_8h_1af822dc2b03825578e8d9ace2ec127e79a4bcd475d12eedbe073b2ab0a5191c7cb" kindref="member">SYN_BLDC_GATE_LOW</ref>, <ref refid="syn__bldc__6step_8h_1af822dc2b03825578e8d9ace2ec127e79ace19f9a139b574882bb7d23b0cbb88c4" kindref="member">SYN_BLDC_GATE_OFF</ref>, <ref refid="syn__bldc__6step_8h_1af822dc2b03825578e8d9ace2ec127e79afb955989aeedf87480b41260c859d687" kindref="member">SYN_BLDC_GATE_PWM</ref>}, 
+    {<ref refid="syn__bldc__6step_8h_1af822dc2b03825578e8d9ace2ec127e79afb955989aeedf87480b41260c859d687" kindref="member">SYN_BLDC_GATE_PWM</ref>, <ref refid="syn__bldc__6step_8h_1af822dc2b03825578e8d9ace2ec127e79a4bcd475d12eedbe073b2ab0a5191c7cb" kindref="member">SYN_BLDC_GATE_LOW</ref>, <ref refid="syn__bldc__6step_8h_1af822dc2b03825578e8d9ace2ec127e79ace19f9a139b574882bb7d23b0cbb88c4" kindref="member">SYN_BLDC_GATE_OFF</ref>}, 
+    {<ref refid="syn__bldc__6step_8h_1af822dc2b03825578e8d9ace2ec127e79ace19f9a139b574882bb7d23b0cbb88c4" kindref="member">SYN_BLDC_GATE_OFF</ref>, <ref refid="syn__bldc__6step_8h_1af822dc2b03825578e8d9ace2ec127e79a4bcd475d12eedbe073b2ab0a5191c7cb" kindref="member">SYN_BLDC_GATE_LOW</ref>, <ref refid="syn__bldc__6step_8h_1af822dc2b03825578e8d9ace2ec127e79afb955989aeedf87480b41260c859d687" kindref="member">SYN_BLDC_GATE_PWM</ref>}, 
+    {<ref refid="syn__bldc__6step_8h_1af822dc2b03825578e8d9ace2ec127e79ace19f9a139b574882bb7d23b0cbb88c4" kindref="member">SYN_BLDC_GATE_OFF</ref>, <ref refid="syn__bldc__6step_8h_1af822dc2b03825578e8d9ace2ec127e79afb955989aeedf87480b41260c859d687" kindref="member">SYN_BLDC_GATE_PWM</ref>, <ref refid="syn__bldc__6step_8h_1af822dc2b03825578e8d9ace2ec127e79a4bcd475d12eedbe073b2ab0a5191c7cb" kindref="member">SYN_BLDC_GATE_LOW</ref>}, 
+    {<ref refid="syn__bldc__6step_8h_1af822dc2b03825578e8d9ace2ec127e79a4bcd475d12eedbe073b2ab0a5191c7cb" kindref="member">SYN_BLDC_GATE_LOW</ref>, <ref refid="syn__bldc__6step_8h_1af822dc2b03825578e8d9ace2ec127e79afb955989aeedf87480b41260c859d687" kindref="member">SYN_BLDC_GATE_PWM</ref>, <ref refid="syn__bldc__6step_8h_1af822dc2b03825578e8d9ace2ec127e79ace19f9a139b574882bb7d23b0cbb88c4" kindref="member">SYN_BLDC_GATE_OFF</ref>}, 
+    {<ref refid="syn__bldc__6step_8h_1af822dc2b03825578e8d9ace2ec127e79afb955989aeedf87480b41260c859d687" kindref="member">SYN_BLDC_GATE_PWM</ref>, <ref refid="syn__bldc__6step_8h_1af822dc2b03825578e8d9ace2ec127e79ace19f9a139b574882bb7d23b0cbb88c4" kindref="member">SYN_BLDC_GATE_OFF</ref>, <ref refid="syn__bldc__6step_8h_1af822dc2b03825578e8d9ace2ec127e79a4bcd475d12eedbe073b2ab0a5191c7cb" kindref="member">SYN_BLDC_GATE_LOW</ref>}, 
+}</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Counter-clockwise commutation step table </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/motor/syn_bldc_6step.c" line="41" column="31" bodyfile="src/syntropic/motor/syn_bldc_6step.c" bodystart="41" bodyend="49"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__bldc__6step_8c_1a9a6330b24c4a8458b26c152d66051fea" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_bldc_6step_init</definition>
+        <argsstring>(SYN_BLDC_6Step *bldc, const SYN_BLDC_Config *cfg)</argsstring>
+        <name>syn_bldc_6step_init</name>
+        <param>
+          <type><ref refid="structSYN__BLDC__6Step" kindref="compound">SYN_BLDC_6Step</ref> *</type>
+          <declname>bldc</declname>
+        </param>
+        <param>
+          <type>const <ref refid="structSYN__BLDC__Config" kindref="compound">SYN_BLDC_Config</ref> *</type>
+          <declname>cfg</declname>
+        </param>
+        <briefdescription>
+<para>Initialize 6-Step BLDC driver instance. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>bldc</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to driver struct. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>cfg</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Configuration parameters (or NULL for defaults: 4 pole pairs). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_ERR_INVALID_PARAM if bldc is NULL. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/motor/syn_bldc_6step.c" line="51" column="12" bodyfile="src/syntropic/motor/syn_bldc_6step.c" bodystart="51" bodyend="79"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__bldc__6step_8c_1a1ad6f08a6773865be22d02653eeb083d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_bldc_6step_set_hall</definition>
+        <argsstring>(SYN_BLDC_6Step *bldc, uint8_t hall_state, SYN_BLDC_PhaseOutputs *out)</argsstring>
+        <name>syn_bldc_6step_set_hall</name>
+        <param>
+          <type><ref refid="structSYN__BLDC__6Step" kindref="compound">SYN_BLDC_6Step</ref> *</type>
+          <declname>bldc</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>hall_state</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__BLDC__PhaseOutputs" kindref="compound">SYN_BLDC_PhaseOutputs</ref> *</type>
+          <declname>out</declname>
+        </param>
+        <briefdescription>
+<para>Process 3-bit Hall sensor reading and update 6-step phase commutation gates. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Call this from Hall sensor EXTI GPIO interrupts or input sampling loops.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>bldc</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to driver struct. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>hall_state</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>3-bit Hall sensor state (bits [2:0] = H3, H2, H1). Valid: 1..6. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to output struct to receive new 3-phase gate states. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on valid commutation step, SYN_ERR_FAULT if hall_state is 0b000 or 0b111. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/motor/syn_bldc_6step.c" line="81" column="12" bodyfile="src/syntropic/motor/syn_bldc_6step.c" bodystart="81" bodyend="126"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__bldc__6step_8c_1a476a65aa53313d855ce068bcbac8ecf3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_bldc_6step_set_duty</definition>
+        <argsstring>(SYN_BLDC_6Step *bldc, uint16_t duty_0_to_1000)</argsstring>
+        <name>syn_bldc_6step_set_duty</name>
+        <param>
+          <type><ref refid="structSYN__BLDC__6Step" kindref="compound">SYN_BLDC_6Step</ref> *</type>
+          <declname>bldc</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>duty_0_to_1000</declname>
+        </param>
+        <briefdescription>
+<para>Set PWM duty cycle for motor speed control. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>bldc</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to driver struct. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>duty_0_to_1000</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>PWM duty cycle clamped to range 0..1000. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/motor/syn_bldc_6step.c" line="128" column="12" bodyfile="src/syntropic/motor/syn_bldc_6step.c" bodystart="128" bodyend="140"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__bldc__6step_8c_1a8df6b58c38ba0dc28bcf48a9ac1d544f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_bldc_6step_set_direction</definition>
+        <argsstring>(SYN_BLDC_6Step *bldc, SYN_BLDC_Direction dir)</argsstring>
+        <name>syn_bldc_6step_set_direction</name>
+        <param>
+          <type><ref refid="structSYN__BLDC__6Step" kindref="compound">SYN_BLDC_6Step</ref> *</type>
+          <declname>bldc</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__bldc__6step_8h_1a79efd51450f482904025cf482923c955" kindref="member">SYN_BLDC_Direction</ref></type>
+          <declname>dir</declname>
+        </param>
+        <briefdescription>
+<para>Set motor rotation direction. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>bldc</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to driver struct. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dir</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>SYN_BLDC_DIR_CW or SYN_BLDC_DIR_CCW. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/motor/syn_bldc_6step.c" line="142" column="12" bodyfile="src/syntropic/motor/syn_bldc_6step.c" bodystart="142" bodyend="150"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__bldc__6step_8c_1a1689e2d4845c62bd79ce0263290f0721" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_bldc_6step_start</definition>
+        <argsstring>(SYN_BLDC_6Step *bldc)</argsstring>
+        <name>syn_bldc_6step_start</name>
+        <param>
+          <type><ref refid="structSYN__BLDC__6Step" kindref="compound">SYN_BLDC_6Step</ref> *</type>
+          <declname>bldc</declname>
+        </param>
+        <briefdescription>
+<para>Start motor driver (enable gate commutation). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>bldc</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to driver struct. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/motor/syn_bldc_6step.c" line="152" column="12" bodyfile="src/syntropic/motor/syn_bldc_6step.c" bodystart="152" bodyend="160"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__bldc__6step_8c_1a2ca39716d32aa89ec5ce85f1826ad4db" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_bldc_6step_stop</definition>
+        <argsstring>(SYN_BLDC_6Step *bldc, SYN_BLDC_PhaseOutputs *out)</argsstring>
+        <name>syn_bldc_6step_stop</name>
+        <param>
+          <type><ref refid="structSYN__BLDC__6Step" kindref="compound">SYN_BLDC_6Step</ref> *</type>
+          <declname>bldc</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__BLDC__PhaseOutputs" kindref="compound">SYN_BLDC_PhaseOutputs</ref> *</type>
+          <declname>out</declname>
+        </param>
+        <briefdescription>
+<para>Stop motor driver (turn OFF all 6 gates). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>bldc</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to driver struct. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Optional pointer to receive updated OFF gate states. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/motor/syn_bldc_6step.c" line="162" column="12" bodyfile="src/syntropic/motor/syn_bldc_6step.c" bodystart="162" bodyend="179"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__bldc__6step_8c_1a9f18d45c6c3739c1a85cd2da2b834192" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>uint32_t syn_bldc_6step_update_speed</definition>
+        <argsstring>(SYN_BLDC_6Step *bldc, uint32_t now_ms, uint32_t target_rpm)</argsstring>
+        <name>syn_bldc_6step_update_speed</name>
+        <param>
+          <type><ref refid="structSYN__BLDC__6Step" kindref="compound">SYN_BLDC_6Step</ref> *</type>
+          <declname>bldc</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>now_ms</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>target_rpm</declname>
+        </param>
+        <briefdescription>
+<para>Update Hall-based speed calculation (RPM) and speed PID loop. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Call periodically (e.g. every 10ms or 100ms).</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>bldc</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to driver struct. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>now_ms</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Current system tick in milliseconds. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>target_rpm</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Target motor speed in RPM (used if speed PID is active). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Calculated current RPM. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/motor/syn_bldc_6step.c" line="181" column="10" bodyfile="src/syntropic/motor/syn_bldc_6step.c" bodystart="181" bodyend="222"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__bldc__6step_8c_1a6c2fcebf93d693486e173715457b5806" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_bldc_6step_get_phase_outputs</definition>
+        <argsstring>(const SYN_BLDC_6Step *bldc, SYN_BLDC_PhaseOutputs *out)</argsstring>
+        <name>syn_bldc_6step_get_phase_outputs</name>
+        <param>
+          <type>const <ref refid="structSYN__BLDC__6Step" kindref="compound">SYN_BLDC_6Step</ref> *</type>
+          <declname>bldc</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__BLDC__PhaseOutputs" kindref="compound">SYN_BLDC_PhaseOutputs</ref> *</type>
+          <declname>out</declname>
+        </param>
+        <briefdescription>
+<para>Retrieve current 3-phase gate output states. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>bldc</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to driver struct. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to destination output struct. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/motor/syn_bldc_6step.c" line="224" column="12" bodyfile="src/syntropic/motor/syn_bldc_6step.c" bodystart="224" bodyend="248"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Zero-Heap 6-Step (Trapezoidal) BLDC Motor Commutation Driver Implementation. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__bldc__6step_8h" kindref="compound">syntropic/motor/syn_bldc_6step.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="9"><highlight class="comment"><sp/>*<sp/>6-Step<sp/>Trapezoidal<sp/>Phase<sp/>Commutation<sp/>Table</highlight></codeline>
+<codeline lineno="10"><highlight class="comment"><sp/>*</highlight></codeline>
+<codeline lineno="11"><highlight class="comment"><sp/>*<sp/>Standard<sp/>120-degree<sp/>Hall<sp/>sensor<sp/>mapping:</highlight></codeline>
+<codeline lineno="12"><highlight class="comment"><sp/>*<sp/>Hall<sp/>State<sp/>|<sp/>CW<sp/>Step<sp/>|<sp/>Phase<sp/>U<sp/>|<sp/>Phase<sp/>V<sp/>|<sp/>Phase<sp/>W</highlight></codeline>
+<codeline lineno="13"><highlight class="comment"><sp/>*<sp/>-----------+---------+---------+---------+--------</highlight></codeline>
+<codeline lineno="14"><highlight class="comment"><sp/>*<sp/><sp/><sp/>0b101(5)<sp/>|<sp/>Step<sp/>1<sp/><sp/>|<sp/>PWM<sp/>(H)<sp/>|<sp/>LOW<sp/>(L)<sp/>|<sp/>OFF<sp/>(Z)</highlight></codeline>
+<codeline lineno="15"><highlight class="comment"><sp/>*<sp/><sp/><sp/>0b001(1)<sp/>|<sp/>Step<sp/>2<sp/><sp/>|<sp/>PWM<sp/>(H)<sp/>|<sp/>OFF<sp/>(Z)<sp/>|<sp/>LOW<sp/>(L)</highlight></codeline>
+<codeline lineno="16"><highlight class="comment"><sp/>*<sp/><sp/><sp/>0b011(3)<sp/>|<sp/>Step<sp/>3<sp/><sp/>|<sp/>OFF<sp/>(Z)<sp/>|<sp/>PWM<sp/>(H)<sp/>|<sp/>LOW<sp/>(L)</highlight></codeline>
+<codeline lineno="17"><highlight class="comment"><sp/>*<sp/><sp/><sp/>0b010(2)<sp/>|<sp/>Step<sp/>4<sp/><sp/>|<sp/>LOW<sp/>(L)<sp/>|<sp/>PWM<sp/>(H)<sp/>|<sp/>OFF<sp/>(Z)</highlight></codeline>
+<codeline lineno="18"><highlight class="comment"><sp/>*<sp/><sp/><sp/>0b110(6)<sp/>|<sp/>Step<sp/>5<sp/><sp/>|<sp/>LOW<sp/>(L)<sp/>|<sp/>OFF<sp/>(Z)<sp/>|<sp/>PWM<sp/>(H)</highlight></codeline>
+<codeline lineno="19"><highlight class="comment"><sp/>*<sp/><sp/><sp/>0b100(4)<sp/>|<sp/>Step<sp/>6<sp/><sp/>|<sp/>OFF<sp/>(Z)<sp/>|<sp/>LOW<sp/>(L)<sp/>|<sp/>PWM<sp/>(H)</highlight></codeline>
+<codeline lineno="20"><highlight class="comment"><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight></codeline>
+<codeline lineno="23" refid="structPhaseGatePattern" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="24"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__bldc__6step_8h_1af822dc2b03825578e8d9ace2ec127e79" kindref="member">SYN_BLDC_GateState</ref><sp/>u;<sp/></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__bldc__6step_8h_1af822dc2b03825578e8d9ace2ec127e79" kindref="member">SYN_BLDC_GateState</ref><sp/>v;<sp/></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__bldc__6step_8h_1af822dc2b03825578e8d9ace2ec127e79" kindref="member">SYN_BLDC_GateState</ref><sp/>w;<sp/></highlight></codeline>
+<codeline lineno="27"><highlight class="normal">}<sp/><ref refid="structPhaseGatePattern" kindref="compound">PhaseGatePattern</ref>;</highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structPhaseGatePattern" kindref="compound">PhaseGatePattern</ref><sp/><ref refid="syn__bldc__6step_8c_1a97c36e30f28f1a49a3198dd99407b023" kindref="member">s_step_table_cw</ref>[7]<sp/>=<sp/>{</highlight></codeline>
+<codeline lineno="31"><highlight class="normal"><sp/><sp/><sp/><sp/>{<ref refid="syn__bldc__6step_8h_1af822dc2b03825578e8d9ace2ec127e79ace19f9a139b574882bb7d23b0cbb88c4" kindref="member">SYN_BLDC_GATE_OFF</ref>,<sp/><ref refid="syn__bldc__6step_8h_1af822dc2b03825578e8d9ace2ec127e79ace19f9a139b574882bb7d23b0cbb88c4" kindref="member">SYN_BLDC_GATE_OFF</ref>,<sp/><ref refid="syn__bldc__6step_8h_1af822dc2b03825578e8d9ace2ec127e79ace19f9a139b574882bb7d23b0cbb88c4" kindref="member">SYN_BLDC_GATE_OFF</ref>},<sp/></highlight><highlight class="comment">/*<sp/>0:<sp/>Invalid<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="32"><highlight class="normal"><sp/><sp/><sp/><sp/>{<ref refid="syn__bldc__6step_8h_1af822dc2b03825578e8d9ace2ec127e79afb955989aeedf87480b41260c859d687" kindref="member">SYN_BLDC_GATE_PWM</ref>,<sp/><ref refid="syn__bldc__6step_8h_1af822dc2b03825578e8d9ace2ec127e79ace19f9a139b574882bb7d23b0cbb88c4" kindref="member">SYN_BLDC_GATE_OFF</ref>,<sp/><ref refid="syn__bldc__6step_8h_1af822dc2b03825578e8d9ace2ec127e79a4bcd475d12eedbe073b2ab0a5191c7cb" kindref="member">SYN_BLDC_GATE_LOW</ref>},<sp/></highlight><highlight class="comment">/*<sp/>1:<sp/>Hall<sp/>0b001<sp/>(Step<sp/>2:<sp/>U+<sp/>W-)<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"><sp/><sp/><sp/><sp/>{<ref refid="syn__bldc__6step_8h_1af822dc2b03825578e8d9ace2ec127e79a4bcd475d12eedbe073b2ab0a5191c7cb" kindref="member">SYN_BLDC_GATE_LOW</ref>,<sp/><ref refid="syn__bldc__6step_8h_1af822dc2b03825578e8d9ace2ec127e79afb955989aeedf87480b41260c859d687" kindref="member">SYN_BLDC_GATE_PWM</ref>,<sp/><ref refid="syn__bldc__6step_8h_1af822dc2b03825578e8d9ace2ec127e79ace19f9a139b574882bb7d23b0cbb88c4" kindref="member">SYN_BLDC_GATE_OFF</ref>},<sp/></highlight><highlight class="comment">/*<sp/>2:<sp/>Hall<sp/>0b010<sp/>(Step<sp/>4:<sp/>V+<sp/>U-)<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"><sp/><sp/><sp/><sp/>{<ref refid="syn__bldc__6step_8h_1af822dc2b03825578e8d9ace2ec127e79ace19f9a139b574882bb7d23b0cbb88c4" kindref="member">SYN_BLDC_GATE_OFF</ref>,<sp/><ref refid="syn__bldc__6step_8h_1af822dc2b03825578e8d9ace2ec127e79afb955989aeedf87480b41260c859d687" kindref="member">SYN_BLDC_GATE_PWM</ref>,<sp/><ref refid="syn__bldc__6step_8h_1af822dc2b03825578e8d9ace2ec127e79a4bcd475d12eedbe073b2ab0a5191c7cb" kindref="member">SYN_BLDC_GATE_LOW</ref>},<sp/></highlight><highlight class="comment">/*<sp/>3:<sp/>Hall<sp/>0b011<sp/>(Step<sp/>3:<sp/>V+<sp/>W-)<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"><sp/><sp/><sp/><sp/>{<ref refid="syn__bldc__6step_8h_1af822dc2b03825578e8d9ace2ec127e79ace19f9a139b574882bb7d23b0cbb88c4" kindref="member">SYN_BLDC_GATE_OFF</ref>,<sp/><ref refid="syn__bldc__6step_8h_1af822dc2b03825578e8d9ace2ec127e79a4bcd475d12eedbe073b2ab0a5191c7cb" kindref="member">SYN_BLDC_GATE_LOW</ref>,<sp/><ref refid="syn__bldc__6step_8h_1af822dc2b03825578e8d9ace2ec127e79afb955989aeedf87480b41260c859d687" kindref="member">SYN_BLDC_GATE_PWM</ref>},<sp/></highlight><highlight class="comment">/*<sp/>4:<sp/>Hall<sp/>0b100<sp/>(Step<sp/>6:<sp/>W+<sp/>V-)<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"><sp/><sp/><sp/><sp/>{<ref refid="syn__bldc__6step_8h_1af822dc2b03825578e8d9ace2ec127e79afb955989aeedf87480b41260c859d687" kindref="member">SYN_BLDC_GATE_PWM</ref>,<sp/><ref refid="syn__bldc__6step_8h_1af822dc2b03825578e8d9ace2ec127e79a4bcd475d12eedbe073b2ab0a5191c7cb" kindref="member">SYN_BLDC_GATE_LOW</ref>,<sp/><ref refid="syn__bldc__6step_8h_1af822dc2b03825578e8d9ace2ec127e79ace19f9a139b574882bb7d23b0cbb88c4" kindref="member">SYN_BLDC_GATE_OFF</ref>},<sp/></highlight><highlight class="comment">/*<sp/>5:<sp/>Hall<sp/>0b101<sp/>(Step<sp/>1:<sp/>U+<sp/>V-)<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"><sp/><sp/><sp/><sp/>{<ref refid="syn__bldc__6step_8h_1af822dc2b03825578e8d9ace2ec127e79a4bcd475d12eedbe073b2ab0a5191c7cb" kindref="member">SYN_BLDC_GATE_LOW</ref>,<sp/><ref refid="syn__bldc__6step_8h_1af822dc2b03825578e8d9ace2ec127e79ace19f9a139b574882bb7d23b0cbb88c4" kindref="member">SYN_BLDC_GATE_OFF</ref>,<sp/><ref refid="syn__bldc__6step_8h_1af822dc2b03825578e8d9ace2ec127e79afb955989aeedf87480b41260c859d687" kindref="member">SYN_BLDC_GATE_PWM</ref>},<sp/></highlight><highlight class="comment">/*<sp/>6:<sp/>Hall<sp/>0b110<sp/>(Step<sp/>5:<sp/>W+<sp/>U-)<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structPhaseGatePattern" kindref="compound">PhaseGatePattern</ref><sp/><ref refid="syn__bldc__6step_8c_1a5aabbf0da985d0ffa0f9662f5c492e93" kindref="member">s_step_table_ccw</ref>[7]<sp/>=<sp/>{</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"><sp/><sp/><sp/><sp/>{<ref refid="syn__bldc__6step_8h_1af822dc2b03825578e8d9ace2ec127e79ace19f9a139b574882bb7d23b0cbb88c4" kindref="member">SYN_BLDC_GATE_OFF</ref>,<sp/><ref refid="syn__bldc__6step_8h_1af822dc2b03825578e8d9ace2ec127e79ace19f9a139b574882bb7d23b0cbb88c4" kindref="member">SYN_BLDC_GATE_OFF</ref>,<sp/><ref refid="syn__bldc__6step_8h_1af822dc2b03825578e8d9ace2ec127e79ace19f9a139b574882bb7d23b0cbb88c4" kindref="member">SYN_BLDC_GATE_OFF</ref>},<sp/></highlight><highlight class="comment">/*<sp/>0:<sp/>Invalid<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="43"><highlight class="normal"><sp/><sp/><sp/><sp/>{<ref refid="syn__bldc__6step_8h_1af822dc2b03825578e8d9ace2ec127e79a4bcd475d12eedbe073b2ab0a5191c7cb" kindref="member">SYN_BLDC_GATE_LOW</ref>,<sp/><ref refid="syn__bldc__6step_8h_1af822dc2b03825578e8d9ace2ec127e79ace19f9a139b574882bb7d23b0cbb88c4" kindref="member">SYN_BLDC_GATE_OFF</ref>,<sp/><ref refid="syn__bldc__6step_8h_1af822dc2b03825578e8d9ace2ec127e79afb955989aeedf87480b41260c859d687" kindref="member">SYN_BLDC_GATE_PWM</ref>},<sp/></highlight><highlight class="comment">/*<sp/>1:<sp/>Hall<sp/>0b001<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal"><sp/><sp/><sp/><sp/>{<ref refid="syn__bldc__6step_8h_1af822dc2b03825578e8d9ace2ec127e79afb955989aeedf87480b41260c859d687" kindref="member">SYN_BLDC_GATE_PWM</ref>,<sp/><ref refid="syn__bldc__6step_8h_1af822dc2b03825578e8d9ace2ec127e79a4bcd475d12eedbe073b2ab0a5191c7cb" kindref="member">SYN_BLDC_GATE_LOW</ref>,<sp/><ref refid="syn__bldc__6step_8h_1af822dc2b03825578e8d9ace2ec127e79ace19f9a139b574882bb7d23b0cbb88c4" kindref="member">SYN_BLDC_GATE_OFF</ref>},<sp/></highlight><highlight class="comment">/*<sp/>2:<sp/>Hall<sp/>0b010<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="normal"><sp/><sp/><sp/><sp/>{<ref refid="syn__bldc__6step_8h_1af822dc2b03825578e8d9ace2ec127e79ace19f9a139b574882bb7d23b0cbb88c4" kindref="member">SYN_BLDC_GATE_OFF</ref>,<sp/><ref refid="syn__bldc__6step_8h_1af822dc2b03825578e8d9ace2ec127e79a4bcd475d12eedbe073b2ab0a5191c7cb" kindref="member">SYN_BLDC_GATE_LOW</ref>,<sp/><ref refid="syn__bldc__6step_8h_1af822dc2b03825578e8d9ace2ec127e79afb955989aeedf87480b41260c859d687" kindref="member">SYN_BLDC_GATE_PWM</ref>},<sp/></highlight><highlight class="comment">/*<sp/>3:<sp/>Hall<sp/>0b011<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/><sp/><sp/>{<ref refid="syn__bldc__6step_8h_1af822dc2b03825578e8d9ace2ec127e79ace19f9a139b574882bb7d23b0cbb88c4" kindref="member">SYN_BLDC_GATE_OFF</ref>,<sp/><ref refid="syn__bldc__6step_8h_1af822dc2b03825578e8d9ace2ec127e79afb955989aeedf87480b41260c859d687" kindref="member">SYN_BLDC_GATE_PWM</ref>,<sp/><ref refid="syn__bldc__6step_8h_1af822dc2b03825578e8d9ace2ec127e79a4bcd475d12eedbe073b2ab0a5191c7cb" kindref="member">SYN_BLDC_GATE_LOW</ref>},<sp/></highlight><highlight class="comment">/*<sp/>4:<sp/>Hall<sp/>0b100<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/><sp/><sp/>{<ref refid="syn__bldc__6step_8h_1af822dc2b03825578e8d9ace2ec127e79a4bcd475d12eedbe073b2ab0a5191c7cb" kindref="member">SYN_BLDC_GATE_LOW</ref>,<sp/><ref refid="syn__bldc__6step_8h_1af822dc2b03825578e8d9ace2ec127e79afb955989aeedf87480b41260c859d687" kindref="member">SYN_BLDC_GATE_PWM</ref>,<sp/><ref refid="syn__bldc__6step_8h_1af822dc2b03825578e8d9ace2ec127e79ace19f9a139b574882bb7d23b0cbb88c4" kindref="member">SYN_BLDC_GATE_OFF</ref>},<sp/></highlight><highlight class="comment">/*<sp/>5:<sp/>Hall<sp/>0b101<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/><sp/><sp/>{<ref refid="syn__bldc__6step_8h_1af822dc2b03825578e8d9ace2ec127e79afb955989aeedf87480b41260c859d687" kindref="member">SYN_BLDC_GATE_PWM</ref>,<sp/><ref refid="syn__bldc__6step_8h_1af822dc2b03825578e8d9ace2ec127e79ace19f9a139b574882bb7d23b0cbb88c4" kindref="member">SYN_BLDC_GATE_OFF</ref>,<sp/><ref refid="syn__bldc__6step_8h_1af822dc2b03825578e8d9ace2ec127e79a4bcd475d12eedbe073b2ab0a5191c7cb" kindref="member">SYN_BLDC_GATE_LOW</ref>},<sp/></highlight><highlight class="comment">/*<sp/>6:<sp/>Hall<sp/>0b110<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="49"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"></highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__bldc__6step_8c_1a9a6330b24c4a8458b26c152d66051fea" kindref="member">syn_bldc_6step_init</ref>(<ref refid="structSYN__BLDC__6Step" kindref="compound">SYN_BLDC_6Step</ref><sp/>*bldc,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__BLDC__Config" kindref="compound">SYN_BLDC_Config</ref><sp/>*cfg)</highlight></codeline>
+<codeline lineno="52"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!bldc)<sp/>{</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"></highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(cfg)<sp/>{</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>bldc-&gt;<ref refid="structSYN__BLDC__6Step_1a2ff5a480c9fb477da967dd546fd2b616" kindref="member">config</ref><sp/>=<sp/>*cfg;</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>bldc-&gt;<ref refid="structSYN__BLDC__6Step_1a2ff5a480c9fb477da967dd546fd2b616" kindref="member">config</ref>.<ref refid="structSYN__BLDC__Config_1ac4046a5e379a04cd8b480749a3a07004" kindref="member">pole_pairs</ref><sp/>=<sp/>4;</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>bldc-&gt;<ref refid="structSYN__BLDC__6Step_1a2ff5a480c9fb477da967dd546fd2b616" kindref="member">config</ref>.<ref refid="structSYN__BLDC__Config_1a631f3007cfb4fa388c48762092356619" kindref="member">pwm_frequency</ref><sp/>=<sp/>20000;</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"></highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/><sp/><sp/>bldc-&gt;<ref refid="structSYN__BLDC__6Step_1af9c30aa96c180a835bb888ca179cd614" kindref="member">state</ref><sp/>=<sp/><ref refid="syn__bldc__6step_8h_1a21e9016f1ca9e5ebfd39ff930801fa31ae227b8c727795c196aee2330f60a94a3" kindref="member">SYN_BLDC_STATE_STOPPED</ref>;</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/><sp/><sp/>bldc-&gt;<ref refid="structSYN__BLDC__6Step_1aeab13ac49a0756ef03f23fab450fa6d0" kindref="member">direction</ref><sp/>=<sp/><ref refid="syn__bldc__6step_8h_1a79efd51450f482904025cf482923c955a9a4b72d1c44c92b87eb716d9d5a2ad10" kindref="member">SYN_BLDC_DIR_CW</ref>;</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/><sp/><sp/>bldc-&gt;<ref refid="structSYN__BLDC__6Step_1ab4c854adacb9e0b7cca9c07cfddc52d0" kindref="member">current_step</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/><sp/><sp/>bldc-&gt;<ref refid="structSYN__BLDC__6Step_1a95949a130c0d43284409075253a305b9" kindref="member">hall_state</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/><sp/><sp/>bldc-&gt;<ref refid="structSYN__BLDC__6Step_1afc535d366c12a30189d86a0c444e9b4a" kindref="member">duty</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/>bldc-&gt;<ref refid="structSYN__BLDC__6Step_1a11ff4fce4624d79ed40e4f6b9a4154ce" kindref="member">hall_transitions</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/><sp/><sp/>bldc-&gt;<ref refid="structSYN__BLDC__6Step_1a011481e2762d537e59c49d0a1e8a54f9" kindref="member">last_hall_tick_ms</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"><sp/><sp/><sp/><sp/>bldc-&gt;<ref refid="structSYN__BLDC__6Step_1af9b104f530aa5aee30cd5927d48353ec" kindref="member">rpm</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"><sp/><sp/><sp/><sp/>bldc-&gt;<ref refid="structSYN__BLDC__6Step_1a18f20ff8039965420f516d2e49401f7f" kindref="member">speed_pid_active</ref><sp/>=<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"></highlight></codeline>
+<codeline lineno="74"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Initialize<sp/>speed<sp/>PID<sp/>controller<sp/>defaults<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structSYN__PID__Config" kindref="compound">SYN_PID_Config</ref><sp/>pid_cfg<sp/>=<sp/><ref refid="syn__pid_8h_1a5c2df664219d291524a8a8dc4ecad0e5" kindref="member">SYN_PID_GAINS</ref>(0.5f,<sp/>0.1f,<sp/>0.01f,<sp/>100,<sp/>0,<sp/>1000);</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__pid_8c_1a5bc56c333e2a9570ac7e9d4b0a45f013" kindref="member">syn_pid_init</ref>(&amp;bldc-&gt;<ref refid="structSYN__BLDC__6Step_1a9809815f36eda258acf934a1d8353bae" kindref="member">speed_pid</ref>,<sp/>&amp;pid_cfg);</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"></highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="79"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"></highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__bldc__6step_8c_1a1ad6f08a6773865be22d02653eeb083d" kindref="member">syn_bldc_6step_set_hall</ref>(<ref refid="structSYN__BLDC__6Step" kindref="compound">SYN_BLDC_6Step</ref><sp/>*bldc,<sp/>uint8_t<sp/>hall_state,</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__BLDC__PhaseOutputs" kindref="compound">SYN_BLDC_PhaseOutputs</ref><sp/>*out)</highlight></codeline>
+<codeline lineno="83"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!bldc)<sp/>{</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"></highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>state<sp/>=<sp/>hall_state<sp/>&amp;<sp/>0x07U;</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"></highlight></codeline>
+<codeline lineno="90"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Check<sp/>for<sp/>invalid<sp/>Hall<sp/>sensor<sp/>readings<sp/>(0b000<sp/>or<sp/>0b111)<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="91"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(state<sp/>==<sp/>0U<sp/>||<sp/>state<sp/>==<sp/>7U)<sp/>{</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>bldc-&gt;<ref refid="structSYN__BLDC__6Step_1af9c30aa96c180a835bb888ca179cd614" kindref="member">state</ref><sp/>=<sp/><ref refid="syn__bldc__6step_8h_1a21e9016f1ca9e5ebfd39ff930801fa31aee19f803eed70accfadd34bde43e90ce" kindref="member">SYN_BLDC_STATE_FAULT</ref>;</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(out)<sp/>{</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>out-&gt;<ref refid="structSYN__BLDC__PhaseOutputs_1a583f72ea52aaa21dbcf714da31d60fe2" kindref="member">u</ref><sp/>=<sp/><ref refid="syn__bldc__6step_8h_1af822dc2b03825578e8d9ace2ec127e79ace19f9a139b574882bb7d23b0cbb88c4" kindref="member">SYN_BLDC_GATE_OFF</ref>;</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>out-&gt;<ref refid="structSYN__BLDC__PhaseOutputs_1a572e6f8352f10b5bc401545d315c29c4" kindref="member">v</ref><sp/>=<sp/><ref refid="syn__bldc__6step_8h_1af822dc2b03825578e8d9ace2ec127e79ace19f9a139b574882bb7d23b0cbb88c4" kindref="member">SYN_BLDC_GATE_OFF</ref>;</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>out-&gt;<ref refid="structSYN__BLDC__PhaseOutputs_1a27e6932666e02ba2705da1cbfa0830e6" kindref="member">w</ref><sp/>=<sp/><ref refid="syn__bldc__6step_8h_1af822dc2b03825578e8d9ace2ec127e79ace19f9a139b574882bb7d23b0cbb88c4" kindref="member">SYN_BLDC_GATE_OFF</ref>;</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>out-&gt;<ref refid="structSYN__BLDC__PhaseOutputs_1a5019ae12a00debaffb56b81f5dfddf17" kindref="member">duty</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00acd5d2701b7cfa9fb446640ecbeb19fc9" kindref="member">SYN_ERROR</ref>;</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"></highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><sp/><sp/><sp/><sp/>bldc-&gt;<ref refid="structSYN__BLDC__6Step_1a95949a130c0d43284409075253a305b9" kindref="member">hall_state</ref><sp/>=<sp/>state;</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"><sp/><sp/><sp/><sp/>bldc-&gt;<ref refid="structSYN__BLDC__6Step_1a11ff4fce4624d79ed40e4f6b9a4154ce" kindref="member">hall_transitions</ref>++;</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"></highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(bldc-&gt;<ref refid="structSYN__BLDC__6Step_1af9c30aa96c180a835bb888ca179cd614" kindref="member">state</ref><sp/>==<sp/><ref refid="syn__bldc__6step_8h_1a21e9016f1ca9e5ebfd39ff930801fa31ae227b8c727795c196aee2330f60a94a3" kindref="member">SYN_BLDC_STATE_STOPPED</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(out)<sp/>{</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>out-&gt;<ref refid="structSYN__BLDC__PhaseOutputs_1a583f72ea52aaa21dbcf714da31d60fe2" kindref="member">u</ref><sp/>=<sp/><ref refid="syn__bldc__6step_8h_1af822dc2b03825578e8d9ace2ec127e79ace19f9a139b574882bb7d23b0cbb88c4" kindref="member">SYN_BLDC_GATE_OFF</ref>;</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>out-&gt;<ref refid="structSYN__BLDC__PhaseOutputs_1a572e6f8352f10b5bc401545d315c29c4" kindref="member">v</ref><sp/>=<sp/><ref refid="syn__bldc__6step_8h_1af822dc2b03825578e8d9ace2ec127e79ace19f9a139b574882bb7d23b0cbb88c4" kindref="member">SYN_BLDC_GATE_OFF</ref>;</highlight></codeline>
+<codeline lineno="109"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>out-&gt;<ref refid="structSYN__BLDC__PhaseOutputs_1a27e6932666e02ba2705da1cbfa0830e6" kindref="member">w</ref><sp/>=<sp/><ref refid="syn__bldc__6step_8h_1af822dc2b03825578e8d9ace2ec127e79ace19f9a139b574882bb7d23b0cbb88c4" kindref="member">SYN_BLDC_GATE_OFF</ref>;</highlight></codeline>
+<codeline lineno="110"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>out-&gt;<ref refid="structSYN__BLDC__PhaseOutputs_1a5019ae12a00debaffb56b81f5dfddf17" kindref="member">duty</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="112"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="113"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"></highlight></codeline>
+<codeline lineno="115"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structPhaseGatePattern" kindref="compound">PhaseGatePattern</ref><sp/>*pattern<sp/>=</highlight></codeline>
+<codeline lineno="116"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(bldc-&gt;<ref refid="structSYN__BLDC__6Step_1aeab13ac49a0756ef03f23fab450fa6d0" kindref="member">direction</ref><sp/>==<sp/><ref refid="syn__bldc__6step_8h_1a79efd51450f482904025cf482923c955a9a4b72d1c44c92b87eb716d9d5a2ad10" kindref="member">SYN_BLDC_DIR_CW</ref>)<sp/>?<sp/>&amp;<ref refid="syn__bldc__6step_8c_1a97c36e30f28f1a49a3198dd99407b023" kindref="member">s_step_table_cw</ref>[state]<sp/>:<sp/>&amp;<ref refid="syn__bldc__6step_8c_1a5aabbf0da985d0ffa0f9662f5c492e93" kindref="member">s_step_table_ccw</ref>[state];</highlight></codeline>
+<codeline lineno="117"><highlight class="normal"></highlight></codeline>
+<codeline lineno="118"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(out)<sp/>{</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>out-&gt;<ref refid="structSYN__BLDC__PhaseOutputs_1a583f72ea52aaa21dbcf714da31d60fe2" kindref="member">u</ref><sp/>=<sp/>pattern-&gt;<ref refid="structPhaseGatePattern_1a6ee5a6ecb790cac3f17cacdcc9dfe16a" kindref="member">u</ref>;</highlight></codeline>
+<codeline lineno="120"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>out-&gt;<ref refid="structSYN__BLDC__PhaseOutputs_1a572e6f8352f10b5bc401545d315c29c4" kindref="member">v</ref><sp/>=<sp/>pattern-&gt;<ref refid="structPhaseGatePattern_1a8b4e62cb42fe56ddd6b1c90fee864ee6" kindref="member">v</ref>;</highlight></codeline>
+<codeline lineno="121"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>out-&gt;<ref refid="structSYN__BLDC__PhaseOutputs_1a27e6932666e02ba2705da1cbfa0830e6" kindref="member">w</ref><sp/>=<sp/>pattern-&gt;<ref refid="structPhaseGatePattern_1ae174594028b95b82cee8325e2c636034" kindref="member">w</ref>;</highlight></codeline>
+<codeline lineno="122"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>out-&gt;<ref refid="structSYN__BLDC__PhaseOutputs_1a5019ae12a00debaffb56b81f5dfddf17" kindref="member">duty</ref><sp/>=<sp/>bldc-&gt;<ref refid="structSYN__BLDC__6Step_1afc535d366c12a30189d86a0c444e9b4a" kindref="member">duty</ref>;</highlight></codeline>
+<codeline lineno="123"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="124"><highlight class="normal"></highlight></codeline>
+<codeline lineno="125"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="126"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="127"><highlight class="normal"></highlight></codeline>
+<codeline lineno="128"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__bldc__6step_8c_1a476a65aa53313d855ce068bcbac8ecf3" kindref="member">syn_bldc_6step_set_duty</ref>(<ref refid="structSYN__BLDC__6Step" kindref="compound">SYN_BLDC_6Step</ref><sp/>*bldc,<sp/>uint16_t<sp/>duty_0_to_1000)</highlight></codeline>
+<codeline lineno="129"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="130"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!bldc)<sp/>{</highlight></codeline>
+<codeline lineno="131"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="132"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="133"><highlight class="normal"></highlight></codeline>
+<codeline lineno="134"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(duty_0_to_1000<sp/>&gt;<sp/>1000U)<sp/>{</highlight></codeline>
+<codeline lineno="135"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>duty_0_to_1000<sp/>=<sp/>1000U;</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="137"><highlight class="normal"></highlight></codeline>
+<codeline lineno="138"><highlight class="normal"><sp/><sp/><sp/><sp/>bldc-&gt;<ref refid="structSYN__BLDC__6Step_1afc535d366c12a30189d86a0c444e9b4a" kindref="member">duty</ref><sp/>=<sp/>duty_0_to_1000;</highlight></codeline>
+<codeline lineno="139"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="140"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="141"><highlight class="normal"></highlight></codeline>
+<codeline lineno="142"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__bldc__6step_8c_1a8df6b58c38ba0dc28bcf48a9ac1d544f" kindref="member">syn_bldc_6step_set_direction</ref>(<ref refid="structSYN__BLDC__6Step" kindref="compound">SYN_BLDC_6Step</ref><sp/>*bldc,<sp/><ref refid="syn__bldc__6step_8h_1a79efd51450f482904025cf482923c955" kindref="member">SYN_BLDC_Direction</ref><sp/>dir)</highlight></codeline>
+<codeline lineno="143"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="144"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!bldc)<sp/>{</highlight></codeline>
+<codeline lineno="145"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="146"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="147"><highlight class="normal"></highlight></codeline>
+<codeline lineno="148"><highlight class="normal"><sp/><sp/><sp/><sp/>bldc-&gt;<ref refid="structSYN__BLDC__6Step_1aeab13ac49a0756ef03f23fab450fa6d0" kindref="member">direction</ref><sp/>=<sp/>dir;</highlight></codeline>
+<codeline lineno="149"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="150"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="151"><highlight class="normal"></highlight></codeline>
+<codeline lineno="152"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__bldc__6step_8c_1a1689e2d4845c62bd79ce0263290f0721" kindref="member">syn_bldc_6step_start</ref>(<ref refid="structSYN__BLDC__6Step" kindref="compound">SYN_BLDC_6Step</ref><sp/>*bldc)</highlight></codeline>
+<codeline lineno="153"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="154"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!bldc)<sp/>{</highlight></codeline>
+<codeline lineno="155"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="156"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="157"><highlight class="normal"></highlight></codeline>
+<codeline lineno="158"><highlight class="normal"><sp/><sp/><sp/><sp/>bldc-&gt;<ref refid="structSYN__BLDC__6Step_1af9c30aa96c180a835bb888ca179cd614" kindref="member">state</ref><sp/>=<sp/><ref refid="syn__bldc__6step_8h_1a21e9016f1ca9e5ebfd39ff930801fa31a418400320c54d7443ebcd54880f0662f" kindref="member">SYN_BLDC_STATE_RUNNING</ref>;</highlight></codeline>
+<codeline lineno="159"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="160"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="161"><highlight class="normal"></highlight></codeline>
+<codeline lineno="162"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__bldc__6step_8c_1a2ca39716d32aa89ec5ce85f1826ad4db" kindref="member">syn_bldc_6step_stop</ref>(<ref refid="structSYN__BLDC__6Step" kindref="compound">SYN_BLDC_6Step</ref><sp/>*bldc,<sp/><ref refid="structSYN__BLDC__PhaseOutputs" kindref="compound">SYN_BLDC_PhaseOutputs</ref><sp/>*out)</highlight></codeline>
+<codeline lineno="163"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="164"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!bldc)<sp/>{</highlight></codeline>
+<codeline lineno="165"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="166"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="167"><highlight class="normal"></highlight></codeline>
+<codeline lineno="168"><highlight class="normal"><sp/><sp/><sp/><sp/>bldc-&gt;<ref refid="structSYN__BLDC__6Step_1af9c30aa96c180a835bb888ca179cd614" kindref="member">state</ref><sp/>=<sp/><ref refid="syn__bldc__6step_8h_1a21e9016f1ca9e5ebfd39ff930801fa31ae227b8c727795c196aee2330f60a94a3" kindref="member">SYN_BLDC_STATE_STOPPED</ref>;</highlight></codeline>
+<codeline lineno="169"><highlight class="normal"><sp/><sp/><sp/><sp/>bldc-&gt;<ref refid="structSYN__BLDC__6Step_1af9b104f530aa5aee30cd5927d48353ec" kindref="member">rpm</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="170"><highlight class="normal"></highlight></codeline>
+<codeline lineno="171"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(out)<sp/>{</highlight></codeline>
+<codeline lineno="172"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>out-&gt;<ref refid="structSYN__BLDC__PhaseOutputs_1a583f72ea52aaa21dbcf714da31d60fe2" kindref="member">u</ref><sp/>=<sp/><ref refid="syn__bldc__6step_8h_1af822dc2b03825578e8d9ace2ec127e79ace19f9a139b574882bb7d23b0cbb88c4" kindref="member">SYN_BLDC_GATE_OFF</ref>;</highlight></codeline>
+<codeline lineno="173"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>out-&gt;<ref refid="structSYN__BLDC__PhaseOutputs_1a572e6f8352f10b5bc401545d315c29c4" kindref="member">v</ref><sp/>=<sp/><ref refid="syn__bldc__6step_8h_1af822dc2b03825578e8d9ace2ec127e79ace19f9a139b574882bb7d23b0cbb88c4" kindref="member">SYN_BLDC_GATE_OFF</ref>;</highlight></codeline>
+<codeline lineno="174"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>out-&gt;<ref refid="structSYN__BLDC__PhaseOutputs_1a27e6932666e02ba2705da1cbfa0830e6" kindref="member">w</ref><sp/>=<sp/><ref refid="syn__bldc__6step_8h_1af822dc2b03825578e8d9ace2ec127e79ace19f9a139b574882bb7d23b0cbb88c4" kindref="member">SYN_BLDC_GATE_OFF</ref>;</highlight></codeline>
+<codeline lineno="175"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>out-&gt;<ref refid="structSYN__BLDC__PhaseOutputs_1a5019ae12a00debaffb56b81f5dfddf17" kindref="member">duty</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="176"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="177"><highlight class="normal"></highlight></codeline>
+<codeline lineno="178"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="179"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="180"><highlight class="normal"></highlight></codeline>
+<codeline lineno="181"><highlight class="normal">uint32_t<sp/><ref refid="syn__bldc__6step_8c_1a9f18d45c6c3739c1a85cd2da2b834192" kindref="member">syn_bldc_6step_update_speed</ref>(<ref refid="structSYN__BLDC__6Step" kindref="compound">SYN_BLDC_6Step</ref><sp/>*bldc,<sp/>uint32_t<sp/>now_ms,<sp/>uint32_t<sp/>target_rpm)</highlight></codeline>
+<codeline lineno="182"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="183"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!bldc)<sp/>{</highlight></codeline>
+<codeline lineno="184"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0;</highlight></codeline>
+<codeline lineno="185"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="186"><highlight class="normal"></highlight></codeline>
+<codeline lineno="187"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(bldc-&gt;<ref refid="structSYN__BLDC__6Step_1a011481e2762d537e59c49d0a1e8a54f9" kindref="member">last_hall_tick_ms</ref><sp/>==<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="188"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>bldc-&gt;<ref refid="structSYN__BLDC__6Step_1a011481e2762d537e59c49d0a1e8a54f9" kindref="member">last_hall_tick_ms</ref><sp/>=<sp/>now_ms;</highlight></codeline>
+<codeline lineno="189"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>bldc-&gt;<ref refid="structSYN__BLDC__6Step_1a11ff4fce4624d79ed40e4f6b9a4154ce" kindref="member">hall_transitions</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="190"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0;</highlight></codeline>
+<codeline lineno="191"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="192"><highlight class="normal"></highlight></codeline>
+<codeline lineno="193"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/>dt_ms<sp/>=<sp/>now_ms<sp/>-<sp/>bldc-&gt;<ref refid="structSYN__BLDC__6Step_1a011481e2762d537e59c49d0a1e8a54f9" kindref="member">last_hall_tick_ms</ref>;</highlight></codeline>
+<codeline lineno="194"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(dt_ms<sp/>&gt;=<sp/>100U)<sp/>{<sp/></highlight><highlight class="comment">/*<sp/>Calculate<sp/>speed<sp/>every<sp/>100ms<sp/>window<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="195"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>transitions<sp/>=<sp/>bldc-&gt;<ref refid="structSYN__BLDC__6Step_1a11ff4fce4624d79ed40e4f6b9a4154ce" kindref="member">hall_transitions</ref>;</highlight></codeline>
+<codeline lineno="196"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>bldc-&gt;<ref refid="structSYN__BLDC__6Step_1a11ff4fce4624d79ed40e4f6b9a4154ce" kindref="member">hall_transitions</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="197"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>bldc-&gt;<ref refid="structSYN__BLDC__6Step_1a011481e2762d537e59c49d0a1e8a54f9" kindref="member">last_hall_tick_ms</ref><sp/>=<sp/>now_ms;</highlight></codeline>
+<codeline lineno="198"><highlight class="normal"></highlight></codeline>
+<codeline lineno="199"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="200"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>RPM<sp/>calculation:</highlight></codeline>
+<codeline lineno="201"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>1<sp/>mechanical<sp/>revolution<sp/>=<sp/>6<sp/>*<sp/>pole_pairs<sp/>Hall<sp/>transitions.</highlight></codeline>
+<codeline lineno="202"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>RPM<sp/>=<sp/>(transitions<sp/>/<sp/>(6<sp/>*<sp/>pole_pairs))<sp/>*<sp/>(60,000<sp/>ms<sp/>/<sp/>dt_ms)</highlight></codeline>
+<codeline lineno="203"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="204"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>p<sp/>=<sp/>(uint32_t)bldc-&gt;<ref refid="structSYN__BLDC__6Step_1a2ff5a480c9fb477da967dd546fd2b616" kindref="member">config</ref>.<ref refid="structSYN__BLDC__Config_1ac4046a5e379a04cd8b480749a3a07004" kindref="member">pole_pairs</ref>;</highlight></codeline>
+<codeline lineno="205"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(p<sp/>==<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="206"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>p<sp/>=<sp/>4;</highlight></codeline>
+<codeline lineno="207"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="208"><highlight class="normal"></highlight></codeline>
+<codeline lineno="209"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>mechanical_rev_denom<sp/>=<sp/>6U<sp/>*<sp/>p;</highlight></codeline>
+<codeline lineno="210"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>bldc-&gt;<ref refid="structSYN__BLDC__6Step_1af9b104f530aa5aee30cd5927d48353ec" kindref="member">rpm</ref><sp/>=<sp/>(transitions<sp/>*<sp/>60000U)<sp/>/<sp/>(mechanical_rev_denom<sp/>*<sp/>dt_ms);</highlight></codeline>
+<codeline lineno="211"><highlight class="normal"></highlight></codeline>
+<codeline lineno="212"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Apply<sp/>closed-loop<sp/>speed<sp/>PID<sp/>if<sp/>enabled<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="213"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(bldc-&gt;<ref refid="structSYN__BLDC__6Step_1a18f20ff8039965420f516d2e49401f7f" kindref="member">speed_pid_active</ref><sp/>&amp;&amp;<sp/>bldc-&gt;<ref refid="structSYN__BLDC__6Step_1af9c30aa96c180a835bb888ca179cd614" kindref="member">state</ref><sp/>==<sp/><ref refid="syn__bldc__6step_8h_1a21e9016f1ca9e5ebfd39ff930801fa31a418400320c54d7443ebcd54880f0662f" kindref="member">SYN_BLDC_STATE_RUNNING</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="214"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int32_t<sp/>pid_out<sp/>=</highlight></codeline>
+<codeline lineno="215"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__pid_8c_1a990a5ab14c6776c0ad1ae2d91d443519" kindref="member">syn_pid_update</ref>(&amp;bldc-&gt;<ref refid="structSYN__BLDC__6Step_1a9809815f36eda258acf934a1d8353bae" kindref="member">speed_pid</ref>,<sp/>(int32_t)target_rpm,<sp/>(int32_t)bldc-&gt;<ref refid="structSYN__BLDC__6Step_1af9b104f530aa5aee30cd5927d48353ec" kindref="member">rpm</ref>,<sp/>dt_ms);</highlight></codeline>
+<codeline lineno="216"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint16_t<sp/>new_duty<sp/>=<sp/>(uint16_t)pid_out;</highlight></codeline>
+<codeline lineno="217"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__bldc__6step_8c_1a476a65aa53313d855ce068bcbac8ecf3" kindref="member">syn_bldc_6step_set_duty</ref>(bldc,<sp/>new_duty);</highlight></codeline>
+<codeline lineno="218"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="219"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="220"><highlight class="normal"></highlight></codeline>
+<codeline lineno="221"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>bldc-&gt;<ref refid="structSYN__BLDC__6Step_1af9b104f530aa5aee30cd5927d48353ec" kindref="member">rpm</ref>;</highlight></codeline>
+<codeline lineno="222"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="223"><highlight class="normal"></highlight></codeline>
+<codeline lineno="224"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__bldc__6step_8c_1a6c2fcebf93d693486e173715457b5806" kindref="member">syn_bldc_6step_get_phase_outputs</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__BLDC__6Step" kindref="compound">SYN_BLDC_6Step</ref><sp/>*bldc,<sp/><ref refid="structSYN__BLDC__PhaseOutputs" kindref="compound">SYN_BLDC_PhaseOutputs</ref><sp/>*out)</highlight></codeline>
+<codeline lineno="225"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="226"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!bldc<sp/>||<sp/>!out)<sp/>{</highlight></codeline>
+<codeline lineno="227"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="228"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="229"><highlight class="normal"></highlight></codeline>
+<codeline lineno="230"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(bldc-&gt;<ref refid="structSYN__BLDC__6Step_1af9c30aa96c180a835bb888ca179cd614" kindref="member">state</ref><sp/>!=<sp/><ref refid="syn__bldc__6step_8h_1a21e9016f1ca9e5ebfd39ff930801fa31a418400320c54d7443ebcd54880f0662f" kindref="member">SYN_BLDC_STATE_RUNNING</ref><sp/>||<sp/>bldc-&gt;<ref refid="structSYN__BLDC__6Step_1a95949a130c0d43284409075253a305b9" kindref="member">hall_state</ref><sp/>==<sp/>0<sp/>||<sp/>bldc-&gt;<ref refid="structSYN__BLDC__6Step_1a95949a130c0d43284409075253a305b9" kindref="member">hall_state</ref><sp/>==<sp/>7)<sp/>{</highlight></codeline>
+<codeline lineno="231"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>out-&gt;<ref refid="structSYN__BLDC__PhaseOutputs_1a583f72ea52aaa21dbcf714da31d60fe2" kindref="member">u</ref><sp/>=<sp/><ref refid="syn__bldc__6step_8h_1af822dc2b03825578e8d9ace2ec127e79ace19f9a139b574882bb7d23b0cbb88c4" kindref="member">SYN_BLDC_GATE_OFF</ref>;</highlight></codeline>
+<codeline lineno="232"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>out-&gt;<ref refid="structSYN__BLDC__PhaseOutputs_1a572e6f8352f10b5bc401545d315c29c4" kindref="member">v</ref><sp/>=<sp/><ref refid="syn__bldc__6step_8h_1af822dc2b03825578e8d9ace2ec127e79ace19f9a139b574882bb7d23b0cbb88c4" kindref="member">SYN_BLDC_GATE_OFF</ref>;</highlight></codeline>
+<codeline lineno="233"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>out-&gt;<ref refid="structSYN__BLDC__PhaseOutputs_1a27e6932666e02ba2705da1cbfa0830e6" kindref="member">w</ref><sp/>=<sp/><ref refid="syn__bldc__6step_8h_1af822dc2b03825578e8d9ace2ec127e79ace19f9a139b574882bb7d23b0cbb88c4" kindref="member">SYN_BLDC_GATE_OFF</ref>;</highlight></codeline>
+<codeline lineno="234"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>out-&gt;<ref refid="structSYN__BLDC__PhaseOutputs_1a5019ae12a00debaffb56b81f5dfddf17" kindref="member">duty</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="235"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="236"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="237"><highlight class="normal"></highlight></codeline>
+<codeline lineno="238"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structPhaseGatePattern" kindref="compound">PhaseGatePattern</ref><sp/>*pattern<sp/>=<sp/>(bldc-&gt;<ref refid="structSYN__BLDC__6Step_1aeab13ac49a0756ef03f23fab450fa6d0" kindref="member">direction</ref><sp/>==<sp/><ref refid="syn__bldc__6step_8h_1a79efd51450f482904025cf482923c955a9a4b72d1c44c92b87eb716d9d5a2ad10" kindref="member">SYN_BLDC_DIR_CW</ref>)</highlight></codeline>
+<codeline lineno="239"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>?<sp/>&amp;<ref refid="syn__bldc__6step_8c_1a97c36e30f28f1a49a3198dd99407b023" kindref="member">s_step_table_cw</ref>[bldc-&gt;<ref refid="structSYN__BLDC__6Step_1a95949a130c0d43284409075253a305b9" kindref="member">hall_state</ref>]</highlight></codeline>
+<codeline lineno="240"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>:<sp/>&amp;<ref refid="syn__bldc__6step_8c_1a5aabbf0da985d0ffa0f9662f5c492e93" kindref="member">s_step_table_ccw</ref>[bldc-&gt;hall_state];</highlight></codeline>
+<codeline lineno="241"><highlight class="normal"></highlight></codeline>
+<codeline lineno="242"><highlight class="normal"><sp/><sp/><sp/><sp/>out-&gt;<ref refid="structSYN__BLDC__PhaseOutputs_1a583f72ea52aaa21dbcf714da31d60fe2" kindref="member">u</ref><sp/>=<sp/>pattern-&gt;<ref refid="structPhaseGatePattern_1a6ee5a6ecb790cac3f17cacdcc9dfe16a" kindref="member">u</ref>;</highlight></codeline>
+<codeline lineno="243"><highlight class="normal"><sp/><sp/><sp/><sp/>out-&gt;<ref refid="structSYN__BLDC__PhaseOutputs_1a572e6f8352f10b5bc401545d315c29c4" kindref="member">v</ref><sp/>=<sp/>pattern-&gt;<ref refid="structPhaseGatePattern_1a8b4e62cb42fe56ddd6b1c90fee864ee6" kindref="member">v</ref>;</highlight></codeline>
+<codeline lineno="244"><highlight class="normal"><sp/><sp/><sp/><sp/>out-&gt;<ref refid="structSYN__BLDC__PhaseOutputs_1a27e6932666e02ba2705da1cbfa0830e6" kindref="member">w</ref><sp/>=<sp/>pattern-&gt;<ref refid="structPhaseGatePattern_1ae174594028b95b82cee8325e2c636034" kindref="member">w</ref>;</highlight></codeline>
+<codeline lineno="245"><highlight class="normal"><sp/><sp/><sp/><sp/>out-&gt;<ref refid="structSYN__BLDC__PhaseOutputs_1a5019ae12a00debaffb56b81f5dfddf17" kindref="member">duty</ref><sp/>=<sp/>bldc-&gt;<ref refid="structSYN__BLDC__6Step_1afc535d366c12a30189d86a0c444e9b4a" kindref="member">duty</ref>;</highlight></codeline>
+<codeline lineno="246"><highlight class="normal"></highlight></codeline>
+<codeline lineno="247"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="248"><highlight class="normal">}</highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/motor/syn_bldc_6step.c"/>
+  </compounddef>
+</doxygen>

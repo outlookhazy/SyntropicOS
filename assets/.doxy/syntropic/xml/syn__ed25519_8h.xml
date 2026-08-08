@@ -1,0 +1,184 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__ed25519_8h" kind="file" language="C++">
+    <compoundname>syn_ed25519.h</compoundname>
+    <includes local="no">stdbool.h</includes>
+    <includes local="no">stddef.h</includes>
+    <includes local="no">stdint.h</includes>
+    <includedby refid="syn__ed25519_8c" local="yes">src/syntropic/crypto/syn_ed25519.c</includedby>
+    <includedby refid="syn__x509_8c" local="yes">src/syntropic/crypto/syn_x509.c</includedby>
+    <includedby refid="syn__tls_8c" local="yes">src/syntropic/net/syn_tls.c</includedby>
+    <incdepgraph>
+      <node id="1">
+        <label>src/syntropic/crypto/syn_ed25519.h</label>
+        <link refid="syn__ed25519_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>stdbool.h</label>
+      </node>
+      <node id="3">
+        <label>stddef.h</label>
+      </node>
+      <node id="4">
+        <label>stdint.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="2">
+        <label>src/syntropic/crypto/syn_ed25519.c</label>
+        <link refid="syn__ed25519_8c"/>
+      </node>
+      <node id="1">
+        <label>src/syntropic/crypto/syn_ed25519.h</label>
+        <link refid="syn__ed25519_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>src/syntropic/crypto/syn_x509.c</label>
+        <link refid="syn__x509_8c"/>
+      </node>
+      <node id="4">
+        <label>src/syntropic/net/syn_tls.c</label>
+        <link refid="syn__tls_8c"/>
+      </node>
+    </invincdepgraph>
+    <sectiondef kind="define">
+      <memberdef kind="define" id="syn__ed25519_8h_1a08094295ddb2d18eb7f5bf960ce0bef5" prot="public" static="no">
+        <name>SYN_ED25519_PUBLIC_KEY_SIZE</name>
+        <initializer>32U</initializer>
+        <briefdescription>
+<para>Size of Ed25519 public key in bytes (32). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/crypto/syn_ed25519.h" line="19" column="9" bodyfile="src/syntropic/crypto/syn_ed25519.h" bodystart="19" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__ed25519_8h_1a55dd2a4d043511c19d98a38bbe5e0ea3" prot="public" static="no">
+        <name>SYN_ED25519_SIGNATURE_SIZE</name>
+        <initializer>64U</initializer>
+        <briefdescription>
+<para>Size of Ed25519 signature in bytes (64). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/crypto/syn_ed25519.h" line="21" column="9" bodyfile="src/syntropic/crypto/syn_ed25519.h" bodystart="21" bodyend="-1"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__ed25519_8h_1a3542c1fd99dc87cb7d473351155e5c54" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_ed25519_verify</definition>
+        <argsstring>(const uint8_t sig[SYN_ED25519_SIGNATURE_SIZE], const uint8_t *msg, size_t msg_len, const uint8_t public_key[SYN_ED25519_PUBLIC_KEY_SIZE])</argsstring>
+        <name>syn_ed25519_verify</name>
+        <param>
+          <type>const uint8_t</type>
+          <declname>sig</declname>
+          <array>[SYN_ED25519_SIGNATURE_SIZE]</array>
+        </param>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>msg</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>msg_len</declname>
+        </param>
+        <param>
+          <type>const uint8_t</type>
+          <declname>public_key</declname>
+          <array>[SYN_ED25519_PUBLIC_KEY_SIZE]</array>
+        </param>
+        <briefdescription>
+<para>Verify an Ed25519 signature (RFC 8032 Section 5.1.7). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>sig</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>64-byte signature (R || S). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>msg</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Message bytes. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>msg_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Message length in bytes. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>public_key</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>32-byte Ed25519 public key. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if valid signature, false otherwise. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/crypto/syn_ed25519.h" line="32" column="6" bodyfile="src/syntropic/crypto/syn_ed25519.c" bodystart="649" bodyend="696" declfile="src/syntropic/crypto/syn_ed25519.h" declline="32" declcolumn="6"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Pure C99 Ed25519 Signature Verification (RFC 8032). </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_ED25519_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_ED25519_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stddef.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight></codeline>
+<codeline lineno="19" refid="syn__ed25519_8h_1a08094295ddb2d18eb7f5bf960ce0bef5" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_ED25519_PUBLIC_KEY_SIZE<sp/>32U</highlight></codeline>
+<codeline lineno="21" refid="syn__ed25519_8h_1a55dd2a4d043511c19d98a38bbe5e0ea3" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_ED25519_SIGNATURE_SIZE<sp/>64U</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__ed25519_8h_1a3542c1fd99dc87cb7d473351155e5c54" kindref="member">syn_ed25519_verify</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>sig[<ref refid="syn__ed25519_8h_1a55dd2a4d043511c19d98a38bbe5e0ea3" kindref="member">SYN_ED25519_SIGNATURE_SIZE</ref>],<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*msg,</highlight></codeline>
+<codeline lineno="33"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>msg_len,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>public_key[<ref refid="syn__ed25519_8h_1a08094295ddb2d18eb7f5bf960ce0bef5" kindref="member">SYN_ED25519_PUBLIC_KEY_SIZE</ref>]);</highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_ED25519_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/crypto/syn_ed25519.h"/>
+  </compounddef>
+</doxygen>

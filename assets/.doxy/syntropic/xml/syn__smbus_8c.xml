@@ -1,0 +1,527 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__smbus_8c" kind="file" language="C++">
+    <compoundname>syn_smbus.c</compoundname>
+    <includes refid="syn__smbus_8h" local="yes">syn_smbus.h</includes>
+    <includes local="no">string.h</includes>
+    <incdepgraph>
+      <node id="3">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/proto/syn_smbus.c</label>
+        <link refid="syn__smbus_8c"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>syn_smbus.h</label>
+        <link refid="syn__smbus_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>stdbool.h</label>
+      </node>
+      <node id="4">
+        <label>stddef.h</label>
+      </node>
+      <node id="5">
+        <label>stdint.h</label>
+      </node>
+      <node id="7">
+        <label>string.h</label>
+      </node>
+    </incdepgraph>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__smbus_8c_1a69aa4ef6b1fb22a83a551094021e68ca" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint8_t</type>
+        <definition>uint8_t syn_smbus_calc_pec</definition>
+        <argsstring>(uint8_t init_crc, const uint8_t *data, size_t len)</argsstring>
+        <name>syn_smbus_calc_pec</name>
+        <param>
+          <type>uint8_t</type>
+          <declname>init_crc</declname>
+        </param>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>len</declname>
+        </param>
+        <briefdescription>
+<para>Calculate SMBus Packet Error Checking (PEC) CRC-8 byte. Polynomial: x^8 + x^2 + x + 1 (0x07), Initial value: 0x00. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>init_crc</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Running CRC value (0x00 for fresh calculation). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>data</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to data buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Data length in bytes. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Computed PEC byte. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_smbus.c" line="17" column="9" bodyfile="src/syntropic/proto/syn_smbus.c" bodystart="17" bodyend="34"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__smbus_8c_1a5f622c677bc1f4b30da3275c8ece18d7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_smbus_encode_packet</definition>
+        <argsstring>(const SYN_SMBUS_Packet *pkt, uint8_t *tx_buf, size_t buf_size, size_t *out_len)</argsstring>
+        <name>syn_smbus_encode_packet</name>
+        <param>
+          <type>const <ref refid="structSYN__SMBUS__Packet" kindref="compound">SYN_SMBUS_Packet</ref> *</type>
+          <declname>pkt</declname>
+        </param>
+        <param>
+          <type>uint8_t *</type>
+          <declname>tx_buf</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>buf_size</declname>
+        </param>
+        <param>
+          <type>size_t *</type>
+          <declname>out_len</declname>
+        </param>
+        <briefdescription>
+<para>Encode an SMBus packet into a byte stream for transmission. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>pkt</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to packet structure. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>tx_buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>buf_size</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Size of output buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to receive encoded byte count. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, or error status. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_smbus.c" line="36" column="12" bodyfile="src/syntropic/proto/syn_smbus.c" bodystart="36" bodyend="156"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__smbus_8c_1a7df702d995c38fb5de778ed692e5f00d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_smbus_decode_packet</definition>
+        <argsstring>(SYN_SMBUS_Packet *pkt, const uint8_t *rx_buf, size_t rx_len, SYN_SMBUS_Protocol proto, bool has_pec)</argsstring>
+        <name>syn_smbus_decode_packet</name>
+        <param>
+          <type><ref refid="structSYN__SMBUS__Packet" kindref="compound">SYN_SMBUS_Packet</ref> *</type>
+          <declname>pkt</declname>
+        </param>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>rx_buf</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>rx_len</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__smbus_8h_1a3914cb8d47706e68097f5d172c8b7aed" kindref="member">SYN_SMBUS_Protocol</ref></type>
+          <declname>proto</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+          <declname>has_pec</declname>
+        </param>
+        <briefdescription>
+<para>Decode an SMBus byte stream into an SMBus packet structure. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>pkt</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to destination packet structure. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>rx_buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Input buffer containing received bytes. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>rx_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Length of received byte stream. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>proto</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Protocol format expected. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>has_pec</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>True if PEC byte is appended at end of rx_buf. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_ERR_INVALID_CHECKSUM if PEC mismatch, or SYN_ERR_INVALID_PARAM. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_smbus.c" line="158" column="12" bodyfile="src/syntropic/proto/syn_smbus.c" bodystart="158" bodyend="272"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>SMBus Protocol Engine implementation. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>__has_include(&quot;syn_config.h&quot;)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;syn_config.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__smbus_8h" kindref="compound">syn_smbus.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;string.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>!defined(SYN_USE_SMBUS)<sp/>||<sp/>SYN_USE_SMBUS</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal">uint8_t<sp/><ref refid="syn__smbus_8c_1a69aa4ef6b1fb22a83a551094021e68ca" kindref="member">syn_smbus_calc_pec</ref>(uint8_t<sp/>init_crc,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*data,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>len)</highlight></codeline>
+<codeline lineno="18"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="19"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(data<sp/>==<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="20"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>init_crc;</highlight></codeline>
+<codeline lineno="21"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="22"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>crc<sp/>=<sp/>init_crc;</highlight></codeline>
+<codeline lineno="23"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>len;<sp/>i++)<sp/>{</highlight></codeline>
+<codeline lineno="24"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>crc<sp/>^=<sp/>data[i];</highlight></codeline>
+<codeline lineno="25"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>b<sp/>=<sp/>0;<sp/>b<sp/>&lt;<sp/>8;<sp/>b++)<sp/>{</highlight></codeline>
+<codeline lineno="26"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(crc<sp/>&amp;<sp/>0x80)<sp/>{</highlight></codeline>
+<codeline lineno="27"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>crc<sp/>=<sp/>(uint8_t)((crc<sp/>&lt;&lt;<sp/>1)<sp/>^<sp/>0x07);</highlight></codeline>
+<codeline lineno="28"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="29"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>crc<sp/>=<sp/>(uint8_t)(crc<sp/>&lt;&lt;<sp/>1);</highlight></codeline>
+<codeline lineno="30"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="31"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="32"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="33"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>crc;</highlight></codeline>
+<codeline lineno="34"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__smbus_8c_1a5f622c677bc1f4b30da3275c8ece18d7" kindref="member">syn_smbus_encode_packet</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__SMBUS__Packet" kindref="compound">SYN_SMBUS_Packet</ref><sp/>*pkt,<sp/>uint8_t<sp/>*tx_buf,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>buf_size,</highlight></codeline>
+<codeline lineno="37"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>*out_len)</highlight></codeline>
+<codeline lineno="38"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(pkt<sp/>==<sp/>NULL<sp/>||<sp/>tx_buf<sp/>==<sp/>NULL<sp/>||<sp/>out_len<sp/>==<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight></codeline>
+<codeline lineno="43"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>idx<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>addr_rw_write<sp/>=<sp/>(uint8_t)((pkt-&gt;<ref refid="structSYN__SMBUS__Packet_1ac82c6dff320c9b73b03a88c096215dc8" kindref="member">slave_addr</ref><sp/>&lt;&lt;<sp/>1)<sp/>|<sp/>0x00);</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>addr_rw_read<sp/>=<sp/>(uint8_t)((pkt-&gt;<ref refid="structSYN__SMBUS__Packet_1ac82c6dff320c9b73b03a88c096215dc8" kindref="member">slave_addr</ref><sp/>&lt;&lt;<sp/>1)<sp/>|<sp/>0x01);</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"></highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">switch</highlight><highlight class="normal"><sp/>(pkt-&gt;<ref refid="structSYN__SMBUS__Packet_1aa33ab86fab268e431928dcf1bda072e4" kindref="member">proto</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__smbus_8h_1a3914cb8d47706e68097f5d172c8b7aeda50588e46272a9e277adb829c5eae3aab" kindref="member">SYN_SMBUS_PROTO_QUICK_READ</ref>:</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__smbus_8h_1a3914cb8d47706e68097f5d172c8b7aeda907aa9d655444b2fe3211cab5ec76df5" kindref="member">SYN_SMBUS_PROTO_QUICK_WRITE</ref>:</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(buf_size<sp/>&lt;<sp/>1)</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00acd5d2701b7cfa9fb446640ecbeb19fc9" kindref="member">SYN_ERROR</ref>;</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tx_buf[idx++]<sp/>=<sp/>(pkt-&gt;<ref refid="structSYN__SMBUS__Packet_1aa33ab86fab268e431928dcf1bda072e4" kindref="member">proto</ref><sp/>==<sp/><ref refid="syn__smbus_8h_1a3914cb8d47706e68097f5d172c8b7aeda50588e46272a9e277adb829c5eae3aab" kindref="member">SYN_SMBUS_PROTO_QUICK_READ</ref>)<sp/>?<sp/>addr_rw_read<sp/>:<sp/>addr_rw_write;</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"></highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__smbus_8h_1a3914cb8d47706e68097f5d172c8b7aedaca8e04049b5e01beea64f07300f9c03b" kindref="member">SYN_SMBUS_PROTO_SEND_BYTE</ref>:</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(buf_size<sp/>&lt;<sp/>2<sp/>+<sp/>(pkt-&gt;<ref refid="structSYN__SMBUS__Packet_1ab4b3aa440b5c0c15c92466af7e0e26ca" kindref="member">pec_enabled</ref><sp/>?<sp/>1<sp/>:<sp/>0))</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>return<sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00acd5d2701b7cfa9fb446640ecbeb19fc9" kindref="member">SYN_ERROR</ref>;</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tx_buf[idx++]<sp/>=<sp/>addr_rw_write;</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tx_buf[idx++]<sp/>=<sp/>pkt-&gt;<ref refid="structSYN__SMBUS__Packet_1aeb994bd7265016e2de69ae106fa6a2c4" kindref="member">command</ref>;</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"></highlight></codeline>
+<codeline lineno="62"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__smbus_8h_1a3914cb8d47706e68097f5d172c8b7aedaa94fd5e350efa7bdd972836a65a090c2" kindref="member">SYN_SMBUS_PROTO_RECEIVE_BYTE</ref>:</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(buf_size<sp/>&lt;<sp/>1<sp/>+<sp/>(pkt-&gt;<ref refid="structSYN__SMBUS__Packet_1ab4b3aa440b5c0c15c92466af7e0e26ca" kindref="member">pec_enabled</ref><sp/>?<sp/>1<sp/>:<sp/>0))</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>return<sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00acd5d2701b7cfa9fb446640ecbeb19fc9" kindref="member">SYN_ERROR</ref>;</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tx_buf[idx++]<sp/>=<sp/>addr_rw_read;</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"></highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__smbus_8h_1a3914cb8d47706e68097f5d172c8b7aedadb9e66f9a3efd344fba0a77e7702a448" kindref="member">SYN_SMBUS_PROTO_WRITE_BYTE</ref>:</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(buf_size<sp/>&lt;<sp/>3<sp/>+<sp/>(pkt-&gt;<ref refid="structSYN__SMBUS__Packet_1ab4b3aa440b5c0c15c92466af7e0e26ca" kindref="member">pec_enabled</ref><sp/>?<sp/>1<sp/>:<sp/>0))</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>return<sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00acd5d2701b7cfa9fb446640ecbeb19fc9" kindref="member">SYN_ERROR</ref>;</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tx_buf[idx++]<sp/>=<sp/>addr_rw_write;</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tx_buf[idx++]<sp/>=<sp/>pkt-&gt;<ref refid="structSYN__SMBUS__Packet_1aeb994bd7265016e2de69ae106fa6a2c4" kindref="member">command</ref>;</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tx_buf[idx++]<sp/>=<sp/>(pkt-&gt;<ref refid="structSYN__SMBUS__Packet_1add9142be808fcc898444dcbd998987eb" kindref="member">length</ref><sp/>&gt;<sp/>0)<sp/>?<sp/>pkt-&gt;<ref refid="structSYN__SMBUS__Packet_1a324a38e3be9fdd90e2d01f33ec761c58" kindref="member">data</ref>[0]<sp/>:<sp/>0;</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"></highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__smbus_8h_1a3914cb8d47706e68097f5d172c8b7aedada227321ae44f46e71312ccbc70188f5" kindref="member">SYN_SMBUS_PROTO_READ_BYTE</ref>:</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(buf_size<sp/>&lt;<sp/>2<sp/>+<sp/>(pkt-&gt;<ref refid="structSYN__SMBUS__Packet_1ab4b3aa440b5c0c15c92466af7e0e26ca" kindref="member">pec_enabled</ref><sp/>?<sp/>1<sp/>:<sp/>0))</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>return<sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00acd5d2701b7cfa9fb446640ecbeb19fc9" kindref="member">SYN_ERROR</ref>;</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tx_buf[idx++]<sp/>=<sp/>addr_rw_write;</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tx_buf[idx++]<sp/>=<sp/>pkt-&gt;<ref refid="structSYN__SMBUS__Packet_1aeb994bd7265016e2de69ae106fa6a2c4" kindref="member">command</ref>;</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"></highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__smbus_8h_1a3914cb8d47706e68097f5d172c8b7aedaa765d556cc645b668da62d7502a01c87" kindref="member">SYN_SMBUS_PROTO_WRITE_WORD</ref>:</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(buf_size<sp/>&lt;<sp/>4<sp/>+<sp/>(pkt-&gt;<ref refid="structSYN__SMBUS__Packet_1ab4b3aa440b5c0c15c92466af7e0e26ca" kindref="member">pec_enabled</ref><sp/>?<sp/>1<sp/>:<sp/>0))</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>return<sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00acd5d2701b7cfa9fb446640ecbeb19fc9" kindref="member">SYN_ERROR</ref>;</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tx_buf[idx++]<sp/>=<sp/>addr_rw_write;</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tx_buf[idx++]<sp/>=<sp/>pkt-&gt;<ref refid="structSYN__SMBUS__Packet_1aeb994bd7265016e2de69ae106fa6a2c4" kindref="member">command</ref>;</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tx_buf[idx++]<sp/>=<sp/>(pkt-&gt;<ref refid="structSYN__SMBUS__Packet_1add9142be808fcc898444dcbd998987eb" kindref="member">length</ref><sp/>&gt;=<sp/>1)<sp/>?<sp/>pkt-&gt;<ref refid="structSYN__SMBUS__Packet_1a324a38e3be9fdd90e2d01f33ec761c58" kindref="member">data</ref>[0]<sp/>:<sp/>0;</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tx_buf[idx++]<sp/>=<sp/>(pkt-&gt;<ref refid="structSYN__SMBUS__Packet_1add9142be808fcc898444dcbd998987eb" kindref="member">length</ref><sp/>&gt;=<sp/>2)<sp/>?<sp/>pkt-&gt;<ref refid="structSYN__SMBUS__Packet_1a324a38e3be9fdd90e2d01f33ec761c58" kindref="member">data</ref>[1]<sp/>:<sp/>0;</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"></highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__smbus_8h_1a3914cb8d47706e68097f5d172c8b7aeda03da98ddad10016d3720188107bfeb35" kindref="member">SYN_SMBUS_PROTO_READ_WORD</ref>:</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(buf_size<sp/>&lt;<sp/>2<sp/>+<sp/>(pkt-&gt;<ref refid="structSYN__SMBUS__Packet_1ab4b3aa440b5c0c15c92466af7e0e26ca" kindref="member">pec_enabled</ref><sp/>?<sp/>1<sp/>:<sp/>0))</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>return<sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00acd5d2701b7cfa9fb446640ecbeb19fc9" kindref="member">SYN_ERROR</ref>;</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tx_buf[idx++]<sp/>=<sp/>addr_rw_write;</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tx_buf[idx++]<sp/>=<sp/>pkt-&gt;<ref refid="structSYN__SMBUS__Packet_1aeb994bd7265016e2de69ae106fa6a2c4" kindref="member">command</ref>;</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"></highlight></codeline>
+<codeline lineno="99"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__smbus_8h_1a3914cb8d47706e68097f5d172c8b7aeda138e570bc17d6cbbcecd4337c0d5b19e" kindref="member">SYN_SMBUS_PROTO_WRITE_BLOCK</ref>:<sp/>{</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>payload_len<sp/>=</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(pkt-&gt;<ref refid="structSYN__SMBUS__Packet_1add9142be808fcc898444dcbd998987eb" kindref="member">length</ref><sp/>&gt;<sp/><ref refid="syn__smbus_8h_1a2897b0322097cf4da20c7f536d45a2aa" kindref="member">SYN_SMBUS_BLOCK_MAX_LEN</ref>)<sp/>?<sp/><ref refid="syn__smbus_8h_1a2897b0322097cf4da20c7f536d45a2aa" kindref="member">SYN_SMBUS_BLOCK_MAX_LEN</ref><sp/>:<sp/>pkt-&gt;length;</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(buf_size<sp/>&lt;<sp/>(</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal">)(3<sp/>+<sp/>payload_len<sp/>+<sp/>(pkt-&gt;<ref refid="structSYN__SMBUS__Packet_1ab4b3aa440b5c0c15c92466af7e0e26ca" kindref="member">pec_enabled</ref><sp/>?<sp/>1<sp/>:<sp/>0)))</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>return<sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00acd5d2701b7cfa9fb446640ecbeb19fc9" kindref="member">SYN_ERROR</ref>;</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tx_buf[idx++]<sp/>=<sp/>addr_rw_write;</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tx_buf[idx++]<sp/>=<sp/>pkt-&gt;<ref refid="structSYN__SMBUS__Packet_1aeb994bd7265016e2de69ae106fa6a2c4" kindref="member">command</ref>;</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tx_buf[idx++]<sp/>=<sp/>payload_len;</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(payload_len<sp/>&gt;<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>memcpy(&amp;tx_buf[idx],<sp/>pkt-&gt;<ref refid="structSYN__SMBUS__Packet_1a324a38e3be9fdd90e2d01f33ec761c58" kindref="member">data</ref>,<sp/>payload_len);</highlight></codeline>
+<codeline lineno="109"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>idx<sp/>+=<sp/>payload_len;</highlight></codeline>
+<codeline lineno="110"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="112"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="113"><highlight class="normal"></highlight></codeline>
+<codeline lineno="114"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__smbus_8h_1a3914cb8d47706e68097f5d172c8b7aedabaab9b6661234bdff71f64d7812c56ac" kindref="member">SYN_SMBUS_PROTO_READ_BLOCK</ref>:</highlight></codeline>
+<codeline lineno="115"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(buf_size<sp/>&lt;<sp/>2<sp/>+<sp/>(pkt-&gt;<ref refid="structSYN__SMBUS__Packet_1ab4b3aa440b5c0c15c92466af7e0e26ca" kindref="member">pec_enabled</ref><sp/>?<sp/>1<sp/>:<sp/>0))</highlight></codeline>
+<codeline lineno="116"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>return<sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00acd5d2701b7cfa9fb446640ecbeb19fc9" kindref="member">SYN_ERROR</ref>;</highlight></codeline>
+<codeline lineno="117"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tx_buf[idx++]<sp/>=<sp/>addr_rw_write;</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tx_buf[idx++]<sp/>=<sp/>pkt-&gt;<ref refid="structSYN__SMBUS__Packet_1aeb994bd7265016e2de69ae106fa6a2c4" kindref="member">command</ref>;</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="120"><highlight class="normal"></highlight></codeline>
+<codeline lineno="121"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__smbus_8h_1a3914cb8d47706e68097f5d172c8b7aeda70ad2dd423767c78f5a9fe95b8269543" kindref="member">SYN_SMBUS_PROTO_PROCESS_CALL</ref>:</highlight></codeline>
+<codeline lineno="122"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(buf_size<sp/>&lt;<sp/>4<sp/>+<sp/>(pkt-&gt;<ref refid="structSYN__SMBUS__Packet_1ab4b3aa440b5c0c15c92466af7e0e26ca" kindref="member">pec_enabled</ref><sp/>?<sp/>1<sp/>:<sp/>0))</highlight></codeline>
+<codeline lineno="123"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>return<sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00acd5d2701b7cfa9fb446640ecbeb19fc9" kindref="member">SYN_ERROR</ref>;</highlight></codeline>
+<codeline lineno="124"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tx_buf[idx++]<sp/>=<sp/>addr_rw_write;</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tx_buf[idx++]<sp/>=<sp/>pkt-&gt;<ref refid="structSYN__SMBUS__Packet_1aeb994bd7265016e2de69ae106fa6a2c4" kindref="member">command</ref>;</highlight></codeline>
+<codeline lineno="126"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tx_buf[idx++]<sp/>=<sp/>(pkt-&gt;<ref refid="structSYN__SMBUS__Packet_1add9142be808fcc898444dcbd998987eb" kindref="member">length</ref><sp/>&gt;=<sp/>1)<sp/>?<sp/>pkt-&gt;<ref refid="structSYN__SMBUS__Packet_1a324a38e3be9fdd90e2d01f33ec761c58" kindref="member">data</ref>[0]<sp/>:<sp/>0;</highlight></codeline>
+<codeline lineno="127"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tx_buf[idx++]<sp/>=<sp/>(pkt-&gt;<ref refid="structSYN__SMBUS__Packet_1add9142be808fcc898444dcbd998987eb" kindref="member">length</ref><sp/>&gt;=<sp/>2)<sp/>?<sp/>pkt-&gt;<ref refid="structSYN__SMBUS__Packet_1a324a38e3be9fdd90e2d01f33ec761c58" kindref="member">data</ref>[1]<sp/>:<sp/>0;</highlight></codeline>
+<codeline lineno="128"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="129"><highlight class="normal"></highlight></codeline>
+<codeline lineno="130"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__smbus_8h_1a3914cb8d47706e68097f5d172c8b7aedabb4f2534e58b1ac76fb24bc02fae00f2" kindref="member">SYN_SMBUS_PROTO_BLOCK_PROCESS_CALL</ref>:<sp/>{</highlight></codeline>
+<codeline lineno="131"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>payload_len<sp/>=</highlight></codeline>
+<codeline lineno="132"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(pkt-&gt;<ref refid="structSYN__SMBUS__Packet_1add9142be808fcc898444dcbd998987eb" kindref="member">length</ref><sp/>&gt;<sp/><ref refid="syn__smbus_8h_1a2897b0322097cf4da20c7f536d45a2aa" kindref="member">SYN_SMBUS_BLOCK_MAX_LEN</ref>)<sp/>?<sp/><ref refid="syn__smbus_8h_1a2897b0322097cf4da20c7f536d45a2aa" kindref="member">SYN_SMBUS_BLOCK_MAX_LEN</ref><sp/>:<sp/>pkt-&gt;length;</highlight></codeline>
+<codeline lineno="133"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(buf_size<sp/>&lt;<sp/>(</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal">)(3<sp/>+<sp/>payload_len<sp/>+<sp/>(pkt-&gt;<ref refid="structSYN__SMBUS__Packet_1ab4b3aa440b5c0c15c92466af7e0e26ca" kindref="member">pec_enabled</ref><sp/>?<sp/>1<sp/>:<sp/>0)))</highlight></codeline>
+<codeline lineno="134"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>return<sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00acd5d2701b7cfa9fb446640ecbeb19fc9" kindref="member">SYN_ERROR</ref>;</highlight></codeline>
+<codeline lineno="135"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tx_buf[idx++]<sp/>=<sp/>addr_rw_write;</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tx_buf[idx++]<sp/>=<sp/>pkt-&gt;<ref refid="structSYN__SMBUS__Packet_1aeb994bd7265016e2de69ae106fa6a2c4" kindref="member">command</ref>;</highlight></codeline>
+<codeline lineno="137"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tx_buf[idx++]<sp/>=<sp/>payload_len;</highlight></codeline>
+<codeline lineno="138"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(payload_len<sp/>&gt;<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="139"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>memcpy(&amp;tx_buf[idx],<sp/>pkt-&gt;<ref refid="structSYN__SMBUS__Packet_1a324a38e3be9fdd90e2d01f33ec761c58" kindref="member">data</ref>,<sp/>payload_len);</highlight></codeline>
+<codeline lineno="140"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>idx<sp/>+=<sp/>payload_len;</highlight></codeline>
+<codeline lineno="141"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="142"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="143"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="144"><highlight class="normal"></highlight></codeline>
+<codeline lineno="145"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">default</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="146"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="147"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="148"><highlight class="normal"></highlight></codeline>
+<codeline lineno="149"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(pkt-&gt;<ref refid="structSYN__SMBUS__Packet_1ab4b3aa440b5c0c15c92466af7e0e26ca" kindref="member">pec_enabled</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="150"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tx_buf[idx]<sp/>=<sp/><ref refid="syn__smbus_8c_1a69aa4ef6b1fb22a83a551094021e68ca" kindref="member">syn_smbus_calc_pec</ref>(0,<sp/>tx_buf,<sp/>idx);</highlight></codeline>
+<codeline lineno="151"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>idx++;</highlight></codeline>
+<codeline lineno="152"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="153"><highlight class="normal"></highlight></codeline>
+<codeline lineno="154"><highlight class="normal"><sp/><sp/><sp/><sp/>*out_len<sp/>=<sp/>idx;</highlight></codeline>
+<codeline lineno="155"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="156"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="157"><highlight class="normal"></highlight></codeline>
+<codeline lineno="158"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__smbus_8c_1a7df702d995c38fb5de778ed692e5f00d" kindref="member">syn_smbus_decode_packet</ref>(<ref refid="structSYN__SMBUS__Packet" kindref="compound">SYN_SMBUS_Packet</ref><sp/>*pkt,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*rx_buf,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>rx_len,</highlight></codeline>
+<codeline lineno="159"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__smbus_8h_1a3914cb8d47706e68097f5d172c8b7aed" kindref="member">SYN_SMBUS_Protocol</ref><sp/>proto,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>has_pec)</highlight></codeline>
+<codeline lineno="160"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="161"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(pkt<sp/>==<sp/>NULL<sp/>||<sp/>rx_buf<sp/>==<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="162"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="163"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="164"><highlight class="normal"></highlight></codeline>
+<codeline lineno="165"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>min_len<sp/>=<sp/>has_pec<sp/>?<sp/>1<sp/>:<sp/>0;</highlight></codeline>
+<codeline lineno="166"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(rx_len<sp/>&lt;<sp/>min_len)<sp/>{</highlight></codeline>
+<codeline lineno="167"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="168"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="169"><highlight class="normal"></highlight></codeline>
+<codeline lineno="170"><highlight class="normal"><sp/><sp/><sp/><sp/>pkt-&gt;<ref refid="structSYN__SMBUS__Packet_1aa33ab86fab268e431928dcf1bda072e4" kindref="member">proto</ref><sp/>=<sp/>proto;</highlight></codeline>
+<codeline lineno="171"><highlight class="normal"><sp/><sp/><sp/><sp/>pkt-&gt;<ref refid="structSYN__SMBUS__Packet_1ab4b3aa440b5c0c15c92466af7e0e26ca" kindref="member">pec_enabled</ref><sp/>=<sp/>has_pec;</highlight></codeline>
+<codeline lineno="172"><highlight class="normal"></highlight></codeline>
+<codeline lineno="173"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>data_len<sp/>=<sp/>has_pec<sp/>?<sp/>(rx_len<sp/>-<sp/>1)<sp/>:<sp/>rx_len;</highlight></codeline>
+<codeline lineno="174"><highlight class="normal"></highlight></codeline>
+<codeline lineno="175"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(has_pec)<sp/>{</highlight></codeline>
+<codeline lineno="176"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>calc_pec<sp/>=<sp/><ref refid="syn__smbus_8c_1a69aa4ef6b1fb22a83a551094021e68ca" kindref="member">syn_smbus_calc_pec</ref>(0,<sp/>rx_buf,<sp/>data_len);</highlight></codeline>
+<codeline lineno="177"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>pkt-&gt;<ref refid="structSYN__SMBUS__Packet_1a3bab8c604529063ef70490601b1e69e7" kindref="member">pec</ref><sp/>=<sp/>rx_buf[rx_len<sp/>-<sp/>1];</highlight></codeline>
+<codeline lineno="178"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>pkt-&gt;<ref refid="structSYN__SMBUS__Packet_1a94679779a6cdd547ece55c05f0f0e29f" kindref="member">pec_valid</ref><sp/>=<sp/>(pkt-&gt;<ref refid="structSYN__SMBUS__Packet_1a3bab8c604529063ef70490601b1e69e7" kindref="member">pec</ref><sp/>==<sp/>calc_pec);</highlight></codeline>
+<codeline lineno="179"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!pkt-&gt;<ref refid="structSYN__SMBUS__Packet_1a94679779a6cdd547ece55c05f0f0e29f" kindref="member">pec_valid</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="180"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00acd5d2701b7cfa9fb446640ecbeb19fc9" kindref="member">SYN_ERROR</ref>;</highlight></codeline>
+<codeline lineno="181"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="182"><highlight class="normal"><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="183"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>pkt-&gt;<ref refid="structSYN__SMBUS__Packet_1a3bab8c604529063ef70490601b1e69e7" kindref="member">pec</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="184"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>pkt-&gt;<ref refid="structSYN__SMBUS__Packet_1a94679779a6cdd547ece55c05f0f0e29f" kindref="member">pec_valid</ref><sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="185"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="186"><highlight class="normal"></highlight></codeline>
+<codeline lineno="187"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">switch</highlight><highlight class="normal"><sp/>(proto)<sp/>{</highlight></codeline>
+<codeline lineno="188"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__smbus_8h_1a3914cb8d47706e68097f5d172c8b7aedadb9e66f9a3efd344fba0a77e7702a448" kindref="member">SYN_SMBUS_PROTO_WRITE_BYTE</ref>:</highlight></codeline>
+<codeline lineno="189"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(data_len<sp/>&gt;=<sp/>3)<sp/>{</highlight></codeline>
+<codeline lineno="190"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>pkt-&gt;<ref refid="structSYN__SMBUS__Packet_1add9142be808fcc898444dcbd998987eb" kindref="member">length</ref><sp/>=<sp/>1;</highlight></codeline>
+<codeline lineno="191"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>pkt-&gt;<ref refid="structSYN__SMBUS__Packet_1a324a38e3be9fdd90e2d01f33ec761c58" kindref="member">data</ref>[0]<sp/>=<sp/>rx_buf[2];</highlight></codeline>
+<codeline lineno="192"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(data_len<sp/>&gt;=<sp/>1)<sp/>{</highlight></codeline>
+<codeline lineno="193"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>pkt-&gt;<ref refid="structSYN__SMBUS__Packet_1add9142be808fcc898444dcbd998987eb" kindref="member">length</ref><sp/>=<sp/>1;</highlight></codeline>
+<codeline lineno="194"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>pkt-&gt;<ref refid="structSYN__SMBUS__Packet_1a324a38e3be9fdd90e2d01f33ec761c58" kindref="member">data</ref>[0]<sp/>=<sp/>rx_buf[0];</highlight></codeline>
+<codeline lineno="195"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="196"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="197"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="198"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="199"><highlight class="normal"></highlight></codeline>
+<codeline lineno="200"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__smbus_8h_1a3914cb8d47706e68097f5d172c8b7aedaa765d556cc645b668da62d7502a01c87" kindref="member">SYN_SMBUS_PROTO_WRITE_WORD</ref>:</highlight></codeline>
+<codeline lineno="201"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(data_len<sp/>&gt;=<sp/>4)<sp/>{</highlight></codeline>
+<codeline lineno="202"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>pkt-&gt;<ref refid="structSYN__SMBUS__Packet_1add9142be808fcc898444dcbd998987eb" kindref="member">length</ref><sp/>=<sp/>2;</highlight></codeline>
+<codeline lineno="203"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>pkt-&gt;<ref refid="structSYN__SMBUS__Packet_1a324a38e3be9fdd90e2d01f33ec761c58" kindref="member">data</ref>[0]<sp/>=<sp/>rx_buf[2];</highlight></codeline>
+<codeline lineno="204"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>pkt-&gt;<ref refid="structSYN__SMBUS__Packet_1a324a38e3be9fdd90e2d01f33ec761c58" kindref="member">data</ref>[1]<sp/>=<sp/>rx_buf[3];</highlight></codeline>
+<codeline lineno="205"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(data_len<sp/>&gt;=<sp/>2)<sp/>{</highlight></codeline>
+<codeline lineno="206"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>pkt-&gt;<ref refid="structSYN__SMBUS__Packet_1add9142be808fcc898444dcbd998987eb" kindref="member">length</ref><sp/>=<sp/>2;</highlight></codeline>
+<codeline lineno="207"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>pkt-&gt;<ref refid="structSYN__SMBUS__Packet_1a324a38e3be9fdd90e2d01f33ec761c58" kindref="member">data</ref>[0]<sp/>=<sp/>rx_buf[0];</highlight></codeline>
+<codeline lineno="208"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>pkt-&gt;<ref refid="structSYN__SMBUS__Packet_1a324a38e3be9fdd90e2d01f33ec761c58" kindref="member">data</ref>[1]<sp/>=<sp/>rx_buf[1];</highlight></codeline>
+<codeline lineno="209"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="210"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="211"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="212"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="213"><highlight class="normal"></highlight></codeline>
+<codeline lineno="214"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__smbus_8h_1a3914cb8d47706e68097f5d172c8b7aedaa94fd5e350efa7bdd972836a65a090c2" kindref="member">SYN_SMBUS_PROTO_RECEIVE_BYTE</ref>:</highlight></codeline>
+<codeline lineno="215"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__smbus_8h_1a3914cb8d47706e68097f5d172c8b7aedada227321ae44f46e71312ccbc70188f5" kindref="member">SYN_SMBUS_PROTO_READ_BYTE</ref>:</highlight></codeline>
+<codeline lineno="216"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(data_len<sp/>&gt;=<sp/>3)<sp/>{</highlight></codeline>
+<codeline lineno="217"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>pkt-&gt;<ref refid="structSYN__SMBUS__Packet_1add9142be808fcc898444dcbd998987eb" kindref="member">length</ref><sp/>=<sp/>1;</highlight></codeline>
+<codeline lineno="218"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>pkt-&gt;<ref refid="structSYN__SMBUS__Packet_1a324a38e3be9fdd90e2d01f33ec761c58" kindref="member">data</ref>[0]<sp/>=<sp/>rx_buf[2];</highlight></codeline>
+<codeline lineno="219"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(data_len<sp/>&gt;=<sp/>1)<sp/>{</highlight></codeline>
+<codeline lineno="220"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>pkt-&gt;<ref refid="structSYN__SMBUS__Packet_1add9142be808fcc898444dcbd998987eb" kindref="member">length</ref><sp/>=<sp/>1;</highlight></codeline>
+<codeline lineno="221"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>pkt-&gt;<ref refid="structSYN__SMBUS__Packet_1a324a38e3be9fdd90e2d01f33ec761c58" kindref="member">data</ref>[0]<sp/>=<sp/>rx_buf[0];</highlight></codeline>
+<codeline lineno="222"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="223"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="224"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="225"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="226"><highlight class="normal"></highlight></codeline>
+<codeline lineno="227"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__smbus_8h_1a3914cb8d47706e68097f5d172c8b7aeda03da98ddad10016d3720188107bfeb35" kindref="member">SYN_SMBUS_PROTO_READ_WORD</ref>:</highlight></codeline>
+<codeline lineno="228"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__smbus_8h_1a3914cb8d47706e68097f5d172c8b7aeda70ad2dd423767c78f5a9fe95b8269543" kindref="member">SYN_SMBUS_PROTO_PROCESS_CALL</ref>:</highlight></codeline>
+<codeline lineno="229"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(data_len<sp/>&gt;=<sp/>4)<sp/>{</highlight></codeline>
+<codeline lineno="230"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>pkt-&gt;<ref refid="structSYN__SMBUS__Packet_1add9142be808fcc898444dcbd998987eb" kindref="member">length</ref><sp/>=<sp/>2;</highlight></codeline>
+<codeline lineno="231"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>pkt-&gt;<ref refid="structSYN__SMBUS__Packet_1a324a38e3be9fdd90e2d01f33ec761c58" kindref="member">data</ref>[0]<sp/>=<sp/>rx_buf[2];</highlight></codeline>
+<codeline lineno="232"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>pkt-&gt;<ref refid="structSYN__SMBUS__Packet_1a324a38e3be9fdd90e2d01f33ec761c58" kindref="member">data</ref>[1]<sp/>=<sp/>rx_buf[3];</highlight></codeline>
+<codeline lineno="233"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(data_len<sp/>&gt;=<sp/>2)<sp/>{</highlight></codeline>
+<codeline lineno="234"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>pkt-&gt;<ref refid="structSYN__SMBUS__Packet_1add9142be808fcc898444dcbd998987eb" kindref="member">length</ref><sp/>=<sp/>2;</highlight></codeline>
+<codeline lineno="235"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>pkt-&gt;<ref refid="structSYN__SMBUS__Packet_1a324a38e3be9fdd90e2d01f33ec761c58" kindref="member">data</ref>[0]<sp/>=<sp/>rx_buf[0];</highlight></codeline>
+<codeline lineno="236"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>pkt-&gt;<ref refid="structSYN__SMBUS__Packet_1a324a38e3be9fdd90e2d01f33ec761c58" kindref="member">data</ref>[1]<sp/>=<sp/>rx_buf[1];</highlight></codeline>
+<codeline lineno="237"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="238"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="239"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="240"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="241"><highlight class="normal"></highlight></codeline>
+<codeline lineno="242"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__smbus_8h_1a3914cb8d47706e68097f5d172c8b7aeda138e570bc17d6cbbcecd4337c0d5b19e" kindref="member">SYN_SMBUS_PROTO_WRITE_BLOCK</ref>:</highlight></codeline>
+<codeline lineno="243"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__smbus_8h_1a3914cb8d47706e68097f5d172c8b7aedabaab9b6661234bdff71f64d7812c56ac" kindref="member">SYN_SMBUS_PROTO_READ_BLOCK</ref>:</highlight></codeline>
+<codeline lineno="244"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__smbus_8h_1a3914cb8d47706e68097f5d172c8b7aedabb4f2534e58b1ac76fb24bc02fae00f2" kindref="member">SYN_SMBUS_PROTO_BLOCK_PROCESS_CALL</ref>:<sp/>{</highlight></codeline>
+<codeline lineno="245"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>header_len<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="246"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(data_len<sp/>&gt;=<sp/>3<sp/>&amp;&amp;<sp/>(</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal">)(3<sp/>+<sp/>rx_buf[2])<sp/>&lt;=<sp/>data_len)<sp/>{</highlight></codeline>
+<codeline lineno="247"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>header_len<sp/>=<sp/>2;</highlight></codeline>
+<codeline lineno="248"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(data_len<sp/>&gt;=<sp/>1<sp/>&amp;&amp;<sp/>(</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal">)(1<sp/>+<sp/>rx_buf[0])<sp/>&lt;=<sp/>data_len)<sp/>{</highlight></codeline>
+<codeline lineno="249"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>header_len<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="250"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="251"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="252"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="253"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>count<sp/>=<sp/>rx_buf[header_len];</highlight></codeline>
+<codeline lineno="254"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>pkt-&gt;<ref refid="structSYN__SMBUS__Packet_1add9142be808fcc898444dcbd998987eb" kindref="member">length</ref><sp/>=<sp/>count;</highlight></codeline>
+<codeline lineno="255"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(count<sp/>&gt;<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="256"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>copy_len<sp/>=<sp/>(size_t)count;</highlight></codeline>
+<codeline lineno="257"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>memcpy(pkt-&gt;<ref refid="structSYN__SMBUS__Packet_1a324a38e3be9fdd90e2d01f33ec761c58" kindref="member">data</ref>,<sp/>&amp;rx_buf[header_len<sp/>+<sp/>1],<sp/>copy_len);</highlight></codeline>
+<codeline lineno="258"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="259"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="260"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="261"><highlight class="normal"></highlight></codeline>
+<codeline lineno="262"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">default</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="263"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>pkt-&gt;<ref refid="structSYN__SMBUS__Packet_1add9142be808fcc898444dcbd998987eb" kindref="member">length</ref><sp/>=</highlight></codeline>
+<codeline lineno="264"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(uint8_t)(data_len<sp/>&gt;<sp/><ref refid="syn__smbus_8h_1ac6cbf15706cae34bb3e3530476ae86ff" kindref="member">SYN_SMBUS_BUF_MAX_LEN</ref><sp/>?<sp/><ref refid="syn__smbus_8h_1ac6cbf15706cae34bb3e3530476ae86ff" kindref="member">SYN_SMBUS_BUF_MAX_LEN</ref><sp/>:<sp/>data_len);</highlight></codeline>
+<codeline lineno="265"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(pkt-&gt;<ref refid="structSYN__SMBUS__Packet_1add9142be808fcc898444dcbd998987eb" kindref="member">length</ref><sp/>&gt;<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="266"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>memcpy(pkt-&gt;<ref refid="structSYN__SMBUS__Packet_1a324a38e3be9fdd90e2d01f33ec761c58" kindref="member">data</ref>,<sp/>rx_buf,<sp/>pkt-&gt;<ref refid="structSYN__SMBUS__Packet_1add9142be808fcc898444dcbd998987eb" kindref="member">length</ref>);</highlight></codeline>
+<codeline lineno="267"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="268"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="269"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="270"><highlight class="normal"></highlight></codeline>
+<codeline lineno="271"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="272"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="273"><highlight class="normal"></highlight></codeline>
+<codeline lineno="274"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_USE_SMBUS<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/proto/syn_smbus.c"/>
+  </compounddef>
+</doxygen>

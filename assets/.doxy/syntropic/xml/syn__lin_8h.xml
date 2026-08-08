@@ -1,0 +1,900 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__lin_8h" kind="file" language="C++">
+    <compoundname>syn_lin.h</compoundname>
+    <includes refid="syn__defs_8h" local="yes">../common/syn_defs.h</includes>
+    <includedby refid="syn__lin_8c" local="yes">src/syntropic/proto/syn_lin.c</includedby>
+    <includedby refid="syntropic_8h" local="yes">src/syntropic/syntropic.h</includedby>
+    <incdepgraph>
+      <node id="2">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/proto/syn_lin.h</label>
+        <link refid="syn__lin_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>stddef.h</label>
+      </node>
+      <node id="4">
+        <label>stdint.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="5">
+        <label>src/syntropic/proto/syn_doip.c</label>
+        <link refid="syn__doip_8c"/>
+      </node>
+      <node id="4">
+        <label>src/syntropic/proto/syn_doip.h</label>
+        <link refid="syn__doip_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>src/syntropic/proto/syn_lin.c</label>
+        <link refid="syn__lin_8c"/>
+      </node>
+      <node id="1">
+        <label>src/syntropic/proto/syn_lin.h</label>
+        <link refid="syn__lin_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>src/syntropic/syntropic.h</label>
+        <link refid="syntropic_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="structSYN__LIN__Frame" prot="public">SYN_LIN_Frame</innerclass>
+    <innerclass refid="structSYN__LIN__ScheduleSlot" prot="public">SYN_LIN_ScheduleSlot</innerclass>
+    <innerclass refid="structSYN__LIN__Master" prot="public">SYN_LIN_Master</innerclass>
+    <innerclass refid="structSYN__LIN__SlaveFrame" prot="public">SYN_LIN_SlaveFrame</innerclass>
+    <innerclass refid="structSYN__LIN__Slave" prot="public">SYN_LIN_Slave</innerclass>
+    <sectiondef kind="define">
+      <memberdef kind="define" id="syn__lin_8h_1a7f4193aa318d79c97f5fc0c503a341e4" prot="public" static="no">
+        <name>SYN_LIN_ID_MAX</name>
+        <initializer>0x3F</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Maximum 6-bit LIN Frame ID (0..63) </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_lin.h" line="24" column="9" bodyfile="src/syntropic/proto/syn_lin.h" bodystart="24" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__lin_8h_1a1af3cf19e0c17111e50f3b1e6335e5fd" prot="public" static="no">
+        <name>SYN_LIN_DATA_MAX</name>
+        <initializer>8</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Maximum payload bytes per LIN frame </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_lin.h" line="25" column="9" bodyfile="src/syntropic/proto/syn_lin.h" bodystart="25" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__lin_8h_1afbccd51a575242eda8e65b1b86c4e230" prot="public" static="no">
+        <name>SYN_LIN_ID_MASTER_REQ</name>
+        <initializer>0x3C</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>LIN Diagnostic Master Request ID </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_lin.h" line="27" column="9" bodyfile="src/syntropic/proto/syn_lin.h" bodystart="27" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__lin_8h_1a39756cd725c22950ba41fdcfeddd72d8" prot="public" static="no">
+        <name>SYN_LIN_ID_SLAVE_RESP</name>
+        <initializer>0x3D</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>LIN Diagnostic Slave Response ID </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_lin.h" line="28" column="9" bodyfile="src/syntropic/proto/syn_lin.h" bodystart="28" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__lin_8h_1a5a346b55a48949a515cf3594a1f1061c" prot="public" static="no">
+        <name>SYN_LIN_ID_EXTENDED</name>
+        <initializer>0x3E</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>LIN Extended Frame ID </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_lin.h" line="29" column="9" bodyfile="src/syntropic/proto/syn_lin.h" bodystart="29" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__lin_8h_1a882d3908670c2eac140f6a9274349c2e" prot="public" static="no">
+        <name>SYN_LIN_ID_RESERVED</name>
+        <initializer>0x3F</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>LIN Reserved Frame ID </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_lin.h" line="30" column="9" bodyfile="src/syntropic/proto/syn_lin.h" bodystart="30" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__lin_8h_1a89da26f1b466c00d42ea00b7d33453a9" prot="public" static="no">
+        <name>SYN_LIN_SYNC_BYTE</name>
+        <initializer>0x55</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>LIN Sync Byte </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_lin.h" line="32" column="9" bodyfile="src/syntropic/proto/syn_lin.h" bodystart="32" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__lin_8h_1a240f38c2733ae3b202748bc82fdba15f" prot="public" static="no">
+        <name>SYN_LIN_SLAVE_MAX_FRAMES</name>
+        <initializer>8</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Maximum configured frame slots per LIN Slave </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_lin.h" line="112" column="9" bodyfile="src/syntropic/proto/syn_lin.h" bodystart="112" bodyend="-1"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="enum">
+      <memberdef kind="enum" id="syn__lin_8h_1aa82318eecbf97b9a81b5c2e671f9f53c" prot="public" static="no" strong="no">
+        <type></type>
+        <name>SYN_LIN_ChecksumMode</name>
+        <enumvalue id="syn__lin_8h_1aa82318eecbf97b9a81b5c2e671f9f53ca6818bb86343a3b2ee1ed2c9c20386ac3" prot="public">
+          <name>SYN_LIN_CHECKSUM_CLASSIC</name>
+          <initializer>=
+        0</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Classic LIN 1.3 checksum (data bytes only; forced for 0x3C/0x3D) </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__lin_8h_1aa82318eecbf97b9a81b5c2e671f9f53caa4369f65eac6b1d693dcd10d469f2c47" prot="public">
+          <name>SYN_LIN_CHECKSUM_ENHANCED</name>
+          <initializer>= 1</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Enhanced LIN 2.0+ checksum (PID + data bytes) </para>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>LIN Checksum calculation mode. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_lin.h" line="39" column="1" bodyfile="src/syntropic/proto/syn_lin.h" bodystart="39" bodyend="43"/>
+      </memberdef>
+      <memberdef kind="enum" id="syn__lin_8h_1aca75b926b3faf6df942dbefc72690042" prot="public" static="no" strong="no">
+        <type></type>
+        <name>SYN_LIN_SlotDirection</name>
+        <enumvalue id="syn__lin_8h_1aca75b926b3faf6df942dbefc72690042ae05ca8967d0759f4be795c31305b7ca9" prot="public">
+          <name>SYN_LIN_SLOT_PUBLISH</name>
+          <initializer>= 0</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Master transmits header and response data </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__lin_8h_1aca75b926b3faf6df942dbefc72690042aced7d0d6e5075d3ae637b2964368dded" prot="public">
+          <name>SYN_LIN_SLOT_SUBSCRIBE</name>
+          <initializer>= 1</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Master transmits header and receives slave response data </para>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>Direction of data for a Master schedule table slot. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_lin.h" line="65" column="1" bodyfile="src/syntropic/proto/syn_lin.h" bodystart="65" bodyend="68"/>
+      </memberdef>
+      <memberdef kind="enum" id="syn__lin_8h_1a0d5e73f95392430fc4a1b13b9c815143" prot="public" static="no" strong="no">
+        <type></type>
+        <name>SYN_LIN_State</name>
+        <enumvalue id="syn__lin_8h_1a0d5e73f95392430fc4a1b13b9c815143aba61e79fda32c949290c91257e5bc3bb" prot="public">
+          <name>SYN_LIN_STATE_IDLE</name>
+          <initializer>= 0</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Idle state, awaiting break signal </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__lin_8h_1a0d5e73f95392430fc4a1b13b9c815143a83a21d432b994d375cdd263ca186f4de" prot="public">
+          <name>SYN_LIN_STATE_SYNC</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Sync byte reception state </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__lin_8h_1a0d5e73f95392430fc4a1b13b9c815143a35e73a63611683bcd92a69d7c16a5da4" prot="public">
+          <name>SYN_LIN_STATE_PID</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Protected Identifier reception state </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__lin_8h_1a0d5e73f95392430fc4a1b13b9c815143a37327c15784d30098bc667ea888d2512" prot="public">
+          <name>SYN_LIN_STATE_DATA</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Data payload reception state </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__lin_8h_1a0d5e73f95392430fc4a1b13b9c815143ae57713e98b38ffc84a148b4124309d06" prot="public">
+          <name>SYN_LIN_STATE_CHECKSUM</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Checksum byte reception state </para>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>LIN Bus Receiver State Machine Enum. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_lin.h" line="116" column="1" bodyfile="src/syntropic/proto/syn_lin.h" bodystart="116" bodyend="122"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__lin_8h_1a9efbf7e51f2558439d41824549183439" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint8_t</type>
+        <definition>uint8_t syn_lin_calc_pid</definition>
+        <argsstring>(uint8_t id)</argsstring>
+        <name>syn_lin_calc_pid</name>
+        <param>
+          <type>uint8_t</type>
+          <declname>id</declname>
+        </param>
+        <briefdescription>
+<para>Compute LIN Protected Identifier (PID) from a 6-bit Frame ID. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>id</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>6-bit LIN Frame ID (0..63). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>8-bit Protected Identifier byte with P0/P1 parity bits set. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_lin.h" line="145" column="9" bodyfile="src/syntropic/proto/syn_lin.c" bodystart="13" bodyend="27" declfile="src/syntropic/proto/syn_lin.h" declline="145" declcolumn="9"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__lin_8h_1aa1e32ce8bf720da13788222e1cd89fc0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_lin_verify_pid</definition>
+        <argsstring>(uint8_t pid)</argsstring>
+        <name>syn_lin_verify_pid</name>
+        <param>
+          <type>uint8_t</type>
+          <declname>pid</declname>
+        </param>
+        <briefdescription>
+<para>Verify Protected Identifier (PID) parity bits. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>pid</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>8-bit PID byte. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>True if P0 and P1 parity bits match the 6-bit Frame ID. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_lin.h" line="152" column="6" bodyfile="src/syntropic/proto/syn_lin.c" bodystart="29" bodyend="33" declfile="src/syntropic/proto/syn_lin.h" declline="152" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__lin_8h_1a19cd9a24590f9ce483a10eaa6c10341c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint8_t</type>
+        <definition>uint8_t syn_lin_calc_checksum</definition>
+        <argsstring>(uint8_t pid, const uint8_t *data, uint8_t len, SYN_LIN_ChecksumMode mode)</argsstring>
+        <name>syn_lin_calc_checksum</name>
+        <param>
+          <type>uint8_t</type>
+          <declname>pid</declname>
+        </param>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>len</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__lin_8h_1aa82318eecbf97b9a81b5c2e671f9f53c" kindref="member">SYN_LIN_ChecksumMode</ref></type>
+          <declname>mode</declname>
+        </param>
+        <briefdescription>
+<para>Compute LIN Checksum (Classic or Enhanced). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>pid</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>8-bit Protected Identifier (used only in Enhanced mode). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>data</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to payload data bytes. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Data length (1..8 bytes). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>mode</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Classic (data only) or Enhanced (PID + data). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Inverted modulo-255 sum byte. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_lin.h" line="162" column="9" bodyfile="src/syntropic/proto/syn_lin.c" bodystart="37" bodyend="64" declfile="src/syntropic/proto/syn_lin.h" declline="162" declcolumn="9"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__lin_8h_1ac05d73a4fc1ea45566d5d9eebd777795" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_lin_master_init</definition>
+        <argsstring>(SYN_LIN_Master *master, const SYN_LIN_ScheduleSlot *slots, size_t count)</argsstring>
+        <name>syn_lin_master_init</name>
+        <param>
+          <type><ref refid="structSYN__LIN__Master" kindref="compound">SYN_LIN_Master</ref> *</type>
+          <declname>master</declname>
+        </param>
+        <param>
+          <type>const <ref refid="structSYN__LIN__ScheduleSlot" kindref="compound">SYN_LIN_ScheduleSlot</ref> *</type>
+          <declname>slots</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>count</declname>
+        </param>
+        <briefdescription>
+<para>Initialize LIN Master engine with a schedule table. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>master</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to LIN Master handle. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>slots</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to array of schedule table slots. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>count</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of slots in table. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_INVALID_PARAM on invalid inputs. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_lin.h" line="172" column="12" bodyfile="src/syntropic/proto/syn_lin.c" bodystart="68" bodyend="82" declfile="src/syntropic/proto/syn_lin.h" declline="172" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__lin_8h_1aec8e72cc4ca0208e93f7fb95ac124d86" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_lin_master_step</definition>
+        <argsstring>(SYN_LIN_Master *master, uint32_t dt_ms, const SYN_LIN_ScheduleSlot **active_slot)</argsstring>
+        <name>syn_lin_master_step</name>
+        <param>
+          <type><ref refid="structSYN__LIN__Master" kindref="compound">SYN_LIN_Master</ref> *</type>
+          <declname>master</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>dt_ms</declname>
+        </param>
+        <param>
+          <type>const <ref refid="structSYN__LIN__ScheduleSlot" kindref="compound">SYN_LIN_ScheduleSlot</ref> **</type>
+          <declname>active_slot</declname>
+        </param>
+        <briefdescription>
+<para>Step LIN Master schedule table timer. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>master</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to LIN Master handle. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dt_ms</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Elapsed time since last call in milliseconds. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>active_slot</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to store currently executed slot reference (can be NULL). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>True if a new schedule slot trigger occurred. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_lin.h" line="182" column="6" bodyfile="src/syntropic/proto/syn_lin.c" bodystart="84" bodyend="111" declfile="src/syntropic/proto/syn_lin.h" declline="182" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__lin_8h_1a56722a9d9d342374ee3d9f65cfb2e6ad" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_lin_slave_init</definition>
+        <argsstring>(SYN_LIN_Slave *slave, uint8_t nad)</argsstring>
+        <name>syn_lin_slave_init</name>
+        <param>
+          <type><ref refid="structSYN__LIN__Slave" kindref="compound">SYN_LIN_Slave</ref> *</type>
+          <declname>slave</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>nad</declname>
+        </param>
+        <briefdescription>
+<para>Initialize LIN Slave engine. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>slave</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to LIN Slave handle. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>nad</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Node Address (0..255, 0x7F = wildcard/broadcast). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_INVALID_PARAM on invalid inputs. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_lin.h" line="191" column="12" bodyfile="src/syntropic/proto/syn_lin.c" bodystart="115" bodyend="133" declfile="src/syntropic/proto/syn_lin.h" declline="191" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__lin_8h_1a33ca1ac181a09002a88015b07fee72d2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_lin_slave_add_frame</definition>
+        <argsstring>(SYN_LIN_Slave *slave, uint8_t id, uint8_t len, SYN_LIN_SlotDirection dir, SYN_LIN_ChecksumMode mode)</argsstring>
+        <name>syn_lin_slave_add_frame</name>
+        <param>
+          <type><ref refid="structSYN__LIN__Slave" kindref="compound">SYN_LIN_Slave</ref> *</type>
+          <declname>slave</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>id</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>len</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__lin_8h_1aca75b926b3faf6df942dbefc72690042" kindref="member">SYN_LIN_SlotDirection</ref></type>
+          <declname>dir</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__lin_8h_1aa82318eecbf97b9a81b5c2e671f9f53c" kindref="member">SYN_LIN_ChecksumMode</ref></type>
+          <declname>mode</declname>
+        </param>
+        <briefdescription>
+<para>Register a frame filter on LIN Slave. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>slave</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to LIN Slave handle. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>id</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Frame ID (0..63). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Payload length (1..8 bytes). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dir</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>SUBSCRIBE (slave receives) or PUBLISH (slave transmits). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>mode</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Classic or Enhanced checksum mode. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_ERROR if slave table is full. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_lin.h" line="202" column="12" bodyfile="src/syntropic/proto/syn_lin.c" bodystart="135" bodyend="168" declfile="src/syntropic/proto/syn_lin.h" declline="202" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__lin_8h_1aa894f4b25e841c887205935a42500412" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_lin_slave_set_publish_data</definition>
+        <argsstring>(SYN_LIN_Slave *slave, uint8_t id, const uint8_t *data, uint8_t len)</argsstring>
+        <name>syn_lin_slave_set_publish_data</name>
+        <param>
+          <type><ref refid="structSYN__LIN__Slave" kindref="compound">SYN_LIN_Slave</ref> *</type>
+          <declname>slave</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>id</declname>
+        </param>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>len</declname>
+        </param>
+        <briefdescription>
+<para>Set published payload data for a specific Frame ID on LIN Slave. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>slave</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to LIN Slave handle. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>id</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Frame ID (0..63). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>data</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to payload data bytes. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Payload data length. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_ERROR if ID not registered as PUBLISH. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_lin.h" line="213" column="12" bodyfile="src/syntropic/proto/syn_lin.c" bodystart="170" bodyend="192" declfile="src/syntropic/proto/syn_lin.h" declline="213" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__lin_8h_1a4eaf0d119bbf21cd988deee7bc94a434" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_lin_slave_process_byte</definition>
+        <argsstring>(SYN_LIN_Slave *slave, uint8_t byte, SYN_LIN_Frame *out_frame)</argsstring>
+        <name>syn_lin_slave_process_byte</name>
+        <param>
+          <type><ref refid="structSYN__LIN__Slave" kindref="compound">SYN_LIN_Slave</ref> *</type>
+          <declname>slave</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>byte</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__LIN__Frame" kindref="compound">SYN_LIN_Frame</ref> *</type>
+          <declname>out_frame</declname>
+        </param>
+        <briefdescription>
+<para>Process an incoming byte stream byte by byte on LIN Slave. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>slave</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to LIN Slave handle. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>byte</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Incoming UART byte. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out_frame</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to output structure populated when a complete frame is received. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>True if a complete valid frame was processed. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_lin.h" line="223" column="6" bodyfile="src/syntropic/proto/syn_lin.c" bodystart="194" bodyend="276" declfile="src/syntropic/proto/syn_lin.h" declline="223" declcolumn="6"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>LIN (Local Interconnect Network 2.1 / 2.2a &amp; ISO 17987) Protocol Engine. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Provides non-blocking, zero-allocation LIN frame parsing, PID parity logic, classic/enhanced checksum verification, Master schedule table execution, and Slave response publishing/subscription state machines. </para>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_LIN_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_LIN_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../common/syn_defs.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>!defined(SYN_USE_LIN)<sp/>||<sp/>SYN_USE_LIN</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>LIN<sp/>Frame<sp/>Identifiers<sp/>&amp;<sp/>Limits<sp/>────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight></codeline>
+<codeline lineno="24" refid="syn__lin_8h_1a7f4193aa318d79c97f5fc0c503a341e4" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_LIN_ID_MAX<sp/>0x3F<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="25" refid="syn__lin_8h_1a1af3cf19e0c17111e50f3b1e6335e5fd" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_LIN_DATA_MAX<sp/>8<sp/><sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="27" refid="syn__lin_8h_1afbccd51a575242eda8e65b1b86c4e230" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_LIN_ID_MASTER_REQ<sp/>0x3C<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="28" refid="syn__lin_8h_1a39756cd725c22950ba41fdcfeddd72d8" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_LIN_ID_SLAVE_RESP<sp/>0x3D<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="29" refid="syn__lin_8h_1a5a346b55a48949a515cf3594a1f1061c" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_LIN_ID_EXTENDED<sp/>0x3E<sp/><sp/><sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="30" refid="syn__lin_8h_1a882d3908670c2eac140f6a9274349c2e" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_LIN_ID_RESERVED<sp/>0x3F<sp/><sp/><sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="32" refid="syn__lin_8h_1a89da26f1b466c00d42ea00b7d33453a9" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_LIN_SYNC_BYTE<sp/>0x55<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>LIN<sp/>Checksum<sp/>Modes<sp/>───────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight></codeline>
+<codeline lineno="39" refid="syn__lin_8h_1aa82318eecbf97b9a81b5c2e671f9f53c" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__lin_8h_1aa82318eecbf97b9a81b5c2e671f9f53ca6818bb86343a3b2ee1ed2c9c20386ac3" kindref="member">SYN_LIN_CHECKSUM_CLASSIC</ref><sp/>=</highlight></codeline>
+<codeline lineno="41" refid="syn__lin_8h_1aa82318eecbf97b9a81b5c2e671f9f53ca6818bb86343a3b2ee1ed2c9c20386ac3" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>0,<sp/></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__lin_8h_1aa82318eecbf97b9a81b5c2e671f9f53caa4369f65eac6b1d693dcd10d469f2c47" kindref="member">SYN_LIN_CHECKSUM_ENHANCED</ref><sp/>=<sp/>1<sp/></highlight></codeline>
+<codeline lineno="43" refid="syn__lin_8h_1aa82318eecbf97b9a81b5c2e671f9f53caa4369f65eac6b1d693dcd10d469f2c47" refkind="member"><highlight class="normal">}<sp/><ref refid="syn__lin_8h_1aa82318eecbf97b9a81b5c2e671f9f53c" kindref="member">SYN_LIN_ChecksumMode</ref>;</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>LIN<sp/>Frame<sp/>Data<sp/>Structure<sp/>──────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="46"><highlight class="normal"></highlight></codeline>
+<codeline lineno="50" refid="structSYN__LIN__Frame" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="51" refid="structSYN__LIN__Frame_1af0cec9de863cae1921ccfcb2e57fdaeb" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><ref refid="structSYN__LIN__Frame_1af0cec9de863cae1921ccfcb2e57fdaeb" kindref="member">id</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="52" refid="structSYN__LIN__Frame_1af20e4c340ba9f332c440e9cb3fd31d22" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><ref refid="structSYN__LIN__Frame_1af20e4c340ba9f332c440e9cb3fd31d22" kindref="member">pid</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="53" refid="structSYN__LIN__Frame_1aef751f00d31c477aaeb97a14a7e11a85" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><ref refid="structSYN__LIN__Frame_1aef751f00d31c477aaeb97a14a7e11a85" kindref="member">len</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="54" refid="structSYN__LIN__Frame_1ae4361d299b00ad6f53c596a4115d9fc9" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>data[<ref refid="syn__lin_8h_1a1af3cf19e0c17111e50f3b1e6335e5fd" kindref="member">SYN_LIN_DATA_MAX</ref>];<sp/></highlight></codeline>
+<codeline lineno="55" refid="structSYN__LIN__Frame_1a5eeedde6d98127dd0326d02a0223ab4b" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><ref refid="structSYN__LIN__Frame_1a5eeedde6d98127dd0326d02a0223ab4b" kindref="member">checksum</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="56" refid="structSYN__LIN__Frame_1a36cda3483a347deaf522f41da7383cc6" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="structSYN__LIN__Frame_1a36cda3483a347deaf522f41da7383cc6" kindref="member">valid_pid</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="57" refid="structSYN__LIN__Frame_1ac9a259ed7101fed7af9ea3413f87f3c7" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="structSYN__LIN__Frame_1ac9a259ed7101fed7af9ea3413f87f3c7" kindref="member">valid_checksum</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="58"><highlight class="normal">}<sp/><ref refid="structSYN__LIN__Frame" kindref="compound">SYN_LIN_Frame</ref>;</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"></highlight></codeline>
+<codeline lineno="60"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>LIN<sp/>Master<sp/>Schedule<sp/>Table<sp/>Slot<sp/>────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="61"><highlight class="normal"></highlight></codeline>
+<codeline lineno="65" refid="syn__lin_8h_1aca75b926b3faf6df942dbefc72690042" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="66" refid="syn__lin_8h_1aca75b926b3faf6df942dbefc72690042ae05ca8967d0759f4be795c31305b7ca9" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__lin_8h_1aca75b926b3faf6df942dbefc72690042ae05ca8967d0759f4be795c31305b7ca9" kindref="member">SYN_LIN_SLOT_PUBLISH</ref><sp/>=<sp/>0,<sp/><sp/></highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__lin_8h_1aca75b926b3faf6df942dbefc72690042aced7d0d6e5075d3ae637b2964368dded" kindref="member">SYN_LIN_SLOT_SUBSCRIBE</ref><sp/>=<sp/>1<sp/></highlight></codeline>
+<codeline lineno="68" refid="syn__lin_8h_1aca75b926b3faf6df942dbefc72690042aced7d0d6e5075d3ae637b2964368dded" refkind="member"><highlight class="normal">}<sp/><ref refid="syn__lin_8h_1aca75b926b3faf6df942dbefc72690042" kindref="member">SYN_LIN_SlotDirection</ref>;</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"></highlight></codeline>
+<codeline lineno="73" refid="structSYN__LIN__ScheduleSlot" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="74" refid="structSYN__LIN__ScheduleSlot_1ac1ab66e9c5ac0056d91d4aae8b4b0428" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><ref refid="structSYN__LIN__ScheduleSlot_1ac1ab66e9c5ac0056d91d4aae8b4b0428" kindref="member">id</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="75" refid="structSYN__LIN__ScheduleSlot_1a7989f463b3693b48e12dd1f71973395c" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><ref refid="structSYN__LIN__ScheduleSlot_1a7989f463b3693b48e12dd1f71973395c" kindref="member">len</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="76" refid="structSYN__LIN__ScheduleSlot_1ad69b4831d14d0f07cd2a60ebc33a1676" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__lin_8h_1aa82318eecbf97b9a81b5c2e671f9f53c" kindref="member">SYN_LIN_ChecksumMode</ref><sp/><ref refid="structSYN__LIN__ScheduleSlot_1ad69b4831d14d0f07cd2a60ebc33a1676" kindref="member">checksum_mode</ref>;<sp/></highlight></codeline>
+<codeline lineno="77" refid="structSYN__LIN__ScheduleSlot_1aae917902002962e3294c4a3d125b6f07" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__lin_8h_1aca75b926b3faf6df942dbefc72690042" kindref="member">SYN_LIN_SlotDirection</ref><sp/><ref refid="structSYN__LIN__ScheduleSlot_1aae917902002962e3294c4a3d125b6f07" kindref="member">dir</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="78" refid="structSYN__LIN__ScheduleSlot_1acb79d321c9b9c1098be9728b8e18a423" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>data[<ref refid="syn__lin_8h_1a1af3cf19e0c17111e50f3b1e6335e5fd" kindref="member">SYN_LIN_DATA_MAX</ref>];<sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="79" refid="structSYN__LIN__ScheduleSlot_1acc1691eedad9fd4bbaa3b620981e4337" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structSYN__LIN__ScheduleSlot_1acc1691eedad9fd4bbaa3b620981e4337" kindref="member">delay_ms</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="80"><highlight class="normal">}<sp/><ref refid="structSYN__LIN__ScheduleSlot" kindref="compound">SYN_LIN_ScheduleSlot</ref>;</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"></highlight></codeline>
+<codeline lineno="82"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>LIN<sp/>Master<sp/>Handle<sp/>────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="83"><highlight class="normal"></highlight></codeline>
+<codeline lineno="87" refid="structSYN__LIN__Master" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="88" refid="structSYN__LIN__Master_1a8b59fe452affaf51106affa8a0b3c64d" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__LIN__ScheduleSlot" kindref="compound">SYN_LIN_ScheduleSlot</ref><sp/>*<ref refid="structSYN__LIN__Master_1a8b59fe452affaf51106affa8a0b3c64d" kindref="member">slots</ref>;<sp/></highlight></codeline>
+<codeline lineno="89" refid="structSYN__LIN__Master_1aeb527377c8c48ce698cbc3a6e5ce51b0" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="structSYN__LIN__Master_1aeb527377c8c48ce698cbc3a6e5ce51b0" kindref="member">slot_count</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="90" refid="structSYN__LIN__Master_1a7c13649564a0e503a3ffd9785db8a4a6" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="structSYN__LIN__Master_1a7c13649564a0e503a3ffd9785db8a4a6" kindref="member">current_slot</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="91" refid="structSYN__LIN__Master_1a7c43d888c76b4fbba7ae8178cf978d69" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structSYN__LIN__Master_1a7c43d888c76b4fbba7ae8178cf978d69" kindref="member">slot_timer</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="92" refid="structSYN__LIN__Master_1a680507f7467ccf9419c920fdccb6d309" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="structSYN__LIN__Master_1a680507f7467ccf9419c920fdccb6d309" kindref="member">running</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="93"><highlight class="normal">}<sp/><ref refid="structSYN__LIN__Master" kindref="compound">SYN_LIN_Master</ref>;</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"></highlight></codeline>
+<codeline lineno="95"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>LIN<sp/>Slave<sp/>Published/Subscribed<sp/>Frame<sp/>Filter<sp/>───────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="96"><highlight class="normal"></highlight></codeline>
+<codeline lineno="100" refid="structSYN__LIN__SlaveFrame" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="101" refid="structSYN__LIN__SlaveFrame_1a06aa368a9a6e8f391eeb0a6e9f2dc557" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><ref refid="structSYN__LIN__SlaveFrame_1a06aa368a9a6e8f391eeb0a6e9f2dc557" kindref="member">id</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="102" refid="structSYN__LIN__SlaveFrame_1a3e7c9c1ec8afa4f60d965e220aa95c90" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><ref refid="structSYN__LIN__SlaveFrame_1a3e7c9c1ec8afa4f60d965e220aa95c90" kindref="member">len</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="103" refid="structSYN__LIN__SlaveFrame_1a287f87d9cf529db226192730b73a62eb" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__lin_8h_1aa82318eecbf97b9a81b5c2e671f9f53c" kindref="member">SYN_LIN_ChecksumMode</ref><sp/><ref refid="structSYN__LIN__SlaveFrame_1a287f87d9cf529db226192730b73a62eb" kindref="member">checksum_mode</ref>;<sp/></highlight></codeline>
+<codeline lineno="104" refid="structSYN__LIN__SlaveFrame_1afdb2c95bda2c680dd4c42f6fe7099aec" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__lin_8h_1aca75b926b3faf6df942dbefc72690042" kindref="member">SYN_LIN_SlotDirection</ref><sp/><ref refid="structSYN__LIN__SlaveFrame_1afdb2c95bda2c680dd4c42f6fe7099aec" kindref="member">dir</ref>;<sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="105" refid="structSYN__LIN__SlaveFrame_1a1ba90eeee3861486b461f53acd9d92ac" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>data[<ref refid="syn__lin_8h_1a1af3cf19e0c17111e50f3b1e6335e5fd" kindref="member">SYN_LIN_DATA_MAX</ref>];<sp/></highlight></codeline>
+<codeline lineno="106" refid="structSYN__LIN__SlaveFrame_1a1ec40f74f82edd89867d4431d09f60f5" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="structSYN__LIN__SlaveFrame_1a1ec40f74f82edd89867d4431d09f60f5" kindref="member">active</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="107"><highlight class="normal">}<sp/><ref refid="structSYN__LIN__SlaveFrame" kindref="compound">SYN_LIN_SlaveFrame</ref>;</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"></highlight></codeline>
+<codeline lineno="109"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>LIN<sp/>Slave<sp/>Handle<sp/>─────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="110"><highlight class="normal"></highlight></codeline>
+<codeline lineno="111"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_LIN_SLAVE_MAX_FRAMES</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="112" refid="syn__lin_8h_1a240f38c2733ae3b202748bc82fdba15f" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_LIN_SLAVE_MAX_FRAMES<sp/>8<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="113"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="114"><highlight class="normal"></highlight></codeline>
+<codeline lineno="116" refid="syn__lin_8h_1a0d5e73f95392430fc4a1b13b9c815143" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="117" refid="syn__lin_8h_1a0d5e73f95392430fc4a1b13b9c815143aba61e79fda32c949290c91257e5bc3bb" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__lin_8h_1a0d5e73f95392430fc4a1b13b9c815143aba61e79fda32c949290c91257e5bc3bb" kindref="member">SYN_LIN_STATE_IDLE</ref><sp/>=<sp/>0,<sp/></highlight></codeline>
+<codeline lineno="118" refid="syn__lin_8h_1a0d5e73f95392430fc4a1b13b9c815143a83a21d432b994d375cdd263ca186f4de" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__lin_8h_1a0d5e73f95392430fc4a1b13b9c815143a83a21d432b994d375cdd263ca186f4de" kindref="member">SYN_LIN_STATE_SYNC</ref>,<sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="119" refid="syn__lin_8h_1a0d5e73f95392430fc4a1b13b9c815143a35e73a63611683bcd92a69d7c16a5da4" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__lin_8h_1a0d5e73f95392430fc4a1b13b9c815143a35e73a63611683bcd92a69d7c16a5da4" kindref="member">SYN_LIN_STATE_PID</ref>,<sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="120" refid="syn__lin_8h_1a0d5e73f95392430fc4a1b13b9c815143a37327c15784d30098bc667ea888d2512" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__lin_8h_1a0d5e73f95392430fc4a1b13b9c815143a37327c15784d30098bc667ea888d2512" kindref="member">SYN_LIN_STATE_DATA</ref>,<sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="121"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__lin_8h_1a0d5e73f95392430fc4a1b13b9c815143ae57713e98b38ffc84a148b4124309d06" kindref="member">SYN_LIN_STATE_CHECKSUM</ref><sp/><sp/></highlight></codeline>
+<codeline lineno="122" refid="syn__lin_8h_1a0d5e73f95392430fc4a1b13b9c815143ae57713e98b38ffc84a148b4124309d06" refkind="member"><highlight class="normal">}<sp/><ref refid="syn__lin_8h_1a0d5e73f95392430fc4a1b13b9c815143" kindref="member">SYN_LIN_State</ref>;</highlight></codeline>
+<codeline lineno="123"><highlight class="normal"></highlight></codeline>
+<codeline lineno="127" refid="structSYN__LIN__Slave" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="128" refid="structSYN__LIN__Slave_1ac6dc5bcea38ce83332d405f8d70abd4c" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><ref refid="structSYN__LIN__Slave_1ac6dc5bcea38ce83332d405f8d70abd4c" kindref="member">nad</ref>;<sp/></highlight></codeline>
+<codeline lineno="129" refid="structSYN__LIN__Slave_1add65b3f2fbf95c335d366f9a0ae56bb0" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structSYN__LIN__SlaveFrame" kindref="compound">SYN_LIN_SlaveFrame</ref><sp/>frames[<ref refid="syn__lin_8h_1a240f38c2733ae3b202748bc82fdba15f" kindref="member">SYN_LIN_SLAVE_MAX_FRAMES</ref>];<sp/></highlight></codeline>
+<codeline lineno="130" refid="structSYN__LIN__Slave_1ad59af7da95a93d0aa39307436b50f5d4" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="structSYN__LIN__Slave_1ad59af7da95a93d0aa39307436b50f5d4" kindref="member">frame_count</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="131" refid="structSYN__LIN__Slave_1abb854286bebc28f84e00e9147ce54320" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__lin_8h_1a0d5e73f95392430fc4a1b13b9c815143" kindref="member">SYN_LIN_State</ref><sp/><ref refid="structSYN__LIN__Slave_1abb854286bebc28f84e00e9147ce54320" kindref="member">state</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="132" refid="structSYN__LIN__Slave_1a851440ebe992fe184a42591b64b10c13" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structSYN__LIN__Frame" kindref="compound">SYN_LIN_Frame</ref><sp/><ref refid="structSYN__LIN__Slave_1a851440ebe992fe184a42591b64b10c13" kindref="member">rx_frame</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="133" refid="structSYN__LIN__Slave_1a8d059e6baa07fd5259e03a5839259bb0" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><ref refid="structSYN__LIN__Slave_1a8d059e6baa07fd5259e03a5839259bb0" kindref="member">rx_idx</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="134" refid="structSYN__LIN__Slave_1ade9d5960a856523d857e08e10eb03bb7" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><ref refid="structSYN__LIN__Slave_1ade9d5960a856523d857e08e10eb03bb7" kindref="member">expected_len</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="135" refid="structSYN__LIN__Slave_1af7f320d7482fbbce03249daa5d3a9077" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__lin_8h_1aa82318eecbf97b9a81b5c2e671f9f53c" kindref="member">SYN_LIN_ChecksumMode</ref><sp/><ref refid="structSYN__LIN__Slave_1af7f320d7482fbbce03249daa5d3a9077" kindref="member">expected_checksum_mode</ref>;<sp/></highlight></codeline>
+<codeline lineno="136"><highlight class="normal">}<sp/><ref refid="structSYN__LIN__Slave" kindref="compound">SYN_LIN_Slave</ref>;</highlight></codeline>
+<codeline lineno="137"><highlight class="normal"></highlight></codeline>
+<codeline lineno="138"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>API<sp/>Functions<sp/>────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="139"><highlight class="normal"></highlight></codeline>
+<codeline lineno="145"><highlight class="normal">uint8_t<sp/><ref refid="syn__lin_8h_1a9efbf7e51f2558439d41824549183439" kindref="member">syn_lin_calc_pid</ref>(uint8_t<sp/></highlight><highlight class="keywordtype">id</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="146"><highlight class="normal"></highlight></codeline>
+<codeline lineno="152"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__lin_8h_1aa1e32ce8bf720da13788222e1cd89fc0" kindref="member">syn_lin_verify_pid</ref>(uint8_t<sp/>pid);</highlight></codeline>
+<codeline lineno="153"><highlight class="normal"></highlight></codeline>
+<codeline lineno="162"><highlight class="normal">uint8_t<sp/><ref refid="syn__lin_8h_1a19cd9a24590f9ce483a10eaa6c10341c" kindref="member">syn_lin_calc_checksum</ref>(uint8_t<sp/>pid,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*data,<sp/>uint8_t<sp/>len,</highlight></codeline>
+<codeline lineno="163"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__lin_8h_1aa82318eecbf97b9a81b5c2e671f9f53c" kindref="member">SYN_LIN_ChecksumMode</ref><sp/>mode);</highlight></codeline>
+<codeline lineno="164"><highlight class="normal"></highlight></codeline>
+<codeline lineno="172"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__lin_8h_1ac05d73a4fc1ea45566d5d9eebd777795" kindref="member">syn_lin_master_init</ref>(<ref refid="structSYN__LIN__Master" kindref="compound">SYN_LIN_Master</ref><sp/>*master,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__LIN__ScheduleSlot" kindref="compound">SYN_LIN_ScheduleSlot</ref><sp/>*slots,</highlight></codeline>
+<codeline lineno="173"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>count);</highlight></codeline>
+<codeline lineno="174"><highlight class="normal"></highlight></codeline>
+<codeline lineno="182"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__lin_8h_1aec8e72cc4ca0208e93f7fb95ac124d86" kindref="member">syn_lin_master_step</ref>(<ref refid="structSYN__LIN__Master" kindref="compound">SYN_LIN_Master</ref><sp/>*master,<sp/>uint32_t<sp/>dt_ms,</highlight></codeline>
+<codeline lineno="183"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__LIN__ScheduleSlot" kindref="compound">SYN_LIN_ScheduleSlot</ref><sp/>**active_slot);</highlight></codeline>
+<codeline lineno="184"><highlight class="normal"></highlight></codeline>
+<codeline lineno="191"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__lin_8h_1a56722a9d9d342374ee3d9f65cfb2e6ad" kindref="member">syn_lin_slave_init</ref>(<ref refid="structSYN__LIN__Slave" kindref="compound">SYN_LIN_Slave</ref><sp/>*slave,<sp/>uint8_t<sp/>nad);</highlight></codeline>
+<codeline lineno="192"><highlight class="normal"></highlight></codeline>
+<codeline lineno="202"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__lin_8h_1a33ca1ac181a09002a88015b07fee72d2" kindref="member">syn_lin_slave_add_frame</ref>(<ref refid="structSYN__LIN__Slave" kindref="compound">SYN_LIN_Slave</ref><sp/>*slave,<sp/>uint8_t<sp/></highlight><highlight class="keywordtype">id</highlight><highlight class="normal">,<sp/>uint8_t<sp/>len,</highlight></codeline>
+<codeline lineno="203"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__lin_8h_1aca75b926b3faf6df942dbefc72690042" kindref="member">SYN_LIN_SlotDirection</ref><sp/>dir,<sp/><ref refid="syn__lin_8h_1aa82318eecbf97b9a81b5c2e671f9f53c" kindref="member">SYN_LIN_ChecksumMode</ref><sp/>mode);</highlight></codeline>
+<codeline lineno="204"><highlight class="normal"></highlight></codeline>
+<codeline lineno="213"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__lin_8h_1aa894f4b25e841c887205935a42500412" kindref="member">syn_lin_slave_set_publish_data</ref>(<ref refid="structSYN__LIN__Slave" kindref="compound">SYN_LIN_Slave</ref><sp/>*slave,<sp/>uint8_t<sp/></highlight><highlight class="keywordtype">id</highlight><highlight class="normal">,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*data,</highlight></codeline>
+<codeline lineno="214"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>len);</highlight></codeline>
+<codeline lineno="215"><highlight class="normal"></highlight></codeline>
+<codeline lineno="223"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__lin_8h_1a4eaf0d119bbf21cd988deee7bc94a434" kindref="member">syn_lin_slave_process_byte</ref>(<ref refid="structSYN__LIN__Slave" kindref="compound">SYN_LIN_Slave</ref><sp/>*slave,<sp/>uint8_t<sp/></highlight><highlight class="keywordtype">byte</highlight><highlight class="normal">,<sp/><ref refid="structSYN__LIN__Frame" kindref="compound">SYN_LIN_Frame</ref><sp/>*out_frame);</highlight></codeline>
+<codeline lineno="224"><highlight class="normal"></highlight></codeline>
+<codeline lineno="225"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="226"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="227"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="228"><highlight class="normal"></highlight></codeline>
+<codeline lineno="229"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_USE_LIN<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="230"><highlight class="normal"></highlight></codeline>
+<codeline lineno="231"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_LIN_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/proto/syn_lin.h"/>
+  </compounddef>
+</doxygen>

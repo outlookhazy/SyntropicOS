@@ -1,0 +1,366 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__spi__queue_8c" kind="file" language="C++">
+    <compoundname>syn_spi_queue.c</compoundname>
+    <includes refid="syn__spi__queue_8h" local="yes">syn_spi_queue.h</includes>
+    <includes refid="syn__port__gpio_8h" local="yes">../port/syn_port_gpio.h</includes>
+    <includes refid="syn__port__spi_8h" local="yes">../port/syn_port_spi.h</includes>
+    <includes local="no">string.h</includes>
+    <incdepgraph>
+      <node id="3">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>syn_spi.h</label>
+        <link refid="syn__spi_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/drivers/syn_spi_queue.c</label>
+        <link refid="syn__spi__queue_8c"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>syn_spi_queue.h</label>
+        <link refid="syn__spi__queue_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>../port/syn_port_gpio.h</label>
+        <link refid="syn__port__gpio_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>../port/syn_port_spi.h</label>
+        <link refid="syn__port__spi_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="9">
+        <label>stdbool.h</label>
+      </node>
+      <node id="4">
+        <label>stddef.h</label>
+      </node>
+      <node id="5">
+        <label>stdint.h</label>
+      </node>
+      <node id="10">
+        <label>string.h</label>
+      </node>
+    </incdepgraph>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__spi__queue_8c_1a863befce291ea5bd7c514059b4a8d6c2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_spi_queue_init</definition>
+        <argsstring>(SYN_SPI_Queue *q, uint8_t bus)</argsstring>
+        <name>syn_spi_queue_init</name>
+        <param>
+          <type><ref refid="structSYN__SPI__Queue" kindref="compound">SYN_SPI_Queue</ref> *</type>
+          <declname>q</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>bus</declname>
+        </param>
+        <briefdescription>
+<para>Initialize an SPI transaction queue for a bus. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>q</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to queue handle. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>bus</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Target SPI bus index. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_INVALID_PARAM if q is NULL. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_spi_queue.c" line="14" column="12" bodyfile="src/syntropic/drivers/syn_spi_queue.c" bodystart="14" bodyend="25"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__spi__queue_8c_1a29af01fb5b5e1ce53ae3df9c1921f849" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_spi_queue_enqueue</definition>
+        <argsstring>(SYN_SPI_Queue *q, const SYN_SPI_Transaction *tx)</argsstring>
+        <name>syn_spi_queue_enqueue</name>
+        <param>
+          <type><ref refid="structSYN__SPI__Queue" kindref="compound">SYN_SPI_Queue</ref> *</type>
+          <declname>q</declname>
+        </param>
+        <param>
+          <type>const <ref refid="structSYN__SPI__Transaction" kindref="compound">SYN_SPI_Transaction</ref> *</type>
+          <declname>tx</declname>
+        </param>
+        <briefdescription>
+<para>Enqueue an SPI transaction for non-blocking execution. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>q</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to initialized queue handle. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>tx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Transaction descriptor. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK if enqueued, SYN_BUSY if queue is full, SYN_INVALID_PARAM on invalid inputs. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_spi_queue.c" line="27" column="12" bodyfile="src/syntropic/drivers/syn_spi_queue.c" bodystart="27" bodyend="42"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__spi__queue_8c_1afee6459899ab6d8ef8de2ed2f4714dc7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_spi_queue_process</definition>
+        <argsstring>(SYN_SPI_Queue *q)</argsstring>
+        <name>syn_spi_queue_process</name>
+        <param>
+          <type><ref refid="structSYN__SPI__Queue" kindref="compound">SYN_SPI_Queue</ref> *</type>
+          <declname>q</declname>
+        </param>
+        <briefdescription>
+<para>Process queue state machine (triggers pending transaction if idle). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>q</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to initialized queue handle. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_spi_queue.c" line="44" column="12" bodyfile="src/syntropic/drivers/syn_spi_queue.c" bodystart="44" bodyend="82"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__spi__queue_8c_1a8295a3c5038f301732583a0312cc25b4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_spi_queue_cancel_all</definition>
+        <argsstring>(SYN_SPI_Queue *q)</argsstring>
+        <name>syn_spi_queue_cancel_all</name>
+        <param>
+          <type><ref refid="structSYN__SPI__Queue" kindref="compound">SYN_SPI_Queue</ref> *</type>
+          <declname>q</declname>
+        </param>
+        <briefdescription>
+<para>Cancel all pending transactions in queue. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>q</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to initialized queue handle. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_spi_queue.c" line="84" column="12" bodyfile="src/syntropic/drivers/syn_spi_queue.c" bodystart="84" bodyend="96"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__spi__queue_8c_1abe5cac33928fcebd9ffb715610a26667" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>size_t</type>
+        <definition>size_t syn_spi_queue_count</definition>
+        <argsstring>(const SYN_SPI_Queue *q)</argsstring>
+        <name>syn_spi_queue_count</name>
+        <param>
+          <type>const <ref refid="structSYN__SPI__Queue" kindref="compound">SYN_SPI_Queue</ref> *</type>
+          <declname>q</declname>
+        </param>
+        <briefdescription>
+<para>Query current pending transaction count. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>q</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to queue handle. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Number of queued items (0 if NULL or empty). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_spi_queue.c" line="98" column="8" bodyfile="src/syntropic/drivers/syn_spi_queue.c" bodystart="98" bodyend="105"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Non-blocking SPI transaction queue driver implementation. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__spi__queue_8h" kindref="compound">syn_spi_queue.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../port/syn_port_gpio.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../port/syn_port_spi.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;string.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__spi__queue_8c_1a863befce291ea5bd7c514059b4a8d6c2" kindref="member">syn_spi_queue_init</ref>(<ref refid="structSYN__SPI__Queue" kindref="compound">SYN_SPI_Queue</ref><sp/>*q,<sp/>uint8_t<sp/>bus)</highlight></codeline>
+<codeline lineno="15"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="16"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(q<sp/>==<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="17"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="18"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"><sp/><sp/><sp/><sp/>memset(q,<sp/>0,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(*q));</highlight></codeline>
+<codeline lineno="21"><highlight class="normal"><sp/><sp/><sp/><sp/>q-&gt;<ref refid="structSYN__SPI__Queue_1a4bb02e7ebeb0e856eaa5c42c9506b3bd" kindref="member">bus</ref><sp/>=<sp/>bus;</highlight></codeline>
+<codeline lineno="22"><highlight class="normal"><sp/><sp/><sp/><sp/>q-&gt;<ref refid="structSYN__SPI__Queue_1aeb8d5dbb0e25c748b7c9a03a6adfbefc" kindref="member">initialized</ref><sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="25"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__spi__queue_8c_1a29af01fb5b5e1ce53ae3df9c1921f849" kindref="member">syn_spi_queue_enqueue</ref>(<ref refid="structSYN__SPI__Queue" kindref="compound">SYN_SPI_Queue</ref><sp/>*q,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__SPI__Transaction" kindref="compound">SYN_SPI_Transaction</ref><sp/>*tx)</highlight></codeline>
+<codeline lineno="28"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="29"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(q<sp/>==<sp/>NULL<sp/>||<sp/>!q-&gt;<ref refid="structSYN__SPI__Queue_1aeb8d5dbb0e25c748b7c9a03a6adfbefc" kindref="member">initialized</ref><sp/>||<sp/>tx<sp/>==<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="30"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="31"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(q-&gt;<ref refid="structSYN__SPI__Queue_1af335c04af87d4a82e0952dff9ec5d7cc" kindref="member">count</ref><sp/>&gt;=<sp/><ref refid="syn__spi__queue_8h_1aa76a739ec7e0b025a245fbd4ea920c15" kindref="member">SYN_SPI_QUEUE_MAX_DEPTH</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="34"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a3be376d242928cd8de46b32c69647539" kindref="member">SYN_BUSY</ref>;</highlight></codeline>
+<codeline lineno="35"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"><sp/><sp/><sp/><sp/>q-&gt;<ref refid="structSYN__SPI__Queue_1ae4f46c7421a23176825769a53893d7b0" kindref="member">ring</ref>[q-&gt;<ref refid="structSYN__SPI__Queue_1af5300f4c658859875757be66389ffbfd" kindref="member">tail</ref>]<sp/>=<sp/>*tx;</highlight></codeline>
+<codeline lineno="38"><highlight class="normal"><sp/><sp/><sp/><sp/>q-&gt;<ref refid="structSYN__SPI__Queue_1af5300f4c658859875757be66389ffbfd" kindref="member">tail</ref><sp/>=<sp/>(uint16_t)((q-&gt;<ref refid="structSYN__SPI__Queue_1af5300f4c658859875757be66389ffbfd" kindref="member">tail</ref><sp/>+<sp/>1)<sp/>%<sp/><ref refid="syn__spi__queue_8h_1aa76a739ec7e0b025a245fbd4ea920c15" kindref="member">SYN_SPI_QUEUE_MAX_DEPTH</ref>);</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"><sp/><sp/><sp/><sp/>q-&gt;<ref refid="structSYN__SPI__Queue_1af335c04af87d4a82e0952dff9ec5d7cc" kindref="member">count</ref>++;</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__spi__queue_8c_1afee6459899ab6d8ef8de2ed2f4714dc7" kindref="member">syn_spi_queue_process</ref>(q);</highlight></codeline>
+<codeline lineno="42"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__spi__queue_8c_1afee6459899ab6d8ef8de2ed2f4714dc7" kindref="member">syn_spi_queue_process</ref>(<ref refid="structSYN__SPI__Queue" kindref="compound">SYN_SPI_Queue</ref><sp/>*q)</highlight></codeline>
+<codeline lineno="45"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(q<sp/>==<sp/>NULL<sp/>||<sp/>!q-&gt;<ref refid="structSYN__SPI__Queue_1aeb8d5dbb0e25c748b7c9a03a6adfbefc" kindref="member">initialized</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"></highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(q-&gt;<ref refid="structSYN__SPI__Queue_1ae2fc250b164c4e073cb7aa7eb385833d" kindref="member">active</ref><sp/>||<sp/>q-&gt;<ref refid="structSYN__SPI__Queue_1af335c04af87d4a82e0952dff9ec5d7cc" kindref="member">count</ref><sp/>==<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"></highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structSYN__SPI__Transaction" kindref="compound">SYN_SPI_Transaction</ref><sp/>*tx<sp/>=<sp/>&amp;q-&gt;<ref refid="structSYN__SPI__Queue_1ae4f46c7421a23176825769a53893d7b0" kindref="member">ring</ref>[q-&gt;<ref refid="structSYN__SPI__Queue_1ae538824bdc04352d309905b89dc57fd3" kindref="member">head</ref>];</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/><sp/><sp/>q-&gt;<ref refid="structSYN__SPI__Queue_1ae538824bdc04352d309905b89dc57fd3" kindref="member">head</ref><sp/>=<sp/>(uint16_t)((q-&gt;<ref refid="structSYN__SPI__Queue_1ae538824bdc04352d309905b89dc57fd3" kindref="member">head</ref><sp/>+<sp/>1)<sp/>%<sp/><ref refid="syn__spi__queue_8h_1aa76a739ec7e0b025a245fbd4ea920c15" kindref="member">SYN_SPI_QUEUE_MAX_DEPTH</ref>);</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/><sp/><sp/>q-&gt;<ref refid="structSYN__SPI__Queue_1af335c04af87d4a82e0952dff9ec5d7cc" kindref="member">count</ref>--;</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/><sp/><sp/>q-&gt;<ref refid="structSYN__SPI__Queue_1ae2fc250b164c4e073cb7aa7eb385833d" kindref="member">active</ref><sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"></highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Assert<sp/>target<sp/>CS<sp/>pin<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="60"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__port__gpio_8h_1a797218e188e548d3e6116e87554b29fe" kindref="member">syn_port_gpio_write</ref>(tx-&gt;<ref refid="structSYN__SPI__Transaction_1aa3fbe14c00c083d01781f908129d7431" kindref="member">cs_pin</ref>,<sp/>SYN_GPIO_LOW);</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"></highlight></codeline>
+<codeline lineno="62"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Execute<sp/>full<sp/>duplex<sp/>transfer<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="63"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/>status<sp/>=<sp/><ref refid="syn__port__spi_8h_1a20b26bc22fa69a346932be827f3d6bb6" kindref="member">syn_port_spi_transfer</ref>(q-&gt;<ref refid="structSYN__SPI__Queue_1a4bb02e7ebeb0e856eaa5c42c9506b3bd" kindref="member">bus</ref>,<sp/>tx-&gt;<ref refid="structSYN__SPI__Transaction_1a906c88af91a9b789ba4a10a745a14b48" kindref="member">tx_data</ref>,<sp/>tx-&gt;<ref refid="structSYN__SPI__Transaction_1aadfc81646f16287f43bb59d39d23e0c4" kindref="member">rx_data</ref>,<sp/>tx-&gt;<ref refid="structSYN__SPI__Transaction_1af10ab7a96c4cfb4389c072d4a63ae8aa" kindref="member">len</ref>);</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"></highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Deassert<sp/>CS<sp/>pin<sp/>if<sp/>keep_cs_active<sp/>is<sp/>false<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!tx-&gt;<ref refid="structSYN__SPI__Transaction_1a4b615e5317c8a8a1c4bde5b9e40b923e" kindref="member">keep_cs_active</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__port__gpio_8h_1a797218e188e548d3e6116e87554b29fe" kindref="member">syn_port_gpio_write</ref>(tx-&gt;<ref refid="structSYN__SPI__Transaction_1aa3fbe14c00c083d01781f908129d7431" kindref="member">cs_pin</ref>,<sp/>SYN_GPIO_HIGH);</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"></highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/><sp/><sp/>q-&gt;<ref refid="structSYN__SPI__Queue_1ae2fc250b164c4e073cb7aa7eb385833d" kindref="member">active</ref><sp/>=<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"></highlight></codeline>
+<codeline lineno="72"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(tx-&gt;<ref refid="structSYN__SPI__Transaction_1a5722ca38fb2e14b365a887faa458338e" kindref="member">callback</ref><sp/>!=<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tx-&gt;<ref refid="structSYN__SPI__Transaction_1a5722ca38fb2e14b365a887faa458338e" kindref="member">callback</ref>(q-&gt;<ref refid="structSYN__SPI__Queue_1a4bb02e7ebeb0e856eaa5c42c9506b3bd" kindref="member">bus</ref>,<sp/>status,<sp/>tx-&gt;<ref refid="structSYN__SPI__Transaction_1af3802ab2408a753388d4f2504a873227" kindref="member">user_data</ref>);</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"></highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Process<sp/>next<sp/>pending<sp/>item<sp/>if<sp/>available<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(q-&gt;<ref refid="structSYN__SPI__Queue_1af335c04af87d4a82e0952dff9ec5d7cc" kindref="member">count</ref><sp/>&gt;<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(void)<ref refid="syn__spi__queue_8c_1afee6459899ab6d8ef8de2ed2f4714dc7" kindref="member">syn_spi_queue_process</ref>(q);</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"></highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="82"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"></highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__spi__queue_8c_1a8295a3c5038f301732583a0312cc25b4" kindref="member">syn_spi_queue_cancel_all</ref>(<ref refid="structSYN__SPI__Queue" kindref="compound">SYN_SPI_Queue</ref><sp/>*q)</highlight></codeline>
+<codeline lineno="85"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(q<sp/>==<sp/>NULL<sp/>||<sp/>!q-&gt;<ref refid="structSYN__SPI__Queue_1aeb8d5dbb0e25c748b7c9a03a6adfbefc" kindref="member">initialized</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"></highlight></codeline>
+<codeline lineno="90"><highlight class="normal"><sp/><sp/><sp/><sp/>q-&gt;<ref refid="structSYN__SPI__Queue_1ae538824bdc04352d309905b89dc57fd3" kindref="member">head</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"><sp/><sp/><sp/><sp/>q-&gt;<ref refid="structSYN__SPI__Queue_1af5300f4c658859875757be66389ffbfd" kindref="member">tail</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/><sp/><sp/>q-&gt;<ref refid="structSYN__SPI__Queue_1af335c04af87d4a82e0952dff9ec5d7cc" kindref="member">count</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><sp/><sp/><sp/><sp/>q-&gt;<ref refid="structSYN__SPI__Queue_1ae2fc250b164c4e073cb7aa7eb385833d" kindref="member">active</ref><sp/>=<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"></highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="96"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"></highlight></codeline>
+<codeline lineno="98"><highlight class="normal"></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="syn__spi__queue_8c_1abe5cac33928fcebd9ffb715610a26667" kindref="member">syn_spi_queue_count</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__SPI__Queue" kindref="compound">SYN_SPI_Queue</ref><sp/>*q)</highlight></codeline>
+<codeline lineno="99"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(q<sp/>==<sp/>NULL<sp/>||<sp/>!q-&gt;<ref refid="structSYN__SPI__Queue_1aeb8d5dbb0e25c748b7c9a03a6adfbefc" kindref="member">initialized</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0;</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"></highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal">)q-&gt;<ref refid="structSYN__SPI__Queue_1af335c04af87d4a82e0952dff9ec5d7cc" kindref="member">count</ref>;</highlight></codeline>
+<codeline lineno="105"><highlight class="normal">}</highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/drivers/syn_spi_queue.c"/>
+  </compounddef>
+</doxygen>

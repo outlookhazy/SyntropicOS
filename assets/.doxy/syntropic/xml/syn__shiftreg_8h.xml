@@ -1,0 +1,738 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__shiftreg_8h" kind="file" language="C++">
+    <compoundname>syn_shiftreg.h</compoundname>
+    <includes refid="syn__defs_8h" local="yes">../common/syn_defs.h</includes>
+    <includes refid="syn__port__gpio_8h" local="yes">../port/syn_port_gpio.h</includes>
+    <includes local="no">stdbool.h</includes>
+    <includes local="no">stddef.h</includes>
+    <includes local="no">stdint.h</includes>
+    <includedby refid="syn__shiftreg_8c" local="yes">src/syntropic/drivers/syn_shiftreg.c</includedby>
+    <includedby refid="syntropic_8h" local="yes">src/syntropic/syntropic.h</includedby>
+    <incdepgraph>
+      <node id="2">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/drivers/syn_shiftreg.h</label>
+        <link refid="syn__shiftreg_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>../port/syn_port_gpio.h</label>
+        <link refid="syn__port__gpio_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>stdbool.h</label>
+      </node>
+      <node id="3">
+        <label>stddef.h</label>
+      </node>
+      <node id="4">
+        <label>stdint.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="2">
+        <label>src/syntropic/drivers/syn_shiftreg.c</label>
+        <link refid="syn__shiftreg_8c"/>
+      </node>
+      <node id="1">
+        <label>src/syntropic/drivers/syn_shiftreg.h</label>
+        <link refid="syn__shiftreg_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>src/syntropic/proto/syn_doip.c</label>
+        <link refid="syn__doip_8c"/>
+      </node>
+      <node id="4">
+        <label>src/syntropic/proto/syn_doip.h</label>
+        <link refid="syn__doip_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>src/syntropic/syntropic.h</label>
+        <link refid="syntropic_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="structSYN__ShiftRegOut" prot="public">SYN_ShiftRegOut</innerclass>
+    <innerclass refid="structSYN__ShiftRegIn" prot="public">SYN_ShiftRegIn</innerclass>
+    <sectiondef kind="define">
+      <memberdef kind="define" id="syn__shiftreg_8h_1a6681d8299042168bd1bffa0345f0f8d9" prot="public" static="no">
+        <name>SYN_SHIFTREG_MAX_CHIPS</name>
+        <initializer>8</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Maximum daisy-chained shift register chips (8) </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_shiftreg.h" line="21" column="9" bodyfile="src/syntropic/drivers/syn_shiftreg.h" bodystart="21" bodyend="-1"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__shiftreg_8h_1a2b8907b74189bcfdfaf35034fef784e1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_shiftreg_out_init</definition>
+        <argsstring>(SYN_ShiftRegOut *sr, SYN_GPIO_Pin data_pin, SYN_GPIO_Pin clock_pin, SYN_GPIO_Pin latch_pin, uint8_t num_chips)</argsstring>
+        <name>syn_shiftreg_out_init</name>
+        <param>
+          <type><ref refid="structSYN__ShiftRegOut" kindref="compound">SYN_ShiftRegOut</ref> *</type>
+          <declname>sr</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref></type>
+          <declname>data_pin</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref></type>
+          <declname>clock_pin</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref></type>
+          <declname>latch_pin</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>num_chips</declname>
+        </param>
+        <briefdescription>
+<para>Initialize an Output Shift Register (74HC595). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>sr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Shift register context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>data_pin</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Serial Data GPIO pin. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>clock_pin</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Shift Clock GPIO pin. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>latch_pin</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Latch / Storage Clock GPIO pin. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>num_chips</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of cascaded 8-bit chips (1 to 8). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_shiftreg.h" line="48" column="12" bodyfile="src/syntropic/drivers/syn_shiftreg.c" bodystart="14" bodyend="36" declfile="src/syntropic/drivers/syn_shiftreg.h" declline="48" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__shiftreg_8h_1a336f73fb26c12f55e99a27fee567cd8f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_shiftreg_out_set_oe_pin</definition>
+        <argsstring>(SYN_ShiftRegOut *sr, SYN_GPIO_Pin oe_pin)</argsstring>
+        <name>syn_shiftreg_out_set_oe_pin</name>
+        <param>
+          <type><ref refid="structSYN__ShiftRegOut" kindref="compound">SYN_ShiftRegOut</ref> *</type>
+          <declname>sr</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref></type>
+          <declname>oe_pin</declname>
+        </param>
+        <briefdescription>
+<para>Configure optional Output Enable (OE) pin. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>sr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Shift register context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>oe_pin</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output Enable GPIO pin. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_shiftreg.h" line="57" column="6" bodyfile="src/syntropic/drivers/syn_shiftreg.c" bodystart="38" bodyend="45" declfile="src/syntropic/drivers/syn_shiftreg.h" declline="57" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__shiftreg_8h_1a517cbde86f39897a5f33f8c1ed904164" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_shiftreg_out_set_bit_order</definition>
+        <argsstring>(SYN_ShiftRegOut *sr, bool msb_first)</argsstring>
+        <name>syn_shiftreg_out_set_bit_order</name>
+        <param>
+          <type><ref refid="structSYN__ShiftRegOut" kindref="compound">SYN_ShiftRegOut</ref> *</type>
+          <declname>sr</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+          <declname>msb_first</declname>
+        </param>
+        <briefdescription>
+<para>Set bit order mode. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>sr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Shift register context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>msb_first</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>True for MSB-first, false for LSB-first. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_shiftreg.h" line="65" column="6" bodyfile="src/syntropic/drivers/syn_shiftreg.c" bodystart="47" bodyend="52" declfile="src/syntropic/drivers/syn_shiftreg.h" declline="65" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__shiftreg_8h_1abfcd2490c6c17d7e8466a9a8cc0f5427" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_shiftreg_out_set_bit</definition>
+        <argsstring>(SYN_ShiftRegOut *sr, uint16_t bit_index, bool state)</argsstring>
+        <name>syn_shiftreg_out_set_bit</name>
+        <param>
+          <type><ref refid="structSYN__ShiftRegOut" kindref="compound">SYN_ShiftRegOut</ref> *</type>
+          <declname>sr</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>bit_index</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+          <declname>state</declname>
+        </param>
+        <briefdescription>
+<para>Set logical state of a single pin in the shift register chain. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>sr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Shift register context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>bit_index</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pin index (0 to num_chips*8 - 1). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>state</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Logical state. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_shiftreg.h" line="74" column="6" bodyfile="src/syntropic/drivers/syn_shiftreg.c" bodystart="54" bodyend="67" declfile="src/syntropic/drivers/syn_shiftreg.h" declline="74" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__shiftreg_8h_1ae4dede4f30870c2ab6ed2302f00f03a1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_shiftreg_out_write_byte</definition>
+        <argsstring>(SYN_ShiftRegOut *sr, uint8_t chip_index, uint8_t val)</argsstring>
+        <name>syn_shiftreg_out_write_byte</name>
+        <param>
+          <type><ref refid="structSYN__ShiftRegOut" kindref="compound">SYN_ShiftRegOut</ref> *</type>
+          <declname>sr</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>chip_index</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>val</declname>
+        </param>
+        <briefdescription>
+<para>Set raw byte for a specific chip in the chain. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>sr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Shift register context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>chip_index</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Chip index (0 to num_chips-1). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>val</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>8-bit byte value. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_shiftreg.h" line="83" column="6" bodyfile="src/syntropic/drivers/syn_shiftreg.c" bodystart="69" bodyend="74" declfile="src/syntropic/drivers/syn_shiftreg.h" declline="83" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__shiftreg_8h_1a510d03aeae1dbce5a59d0391c2273c8d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_shiftreg_out_flush</definition>
+        <argsstring>(SYN_ShiftRegOut *sr)</argsstring>
+        <name>syn_shiftreg_out_flush</name>
+        <param>
+          <type><ref refid="structSYN__ShiftRegOut" kindref="compound">SYN_ShiftRegOut</ref> *</type>
+          <declname>sr</declname>
+        </param>
+        <briefdescription>
+<para>Atomically flush buffer contents to physical hardware output pins. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>sr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Shift register context. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_shiftreg.h" line="90" column="6" bodyfile="src/syntropic/drivers/syn_shiftreg.c" bodystart="76" bodyend="104" declfile="src/syntropic/drivers/syn_shiftreg.h" declline="90" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__shiftreg_8h_1a25cd41f7f3cd770ea5648eb785421422" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_shiftreg_out_set_enable</definition>
+        <argsstring>(SYN_ShiftRegOut *sr, bool enable)</argsstring>
+        <name>syn_shiftreg_out_set_enable</name>
+        <param>
+          <type><ref refid="structSYN__ShiftRegOut" kindref="compound">SYN_ShiftRegOut</ref> *</type>
+          <declname>sr</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+          <declname>enable</declname>
+        </param>
+        <briefdescription>
+<para>Enable or disable outputs via Output Enable (OE) pin. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>sr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Shift register context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>enable</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>True to enable outputs (OE LOW). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_shiftreg.h" line="98" column="6" bodyfile="src/syntropic/drivers/syn_shiftreg.c" bodystart="106" bodyend="112" declfile="src/syntropic/drivers/syn_shiftreg.h" declline="98" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__shiftreg_8h_1afa741a55d133daf2424b15442f9de31d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_shiftreg_in_init</definition>
+        <argsstring>(SYN_ShiftRegIn *sr, SYN_GPIO_Pin data_pin, SYN_GPIO_Pin clock_pin, SYN_GPIO_Pin load_pin, uint8_t num_chips)</argsstring>
+        <name>syn_shiftreg_in_init</name>
+        <param>
+          <type><ref refid="structSYN__ShiftRegIn" kindref="compound">SYN_ShiftRegIn</ref> *</type>
+          <declname>sr</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref></type>
+          <declname>data_pin</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref></type>
+          <declname>clock_pin</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref></type>
+          <declname>load_pin</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>num_chips</declname>
+        </param>
+        <briefdescription>
+<para>Initialize an Input Shift Register (74HC165). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>sr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Shift register context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>data_pin</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Serial Data In GPIO pin. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>clock_pin</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Shift Clock GPIO pin. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>load_pin</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Parallel Load GPIO pin. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>num_chips</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of cascaded 8-bit chips (1 to 8). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_shiftreg.h" line="124" column="12" bodyfile="src/syntropic/drivers/syn_shiftreg.c" bodystart="116" bodyend="137" declfile="src/syntropic/drivers/syn_shiftreg.h" declline="124" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__shiftreg_8h_1a7aad36f8468375af58585dda5b2acc54" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_shiftreg_in_set_bit_order</definition>
+        <argsstring>(SYN_ShiftRegIn *sr, bool msb_first)</argsstring>
+        <name>syn_shiftreg_in_set_bit_order</name>
+        <param>
+          <type><ref refid="structSYN__ShiftRegIn" kindref="compound">SYN_ShiftRegIn</ref> *</type>
+          <declname>sr</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+          <declname>msb_first</declname>
+        </param>
+        <briefdescription>
+<para>Set bit order mode for input sampling. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>sr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Shift register context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>msb_first</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>True for MSB-first, false for LSB-first. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_shiftreg.h" line="133" column="6" bodyfile="src/syntropic/drivers/syn_shiftreg.c" bodystart="139" bodyend="144" declfile="src/syntropic/drivers/syn_shiftreg.h" declline="133" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__shiftreg_8h_1a017dab6ec88d8d82788394604c394812" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_shiftreg_in_read</definition>
+        <argsstring>(SYN_ShiftRegIn *sr)</argsstring>
+        <name>syn_shiftreg_in_read</name>
+        <param>
+          <type><ref refid="structSYN__ShiftRegIn" kindref="compound">SYN_ShiftRegIn</ref> *</type>
+          <declname>sr</declname>
+        </param>
+        <briefdescription>
+<para>Pulse Parallel Load pin and clock in all input bits from hardware. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>sr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Shift register context. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_shiftreg.h" line="140" column="6" bodyfile="src/syntropic/drivers/syn_shiftreg.c" bodystart="146" bodyend="177" declfile="src/syntropic/drivers/syn_shiftreg.h" declline="140" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__shiftreg_8h_1a5fd3cd21adcef5eae87d240fc400d870" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_shiftreg_in_get_bit</definition>
+        <argsstring>(const SYN_ShiftRegIn *sr, uint16_t bit_index)</argsstring>
+        <name>syn_shiftreg_in_get_bit</name>
+        <param>
+          <type>const <ref refid="structSYN__ShiftRegIn" kindref="compound">SYN_ShiftRegIn</ref> *</type>
+          <declname>sr</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>bit_index</declname>
+        </param>
+        <briefdescription>
+<para>Get logical state of a specific sampled input pin. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>sr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Shift register context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>bit_index</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pin index (0 to num_chips*8 - 1). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Logical state (true/false). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_shiftreg.h" line="149" column="6" bodyfile="src/syntropic/drivers/syn_shiftreg.c" bodystart="179" bodyend="188" declfile="src/syntropic/drivers/syn_shiftreg.h" declline="149" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__shiftreg_8h_1a908bf48a238ff1c4851b2c9d697dde47" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint8_t</type>
+        <definition>uint8_t syn_shiftreg_in_get_byte</definition>
+        <argsstring>(const SYN_ShiftRegIn *sr, uint8_t chip_index)</argsstring>
+        <name>syn_shiftreg_in_get_byte</name>
+        <param>
+          <type>const <ref refid="structSYN__ShiftRegIn" kindref="compound">SYN_ShiftRegIn</ref> *</type>
+          <declname>sr</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>chip_index</declname>
+        </param>
+        <briefdescription>
+<para>Get sampled byte for a specific chip in the chain. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>sr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Shift register context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>chip_index</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Chip index (0 to num_chips-1). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>8-bit byte value. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_shiftreg.h" line="158" column="9" bodyfile="src/syntropic/drivers/syn_shiftreg.c" bodystart="190" bodyend="195" declfile="src/syntropic/drivers/syn_shiftreg.h" declline="158" declcolumn="9"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Generic Shift Register Driver (74HC595 Output Expander &amp; 74HC165 Input Expander). </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_SHIFTREG_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_SHIFTREG_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../common/syn_defs.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../port/syn_port_gpio.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stddef.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight></codeline>
+<codeline lineno="21" refid="syn__shiftreg_8h_1a6681d8299042168bd1bffa0345f0f8d9" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_SHIFTREG_MAX_CHIPS<sp/>8<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Output<sp/>Shift<sp/>Register<sp/>(e.g.<sp/>74HC595,<sp/>CD4094,<sp/>TPIC6C596)<sp/>─────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight></codeline>
+<codeline lineno="28" refid="structSYN__ShiftRegOut" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="29" refid="structSYN__ShiftRegOut_1a47c08d6294b52f7b88df8c4d46f85714" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref><sp/><ref refid="structSYN__ShiftRegOut_1a47c08d6294b52f7b88df8c4d46f85714" kindref="member">data_pin</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="30" refid="structSYN__ShiftRegOut_1ab7d55d35712affb91576a89f2e213059" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref><sp/><ref refid="structSYN__ShiftRegOut_1ab7d55d35712affb91576a89f2e213059" kindref="member">clock_pin</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="31" refid="structSYN__ShiftRegOut_1ae274d12d661a0b5775c004be0ac6d168" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref><sp/><ref refid="structSYN__ShiftRegOut_1ae274d12d661a0b5775c004be0ac6d168" kindref="member">latch_pin</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="32" refid="structSYN__ShiftRegOut_1ac845ee363fc36890f58aaa6e971d3dc4" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref><sp/><ref refid="structSYN__ShiftRegOut_1ac845ee363fc36890f58aaa6e971d3dc4" kindref="member">oe_pin</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="33" refid="structSYN__ShiftRegOut_1a097dca0e127ce780a54a8c231bebbb48" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><ref refid="structSYN__ShiftRegOut_1a097dca0e127ce780a54a8c231bebbb48" kindref="member">num_chips</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="34" refid="structSYN__ShiftRegOut_1aad5029857d85a1e196ab9a5752dde886" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="structSYN__ShiftRegOut_1aad5029857d85a1e196ab9a5752dde886" kindref="member">msb_first</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="35" refid="structSYN__ShiftRegOut_1a4ac5383cef37d319e10944f539ab876b" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>buffer[<ref refid="syn__shiftreg_8h_1a6681d8299042168bd1bffa0345f0f8d9" kindref="member">SYN_SHIFTREG_MAX_CHIPS</ref>];<sp/></highlight></codeline>
+<codeline lineno="36"><highlight class="normal">}<sp/><ref refid="structSYN__ShiftRegOut" kindref="compound">SYN_ShiftRegOut</ref>;</highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__shiftreg_8h_1a2b8907b74189bcfdfaf35034fef784e1" kindref="member">syn_shiftreg_out_init</ref>(<ref refid="structSYN__ShiftRegOut" kindref="compound">SYN_ShiftRegOut</ref><sp/>*sr,<sp/><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref><sp/>data_pin,<sp/><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref><sp/>clock_pin,</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref><sp/>latch_pin,<sp/>uint8_t<sp/>num_chips);</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"></highlight></codeline>
+<codeline lineno="57"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__shiftreg_8h_1a336f73fb26c12f55e99a27fee567cd8f" kindref="member">syn_shiftreg_out_set_oe_pin</ref>(<ref refid="structSYN__ShiftRegOut" kindref="compound">SYN_ShiftRegOut</ref><sp/>*sr,<sp/><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref><sp/>oe_pin);</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"></highlight></codeline>
+<codeline lineno="65"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__shiftreg_8h_1a517cbde86f39897a5f33f8c1ed904164" kindref="member">syn_shiftreg_out_set_bit_order</ref>(<ref refid="structSYN__ShiftRegOut" kindref="compound">SYN_ShiftRegOut</ref><sp/>*sr,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>msb_first);</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"></highlight></codeline>
+<codeline lineno="74"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__shiftreg_8h_1abfcd2490c6c17d7e8466a9a8cc0f5427" kindref="member">syn_shiftreg_out_set_bit</ref>(<ref refid="structSYN__ShiftRegOut" kindref="compound">SYN_ShiftRegOut</ref><sp/>*sr,<sp/>uint16_t<sp/>bit_index,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>state);</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"></highlight></codeline>
+<codeline lineno="83"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__shiftreg_8h_1ae4dede4f30870c2ab6ed2302f00f03a1" kindref="member">syn_shiftreg_out_write_byte</ref>(<ref refid="structSYN__ShiftRegOut" kindref="compound">SYN_ShiftRegOut</ref><sp/>*sr,<sp/>uint8_t<sp/>chip_index,<sp/>uint8_t<sp/>val);</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"></highlight></codeline>
+<codeline lineno="90"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__shiftreg_8h_1a510d03aeae1dbce5a59d0391c2273c8d" kindref="member">syn_shiftreg_out_flush</ref>(<ref refid="structSYN__ShiftRegOut" kindref="compound">SYN_ShiftRegOut</ref><sp/>*sr);</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"></highlight></codeline>
+<codeline lineno="98"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__shiftreg_8h_1a25cd41f7f3cd770ea5648eb785421422" kindref="member">syn_shiftreg_out_set_enable</ref>(<ref refid="structSYN__ShiftRegOut" kindref="compound">SYN_ShiftRegOut</ref><sp/>*sr,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>enable);</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"></highlight></codeline>
+<codeline lineno="100"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Input<sp/>Shift<sp/>Register<sp/>(e.g.<sp/>74HC165,<sp/>CD4021)<sp/>──────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="101"><highlight class="normal"></highlight></codeline>
+<codeline lineno="105" refid="structSYN__ShiftRegIn" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="106" refid="structSYN__ShiftRegIn_1aaf094c1e1a4380fd94612b1080604bf4" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref><sp/><ref refid="structSYN__ShiftRegIn_1aaf094c1e1a4380fd94612b1080604bf4" kindref="member">data_pin</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="107" refid="structSYN__ShiftRegIn_1ade20ffe5560a9a8ebd1e838540377da2" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref><sp/><ref refid="structSYN__ShiftRegIn_1ade20ffe5560a9a8ebd1e838540377da2" kindref="member">clock_pin</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="108" refid="structSYN__ShiftRegIn_1a37b42965f3574fde198f099db073dd5a" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref><sp/><ref refid="structSYN__ShiftRegIn_1a37b42965f3574fde198f099db073dd5a" kindref="member">load_pin</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="109" refid="structSYN__ShiftRegIn_1aaf795dd98ac1f608e1a3ad402f4c1c53" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><ref refid="structSYN__ShiftRegIn_1aaf795dd98ac1f608e1a3ad402f4c1c53" kindref="member">num_chips</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="110" refid="structSYN__ShiftRegIn_1a116df4aad49084b476a6f4cd60b0d52e" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="structSYN__ShiftRegIn_1a116df4aad49084b476a6f4cd60b0d52e" kindref="member">msb_first</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="111" refid="structSYN__ShiftRegIn_1a0c2e40a98f464868be14cd7061dc1155" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>buffer[<ref refid="syn__shiftreg_8h_1a6681d8299042168bd1bffa0345f0f8d9" kindref="member">SYN_SHIFTREG_MAX_CHIPS</ref>];<sp/></highlight></codeline>
+<codeline lineno="112"><highlight class="normal">}<sp/><ref refid="structSYN__ShiftRegIn" kindref="compound">SYN_ShiftRegIn</ref>;</highlight></codeline>
+<codeline lineno="113"><highlight class="normal"></highlight></codeline>
+<codeline lineno="124"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__shiftreg_8h_1afa741a55d133daf2424b15442f9de31d" kindref="member">syn_shiftreg_in_init</ref>(<ref refid="structSYN__ShiftRegIn" kindref="compound">SYN_ShiftRegIn</ref><sp/>*sr,<sp/><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref><sp/>data_pin,<sp/><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref><sp/>clock_pin,</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref><sp/>load_pin,<sp/>uint8_t<sp/>num_chips);</highlight></codeline>
+<codeline lineno="126"><highlight class="normal"></highlight></codeline>
+<codeline lineno="133"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__shiftreg_8h_1a7aad36f8468375af58585dda5b2acc54" kindref="member">syn_shiftreg_in_set_bit_order</ref>(<ref refid="structSYN__ShiftRegIn" kindref="compound">SYN_ShiftRegIn</ref><sp/>*sr,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>msb_first);</highlight></codeline>
+<codeline lineno="134"><highlight class="normal"></highlight></codeline>
+<codeline lineno="140"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__shiftreg_8h_1a017dab6ec88d8d82788394604c394812" kindref="member">syn_shiftreg_in_read</ref>(<ref refid="structSYN__ShiftRegIn" kindref="compound">SYN_ShiftRegIn</ref><sp/>*sr);</highlight></codeline>
+<codeline lineno="141"><highlight class="normal"></highlight></codeline>
+<codeline lineno="149"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__shiftreg_8h_1a5fd3cd21adcef5eae87d240fc400d870" kindref="member">syn_shiftreg_in_get_bit</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__ShiftRegIn" kindref="compound">SYN_ShiftRegIn</ref><sp/>*sr,<sp/>uint16_t<sp/>bit_index);</highlight></codeline>
+<codeline lineno="150"><highlight class="normal"></highlight></codeline>
+<codeline lineno="158"><highlight class="normal">uint8_t<sp/><ref refid="syn__shiftreg_8h_1a908bf48a238ff1c4851b2c9d697dde47" kindref="member">syn_shiftreg_in_get_byte</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__ShiftRegIn" kindref="compound">SYN_ShiftRegIn</ref><sp/>*sr,<sp/>uint8_t<sp/>chip_index);</highlight></codeline>
+<codeline lineno="159"><highlight class="normal"></highlight></codeline>
+<codeline lineno="160"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="161"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="162"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="163"><highlight class="normal"></highlight></codeline>
+<codeline lineno="164"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_SHIFTREG_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/drivers/syn_shiftreg.h"/>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,664 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__ymodem_8c" kind="file" language="C++">
+    <compoundname>syn_ymodem.c</compoundname>
+    <includes refid="syn__assert_8h" local="yes">../util/syn_assert.h</includes>
+    <includes refid="syn__crc_8h" local="yes">../util/syn_crc.h</includes>
+    <includes refid="syn__ymodem_8h" local="yes">syn_ymodem.h</includes>
+    <includes local="no">stdio.h</includes>
+    <includes local="no">stdlib.h</includes>
+    <includes local="no">string.h</includes>
+    <incdepgraph>
+      <node id="3">
+        <label>../common/syn_compiler.h</label>
+        <link refid="syn__compiler_8h"/>
+      </node>
+      <node id="8">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/proto/syn_ymodem.c</label>
+        <link refid="syn__ymodem_8c"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>syn_ymodem.h</label>
+        <link refid="syn__ymodem_8h"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>../util/syn_assert.h</label>
+        <link refid="syn__assert_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>../util/syn_crc.h</label>
+        <link refid="syn__crc_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="9">
+        <label>stdbool.h</label>
+      </node>
+      <node id="5">
+        <label>stddef.h</label>
+      </node>
+      <node id="6">
+        <label>stdint.h</label>
+      </node>
+      <node id="10">
+        <label>stdio.h</label>
+      </node>
+      <node id="11">
+        <label>stdlib.h</label>
+      </node>
+      <node id="12">
+        <label>string.h</label>
+      </node>
+    </incdepgraph>
+    <sectiondef kind="define">
+      <memberdef kind="define" id="syn__ymodem_8c_1acd57b56443d0b4e135771cd8b68d5dc3" prot="public" static="no">
+        <name>SYN_YMODEM_RECV_TIMEOUT_MS</name>
+        <initializer>1000U</initializer>
+        <briefdescription>
+<para>Single byte receive timeout in milliseconds. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_ymodem.c" line="21" column="9" bodyfile="src/syntropic/proto/syn_ymodem.c" bodystart="21" bodyend="-1"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__ymodem_8c_1aa21c825d4189d1827e19676baae0344e" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void ymodem_send_byte</definition>
+        <argsstring>(SYN_YMODEM_Receiver *rx, uint8_t b)</argsstring>
+        <name>ymodem_send_byte</name>
+        <param>
+          <type><ref refid="structSYN__YMODEM__Receiver" kindref="compound">SYN_YMODEM_Receiver</ref> *</type>
+          <declname>rx</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>b</declname>
+        </param>
+        <briefdescription>
+<para>Helper to transmit a single byte via user callback. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>rx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Receiver context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>b</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Byte value to transmit. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_ymodem.c" line="28" column="13" bodyfile="src/syntropic/proto/syn_ymodem.c" bodystart="28" bodyend="33"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__ymodem_8c_1a3ac8585e617273d922de2ff216f389d8" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>static int ymodem_recv_byte</definition>
+        <argsstring>(SYN_YMODEM_Receiver *rx, uint32_t timeout_ms)</argsstring>
+        <name>ymodem_recv_byte</name>
+        <param>
+          <type><ref refid="structSYN__YMODEM__Receiver" kindref="compound">SYN_YMODEM_Receiver</ref> *</type>
+          <declname>rx</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>timeout_ms</declname>
+        </param>
+        <briefdescription>
+<para>Helper to receive a single byte via user callback. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>rx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Receiver context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>timeout_ms</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Timeout in milliseconds. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Received byte value (0-255) or negative on timeout/error. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_ymodem.c" line="41" column="12" bodyfile="src/syntropic/proto/syn_ymodem.c" bodystart="41" bodyend="44"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__ymodem_8c_1a144518fa1f35e1a1dfd09a34831261b6" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void ymodem_parse_block0</definition>
+        <argsstring>(SYN_YMODEM_Receiver *rx, const uint8_t *payload, size_t payload_len)</argsstring>
+        <name>ymodem_parse_block0</name>
+        <param>
+          <type><ref refid="structSYN__YMODEM__Receiver" kindref="compound">SYN_YMODEM_Receiver</ref> *</type>
+          <declname>rx</declname>
+        </param>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>payload</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>payload_len</declname>
+        </param>
+        <briefdescription>
+<para>Parse Block 0 payload extracting filename and ASCII file size. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>rx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Receiver context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>payload</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Block 0 payload buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>payload_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Block payload length in bytes. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_ymodem.c" line="52" column="13" bodyfile="src/syntropic/proto/syn_ymodem.c" bodystart="52" bodyend="71"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__ymodem_8c_1a89ea8687681572c1e13cb3413b679cc7" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>static int ymodem_read_packet</definition>
+        <argsstring>(SYN_YMODEM_Receiver *rx, uint8_t header_byte, size_t *out_payload_len)</argsstring>
+        <name>ymodem_read_packet</name>
+        <param>
+          <type><ref refid="structSYN__YMODEM__Receiver" kindref="compound">SYN_YMODEM_Receiver</ref> *</type>
+          <declname>rx</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>header_byte</declname>
+        </param>
+        <param>
+          <type>size_t *</type>
+          <declname>out_payload_len</declname>
+        </param>
+        <briefdescription>
+<para>Read and validate a framed YMODEM packet. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>rx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Receiver context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>header_byte</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Packet header byte (SOH or STX). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out_payload_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output pointer for payload byte count. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Sequence number (0-255) on success, or negative status error code. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_ymodem.c" line="80" column="12" bodyfile="src/syntropic/proto/syn_ymodem.c" bodystart="80" bodyend="113"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__ymodem_8c_1a1892746ee1b872947a17ab31d0f86206" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_ymodem_receiver_init</definition>
+        <argsstring>(SYN_YMODEM_Receiver *rx, SYN_YMODEM_PutChar putchar_fn, SYN_YMODEM_GetChar getchar_fn, SYN_YMODEM_EventCallback event_fn, void *ctx)</argsstring>
+        <name>syn_ymodem_receiver_init</name>
+        <param>
+          <type><ref refid="structSYN__YMODEM__Receiver" kindref="compound">SYN_YMODEM_Receiver</ref> *</type>
+          <declname>rx</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__ymodem_8h_1a5653579c2eff79520742075121b56739" kindref="member">SYN_YMODEM_PutChar</ref></type>
+          <declname>putchar_fn</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__ymodem_8h_1ab84407a3ec1f865c37a8f3f69a5fd63c" kindref="member">SYN_YMODEM_GetChar</ref></type>
+          <declname>getchar_fn</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__ymodem_8h_1aec9b530eb3678277759fe6b071609ecd" kindref="member">SYN_YMODEM_EventCallback</ref></type>
+          <declname>event_fn</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>ctx</declname>
+        </param>
+        <briefdescription>
+<para>Initialize a YMODEM receiver instance. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>rx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Receiver context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>putchar_fn</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Serial TX function. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>getchar_fn</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Serial RX function with timeout. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>event_fn</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Event callback handler. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>ctx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>User context pointer. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_ymodem.c" line="115" column="6" bodyfile="src/syntropic/proto/syn_ymodem.c" bodystart="115" bodyend="129"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__ymodem_8c_1a9c76bc8079b147cb98b74307a0d2cef2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__ymodem_8h_1ac8bc64182334f7bfc094fb361d1980f1" kindref="member">SYN_YMODEM_Status</ref></type>
+        <definition>SYN_YMODEM_Status syn_ymodem_receive</definition>
+        <argsstring>(SYN_YMODEM_Receiver *rx)</argsstring>
+        <name>syn_ymodem_receive</name>
+        <param>
+          <type><ref refid="structSYN__YMODEM__Receiver" kindref="compound">SYN_YMODEM_Receiver</ref> *</type>
+          <declname>rx</declname>
+        </param>
+        <briefdescription>
+<para>Execute a YMODEM receive session. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Runs the YMODEM handshake, processes Block 0 header, accepts data packets, verifies CRCs, and invokes event callbacks until all files in the batch are transferred or an unrecoverable error occurs.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>rx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Receiver context. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_YMODEM_OK on successful session completion, or error code (&lt;0). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_ymodem.c" line="131" column="19" bodyfile="src/syntropic/proto/syn_ymodem.c" bodystart="131" bodyend="287"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>YMODEM / XMODEM-1K serial file transfer receiver implementation. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#if<sp/>__has_include(&quot;syn_config.h&quot;)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;syn_config.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="4"><highlight class="normal"></highlight></codeline>
+<codeline lineno="5"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>!defined(SYN_USE_YMODEM)<sp/>||<sp/>SYN_USE_YMODEM</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../util/syn_assert.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../util/syn_crc.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__ymodem_8h" kindref="compound">syn_ymodem.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdio.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdlib.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;string.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_YMODEM_RECV_TIMEOUT_MS<sp/>1000U</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__ymodem_8c_1aa21c825d4189d1827e19676baae0344e" kindref="member">ymodem_send_byte</ref>(<ref refid="structSYN__YMODEM__Receiver" kindref="compound">SYN_YMODEM_Receiver</ref><sp/>*rx,<sp/>uint8_t<sp/>b)</highlight></codeline>
+<codeline lineno="29"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="30"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(rx<sp/>!=<sp/>NULL<sp/>&amp;&amp;<sp/>rx-&gt;<ref refid="structSYN__YMODEM__Receiver_1abed0a792ee77dabdc9ce8772f3c1e7d0" kindref="member">putchar_fn</ref><sp/>!=<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="31"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rx-&gt;<ref refid="structSYN__YMODEM__Receiver_1abed0a792ee77dabdc9ce8772f3c1e7d0" kindref="member">putchar_fn</ref>(b,<sp/>rx-&gt;<ref refid="structSYN__YMODEM__Receiver_1a30ec70ba46970fa0632e2535c4ebab69" kindref="member">ctx</ref>);</highlight></codeline>
+<codeline lineno="32"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="33"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="syn__ymodem_8c_1a3ac8585e617273d922de2ff216f389d8" kindref="member">ymodem_recv_byte</ref>(<ref refid="structSYN__YMODEM__Receiver" kindref="compound">SYN_YMODEM_Receiver</ref><sp/>*rx,<sp/>uint32_t<sp/>timeout_ms)</highlight></codeline>
+<codeline lineno="42"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>rx-&gt;<ref refid="structSYN__YMODEM__Receiver_1a1ea8e91f83ed8dd9920105e6e51741d8" kindref="member">getchar_fn</ref>(timeout_ms,<sp/>rx-&gt;<ref refid="structSYN__YMODEM__Receiver_1a30ec70ba46970fa0632e2535c4ebab69" kindref="member">ctx</ref>);</highlight></codeline>
+<codeline lineno="44"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight></codeline>
+<codeline lineno="52"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__ymodem_8c_1a144518fa1f35e1a1dfd09a34831261b6" kindref="member">ymodem_parse_block0</ref>(<ref refid="structSYN__YMODEM__Receiver" kindref="compound">SYN_YMODEM_Receiver</ref><sp/>*rx,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*payload,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>payload_len)</highlight></codeline>
+<codeline lineno="53"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/><sp/><sp/>rx-&gt;<ref refid="structSYN__YMODEM__Receiver_1a50f54c3734982b033a126e0b851ce112" kindref="member">filename</ref>[0]<sp/>=<sp/></highlight><highlight class="charliteral">&apos;\0&apos;</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/><sp/><sp/>rx-&gt;<ref refid="structSYN__YMODEM__Receiver_1a2d0c6ceba359cdb721b8bfd4ba7fa258" kindref="member">filesize</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"></highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Extract<sp/>NULL-terminated<sp/>filename<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>fn_len<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">while</highlight><highlight class="normal"><sp/>(fn_len<sp/>&lt;<sp/>payload_len<sp/>&amp;&amp;<sp/>payload[fn_len]<sp/>!=<sp/></highlight><highlight class="charliteral">&apos;\0&apos;</highlight><highlight class="normal"><sp/>&amp;&amp;</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>fn_len<sp/>&lt;<sp/>(<ref refid="syn__ymodem_8h_1a02f4f0fe0fd40ec25265d2dd068fd834" kindref="member">SYN_YMODEM_MAX_FILENAME</ref><sp/>-<sp/>1U))<sp/>{</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rx-&gt;<ref refid="structSYN__YMODEM__Receiver_1a50f54c3734982b033a126e0b851ce112" kindref="member">filename</ref>[fn_len]<sp/>=<sp/>(char)payload[fn_len];</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>fn_len++;</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/><sp/><sp/>rx-&gt;<ref refid="structSYN__YMODEM__Receiver_1a50f54c3734982b033a126e0b851ce112" kindref="member">filename</ref>[fn_len]<sp/>=<sp/></highlight><highlight class="charliteral">&apos;\0&apos;</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"></highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Extract<sp/>file<sp/>size<sp/>(ASCII<sp/>space-delimited<sp/>decimal<sp/>after<sp/>filename)<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>size_pos<sp/>=<sp/>fn_len<sp/>+<sp/>1U;</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(size_pos<sp/>&lt;<sp/>payload_len<sp/>&amp;&amp;<sp/>payload[size_pos]<sp/>!=<sp/></highlight><highlight class="charliteral">&apos;\0&apos;</highlight><highlight class="normal">)<sp/>{</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rx-&gt;<ref refid="structSYN__YMODEM__Receiver_1a2d0c6ceba359cdb721b8bfd4ba7fa258" kindref="member">filesize</ref><sp/>=<sp/>(uint32_t)strtoul((</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*)&amp;payload[size_pos],<sp/>NULL,<sp/>10);</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="71"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"></highlight></codeline>
+<codeline lineno="80"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="syn__ymodem_8c_1a89ea8687681572c1e13cb3413b679cc7" kindref="member">ymodem_read_packet</ref>(<ref refid="structSYN__YMODEM__Receiver" kindref="compound">SYN_YMODEM_Receiver</ref><sp/>*rx,<sp/>uint8_t<sp/>header_byte,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>*out_payload_len)</highlight></codeline>
+<codeline lineno="81"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>payload_len<sp/>=<sp/>(header_byte<sp/>==<sp/><ref refid="syn__ymodem_8h_1ab2f737645994e190a087c0f3680ea345" kindref="member">SYN_YMODEM_STX</ref>)<sp/>?<sp/>1024U<sp/>:<sp/>128U;</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>total_len<sp/>=<sp/>payload_len<sp/>+<sp/>5U;<sp/></highlight><highlight class="comment">/*<sp/>header<sp/>+<sp/>seq<sp/>+<sp/>~seq<sp/>+<sp/>payload<sp/>+<sp/>2B<sp/>CRC<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="84"><highlight class="normal"></highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/>rx-&gt;<ref refid="structSYN__YMODEM__Receiver_1af25b4fd4539e48c25c6196d7e64157fd" kindref="member">pkt_buf</ref>[0]<sp/>=<sp/>header_byte;</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"></highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>i<sp/>=<sp/>1U;<sp/>i<sp/>&lt;<sp/>total_len;<sp/>i++)<sp/>{</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>b<sp/>=<sp/><ref refid="syn__ymodem_8c_1a3ac8585e617273d922de2ff216f389d8" kindref="member">ymodem_recv_byte</ref>(rx,<sp/><ref refid="syn__ymodem_8c_1acd57b56443d0b4e135771cd8b68d5dc3" kindref="member">SYN_YMODEM_RECV_TIMEOUT_MS</ref>);</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(b<sp/>&lt;<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__ymodem_8h_1ac8bc64182334f7bfc094fb361d1980f1af4e17695158509880f0a9368f198d163" kindref="member">SYN_YMODEM_ERR_TIMEOUT</ref>;</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rx-&gt;<ref refid="structSYN__YMODEM__Receiver_1af25b4fd4539e48c25c6196d7e64157fd" kindref="member">pkt_buf</ref>[i]<sp/>=<sp/>(uint8_t)b;</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"></highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>seq<sp/>=<sp/>rx-&gt;<ref refid="structSYN__YMODEM__Receiver_1af25b4fd4539e48c25c6196d7e64157fd" kindref="member">pkt_buf</ref>[1];</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>seq_inv<sp/>=<sp/>rx-&gt;<ref refid="structSYN__YMODEM__Receiver_1af25b4fd4539e48c25c6196d7e64157fd" kindref="member">pkt_buf</ref>[2];</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"></highlight></codeline>
+<codeline lineno="98"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>((uint8_t)(seq<sp/>+<sp/>seq_inv)<sp/>!=<sp/>0xFFU)<sp/>{</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__ymodem_8h_1ac8bc64182334f7bfc094fb361d1980f1a8738eb56486dd5b61936cb9921456551" kindref="member">SYN_YMODEM_ERR_SEQUENCE</ref>;</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"></highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Compute<sp/>CRC-16/XMODEM<sp/>(poly<sp/>0x1021,<sp/>init<sp/>0x0000)<sp/>over<sp/>payload<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="103"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/>computed_crc<sp/>=<sp/><ref refid="syn__crc_8c_1a45d16f270e7e4a1dc377bee47388b2f2" kindref="member">syn_crc16_ccitt_update</ref>(0x0000U,<sp/>&amp;rx-&gt;<ref refid="structSYN__YMODEM__Receiver_1af25b4fd4539e48c25c6196d7e64157fd" kindref="member">pkt_buf</ref>[3],<sp/>payload_len);</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/>rx_crc<sp/>=</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(uint16_t)(((uint16_t)rx-&gt;<ref refid="structSYN__YMODEM__Receiver_1af25b4fd4539e48c25c6196d7e64157fd" kindref="member">pkt_buf</ref>[3U<sp/>+<sp/>payload_len]<sp/>&lt;&lt;<sp/>8)<sp/>|<sp/>rx-&gt;<ref refid="structSYN__YMODEM__Receiver_1af25b4fd4539e48c25c6196d7e64157fd" kindref="member">pkt_buf</ref>[4U<sp/>+<sp/>payload_len]);</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"></highlight></codeline>
+<codeline lineno="107"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(computed_crc<sp/>!=<sp/>rx_crc)<sp/>{</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__ymodem_8h_1ac8bc64182334f7bfc094fb361d1980f1a7b057cab16558f149493d723201ff9da" kindref="member">SYN_YMODEM_ERR_CRC</ref>;</highlight></codeline>
+<codeline lineno="109"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="110"><highlight class="normal"></highlight></codeline>
+<codeline lineno="111"><highlight class="normal"><sp/><sp/><sp/><sp/>*out_payload_len<sp/>=<sp/>payload_len;</highlight></codeline>
+<codeline lineno="112"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal">)seq;</highlight></codeline>
+<codeline lineno="113"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"></highlight></codeline>
+<codeline lineno="115"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__ymodem_8c_1a1892746ee1b872947a17ab31d0f86206" kindref="member">syn_ymodem_receiver_init</ref>(<ref refid="structSYN__YMODEM__Receiver" kindref="compound">SYN_YMODEM_Receiver</ref><sp/>*rx,<sp/><ref refid="syn__ymodem_8h_1a5653579c2eff79520742075121b56739" kindref="member">SYN_YMODEM_PutChar</ref><sp/>putchar_fn,</highlight></codeline>
+<codeline lineno="116"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__ymodem_8h_1ab84407a3ec1f865c37a8f3f69a5fd63c" kindref="member">SYN_YMODEM_GetChar</ref><sp/>getchar_fn,<sp/><ref refid="syn__ymodem_8h_1aec9b530eb3678277759fe6b071609ecd" kindref="member">SYN_YMODEM_EventCallback</ref><sp/>event_fn,</highlight></codeline>
+<codeline lineno="117"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*ctx)</highlight></codeline>
+<codeline lineno="118"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(rx<sp/>==<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="120"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="121"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="122"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(rx<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="123"><highlight class="normal"></highlight></codeline>
+<codeline lineno="124"><highlight class="normal"><sp/><sp/><sp/><sp/>memset(rx,<sp/>0,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(<ref refid="structSYN__YMODEM__Receiver" kindref="compound">SYN_YMODEM_Receiver</ref>));</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"><sp/><sp/><sp/><sp/>rx-&gt;<ref refid="structSYN__YMODEM__Receiver_1abed0a792ee77dabdc9ce8772f3c1e7d0" kindref="member">putchar_fn</ref><sp/>=<sp/>putchar_fn;</highlight></codeline>
+<codeline lineno="126"><highlight class="normal"><sp/><sp/><sp/><sp/>rx-&gt;<ref refid="structSYN__YMODEM__Receiver_1a1ea8e91f83ed8dd9920105e6e51741d8" kindref="member">getchar_fn</ref><sp/>=<sp/>getchar_fn;</highlight></codeline>
+<codeline lineno="127"><highlight class="normal"><sp/><sp/><sp/><sp/>rx-&gt;<ref refid="structSYN__YMODEM__Receiver_1a4cde2bf9977d17ed96e9aac4612275e0" kindref="member">event_fn</ref><sp/>=<sp/>event_fn;</highlight></codeline>
+<codeline lineno="128"><highlight class="normal"><sp/><sp/><sp/><sp/>rx-&gt;<ref refid="structSYN__YMODEM__Receiver_1a30ec70ba46970fa0632e2535c4ebab69" kindref="member">ctx</ref><sp/>=<sp/>ctx;</highlight></codeline>
+<codeline lineno="129"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="130"><highlight class="normal"></highlight></codeline>
+<codeline lineno="131"><highlight class="normal"><ref refid="syn__ymodem_8h_1ac8bc64182334f7bfc094fb361d1980f1" kindref="member">SYN_YMODEM_Status</ref><sp/><ref refid="syn__ymodem_8c_1a9c76bc8079b147cb98b74307a0d2cef2" kindref="member">syn_ymodem_receive</ref>(<ref refid="structSYN__YMODEM__Receiver" kindref="compound">SYN_YMODEM_Receiver</ref><sp/>*rx)</highlight></codeline>
+<codeline lineno="132"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="133"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(rx<sp/>==<sp/>NULL<sp/>||<sp/>rx-&gt;<ref refid="structSYN__YMODEM__Receiver_1abed0a792ee77dabdc9ce8772f3c1e7d0" kindref="member">putchar_fn</ref><sp/>==<sp/>NULL<sp/>||<sp/>rx-&gt;<ref refid="structSYN__YMODEM__Receiver_1a1ea8e91f83ed8dd9920105e6e51741d8" kindref="member">getchar_fn</ref><sp/>==<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="134"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__ymodem_8h_1ac8bc64182334f7bfc094fb361d1980f1a4eed18e5e28cf3cdb97b7beb91f3cf55" kindref="member">SYN_YMODEM_ERR_PARAM</ref>;</highlight></codeline>
+<codeline lineno="135"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"></highlight></codeline>
+<codeline lineno="137"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>session_active<sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="138"><highlight class="normal"></highlight></codeline>
+<codeline lineno="139"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">while</highlight><highlight class="normal"><sp/>(session_active)<sp/>{</highlight></codeline>
+<codeline lineno="140"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Initiate<sp/>transfer<sp/>by<sp/>requesting<sp/>CRC-16<sp/>mode<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="141"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>retries<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="142"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>first_byte<sp/>=<sp/>-1;</highlight></codeline>
+<codeline lineno="143"><highlight class="normal"></highlight></codeline>
+<codeline lineno="144"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">while</highlight><highlight class="normal"><sp/>(retries<sp/>&lt;<sp/><ref refid="syn__ymodem_8h_1abea648d89be9d08db991e04606630821" kindref="member">SYN_YMODEM_MAX_RETRIES</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="145"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__ymodem_8c_1aa21c825d4189d1827e19676baae0344e" kindref="member">ymodem_send_byte</ref>(rx,<sp/><ref refid="syn__ymodem_8h_1afabc17be75d64cc52ee1694b52f24b2d" kindref="member">SYN_YMODEM_CRC</ref>);</highlight></codeline>
+<codeline lineno="146"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>first_byte<sp/>=<sp/><ref refid="syn__ymodem_8c_1a3ac8585e617273d922de2ff216f389d8" kindref="member">ymodem_recv_byte</ref>(rx,<sp/><ref refid="syn__ymodem_8c_1acd57b56443d0b4e135771cd8b68d5dc3" kindref="member">SYN_YMODEM_RECV_TIMEOUT_MS</ref>);</highlight></codeline>
+<codeline lineno="147"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(first_byte<sp/>&gt;=<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="148"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="149"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="150"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>retries++;</highlight></codeline>
+<codeline lineno="151"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="152"><highlight class="normal"></highlight></codeline>
+<codeline lineno="153"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(first_byte<sp/>&lt;<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="154"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__ymodem_8h_1ac8bc64182334f7bfc094fb361d1980f1af4e17695158509880f0a9368f198d163" kindref="member">SYN_YMODEM_ERR_TIMEOUT</ref>;</highlight></codeline>
+<codeline lineno="155"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="156"><highlight class="normal"></highlight></codeline>
+<codeline lineno="157"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Check<sp/>for<sp/>initial<sp/>Cancel<sp/>request<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="158"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(first_byte<sp/>==<sp/><ref refid="syn__ymodem_8h_1a68950fb1fe26624ff574f02d746efb73" kindref="member">SYN_YMODEM_CAN</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="159"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__ymodem_8h_1ac8bc64182334f7bfc094fb361d1980f1a85e95dacdf8ebe7d1cd96b8af790f1c4" kindref="member">SYN_YMODEM_ERR_CANCEL</ref>;</highlight></codeline>
+<codeline lineno="160"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="161"><highlight class="normal"></highlight></codeline>
+<codeline lineno="162"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Expect<sp/>Block<sp/>0<sp/>(SOH<sp/>or<sp/>STX)<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="163"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(first_byte<sp/>!=<sp/><ref refid="syn__ymodem_8h_1a97011a4e9b1acc8a6dde5914a324fbf9" kindref="member">SYN_YMODEM_SOH</ref><sp/>&amp;&amp;<sp/>first_byte<sp/>!=<sp/><ref refid="syn__ymodem_8h_1ab2f737645994e190a087c0f3680ea345" kindref="member">SYN_YMODEM_STX</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="164"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__ymodem_8h_1ac8bc64182334f7bfc094fb361d1980f1a8738eb56486dd5b61936cb9921456551" kindref="member">SYN_YMODEM_ERR_SEQUENCE</ref>;</highlight></codeline>
+<codeline lineno="165"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="166"><highlight class="normal"></highlight></codeline>
+<codeline lineno="167"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>payload_len<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="168"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>seq_or_err<sp/>=<sp/><ref refid="syn__ymodem_8c_1a89ea8687681572c1e13cb3413b679cc7" kindref="member">ymodem_read_packet</ref>(rx,<sp/>(uint8_t)first_byte,<sp/>&amp;payload_len);</highlight></codeline>
+<codeline lineno="169"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(seq_or_err<sp/>&lt;<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="170"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__ymodem_8c_1aa21c825d4189d1827e19676baae0344e" kindref="member">ymodem_send_byte</ref>(rx,<sp/><ref refid="syn__ymodem_8h_1a68950fb1fe26624ff574f02d746efb73" kindref="member">SYN_YMODEM_CAN</ref>);</highlight></codeline>
+<codeline lineno="171"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(<ref refid="syn__ymodem_8h_1ac8bc64182334f7bfc094fb361d1980f1" kindref="member">SYN_YMODEM_Status</ref>)seq_or_err;</highlight></codeline>
+<codeline lineno="172"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="173"><highlight class="normal"></highlight></codeline>
+<codeline lineno="174"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(seq_or_err<sp/>!=<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="175"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__ymodem_8c_1aa21c825d4189d1827e19676baae0344e" kindref="member">ymodem_send_byte</ref>(rx,<sp/><ref refid="syn__ymodem_8h_1a68950fb1fe26624ff574f02d746efb73" kindref="member">SYN_YMODEM_CAN</ref>);</highlight></codeline>
+<codeline lineno="176"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__ymodem_8h_1ac8bc64182334f7bfc094fb361d1980f1a8738eb56486dd5b61936cb9921456551" kindref="member">SYN_YMODEM_ERR_SEQUENCE</ref>;</highlight></codeline>
+<codeline lineno="177"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="178"><highlight class="normal"></highlight></codeline>
+<codeline lineno="179"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Parse<sp/>Block<sp/>0<sp/>header<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="180"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(rx-&gt;<ref refid="structSYN__YMODEM__Receiver_1af25b4fd4539e48c25c6196d7e64157fd" kindref="member">pkt_buf</ref>[3]<sp/>==<sp/></highlight><highlight class="charliteral">&apos;\0&apos;</highlight><highlight class="normal">)<sp/>{</highlight></codeline>
+<codeline lineno="181"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Empty<sp/>Block<sp/>0<sp/>-&gt;<sp/>End<sp/>of<sp/>session<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="182"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__ymodem_8c_1aa21c825d4189d1827e19676baae0344e" kindref="member">ymodem_send_byte</ref>(rx,<sp/><ref refid="syn__ymodem_8h_1aecc374ca7468607f0e720ef4fde5d499" kindref="member">SYN_YMODEM_ACK</ref>);</highlight></codeline>
+<codeline lineno="183"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(rx-&gt;<ref refid="structSYN__YMODEM__Receiver_1a4cde2bf9977d17ed96e9aac4612275e0" kindref="member">event_fn</ref><sp/>!=<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="184"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rx-&gt;<ref refid="structSYN__YMODEM__Receiver_1a4cde2bf9977d17ed96e9aac4612275e0" kindref="member">event_fn</ref>(<ref refid="syn__ymodem_8h_1a52f0683649119c1ec28374a3cf1cc4f6a932a2ce6b8b7cc53ce1fb0b889d925dc" kindref="member">SYN_YMODEM_EVENT_SESSION_END</ref>,<sp/>NULL,<sp/>0,<sp/>rx-&gt;<ref refid="structSYN__YMODEM__Receiver_1a30ec70ba46970fa0632e2535c4ebab69" kindref="member">ctx</ref>);</highlight></codeline>
+<codeline lineno="185"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="186"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="187"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="188"><highlight class="normal"></highlight></codeline>
+<codeline lineno="189"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__ymodem_8c_1a144518fa1f35e1a1dfd09a34831261b6" kindref="member">ymodem_parse_block0</ref>(rx,<sp/>&amp;rx-&gt;<ref refid="structSYN__YMODEM__Receiver_1af25b4fd4539e48c25c6196d7e64157fd" kindref="member">pkt_buf</ref>[3],<sp/>payload_len);</highlight></codeline>
+<codeline lineno="190"><highlight class="normal"></highlight></codeline>
+<codeline lineno="191"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Valid<sp/>Block<sp/>0<sp/>-&gt;<sp/>Fire<sp/>FILE_START<sp/>and<sp/>send<sp/>ACK<sp/>+<sp/>&apos;C&apos;<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="192"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(rx-&gt;<ref refid="structSYN__YMODEM__Receiver_1a4cde2bf9977d17ed96e9aac4612275e0" kindref="member">event_fn</ref><sp/>!=<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="193"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>cb_res<sp/>=<sp/>rx-&gt;<ref refid="structSYN__YMODEM__Receiver_1a4cde2bf9977d17ed96e9aac4612275e0" kindref="member">event_fn</ref>(<ref refid="syn__ymodem_8h_1a52f0683649119c1ec28374a3cf1cc4f6a82fc0e3e013ad64d6756d1473242f17d" kindref="member">SYN_YMODEM_EVENT_FILE_START</ref>,<sp/>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*)rx-&gt;<ref refid="structSYN__YMODEM__Receiver_1a50f54c3734982b033a126e0b851ce112" kindref="member">filename</ref>,</highlight></codeline>
+<codeline lineno="194"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>strlen(rx-&gt;<ref refid="structSYN__YMODEM__Receiver_1a50f54c3734982b033a126e0b851ce112" kindref="member">filename</ref>),<sp/>rx-&gt;<ref refid="structSYN__YMODEM__Receiver_1a30ec70ba46970fa0632e2535c4ebab69" kindref="member">ctx</ref>);</highlight></codeline>
+<codeline lineno="195"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(cb_res<sp/>!=<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="196"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__ymodem_8c_1aa21c825d4189d1827e19676baae0344e" kindref="member">ymodem_send_byte</ref>(rx,<sp/><ref refid="syn__ymodem_8h_1a68950fb1fe26624ff574f02d746efb73" kindref="member">SYN_YMODEM_CAN</ref>);</highlight></codeline>
+<codeline lineno="197"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__ymodem_8h_1ac8bc64182334f7bfc094fb361d1980f1a85e95dacdf8ebe7d1cd96b8af790f1c4" kindref="member">SYN_YMODEM_ERR_CANCEL</ref>;</highlight></codeline>
+<codeline lineno="198"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="199"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="200"><highlight class="normal"></highlight></codeline>
+<codeline lineno="201"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__ymodem_8c_1aa21c825d4189d1827e19676baae0344e" kindref="member">ymodem_send_byte</ref>(rx,<sp/><ref refid="syn__ymodem_8h_1aecc374ca7468607f0e720ef4fde5d499" kindref="member">SYN_YMODEM_ACK</ref>);</highlight></codeline>
+<codeline lineno="202"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__ymodem_8c_1aa21c825d4189d1827e19676baae0344e" kindref="member">ymodem_send_byte</ref>(rx,<sp/><ref refid="syn__ymodem_8h_1afabc17be75d64cc52ee1694b52f24b2d" kindref="member">SYN_YMODEM_CRC</ref>);</highlight></codeline>
+<codeline lineno="203"><highlight class="normal"></highlight></codeline>
+<codeline lineno="204"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Receive<sp/>data<sp/>blocks<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="205"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rx-&gt;<ref refid="structSYN__YMODEM__Receiver_1ad48d9ad4672dff9b309eb8bb998d232a" kindref="member">expected_seq</ref><sp/>=<sp/>1U;</highlight></codeline>
+<codeline lineno="206"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rx-&gt;<ref refid="structSYN__YMODEM__Receiver_1ab617e21ab2c0e540a4d90e42b90f370f" kindref="member">bytes_received</ref><sp/>=<sp/>0U;</highlight></codeline>
+<codeline lineno="207"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>file_active<sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="208"><highlight class="normal"></highlight></codeline>
+<codeline lineno="209"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">while</highlight><highlight class="normal"><sp/>(file_active)<sp/>{</highlight></codeline>
+<codeline lineno="210"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>header_byte<sp/>=<sp/><ref refid="syn__ymodem_8c_1a3ac8585e617273d922de2ff216f389d8" kindref="member">ymodem_recv_byte</ref>(rx,<sp/><ref refid="syn__ymodem_8c_1acd57b56443d0b4e135771cd8b68d5dc3" kindref="member">SYN_YMODEM_RECV_TIMEOUT_MS</ref>);</highlight></codeline>
+<codeline lineno="211"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(header_byte<sp/>&lt;<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="212"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__ymodem_8h_1ac8bc64182334f7bfc094fb361d1980f1af4e17695158509880f0a9368f198d163" kindref="member">SYN_YMODEM_ERR_TIMEOUT</ref>;</highlight></codeline>
+<codeline lineno="213"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="214"><highlight class="normal"></highlight></codeline>
+<codeline lineno="215"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(header_byte<sp/>==<sp/><ref refid="syn__ymodem_8h_1a68950fb1fe26624ff574f02d746efb73" kindref="member">SYN_YMODEM_CAN</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="216"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>second_can<sp/>=<sp/><ref refid="syn__ymodem_8c_1a3ac8585e617273d922de2ff216f389d8" kindref="member">ymodem_recv_byte</ref>(rx,<sp/>100U);</highlight></codeline>
+<codeline lineno="217"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(second_can<sp/>==<sp/><ref refid="syn__ymodem_8h_1a68950fb1fe26624ff574f02d746efb73" kindref="member">SYN_YMODEM_CAN</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="218"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__ymodem_8h_1ac8bc64182334f7bfc094fb361d1980f1a85e95dacdf8ebe7d1cd96b8af790f1c4" kindref="member">SYN_YMODEM_ERR_CANCEL</ref>;</highlight></codeline>
+<codeline lineno="219"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="220"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="221"><highlight class="normal"></highlight></codeline>
+<codeline lineno="222"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(header_byte<sp/>==<sp/><ref refid="syn__ymodem_8h_1aa4f13350990b48686c956bbad98d7da7" kindref="member">SYN_YMODEM_EOT</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="223"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>End<sp/>of<sp/>transmission<sp/>sequence:<sp/>send<sp/>NAK,<sp/>wait<sp/>for<sp/>2nd<sp/>EOT,<sp/>then<sp/>ACK<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="224"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__ymodem_8c_1aa21c825d4189d1827e19676baae0344e" kindref="member">ymodem_send_byte</ref>(rx,<sp/><ref refid="syn__ymodem_8h_1a052071fc012c77f4028ada0ee36b7880" kindref="member">SYN_YMODEM_NAK</ref>);</highlight></codeline>
+<codeline lineno="225"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>second_eot<sp/>=<sp/><ref refid="syn__ymodem_8c_1a3ac8585e617273d922de2ff216f389d8" kindref="member">ymodem_recv_byte</ref>(rx,<sp/><ref refid="syn__ymodem_8c_1acd57b56443d0b4e135771cd8b68d5dc3" kindref="member">SYN_YMODEM_RECV_TIMEOUT_MS</ref>);</highlight></codeline>
+<codeline lineno="226"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(second_eot<sp/>==<sp/><ref refid="syn__ymodem_8h_1aa4f13350990b48686c956bbad98d7da7" kindref="member">SYN_YMODEM_EOT</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="227"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__ymodem_8c_1aa21c825d4189d1827e19676baae0344e" kindref="member">ymodem_send_byte</ref>(rx,<sp/><ref refid="syn__ymodem_8h_1aecc374ca7468607f0e720ef4fde5d499" kindref="member">SYN_YMODEM_ACK</ref>);</highlight></codeline>
+<codeline lineno="228"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="229"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__ymodem_8c_1aa21c825d4189d1827e19676baae0344e" kindref="member">ymodem_send_byte</ref>(rx,<sp/><ref refid="syn__ymodem_8h_1aecc374ca7468607f0e720ef4fde5d499" kindref="member">SYN_YMODEM_ACK</ref>);</highlight></codeline>
+<codeline lineno="230"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="231"><highlight class="normal"></highlight></codeline>
+<codeline lineno="232"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(rx-&gt;<ref refid="structSYN__YMODEM__Receiver_1a4cde2bf9977d17ed96e9aac4612275e0" kindref="member">event_fn</ref><sp/>!=<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="233"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rx-&gt;<ref refid="structSYN__YMODEM__Receiver_1a4cde2bf9977d17ed96e9aac4612275e0" kindref="member">event_fn</ref>(<ref refid="syn__ymodem_8h_1a52f0683649119c1ec28374a3cf1cc4f6a5fc6c134dc18486f1dc5dec0f5666f57" kindref="member">SYN_YMODEM_EVENT_FILE_END</ref>,<sp/>NULL,<sp/>0,<sp/>rx-&gt;<ref refid="structSYN__YMODEM__Receiver_1a30ec70ba46970fa0632e2535c4ebab69" kindref="member">ctx</ref>);</highlight></codeline>
+<codeline lineno="234"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="235"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="236"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="237"><highlight class="normal"></highlight></codeline>
+<codeline lineno="238"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(header_byte<sp/>!=<sp/><ref refid="syn__ymodem_8h_1a97011a4e9b1acc8a6dde5914a324fbf9" kindref="member">SYN_YMODEM_SOH</ref><sp/>&amp;&amp;<sp/>header_byte<sp/>!=<sp/><ref refid="syn__ymodem_8h_1ab2f737645994e190a087c0f3680ea345" kindref="member">SYN_YMODEM_STX</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="239"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__ymodem_8c_1aa21c825d4189d1827e19676baae0344e" kindref="member">ymodem_send_byte</ref>(rx,<sp/><ref refid="syn__ymodem_8h_1a052071fc012c77f4028ada0ee36b7880" kindref="member">SYN_YMODEM_NAK</ref>);</highlight></codeline>
+<codeline lineno="240"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">continue</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="241"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="242"><highlight class="normal"></highlight></codeline>
+<codeline lineno="243"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>data_payload_len<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="244"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>block_seq<sp/>=<sp/><ref refid="syn__ymodem_8c_1a89ea8687681572c1e13cb3413b679cc7" kindref="member">ymodem_read_packet</ref>(rx,<sp/>(uint8_t)header_byte,<sp/>&amp;data_payload_len);</highlight></codeline>
+<codeline lineno="245"><highlight class="normal"></highlight></codeline>
+<codeline lineno="246"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(block_seq<sp/>&lt;<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="247"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__ymodem_8c_1aa21c825d4189d1827e19676baae0344e" kindref="member">ymodem_send_byte</ref>(rx,<sp/><ref refid="syn__ymodem_8h_1a052071fc012c77f4028ada0ee36b7880" kindref="member">SYN_YMODEM_NAK</ref>);</highlight></codeline>
+<codeline lineno="248"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">continue</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="249"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="250"><highlight class="normal"></highlight></codeline>
+<codeline lineno="251"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>((uint8_t)block_seq<sp/>==<sp/>(uint8_t)(rx-&gt;<ref refid="structSYN__YMODEM__Receiver_1ad48d9ad4672dff9b309eb8bb998d232a" kindref="member">expected_seq</ref><sp/>-<sp/>1U))<sp/>{</highlight></codeline>
+<codeline lineno="252"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Duplicate<sp/>packet<sp/>—<sp/>ACK<sp/>and<sp/>discard<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="253"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__ymodem_8c_1aa21c825d4189d1827e19676baae0344e" kindref="member">ymodem_send_byte</ref>(rx,<sp/><ref refid="syn__ymodem_8h_1aecc374ca7468607f0e720ef4fde5d499" kindref="member">SYN_YMODEM_ACK</ref>);</highlight></codeline>
+<codeline lineno="254"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">continue</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="255"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="256"><highlight class="normal"></highlight></codeline>
+<codeline lineno="257"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>((uint8_t)block_seq<sp/>!=<sp/>rx-&gt;<ref refid="structSYN__YMODEM__Receiver_1ad48d9ad4672dff9b309eb8bb998d232a" kindref="member">expected_seq</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="258"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__ymodem_8c_1aa21c825d4189d1827e19676baae0344e" kindref="member">ymodem_send_byte</ref>(rx,<sp/><ref refid="syn__ymodem_8h_1a68950fb1fe26624ff574f02d746efb73" kindref="member">SYN_YMODEM_CAN</ref>);</highlight></codeline>
+<codeline lineno="259"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__ymodem_8h_1ac8bc64182334f7bfc094fb361d1980f1a8738eb56486dd5b61936cb9921456551" kindref="member">SYN_YMODEM_ERR_SEQUENCE</ref>;</highlight></codeline>
+<codeline lineno="260"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="261"><highlight class="normal"></highlight></codeline>
+<codeline lineno="262"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Calculate<sp/>chunk<sp/>size<sp/>based<sp/>on<sp/>remaining<sp/>filesize<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="263"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>chunk_len<sp/>=<sp/>data_payload_len;</highlight></codeline>
+<codeline lineno="264"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(rx-&gt;<ref refid="structSYN__YMODEM__Receiver_1a2d0c6ceba359cdb721b8bfd4ba7fa258" kindref="member">filesize</ref><sp/>&gt;<sp/>0U)<sp/>{</highlight></codeline>
+<codeline lineno="265"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>remaining<sp/>=<sp/>rx-&gt;<ref refid="structSYN__YMODEM__Receiver_1a2d0c6ceba359cdb721b8bfd4ba7fa258" kindref="member">filesize</ref><sp/>-<sp/>rx-&gt;<ref refid="structSYN__YMODEM__Receiver_1ab617e21ab2c0e540a4d90e42b90f370f" kindref="member">bytes_received</ref>;</highlight></codeline>
+<codeline lineno="266"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(remaining<sp/>&lt;<sp/>chunk_len)<sp/>{</highlight></codeline>
+<codeline lineno="267"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>chunk_len<sp/>=<sp/>(size_t)remaining;</highlight></codeline>
+<codeline lineno="268"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="269"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="270"><highlight class="normal"></highlight></codeline>
+<codeline lineno="271"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(rx-&gt;<ref refid="structSYN__YMODEM__Receiver_1a4cde2bf9977d17ed96e9aac4612275e0" kindref="member">event_fn</ref><sp/>!=<sp/>NULL<sp/>&amp;&amp;<sp/>chunk_len<sp/>&gt;<sp/>0U)<sp/>{</highlight></codeline>
+<codeline lineno="272"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>cb_res<sp/>=</highlight></codeline>
+<codeline lineno="273"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rx-&gt;<ref refid="structSYN__YMODEM__Receiver_1a4cde2bf9977d17ed96e9aac4612275e0" kindref="member">event_fn</ref>(<ref refid="syn__ymodem_8h_1a52f0683649119c1ec28374a3cf1cc4f6a490895a8c2657a034eb243996fdc0f7d" kindref="member">SYN_YMODEM_EVENT_DATA</ref>,<sp/>&amp;rx-&gt;<ref refid="structSYN__YMODEM__Receiver_1af25b4fd4539e48c25c6196d7e64157fd" kindref="member">pkt_buf</ref>[3],<sp/>chunk_len,<sp/>rx-&gt;<ref refid="structSYN__YMODEM__Receiver_1a30ec70ba46970fa0632e2535c4ebab69" kindref="member">ctx</ref>);</highlight></codeline>
+<codeline lineno="274"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(cb_res<sp/>!=<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="275"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__ymodem_8c_1aa21c825d4189d1827e19676baae0344e" kindref="member">ymodem_send_byte</ref>(rx,<sp/><ref refid="syn__ymodem_8h_1a68950fb1fe26624ff574f02d746efb73" kindref="member">SYN_YMODEM_CAN</ref>);</highlight></codeline>
+<codeline lineno="276"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__ymodem_8h_1ac8bc64182334f7bfc094fb361d1980f1a85e95dacdf8ebe7d1cd96b8af790f1c4" kindref="member">SYN_YMODEM_ERR_CANCEL</ref>;</highlight></codeline>
+<codeline lineno="277"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="278"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="279"><highlight class="normal"></highlight></codeline>
+<codeline lineno="280"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rx-&gt;<ref refid="structSYN__YMODEM__Receiver_1ab617e21ab2c0e540a4d90e42b90f370f" kindref="member">bytes_received</ref><sp/>+=<sp/>(uint32_t)chunk_len;</highlight></codeline>
+<codeline lineno="281"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rx-&gt;<ref refid="structSYN__YMODEM__Receiver_1ad48d9ad4672dff9b309eb8bb998d232a" kindref="member">expected_seq</ref>++;</highlight></codeline>
+<codeline lineno="282"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__ymodem_8c_1aa21c825d4189d1827e19676baae0344e" kindref="member">ymodem_send_byte</ref>(rx,<sp/><ref refid="syn__ymodem_8h_1aecc374ca7468607f0e720ef4fde5d499" kindref="member">SYN_YMODEM_ACK</ref>);</highlight></codeline>
+<codeline lineno="283"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="284"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="285"><highlight class="normal"></highlight></codeline>
+<codeline lineno="286"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__ymodem_8h_1ac8bc64182334f7bfc094fb361d1980f1af8ce7cb07ac5b879b050428c37706890" kindref="member">SYN_YMODEM_OK</ref>;</highlight></codeline>
+<codeline lineno="287"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="288"><highlight class="normal"></highlight></codeline>
+<codeline lineno="289"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_USE_YMODEM<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/proto/syn_ymodem.c"/>
+  </compounddef>
+</doxygen>

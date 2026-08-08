@@ -1,0 +1,1053 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__protobuf_8c" kind="file" language="C++">
+    <compoundname>syn_protobuf.c</compoundname>
+    <includes refid="syn__protobuf_8h" local="yes">syn_protobuf.h</includes>
+    <includes local="no">string.h</includes>
+    <incdepgraph>
+      <node id="3">
+        <label>syntropic/common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/util/syn_protobuf.c</label>
+        <link refid="syn__protobuf_8c"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>syn_protobuf.h</label>
+        <link refid="syn__protobuf_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>stdbool.h</label>
+      </node>
+      <node id="4">
+        <label>stddef.h</label>
+      </node>
+      <node id="5">
+        <label>stdint.h</label>
+      </node>
+      <node id="7">
+        <label>string.h</label>
+      </node>
+    </incdepgraph>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__protobuf_8c_1ae7d3afa7274fdf1e5fbc31f4d9ab9d8e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_pb_encoder_init</definition>
+        <argsstring>(SYN_PB_Encoder *enc, uint8_t *buf, size_t capacity)</argsstring>
+        <name>syn_pb_encoder_init</name>
+        <param>
+          <type><ref refid="structSYN__PB__Encoder" kindref="compound">SYN_PB_Encoder</ref> *</type>
+          <declname>enc</declname>
+        </param>
+        <param>
+          <type>uint8_t *</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>capacity</declname>
+        </param>
+        <briefdescription>
+<para>Initialize a Protobuf encoder instance. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>enc</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to encoder instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output byte buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>capacity</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Maximum buffer size in bytes. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_INVALID_PARAM if NULL or zero. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_protobuf.c" line="11" column="12" bodyfile="src/syntropic/util/syn_protobuf.c" bodystart="11" bodyend="20"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__protobuf_8c_1a2b3e7033e96569941be55ce875ed202b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_pb_encode_varint</definition>
+        <argsstring>(SYN_PB_Encoder *enc, uint64_t value)</argsstring>
+        <name>syn_pb_encode_varint</name>
+        <param>
+          <type><ref refid="structSYN__PB__Encoder" kindref="compound">SYN_PB_Encoder</ref> *</type>
+          <declname>enc</declname>
+        </param>
+        <param>
+          <type>uint64_t</type>
+          <declname>value</declname>
+        </param>
+        <briefdescription>
+<para>Encode a raw varint value. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>enc</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to encoder instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>value</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>64-bit value to encode. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_INVALID_PARAM or SYN_ERROR on overflow. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_protobuf.c" line="22" column="12" bodyfile="src/syntropic/util/syn_protobuf.c" bodystart="22" bodyend="39"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__protobuf_8c_1ac79b612dfc1f1de7d19c9b67721da30c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_pb_encode_tag</definition>
+        <argsstring>(SYN_PB_Encoder *enc, uint32_t field_number, uint8_t wire_type)</argsstring>
+        <name>syn_pb_encode_tag</name>
+        <param>
+          <type><ref refid="structSYN__PB__Encoder" kindref="compound">SYN_PB_Encoder</ref> *</type>
+          <declname>enc</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>field_number</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>wire_type</declname>
+        </param>
+        <briefdescription>
+<para>Encode field tag and wire type. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>enc</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to encoder instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>field_number</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Field tag number. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>wire_type</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Protobuf wire type (0, 1, 2, 5). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_INVALID_PARAM or SYN_ERROR on overflow. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_protobuf.c" line="41" column="12" bodyfile="src/syntropic/util/syn_protobuf.c" bodystart="41" bodyend="48"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__protobuf_8c_1ad6e9f877e6f9e7e80fe58258a40195b2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_pb_encode_int32</definition>
+        <argsstring>(SYN_PB_Encoder *enc, uint32_t field_number, int32_t value)</argsstring>
+        <name>syn_pb_encode_int32</name>
+        <param>
+          <type><ref refid="structSYN__PB__Encoder" kindref="compound">SYN_PB_Encoder</ref> *</type>
+          <declname>enc</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>field_number</declname>
+        </param>
+        <param>
+          <type>int32_t</type>
+          <declname>value</declname>
+        </param>
+        <briefdescription>
+<para>Encode a signed 32-bit integer field. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>enc</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to encoder instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>field_number</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Field tag number. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>value</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Signed 32-bit integer value. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_INVALID_PARAM or SYN_ERROR on overflow. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_protobuf.c" line="50" column="12" bodyfile="src/syntropic/util/syn_protobuf.c" bodystart="50" bodyend="59"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__protobuf_8c_1acee03eee0f05a615bebd364007cf86b7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_pb_encode_uint32</definition>
+        <argsstring>(SYN_PB_Encoder *enc, uint32_t field_number, uint32_t value)</argsstring>
+        <name>syn_pb_encode_uint32</name>
+        <param>
+          <type><ref refid="structSYN__PB__Encoder" kindref="compound">SYN_PB_Encoder</ref> *</type>
+          <declname>enc</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>field_number</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>value</declname>
+        </param>
+        <briefdescription>
+<para>Encode an unsigned 32-bit integer field. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>enc</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to encoder instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>field_number</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Field tag number. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>value</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Unsigned 32-bit integer value. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_INVALID_PARAM or SYN_ERROR on overflow. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_protobuf.c" line="61" column="12" bodyfile="src/syntropic/util/syn_protobuf.c" bodystart="61" bodyend="70"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__protobuf_8c_1ad264679f964e93596cdb3d580870ac9a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_pb_encode_bool</definition>
+        <argsstring>(SYN_PB_Encoder *enc, uint32_t field_number, bool value)</argsstring>
+        <name>syn_pb_encode_bool</name>
+        <param>
+          <type><ref refid="structSYN__PB__Encoder" kindref="compound">SYN_PB_Encoder</ref> *</type>
+          <declname>enc</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>field_number</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+          <declname>value</declname>
+        </param>
+        <briefdescription>
+<para>Encode a boolean field. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>enc</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to encoder instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>field_number</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Field tag number. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>value</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Boolean value. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_INVALID_PARAM or SYN_ERROR on overflow. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_protobuf.c" line="72" column="12" bodyfile="src/syntropic/util/syn_protobuf.c" bodystart="72" bodyend="75"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__protobuf_8c_1a345578b0acafcd81fdfb023a16584afa" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_pb_encode_fixed32</definition>
+        <argsstring>(SYN_PB_Encoder *enc, uint32_t field_number, uint32_t value)</argsstring>
+        <name>syn_pb_encode_fixed32</name>
+        <param>
+          <type><ref refid="structSYN__PB__Encoder" kindref="compound">SYN_PB_Encoder</ref> *</type>
+          <declname>enc</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>field_number</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>value</declname>
+        </param>
+        <briefdescription>
+<para>Encode a fixed 32-bit integer field. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>enc</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to encoder instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>field_number</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Field tag number. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>value</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Fixed 32-bit integer value. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_INVALID_PARAM or SYN_ERROR on overflow. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_protobuf.c" line="77" column="12" bodyfile="src/syntropic/util/syn_protobuf.c" bodystart="77" bodyend="93"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__protobuf_8c_1a963ace4cd4159ce2261dd0fc1e7e116e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_pb_encode_bytes</definition>
+        <argsstring>(SYN_PB_Encoder *enc, uint32_t field_number, const uint8_t *bytes, size_t len)</argsstring>
+        <name>syn_pb_encode_bytes</name>
+        <param>
+          <type><ref refid="structSYN__PB__Encoder" kindref="compound">SYN_PB_Encoder</ref> *</type>
+          <declname>enc</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>field_number</declname>
+        </param>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>bytes</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>len</declname>
+        </param>
+        <briefdescription>
+<para>Encode a raw byte array field. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>enc</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to encoder instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>field_number</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Field tag number. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>bytes</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to input byte array. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Length of byte array. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_INVALID_PARAM or SYN_ERROR on overflow. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_protobuf.c" line="95" column="12" bodyfile="src/syntropic/util/syn_protobuf.c" bodystart="95" bodyend="113"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__protobuf_8c_1a50c02be57d73fe9404a9b310655a4a12" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_pb_encode_string</definition>
+        <argsstring>(SYN_PB_Encoder *enc, uint32_t field_number, const char *str)</argsstring>
+        <name>syn_pb_encode_string</name>
+        <param>
+          <type><ref refid="structSYN__PB__Encoder" kindref="compound">SYN_PB_Encoder</ref> *</type>
+          <declname>enc</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>field_number</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>str</declname>
+        </param>
+        <briefdescription>
+<para>Encode a UTF-8 string field. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>enc</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to encoder instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>field_number</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Field tag number. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>str</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Null-terminated string pointer. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_INVALID_PARAM or SYN_ERROR on overflow. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_protobuf.c" line="115" column="12" bodyfile="src/syntropic/util/syn_protobuf.c" bodystart="115" bodyend="121"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__protobuf_8c_1a60e955cc17e469863bd3f29ef4db7543" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_pb_decoder_init</definition>
+        <argsstring>(SYN_PB_Decoder *dec, const uint8_t *buf, size_t size)</argsstring>
+        <name>syn_pb_decoder_init</name>
+        <param>
+          <type><ref refid="structSYN__PB__Decoder" kindref="compound">SYN_PB_Decoder</ref> *</type>
+          <declname>dec</declname>
+        </param>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>size</declname>
+        </param>
+        <briefdescription>
+<para>Initialize a Protobuf decoder instance. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>dec</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to decoder instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Input byte buffer pointer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>size</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Input byte buffer length. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_INVALID_PARAM if NULL. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_protobuf.c" line="123" column="12" bodyfile="src/syntropic/util/syn_protobuf.c" bodystart="123" bodyend="132"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__protobuf_8c_1ac582967875415035640aefee916fd068" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_pb_decode_varint</definition>
+        <argsstring>(SYN_PB_Decoder *dec, uint64_t *value)</argsstring>
+        <name>syn_pb_decode_varint</name>
+        <param>
+          <type><ref refid="structSYN__PB__Decoder" kindref="compound">SYN_PB_Decoder</ref> *</type>
+          <declname>dec</declname>
+        </param>
+        <param>
+          <type>uint64_t *</type>
+          <declname>value</declname>
+        </param>
+        <briefdescription>
+<para>Decode a raw varint value. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>dec</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to decoder instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>value</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output 64-bit value pointer. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_INVALID_PARAM or SYN_ERROR on EOF. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_protobuf.c" line="134" column="12" bodyfile="src/syntropic/util/syn_protobuf.c" bodystart="134" bodyend="154"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__protobuf_8c_1ab93a675f2591fbb2cf5fec2e35ef7b21" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_pb_decode_tag</definition>
+        <argsstring>(SYN_PB_Decoder *dec, SYN_PB_Tag *tag)</argsstring>
+        <name>syn_pb_decode_tag</name>
+        <param>
+          <type><ref refid="structSYN__PB__Decoder" kindref="compound">SYN_PB_Decoder</ref> *</type>
+          <declname>dec</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__PB__Tag" kindref="compound">SYN_PB_Tag</ref> *</type>
+          <declname>tag</declname>
+        </param>
+        <briefdescription>
+<para>Decode the next field tag and wire type. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>dec</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to decoder instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>tag</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output tag structure pointer. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_INVALID_PARAM or SYN_ERROR on EOF. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_protobuf.c" line="156" column="12" bodyfile="src/syntropic/util/syn_protobuf.c" bodystart="156" bodyend="171"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__protobuf_8c_1a89971e399006c1c6dfd035c552779fb9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_pb_decode_fixed32</definition>
+        <argsstring>(SYN_PB_Decoder *dec, uint32_t *value)</argsstring>
+        <name>syn_pb_decode_fixed32</name>
+        <param>
+          <type><ref refid="structSYN__PB__Decoder" kindref="compound">SYN_PB_Decoder</ref> *</type>
+          <declname>dec</declname>
+        </param>
+        <param>
+          <type>uint32_t *</type>
+          <declname>value</declname>
+        </param>
+        <briefdescription>
+<para>Decode a fixed 32-bit integer field value. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>dec</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to decoder instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>value</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output 32-bit value pointer. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_INVALID_PARAM or SYN_ERROR on EOF. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_protobuf.c" line="173" column="12" bodyfile="src/syntropic/util/syn_protobuf.c" bodystart="173" bodyend="188"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__protobuf_8c_1a1f8b941fdd023977d3be198c36bd22c3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_pb_decode_bytes</definition>
+        <argsstring>(SYN_PB_Decoder *dec, const uint8_t **bytes, size_t *len)</argsstring>
+        <name>syn_pb_decode_bytes</name>
+        <param>
+          <type><ref refid="structSYN__PB__Decoder" kindref="compound">SYN_PB_Decoder</ref> *</type>
+          <declname>dec</declname>
+        </param>
+        <param>
+          <type>const uint8_t **</type>
+          <declname>bytes</declname>
+        </param>
+        <param>
+          <type>size_t *</type>
+          <declname>len</declname>
+        </param>
+        <briefdescription>
+<para>Decode a length-delimited byte array field. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>dec</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to decoder instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>bytes</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output byte array pointer pointer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output byte array length pointer. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_INVALID_PARAM or SYN_ERROR on EOF. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_protobuf.c" line="190" column="12" bodyfile="src/syntropic/util/syn_protobuf.c" bodystart="190" bodyend="206"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__protobuf_8c_1a31a8347ec3db0d67538eab555ef93869" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_pb_skip_field</definition>
+        <argsstring>(SYN_PB_Decoder *dec, uint8_t wire_type)</argsstring>
+        <name>syn_pb_skip_field</name>
+        <param>
+          <type><ref refid="structSYN__PB__Decoder" kindref="compound">SYN_PB_Decoder</ref> *</type>
+          <declname>dec</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>wire_type</declname>
+        </param>
+        <briefdescription>
+<para>Skip unknown field based on wire type. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>dec</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to decoder instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>wire_type</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Wire type of field to skip. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_INVALID_PARAM or SYN_ERROR on failure. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_protobuf.c" line="208" column="12" bodyfile="src/syntropic/util/syn_protobuf.c" bodystart="208" bodyend="236"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Zero-Allocation Protocol Buffers Serializer &amp; Deserializer Implementation. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__protobuf_8h" kindref="compound">syn_protobuf.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;string.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__protobuf_8c_1ae7d3afa7274fdf1e5fbc31f4d9ab9d8e" kindref="member">syn_pb_encoder_init</ref>(<ref refid="structSYN__PB__Encoder" kindref="compound">SYN_PB_Encoder</ref><sp/>*enc,<sp/>uint8_t<sp/>*buf,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>capacity)</highlight></codeline>
+<codeline lineno="12"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="13"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>((enc<sp/>==<sp/>NULL)<sp/>||<sp/>(buf<sp/>==<sp/>NULL)<sp/>||<sp/>(capacity<sp/>==<sp/>0U))<sp/>{</highlight></codeline>
+<codeline lineno="14"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="15"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="16"><highlight class="normal"><sp/><sp/><sp/><sp/>enc-&gt;<ref refid="structSYN__PB__Encoder_1a7473758dbde27d00e900a08dc9643fea" kindref="member">buf</ref><sp/>=<sp/>buf;</highlight></codeline>
+<codeline lineno="17"><highlight class="normal"><sp/><sp/><sp/><sp/>enc-&gt;<ref refid="structSYN__PB__Encoder_1ac38be2d8129700cd7204ff3a8f057897" kindref="member">capacity</ref><sp/>=<sp/>capacity;</highlight></codeline>
+<codeline lineno="18"><highlight class="normal"><sp/><sp/><sp/><sp/>enc-&gt;<ref refid="structSYN__PB__Encoder_1aa8cf460645326dafa8a10405cb399e24" kindref="member">offset</ref><sp/>=<sp/>0U;</highlight></codeline>
+<codeline lineno="19"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="20"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__protobuf_8c_1a2b3e7033e96569941be55ce875ed202b" kindref="member">syn_pb_encode_varint</ref>(<ref refid="structSYN__PB__Encoder" kindref="compound">SYN_PB_Encoder</ref><sp/>*enc,<sp/>uint64_t<sp/>value)</highlight></codeline>
+<codeline lineno="23"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="24"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(enc<sp/>==<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="25"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="26"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="27"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">while</highlight><highlight class="normal"><sp/>(value<sp/>&gt;=<sp/>0x80U)<sp/>{</highlight></codeline>
+<codeline lineno="28"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(enc-&gt;<ref refid="structSYN__PB__Encoder_1aa8cf460645326dafa8a10405cb399e24" kindref="member">offset</ref><sp/>&gt;=<sp/>enc-&gt;<ref refid="structSYN__PB__Encoder_1ac38be2d8129700cd7204ff3a8f057897" kindref="member">capacity</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="29"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00acd5d2701b7cfa9fb446640ecbeb19fc9" kindref="member">SYN_ERROR</ref>;<sp/></highlight><highlight class="comment">/*<sp/>LCOV_EXCL_LINE:<sp/>Defensive<sp/>capacity<sp/>guard<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="31"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>enc-&gt;<ref refid="structSYN__PB__Encoder_1a7473758dbde27d00e900a08dc9643fea" kindref="member">buf</ref>[enc-&gt;<ref refid="structSYN__PB__Encoder_1aa8cf460645326dafa8a10405cb399e24" kindref="member">offset</ref>++]<sp/>=<sp/>(uint8_t)((value<sp/>&amp;<sp/>0x7FU)<sp/>|<sp/>0x80U);</highlight></codeline>
+<codeline lineno="32"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>value<sp/>&gt;&gt;=<sp/>7;</highlight></codeline>
+<codeline lineno="33"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="34"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(enc-&gt;<ref refid="structSYN__PB__Encoder_1aa8cf460645326dafa8a10405cb399e24" kindref="member">offset</ref><sp/>&gt;=<sp/>enc-&gt;<ref refid="structSYN__PB__Encoder_1ac38be2d8129700cd7204ff3a8f057897" kindref="member">capacity</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="35"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00acd5d2701b7cfa9fb446640ecbeb19fc9" kindref="member">SYN_ERROR</ref>;</highlight></codeline>
+<codeline lineno="36"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="37"><highlight class="normal"><sp/><sp/><sp/><sp/>enc-&gt;<ref refid="structSYN__PB__Encoder_1a7473758dbde27d00e900a08dc9643fea" kindref="member">buf</ref>[enc-&gt;<ref refid="structSYN__PB__Encoder_1aa8cf460645326dafa8a10405cb399e24" kindref="member">offset</ref>++]<sp/>=<sp/>(uint8_t)(value<sp/>&amp;<sp/>0x7FU);</highlight></codeline>
+<codeline lineno="38"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="39"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__protobuf_8c_1ac79b612dfc1f1de7d19c9b67721da30c" kindref="member">syn_pb_encode_tag</ref>(<ref refid="structSYN__PB__Encoder" kindref="compound">SYN_PB_Encoder</ref><sp/>*enc,<sp/>uint32_t<sp/>field_number,<sp/>uint8_t<sp/>wire_type)</highlight></codeline>
+<codeline lineno="42"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>((enc<sp/>==<sp/>NULL)<sp/>||<sp/>(field_number<sp/>==<sp/>0U))<sp/>{</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/>key<sp/>=<sp/>(field_number<sp/>&lt;&lt;<sp/>3)<sp/>|<sp/>(wire_type<sp/>&amp;<sp/>0x07U);</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__protobuf_8c_1a2b3e7033e96569941be55ce875ed202b" kindref="member">syn_pb_encode_varint</ref>(enc,<sp/>key);</highlight></codeline>
+<codeline lineno="48"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"></highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__protobuf_8c_1ad6e9f877e6f9e7e80fe58258a40195b2" kindref="member">syn_pb_encode_int32</ref>(<ref refid="structSYN__PB__Encoder" kindref="compound">SYN_PB_Encoder</ref><sp/>*enc,<sp/>uint32_t<sp/>field_number,<sp/>int32_t<sp/>value)</highlight></codeline>
+<codeline lineno="51"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(enc<sp/>==<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="syn__protobuf_8c_1ac79b612dfc1f1de7d19c9b67721da30c" kindref="member">syn_pb_encode_tag</ref>(enc,<sp/>field_number,<sp/><ref refid="syn__protobuf_8h_1abde75379c0ecd32a1ad9a2d7c30984df" kindref="member">SYN_PB_WIRE_VARINT</ref>)<sp/>!=<sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00acd5d2701b7cfa9fb446640ecbeb19fc9" kindref="member">SYN_ERROR</ref>;</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__protobuf_8c_1a2b3e7033e96569941be55ce875ed202b" kindref="member">syn_pb_encode_varint</ref>(enc,<sp/>(uint64_t)(int64_t)value);</highlight></codeline>
+<codeline lineno="59"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"></highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__protobuf_8c_1acee03eee0f05a615bebd364007cf86b7" kindref="member">syn_pb_encode_uint32</ref>(<ref refid="structSYN__PB__Encoder" kindref="compound">SYN_PB_Encoder</ref><sp/>*enc,<sp/>uint32_t<sp/>field_number,<sp/>uint32_t<sp/>value)</highlight></codeline>
+<codeline lineno="62"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(enc<sp/>==<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="syn__protobuf_8c_1ac79b612dfc1f1de7d19c9b67721da30c" kindref="member">syn_pb_encode_tag</ref>(enc,<sp/>field_number,<sp/><ref refid="syn__protobuf_8h_1abde75379c0ecd32a1ad9a2d7c30984df" kindref="member">SYN_PB_WIRE_VARINT</ref>)<sp/>!=<sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00acd5d2701b7cfa9fb446640ecbeb19fc9" kindref="member">SYN_ERROR</ref>;</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__protobuf_8c_1a2b3e7033e96569941be55ce875ed202b" kindref="member">syn_pb_encode_varint</ref>(enc,<sp/>value);</highlight></codeline>
+<codeline lineno="70"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"></highlight></codeline>
+<codeline lineno="72"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__protobuf_8c_1ad264679f964e93596cdb3d580870ac9a" kindref="member">syn_pb_encode_bool</ref>(<ref refid="structSYN__PB__Encoder" kindref="compound">SYN_PB_Encoder</ref><sp/>*enc,<sp/>uint32_t<sp/>field_number,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>value)</highlight></codeline>
+<codeline lineno="73"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__protobuf_8c_1acee03eee0f05a615bebd364007cf86b7" kindref="member">syn_pb_encode_uint32</ref>(enc,<sp/>field_number,<sp/>value<sp/>?<sp/>1U<sp/>:<sp/>0U);</highlight></codeline>
+<codeline lineno="75"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"></highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__protobuf_8c_1a345578b0acafcd81fdfb023a16584afa" kindref="member">syn_pb_encode_fixed32</ref>(<ref refid="structSYN__PB__Encoder" kindref="compound">SYN_PB_Encoder</ref><sp/>*enc,<sp/>uint32_t<sp/>field_number,<sp/>uint32_t<sp/>value)</highlight></codeline>
+<codeline lineno="78"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(enc<sp/>==<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="syn__protobuf_8c_1ac79b612dfc1f1de7d19c9b67721da30c" kindref="member">syn_pb_encode_tag</ref>(enc,<sp/>field_number,<sp/><ref refid="syn__protobuf_8h_1a3009ae0059b0bbc68332f2f0a447a6c7" kindref="member">SYN_PB_WIRE_FIXED32</ref>)<sp/>!=<sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00acd5d2701b7cfa9fb446640ecbeb19fc9" kindref="member">SYN_ERROR</ref>;</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(enc-&gt;<ref refid="structSYN__PB__Encoder_1aa8cf460645326dafa8a10405cb399e24" kindref="member">offset</ref><sp/>+<sp/>4U<sp/>&gt;<sp/>enc-&gt;<ref refid="structSYN__PB__Encoder_1ac38be2d8129700cd7204ff3a8f057897" kindref="member">capacity</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00acd5d2701b7cfa9fb446640ecbeb19fc9" kindref="member">SYN_ERROR</ref>;<sp/></highlight><highlight class="comment">/*<sp/>LCOV_EXCL_LINE:<sp/>Defensive<sp/>capacity<sp/>guard<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/><sp/><sp/>enc-&gt;<ref refid="structSYN__PB__Encoder_1a7473758dbde27d00e900a08dc9643fea" kindref="member">buf</ref>[enc-&gt;<ref refid="structSYN__PB__Encoder_1aa8cf460645326dafa8a10405cb399e24" kindref="member">offset</ref>++]<sp/>=<sp/>(uint8_t)(value<sp/>&amp;<sp/>0xFFU);</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"><sp/><sp/><sp/><sp/>enc-&gt;<ref refid="structSYN__PB__Encoder_1a7473758dbde27d00e900a08dc9643fea" kindref="member">buf</ref>[enc-&gt;<ref refid="structSYN__PB__Encoder_1aa8cf460645326dafa8a10405cb399e24" kindref="member">offset</ref>++]<sp/>=<sp/>(uint8_t)((value<sp/>&gt;&gt;<sp/>8)<sp/>&amp;<sp/>0xFFU);</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"><sp/><sp/><sp/><sp/>enc-&gt;<ref refid="structSYN__PB__Encoder_1a7473758dbde27d00e900a08dc9643fea" kindref="member">buf</ref>[enc-&gt;<ref refid="structSYN__PB__Encoder_1aa8cf460645326dafa8a10405cb399e24" kindref="member">offset</ref>++]<sp/>=<sp/>(uint8_t)((value<sp/>&gt;&gt;<sp/>16)<sp/>&amp;<sp/>0xFFU);</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"><sp/><sp/><sp/><sp/>enc-&gt;<ref refid="structSYN__PB__Encoder_1a7473758dbde27d00e900a08dc9643fea" kindref="member">buf</ref>[enc-&gt;<ref refid="structSYN__PB__Encoder_1aa8cf460645326dafa8a10405cb399e24" kindref="member">offset</ref>++]<sp/>=<sp/>(uint8_t)((value<sp/>&gt;&gt;<sp/>24)<sp/>&amp;<sp/>0xFFU);</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="93"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"></highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__protobuf_8c_1a963ace4cd4159ce2261dd0fc1e7e116e" kindref="member">syn_pb_encode_bytes</ref>(<ref refid="structSYN__PB__Encoder" kindref="compound">SYN_PB_Encoder</ref><sp/>*enc,<sp/>uint32_t<sp/>field_number,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*bytes,</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>len)</highlight></codeline>
+<codeline lineno="97"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>((enc<sp/>==<sp/>NULL)<sp/>||<sp/>(bytes<sp/>==<sp/>NULL))<sp/>{</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="syn__protobuf_8c_1ac79b612dfc1f1de7d19c9b67721da30c" kindref="member">syn_pb_encode_tag</ref>(enc,<sp/>field_number,<sp/><ref refid="syn__protobuf_8h_1a3e5da8ad1179a3762a42225662e9e008" kindref="member">SYN_PB_WIRE_LENGTH_DELIMITED</ref>)<sp/>!=<sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00acd5d2701b7cfa9fb446640ecbeb19fc9" kindref="member">SYN_ERROR</ref>;</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="syn__protobuf_8c_1a2b3e7033e96569941be55ce875ed202b" kindref="member">syn_pb_encode_varint</ref>(enc,<sp/>len)<sp/>!=<sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00acd5d2701b7cfa9fb446640ecbeb19fc9" kindref="member">SYN_ERROR</ref>;<sp/></highlight><highlight class="comment">/*<sp/>LCOV_EXCL_LINE:<sp/>Defensive<sp/>varint<sp/>guard<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="106"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(enc-&gt;<ref refid="structSYN__PB__Encoder_1aa8cf460645326dafa8a10405cb399e24" kindref="member">offset</ref><sp/>+<sp/>len<sp/>&gt;<sp/>enc-&gt;<ref refid="structSYN__PB__Encoder_1ac38be2d8129700cd7204ff3a8f057897" kindref="member">capacity</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00acd5d2701b7cfa9fb446640ecbeb19fc9" kindref="member">SYN_ERROR</ref>;<sp/></highlight><highlight class="comment">/*<sp/>LCOV_EXCL_LINE:<sp/>Defensive<sp/>capacity<sp/>guard<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="109"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="110"><highlight class="normal"><sp/><sp/><sp/><sp/>memcpy(&amp;enc-&gt;<ref refid="structSYN__PB__Encoder_1a7473758dbde27d00e900a08dc9643fea" kindref="member">buf</ref>[enc-&gt;<ref refid="structSYN__PB__Encoder_1aa8cf460645326dafa8a10405cb399e24" kindref="member">offset</ref>],<sp/>bytes,<sp/>len);</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"><sp/><sp/><sp/><sp/>enc-&gt;<ref refid="structSYN__PB__Encoder_1aa8cf460645326dafa8a10405cb399e24" kindref="member">offset</ref><sp/>+=<sp/>len;</highlight></codeline>
+<codeline lineno="112"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="113"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"></highlight></codeline>
+<codeline lineno="115"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__protobuf_8c_1a50c02be57d73fe9404a9b310655a4a12" kindref="member">syn_pb_encode_string</ref>(<ref refid="structSYN__PB__Encoder" kindref="compound">SYN_PB_Encoder</ref><sp/>*enc,<sp/>uint32_t<sp/>field_number,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*str)</highlight></codeline>
+<codeline lineno="116"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="117"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(str<sp/>==<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="120"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__protobuf_8c_1a963ace4cd4159ce2261dd0fc1e7e116e" kindref="member">syn_pb_encode_bytes</ref>(enc,<sp/>field_number,<sp/>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*)str,<sp/>strlen(str));</highlight></codeline>
+<codeline lineno="121"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="122"><highlight class="normal"></highlight></codeline>
+<codeline lineno="123"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__protobuf_8c_1a60e955cc17e469863bd3f29ef4db7543" kindref="member">syn_pb_decoder_init</ref>(<ref refid="structSYN__PB__Decoder" kindref="compound">SYN_PB_Decoder</ref><sp/>*dec,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*buf,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>size)</highlight></codeline>
+<codeline lineno="124"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>((dec<sp/>==<sp/>NULL)<sp/>||<sp/>(buf<sp/>==<sp/>NULL))<sp/>{</highlight></codeline>
+<codeline lineno="126"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="127"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="128"><highlight class="normal"><sp/><sp/><sp/><sp/>dec-&gt;<ref refid="structSYN__PB__Decoder_1a6c621c3a873f173104ed8dada93c26fd" kindref="member">buf</ref><sp/>=<sp/>buf;</highlight></codeline>
+<codeline lineno="129"><highlight class="normal"><sp/><sp/><sp/><sp/>dec-&gt;<ref refid="structSYN__PB__Decoder_1a38258f100c8c63509a7b1bb0c224f870" kindref="member">size</ref><sp/>=<sp/>size;</highlight></codeline>
+<codeline lineno="130"><highlight class="normal"><sp/><sp/><sp/><sp/>dec-&gt;<ref refid="structSYN__PB__Decoder_1a0e5d85d733c7726fc68b4467e4489209" kindref="member">offset</ref><sp/>=<sp/>0U;</highlight></codeline>
+<codeline lineno="131"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="132"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="133"><highlight class="normal"></highlight></codeline>
+<codeline lineno="134"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__protobuf_8c_1ac582967875415035640aefee916fd068" kindref="member">syn_pb_decode_varint</ref>(<ref refid="structSYN__PB__Decoder" kindref="compound">SYN_PB_Decoder</ref><sp/>*dec,<sp/>uint64_t<sp/>*value)</highlight></codeline>
+<codeline lineno="135"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>((dec<sp/>==<sp/>NULL)<sp/>||<sp/>(value<sp/>==<sp/>NULL))<sp/>{</highlight></codeline>
+<codeline lineno="137"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="138"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="139"><highlight class="normal"><sp/><sp/><sp/><sp/>uint64_t<sp/>val<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="140"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/>shift<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="141"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">while</highlight><highlight class="normal"><sp/>(dec-&gt;<ref refid="structSYN__PB__Decoder_1a0e5d85d733c7726fc68b4467e4489209" kindref="member">offset</ref><sp/>&lt;<sp/>dec-&gt;<ref refid="structSYN__PB__Decoder_1a38258f100c8c63509a7b1bb0c224f870" kindref="member">size</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="142"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>b<sp/>=<sp/>dec-&gt;<ref refid="structSYN__PB__Decoder_1a6c621c3a873f173104ed8dada93c26fd" kindref="member">buf</ref>[dec-&gt;<ref refid="structSYN__PB__Decoder_1a0e5d85d733c7726fc68b4467e4489209" kindref="member">offset</ref>++];</highlight></codeline>
+<codeline lineno="143"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>val<sp/>|=<sp/>((uint64_t)(b<sp/>&amp;<sp/>0x7FU))<sp/>&lt;&lt;<sp/>shift;</highlight></codeline>
+<codeline lineno="144"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>((b<sp/>&amp;<sp/>0x80U)<sp/>==<sp/>0U)<sp/>{</highlight></codeline>
+<codeline lineno="145"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*value<sp/>=<sp/>val;</highlight></codeline>
+<codeline lineno="146"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="147"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="148"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>shift<sp/>+=<sp/>7U;</highlight></codeline>
+<codeline lineno="149"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(shift<sp/>&gt;=<sp/>64U)<sp/>{</highlight></codeline>
+<codeline lineno="150"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00acd5d2701b7cfa9fb446640ecbeb19fc9" kindref="member">SYN_ERROR</ref>;<sp/></highlight><highlight class="comment">/*<sp/>Overflow<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="151"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="152"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="153"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00acd5d2701b7cfa9fb446640ecbeb19fc9" kindref="member">SYN_ERROR</ref>;</highlight></codeline>
+<codeline lineno="154"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="155"><highlight class="normal"></highlight></codeline>
+<codeline lineno="156"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__protobuf_8c_1ab93a675f2591fbb2cf5fec2e35ef7b21" kindref="member">syn_pb_decode_tag</ref>(<ref refid="structSYN__PB__Decoder" kindref="compound">SYN_PB_Decoder</ref><sp/>*dec,<sp/><ref refid="structSYN__PB__Tag" kindref="compound">SYN_PB_Tag</ref><sp/>*tag)</highlight></codeline>
+<codeline lineno="157"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="158"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>((dec<sp/>==<sp/>NULL)<sp/>||<sp/>(tag<sp/>==<sp/>NULL))<sp/>{</highlight></codeline>
+<codeline lineno="159"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="160"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="161"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(dec-&gt;<ref refid="structSYN__PB__Decoder_1a0e5d85d733c7726fc68b4467e4489209" kindref="member">offset</ref><sp/>&gt;=<sp/>dec-&gt;<ref refid="structSYN__PB__Decoder_1a38258f100c8c63509a7b1bb0c224f870" kindref="member">size</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="162"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00acd5d2701b7cfa9fb446640ecbeb19fc9" kindref="member">SYN_ERROR</ref>;<sp/></highlight><highlight class="comment">/*<sp/>End<sp/>of<sp/>stream<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="163"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="164"><highlight class="normal"><sp/><sp/><sp/><sp/>uint64_t<sp/>key<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="165"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="syn__protobuf_8c_1ac582967875415035640aefee916fd068" kindref="member">syn_pb_decode_varint</ref>(dec,<sp/>&amp;key)<sp/>!=<sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="166"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00acd5d2701b7cfa9fb446640ecbeb19fc9" kindref="member">SYN_ERROR</ref>;</highlight></codeline>
+<codeline lineno="167"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="168"><highlight class="normal"><sp/><sp/><sp/><sp/>tag-&gt;<ref refid="structSYN__PB__Tag_1a837239af2bfec3115f4f2fdd291199a3" kindref="member">field_number</ref><sp/>=<sp/>(uint32_t)(key<sp/>&gt;&gt;<sp/>3);</highlight></codeline>
+<codeline lineno="169"><highlight class="normal"><sp/><sp/><sp/><sp/>tag-&gt;<ref refid="structSYN__PB__Tag_1acb48ac5e11f9eb21dac9c7ff5616d2e1" kindref="member">wire_type</ref><sp/>=<sp/>(uint8_t)(key<sp/>&amp;<sp/>0x07U);</highlight></codeline>
+<codeline lineno="170"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="171"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="172"><highlight class="normal"></highlight></codeline>
+<codeline lineno="173"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__protobuf_8c_1a89971e399006c1c6dfd035c552779fb9" kindref="member">syn_pb_decode_fixed32</ref>(<ref refid="structSYN__PB__Decoder" kindref="compound">SYN_PB_Decoder</ref><sp/>*dec,<sp/>uint32_t<sp/>*value)</highlight></codeline>
+<codeline lineno="174"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="175"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>((dec<sp/>==<sp/>NULL)<sp/>||<sp/>(value<sp/>==<sp/>NULL))<sp/>{</highlight></codeline>
+<codeline lineno="176"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="177"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="178"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(dec-&gt;<ref refid="structSYN__PB__Decoder_1a0e5d85d733c7726fc68b4467e4489209" kindref="member">offset</ref><sp/>+<sp/>4U<sp/>&gt;<sp/>dec-&gt;<ref refid="structSYN__PB__Decoder_1a38258f100c8c63509a7b1bb0c224f870" kindref="member">size</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="179"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00acd5d2701b7cfa9fb446640ecbeb19fc9" kindref="member">SYN_ERROR</ref>;</highlight></codeline>
+<codeline lineno="180"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="181"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/>val<sp/>=<sp/>((uint32_t)dec-&gt;<ref refid="structSYN__PB__Decoder_1a6c621c3a873f173104ed8dada93c26fd" kindref="member">buf</ref>[dec-&gt;<ref refid="structSYN__PB__Decoder_1a0e5d85d733c7726fc68b4467e4489209" kindref="member">offset</ref>])<sp/>|</highlight></codeline>
+<codeline lineno="182"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(((uint32_t)dec-&gt;<ref refid="structSYN__PB__Decoder_1a6c621c3a873f173104ed8dada93c26fd" kindref="member">buf</ref>[dec-&gt;<ref refid="structSYN__PB__Decoder_1a0e5d85d733c7726fc68b4467e4489209" kindref="member">offset</ref><sp/>+<sp/>1U])<sp/>&lt;&lt;<sp/>8)<sp/>|</highlight></codeline>
+<codeline lineno="183"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(((uint32_t)dec-&gt;<ref refid="structSYN__PB__Decoder_1a6c621c3a873f173104ed8dada93c26fd" kindref="member">buf</ref>[dec-&gt;<ref refid="structSYN__PB__Decoder_1a0e5d85d733c7726fc68b4467e4489209" kindref="member">offset</ref><sp/>+<sp/>2U])<sp/>&lt;&lt;<sp/>16)<sp/>|</highlight></codeline>
+<codeline lineno="184"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(((uint32_t)dec-&gt;<ref refid="structSYN__PB__Decoder_1a6c621c3a873f173104ed8dada93c26fd" kindref="member">buf</ref>[dec-&gt;<ref refid="structSYN__PB__Decoder_1a0e5d85d733c7726fc68b4467e4489209" kindref="member">offset</ref><sp/>+<sp/>3U])<sp/>&lt;&lt;<sp/>24);</highlight></codeline>
+<codeline lineno="185"><highlight class="normal"><sp/><sp/><sp/><sp/>dec-&gt;<ref refid="structSYN__PB__Decoder_1a0e5d85d733c7726fc68b4467e4489209" kindref="member">offset</ref><sp/>+=<sp/>4U;</highlight></codeline>
+<codeline lineno="186"><highlight class="normal"><sp/><sp/><sp/><sp/>*value<sp/>=<sp/>val;</highlight></codeline>
+<codeline lineno="187"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="188"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="189"><highlight class="normal"></highlight></codeline>
+<codeline lineno="190"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__protobuf_8c_1a1f8b941fdd023977d3be198c36bd22c3" kindref="member">syn_pb_decode_bytes</ref>(<ref refid="structSYN__PB__Decoder" kindref="compound">SYN_PB_Decoder</ref><sp/>*dec,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>**bytes,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>*len)</highlight></codeline>
+<codeline lineno="191"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="192"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>((dec<sp/>==<sp/>NULL)<sp/>||<sp/>(bytes<sp/>==<sp/>NULL)<sp/>||<sp/>(len<sp/>==<sp/>NULL))<sp/>{</highlight></codeline>
+<codeline lineno="193"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="194"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="195"><highlight class="normal"><sp/><sp/><sp/><sp/>uint64_t<sp/>l<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="196"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="syn__protobuf_8c_1ac582967875415035640aefee916fd068" kindref="member">syn_pb_decode_varint</ref>(dec,<sp/>&amp;l)<sp/>!=<sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="197"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00acd5d2701b7cfa9fb446640ecbeb19fc9" kindref="member">SYN_ERROR</ref>;</highlight></codeline>
+<codeline lineno="198"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="199"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(dec-&gt;<ref refid="structSYN__PB__Decoder_1a0e5d85d733c7726fc68b4467e4489209" kindref="member">offset</ref><sp/>+<sp/>(</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal">)l<sp/>&gt;<sp/>dec-&gt;<ref refid="structSYN__PB__Decoder_1a38258f100c8c63509a7b1bb0c224f870" kindref="member">size</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="200"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00acd5d2701b7cfa9fb446640ecbeb19fc9" kindref="member">SYN_ERROR</ref>;</highlight></codeline>
+<codeline lineno="201"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="202"><highlight class="normal"><sp/><sp/><sp/><sp/>*bytes<sp/>=<sp/>&amp;dec-&gt;<ref refid="structSYN__PB__Decoder_1a6c621c3a873f173104ed8dada93c26fd" kindref="member">buf</ref>[dec-&gt;<ref refid="structSYN__PB__Decoder_1a0e5d85d733c7726fc68b4467e4489209" kindref="member">offset</ref>];</highlight></codeline>
+<codeline lineno="203"><highlight class="normal"><sp/><sp/><sp/><sp/>*len<sp/>=<sp/>(size_t)l;</highlight></codeline>
+<codeline lineno="204"><highlight class="normal"><sp/><sp/><sp/><sp/>dec-&gt;<ref refid="structSYN__PB__Decoder_1a0e5d85d733c7726fc68b4467e4489209" kindref="member">offset</ref><sp/>+=<sp/>(size_t)l;</highlight></codeline>
+<codeline lineno="205"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="206"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="207"><highlight class="normal"></highlight></codeline>
+<codeline lineno="208"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__protobuf_8c_1a31a8347ec3db0d67538eab555ef93869" kindref="member">syn_pb_skip_field</ref>(<ref refid="structSYN__PB__Decoder" kindref="compound">SYN_PB_Decoder</ref><sp/>*dec,<sp/>uint8_t<sp/>wire_type)</highlight></codeline>
+<codeline lineno="209"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="210"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(dec<sp/>==<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="211"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="212"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="213"><highlight class="normal"><sp/><sp/><sp/><sp/>uint64_t<sp/>dummy_v;</highlight></codeline>
+<codeline lineno="214"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/>dummy_f;</highlight></codeline>
+<codeline lineno="215"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*dummy_b;</highlight></codeline>
+<codeline lineno="216"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>dummy_l;</highlight></codeline>
+<codeline lineno="217"><highlight class="normal"></highlight></codeline>
+<codeline lineno="218"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">switch</highlight><highlight class="normal"><sp/>(wire_type)<sp/>{</highlight></codeline>
+<codeline lineno="219"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>LCOV_EXCL_START<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="220"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__protobuf_8h_1abde75379c0ecd32a1ad9a2d7c30984df" kindref="member">SYN_PB_WIRE_VARINT</ref>:</highlight></codeline>
+<codeline lineno="221"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__protobuf_8c_1ac582967875415035640aefee916fd068" kindref="member">syn_pb_decode_varint</ref>(dec,<sp/>&amp;dummy_v);</highlight></codeline>
+<codeline lineno="222"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>LCOV_EXCL_STOP<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="223"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__protobuf_8h_1a3009ae0059b0bbc68332f2f0a447a6c7" kindref="member">SYN_PB_WIRE_FIXED32</ref>:</highlight></codeline>
+<codeline lineno="224"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__protobuf_8c_1a89971e399006c1c6dfd035c552779fb9" kindref="member">syn_pb_decode_fixed32</ref>(dec,<sp/>&amp;dummy_f);</highlight></codeline>
+<codeline lineno="225"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__protobuf_8h_1a3e5da8ad1179a3762a42225662e9e008" kindref="member">SYN_PB_WIRE_LENGTH_DELIMITED</ref>:</highlight></codeline>
+<codeline lineno="226"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__protobuf_8c_1a1f8b941fdd023977d3be198c36bd22c3" kindref="member">syn_pb_decode_bytes</ref>(dec,<sp/>&amp;dummy_b,<sp/>&amp;dummy_l);</highlight></codeline>
+<codeline lineno="227"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__protobuf_8h_1a9e5e49dad1db5fe9d0d78888aa991c0e" kindref="member">SYN_PB_WIRE_FIXED64</ref>:</highlight></codeline>
+<codeline lineno="228"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(dec-&gt;<ref refid="structSYN__PB__Decoder_1a0e5d85d733c7726fc68b4467e4489209" kindref="member">offset</ref><sp/>+<sp/>8U<sp/>&gt;<sp/>dec-&gt;<ref refid="structSYN__PB__Decoder_1a38258f100c8c63509a7b1bb0c224f870" kindref="member">size</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="229"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00acd5d2701b7cfa9fb446640ecbeb19fc9" kindref="member">SYN_ERROR</ref>;</highlight></codeline>
+<codeline lineno="230"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="231"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>dec-&gt;<ref refid="structSYN__PB__Decoder_1a0e5d85d733c7726fc68b4467e4489209" kindref="member">offset</ref><sp/>+=<sp/>8U;</highlight></codeline>
+<codeline lineno="232"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="233"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">default</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="234"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00acd5d2701b7cfa9fb446640ecbeb19fc9" kindref="member">SYN_ERROR</ref>;</highlight></codeline>
+<codeline lineno="235"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="236"><highlight class="normal">}</highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/util/syn_protobuf.c"/>
+  </compounddef>
+</doxygen>

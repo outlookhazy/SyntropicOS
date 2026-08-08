@@ -1,0 +1,452 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__hrpwm_8h" kind="file" language="C++">
+    <compoundname>syn_hrpwm.h</compoundname>
+    <includes refid="syn__defs_8h" local="yes">../common/syn_defs.h</includes>
+    <includes refid="syn__port__hrpwm_8h" local="yes">../port/syn_port_hrpwm.h</includes>
+    <includes local="no">stdbool.h</includes>
+    <includes local="no">stdint.h</includes>
+    <includedby refid="syn__hrpwm_8c" local="yes">src/syntropic/drivers/syn_hrpwm.c</includedby>
+    <incdepgraph>
+      <node id="2">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/drivers/syn_hrpwm.h</label>
+        <link refid="syn__hrpwm_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>../port/syn_port_hrpwm.h</label>
+        <link refid="syn__port__hrpwm_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>../util/syn_qmath.h</label>
+        <link refid="syn__qmath_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>stdbool.h</label>
+      </node>
+      <node id="3">
+        <label>stddef.h</label>
+      </node>
+      <node id="4">
+        <label>stdint.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="2">
+        <label>src/syntropic/drivers/syn_hrpwm.c</label>
+        <link refid="syn__hrpwm_8c"/>
+      </node>
+      <node id="1">
+        <label>src/syntropic/drivers/syn_hrpwm.h</label>
+        <link refid="syn__hrpwm_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="structSYN__HRPWM" prot="public">SYN_HRPWM</innerclass>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__hrpwm_8h_1a59d0219358233f00dbd20e4550655dbe" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_hrpwm_init</definition>
+        <argsstring>(SYN_HRPWM *hrpwm, uint8_t channel, uint32_t freq_hz)</argsstring>
+        <name>syn_hrpwm_init</name>
+        <param>
+          <type><ref refid="structSYN__HRPWM" kindref="compound">SYN_HRPWM</ref> *</type>
+          <declname>hrpwm</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>channel</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>freq_hz</declname>
+        </param>
+        <briefdescription>
+<para>Initialize a High-Resolution PWM driver channel. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>hrpwm</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Handle to initialize. Must not be NULL. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>channel</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Platform channel index. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>freq_hz</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Target switching frequency in Hz. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_INVALID_PARAM on invalid argument. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_hrpwm.h" line="50" column="12" bodyfile="src/syntropic/drivers/syn_hrpwm.c" bodystart="15" bodyend="29" declfile="src/syntropic/drivers/syn_hrpwm.h" declline="50" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__hrpwm_8h_1af74fcfb3c7f26e9633c7d1a70cc041c0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_hrpwm_set_duty_q16</definition>
+        <argsstring>(const SYN_HRPWM *hrpwm, int32_t duty_q16)</argsstring>
+        <name>syn_hrpwm_set_duty_q16</name>
+        <param>
+          <type>const <ref refid="structSYN__HRPWM" kindref="compound">SYN_HRPWM</ref> *</type>
+          <declname>hrpwm</declname>
+        </param>
+        <param>
+          <type>int32_t</type>
+          <declname>duty_q16</declname>
+        </param>
+        <briefdescription>
+<para>Set high-resolution duty cycle ratio using Q16.16 fixed-point format. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>hrpwm</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Initialized HRPWM handle. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>duty_q16</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Duty ratio in Q16.16 (0 = 0%, 65536 = 100%). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_hrpwm.h" line="58" column="12" bodyfile="src/syntropic/drivers/syn_hrpwm.c" bodystart="31" bodyend="43" declfile="src/syntropic/drivers/syn_hrpwm.h" declline="58" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__hrpwm_8h_1a220e820bef34d54d3735279798470749" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_hrpwm_set_duty_float</definition>
+        <argsstring>(const SYN_HRPWM *hrpwm, float duty_float)</argsstring>
+        <name>syn_hrpwm_set_duty_float</name>
+        <param>
+          <type>const <ref refid="structSYN__HRPWM" kindref="compound">SYN_HRPWM</ref> *</type>
+          <declname>hrpwm</declname>
+        </param>
+        <param>
+          <type>float</type>
+          <declname>duty_float</declname>
+        </param>
+        <briefdescription>
+<para>Set high-resolution duty cycle ratio using float (0.0 to 1.0). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>hrpwm</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Initialized HRPWM handle. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>duty_float</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Duty ratio (0.0f = 0%, 1.0f = 100%). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_hrpwm.h" line="66" column="12" bodyfile="src/syntropic/drivers/syn_hrpwm.c" bodystart="45" bodyend="58" declfile="src/syntropic/drivers/syn_hrpwm.h" declline="66" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__hrpwm_8h_1a688d6f3e7c97144503f54d8be96781bc" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_hrpwm_set_deadtime_ns</definition>
+        <argsstring>(SYN_HRPWM *hrpwm, uint16_t rise_ns, uint16_t fall_ns)</argsstring>
+        <name>syn_hrpwm_set_deadtime_ns</name>
+        <param>
+          <type><ref refid="structSYN__HRPWM" kindref="compound">SYN_HRPWM</ref> *</type>
+          <declname>hrpwm</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>rise_ns</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>fall_ns</declname>
+        </param>
+        <briefdescription>
+<para>Configure complementary dead-time insertion. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>hrpwm</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Initialized HRPWM handle. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>rise_ns</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>High-side rise dead-time in nanoseconds. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>fall_ns</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Low-side fall dead-time in nanoseconds. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_hrpwm.h" line="75" column="12" bodyfile="src/syntropic/drivers/syn_hrpwm.c" bodystart="60" bodyend="70" declfile="src/syntropic/drivers/syn_hrpwm.h" declline="75" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__hrpwm_8h_1a4b391c05e18ebb3197819c54e0bf7a39" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_hrpwm_set_phase_deg</definition>
+        <argsstring>(SYN_HRPWM *hrpwm, uint16_t phase_deg)</argsstring>
+        <name>syn_hrpwm_set_phase_deg</name>
+        <param>
+          <type><ref refid="structSYN__HRPWM" kindref="compound">SYN_HRPWM</ref> *</type>
+          <declname>hrpwm</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>phase_deg</declname>
+        </param>
+        <briefdescription>
+<para>Set channel phase shift offset in degrees. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>hrpwm</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Initialized HRPWM handle. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>phase_deg</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Phase angle offset in degrees (0–360). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_hrpwm.h" line="83" column="12" bodyfile="src/syntropic/drivers/syn_hrpwm.c" bodystart="72" bodyend="80" declfile="src/syntropic/drivers/syn_hrpwm.h" declline="83" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__hrpwm_8h_1a78bfc8cadd658899844a658d0f215f1d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_hrpwm_bind_fault</definition>
+        <argsstring>(const SYN_HRPWM *hrpwm, uint8_t fault_id)</argsstring>
+        <name>syn_hrpwm_bind_fault</name>
+        <param>
+          <type>const <ref refid="structSYN__HRPWM" kindref="compound">SYN_HRPWM</ref> *</type>
+          <declname>hrpwm</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>fault_id</declname>
+        </param>
+        <briefdescription>
+<para>Bind hardware emergency fault trip protection. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>hrpwm</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Initialized HRPWM handle. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>fault_id</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Hardware fault pin/comparator ID. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_hrpwm.h" line="91" column="12" bodyfile="src/syntropic/drivers/syn_hrpwm.c" bodystart="82" bodyend="89" declfile="src/syntropic/drivers/syn_hrpwm.h" declline="91" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__hrpwm_8h_1a2a44a2a0baea369dacba2610a126bd12" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_hrpwm_enable</definition>
+        <argsstring>(SYN_HRPWM *hrpwm, bool enable)</argsstring>
+        <name>syn_hrpwm_enable</name>
+        <param>
+          <type><ref refid="structSYN__HRPWM" kindref="compound">SYN_HRPWM</ref> *</type>
+          <declname>hrpwm</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+          <declname>enable</declname>
+        </param>
+        <briefdescription>
+<para>Enable or disable complementary HRPWM gate drivers. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>hrpwm</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Initialized HRPWM handle. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>enable</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>true to enable outputs, false to disable. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_hrpwm.h" line="99" column="12" bodyfile="src/syntropic/drivers/syn_hrpwm.c" bodystart="91" bodyend="99" declfile="src/syntropic/drivers/syn_hrpwm.h" declline="99" declcolumn="12"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>High-Resolution Power &amp; Precision Motion Control Driver. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Provides a vendor-agnostic, zero-allocation OS interface for sub-nanosecond PWM edge placement, complementary high-side/low-side gate driver control, hardware dead-time insertion, phase shifting, and emergency fault trips.</para>
+<para>Usage: <programlisting><codeline><highlight class="normal"><ref refid="structSYN__HRPWM" kindref="compound">SYN_HRPWM</ref><sp/>hrpwm;</highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__hrpwm_8c_1a59d0219358233f00dbd20e4550655dbe" kindref="member">syn_hrpwm_init</ref>(&amp;hrpwm,<sp/>0,<sp/>500000);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>500<sp/>kHz<sp/>switching<sp/>frequency</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__hrpwm_8c_1a688d6f3e7c97144503f54d8be96781bc" kindref="member">syn_hrpwm_set_deadtime_ns</ref>(&amp;hrpwm,<sp/>100,<sp/>100);<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>100<sp/>ns<sp/>dead-time</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__hrpwm_8c_1af74fcfb3c7f26e9633c7d1a70cc041c0" kindref="member">syn_hrpwm_set_duty_q16</ref>(&amp;hrpwm,<sp/><ref refid="syn__qmath_8h_1a6fb4c3fddeda3a2e145765b2e69af7fc" kindref="member">Q16_FROM_FLOAT</ref>(0.50f));<sp/></highlight><highlight class="comment">//<sp/>50%<sp/>duty<sp/>cycle</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__hrpwm_8c_1a2a44a2a0baea369dacba2610a126bd12" kindref="member">syn_hrpwm_enable</ref>(&amp;hrpwm,<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">);</highlight></codeline>
+</programlisting> </para>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_HRPWM_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_HRPWM_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../common/syn_defs.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../port/syn_port_hrpwm.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight></codeline>
+<codeline lineno="34" refid="structSYN__HRPWM" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="35" refid="structSYN__HRPWM_1a19fc115d52f652875ce0d3cc861c881c" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><ref refid="structSYN__HRPWM_1a19fc115d52f652875ce0d3cc861c881c" kindref="member">channel</ref>;<sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="36" refid="structSYN__HRPWM_1ac5bb797815677c8c36361beaa7cee7b4" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structSYN__HRPWM_1ac5bb797815677c8c36361beaa7cee7b4" kindref="member">freq_hz</ref>;<sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="37" refid="structSYN__HRPWM_1aa89dd85772dca834c8c825a7f21cf59f" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/><ref refid="structSYN__HRPWM_1aa89dd85772dca834c8c825a7f21cf59f" kindref="member">rise_ns</ref>;<sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="38" refid="structSYN__HRPWM_1a30d2573dab3ad37d3c0f158311d0f463" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/><ref refid="structSYN__HRPWM_1a30d2573dab3ad37d3c0f158311d0f463" kindref="member">fall_ns</ref>;<sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="39" refid="structSYN__HRPWM_1acb7f0c0fe1f9fcce252751924f23eda0" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/><ref refid="structSYN__HRPWM_1acb7f0c0fe1f9fcce252751924f23eda0" kindref="member">phase_deg</ref>;<sp/></highlight></codeline>
+<codeline lineno="40" refid="structSYN__HRPWM_1a63454c72b11ea469699df7b0ce1d86c9" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="structSYN__HRPWM_1a63454c72b11ea469699df7b0ce1d86c9" kindref="member">enabled</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="41"><highlight class="normal">}<sp/><ref refid="structSYN__HRPWM" kindref="compound">SYN_HRPWM</ref>;</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__hrpwm_8h_1a59d0219358233f00dbd20e4550655dbe" kindref="member">syn_hrpwm_init</ref>(<ref refid="structSYN__HRPWM" kindref="compound">SYN_HRPWM</ref><sp/>*hrpwm,<sp/>uint8_t<sp/>channel,<sp/>uint32_t<sp/>freq_hz);</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"></highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__hrpwm_8h_1af74fcfb3c7f26e9633c7d1a70cc041c0" kindref="member">syn_hrpwm_set_duty_q16</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__HRPWM" kindref="compound">SYN_HRPWM</ref><sp/>*hrpwm,<sp/>int32_t<sp/>duty_q16);</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"></highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__hrpwm_8h_1a220e820bef34d54d3735279798470749" kindref="member">syn_hrpwm_set_duty_float</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__HRPWM" kindref="compound">SYN_HRPWM</ref><sp/>*hrpwm,<sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>duty_float);</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"></highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__hrpwm_8h_1a688d6f3e7c97144503f54d8be96781bc" kindref="member">syn_hrpwm_set_deadtime_ns</ref>(<ref refid="structSYN__HRPWM" kindref="compound">SYN_HRPWM</ref><sp/>*hrpwm,<sp/>uint16_t<sp/>rise_ns,<sp/>uint16_t<sp/>fall_ns);</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"></highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__hrpwm_8h_1a4b391c05e18ebb3197819c54e0bf7a39" kindref="member">syn_hrpwm_set_phase_deg</ref>(<ref refid="structSYN__HRPWM" kindref="compound">SYN_HRPWM</ref><sp/>*hrpwm,<sp/>uint16_t<sp/>phase_deg);</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"></highlight></codeline>
+<codeline lineno="91"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__hrpwm_8h_1a78bfc8cadd658899844a658d0f215f1d" kindref="member">syn_hrpwm_bind_fault</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__HRPWM" kindref="compound">SYN_HRPWM</ref><sp/>*hrpwm,<sp/>uint8_t<sp/>fault_id);</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"></highlight></codeline>
+<codeline lineno="99"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__hrpwm_8h_1a2a44a2a0baea369dacba2610a126bd12" kindref="member">syn_hrpwm_enable</ref>(<ref refid="structSYN__HRPWM" kindref="compound">SYN_HRPWM</ref><sp/>*hrpwm,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>enable);</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"></highlight></codeline>
+<codeline lineno="101"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="102"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="104"><highlight class="normal"></highlight></codeline>
+<codeline lineno="105"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_HRPWM_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/drivers/syn_hrpwm.h"/>
+  </compounddef>
+</doxygen>

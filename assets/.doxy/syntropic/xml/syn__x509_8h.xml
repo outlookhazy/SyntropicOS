@@ -1,0 +1,390 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__x509_8h" kind="file" language="C++">
+    <compoundname>syn_x509.h</compoundname>
+    <includes refid="syn__asn1_8h" local="yes">syntropic/crypto/syn_asn1.h</includes>
+    <includes local="no">stdbool.h</includes>
+    <includes local="no">stddef.h</includes>
+    <includes local="no">stdint.h</includes>
+    <includedby refid="syn__x509_8c" local="yes">src/syntropic/crypto/syn_x509.c</includedby>
+    <includedby refid="syn__tls_8h" local="yes">src/syntropic/net/syn_tls.h</includedby>
+    <incdepgraph>
+      <node id="2">
+        <label>syntropic/crypto/syn_asn1.h</label>
+        <link refid="syn__asn1_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/crypto/syn_x509.h</label>
+        <link refid="syn__x509_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>stdbool.h</label>
+      </node>
+      <node id="4">
+        <label>stddef.h</label>
+      </node>
+      <node id="5">
+        <label>stdint.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="2">
+        <label>src/syntropic/crypto/syn_x509.c</label>
+        <link refid="syn__x509_8c"/>
+      </node>
+      <node id="1">
+        <label>src/syntropic/crypto/syn_x509.h</label>
+        <link refid="syn__x509_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>src/syntropic/net/syn_tls.c</label>
+        <link refid="syn__tls_8c"/>
+      </node>
+      <node id="3">
+        <label>src/syntropic/net/syn_tls.h</label>
+        <link refid="syn__tls_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="structSYN__X509__Cert" prot="public">SYN_X509_Cert</innerclass>
+    <sectiondef kind="define">
+      <memberdef kind="define" id="syn__x509_8h_1adfb4701a5be6d9e46bc6212208eb28e5" prot="public" static="no">
+        <name>SYN_X509_MAX_NAME_LEN</name>
+        <initializer>128U</initializer>
+        <briefdescription>
+<para>Maximum CommonName string length (128). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/crypto/syn_x509.h" line="21" column="9" bodyfile="src/syntropic/crypto/syn_x509.h" bodystart="21" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__x509_8h_1a405612d346a9dd7a0dd80fa9fb7ffcac" prot="public" static="no">
+        <name>SYN_X509_PUBKEY_MAX_LEN</name>
+        <initializer>128U</initializer>
+        <briefdescription>
+<para>Maximum public key buffer length (128). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/crypto/syn_x509.h" line="23" column="9" bodyfile="src/syntropic/crypto/syn_x509.h" bodystart="23" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__x509_8h_1a3bab5c5fd755ccaed6359d4fdfeb4d62" prot="public" static="no">
+        <name>SYN_X509_SIG_MAX_LEN</name>
+        <initializer>256U</initializer>
+        <briefdescription>
+<para>Maximum signature buffer length (256). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/crypto/syn_x509.h" line="25" column="9" bodyfile="src/syntropic/crypto/syn_x509.h" bodystart="25" bodyend="-1"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="enum">
+      <memberdef kind="enum" id="syn__x509_8h_1a8757413c4d2438ca24cadf83027e942a" prot="public" static="no" strong="no">
+        <type></type>
+        <name>SYN_X509_Algo</name>
+        <enumvalue id="syn__x509_8h_1a8757413c4d2438ca24cadf83027e942aa1dd6bd521f050ec498e4d6a346f2a585" prot="public">
+          <name>SYN_X509_ALGO_UNKNOWN</name>
+          <initializer>= 0</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__x509_8h_1a8757413c4d2438ca24cadf83027e942aac7f9abbb70fc0c35f8d40eeac80f0d39" prot="public">
+          <name>SYN_X509_ALGO_ED25519</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__x509_8h_1a8757413c4d2438ca24cadf83027e942aaea7b067f93d41c9fe907a4dfcef5de17" prot="public">
+          <name>SYN_X509_ALGO_ECDSA_P256</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__x509_8h_1a8757413c4d2438ca24cadf83027e942aa01ec3f560746eba9599053afa51008b2" prot="public">
+          <name>SYN_X509_ALGO_RSA_PSS</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Public Key Algorithm Types in X.509 SubjectPublicKeyInfo </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/crypto/syn_x509.h" line="28" column="1" bodyfile="src/syntropic/crypto/syn_x509.h" bodystart="28" bodyend="33"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__x509_8h_1a66e610de0ec59bff0ce787b6385292e3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_x509_parse</definition>
+        <argsstring>(const uint8_t *der, size_t der_len, SYN_X509_Cert *cert_out)</argsstring>
+        <name>syn_x509_parse</name>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>der</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>der_len</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__X509__Cert" kindref="compound">SYN_X509_Cert</ref> *</type>
+          <declname>cert_out</declname>
+        </param>
+        <briefdescription>
+<para>Parse a raw DER-encoded X.509 certificate. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>der</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Raw DER bytes of certificate. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>der_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Length of DER bytes. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>cert_out</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>[out] Output parsed certificate struct. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if valid X.509 certificate parsed successfully. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/crypto/syn_x509.h" line="65" column="6" bodyfile="src/syntropic/crypto/syn_x509.c" bodystart="73" bodyend="226" declfile="src/syntropic/crypto/syn_x509.h" declline="65" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__x509_8h_1a4a3448e4a6d1f2fcbeb08c41e563bf2b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_x509_verify_signature</definition>
+        <argsstring>(const SYN_X509_Cert *cert, const uint8_t *issuer_pubkey, size_t issuer_pubkey_len, SYN_X509_Algo algo)</argsstring>
+        <name>syn_x509_verify_signature</name>
+        <param>
+          <type>const <ref refid="structSYN__X509__Cert" kindref="compound">SYN_X509_Cert</ref> *</type>
+          <declname>cert</declname>
+        </param>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>issuer_pubkey</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>issuer_pubkey_len</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__x509_8h_1a8757413c4d2438ca24cadf83027e942a" kindref="member">SYN_X509_Algo</ref></type>
+          <declname>algo</declname>
+        </param>
+        <briefdescription>
+<para>Verify certificate signature against an issuer&apos;s public key. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>cert</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Parsed child certificate to verify. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>issuer_pubkey</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Issuer&apos;s public key. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>issuer_pubkey_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Issuer&apos;s public key length. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>algo</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Algorithm of issuer&apos;s public key. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if signature is valid. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/crypto/syn_x509.h" line="76" column="6" bodyfile="src/syntropic/crypto/syn_x509.c" bodystart="228" bodyend="245" declfile="src/syntropic/crypto/syn_x509.h" declline="76" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__x509_8h_1a301c1384dd1ea3ee3af29584552ef251" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_x509_validate_chain</definition>
+        <argsstring>(const SYN_X509_Cert *cert, const SYN_X509_Cert *root_ca, const char *expected_cn)</argsstring>
+        <name>syn_x509_validate_chain</name>
+        <param>
+          <type>const <ref refid="structSYN__X509__Cert" kindref="compound">SYN_X509_Cert</ref> *</type>
+          <declname>cert</declname>
+        </param>
+        <param>
+          <type>const <ref refid="structSYN__X509__Cert" kindref="compound">SYN_X509_Cert</ref> *</type>
+          <declname>root_ca</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>expected_cn</declname>
+        </param>
+        <briefdescription>
+<para>Validate a certificate chain back to a trusted Root CA certificate. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>cert</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Leaf certificate. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>root_ca</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Trusted Root CA certificate. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>expected_cn</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Expected Server Name (SNI) to match against leaf CN/SAN. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if chain is valid and trusted. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/crypto/syn_x509.h" line="87" column="6" bodyfile="src/syntropic/crypto/syn_x509.c" bodystart="247" bodyend="262" declfile="src/syntropic/crypto/syn_x509.h" declline="87" declcolumn="6"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Zero-Heap X.509 v3 Certificate &amp; Chain Parser and Validator. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_X509_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_X509_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__asn1_8h" kindref="compound">syntropic/crypto/syn_asn1.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stddef.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight></codeline>
+<codeline lineno="21" refid="syn__x509_8h_1adfb4701a5be6d9e46bc6212208eb28e5" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_X509_MAX_NAME_LEN<sp/>128U</highlight></codeline>
+<codeline lineno="23" refid="syn__x509_8h_1a405612d346a9dd7a0dd80fa9fb7ffcac" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_X509_PUBKEY_MAX_LEN<sp/>128U</highlight></codeline>
+<codeline lineno="25" refid="syn__x509_8h_1a3bab5c5fd755ccaed6359d4fdfeb4d62" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_X509_SIG_MAX_LEN<sp/>256U</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight></codeline>
+<codeline lineno="28" refid="syn__x509_8h_1a8757413c4d2438ca24cadf83027e942a" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="29"><highlight class="normal"><sp/><sp/><sp/><sp/>SYN_X509_ALGO_UNKNOWN<sp/>=<sp/>0,</highlight></codeline>
+<codeline lineno="30"><highlight class="normal"><sp/><sp/><sp/><sp/>SYN_X509_ALGO_ED25519,</highlight></codeline>
+<codeline lineno="31"><highlight class="normal"><sp/><sp/><sp/><sp/>SYN_X509_ALGO_ECDSA_P256,</highlight></codeline>
+<codeline lineno="32"><highlight class="normal"><sp/><sp/><sp/><sp/>SYN_X509_ALGO_RSA_PSS</highlight></codeline>
+<codeline lineno="33"><highlight class="normal">}<sp/><ref refid="syn__x509_8h_1a8757413c4d2438ca24cadf83027e942a" kindref="member">SYN_X509_Algo</ref>;</highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight></codeline>
+<codeline lineno="36" refid="structSYN__X509__Cert" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="37" refid="structSYN__X509__Cert_1a50f13b6dca3eae78cbb5d6e28dfc0674" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*<ref refid="structSYN__X509__Cert_1a50f13b6dca3eae78cbb5d6e28dfc0674" kindref="member">tbs_bytes</ref>;<sp/></highlight></codeline>
+<codeline lineno="38" refid="structSYN__X509__Cert_1a29a410405b6980beaed0a6d1819f2cf9" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="structSYN__X509__Cert_1a29a410405b6980beaed0a6d1819f2cf9" kindref="member">tbs_len</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="39" refid="structSYN__X509__Cert_1a220069dcdaab9044b9d3d1c22d4c3e59" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structSYN__X509__Cert_1a220069dcdaab9044b9d3d1c22d4c3e59" kindref="member">version</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="40" refid="structSYN__X509__Cert_1a61b2dd57e86be1d963636edddb835e97" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*<ref refid="structSYN__X509__Cert_1a61b2dd57e86be1d963636edddb835e97" kindref="member">serial</ref>;<sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="41" refid="structSYN__X509__Cert_1a50be31024eae00f8017b5587ed7547e3" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="structSYN__X509__Cert_1a50be31024eae00f8017b5587ed7547e3" kindref="member">serial_len</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="43" refid="structSYN__X509__Cert_1a3096deed79efb428a4904d85f4766535" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__x509_8h_1a8757413c4d2438ca24cadf83027e942a" kindref="member">SYN_X509_Algo</ref><sp/><ref refid="structSYN__X509__Cert_1a3096deed79efb428a4904d85f4766535" kindref="member">pubkey_algo</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="44" refid="structSYN__X509__Cert_1aa4d3f6e987d80c1d5b1ddcd2f4432385" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>pubkey[<ref refid="syn__x509_8h_1a405612d346a9dd7a0dd80fa9fb7ffcac" kindref="member">SYN_X509_PUBKEY_MAX_LEN</ref>];<sp/></highlight></codeline>
+<codeline lineno="45" refid="structSYN__X509__Cert_1a603536a54dfdcc4ba37f415756b48300" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="structSYN__X509__Cert_1a603536a54dfdcc4ba37f415756b48300" kindref="member">pubkey_len</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="47" refid="structSYN__X509__Cert_1a28c4b92f3710867a14abf2feba6dab6f" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__x509_8h_1a8757413c4d2438ca24cadf83027e942a" kindref="member">SYN_X509_Algo</ref><sp/><ref refid="structSYN__X509__Cert_1a28c4b92f3710867a14abf2feba6dab6f" kindref="member">sig_algo</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="48" refid="structSYN__X509__Cert_1a6a4385e69ee62b70b706777018e637c4" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>signature[<ref refid="syn__x509_8h_1a3bab5c5fd755ccaed6359d4fdfeb4d62" kindref="member">SYN_X509_SIG_MAX_LEN</ref>];<sp/></highlight></codeline>
+<codeline lineno="49" refid="structSYN__X509__Cert_1a1356e493f0a37c0cd0b87eba0dc51ab8" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="structSYN__X509__Cert_1a1356e493f0a37c0cd0b87eba0dc51ab8" kindref="member">signature_len</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="51" refid="structSYN__X509__Cert_1adde5994f8412fd92668b67ff948e6692" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>subject_cn[<ref refid="syn__x509_8h_1adfb4701a5be6d9e46bc6212208eb28e5" kindref="member">SYN_X509_MAX_NAME_LEN</ref>];<sp/></highlight></codeline>
+<codeline lineno="52" refid="structSYN__X509__Cert_1a914042898fe00b47357c2f3cd58d356c" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>issuer_cn[<ref refid="syn__x509_8h_1adfb4701a5be6d9e46bc6212208eb28e5" kindref="member">SYN_X509_MAX_NAME_LEN</ref>];<sp/><sp/></highlight></codeline>
+<codeline lineno="54" refid="structSYN__X509__Cert_1a01d823179145458647cf9278c8c521d5" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="structSYN__X509__Cert_1a01d823179145458647cf9278c8c521d5" kindref="member">is_ca</ref>;<sp/></highlight></codeline>
+<codeline lineno="55"><highlight class="normal">}<sp/><ref refid="structSYN__X509__Cert" kindref="compound">SYN_X509_Cert</ref>;</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"></highlight></codeline>
+<codeline lineno="65"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__x509_8h_1a66e610de0ec59bff0ce787b6385292e3" kindref="member">syn_x509_parse</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*der,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>der_len,<sp/><ref refid="structSYN__X509__Cert" kindref="compound">SYN_X509_Cert</ref><sp/>*cert_out);</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"></highlight></codeline>
+<codeline lineno="76"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__x509_8h_1a4a3448e4a6d1f2fcbeb08c41e563bf2b" kindref="member">syn_x509_verify_signature</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__X509__Cert" kindref="compound">SYN_X509_Cert</ref><sp/>*cert,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*issuer_pubkey,</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>issuer_pubkey_len,<sp/><ref refid="syn__x509_8h_1a8757413c4d2438ca24cadf83027e942a" kindref="member">SYN_X509_Algo</ref><sp/>algo);</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"></highlight></codeline>
+<codeline lineno="87"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__x509_8h_1a301c1384dd1ea3ee3af29584552ef251" kindref="member">syn_x509_validate_chain</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__X509__Cert" kindref="compound">SYN_X509_Cert</ref><sp/>*cert,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__X509__Cert" kindref="compound">SYN_X509_Cert</ref><sp/>*root_ca,</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*expected_cn);</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"></highlight></codeline>
+<codeline lineno="90"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="91"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="93"><highlight class="normal"></highlight></codeline>
+<codeline lineno="94"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_X509_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/crypto/syn_x509.h"/>
+  </compounddef>
+</doxygen>

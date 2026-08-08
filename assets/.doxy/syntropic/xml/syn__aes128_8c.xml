@@ -1,0 +1,937 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__aes128_8c" kind="file" language="C++">
+    <compoundname>syn_aes128.c</compoundname>
+    <includes refid="syn__aes128_8h" local="yes">syn_aes128.h</includes>
+    <includes refid="syn__assert_8h" local="yes">syn_assert.h</includes>
+    <includes local="no">string.h</includes>
+    <incdepgraph>
+      <node id="8">
+        <label>../common/syn_compiler.h</label>
+        <link refid="syn__compiler_8h"/>
+      </node>
+      <node id="3">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/util/syn_aes128.c</label>
+        <link refid="syn__aes128_8c"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>syn_aes128.h</label>
+        <link refid="syn__aes128_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>syn_assert.h</label>
+        <link refid="syn__assert_8h"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>stdbool.h</label>
+      </node>
+      <node id="4">
+        <label>stddef.h</label>
+      </node>
+      <node id="5">
+        <label>stdint.h</label>
+      </node>
+      <node id="9">
+        <label>string.h</label>
+      </node>
+    </incdepgraph>
+    <sectiondef kind="var">
+      <memberdef kind="variable" id="syn__aes128_8c_1adc15aeb43c81de1162045eedf437f407" prot="public" static="yes" mutable="no">
+        <type>const uint8_t</type>
+        <definition>const uint8_t sbox[256]</definition>
+        <argsstring>[256]</argsstring>
+        <name>sbox</name>
+        <initializer>= {
+    0x63, 0x7c, 0x77, 0x7b, 0xf2, 0x6b, 0x6f, 0xc5, 0x30, 0x01, 0x67, 0x2b, 0xfe, 0xd7, 0xab, 0x76,
+    0xca, 0x82, 0xc9, 0x7d, 0xfa, 0x59, 0x47, 0xf0, 0xad, 0xd4, 0xa2, 0xaf, 0x9c, 0xa4, 0x72, 0xc0,
+    0xb7, 0xfd, 0x93, 0x26, 0x36, 0x3f, 0xf7, 0xcc, 0x34, 0xa5, 0xe5, 0xf1, 0x71, 0xd8, 0x31, 0x15,
+    0x04, 0xc7, 0x23, 0xc3, 0x18, 0x96, 0x05, 0x9a, 0x07, 0x12, 0x80, 0xe2, 0xeb, 0x27, 0xb2, 0x75,
+    0x09, 0x83, 0x2c, 0x1a, 0x1b, 0x6e, 0x5a, 0xa0, 0x52, 0x3b, 0xd6, 0xb3, 0x29, 0xe3, 0x2f, 0x84,
+    0x53, 0xd1, 0x00, 0xed, 0x20, 0xfc, 0xb1, 0x5b, 0x6a, 0xcb, 0xbe, 0x39, 0x4a, 0x4c, 0x58, 0xcf,
+    0xd0, 0xef, 0xaa, 0xfb, 0x43, 0x4d, 0x33, 0x85, 0x45, 0xf9, 0x02, 0x7f, 0x50, 0x3c, 0x9f, 0xa8,
+    0x51, 0xa3, 0x40, 0x8f, 0x92, 0x9d, 0x38, 0xf5, 0xbc, 0xb6, 0xda, 0x21, 0x10, 0xff, 0xf3, 0xd2,
+    0xcd, 0x0c, 0x13, 0xec, 0x5f, 0x97, 0x44, 0x17, 0xc4, 0xa7, 0x7e, 0x3d, 0x64, 0x5d, 0x19, 0x73,
+    0x60, 0x81, 0x4f, 0xdc, 0x22, 0x2a, 0x90, 0x88, 0x46, 0xee, 0xb8, 0x14, 0xde, 0x5e, 0x0b, 0xdb,
+    0xe0, 0x32, 0x3a, 0x0a, 0x49, 0x06, 0x24, 0x5c, 0xc2, 0xd3, 0xac, 0x62, 0x91, 0x95, 0xe4, 0x79,
+    0xe7, 0xc8, 0x37, 0x6d, 0x8d, 0xd5, 0x4e, 0xa9, 0x6c, 0x56, 0xf4, 0xea, 0x65, 0x7a, 0xae, 0x08,
+    0xba, 0x78, 0x25, 0x2e, 0x1c, 0xa6, 0xb4, 0xc6, 0xe8, 0xdd, 0x74, 0x1f, 0x4b, 0xbd, 0x8b, 0x8a,
+    0x70, 0x3e, 0xb5, 0x66, 0x48, 0x03, 0xf6, 0x0e, 0x61, 0x35, 0x57, 0xb9, 0x86, 0xc1, 0x1d, 0x9e,
+    0xe1, 0xf8, 0x98, 0x11, 0x69, 0xd9, 0x8e, 0x94, 0x9b, 0x1e, 0x87, 0xe9, 0xce, 0x55, 0x28, 0xdf,
+    0x8c, 0xa1, 0x89, 0x0d, 0xbf, 0xe6, 0x42, 0x68, 0x41, 0x99, 0x2d, 0x0f, 0xb0, 0x54, 0xbb, 0x16}</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Forward S-Box table </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_aes128.c" line="19" column="22" bodyfile="src/syntropic/util/syn_aes128.c" bodystart="19" bodyend="35"/>
+      </memberdef>
+      <memberdef kind="variable" id="syn__aes128_8c_1a5fb4523234538d83676ef33a45b18fd1" prot="public" static="yes" mutable="no">
+        <type>const uint8_t</type>
+        <definition>const uint8_t rsbox[256]</definition>
+        <argsstring>[256]</argsstring>
+        <name>rsbox</name>
+        <initializer>= {
+    0x52, 0x09, 0x6a, 0xd5, 0x30, 0x36, 0xa5, 0x38, 0xbf, 0x40, 0xa3, 0x9e, 0x81, 0xf3, 0xd7, 0xfb,
+    0x7c, 0xe3, 0x39, 0x82, 0x9b, 0x2f, 0xff, 0x87, 0x34, 0x8e, 0x43, 0x44, 0xc4, 0xde, 0xe9, 0xcb,
+    0x54, 0x7b, 0x94, 0x32, 0xa6, 0xc2, 0x23, 0x3d, 0xee, 0x4c, 0x95, 0x0b, 0x42, 0xfa, 0xc3, 0x4e,
+    0x08, 0x2e, 0xa1, 0x66, 0x28, 0xd9, 0x24, 0xb2, 0x76, 0x5b, 0xa2, 0x49, 0x6d, 0x8b, 0xd1, 0x25,
+    0x72, 0xf8, 0xf6, 0x64, 0x86, 0x68, 0x98, 0x16, 0xd4, 0xa4, 0x5c, 0xcc, 0x5d, 0x65, 0xb6, 0x92,
+    0x6c, 0x70, 0x48, 0x50, 0xfd, 0xed, 0xb9, 0xda, 0x5e, 0x15, 0x46, 0x57, 0xa7, 0x8d, 0x9d, 0x84,
+    0x90, 0xd8, 0xab, 0x00, 0x8c, 0xbc, 0xd3, 0x0a, 0xf7, 0xe4, 0x58, 0x05, 0xb8, 0xb3, 0x45, 0x06,
+    0xd0, 0x2c, 0x1e, 0x8f, 0xca, 0x3f, 0x0f, 0x02, 0xc1, 0xaf, 0xbd, 0x03, 0x01, 0x13, 0x8a, 0x6b,
+    0x3a, 0x91, 0x11, 0x41, 0x4f, 0x67, 0xdc, 0xea, 0x97, 0xf2, 0xcf, 0xce, 0xf0, 0xb4, 0xe6, 0x73,
+    0x96, 0xac, 0x74, 0x22, 0xe7, 0xad, 0x35, 0x85, 0xe2, 0xf9, 0x37, 0xe8, 0x1c, 0x75, 0xdf, 0x6e,
+    0x47, 0xf1, 0x1a, 0x71, 0x1d, 0x29, 0xc5, 0x89, 0x6f, 0xb7, 0x62, 0x0e, 0xaa, 0x18, 0xbe, 0x1b,
+    0xfc, 0x56, 0x3e, 0x4b, 0xc6, 0xd2, 0x79, 0x20, 0x9a, 0xdb, 0xc0, 0xfe, 0x78, 0xcd, 0x5a, 0xf4,
+    0x1f, 0xdd, 0xa8, 0x33, 0x88, 0x07, 0xc7, 0x31, 0xb1, 0x12, 0x10, 0x59, 0x27, 0x80, 0xec, 0x5f,
+    0x60, 0x51, 0x7f, 0xa9, 0x19, 0xb5, 0x4a, 0x0d, 0x2d, 0xe5, 0x7a, 0x9f, 0x93, 0xc9, 0x9c, 0xef,
+    0xa0, 0xe0, 0x3b, 0x4d, 0xae, 0x2a, 0xf5, 0xb0, 0xc8, 0xeb, 0xbb, 0x3c, 0x83, 0x53, 0x99, 0x61,
+    0x17, 0x2b, 0x04, 0x7e, 0xba, 0x77, 0xd6, 0x26, 0xe1, 0x69, 0x14, 0x63, 0x55, 0x21, 0x0c, 0x7d}</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Inverse S-Box table </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_aes128.c" line="38" column="22" bodyfile="src/syntropic/util/syn_aes128.c" bodystart="38" bodyend="54"/>
+      </memberdef>
+      <memberdef kind="variable" id="syn__aes128_8c_1add2b5f5401bbc561b20744b04a14862d" prot="public" static="yes" mutable="no">
+        <type>const uint8_t</type>
+        <definition>const uint8_t rcon[11]</definition>
+        <argsstring>[11]</argsstring>
+        <name>rcon</name>
+        <initializer>= {0x8d, 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80, 0x1b, 0x36}</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Round constants array </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_aes128.c" line="57" column="22" bodyfile="src/syntropic/util/syn_aes128.c" bodystart="57" bodyend="57"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__aes128_8c_1aef0e3719774cf89fd66f3f7cbe26ba16" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>uint8_t</type>
+        <definition>static uint8_t gmult2</definition>
+        <argsstring>(uint8_t a)</argsstring>
+        <name>gmult2</name>
+        <param>
+          <type>uint8_t</type>
+          <declname>a</declname>
+        </param>
+        <briefdescription>
+<para>Galois field multiplication by 2. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>a</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Input byte. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Product byte. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_aes128.c" line="64" column="23" bodyfile="src/syntropic/util/syn_aes128.c" bodystart="64" bodyend="67"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__aes128_8c_1ae32c9cdeebf52f2dc3746afef564b018" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>uint8_t</type>
+        <definition>static uint8_t gmult</definition>
+        <argsstring>(uint8_t a, uint8_t b)</argsstring>
+        <name>gmult</name>
+        <param>
+          <type>uint8_t</type>
+          <declname>a</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>b</declname>
+        </param>
+        <briefdescription>
+<para>Galois field multiplication of two bytes. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>a</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>First byte operand. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>b</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Second byte operand. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Product byte. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_aes128.c" line="75" column="23" bodyfile="src/syntropic/util/syn_aes128.c" bodystart="75" bodyend="88"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__aes128_8c_1ad503df7971bce73f5f3e7b3d1f23a42b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_aes128_init</definition>
+        <argsstring>(SYN_AES128_Context *ctx, const uint8_t key[SYN_AES128_KEY_SIZE])</argsstring>
+        <name>syn_aes128_init</name>
+        <param>
+          <type><ref refid="structSYN__AES128__Context" kindref="compound">SYN_AES128_Context</ref> *</type>
+          <declname>ctx</declname>
+        </param>
+        <param>
+          <type>const uint8_t</type>
+          <declname>key</declname>
+          <array>[SYN_AES128_KEY_SIZE]</array>
+        </param>
+        <briefdescription>
+<para>Initialize AES-128 context and expand 128-bit key. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ctx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>AES-128 context instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>key</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>16-byte key buffer. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_aes128.c" line="90" column="12" bodyfile="src/syntropic/util/syn_aes128.c" bodystart="90" bodyend="137"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__aes128_8c_1aec0240ab47ea095f5fc9e45d4381b3f0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_aes128_encrypt_block</definition>
+        <argsstring>(const SYN_AES128_Context *ctx, const uint8_t in[16], uint8_t out[16])</argsstring>
+        <name>syn_aes128_encrypt_block</name>
+        <param>
+          <type>const <ref refid="structSYN__AES128__Context" kindref="compound">SYN_AES128_Context</ref> *</type>
+          <declname>ctx</declname>
+        </param>
+        <param>
+          <type>const uint8_t</type>
+          <declname>in</declname>
+          <array>[16]</array>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>out</declname>
+          <array>[16]</array>
+        </param>
+        <briefdescription>
+<para>Encrypt a single 16-byte block (ECB mode). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ctx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Initialized AES-128 context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>in</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>16-byte plaintext block. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>16-byte ciphertext block. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_aes128.c" line="139" column="6" bodyfile="src/syntropic/util/syn_aes128.c" bodystart="139" bodyend="206"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__aes128_8c_1a5b2cef9ce3ef2235929680e420da472b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_aes128_decrypt_block</definition>
+        <argsstring>(const SYN_AES128_Context *ctx, const uint8_t in[16], uint8_t out[16])</argsstring>
+        <name>syn_aes128_decrypt_block</name>
+        <param>
+          <type>const <ref refid="structSYN__AES128__Context" kindref="compound">SYN_AES128_Context</ref> *</type>
+          <declname>ctx</declname>
+        </param>
+        <param>
+          <type>const uint8_t</type>
+          <declname>in</declname>
+          <array>[16]</array>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>out</declname>
+          <array>[16]</array>
+        </param>
+        <briefdescription>
+<para>Decrypt a single 16-byte block (ECB mode). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ctx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Initialized AES-128 context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>in</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>16-byte ciphertext block. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>16-byte plaintext block. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_aes128.c" line="208" column="6" bodyfile="src/syntropic/util/syn_aes128.c" bodystart="208" bodyend="275"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__aes128_8c_1a8b90b939864f7765ba4023e9efc6f538" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_aes128_cbc_encrypt</definition>
+        <argsstring>(const SYN_AES128_Context *ctx, const uint8_t iv[16], const uint8_t *in, size_t in_len, uint8_t *out, size_t out_capacity, size_t *out_len)</argsstring>
+        <name>syn_aes128_cbc_encrypt</name>
+        <param>
+          <type>const <ref refid="structSYN__AES128__Context" kindref="compound">SYN_AES128_Context</ref> *</type>
+          <declname>ctx</declname>
+        </param>
+        <param>
+          <type>const uint8_t</type>
+          <declname>iv</declname>
+          <array>[16]</array>
+        </param>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>in</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>in_len</declname>
+        </param>
+        <param>
+          <type>uint8_t *</type>
+          <declname>out</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>out_capacity</declname>
+        </param>
+        <param>
+          <type>size_t *</type>
+          <declname>out_len</declname>
+        </param>
+        <briefdescription>
+<para>Encrypt data using AES-128-CBC with PKCS#7 padding. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ctx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Initialized AES-128 context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>iv</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>16-byte initialization vector. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>in</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Plaintext buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>in_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Plaintext length in bytes. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Ciphertext buffer (must be large enough for in_len + PKCS7 padding). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out_capacity</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Maximum size of output buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output byte count written. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_aes128.c" line="277" column="12" bodyfile="src/syntropic/util/syn_aes128.c" bodystart="277" bodyend="326"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__aes128_8c_1a01e76bc18c834da4f817b4f007b1f7f3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_aes128_cbc_decrypt</definition>
+        <argsstring>(const SYN_AES128_Context *ctx, const uint8_t iv[16], const uint8_t *in, size_t in_len, uint8_t *out, size_t out_capacity, size_t *out_len)</argsstring>
+        <name>syn_aes128_cbc_decrypt</name>
+        <param>
+          <type>const <ref refid="structSYN__AES128__Context" kindref="compound">SYN_AES128_Context</ref> *</type>
+          <declname>ctx</declname>
+        </param>
+        <param>
+          <type>const uint8_t</type>
+          <declname>iv</declname>
+          <array>[16]</array>
+        </param>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>in</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>in_len</declname>
+        </param>
+        <param>
+          <type>uint8_t *</type>
+          <declname>out</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>out_capacity</declname>
+        </param>
+        <param>
+          <type>size_t *</type>
+          <declname>out_len</declname>
+        </param>
+        <briefdescription>
+<para>Decrypt data using AES-128-CBC with PKCS#7 padding removal. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ctx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Initialized AES-128 context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>iv</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>16-byte initialization vector. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>in</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Ciphertext buffer (multiple of 16 bytes). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>in_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Ciphertext length in bytes. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Plaintext output buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out_capacity</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output buffer size. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Decrypted plaintext byte count written. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, or SYN_INVALID_PARAM on invalid padding. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_aes128.c" line="328" column="12" bodyfile="src/syntropic/util/syn_aes128.c" bodystart="328" bodyend="373"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>AES-128 implementation (S-Box, Key Expansion, ECB, CBC mode). </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#if<sp/>__has_include(&quot;syn_config.h&quot;)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;syn_config.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="4"><highlight class="normal"></highlight></codeline>
+<codeline lineno="5"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>!defined(SYN_USE_AES128)<sp/>||<sp/>SYN_USE_AES128</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__aes128_8h" kindref="compound">syn_aes128.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__assert_8h" kindref="compound">syn_assert.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;string.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>AES-128<sp/>S-Box<sp/>─────────────────────────────────────────────────────────<sp/>*/</highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/><ref refid="syn__aes128_8c_1adc15aeb43c81de1162045eedf437f407" kindref="member">sbox</ref>[256]<sp/>=<sp/>{</highlight></codeline>
+<codeline lineno="20"><highlight class="normal"><sp/><sp/><sp/><sp/>0x63,<sp/>0x7c,<sp/>0x77,<sp/>0x7b,<sp/>0xf2,<sp/>0x6b,<sp/>0x6f,<sp/>0xc5,<sp/>0x30,<sp/>0x01,<sp/>0x67,<sp/>0x2b,<sp/>0xfe,<sp/>0xd7,<sp/>0xab,<sp/>0x76,</highlight></codeline>
+<codeline lineno="21"><highlight class="normal"><sp/><sp/><sp/><sp/>0xca,<sp/>0x82,<sp/>0xc9,<sp/>0x7d,<sp/>0xfa,<sp/>0x59,<sp/>0x47,<sp/>0xf0,<sp/>0xad,<sp/>0xd4,<sp/>0xa2,<sp/>0xaf,<sp/>0x9c,<sp/>0xa4,<sp/>0x72,<sp/>0xc0,</highlight></codeline>
+<codeline lineno="22"><highlight class="normal"><sp/><sp/><sp/><sp/>0xb7,<sp/>0xfd,<sp/>0x93,<sp/>0x26,<sp/>0x36,<sp/>0x3f,<sp/>0xf7,<sp/>0xcc,<sp/>0x34,<sp/>0xa5,<sp/>0xe5,<sp/>0xf1,<sp/>0x71,<sp/>0xd8,<sp/>0x31,<sp/>0x15,</highlight></codeline>
+<codeline lineno="23"><highlight class="normal"><sp/><sp/><sp/><sp/>0x04,<sp/>0xc7,<sp/>0x23,<sp/>0xc3,<sp/>0x18,<sp/>0x96,<sp/>0x05,<sp/>0x9a,<sp/>0x07,<sp/>0x12,<sp/>0x80,<sp/>0xe2,<sp/>0xeb,<sp/>0x27,<sp/>0xb2,<sp/>0x75,</highlight></codeline>
+<codeline lineno="24"><highlight class="normal"><sp/><sp/><sp/><sp/>0x09,<sp/>0x83,<sp/>0x2c,<sp/>0x1a,<sp/>0x1b,<sp/>0x6e,<sp/>0x5a,<sp/>0xa0,<sp/>0x52,<sp/>0x3b,<sp/>0xd6,<sp/>0xb3,<sp/>0x29,<sp/>0xe3,<sp/>0x2f,<sp/>0x84,</highlight></codeline>
+<codeline lineno="25"><highlight class="normal"><sp/><sp/><sp/><sp/>0x53,<sp/>0xd1,<sp/>0x00,<sp/>0xed,<sp/>0x20,<sp/>0xfc,<sp/>0xb1,<sp/>0x5b,<sp/>0x6a,<sp/>0xcb,<sp/>0xbe,<sp/>0x39,<sp/>0x4a,<sp/>0x4c,<sp/>0x58,<sp/>0xcf,</highlight></codeline>
+<codeline lineno="26"><highlight class="normal"><sp/><sp/><sp/><sp/>0xd0,<sp/>0xef,<sp/>0xaa,<sp/>0xfb,<sp/>0x43,<sp/>0x4d,<sp/>0x33,<sp/>0x85,<sp/>0x45,<sp/>0xf9,<sp/>0x02,<sp/>0x7f,<sp/>0x50,<sp/>0x3c,<sp/>0x9f,<sp/>0xa8,</highlight></codeline>
+<codeline lineno="27"><highlight class="normal"><sp/><sp/><sp/><sp/>0x51,<sp/>0xa3,<sp/>0x40,<sp/>0x8f,<sp/>0x92,<sp/>0x9d,<sp/>0x38,<sp/>0xf5,<sp/>0xbc,<sp/>0xb6,<sp/>0xda,<sp/>0x21,<sp/>0x10,<sp/>0xff,<sp/>0xf3,<sp/>0xd2,</highlight></codeline>
+<codeline lineno="28"><highlight class="normal"><sp/><sp/><sp/><sp/>0xcd,<sp/>0x0c,<sp/>0x13,<sp/>0xec,<sp/>0x5f,<sp/>0x97,<sp/>0x44,<sp/>0x17,<sp/>0xc4,<sp/>0xa7,<sp/>0x7e,<sp/>0x3d,<sp/>0x64,<sp/>0x5d,<sp/>0x19,<sp/>0x73,</highlight></codeline>
+<codeline lineno="29"><highlight class="normal"><sp/><sp/><sp/><sp/>0x60,<sp/>0x81,<sp/>0x4f,<sp/>0xdc,<sp/>0x22,<sp/>0x2a,<sp/>0x90,<sp/>0x88,<sp/>0x46,<sp/>0xee,<sp/>0xb8,<sp/>0x14,<sp/>0xde,<sp/>0x5e,<sp/>0x0b,<sp/>0xdb,</highlight></codeline>
+<codeline lineno="30"><highlight class="normal"><sp/><sp/><sp/><sp/>0xe0,<sp/>0x32,<sp/>0x3a,<sp/>0x0a,<sp/>0x49,<sp/>0x06,<sp/>0x24,<sp/>0x5c,<sp/>0xc2,<sp/>0xd3,<sp/>0xac,<sp/>0x62,<sp/>0x91,<sp/>0x95,<sp/>0xe4,<sp/>0x79,</highlight></codeline>
+<codeline lineno="31"><highlight class="normal"><sp/><sp/><sp/><sp/>0xe7,<sp/>0xc8,<sp/>0x37,<sp/>0x6d,<sp/>0x8d,<sp/>0xd5,<sp/>0x4e,<sp/>0xa9,<sp/>0x6c,<sp/>0x56,<sp/>0xf4,<sp/>0xea,<sp/>0x65,<sp/>0x7a,<sp/>0xae,<sp/>0x08,</highlight></codeline>
+<codeline lineno="32"><highlight class="normal"><sp/><sp/><sp/><sp/>0xba,<sp/>0x78,<sp/>0x25,<sp/>0x2e,<sp/>0x1c,<sp/>0xa6,<sp/>0xb4,<sp/>0xc6,<sp/>0xe8,<sp/>0xdd,<sp/>0x74,<sp/>0x1f,<sp/>0x4b,<sp/>0xbd,<sp/>0x8b,<sp/>0x8a,</highlight></codeline>
+<codeline lineno="33"><highlight class="normal"><sp/><sp/><sp/><sp/>0x70,<sp/>0x3e,<sp/>0xb5,<sp/>0x66,<sp/>0x48,<sp/>0x03,<sp/>0xf6,<sp/>0x0e,<sp/>0x61,<sp/>0x35,<sp/>0x57,<sp/>0xb9,<sp/>0x86,<sp/>0xc1,<sp/>0x1d,<sp/>0x9e,</highlight></codeline>
+<codeline lineno="34"><highlight class="normal"><sp/><sp/><sp/><sp/>0xe1,<sp/>0xf8,<sp/>0x98,<sp/>0x11,<sp/>0x69,<sp/>0xd9,<sp/>0x8e,<sp/>0x94,<sp/>0x9b,<sp/>0x1e,<sp/>0x87,<sp/>0xe9,<sp/>0xce,<sp/>0x55,<sp/>0x28,<sp/>0xdf,</highlight></codeline>
+<codeline lineno="35"><highlight class="normal"><sp/><sp/><sp/><sp/>0x8c,<sp/>0xa1,<sp/>0x89,<sp/>0x0d,<sp/>0xbf,<sp/>0xe6,<sp/>0x42,<sp/>0x68,<sp/>0x41,<sp/>0x99,<sp/>0x2d,<sp/>0x0f,<sp/>0xb0,<sp/>0x54,<sp/>0xbb,<sp/>0x16};</highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/><ref refid="syn__aes128_8c_1a5fb4523234538d83676ef33a45b18fd1" kindref="member">rsbox</ref>[256]<sp/>=<sp/>{</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"><sp/><sp/><sp/><sp/>0x52,<sp/>0x09,<sp/>0x6a,<sp/>0xd5,<sp/>0x30,<sp/>0x36,<sp/>0xa5,<sp/>0x38,<sp/>0xbf,<sp/>0x40,<sp/>0xa3,<sp/>0x9e,<sp/>0x81,<sp/>0xf3,<sp/>0xd7,<sp/>0xfb,</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"><sp/><sp/><sp/><sp/>0x7c,<sp/>0xe3,<sp/>0x39,<sp/>0x82,<sp/>0x9b,<sp/>0x2f,<sp/>0xff,<sp/>0x87,<sp/>0x34,<sp/>0x8e,<sp/>0x43,<sp/>0x44,<sp/>0xc4,<sp/>0xde,<sp/>0xe9,<sp/>0xcb,</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"><sp/><sp/><sp/><sp/>0x54,<sp/>0x7b,<sp/>0x94,<sp/>0x32,<sp/>0xa6,<sp/>0xc2,<sp/>0x23,<sp/>0x3d,<sp/>0xee,<sp/>0x4c,<sp/>0x95,<sp/>0x0b,<sp/>0x42,<sp/>0xfa,<sp/>0xc3,<sp/>0x4e,</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"><sp/><sp/><sp/><sp/>0x08,<sp/>0x2e,<sp/>0xa1,<sp/>0x66,<sp/>0x28,<sp/>0xd9,<sp/>0x24,<sp/>0xb2,<sp/>0x76,<sp/>0x5b,<sp/>0xa2,<sp/>0x49,<sp/>0x6d,<sp/>0x8b,<sp/>0xd1,<sp/>0x25,</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"><sp/><sp/><sp/><sp/>0x72,<sp/>0xf8,<sp/>0xf6,<sp/>0x64,<sp/>0x86,<sp/>0x68,<sp/>0x98,<sp/>0x16,<sp/>0xd4,<sp/>0xa4,<sp/>0x5c,<sp/>0xcc,<sp/>0x5d,<sp/>0x65,<sp/>0xb6,<sp/>0x92,</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"><sp/><sp/><sp/><sp/>0x6c,<sp/>0x70,<sp/>0x48,<sp/>0x50,<sp/>0xfd,<sp/>0xed,<sp/>0xb9,<sp/>0xda,<sp/>0x5e,<sp/>0x15,<sp/>0x46,<sp/>0x57,<sp/>0xa7,<sp/>0x8d,<sp/>0x9d,<sp/>0x84,</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"><sp/><sp/><sp/><sp/>0x90,<sp/>0xd8,<sp/>0xab,<sp/>0x00,<sp/>0x8c,<sp/>0xbc,<sp/>0xd3,<sp/>0x0a,<sp/>0xf7,<sp/>0xe4,<sp/>0x58,<sp/>0x05,<sp/>0xb8,<sp/>0xb3,<sp/>0x45,<sp/>0x06,</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/><sp/><sp/>0xd0,<sp/>0x2c,<sp/>0x1e,<sp/>0x8f,<sp/>0xca,<sp/>0x3f,<sp/>0x0f,<sp/>0x02,<sp/>0xc1,<sp/>0xaf,<sp/>0xbd,<sp/>0x03,<sp/>0x01,<sp/>0x13,<sp/>0x8a,<sp/>0x6b,</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/><sp/><sp/>0x3a,<sp/>0x91,<sp/>0x11,<sp/>0x41,<sp/>0x4f,<sp/>0x67,<sp/>0xdc,<sp/>0xea,<sp/>0x97,<sp/>0xf2,<sp/>0xcf,<sp/>0xce,<sp/>0xf0,<sp/>0xb4,<sp/>0xe6,<sp/>0x73,</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/><sp/><sp/>0x96,<sp/>0xac,<sp/>0x74,<sp/>0x22,<sp/>0xe7,<sp/>0xad,<sp/>0x35,<sp/>0x85,<sp/>0xe2,<sp/>0xf9,<sp/>0x37,<sp/>0xe8,<sp/>0x1c,<sp/>0x75,<sp/>0xdf,<sp/>0x6e,</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/><sp/><sp/>0x47,<sp/>0xf1,<sp/>0x1a,<sp/>0x71,<sp/>0x1d,<sp/>0x29,<sp/>0xc5,<sp/>0x89,<sp/>0x6f,<sp/>0xb7,<sp/>0x62,<sp/>0x0e,<sp/>0xaa,<sp/>0x18,<sp/>0xbe,<sp/>0x1b,</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/><sp/><sp/>0xfc,<sp/>0x56,<sp/>0x3e,<sp/>0x4b,<sp/>0xc6,<sp/>0xd2,<sp/>0x79,<sp/>0x20,<sp/>0x9a,<sp/>0xdb,<sp/>0xc0,<sp/>0xfe,<sp/>0x78,<sp/>0xcd,<sp/>0x5a,<sp/>0xf4,</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><sp/><sp/><sp/><sp/>0x1f,<sp/>0xdd,<sp/>0xa8,<sp/>0x33,<sp/>0x88,<sp/>0x07,<sp/>0xc7,<sp/>0x31,<sp/>0xb1,<sp/>0x12,<sp/>0x10,<sp/>0x59,<sp/>0x27,<sp/>0x80,<sp/>0xec,<sp/>0x5f,</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/><sp/><sp/>0x60,<sp/>0x51,<sp/>0x7f,<sp/>0xa9,<sp/>0x19,<sp/>0xb5,<sp/>0x4a,<sp/>0x0d,<sp/>0x2d,<sp/>0xe5,<sp/>0x7a,<sp/>0x9f,<sp/>0x93,<sp/>0xc9,<sp/>0x9c,<sp/>0xef,</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/><sp/><sp/>0xa0,<sp/>0xe0,<sp/>0x3b,<sp/>0x4d,<sp/>0xae,<sp/>0x2a,<sp/>0xf5,<sp/>0xb0,<sp/>0xc8,<sp/>0xeb,<sp/>0xbb,<sp/>0x3c,<sp/>0x83,<sp/>0x53,<sp/>0x99,<sp/>0x61,</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/><sp/><sp/>0x17,<sp/>0x2b,<sp/>0x04,<sp/>0x7e,<sp/>0xba,<sp/>0x77,<sp/>0xd6,<sp/>0x26,<sp/>0xe1,<sp/>0x69,<sp/>0x14,<sp/>0x63,<sp/>0x55,<sp/>0x21,<sp/>0x0c,<sp/>0x7d};</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"></highlight></codeline>
+<codeline lineno="57"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/><ref refid="syn__aes128_8c_1add2b5f5401bbc561b20744b04a14862d" kindref="member">rcon</ref>[11]<sp/>=<sp/>{0x8d,<sp/>0x01,<sp/>0x02,<sp/>0x04,<sp/>0x08,<sp/>0x10,<sp/>0x20,<sp/>0x40,<sp/>0x80,<sp/>0x1b,<sp/>0x36};</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"></highlight></codeline>
+<codeline lineno="64"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>uint8_t<sp/><ref refid="syn__aes128_8c_1aef0e3719774cf89fd66f3f7cbe26ba16" kindref="member">gmult2</ref>(uint8_t<sp/>a)</highlight></codeline>
+<codeline lineno="65"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(uint8_t)((a<sp/>&lt;&lt;<sp/>1)<sp/>^<sp/>(((a<sp/>&gt;&gt;<sp/>7)<sp/>&amp;<sp/>1)<sp/>*<sp/>0x1b));</highlight></codeline>
+<codeline lineno="67"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"></highlight></codeline>
+<codeline lineno="75"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>uint8_t<sp/><ref refid="syn__aes128_8c_1ae32c9cdeebf52f2dc3746afef564b018" kindref="member">gmult</ref>(uint8_t<sp/>a,<sp/>uint8_t<sp/>b)</highlight></codeline>
+<codeline lineno="76"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>p<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>8;<sp/>i++)<sp/>{</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(b<sp/>&amp;<sp/>1)</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>p<sp/>^=<sp/>a;</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>hi_bit_set<sp/>=<sp/>a<sp/>&amp;<sp/>0x80;</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>a<sp/>&lt;&lt;=<sp/>1;</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(hi_bit_set)</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>a<sp/>^=<sp/>0x1b;</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>b<sp/>&gt;&gt;=<sp/>1;</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>p;</highlight></codeline>
+<codeline lineno="88"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"></highlight></codeline>
+<codeline lineno="90"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__aes128_8c_1ad503df7971bce73f5f3e7b3d1f23a42b" kindref="member">syn_aes128_init</ref>(<ref refid="structSYN__AES128__Context" kindref="compound">SYN_AES128_Context</ref><sp/>*ctx,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>key[<ref refid="syn__aes128_8h_1a0f1276bff9c13f325a23cba04f5570a0" kindref="member">SYN_AES128_KEY_SIZE</ref>])</highlight></codeline>
+<codeline lineno="91"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(ctx<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(key<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"></highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(ctx<sp/>==<sp/>NULL<sp/>||<sp/>key<sp/>==<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;<sp/></highlight><highlight class="comment">/*<sp/>LCOV_EXCL_LINE:<sp/>Defensive<sp/>NULL<sp/>check<sp/>after<sp/>SYN_ASSERT<sp/>macro<sp/>in</highlight></codeline>
+<codeline lineno="97"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>release<sp/>mode<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="98"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"></highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><sp/><sp/><sp/><sp/>memcpy(ctx-&gt;<ref refid="structSYN__AES128__Context_1af36524602484145f9806f17402d82246" kindref="member">round_keys</ref>,<sp/>key,<sp/>16);</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>temp[4];</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>i<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>k<sp/>=<sp/>16;</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"></highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">while</highlight><highlight class="normal"><sp/>(k<sp/>&lt;<sp/>176)<sp/>{</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>temp[0]<sp/>=<sp/>ctx-&gt;<ref refid="structSYN__AES128__Context_1af36524602484145f9806f17402d82246" kindref="member">round_keys</ref>[k<sp/>-<sp/>4];</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>temp[1]<sp/>=<sp/>ctx-&gt;<ref refid="structSYN__AES128__Context_1af36524602484145f9806f17402d82246" kindref="member">round_keys</ref>[k<sp/>-<sp/>3];</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>temp[2]<sp/>=<sp/>ctx-&gt;<ref refid="structSYN__AES128__Context_1af36524602484145f9806f17402d82246" kindref="member">round_keys</ref>[k<sp/>-<sp/>2];</highlight></codeline>
+<codeline lineno="109"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>temp[3]<sp/>=<sp/>ctx-&gt;<ref refid="structSYN__AES128__Context_1af36524602484145f9806f17402d82246" kindref="member">round_keys</ref>[k<sp/>-<sp/>1];</highlight></codeline>
+<codeline lineno="110"><highlight class="normal"></highlight></codeline>
+<codeline lineno="111"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(k<sp/>%<sp/>16<sp/>==<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="112"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>RotWord<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="113"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>t<sp/>=<sp/>temp[0];</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>temp[0]<sp/>=<sp/>temp[1];</highlight></codeline>
+<codeline lineno="115"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>temp[1]<sp/>=<sp/>temp[2];</highlight></codeline>
+<codeline lineno="116"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>temp[2]<sp/>=<sp/>temp[3];</highlight></codeline>
+<codeline lineno="117"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>temp[3]<sp/>=<sp/>t;</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"></highlight></codeline>
+<codeline lineno="119"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>SubWord<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="120"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>temp[0]<sp/>=<sp/><ref refid="syn__aes128_8c_1adc15aeb43c81de1162045eedf437f407" kindref="member">sbox</ref>[temp[0]];</highlight></codeline>
+<codeline lineno="121"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>temp[1]<sp/>=<sp/><ref refid="syn__aes128_8c_1adc15aeb43c81de1162045eedf437f407" kindref="member">sbox</ref>[temp[1]];</highlight></codeline>
+<codeline lineno="122"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>temp[2]<sp/>=<sp/><ref refid="syn__aes128_8c_1adc15aeb43c81de1162045eedf437f407" kindref="member">sbox</ref>[temp[2]];</highlight></codeline>
+<codeline lineno="123"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>temp[3]<sp/>=<sp/><ref refid="syn__aes128_8c_1adc15aeb43c81de1162045eedf437f407" kindref="member">sbox</ref>[temp[3]];</highlight></codeline>
+<codeline lineno="124"><highlight class="normal"></highlight></codeline>
+<codeline lineno="125"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>i++;</highlight></codeline>
+<codeline lineno="126"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>temp[0]<sp/>^=<sp/><ref refid="syn__aes128_8c_1add2b5f5401bbc561b20744b04a14862d" kindref="member">rcon</ref>[i];</highlight></codeline>
+<codeline lineno="127"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="128"><highlight class="normal"></highlight></codeline>
+<codeline lineno="129"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ctx-&gt;<ref refid="structSYN__AES128__Context_1af36524602484145f9806f17402d82246" kindref="member">round_keys</ref>[k]<sp/>=<sp/>ctx-&gt;<ref refid="structSYN__AES128__Context_1af36524602484145f9806f17402d82246" kindref="member">round_keys</ref>[k<sp/>-<sp/>16]<sp/>^<sp/>temp[0];</highlight></codeline>
+<codeline lineno="130"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ctx-&gt;<ref refid="structSYN__AES128__Context_1af36524602484145f9806f17402d82246" kindref="member">round_keys</ref>[k<sp/>+<sp/>1]<sp/>=<sp/>ctx-&gt;<ref refid="structSYN__AES128__Context_1af36524602484145f9806f17402d82246" kindref="member">round_keys</ref>[k<sp/>-<sp/>15]<sp/>^<sp/>temp[1];</highlight></codeline>
+<codeline lineno="131"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ctx-&gt;<ref refid="structSYN__AES128__Context_1af36524602484145f9806f17402d82246" kindref="member">round_keys</ref>[k<sp/>+<sp/>2]<sp/>=<sp/>ctx-&gt;<ref refid="structSYN__AES128__Context_1af36524602484145f9806f17402d82246" kindref="member">round_keys</ref>[k<sp/>-<sp/>14]<sp/>^<sp/>temp[2];</highlight></codeline>
+<codeline lineno="132"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ctx-&gt;<ref refid="structSYN__AES128__Context_1af36524602484145f9806f17402d82246" kindref="member">round_keys</ref>[k<sp/>+<sp/>3]<sp/>=<sp/>ctx-&gt;<ref refid="structSYN__AES128__Context_1af36524602484145f9806f17402d82246" kindref="member">round_keys</ref>[k<sp/>-<sp/>13]<sp/>^<sp/>temp[3];</highlight></codeline>
+<codeline lineno="133"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>k<sp/>+=<sp/>4;</highlight></codeline>
+<codeline lineno="134"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="135"><highlight class="normal"></highlight></codeline>
+<codeline lineno="136"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="137"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="138"><highlight class="normal"></highlight></codeline>
+<codeline lineno="139"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__aes128_8c_1aec0240ab47ea095f5fc9e45d4381b3f0" kindref="member">syn_aes128_encrypt_block</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__AES128__Context" kindref="compound">SYN_AES128_Context</ref><sp/>*ctx,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>in[16],<sp/>uint8_t<sp/>out[16])</highlight></codeline>
+<codeline lineno="140"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="141"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(ctx<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="142"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(in<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="143"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(out<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="144"><highlight class="normal"></highlight></codeline>
+<codeline lineno="145"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(ctx<sp/>==<sp/>NULL<sp/>||<sp/>in<sp/>==<sp/>NULL<sp/>||<sp/>out<sp/>==<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="146"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal">;<sp/></highlight><highlight class="comment">/*<sp/>LCOV_EXCL_LINE:<sp/>Defensive<sp/>NULL<sp/>check<sp/>after<sp/>SYN_ASSERT<sp/>macro<sp/>in<sp/>release<sp/>mode<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="147"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="148"><highlight class="normal"></highlight></codeline>
+<codeline lineno="149"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>state[4][4];</highlight></codeline>
+<codeline lineno="150"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>r<sp/>=<sp/>0;<sp/>r<sp/>&lt;<sp/>4;<sp/>r++)<sp/>{</highlight></codeline>
+<codeline lineno="151"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>c<sp/>=<sp/>0;<sp/>c<sp/>&lt;<sp/>4;<sp/>c++)<sp/>{</highlight></codeline>
+<codeline lineno="152"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>state[r][c]<sp/>=<sp/>in[r<sp/>+<sp/>4<sp/>*<sp/>c]<sp/>^<sp/>ctx-&gt;<ref refid="structSYN__AES128__Context_1af36524602484145f9806f17402d82246" kindref="member">round_keys</ref>[r<sp/>+<sp/>4<sp/>*<sp/>c];</highlight></codeline>
+<codeline lineno="153"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="154"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="155"><highlight class="normal"></highlight></codeline>
+<codeline lineno="156"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>round<sp/>=<sp/>1;<sp/>round<sp/>&lt;=<sp/>10;<sp/>round++)<sp/>{</highlight></codeline>
+<codeline lineno="157"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>SubBytes<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="158"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>r<sp/>=<sp/>0;<sp/>r<sp/>&lt;<sp/>4;<sp/>r++)</highlight></codeline>
+<codeline lineno="159"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>c<sp/>=<sp/>0;<sp/>c<sp/>&lt;<sp/>4;<sp/>c++)</highlight></codeline>
+<codeline lineno="160"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>state[r][c]<sp/>=<sp/><ref refid="syn__aes128_8c_1adc15aeb43c81de1162045eedf437f407" kindref="member">sbox</ref>[state[r][c]];</highlight></codeline>
+<codeline lineno="161"><highlight class="normal"></highlight></codeline>
+<codeline lineno="162"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>ShiftRows<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="163"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>t;</highlight></codeline>
+<codeline lineno="164"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>t<sp/>=<sp/>state[1][0];</highlight></codeline>
+<codeline lineno="165"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>state[1][0]<sp/>=<sp/>state[1][1];</highlight></codeline>
+<codeline lineno="166"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>state[1][1]<sp/>=<sp/>state[1][2];</highlight></codeline>
+<codeline lineno="167"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>state[1][2]<sp/>=<sp/>state[1][3];</highlight></codeline>
+<codeline lineno="168"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>state[1][3]<sp/>=<sp/>t;</highlight></codeline>
+<codeline lineno="169"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>t<sp/>=<sp/>state[2][0];</highlight></codeline>
+<codeline lineno="170"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>state[2][0]<sp/>=<sp/>state[2][2];</highlight></codeline>
+<codeline lineno="171"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>state[2][2]<sp/>=<sp/>t;</highlight></codeline>
+<codeline lineno="172"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>t<sp/>=<sp/>state[2][1];</highlight></codeline>
+<codeline lineno="173"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>state[2][1]<sp/>=<sp/>state[2][3];</highlight></codeline>
+<codeline lineno="174"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>state[2][3]<sp/>=<sp/>t;</highlight></codeline>
+<codeline lineno="175"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>t<sp/>=<sp/>state[3][3];</highlight></codeline>
+<codeline lineno="176"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>state[3][3]<sp/>=<sp/>state[3][2];</highlight></codeline>
+<codeline lineno="177"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>state[3][2]<sp/>=<sp/>state[3][1];</highlight></codeline>
+<codeline lineno="178"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>state[3][1]<sp/>=<sp/>state[3][0];</highlight></codeline>
+<codeline lineno="179"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>state[3][0]<sp/>=<sp/>t;</highlight></codeline>
+<codeline lineno="180"><highlight class="normal"></highlight></codeline>
+<codeline lineno="181"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>MixColumns<sp/>(except<sp/>last<sp/>round)<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="182"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(round<sp/>&lt;<sp/>10)<sp/>{</highlight></codeline>
+<codeline lineno="183"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>c<sp/>=<sp/>0;<sp/>c<sp/>&lt;<sp/>4;<sp/>c++)<sp/>{</highlight></codeline>
+<codeline lineno="184"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>a0<sp/>=<sp/>state[0][c],<sp/>a1<sp/>=<sp/>state[1][c],<sp/>a2<sp/>=<sp/>state[2][c],<sp/>a3<sp/>=<sp/>state[3][c];</highlight></codeline>
+<codeline lineno="185"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>state[0][c]<sp/>=<sp/><ref refid="syn__aes128_8c_1aef0e3719774cf89fd66f3f7cbe26ba16" kindref="member">gmult2</ref>(a0)<sp/>^<sp/><ref refid="syn__aes128_8c_1aef0e3719774cf89fd66f3f7cbe26ba16" kindref="member">gmult2</ref>(a1)<sp/>^<sp/>a1<sp/>^<sp/>a2<sp/>^<sp/>a3;</highlight></codeline>
+<codeline lineno="186"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>state[1][c]<sp/>=<sp/>a0<sp/>^<sp/><ref refid="syn__aes128_8c_1aef0e3719774cf89fd66f3f7cbe26ba16" kindref="member">gmult2</ref>(a1)<sp/>^<sp/><ref refid="syn__aes128_8c_1aef0e3719774cf89fd66f3f7cbe26ba16" kindref="member">gmult2</ref>(a2)<sp/>^<sp/>a2<sp/>^<sp/>a3;</highlight></codeline>
+<codeline lineno="187"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>state[2][c]<sp/>=<sp/>a0<sp/>^<sp/>a1<sp/>^<sp/><ref refid="syn__aes128_8c_1aef0e3719774cf89fd66f3f7cbe26ba16" kindref="member">gmult2</ref>(a2)<sp/>^<sp/><ref refid="syn__aes128_8c_1aef0e3719774cf89fd66f3f7cbe26ba16" kindref="member">gmult2</ref>(a3)<sp/>^<sp/>a3;</highlight></codeline>
+<codeline lineno="188"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>state[3][c]<sp/>=<sp/><ref refid="syn__aes128_8c_1aef0e3719774cf89fd66f3f7cbe26ba16" kindref="member">gmult2</ref>(a0)<sp/>^<sp/>a0<sp/>^<sp/>a1<sp/>^<sp/>a2<sp/>^<sp/><ref refid="syn__aes128_8c_1aef0e3719774cf89fd66f3f7cbe26ba16" kindref="member">gmult2</ref>(a3);</highlight></codeline>
+<codeline lineno="189"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="190"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="191"><highlight class="normal"></highlight></codeline>
+<codeline lineno="192"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>AddRoundKey<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="193"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>rk_offset<sp/>=<sp/>round<sp/>*<sp/>16;</highlight></codeline>
+<codeline lineno="194"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>r<sp/>=<sp/>0;<sp/>r<sp/>&lt;<sp/>4;<sp/>r++)<sp/>{</highlight></codeline>
+<codeline lineno="195"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>c<sp/>=<sp/>0;<sp/>c<sp/>&lt;<sp/>4;<sp/>c++)<sp/>{</highlight></codeline>
+<codeline lineno="196"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>state[r][c]<sp/>^=<sp/>ctx-&gt;<ref refid="structSYN__AES128__Context_1af36524602484145f9806f17402d82246" kindref="member">round_keys</ref>[rk_offset<sp/>+<sp/>r<sp/>+<sp/>4<sp/>*<sp/>c];</highlight></codeline>
+<codeline lineno="197"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="198"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="199"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="200"><highlight class="normal"></highlight></codeline>
+<codeline lineno="201"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>r<sp/>=<sp/>0;<sp/>r<sp/>&lt;<sp/>4;<sp/>r++)<sp/>{</highlight></codeline>
+<codeline lineno="202"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>c<sp/>=<sp/>0;<sp/>c<sp/>&lt;<sp/>4;<sp/>c++)<sp/>{</highlight></codeline>
+<codeline lineno="203"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>out[r<sp/>+<sp/>4<sp/>*<sp/>c]<sp/>=<sp/>state[r][c];</highlight></codeline>
+<codeline lineno="204"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="205"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="206"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="207"><highlight class="normal"></highlight></codeline>
+<codeline lineno="208"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__aes128_8c_1a5b2cef9ce3ef2235929680e420da472b" kindref="member">syn_aes128_decrypt_block</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__AES128__Context" kindref="compound">SYN_AES128_Context</ref><sp/>*ctx,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>in[16],<sp/>uint8_t<sp/>out[16])</highlight></codeline>
+<codeline lineno="209"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="210"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(ctx<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="211"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(in<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="212"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(out<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="213"><highlight class="normal"></highlight></codeline>
+<codeline lineno="214"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(ctx<sp/>==<sp/>NULL<sp/>||<sp/>in<sp/>==<sp/>NULL<sp/>||<sp/>out<sp/>==<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="215"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal">;<sp/></highlight><highlight class="comment">/*<sp/>LCOV_EXCL_LINE:<sp/>Defensive<sp/>NULL<sp/>check<sp/>after<sp/>SYN_ASSERT<sp/>macro<sp/>in<sp/>release<sp/>mode<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="216"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="217"><highlight class="normal"></highlight></codeline>
+<codeline lineno="218"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>state[4][4];</highlight></codeline>
+<codeline lineno="219"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>r<sp/>=<sp/>0;<sp/>r<sp/>&lt;<sp/>4;<sp/>r++)<sp/>{</highlight></codeline>
+<codeline lineno="220"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>c<sp/>=<sp/>0;<sp/>c<sp/>&lt;<sp/>4;<sp/>c++)<sp/>{</highlight></codeline>
+<codeline lineno="221"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>state[r][c]<sp/>=<sp/>in[r<sp/>+<sp/>4<sp/>*<sp/>c]<sp/>^<sp/>ctx-&gt;<ref refid="structSYN__AES128__Context_1af36524602484145f9806f17402d82246" kindref="member">round_keys</ref>[160<sp/>+<sp/>r<sp/>+<sp/>4<sp/>*<sp/>c];</highlight></codeline>
+<codeline lineno="222"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="223"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="224"><highlight class="normal"></highlight></codeline>
+<codeline lineno="225"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>round<sp/>=<sp/>9;<sp/>round<sp/>&gt;=<sp/>0;<sp/>round--)<sp/>{</highlight></codeline>
+<codeline lineno="226"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>InvShiftRows<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="227"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>t;</highlight></codeline>
+<codeline lineno="228"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>t<sp/>=<sp/>state[1][3];</highlight></codeline>
+<codeline lineno="229"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>state[1][3]<sp/>=<sp/>state[1][2];</highlight></codeline>
+<codeline lineno="230"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>state[1][2]<sp/>=<sp/>state[1][1];</highlight></codeline>
+<codeline lineno="231"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>state[1][1]<sp/>=<sp/>state[1][0];</highlight></codeline>
+<codeline lineno="232"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>state[1][0]<sp/>=<sp/>t;</highlight></codeline>
+<codeline lineno="233"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>t<sp/>=<sp/>state[2][0];</highlight></codeline>
+<codeline lineno="234"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>state[2][0]<sp/>=<sp/>state[2][2];</highlight></codeline>
+<codeline lineno="235"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>state[2][2]<sp/>=<sp/>t;</highlight></codeline>
+<codeline lineno="236"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>t<sp/>=<sp/>state[2][1];</highlight></codeline>
+<codeline lineno="237"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>state[2][1]<sp/>=<sp/>state[2][3];</highlight></codeline>
+<codeline lineno="238"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>state[2][3]<sp/>=<sp/>t;</highlight></codeline>
+<codeline lineno="239"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>t<sp/>=<sp/>state[3][0];</highlight></codeline>
+<codeline lineno="240"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>state[3][0]<sp/>=<sp/>state[3][1];</highlight></codeline>
+<codeline lineno="241"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>state[3][1]<sp/>=<sp/>state[3][2];</highlight></codeline>
+<codeline lineno="242"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>state[3][2]<sp/>=<sp/>state[3][3];</highlight></codeline>
+<codeline lineno="243"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>state[3][3]<sp/>=<sp/>t;</highlight></codeline>
+<codeline lineno="244"><highlight class="normal"></highlight></codeline>
+<codeline lineno="245"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>InvSubBytes<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="246"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>r<sp/>=<sp/>0;<sp/>r<sp/>&lt;<sp/>4;<sp/>r++)</highlight></codeline>
+<codeline lineno="247"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>c<sp/>=<sp/>0;<sp/>c<sp/>&lt;<sp/>4;<sp/>c++)</highlight></codeline>
+<codeline lineno="248"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>state[r][c]<sp/>=<sp/><ref refid="syn__aes128_8c_1a5fb4523234538d83676ef33a45b18fd1" kindref="member">rsbox</ref>[state[r][c]];</highlight></codeline>
+<codeline lineno="249"><highlight class="normal"></highlight></codeline>
+<codeline lineno="250"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>AddRoundKey<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="251"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>rk_offset<sp/>=<sp/>round<sp/>*<sp/>16;</highlight></codeline>
+<codeline lineno="252"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>r<sp/>=<sp/>0;<sp/>r<sp/>&lt;<sp/>4;<sp/>r++)<sp/>{</highlight></codeline>
+<codeline lineno="253"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>c<sp/>=<sp/>0;<sp/>c<sp/>&lt;<sp/>4;<sp/>c++)<sp/>{</highlight></codeline>
+<codeline lineno="254"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>state[r][c]<sp/>^=<sp/>ctx-&gt;<ref refid="structSYN__AES128__Context_1af36524602484145f9806f17402d82246" kindref="member">round_keys</ref>[rk_offset<sp/>+<sp/>r<sp/>+<sp/>4<sp/>*<sp/>c];</highlight></codeline>
+<codeline lineno="255"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="256"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="257"><highlight class="normal"></highlight></codeline>
+<codeline lineno="258"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>InvMixColumns<sp/>(except<sp/>last<sp/>round)<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="259"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(round<sp/>&gt;<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="260"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>c<sp/>=<sp/>0;<sp/>c<sp/>&lt;<sp/>4;<sp/>c++)<sp/>{</highlight></codeline>
+<codeline lineno="261"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>a0<sp/>=<sp/>state[0][c],<sp/>a1<sp/>=<sp/>state[1][c],<sp/>a2<sp/>=<sp/>state[2][c],<sp/>a3<sp/>=<sp/>state[3][c];</highlight></codeline>
+<codeline lineno="262"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>state[0][c]<sp/>=<sp/><ref refid="syn__aes128_8c_1ae32c9cdeebf52f2dc3746afef564b018" kindref="member">gmult</ref>(a0,<sp/>0x0e)<sp/>^<sp/><ref refid="syn__aes128_8c_1ae32c9cdeebf52f2dc3746afef564b018" kindref="member">gmult</ref>(a1,<sp/>0x0b)<sp/>^<sp/><ref refid="syn__aes128_8c_1ae32c9cdeebf52f2dc3746afef564b018" kindref="member">gmult</ref>(a2,<sp/>0x0d)<sp/>^<sp/><ref refid="syn__aes128_8c_1ae32c9cdeebf52f2dc3746afef564b018" kindref="member">gmult</ref>(a3,<sp/>0x09);</highlight></codeline>
+<codeline lineno="263"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>state[1][c]<sp/>=<sp/><ref refid="syn__aes128_8c_1ae32c9cdeebf52f2dc3746afef564b018" kindref="member">gmult</ref>(a0,<sp/>0x09)<sp/>^<sp/><ref refid="syn__aes128_8c_1ae32c9cdeebf52f2dc3746afef564b018" kindref="member">gmult</ref>(a1,<sp/>0x0e)<sp/>^<sp/><ref refid="syn__aes128_8c_1ae32c9cdeebf52f2dc3746afef564b018" kindref="member">gmult</ref>(a2,<sp/>0x0b)<sp/>^<sp/><ref refid="syn__aes128_8c_1ae32c9cdeebf52f2dc3746afef564b018" kindref="member">gmult</ref>(a3,<sp/>0x0d);</highlight></codeline>
+<codeline lineno="264"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>state[2][c]<sp/>=<sp/><ref refid="syn__aes128_8c_1ae32c9cdeebf52f2dc3746afef564b018" kindref="member">gmult</ref>(a0,<sp/>0x0d)<sp/>^<sp/><ref refid="syn__aes128_8c_1ae32c9cdeebf52f2dc3746afef564b018" kindref="member">gmult</ref>(a1,<sp/>0x09)<sp/>^<sp/><ref refid="syn__aes128_8c_1ae32c9cdeebf52f2dc3746afef564b018" kindref="member">gmult</ref>(a2,<sp/>0x0e)<sp/>^<sp/><ref refid="syn__aes128_8c_1ae32c9cdeebf52f2dc3746afef564b018" kindref="member">gmult</ref>(a3,<sp/>0x0b);</highlight></codeline>
+<codeline lineno="265"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>state[3][c]<sp/>=<sp/><ref refid="syn__aes128_8c_1ae32c9cdeebf52f2dc3746afef564b018" kindref="member">gmult</ref>(a0,<sp/>0x0b)<sp/>^<sp/><ref refid="syn__aes128_8c_1ae32c9cdeebf52f2dc3746afef564b018" kindref="member">gmult</ref>(a1,<sp/>0x0d)<sp/>^<sp/><ref refid="syn__aes128_8c_1ae32c9cdeebf52f2dc3746afef564b018" kindref="member">gmult</ref>(a2,<sp/>0x09)<sp/>^<sp/><ref refid="syn__aes128_8c_1ae32c9cdeebf52f2dc3746afef564b018" kindref="member">gmult</ref>(a3,<sp/>0x0e);</highlight></codeline>
+<codeline lineno="266"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="267"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="268"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="269"><highlight class="normal"></highlight></codeline>
+<codeline lineno="270"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>r<sp/>=<sp/>0;<sp/>r<sp/>&lt;<sp/>4;<sp/>r++)<sp/>{</highlight></codeline>
+<codeline lineno="271"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>c<sp/>=<sp/>0;<sp/>c<sp/>&lt;<sp/>4;<sp/>c++)<sp/>{</highlight></codeline>
+<codeline lineno="272"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>out[r<sp/>+<sp/>4<sp/>*<sp/>c]<sp/>=<sp/>state[r][c];</highlight></codeline>
+<codeline lineno="273"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="274"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="275"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="276"><highlight class="normal"></highlight></codeline>
+<codeline lineno="277"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__aes128_8c_1a8b90b939864f7765ba4023e9efc6f538" kindref="member">syn_aes128_cbc_encrypt</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__AES128__Context" kindref="compound">SYN_AES128_Context</ref><sp/>*ctx,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>iv[16],</highlight></codeline>
+<codeline lineno="278"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*in,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>in_len,<sp/>uint8_t<sp/>*out,</highlight></codeline>
+<codeline lineno="279"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>out_capacity,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>*out_len)</highlight></codeline>
+<codeline lineno="280"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="281"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(ctx<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="282"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(iv<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="283"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(in<sp/>!=<sp/>NULL<sp/>||<sp/>in_len<sp/>==<sp/>0);</highlight></codeline>
+<codeline lineno="284"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(out<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="285"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(out_len<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="286"><highlight class="normal"></highlight></codeline>
+<codeline lineno="287"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(ctx<sp/>==<sp/>NULL<sp/>||<sp/>iv<sp/>==<sp/>NULL<sp/>||<sp/>(in<sp/>==<sp/>NULL<sp/>&amp;&amp;<sp/>in_len<sp/>&gt;<sp/>0)<sp/>||<sp/>out<sp/>==<sp/>NULL<sp/>||<sp/>out_len<sp/>==<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="288"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;<sp/></highlight><highlight class="comment">/*<sp/>LCOV_EXCL_LINE:<sp/>Defensive<sp/>NULL<sp/>check<sp/>after<sp/>SYN_ASSERT<sp/>macro<sp/>in</highlight></codeline>
+<codeline lineno="289"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>release<sp/>mode<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="290"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="291"><highlight class="normal"></highlight></codeline>
+<codeline lineno="292"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>pad_len<sp/>=<sp/>16<sp/>-<sp/>(in_len<sp/>%<sp/>16);</highlight></codeline>
+<codeline lineno="293"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>total_len<sp/>=<sp/>in_len<sp/>+<sp/>pad_len;</highlight></codeline>
+<codeline lineno="294"><highlight class="normal"></highlight></codeline>
+<codeline lineno="295"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(out_capacity<sp/>&lt;<sp/>total_len)</highlight></codeline>
+<codeline lineno="296"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="297"><highlight class="normal"></highlight></codeline>
+<codeline lineno="298"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>current_iv[16];</highlight></codeline>
+<codeline lineno="299"><highlight class="normal"><sp/><sp/><sp/><sp/>memcpy(current_iv,<sp/>iv,<sp/>16);</highlight></codeline>
+<codeline lineno="300"><highlight class="normal"></highlight></codeline>
+<codeline lineno="301"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>block[16];</highlight></codeline>
+<codeline lineno="302"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>offset<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="303"><highlight class="normal"></highlight></codeline>
+<codeline lineno="304"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">while</highlight><highlight class="normal"><sp/>(offset<sp/>&lt;<sp/>total_len)<sp/>{</highlight></codeline>
+<codeline lineno="305"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(offset<sp/>+<sp/>16<sp/>&lt;=<sp/>in_len)<sp/>{</highlight></codeline>
+<codeline lineno="306"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>memcpy(block,<sp/>in<sp/>+<sp/>offset,<sp/>16);</highlight></codeline>
+<codeline lineno="307"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="308"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>remaining<sp/>=<sp/>in_len<sp/>-<sp/>offset;</highlight></codeline>
+<codeline lineno="309"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(remaining<sp/>&gt;<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="310"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>memcpy(block,<sp/>in<sp/>+<sp/>offset,<sp/>remaining);</highlight></codeline>
+<codeline lineno="311"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="312"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>memset(block<sp/>+<sp/>remaining,<sp/>(uint8_t)pad_len,<sp/>16<sp/>-<sp/>remaining);</highlight></codeline>
+<codeline lineno="313"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="314"><highlight class="normal"></highlight></codeline>
+<codeline lineno="315"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>16;<sp/>i++)<sp/>{</highlight></codeline>
+<codeline lineno="316"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>block[i]<sp/>^=<sp/>current_iv[i];</highlight></codeline>
+<codeline lineno="317"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="318"><highlight class="normal"></highlight></codeline>
+<codeline lineno="319"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__aes128_8c_1aec0240ab47ea095f5fc9e45d4381b3f0" kindref="member">syn_aes128_encrypt_block</ref>(ctx,<sp/>block,<sp/>out<sp/>+<sp/>offset);</highlight></codeline>
+<codeline lineno="320"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>memcpy(current_iv,<sp/>out<sp/>+<sp/>offset,<sp/>16);</highlight></codeline>
+<codeline lineno="321"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>offset<sp/>+=<sp/>16;</highlight></codeline>
+<codeline lineno="322"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="323"><highlight class="normal"></highlight></codeline>
+<codeline lineno="324"><highlight class="normal"><sp/><sp/><sp/><sp/>*out_len<sp/>=<sp/>total_len;</highlight></codeline>
+<codeline lineno="325"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="326"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="327"><highlight class="normal"></highlight></codeline>
+<codeline lineno="328"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__aes128_8c_1a01e76bc18c834da4f817b4f007b1f7f3" kindref="member">syn_aes128_cbc_decrypt</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__AES128__Context" kindref="compound">SYN_AES128_Context</ref><sp/>*ctx,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>iv[16],</highlight></codeline>
+<codeline lineno="329"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*in,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>in_len,<sp/>uint8_t<sp/>*out,</highlight></codeline>
+<codeline lineno="330"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>out_capacity,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>*out_len)</highlight></codeline>
+<codeline lineno="331"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="332"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(ctx<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="333"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(iv<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="334"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(in<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="335"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(out<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="336"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(out_len<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="337"><highlight class="normal"></highlight></codeline>
+<codeline lineno="338"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(ctx<sp/>==<sp/>NULL<sp/>||<sp/>iv<sp/>==<sp/>NULL<sp/>||<sp/>in<sp/>==<sp/>NULL<sp/>||<sp/>out<sp/>==<sp/>NULL<sp/>||<sp/>out_len<sp/>==<sp/>NULL<sp/>||<sp/>in_len<sp/>==<sp/>0<sp/>||</highlight></codeline>
+<codeline lineno="339"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>in_len<sp/>%<sp/>16<sp/>!=<sp/>0<sp/>||<sp/>out_capacity<sp/>&lt;<sp/>in_len)<sp/>{</highlight></codeline>
+<codeline lineno="340"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="341"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="342"><highlight class="normal"></highlight></codeline>
+<codeline lineno="343"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>current_iv[16];</highlight></codeline>
+<codeline lineno="344"><highlight class="normal"><sp/><sp/><sp/><sp/>memcpy(current_iv,<sp/>iv,<sp/>16);</highlight></codeline>
+<codeline lineno="345"><highlight class="normal"></highlight></codeline>
+<codeline lineno="346"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>block[16];</highlight></codeline>
+<codeline lineno="347"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>offset<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="348"><highlight class="normal"></highlight></codeline>
+<codeline lineno="349"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">while</highlight><highlight class="normal"><sp/>(offset<sp/>&lt;<sp/>in_len)<sp/>{</highlight></codeline>
+<codeline lineno="350"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__aes128_8c_1a5b2cef9ce3ef2235929680e420da472b" kindref="member">syn_aes128_decrypt_block</ref>(ctx,<sp/>in<sp/>+<sp/>offset,<sp/>block);</highlight></codeline>
+<codeline lineno="351"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>16;<sp/>i++)<sp/>{</highlight></codeline>
+<codeline lineno="352"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>block[i]<sp/>^=<sp/>current_iv[i];</highlight></codeline>
+<codeline lineno="353"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="354"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>memcpy(current_iv,<sp/>in<sp/>+<sp/>offset,<sp/>16);</highlight></codeline>
+<codeline lineno="355"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>memcpy(out<sp/>+<sp/>offset,<sp/>block,<sp/>16);</highlight></codeline>
+<codeline lineno="356"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>offset<sp/>+=<sp/>16;</highlight></codeline>
+<codeline lineno="357"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="358"><highlight class="normal"></highlight></codeline>
+<codeline lineno="359"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>PKCS#7<sp/>Unpadding<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="360"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>pad_val<sp/>=<sp/>out[in_len<sp/>-<sp/>1];</highlight></codeline>
+<codeline lineno="361"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(pad_val<sp/>==<sp/>0<sp/>||<sp/>pad_val<sp/>&gt;<sp/>16<sp/>||<sp/>pad_val<sp/>&gt;<sp/>in_len)<sp/>{</highlight></codeline>
+<codeline lineno="362"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="363"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="364"><highlight class="normal"></highlight></codeline>
+<codeline lineno="365"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>i<sp/>=<sp/>in_len<sp/>-<sp/>pad_val;<sp/>i<sp/>&lt;<sp/>in_len;<sp/>i++)<sp/>{</highlight></codeline>
+<codeline lineno="366"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(out[i]<sp/>!=<sp/>pad_val)<sp/>{</highlight></codeline>
+<codeline lineno="367"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="368"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="369"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="370"><highlight class="normal"></highlight></codeline>
+<codeline lineno="371"><highlight class="normal"><sp/><sp/><sp/><sp/>*out_len<sp/>=<sp/>in_len<sp/>-<sp/>pad_val;</highlight></codeline>
+<codeline lineno="372"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="373"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="374"><highlight class="normal"></highlight></codeline>
+<codeline lineno="375"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_USE_AES128<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/util/syn_aes128.c"/>
+  </compounddef>
+</doxygen>

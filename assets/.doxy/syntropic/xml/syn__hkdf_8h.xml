@@ -1,0 +1,523 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__hkdf_8h" kind="file" language="C++">
+    <compoundname>syn_hkdf.h</compoundname>
+    <includes refid="syn__hmac_8h" local="yes">syntropic/util/syn_hmac.h</includes>
+    <includes local="no">stdbool.h</includes>
+    <includes local="no">stddef.h</includes>
+    <includes local="no">stdint.h</includes>
+    <includedby refid="syn__hkdf_8c" local="yes">src/syntropic/crypto/syn_hkdf.c</includedby>
+    <includedby refid="syn__tls_8h" local="yes">src/syntropic/net/syn_tls.h</includedby>
+    <incdepgraph>
+      <node id="1">
+        <label>src/syntropic/crypto/syn_hkdf.h</label>
+        <link refid="syn__hkdf_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>syntropic/util/syn_hmac.h</label>
+        <link refid="syn__hmac_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>syn_sha256.h</label>
+        <link refid="syn__sha256_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>stdbool.h</label>
+      </node>
+      <node id="4">
+        <label>stddef.h</label>
+      </node>
+      <node id="5">
+        <label>stdint.h</label>
+      </node>
+      <node id="6">
+        <label>string.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="2">
+        <label>src/syntropic/crypto/syn_hkdf.c</label>
+        <link refid="syn__hkdf_8c"/>
+      </node>
+      <node id="1">
+        <label>src/syntropic/crypto/syn_hkdf.h</label>
+        <link refid="syn__hkdf_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>src/syntropic/net/syn_tls.c</label>
+        <link refid="syn__tls_8c"/>
+      </node>
+      <node id="3">
+        <label>src/syntropic/net/syn_tls.h</label>
+        <link refid="syn__tls_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__hkdf_8h_1aecd0cd53e7adc2a029ac0f75f5816a2f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_hkdf_extract</definition>
+        <argsstring>(const uint8_t *salt, size_t salt_len, const uint8_t *ikm, size_t ikm_len, uint8_t prk_out[SYN_SHA256_DIGEST_SIZE])</argsstring>
+        <name>syn_hkdf_extract</name>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>salt</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>salt_len</declname>
+        </param>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>ikm</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>ikm_len</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>prk_out</declname>
+          <array>[SYN_SHA256_DIGEST_SIZE]</array>
+        </param>
+        <briefdescription>
+<para>HKDF-SHA256 Extract step (RFC 5869 Section 2.2). </para>
+        </briefdescription>
+        <detaileddescription>
+<para>PRK = HMAC-Hash(salt, IKM)</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>salt</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Salt value (if NULL, a string of 32 zero bytes is used). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>salt_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Salt length in bytes. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>ikm</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Input keying material. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>ikm_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>IKM length in bytes. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>prk_out</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>[out] Output Pseudorandom Key buffer (must be at least 32 bytes). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/crypto/syn_hkdf.h" line="32" column="6" bodyfile="src/syntropic/crypto/syn_hkdf.c" bodystart="10" bodyend="29" declfile="src/syntropic/crypto/syn_hkdf.h" declline="32" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__hkdf_8h_1ab85c8d6d5d34312d8fa7a367846643bc" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_hkdf_expand</definition>
+        <argsstring>(const uint8_t *prk, size_t prk_len, const uint8_t *info, size_t info_len, uint8_t *okm_out, size_t okm_len)</argsstring>
+        <name>syn_hkdf_expand</name>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>prk</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>prk_len</declname>
+        </param>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>info</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>info_len</declname>
+        </param>
+        <param>
+          <type>uint8_t *</type>
+          <declname>okm_out</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>okm_len</declname>
+        </param>
+        <briefdescription>
+<para>HKDF-SHA256 Expand step (RFC 5869 Section 2.3). </para>
+        </briefdescription>
+        <detaileddescription>
+<para>OKM = HKDF-Expand(PRK, info, L)</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>prk</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pseudorandom Key (at least 32 bytes). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>prk_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>PRK length in bytes. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>info</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Optional context and application specific information. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>info_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Info length in bytes. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>okm_out</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>[out] Output keying material buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>okm_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Desired length of output keying material (max 255 * 32 = 8160 bytes). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true on success, false on invalid parameters. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/crypto/syn_hkdf.h" line="48" column="6" bodyfile="src/syntropic/crypto/syn_hkdf.c" bodystart="31" bodyend="78" declfile="src/syntropic/crypto/syn_hkdf.h" declline="48" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__hkdf_8h_1a5faddb856170ea2e580e118e308b3244" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_hkdf</definition>
+        <argsstring>(const uint8_t *salt, size_t salt_len, const uint8_t *ikm, size_t ikm_len, const uint8_t *info, size_t info_len, uint8_t *okm_out, size_t okm_len)</argsstring>
+        <name>syn_hkdf</name>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>salt</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>salt_len</declname>
+        </param>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>ikm</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>ikm_len</declname>
+        </param>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>info</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>info_len</declname>
+        </param>
+        <param>
+          <type>uint8_t *</type>
+          <declname>okm_out</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>okm_len</declname>
+        </param>
+        <briefdescription>
+<para>Complete HKDF-SHA256 (Extract then Expand). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>salt</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Salt value (optional). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>salt_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Salt length. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>ikm</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Input keying material. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>ikm_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>IKM length. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>info</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Context info (optional). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>info_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Info length. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>okm_out</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>[out] Output keying material. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>okm_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Desired output length. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/crypto/syn_hkdf.h" line="64" column="6" bodyfile="src/syntropic/crypto/syn_hkdf.c" bodystart="80" bodyend="86" declfile="src/syntropic/crypto/syn_hkdf.h" declline="64" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__hkdf_8h_1a3cbe6e7a06f4094a7e6f2bba55c7d3d8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_hkdf_expand_label</definition>
+        <argsstring>(const uint8_t *secret, size_t secret_len, const char *label, size_t label_len, const uint8_t *context, size_t context_len, uint8_t *out, size_t out_len)</argsstring>
+        <name>syn_hkdf_expand_label</name>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>secret</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>secret_len</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>label</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>label_len</declname>
+        </param>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>context</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>context_len</declname>
+        </param>
+        <param>
+          <type>uint8_t *</type>
+          <declname>out</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>out_len</declname>
+        </param>
+        <briefdescription>
+<para>TLS 1.3 HKDF-Expand-Label (RFC 8446 Section 7.1). </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Derives a key using the TLS 1.3 formatting: HKDF-Expand-Label(Secret, Label, Context, Length) = HKDF-Expand(Secret, HkdfLabel, Length)</para>
+<para>Where HkdfLabel = struct { uint16 length = Length; opaque label&lt;7..255&gt; = &quot;tls13 &quot; + Label; opaque context&lt;0..255&gt; = Context; }</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>secret</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Secret key (at least 32 bytes). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>secret_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Secret length. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>label</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Label string (e.g. &quot;c hs traffic&quot;, &quot;s hs traffic&quot;, &quot;derived&quot;, etc.). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>label_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Label length (excluding null terminator). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>context</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Transcript hash context bytes (or NULL if 0-length). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>context_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Context length (e.g. 32 bytes for SHA-256 transcript hash). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>[out] Output key buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Desired output key length. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/crypto/syn_hkdf.h" line="90" column="6" bodyfile="src/syntropic/crypto/syn_hkdf.c" bodystart="88" bodyend="135" declfile="src/syntropic/crypto/syn_hkdf.h" declline="90" declcolumn="6"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>HMAC-based Extract-and-Expand Key Derivation Function (HKDF-SHA256, RFC 5869) &amp; TLS 1.3 HKDF-Expand-Label. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_HKDF_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_HKDF_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__hmac_8h" kindref="compound">syntropic/util/syn_hmac.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stddef.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__hkdf_8h_1aecd0cd53e7adc2a029ac0f75f5816a2f" kindref="member">syn_hkdf_extract</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*salt,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>salt_len,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*ikm,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>ikm_len,</highlight></codeline>
+<codeline lineno="33"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>prk_out[<ref refid="syn__sha256_8h_1a1bc25b6c24baf84a400cc8e51842a3bb" kindref="member">SYN_SHA256_DIGEST_SIZE</ref>]);</highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight></codeline>
+<codeline lineno="48"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__hkdf_8h_1ab85c8d6d5d34312d8fa7a367846643bc" kindref="member">syn_hkdf_expand</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*prk,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>prk_len,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*info,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>info_len,</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>*okm_out,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>okm_len);</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"></highlight></codeline>
+<codeline lineno="64"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__hkdf_8h_1a5faddb856170ea2e580e118e308b3244" kindref="member">syn_hkdf</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*salt,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>salt_len,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*ikm,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>ikm_len,</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*info,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>info_len,<sp/>uint8_t<sp/>*okm_out,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>okm_len);</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"></highlight></codeline>
+<codeline lineno="90"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__hkdf_8h_1a3cbe6e7a06f4094a7e6f2bba55c7d3d8" kindref="member">syn_hkdf_expand_label</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*secret,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>secret_len,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*label,</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>label_len,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*context,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>context_len,</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>*out,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>out_len);</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"></highlight></codeline>
+<codeline lineno="94"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="95"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="97"><highlight class="normal"></highlight></codeline>
+<codeline lineno="98"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_HKDF_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/crypto/syn_hkdf.h"/>
+  </compounddef>
+</doxygen>

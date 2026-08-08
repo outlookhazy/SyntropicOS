@@ -1,0 +1,140 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="port__stm32__hal_8h" kind="file" language="C++">
+    <compoundname>port_stm32_hal.h</compoundname>
+    <includes refid="syn__gpio_8h" local="yes">syntropic/drivers/syn_gpio.h</includes>
+    <incdepgraph>
+      <node id="1">
+        <label>src/port/stm32_hal/port_stm32_hal.h</label>
+        <link refid="port__stm32__hal_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>syntropic/drivers/syn_gpio.h</label>
+        <link refid="syn__gpio_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>../port/syn_port_gpio.h</label>
+        <link refid="syn__port__gpio_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>stddef.h</label>
+      </node>
+      <node id="5">
+        <label>stdint.h</label>
+      </node>
+    </incdepgraph>
+    <sectiondef kind="define">
+      <memberdef kind="define" id="port__stm32__hal_8h_1ad50cb7787b347e93b03943bda44a5ea7" prot="public" static="no">
+        <name>SYN_PORT_STM32_PIN</name>
+        <param><defname>gpio_port</defname></param>
+        <param><defname>gpio_pin</defname></param>
+        <initializer>    <ref refid="syn__gpio_8h_1a72fa0f01c2781333d79bfbd10831c8f5" kindref="member">SYN_GPIO_PIN</ref>((uint8_t)(((uintptr_t)(gpio_port) - (uintptr_t)GPIOA) / 0x0400UL),       \
+                 (uint8_t)(((uint32_t)(gpio_pin) == 0U) ? 0U                              \
+                           : (((uint32_t)(gpio_pin) &amp; ((uint32_t)(gpio_pin) - 1U)) == 0U) \
+                               ? (uint32_t)__builtin_ctz((uint32_t)(gpio_pin))            \
+                               : (uint32_t)(gpio_pin)))</initializer>
+        <briefdescription>
+<para>Convert STM32 HAL GPIO_TypeDef pointer (GPIOA, GPIOB, etc.) and pin (number 0..15 or mask GPIO_PIN_0..15) into a packed 16-bit SYN_GPIO_Pin handle. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Examples: <ref refid="port__stm32__hal_8h_1ad50cb7787b347e93b03943bda44a5ea7" kindref="member">SYN_PORT_STM32_PIN(GPIOA, 0)</ref> -&gt; PA0 <ref refid="port__stm32__hal_8h_1ad50cb7787b347e93b03943bda44a5ea7" kindref="member">SYN_PORT_STM32_PIN(GPIOC, GPIO_PIN_13)</ref> -&gt; PC13 <ref refid="port__stm32__hal_8h_1ad50cb7787b347e93b03943bda44a5ea7" kindref="member">SYN_PORT_STM32_PIN(USER_BTN_GPIO_Port, USER_BTN_Pin)</ref> -&gt; CubeMX pin </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/port/stm32_hal/port_stm32_hal.h" line="24" column="9" bodyfile="src/port/stm32_hal/port_stm32_hal.h" bodystart="24" bodyend="29"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="port__stm32__hal_8h_1ad15cf168d4cf6fa6894de3ad8e1961ca" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_port_stm32_register_uart</definition>
+        <argsstring>(SYN_UARTInstance instance, void *huart)</argsstring>
+        <name>syn_port_stm32_register_uart</name>
+        <param>
+          <type><ref refid="syn__defs_8h_1abdfd779da7f3b81b031f57b4778905f6" kindref="member">SYN_UARTInstance</ref></type>
+          <declname>instance</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>huart</declname>
+        </param>
+        <briefdescription>
+<para>Register an STM32 HAL UART_HandleTypeDef pointer (e.g. &amp;huart1) with a SyntropicOS UART instance (0..5). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>instance</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>SyntropicOS UART instance index (0..5). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>huart</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to STM32 HAL UART_HandleTypeDef (e.g. &amp;huart1 or &amp;huart3). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_INVALID_PARAM if instance &gt;= 6. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/port/stm32_hal/port_stm32_hal.h" line="39" column="12" declfile="src/port/stm32_hal/port_stm32_hal.h" declline="39" declcolumn="12"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>STM32 HAL GPIO Port Helper Macros. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>PORT_STM32_HAL_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>PORT_STM32_HAL_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__gpio_8h" kindref="compound">syntropic/drivers/syn_gpio.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight></codeline>
+<codeline lineno="24" refid="port__stm32__hal_8h_1ad50cb7787b347e93b03943bda44a5ea7" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_PORT_STM32_PIN(gpio_port,<sp/>gpio_pin)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="25"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>SYN_GPIO_PIN((uint8_t)(((uintptr_t)(gpio_port)<sp/>-<sp/>(uintptr_t)GPIOA)<sp/>/<sp/>0x0400UL),<sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="26"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(uint8_t)(((uint32_t)(gpio_pin)<sp/>==<sp/>0U)<sp/>?<sp/>0U<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="27"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>:<sp/>(((uint32_t)(gpio_pin)<sp/>&amp;<sp/>((uint32_t)(gpio_pin)<sp/>-<sp/>1U))<sp/>==<sp/>0U)<sp/>\</highlight></codeline>
+<codeline lineno="28"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>?<sp/>(uint32_t)__builtin_ctz((uint32_t)(gpio_pin))<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="29"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>:<sp/>(uint32_t)(gpio_pin)))</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight></codeline>
+<codeline lineno="39" refid="port__stm32__hal_8h_1ad15cf168d4cf6fa6894de3ad8e1961ca" refkind="member"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="port__stm32__hal_8h_1ad15cf168d4cf6fa6894de3ad8e1961ca" kindref="member">syn_port_stm32_register_uart</ref>(<ref refid="syn__defs_8h_1abdfd779da7f3b81b031f57b4778905f6" kindref="member">SYN_UARTInstance</ref><sp/>instance,<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*huart);</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>PORT_STM32_HAL_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/port/stm32_hal/port_stm32_hal.h"/>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,863 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__geo_8h" kind="file" language="C++">
+    <compoundname>syn_geo.h</compoundname>
+    <includes refid="syn__defs_8h" local="yes">../common/syn_defs.h</includes>
+    <includes refid="syn__nmea_8h" local="yes">../proto/syn_nmea.h</includes>
+    <includes local="no">stdbool.h</includes>
+    <includes local="no">stdint.h</includes>
+    <includedby refid="syntropic_8h" local="yes">src/syntropic/syntropic.h</includedby>
+    <includedby refid="syn__geo_8c" local="yes">src/syntropic/util/syn_geo.c</includedby>
+    <incdepgraph>
+      <node id="2">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>../proto/syn_nmea.h</label>
+        <link refid="syn__nmea_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/util/syn_geo.h</label>
+        <link refid="syn__geo_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>stdbool.h</label>
+      </node>
+      <node id="3">
+        <label>stddef.h</label>
+      </node>
+      <node id="4">
+        <label>stdint.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="4">
+        <label>src/syntropic/proto/syn_doip.c</label>
+        <link refid="syn__doip_8c"/>
+      </node>
+      <node id="3">
+        <label>src/syntropic/proto/syn_doip.h</label>
+        <link refid="syn__doip_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>src/syntropic/syntropic.h</label>
+        <link refid="syntropic_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>src/syntropic/util/syn_geo.c</label>
+        <link refid="syn__geo_8c"/>
+      </node>
+      <node id="1">
+        <label>src/syntropic/util/syn_geo.h</label>
+        <link refid="syn__geo_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="structSYN__GeoPos" prot="public">SYN_GeoPos</innerclass>
+    <innerclass refid="structSYN__ENU" prot="public">SYN_ENU</innerclass>
+    <sectiondef kind="define">
+      <memberdef kind="define" id="syn__geo_8h_1ad2468f9e424e63b72a1308104c6b1877" prot="public" static="no">
+        <name>SYN_GEO_USE_FIXED_POINT</name>
+        <initializer><ref refid="syn__nmea_8h_1aac6262db0a556ccd2078738cfe9059be" kindref="member">SYN_GNSS_USE_FIXED_POINT</ref></initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Geodesy fixed-point mode flag </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_geo.h" line="48" column="9" bodyfile="src/syntropic/util/syn_geo.h" bodystart="48" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__geo_8h_1a66ea5cb459ebd0a9597fb9bfaaddbe72" prot="public" static="no">
+        <name>SYN_GEO_WGS84_A</name>
+        <initializer>6378137.0</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>WGS-84 Semi-major axis in meters (a). </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_geo.h" line="59" column="9" bodyfile="src/syntropic/util/syn_geo.h" bodystart="59" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__geo_8h_1a4bb7a9ab273e49ee7356dfcbea339ed7" prot="public" static="no">
+        <name>SYN_GEO_WGS84_INV_F</name>
+        <initializer>298.257223563</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>WGS-84 Inverse flattening (1/f). </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_geo.h" line="62" column="9" bodyfile="src/syntropic/util/syn_geo.h" bodystart="62" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__geo_8h_1ab81a1c898c80dfc84dde9e8110312881" prot="public" static="no">
+        <name>SYN_GEO_WGS84_E2</name>
+        <initializer>0.0066943799901413165</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>WGS-84 First eccentricity squared (e^2 = 2f - f^2). </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_geo.h" line="65" column="9" bodyfile="src/syntropic/util/syn_geo.h" bodystart="65" bodyend="-1"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__geo_8h_1a8e9bd9afa8f6602c8dc9a6b56bfa5509" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_geo_wgs84_to_ecef</definition>
+        <argsstring>(double lat_deg, double lon_deg, double alt_m, double *out_x, double *out_y, double *out_z)</argsstring>
+        <name>syn_geo_wgs84_to_ecef</name>
+        <param>
+          <type>double</type>
+          <declname>lat_deg</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>lon_deg</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>alt_m</declname>
+        </param>
+        <param>
+          <type>double *</type>
+          <declname>out_x</declname>
+        </param>
+        <param>
+          <type>double *</type>
+          <declname>out_y</declname>
+        </param>
+        <param>
+          <type>double *</type>
+          <declname>out_z</declname>
+        </param>
+        <briefdescription>
+<para>Convert WGS-84 Geodetic coordinates to Earth-Centered Earth-Fixed (ECEF). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>lat_deg</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Latitude in decimal degrees (-90 to +90). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>lon_deg</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Longitude in decimal degrees (-180 to +180). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>alt_m</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Altitude above ellipsoid/MSL in meters. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out_x</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output ECEF X coordinate in meters. Must not be NULL. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out_y</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output ECEF Y coordinate in meters. Must not be NULL. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out_z</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output ECEF Z coordinate in meters. Must not be NULL. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_INVALID_PARAM if outputs are NULL. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_geo.h" line="109" column="12" bodyfile="src/syntropic/util/syn_geo.c" bodystart="29" bodyend="52" declfile="src/syntropic/util/syn_geo.h" declline="109" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__geo_8h_1a22e27f67cfd70167e14ebddf9d959138" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_geo_ecef_to_wgs84</definition>
+        <argsstring>(double x, double y, double z, double *out_lat, double *out_lon, double *out_alt)</argsstring>
+        <name>syn_geo_ecef_to_wgs84</name>
+        <param>
+          <type>double</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>y</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>z</declname>
+        </param>
+        <param>
+          <type>double *</type>
+          <declname>out_lat</declname>
+        </param>
+        <param>
+          <type>double *</type>
+          <declname>out_lon</declname>
+        </param>
+        <param>
+          <type>double *</type>
+          <declname>out_alt</declname>
+        </param>
+        <briefdescription>
+<para>Convert Earth-Centered Earth-Fixed (ECEF) coordinates back to WGS-84 Geodetic. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Uses Bowring&apos;s closed-form algorithm for high precision.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>x</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>ECEF X coordinate in meters. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>y</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>ECEF Y coordinate in meters. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>z</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>ECEF Z coordinate in meters. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out_lat</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output Latitude in decimal degrees. Must not be NULL. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out_lon</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output Longitude in decimal degrees. Must not be NULL. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out_alt</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output Altitude in meters. Must not be NULL. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_INVALID_PARAM if outputs are NULL. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_geo.h" line="125" column="12" bodyfile="src/syntropic/util/syn_geo.c" bodystart="56" bodyend="94" declfile="src/syntropic/util/syn_geo.h" declline="125" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__geo_8h_1a34a5c2732f1392d4560eb89617064da2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_geo_ecef_to_enu</definition>
+        <argsstring>(double x, double y, double z, double ref_lat_deg, double ref_lon_deg, double ref_alt_m, SYN_ENU *out_enu)</argsstring>
+        <name>syn_geo_ecef_to_enu</name>
+        <param>
+          <type>double</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>y</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>z</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>ref_lat_deg</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>ref_lon_deg</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>ref_alt_m</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__ENU" kindref="compound">SYN_ENU</ref> *</type>
+          <declname>out_enu</declname>
+        </param>
+        <briefdescription>
+<para>Convert global ECEF coordinates to a Local East-North-Up (ENU) frame. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Computes metric Cartesian offsets (East, North, Up) relative to a reference station origin (ref_lat_deg, ref_lon_deg, ref_alt_m).</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>x</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Target ECEF X in meters. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>y</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Target ECEF Y in meters. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>z</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Target ECEF Z in meters. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>ref_lat_deg</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Reference origin Latitude in decimal degrees. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>ref_lon_deg</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Reference origin Longitude in decimal degrees. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>ref_alt_m</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Reference origin Altitude in meters. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out_enu</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output ENU Cartesian coordinates. Must not be NULL. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_INVALID_PARAM if out_enu is NULL. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_geo.h" line="143" column="12" bodyfile="src/syntropic/util/syn_geo.c" bodystart="98" bodyend="129" declfile="src/syntropic/util/syn_geo.h" declline="143" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__geo_8h_1a82c81752f611940c7a4825db1e62fdaf" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_geo_wgs84_to_enu</definition>
+        <argsstring>(double lat_deg, double lon_deg, double alt_m, double ref_lat_deg, double ref_lon_deg, double ref_alt_m, SYN_ENU *out_enu)</argsstring>
+        <name>syn_geo_wgs84_to_enu</name>
+        <param>
+          <type>double</type>
+          <declname>lat_deg</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>lon_deg</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>alt_m</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>ref_lat_deg</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>ref_lon_deg</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>ref_alt_m</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__ENU" kindref="compound">SYN_ENU</ref> *</type>
+          <declname>out_enu</declname>
+        </param>
+        <briefdescription>
+<para>Direct conversion from WGS-84 Geodetic to Local East-North-Up (ENU). </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Convenience function combining WGS84-&gt;ECEF and ECEF-&gt;ENU.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>lat_deg</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Target Latitude in decimal degrees. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>lon_deg</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Target Longitude in decimal degrees. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>alt_m</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Target Altitude in meters. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>ref_lat_deg</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Reference origin Latitude in decimal degrees. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>ref_lon_deg</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Reference origin Longitude in decimal degrees. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>ref_alt_m</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Reference origin Altitude in meters. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out_enu</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output ENU Cartesian coordinates in meters. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_INVALID_PARAM if out_enu is NULL. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_geo.h" line="160" column="12" bodyfile="src/syntropic/util/syn_geo.c" bodystart="133" bodyend="146" declfile="src/syntropic/util/syn_geo.h" declline="160" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__geo_8h_1a60c0038000c70e44cc16c1304eba62ba" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>uint32_t syn_geo_distance_fixed_mm</definition>
+        <argsstring>(int32_t lat1_udeg, int32_t lon1_udeg, int32_t lat2_udeg, int32_t lon2_udeg)</argsstring>
+        <name>syn_geo_distance_fixed_mm</name>
+        <param>
+          <type>int32_t</type>
+          <declname>lat1_udeg</declname>
+        </param>
+        <param>
+          <type>int32_t</type>
+          <declname>lon1_udeg</declname>
+        </param>
+        <param>
+          <type>int32_t</type>
+          <declname>lat2_udeg</declname>
+        </param>
+        <param>
+          <type>int32_t</type>
+          <declname>lon2_udeg</declname>
+        </param>
+        <briefdescription>
+<para>Compute 2D surface distance in millimeters using 32-bit Micro-Degree integers. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Executed in 100% pure integer math (zero floating point operations).</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>lat1_udeg</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Point 1 Latitude in micro-degrees (1e-7 deg). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>lon1_udeg</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Point 1 Longitude in micro-degrees (1e-7 deg). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>lat2_udeg</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Point 2 Latitude in micro-degrees (1e-7 deg). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>lon2_udeg</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Point 2 Longitude in micro-degrees (1e-7 deg). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>2D Surface distance in millimeters (mm). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_geo.h" line="174" column="10" bodyfile="src/syntropic/util/syn_geo.c" bodystart="185" bodyend="196" declfile="src/syntropic/util/syn_geo.h" declline="174" declcolumn="10"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__geo_8h_1a37b06ce0383b9ece4e0fd35b09e4f711" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>double</type>
+        <definition>double syn_geo_haversine_m</definition>
+        <argsstring>(double lat1_deg, double lon1_deg, double lat2_deg, double lon2_deg)</argsstring>
+        <name>syn_geo_haversine_m</name>
+        <param>
+          <type>double</type>
+          <declname>lat1_deg</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>lon1_deg</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>lat2_deg</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>lon2_deg</declname>
+        </param>
+        <briefdescription>
+<para>Compute 2D surface geodesic distance using the Haversine formula. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>lat1_deg</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Point 1 Latitude in decimal degrees. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>lon1_deg</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Point 1 Longitude in decimal degrees. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>lat2_deg</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Point 2 Latitude in decimal degrees. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>lon2_deg</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Point 2 Longitude in decimal degrees. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>2D Surface distance in meters. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_geo.h" line="186" column="8" bodyfile="src/syntropic/util/syn_geo.c" bodystart="150" bodyend="169" declfile="src/syntropic/util/syn_geo.h" declline="186" declcolumn="8"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__geo_8h_1a3627ae76ec11900e79a9788162bc9f09" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>double</type>
+        <definition>double syn_geo_3d_distance_m</definition>
+        <argsstring>(const SYN_ENU *p1, const SYN_ENU *p2)</argsstring>
+        <name>syn_geo_3d_distance_m</name>
+        <param>
+          <type>const <ref refid="structSYN__ENU" kindref="compound">SYN_ENU</ref> *</type>
+          <declname>p1</declname>
+        </param>
+        <param>
+          <type>const <ref refid="structSYN__ENU" kindref="compound">SYN_ENU</ref> *</type>
+          <declname>p2</declname>
+        </param>
+        <briefdescription>
+<para>Compute 3D Euclidean Cartesian distance between two ENU points. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>p1</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Point 1 ENU coordinates in meters. Must not be NULL. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>p2</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Point 2 ENU coordinates in meters. Must not be NULL. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>3D Euclidean distance in meters. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_geo.h" line="195" column="8" bodyfile="src/syntropic/util/syn_geo.c" bodystart="173" bodyend="183" declfile="src/syntropic/util/syn_geo.h" declline="195" declcolumn="8"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__geo_8h_1a3ce4899dcf80868e27a9344b637a7c2c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_geo_pos_from_gga</definition>
+        <argsstring>(const SYN_NMEA_GGA *gga, SYN_GeoPos *out_pos)</argsstring>
+        <name>syn_geo_pos_from_gga</name>
+        <param>
+          <type>const <ref refid="structSYN__NMEA__GGA" kindref="compound">SYN_NMEA_GGA</ref> *</type>
+          <declname>gga</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__GeoPos" kindref="compound">SYN_GeoPos</ref> *</type>
+          <declname>out_pos</declname>
+        </param>
+        <briefdescription>
+<para>Populate a <ref refid="structSYN__GeoPos" kindref="compound">SYN_GeoPos</ref> structure from a parsed NMEA GGA sentence. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Assigns automatic accuracy estimate based on fix quality:<itemizedlist>
+<listitem><para>RTK_FIXED: 0.01 m (1 cm)</para>
+</listitem><listitem><para>RTK_FLOAT: 0.20 m (20 cm)</para>
+</listitem><listitem><para>DGPS: 1.00 m</para>
+</listitem><listitem><para>GPS: 2.50 m</para>
+</listitem><listitem><para>INVALID/EST: 50.0 m</para>
+</listitem></itemizedlist>
+</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>gga</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Parsed NMEA GGA sentence. Must not be NULL. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out_pos</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output <ref refid="structSYN__GeoPos" kindref="compound">SYN_GeoPos</ref> struct. Must not be NULL. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_INVALID_PARAM if args are NULL. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_geo.h" line="211" column="12" bodyfile="src/syntropic/util/syn_geo.c" bodystart="200" bodyend="238" declfile="src/syntropic/util/syn_geo.h" declline="211" declcolumn="12"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Geodetic coordinate transformations and distance calculation library. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Provides 64-bit precision WGS-84 ellipsoid coordinate transformations between spherical GNSS coordinates (Latitude, Longitude, Altitude) and 3D metric Cartesian frames:<itemizedlist>
+<listitem><para>ECEF (Earth-Centered Earth-Fixed): Global (X, Y, Z) in meters.</para>
+</listitem><listitem><para>ENU (East-North-Up): Local (East, North, Up) in meters relative to an origin reference station (Lat0, Lon0, Alt0).</para>
+</listitem></itemizedlist>
+</para>
+<para>Preserves sub-millimeter mathematical precision, fully supporting 1 cm RTK Fixed GNSS positioning data parsed from NMEA sentences.</para>
+<para>Usage: <programlisting><codeline><highlight class="normal"><ref refid="structSYN__GeoPos" kindref="compound">SYN_GeoPos</ref><sp/>base,<sp/>rover;</highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="comment">//<sp/>...<sp/>initialize<sp/>base<sp/>and<sp/>rover<sp/>positions<sp/>...</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"><ref refid="structSYN__ENU" kindref="compound">SYN_ENU</ref><sp/>local_enu;</highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__geo_8c_1a82c81752f611940c7a4825db1e62fdaf" kindref="member">syn_geo_wgs84_to_enu</ref>(rover.<ref refid="structSYN__GeoPos_1aab36ae0d565e799ee26ea220be5f4e38" kindref="member">latitude</ref>,<sp/>rover.<ref refid="structSYN__GeoPos_1ae69b7b68be8404d9890063f07873f5ff" kindref="member">longitude</ref>,<sp/>rover.<ref refid="structSYN__GeoPos_1a12f6724ebb3f0ba56cf419456f66c9b9" kindref="member">altitude_m</ref>,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>base.<ref refid="structSYN__GeoPos_1aab36ae0d565e799ee26ea220be5f4e38" kindref="member">latitude</ref>,<sp/>base.<ref refid="structSYN__GeoPos_1ae69b7b68be8404d9890063f07873f5ff" kindref="member">longitude</ref>,<sp/>base.<ref refid="structSYN__GeoPos_1a12f6724ebb3f0ba56cf419456f66c9b9" kindref="member">altitude_m</ref>,</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>&amp;local_enu);</highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="comment">//<sp/>local_enu.east_m,<sp/>local_enu.north_m,<sp/>local_enu.up_m<sp/>are<sp/>in<sp/>meters!</highlight></codeline>
+</programlisting> </para>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_GEO_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_GEO_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>__has_include(&quot;syn_config.h&quot;)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;syn_config.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>!defined(SYN_USE_GEO)<sp/>||<sp/>SYN_USE_GEO</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../common/syn_defs.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../proto/syn_nmea.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="46"><highlight class="normal"></highlight></codeline>
+<codeline lineno="47"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_GEO_USE_FIXED_POINT</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="48" refid="syn__geo_8h_1ad2468f9e424e63b72a1308104c6b1877" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_GEO_USE_FIXED_POINT<sp/>SYN_GNSS_USE_FIXED_POINT<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="49"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="50"><highlight class="normal"></highlight></codeline>
+<codeline lineno="51"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>(SYN_GNSS_USE_FIXED_POINT<sp/>!=<sp/>SYN_GEO_USE_FIXED_POINT)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="52"><highlight class="normal"></highlight><highlight class="preprocessor">#error<sp/>\</highlight></codeline>
+<codeline lineno="53"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>&quot;SyntropicOS<sp/>Config<sp/>Error:<sp/>Mismatched<sp/>GNSS<sp/>numeric<sp/>mode!<sp/>SYN_GEO_USE_FIXED_POINT<sp/>must<sp/>match<sp/>SYN_GNSS_USE_FIXED_POINT.&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="54"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="55"><highlight class="normal"></highlight></codeline>
+<codeline lineno="56"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>WGS-84<sp/>Ellipsoid<sp/>Constants<sp/>──────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="57"><highlight class="normal"></highlight></codeline>
+<codeline lineno="59" refid="syn__geo_8h_1a66ea5cb459ebd0a9597fb9bfaaddbe72" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_GEO_WGS84_A<sp/>6378137.0</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="60"><highlight class="normal"></highlight></codeline>
+<codeline lineno="62" refid="syn__geo_8h_1a4bb7a9ab273e49ee7356dfcbea339ed7" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_GEO_WGS84_INV_F<sp/>298.257223563</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="63"><highlight class="normal"></highlight></codeline>
+<codeline lineno="65" refid="syn__geo_8h_1ab81a1c898c80dfc84dde9e8110312881" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_GEO_WGS84_E2<sp/>0.0066943799901413165</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="66"><highlight class="normal"></highlight></codeline>
+<codeline lineno="67"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Data<sp/>Structures<sp/>─────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="68"><highlight class="normal"></highlight></codeline>
+<codeline lineno="72" refid="structSYN__GeoPos" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>SYN_GEO_USE_FIXED_POINT</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="74"><highlight class="normal"><sp/><sp/><sp/><sp/>int32_t<sp/>lat_udeg;<sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/><sp/><sp/>int32_t<sp/>lon_udeg;<sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/><sp/><sp/>int32_t<sp/>altitude_mm;<sp/></highlight></codeline>
+<codeline lineno="77"><highlight class="normal"></highlight><highlight class="preprocessor">#else</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="78" refid="structSYN__GeoPos_1aab36ae0d565e799ee26ea220be5f4e38" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="structSYN__GeoPos_1aab36ae0d565e799ee26ea220be5f4e38" kindref="member">latitude</ref>;<sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="79" refid="structSYN__GeoPos_1ae69b7b68be8404d9890063f07873f5ff" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="structSYN__GeoPos_1ae69b7b68be8404d9890063f07873f5ff" kindref="member">longitude</ref>;<sp/><sp/></highlight></codeline>
+<codeline lineno="80" refid="structSYN__GeoPos_1a12f6724ebb3f0ba56cf419456f66c9b9" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="structSYN__GeoPos_1a12f6724ebb3f0ba56cf419456f66c9b9" kindref="member">altitude_m</ref>;<sp/></highlight></codeline>
+<codeline lineno="81"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="82" refid="structSYN__GeoPos_1aae78f8ad5c52de07bdfb9598219d791a" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/><ref refid="structSYN__GeoPos_1aae78f8ad5c52de07bdfb9598219d791a" kindref="member">accuracy_m</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="83" refid="structSYN__GeoPos_1a4d0697ea4357b38738aa36d485e25694" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__nmea_8h_1ae2a439a294ce6ae3c3438bbca3da0085" kindref="member">SYN_NMEA_FixQuality</ref><sp/><ref refid="structSYN__GeoPos_1a4d0697ea4357b38738aa36d485e25694" kindref="member">fix_type</ref>;<sp/></highlight></codeline>
+<codeline lineno="84" refid="structSYN__GeoPos_1a806d724388f57aedf26015b7b3672ac6" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="structSYN__GeoPos_1a806d724388f57aedf26015b7b3672ac6" kindref="member">valid</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="85"><highlight class="normal">}<sp/><ref refid="structSYN__GeoPos" kindref="compound">SYN_GeoPos</ref>;</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"></highlight></codeline>
+<codeline lineno="90" refid="structSYN__ENU" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="91" refid="structSYN__ENU_1a452eafc0678610eea176a9ab0b3db066" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="structSYN__ENU_1a452eafc0678610eea176a9ab0b3db066" kindref="member">east_m</ref>;<sp/><sp/></highlight></codeline>
+<codeline lineno="92" refid="structSYN__ENU_1a347940ae56fc64b3455e28eaf5d02d65" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="structSYN__ENU_1a347940ae56fc64b3455e28eaf5d02d65" kindref="member">north_m</ref>;<sp/></highlight></codeline>
+<codeline lineno="93" refid="structSYN__ENU_1a8479e26d5a6d3dedd10e630cf11a7f92" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="structSYN__ENU_1a8479e26d5a6d3dedd10e630cf11a7f92" kindref="member">up_m</ref>;<sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="94"><highlight class="normal">}<sp/><ref refid="structSYN__ENU" kindref="compound">SYN_ENU</ref>;</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"></highlight></codeline>
+<codeline lineno="96"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>API<sp/>──────────────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="97"><highlight class="normal"></highlight></codeline>
+<codeline lineno="109"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__geo_8h_1a8e9bd9afa8f6602c8dc9a6b56bfa5509" kindref="member">syn_geo_wgs84_to_ecef</ref>(</highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>lat_deg,<sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>lon_deg,<sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>alt_m,<sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>*out_x,</highlight></codeline>
+<codeline lineno="110"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>*out_y,<sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>*out_z);</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"></highlight></codeline>
+<codeline lineno="125"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__geo_8h_1a22e27f67cfd70167e14ebddf9d959138" kindref="member">syn_geo_ecef_to_wgs84</ref>(</highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>x,<sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>y,<sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>z,<sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>*out_lat,<sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>*out_lon,</highlight></codeline>
+<codeline lineno="126"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>*out_alt);</highlight></codeline>
+<codeline lineno="127"><highlight class="normal"></highlight></codeline>
+<codeline lineno="143"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__geo_8h_1a34a5c2732f1392d4560eb89617064da2" kindref="member">syn_geo_ecef_to_enu</ref>(</highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>x,<sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>y,<sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>z,<sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>ref_lat_deg,<sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>ref_lon_deg,</highlight></codeline>
+<codeline lineno="144"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>ref_alt_m,<sp/><ref refid="structSYN__ENU" kindref="compound">SYN_ENU</ref><sp/>*out_enu);</highlight></codeline>
+<codeline lineno="145"><highlight class="normal"></highlight></codeline>
+<codeline lineno="160"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__geo_8h_1a82c81752f611940c7a4825db1e62fdaf" kindref="member">syn_geo_wgs84_to_enu</ref>(</highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>lat_deg,<sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>lon_deg,<sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>alt_m,<sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>ref_lat_deg,</highlight></codeline>
+<codeline lineno="161"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>ref_lon_deg,<sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>ref_alt_m,<sp/><ref refid="structSYN__ENU" kindref="compound">SYN_ENU</ref><sp/>*out_enu);</highlight></codeline>
+<codeline lineno="162"><highlight class="normal"></highlight></codeline>
+<codeline lineno="174"><highlight class="normal">uint32_t<sp/><ref refid="syn__geo_8h_1a60c0038000c70e44cc16c1304eba62ba" kindref="member">syn_geo_distance_fixed_mm</ref>(int32_t<sp/>lat1_udeg,<sp/>int32_t<sp/>lon1_udeg,<sp/>int32_t<sp/>lat2_udeg,</highlight></codeline>
+<codeline lineno="175"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int32_t<sp/>lon2_udeg);</highlight></codeline>
+<codeline lineno="176"><highlight class="normal"></highlight></codeline>
+<codeline lineno="186"><highlight class="normal"></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="syn__geo_8h_1a37b06ce0383b9ece4e0fd35b09e4f711" kindref="member">syn_geo_haversine_m</ref>(</highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>lat1_deg,<sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>lon1_deg,<sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>lat2_deg,<sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>lon2_deg);</highlight></codeline>
+<codeline lineno="187"><highlight class="normal"></highlight></codeline>
+<codeline lineno="195"><highlight class="normal"></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/><ref refid="syn__geo_8h_1a3627ae76ec11900e79a9788162bc9f09" kindref="member">syn_geo_3d_distance_m</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__ENU" kindref="compound">SYN_ENU</ref><sp/>*p1,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__ENU" kindref="compound">SYN_ENU</ref><sp/>*p2);</highlight></codeline>
+<codeline lineno="196"><highlight class="normal"></highlight></codeline>
+<codeline lineno="211"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__geo_8h_1a3ce4899dcf80868e27a9344b637a7c2c" kindref="member">syn_geo_pos_from_gga</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__NMEA__GGA" kindref="compound">SYN_NMEA_GGA</ref><sp/>*gga,<sp/><ref refid="structSYN__GeoPos" kindref="compound">SYN_GeoPos</ref><sp/>*out_pos);</highlight></codeline>
+<codeline lineno="212"><highlight class="normal"></highlight></codeline>
+<codeline lineno="213"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="214"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="215"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="216"><highlight class="normal"></highlight></codeline>
+<codeline lineno="217"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_USE_GEO<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="218"><highlight class="normal"></highlight></codeline>
+<codeline lineno="219"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_GEO_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/util/syn_geo.h"/>
+  </compounddef>
+</doxygen>

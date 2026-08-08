@@ -1,0 +1,342 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__i2c__queue_8c" kind="file" language="C++">
+    <compoundname>syn_i2c_queue.c</compoundname>
+    <includes refid="syn__i2c__queue_8h" local="yes">syn_i2c_queue.h</includes>
+    <includes refid="syn__port__i2c_8h" local="yes">../port/syn_port_i2c.h</includes>
+    <includes local="no">string.h</includes>
+    <incdepgraph>
+      <node id="3">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/drivers/syn_i2c_queue.c</label>
+        <link refid="syn__i2c__queue_8c"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>syn_i2c_queue.h</label>
+        <link refid="syn__i2c__queue_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>../port/syn_port_i2c.h</label>
+        <link refid="syn__port__i2c_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>../port/syn_port_i2c_async.h</label>
+        <link refid="syn__port__i2c__async_8h"/>
+      </node>
+      <node id="8">
+        <label>stdbool.h</label>
+      </node>
+      <node id="4">
+        <label>stddef.h</label>
+      </node>
+      <node id="5">
+        <label>stdint.h</label>
+      </node>
+      <node id="9">
+        <label>string.h</label>
+      </node>
+    </incdepgraph>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__i2c__queue_8c_1a169adee4f19624e3e9a98f9d4439b661" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_i2c_queue_init</definition>
+        <argsstring>(SYN_I2C_Queue *q, uint8_t bus)</argsstring>
+        <name>syn_i2c_queue_init</name>
+        <param>
+          <type><ref refid="structSYN__I2C__Queue" kindref="compound">SYN_I2C_Queue</ref> *</type>
+          <declname>q</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>bus</declname>
+        </param>
+        <briefdescription>
+<para>Initialize an I2C transaction queue for a bus. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>q</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to queue handle. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>bus</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Target I2C bus index. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_INVALID_PARAM if q is NULL. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_i2c_queue.c" line="13" column="12" bodyfile="src/syntropic/drivers/syn_i2c_queue.c" bodystart="13" bodyend="24"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__i2c__queue_8c_1a1722d7a32b6e1b8d3e12a6c4e47f3aba" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_i2c_queue_enqueue</definition>
+        <argsstring>(SYN_I2C_Queue *q, const SYN_I2C_Transaction *tx)</argsstring>
+        <name>syn_i2c_queue_enqueue</name>
+        <param>
+          <type><ref refid="structSYN__I2C__Queue" kindref="compound">SYN_I2C_Queue</ref> *</type>
+          <declname>q</declname>
+        </param>
+        <param>
+          <type>const <ref refid="structSYN__I2C__Transaction" kindref="compound">SYN_I2C_Transaction</ref> *</type>
+          <declname>tx</declname>
+        </param>
+        <briefdescription>
+<para>Enqueue a transaction for non-blocking execution. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>q</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to initialized queue handle. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>tx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Transaction descriptor. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK if enqueued, SYN_FULL if queue is full, SYN_INVALID_PARAM on invalid inputs. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_i2c_queue.c" line="26" column="12" bodyfile="src/syntropic/drivers/syn_i2c_queue.c" bodystart="26" bodyend="41"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__i2c__queue_8c_1a8f7dc137682b875b2809f121e5a50bcf" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_i2c_queue_process</definition>
+        <argsstring>(SYN_I2C_Queue *q)</argsstring>
+        <name>syn_i2c_queue_process</name>
+        <param>
+          <type><ref refid="structSYN__I2C__Queue" kindref="compound">SYN_I2C_Queue</ref> *</type>
+          <declname>q</declname>
+        </param>
+        <briefdescription>
+<para>Process queue state machine (triggers pending transaction if idle). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>q</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to initialized queue handle. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_i2c_queue.c" line="43" column="12" bodyfile="src/syntropic/drivers/syn_i2c_queue.c" bodystart="43" bodyend="73"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__i2c__queue_8c_1abc8ef5811b3baad1845ff2662df8fb89" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_i2c_queue_cancel_all</definition>
+        <argsstring>(SYN_I2C_Queue *q)</argsstring>
+        <name>syn_i2c_queue_cancel_all</name>
+        <param>
+          <type><ref refid="structSYN__I2C__Queue" kindref="compound">SYN_I2C_Queue</ref> *</type>
+          <declname>q</declname>
+        </param>
+        <briefdescription>
+<para>Cancel all pending transactions in queue. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>q</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to initialized queue handle. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_i2c_queue.c" line="75" column="12" bodyfile="src/syntropic/drivers/syn_i2c_queue.c" bodystart="75" bodyend="87"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__i2c__queue_8c_1ae3dedaf6d31138491ee780eddf930595" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>size_t</type>
+        <definition>size_t syn_i2c_queue_count</definition>
+        <argsstring>(const SYN_I2C_Queue *q)</argsstring>
+        <name>syn_i2c_queue_count</name>
+        <param>
+          <type>const <ref refid="structSYN__I2C__Queue" kindref="compound">SYN_I2C_Queue</ref> *</type>
+          <declname>q</declname>
+        </param>
+        <briefdescription>
+<para>Query current pending transaction count. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>q</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to queue handle. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Number of queued items (0 if NULL or empty). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_i2c_queue.c" line="89" column="8" bodyfile="src/syntropic/drivers/syn_i2c_queue.c" bodystart="89" bodyend="96"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Non-blocking I2C transaction queue driver implementation. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__i2c__queue_8h" kindref="compound">syn_i2c_queue.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../port/syn_port_i2c.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;string.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__i2c__queue_8c_1a169adee4f19624e3e9a98f9d4439b661" kindref="member">syn_i2c_queue_init</ref>(<ref refid="structSYN__I2C__Queue" kindref="compound">SYN_I2C_Queue</ref><sp/>*q,<sp/>uint8_t<sp/>bus)</highlight></codeline>
+<codeline lineno="14"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="15"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(q<sp/>==<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="16"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="17"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"><sp/><sp/><sp/><sp/>memset(q,<sp/>0,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(*q));</highlight></codeline>
+<codeline lineno="20"><highlight class="normal"><sp/><sp/><sp/><sp/>q-&gt;<ref refid="structSYN__I2C__Queue_1a1f3f21323ac78c66e31cf9fca8b7a407" kindref="member">bus</ref><sp/>=<sp/>bus;</highlight></codeline>
+<codeline lineno="21"><highlight class="normal"><sp/><sp/><sp/><sp/>q-&gt;<ref refid="structSYN__I2C__Queue_1a777f3af96a4c590f24305c4149c706d4" kindref="member">initialized</ref><sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="24"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__i2c__queue_8c_1a1722d7a32b6e1b8d3e12a6c4e47f3aba" kindref="member">syn_i2c_queue_enqueue</ref>(<ref refid="structSYN__I2C__Queue" kindref="compound">SYN_I2C_Queue</ref><sp/>*q,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__I2C__Transaction" kindref="compound">SYN_I2C_Transaction</ref><sp/>*tx)</highlight></codeline>
+<codeline lineno="27"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="28"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(q<sp/>==<sp/>NULL<sp/>||<sp/>!q-&gt;<ref refid="structSYN__I2C__Queue_1a777f3af96a4c590f24305c4149c706d4" kindref="member">initialized</ref><sp/>||<sp/>tx<sp/>==<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="29"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="30"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight></codeline>
+<codeline lineno="32"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(q-&gt;<ref refid="structSYN__I2C__Queue_1af2eb74ef1d63edfc09addc157cf99406" kindref="member">count</ref><sp/>&gt;=<sp/><ref refid="syn__i2c__queue_8h_1a7766a93a6e1b970be374340709c17336" kindref="member">SYN_I2C_QUEUE_MAX_DEPTH</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="33"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a3be376d242928cd8de46b32c69647539" kindref="member">SYN_BUSY</ref>;</highlight></codeline>
+<codeline lineno="34"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"><sp/><sp/><sp/><sp/>q-&gt;<ref refid="structSYN__I2C__Queue_1ae5b24aa3c0f5c02ea33c24d38bd17453" kindref="member">ring</ref>[q-&gt;<ref refid="structSYN__I2C__Queue_1a0af35b9debc7c45638a25cf5f7882ef8" kindref="member">tail</ref>]<sp/>=<sp/>*tx;</highlight></codeline>
+<codeline lineno="37"><highlight class="normal"><sp/><sp/><sp/><sp/>q-&gt;<ref refid="structSYN__I2C__Queue_1a0af35b9debc7c45638a25cf5f7882ef8" kindref="member">tail</ref><sp/>=<sp/>(uint16_t)((q-&gt;<ref refid="structSYN__I2C__Queue_1a0af35b9debc7c45638a25cf5f7882ef8" kindref="member">tail</ref><sp/>+<sp/>1)<sp/>%<sp/><ref refid="syn__i2c__queue_8h_1a7766a93a6e1b970be374340709c17336" kindref="member">SYN_I2C_QUEUE_MAX_DEPTH</ref>);</highlight></codeline>
+<codeline lineno="38"><highlight class="normal"><sp/><sp/><sp/><sp/>q-&gt;<ref refid="structSYN__I2C__Queue_1af2eb74ef1d63edfc09addc157cf99406" kindref="member">count</ref>++;</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__i2c__queue_8c_1a8f7dc137682b875b2809f121e5a50bcf" kindref="member">syn_i2c_queue_process</ref>(q);</highlight></codeline>
+<codeline lineno="41"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight></codeline>
+<codeline lineno="43"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__i2c__queue_8c_1a8f7dc137682b875b2809f121e5a50bcf" kindref="member">syn_i2c_queue_process</ref>(<ref refid="structSYN__I2C__Queue" kindref="compound">SYN_I2C_Queue</ref><sp/>*q)</highlight></codeline>
+<codeline lineno="44"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(q<sp/>==<sp/>NULL<sp/>||<sp/>!q-&gt;<ref refid="structSYN__I2C__Queue_1a777f3af96a4c590f24305c4149c706d4" kindref="member">initialized</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"></highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(q-&gt;<ref refid="structSYN__I2C__Queue_1a503299c55d0c2734285b78d091a96382" kindref="member">active</ref><sp/>||<sp/>q-&gt;<ref refid="structSYN__I2C__Queue_1af2eb74ef1d63edfc09addc157cf99406" kindref="member">count</ref><sp/>==<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"></highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structSYN__I2C__Transaction" kindref="compound">SYN_I2C_Transaction</ref><sp/>*tx<sp/>=<sp/>&amp;q-&gt;<ref refid="structSYN__I2C__Queue_1ae5b24aa3c0f5c02ea33c24d38bd17453" kindref="member">ring</ref>[q-&gt;<ref refid="structSYN__I2C__Queue_1a043de0cacfb7a6ba1225a9172d933032" kindref="member">head</ref>];</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/><sp/><sp/>q-&gt;<ref refid="structSYN__I2C__Queue_1a043de0cacfb7a6ba1225a9172d933032" kindref="member">head</ref><sp/>=<sp/>(uint16_t)((q-&gt;<ref refid="structSYN__I2C__Queue_1a043de0cacfb7a6ba1225a9172d933032" kindref="member">head</ref><sp/>+<sp/>1)<sp/>%<sp/><ref refid="syn__i2c__queue_8h_1a7766a93a6e1b970be374340709c17336" kindref="member">SYN_I2C_QUEUE_MAX_DEPTH</ref>);</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/><sp/><sp/>q-&gt;<ref refid="structSYN__I2C__Queue_1af2eb74ef1d63edfc09addc157cf99406" kindref="member">count</ref>--;</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/><sp/><sp/>q-&gt;<ref refid="structSYN__I2C__Queue_1a503299c55d0c2734285b78d091a96382" kindref="member">active</ref><sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"></highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/>status<sp/>=</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__port__i2c_8h_1a5c35e53c19f0bea16071f627580529e4" kindref="member">syn_port_i2c_transfer</ref>(q-&gt;<ref refid="structSYN__I2C__Queue_1a1f3f21323ac78c66e31cf9fca8b7a407" kindref="member">bus</ref>,<sp/>tx-&gt;<ref refid="structSYN__I2C__Transaction_1af2832f141e85f8edff3a11f5f8fcce2d" kindref="member">addr</ref>,<sp/>tx-&gt;<ref refid="structSYN__I2C__Transaction_1a44a45b27f009b572ab8eca53091026bc" kindref="member">tx_data</ref>,<sp/>tx-&gt;<ref refid="structSYN__I2C__Transaction_1a7a9f088f43129baa139a9eb2fed0b799" kindref="member">tx_len</ref>,<sp/>tx-&gt;<ref refid="structSYN__I2C__Transaction_1a90c8b9cd80532214ab1a4fdb3de6bfa8" kindref="member">rx_data</ref>,<sp/>tx-&gt;<ref refid="structSYN__I2C__Transaction_1ab8df74fd249238d80aa1862f6211c61d" kindref="member">rx_len</ref>);</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"></highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/><sp/><sp/>q-&gt;<ref refid="structSYN__I2C__Queue_1a503299c55d0c2734285b78d091a96382" kindref="member">active</ref><sp/>=<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"></highlight></codeline>
+<codeline lineno="63"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(tx-&gt;<ref refid="structSYN__I2C__Transaction_1ac24bd8609e783c6085c3e0dfc336af05" kindref="member">callback</ref><sp/>!=<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tx-&gt;<ref refid="structSYN__I2C__Transaction_1ac24bd8609e783c6085c3e0dfc336af05" kindref="member">callback</ref>(q-&gt;<ref refid="structSYN__I2C__Queue_1a1f3f21323ac78c66e31cf9fca8b7a407" kindref="member">bus</ref>,<sp/>status,<sp/>tx-&gt;<ref refid="structSYN__I2C__Transaction_1aa148d3f28e9032c19402f56d10af4fd8" kindref="member">user_data</ref>);</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"></highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Process<sp/>next<sp/>pending<sp/>item<sp/>if<sp/>available<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(q-&gt;<ref refid="structSYN__I2C__Queue_1af2eb74ef1d63edfc09addc157cf99406" kindref="member">count</ref><sp/>&gt;<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(void)<ref refid="syn__i2c__queue_8c_1a8f7dc137682b875b2809f121e5a50bcf" kindref="member">syn_i2c_queue_process</ref>(q);</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"></highlight></codeline>
+<codeline lineno="72"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="73"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"></highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__i2c__queue_8c_1abc8ef5811b3baad1845ff2662df8fb89" kindref="member">syn_i2c_queue_cancel_all</ref>(<ref refid="structSYN__I2C__Queue" kindref="compound">SYN_I2C_Queue</ref><sp/>*q)</highlight></codeline>
+<codeline lineno="76"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(q<sp/>==<sp/>NULL<sp/>||<sp/>!q-&gt;<ref refid="structSYN__I2C__Queue_1a777f3af96a4c590f24305c4149c706d4" kindref="member">initialized</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"></highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/><sp/><sp/>q-&gt;<ref refid="structSYN__I2C__Queue_1a043de0cacfb7a6ba1225a9172d933032" kindref="member">head</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/>q-&gt;<ref refid="structSYN__I2C__Queue_1a0af35b9debc7c45638a25cf5f7882ef8" kindref="member">tail</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/>q-&gt;<ref refid="structSYN__I2C__Queue_1af2eb74ef1d63edfc09addc157cf99406" kindref="member">count</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/><sp/><sp/>q-&gt;<ref refid="structSYN__I2C__Queue_1a503299c55d0c2734285b78d091a96382" kindref="member">active</ref><sp/>=<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"></highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="87"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"></highlight></codeline>
+<codeline lineno="89"><highlight class="normal"></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="syn__i2c__queue_8c_1ae3dedaf6d31138491ee780eddf930595" kindref="member">syn_i2c_queue_count</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__I2C__Queue" kindref="compound">SYN_I2C_Queue</ref><sp/>*q)</highlight></codeline>
+<codeline lineno="90"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(q<sp/>==<sp/>NULL<sp/>||<sp/>!q-&gt;<ref refid="structSYN__I2C__Queue_1a777f3af96a4c590f24305c4149c706d4" kindref="member">initialized</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0;</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"></highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal">)q-&gt;<ref refid="structSYN__I2C__Queue_1af2eb74ef1d63edfc09addc157cf99406" kindref="member">count</ref>;</highlight></codeline>
+<codeline lineno="96"><highlight class="normal">}</highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/drivers/syn_i2c_queue.c"/>
+  </compounddef>
+</doxygen>

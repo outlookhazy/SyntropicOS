@@ -1,0 +1,527 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__aes128_8h" kind="file" language="C++">
+    <compoundname>syn_aes128.h</compoundname>
+    <includes refid="syn__defs_8h" local="yes">../common/syn_defs.h</includes>
+    <includes local="no">stdbool.h</includes>
+    <includes local="no">stddef.h</includes>
+    <includes local="no">stdint.h</includes>
+    <includedby refid="syn__uds_8c" local="yes">src/syntropic/proto/syn_uds.c</includedby>
+    <includedby refid="syntropic_8h" local="yes">src/syntropic/syntropic.h</includedby>
+    <includedby refid="syn__aes128_8c" local="yes">src/syntropic/util/syn_aes128.c</includedby>
+    <incdepgraph>
+      <node id="2">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/util/syn_aes128.h</label>
+        <link refid="syn__aes128_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>stdbool.h</label>
+      </node>
+      <node id="3">
+        <label>stddef.h</label>
+      </node>
+      <node id="4">
+        <label>stdint.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="5">
+        <label>src/syntropic/proto/syn_doip.c</label>
+        <link refid="syn__doip_8c"/>
+      </node>
+      <node id="4">
+        <label>src/syntropic/proto/syn_doip.h</label>
+        <link refid="syn__doip_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>src/syntropic/proto/syn_uds.c</label>
+        <link refid="syn__uds_8c"/>
+      </node>
+      <node id="3">
+        <label>src/syntropic/syntropic.h</label>
+        <link refid="syntropic_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>src/syntropic/util/syn_aes128.c</label>
+        <link refid="syn__aes128_8c"/>
+      </node>
+      <node id="1">
+        <label>src/syntropic/util/syn_aes128.h</label>
+        <link refid="syn__aes128_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="structSYN__AES128__Context" prot="public">SYN_AES128_Context</innerclass>
+    <sectiondef kind="define">
+      <memberdef kind="define" id="syn__aes128_8h_1a0f1276bff9c13f325a23cba04f5570a0" prot="public" static="no">
+        <name>SYN_AES128_KEY_SIZE</name>
+        <initializer>16</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>AES-128 key length in bytes (16) </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_aes128.h" line="23" column="9" bodyfile="src/syntropic/util/syn_aes128.h" bodystart="23" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__aes128_8h_1ae5308db36a8ca0fe9a542cdafb0e117c" prot="public" static="no">
+        <name>SYN_AES128_BLOCK_SIZE</name>
+        <initializer>16</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>AES-128 cipher block size in bytes (16) </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_aes128.h" line="24" column="9" bodyfile="src/syntropic/util/syn_aes128.h" bodystart="24" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__aes128_8h_1aebbcf7068913c325a48ce1327d139442" prot="public" static="no">
+        <name>SYN_AES128_EXPANDED_KEY_SIZE</name>
+        <initializer>176</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Total expanded round keys size in bytes (176) </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_aes128.h" line="25" column="9" bodyfile="src/syntropic/util/syn_aes128.h" bodystart="25" bodyend="-1"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__aes128_8h_1ad503df7971bce73f5f3e7b3d1f23a42b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_aes128_init</definition>
+        <argsstring>(SYN_AES128_Context *ctx, const uint8_t key[SYN_AES128_KEY_SIZE])</argsstring>
+        <name>syn_aes128_init</name>
+        <param>
+          <type><ref refid="structSYN__AES128__Context" kindref="compound">SYN_AES128_Context</ref> *</type>
+          <declname>ctx</declname>
+        </param>
+        <param>
+          <type>const uint8_t</type>
+          <declname>key</declname>
+          <array>[SYN_AES128_KEY_SIZE]</array>
+        </param>
+        <briefdescription>
+<para>Initialize AES-128 context and expand 128-bit key. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ctx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>AES-128 context instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>key</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>16-byte key buffer. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_aes128.h" line="40" column="12" bodyfile="src/syntropic/util/syn_aes128.c" bodystart="90" bodyend="137" declfile="src/syntropic/util/syn_aes128.h" declline="40" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__aes128_8h_1aec0240ab47ea095f5fc9e45d4381b3f0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_aes128_encrypt_block</definition>
+        <argsstring>(const SYN_AES128_Context *ctx, const uint8_t in[16], uint8_t out[16])</argsstring>
+        <name>syn_aes128_encrypt_block</name>
+        <param>
+          <type>const <ref refid="structSYN__AES128__Context" kindref="compound">SYN_AES128_Context</ref> *</type>
+          <declname>ctx</declname>
+        </param>
+        <param>
+          <type>const uint8_t</type>
+          <declname>in</declname>
+          <array>[16]</array>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>out</declname>
+          <array>[16]</array>
+        </param>
+        <briefdescription>
+<para>Encrypt a single 16-byte block (ECB mode). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ctx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Initialized AES-128 context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>in</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>16-byte plaintext block. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>16-byte ciphertext block. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_aes128.h" line="48" column="6" bodyfile="src/syntropic/util/syn_aes128.c" bodystart="139" bodyend="206" declfile="src/syntropic/util/syn_aes128.h" declline="48" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__aes128_8h_1a5b2cef9ce3ef2235929680e420da472b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_aes128_decrypt_block</definition>
+        <argsstring>(const SYN_AES128_Context *ctx, const uint8_t in[16], uint8_t out[16])</argsstring>
+        <name>syn_aes128_decrypt_block</name>
+        <param>
+          <type>const <ref refid="structSYN__AES128__Context" kindref="compound">SYN_AES128_Context</ref> *</type>
+          <declname>ctx</declname>
+        </param>
+        <param>
+          <type>const uint8_t</type>
+          <declname>in</declname>
+          <array>[16]</array>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>out</declname>
+          <array>[16]</array>
+        </param>
+        <briefdescription>
+<para>Decrypt a single 16-byte block (ECB mode). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ctx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Initialized AES-128 context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>in</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>16-byte ciphertext block. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>16-byte plaintext block. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_aes128.h" line="56" column="6" bodyfile="src/syntropic/util/syn_aes128.c" bodystart="208" bodyend="275" declfile="src/syntropic/util/syn_aes128.h" declline="56" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__aes128_8h_1a8b90b939864f7765ba4023e9efc6f538" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_aes128_cbc_encrypt</definition>
+        <argsstring>(const SYN_AES128_Context *ctx, const uint8_t iv[16], const uint8_t *in, size_t in_len, uint8_t *out, size_t out_capacity, size_t *out_len)</argsstring>
+        <name>syn_aes128_cbc_encrypt</name>
+        <param>
+          <type>const <ref refid="structSYN__AES128__Context" kindref="compound">SYN_AES128_Context</ref> *</type>
+          <declname>ctx</declname>
+        </param>
+        <param>
+          <type>const uint8_t</type>
+          <declname>iv</declname>
+          <array>[16]</array>
+        </param>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>in</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>in_len</declname>
+        </param>
+        <param>
+          <type>uint8_t *</type>
+          <declname>out</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>out_capacity</declname>
+        </param>
+        <param>
+          <type>size_t *</type>
+          <declname>out_len</declname>
+        </param>
+        <briefdescription>
+<para>Encrypt data using AES-128-CBC with PKCS#7 padding. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ctx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Initialized AES-128 context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>iv</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>16-byte initialization vector. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>in</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Plaintext buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>in_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Plaintext length in bytes. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Ciphertext buffer (must be large enough for in_len + PKCS7 padding). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out_capacity</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Maximum size of output buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output byte count written. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_aes128.h" line="69" column="12" bodyfile="src/syntropic/util/syn_aes128.c" bodystart="277" bodyend="326" declfile="src/syntropic/util/syn_aes128.h" declline="69" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__aes128_8h_1a01e76bc18c834da4f817b4f007b1f7f3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_aes128_cbc_decrypt</definition>
+        <argsstring>(const SYN_AES128_Context *ctx, const uint8_t iv[16], const uint8_t *in, size_t in_len, uint8_t *out, size_t out_capacity, size_t *out_len)</argsstring>
+        <name>syn_aes128_cbc_decrypt</name>
+        <param>
+          <type>const <ref refid="structSYN__AES128__Context" kindref="compound">SYN_AES128_Context</ref> *</type>
+          <declname>ctx</declname>
+        </param>
+        <param>
+          <type>const uint8_t</type>
+          <declname>iv</declname>
+          <array>[16]</array>
+        </param>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>in</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>in_len</declname>
+        </param>
+        <param>
+          <type>uint8_t *</type>
+          <declname>out</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>out_capacity</declname>
+        </param>
+        <param>
+          <type>size_t *</type>
+          <declname>out_len</declname>
+        </param>
+        <briefdescription>
+<para>Decrypt data using AES-128-CBC with PKCS#7 padding removal. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ctx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Initialized AES-128 context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>iv</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>16-byte initialization vector. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>in</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Ciphertext buffer (multiple of 16 bytes). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>in_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Ciphertext length in bytes. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Plaintext output buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out_capacity</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output buffer size. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Decrypted plaintext byte count written. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, or SYN_INVALID_PARAM on invalid padding. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_aes128.h" line="84" column="12" bodyfile="src/syntropic/util/syn_aes128.c" bodystart="328" bodyend="373" declfile="src/syntropic/util/syn_aes128.h" declline="84" declcolumn="12"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>AES-128 cipher engine (ECB &amp; CBC mode with PKCS#7 padding). </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Constant-time, zero-heap implementation designed for embedded systems. Supports 128-bit key expansion and CBC cipher block chaining. </para>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_AES128_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_AES128_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../common/syn_defs.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stddef.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight></codeline>
+<codeline lineno="23" refid="syn__aes128_8h_1a0f1276bff9c13f325a23cba04f5570a0" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_AES128_KEY_SIZE<sp/>16<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="24" refid="syn__aes128_8h_1ae5308db36a8ca0fe9a542cdafb0e117c" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_AES128_BLOCK_SIZE<sp/>16<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="25" refid="syn__aes128_8h_1aebbcf7068913c325a48ce1327d139442" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_AES128_EXPANDED_KEY_SIZE<sp/>176<sp/></highlight></codeline>
+<codeline lineno="30" refid="structSYN__AES128__Context" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="31" refid="structSYN__AES128__Context_1af36524602484145f9806f17402d82246" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>round_keys[<ref refid="syn__aes128_8h_1aebbcf7068913c325a48ce1327d139442" kindref="member">SYN_AES128_EXPANDED_KEY_SIZE</ref>];<sp/></highlight></codeline>
+<codeline lineno="32"><highlight class="normal">}<sp/><ref refid="structSYN__AES128__Context" kindref="compound">SYN_AES128_Context</ref>;</highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__aes128_8h_1ad503df7971bce73f5f3e7b3d1f23a42b" kindref="member">syn_aes128_init</ref>(<ref refid="structSYN__AES128__Context" kindref="compound">SYN_AES128_Context</ref><sp/>*ctx,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>key[<ref refid="syn__aes128_8h_1a0f1276bff9c13f325a23cba04f5570a0" kindref="member">SYN_AES128_KEY_SIZE</ref>]);</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight></codeline>
+<codeline lineno="48"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__aes128_8h_1aec0240ab47ea095f5fc9e45d4381b3f0" kindref="member">syn_aes128_encrypt_block</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__AES128__Context" kindref="compound">SYN_AES128_Context</ref><sp/>*ctx,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>in[16],<sp/>uint8_t<sp/>out[16]);</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"></highlight></codeline>
+<codeline lineno="56"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__aes128_8h_1a5b2cef9ce3ef2235929680e420da472b" kindref="member">syn_aes128_decrypt_block</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__AES128__Context" kindref="compound">SYN_AES128_Context</ref><sp/>*ctx,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>in[16],<sp/>uint8_t<sp/>out[16]);</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"></highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__aes128_8h_1a8b90b939864f7765ba4023e9efc6f538" kindref="member">syn_aes128_cbc_encrypt</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__AES128__Context" kindref="compound">SYN_AES128_Context</ref><sp/>*ctx,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>iv[16],</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*in,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>in_len,<sp/>uint8_t<sp/>*out,</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>out_capacity,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>*out_len);</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"></highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__aes128_8h_1a01e76bc18c834da4f817b4f007b1f7f3" kindref="member">syn_aes128_cbc_decrypt</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__AES128__Context" kindref="compound">SYN_AES128_Context</ref><sp/>*ctx,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>iv[16],</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*in,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>in_len,<sp/>uint8_t<sp/>*out,</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>out_capacity,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>*out_len);</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"></highlight></codeline>
+<codeline lineno="88"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="89"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="91"><highlight class="normal"></highlight></codeline>
+<codeline lineno="92"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_AES128_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/util/syn_aes128.h"/>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,700 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__cjt188_8c" kind="file" language="C++">
+    <compoundname>syn_cjt188.c</compoundname>
+    <includes refid="syn__cjt188_8h" local="yes">syn_cjt188.h</includes>
+    <includes refid="syn__pack_8h" local="yes">../util/syn_pack.h</includes>
+    <includes local="no">string.h</includes>
+    <incdepgraph>
+      <node id="3">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/proto/syn_cjt188.c</label>
+        <link refid="syn__cjt188_8c"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>syn_cjt188.h</label>
+        <link refid="syn__cjt188_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>../util/syn_pack.h</label>
+        <link refid="syn__pack_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>stdbool.h</label>
+      </node>
+      <node id="4">
+        <label>stddef.h</label>
+      </node>
+      <node id="5">
+        <label>stdint.h</label>
+      </node>
+      <node id="8">
+        <label>string.h</label>
+      </node>
+    </incdepgraph>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__cjt188_8c_1a51ec2ded61e31ea2b1303ff8c3ce0114" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint8_t</type>
+        <definition>uint8_t syn_cjt188_checksum</definition>
+        <argsstring>(const uint8_t *buf, size_t len)</argsstring>
+        <name>syn_cjt188_checksum</name>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>len</declname>
+        </param>
+        <briefdescription>
+<para>Calculate CJ/T 188 8-bit checksum. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to frame starting at 0x68. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Length of frame from 0x68 up to payload end (excluding CS and 0x16). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>8-bit sum modulo 256. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_cjt188.c" line="12" column="9" bodyfile="src/syntropic/proto/syn_cjt188.c" bodystart="12" bodyend="22"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__cjt188_8c_1aa268f310b9f2415d60819d411c675784" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>size_t</type>
+        <definition>size_t syn_cjt188_encode_read_req</definition>
+        <argsstring>(uint8_t *out_buf, size_t buf_size, uint8_t meter_type, const uint8_t meter_id[5], const uint8_t vendor_id[2], uint16_t data_id, uint8_t seq)</argsstring>
+        <name>syn_cjt188_encode_read_req</name>
+        <param>
+          <type>uint8_t *</type>
+          <declname>out_buf</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>buf_size</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>meter_type</declname>
+        </param>
+        <param>
+          <type>const uint8_t</type>
+          <declname>meter_id</declname>
+          <array>[5]</array>
+        </param>
+        <param>
+          <type>const uint8_t</type>
+          <declname>vendor_id</declname>
+          <array>[2]</array>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>data_id</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>seq</declname>
+        </param>
+        <briefdescription>
+<para>Encode a CJ/T 188 Read Meter Data Request (<computeroutput>0x01</computeroutput>). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>out_buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Buffer to write encoded frame into. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>buf_size</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Capacity of out_buf (at least 17 bytes for 4x FE + frame). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>meter_type</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Meter type (e.g. SYN_CJT188_METER_COLD_WATER). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>meter_id</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>5-byte BCD meter ID array. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>vendor_id</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>2-byte vendor code array. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>data_id</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Data ID (e.g. SYN_CJT188_DI_READ_METER_DATA). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>seq</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Sequence number. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Total bytes written to out_buf, or 0 if buffer too small. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_cjt188.c" line="24" column="8" bodyfile="src/syntropic/proto/syn_cjt188.c" bodystart="24" bodyend="75"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__cjt188_8c_1a479c8738076fdd681d80ab40854570dc" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>size_t</type>
+        <definition>size_t syn_cjt188_encode_valve_ctrl</definition>
+        <argsstring>(uint8_t *out_buf, size_t buf_size, uint8_t meter_type, const uint8_t meter_id[5], const uint8_t vendor_id[2], bool open_valve, uint8_t seq)</argsstring>
+        <name>syn_cjt188_encode_valve_ctrl</name>
+        <param>
+          <type>uint8_t *</type>
+          <declname>out_buf</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>buf_size</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>meter_type</declname>
+        </param>
+        <param>
+          <type>const uint8_t</type>
+          <declname>meter_id</declname>
+          <array>[5]</array>
+        </param>
+        <param>
+          <type>const uint8_t</type>
+          <declname>vendor_id</declname>
+          <array>[2]</array>
+        </param>
+        <param>
+          <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+          <declname>open_valve</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>seq</declname>
+        </param>
+        <briefdescription>
+<para>Encode a CJ/T 188 Valve Control Request (<computeroutput>0x04</computeroutput>). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>out_buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Buffer to write encoded frame into. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>buf_size</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Capacity of out_buf (at least 18 bytes). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>meter_type</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Meter type. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>meter_id</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>5-byte BCD meter ID array. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>vendor_id</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>2-byte vendor code array. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>open_valve</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>true for OPEN (0x55), false for CLOSE (0x99). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>seq</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Sequence number. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Total bytes written, or 0 if buffer too small. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_cjt188.c" line="77" column="8" bodyfile="src/syntropic/proto/syn_cjt188.c" bodystart="77" bodyend="126"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__cjt188_8c_1ae891ce64bbd3a4c9917eec5c65402826" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_cjt188_parse_frame</definition>
+        <argsstring>(const uint8_t *buf, size_t len, SYN_CJT188_Frame *out_frame)</argsstring>
+        <name>syn_cjt188_parse_frame</name>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>len</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__CJT188__Frame" kindref="compound">SYN_CJT188_Frame</ref> *</type>
+          <declname>out_frame</declname>
+        </param>
+        <briefdescription>
+<para>Parse a raw CJ/T 188 binary frame. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to frame buffer (may begin with optional preamble <computeroutput>0xFE</computeroutput>). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Length of raw buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out_frame</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to output frame structure. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if valid frame parsed, false otherwise. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_cjt188.c" line="128" column="6" bodyfile="src/syntropic/proto/syn_cjt188.c" bodystart="128" bodyend="188"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__cjt188_8c_1a3c20b7df2103739acc86d88398d4f9de" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_cjt188_decoder_init</definition>
+        <argsstring>(SYN_CJT188_Decoder *decoder)</argsstring>
+        <name>syn_cjt188_decoder_init</name>
+        <param>
+          <type><ref refid="structSYN__CJT188__Decoder" kindref="compound">SYN_CJT188_Decoder</ref> *</type>
+          <declname>decoder</declname>
+        </param>
+        <briefdescription>
+<para>Initialize a CJ/T 188 streaming decoder instance. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>decoder</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to decoder instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_cjt188.c" line="190" column="6" bodyfile="src/syntropic/proto/syn_cjt188.c" bodystart="190" bodyend="195"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__cjt188_8c_1a37bd906344877f149836c8e2019e37ed" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_cjt188_decoder_feed</definition>
+        <argsstring>(SYN_CJT188_Decoder *decoder, uint8_t byte, SYN_CJT188_Frame *out_frame)</argsstring>
+        <name>syn_cjt188_decoder_feed</name>
+        <param>
+          <type><ref refid="structSYN__CJT188__Decoder" kindref="compound">SYN_CJT188_Decoder</ref> *</type>
+          <declname>decoder</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>byte</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__CJT188__Frame" kindref="compound">SYN_CJT188_Frame</ref> *</type>
+          <declname>out_frame</declname>
+        </param>
+        <briefdescription>
+<para>Feed a single byte into the streaming decoder. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>decoder</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Decoder instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>byte</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Received byte from UART/RS-485. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out_frame</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output frame structure populated when a complete frame arrives. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if a complete valid frame was decoded, false otherwise. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_cjt188.c" line="197" column="6" bodyfile="src/syntropic/proto/syn_cjt188.c" bodystart="197" bodyend="245"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Implementation of CJ/T 188-2004 / 2018 Protocol Driver. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__cjt188_8h" kindref="compound">syn_cjt188.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../util/syn_pack.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;string.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal">uint8_t<sp/><ref refid="syn__cjt188_8c_1a51ec2ded61e31ea2b1303ff8c3ce0114" kindref="member">syn_cjt188_checksum</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*buf,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>len)</highlight></codeline>
+<codeline lineno="13"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="14"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!buf<sp/>||<sp/>len<sp/>==<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="15"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0;</highlight></codeline>
+<codeline lineno="16"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="17"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/>sum<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="18"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>len;<sp/>i++)<sp/>{</highlight></codeline>
+<codeline lineno="19"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>sum<sp/>+=<sp/>buf[i];</highlight></codeline>
+<codeline lineno="20"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="21"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(uint8_t)(sum<sp/>&amp;<sp/>0xFFU);</highlight></codeline>
+<codeline lineno="22"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="syn__cjt188_8c_1aa268f310b9f2415d60819d411c675784" kindref="member">syn_cjt188_encode_read_req</ref>(uint8_t<sp/>*out_buf,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>buf_size,<sp/>uint8_t<sp/>meter_type,</highlight></codeline>
+<codeline lineno="25"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>meter_id[5],<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>vendor_id[2],</highlight></codeline>
+<codeline lineno="26"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint16_t<sp/>data_id,<sp/>uint8_t<sp/>seq)</highlight></codeline>
+<codeline lineno="27"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="28"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="29"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/>*<sp/>Frame<sp/>layout<sp/>with<sp/>4-byte<sp/>preamble:</highlight></codeline>
+<codeline lineno="30"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/>*<sp/>[0..3]<sp/><sp/><sp/>FE<sp/>FE<sp/>FE<sp/>FE</highlight></codeline>
+<codeline lineno="31"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/>*<sp/>[4]<sp/><sp/><sp/><sp/><sp/><sp/>68<sp/>(Start)</highlight></codeline>
+<codeline lineno="32"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/>*<sp/>[5]<sp/><sp/><sp/><sp/><sp/><sp/>Meter<sp/>Type<sp/>(T)</highlight></codeline>
+<codeline lineno="33"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/>*<sp/>[6..10]<sp/><sp/>Meter<sp/>ID<sp/>(5<sp/>bytes)</highlight></codeline>
+<codeline lineno="34"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/>*<sp/>[11..12]<sp/>Vendor<sp/>ID<sp/>(2<sp/>bytes)</highlight></codeline>
+<codeline lineno="35"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/>*<sp/>[13]<sp/><sp/><sp/><sp/><sp/>Control<sp/>Code<sp/>C<sp/>(0x01)</highlight></codeline>
+<codeline lineno="36"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/>*<sp/>[14]<sp/><sp/><sp/><sp/><sp/>Length<sp/>L<sp/>(0x03)</highlight></codeline>
+<codeline lineno="37"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/>*<sp/>[15..16]<sp/>Data<sp/>ID<sp/>DI<sp/>(2<sp/>bytes:<sp/>e.g.<sp/>0x1F,<sp/>0x90)</highlight></codeline>
+<codeline lineno="38"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/>*<sp/>[17]<sp/><sp/><sp/><sp/><sp/>SER<sp/>Sequence<sp/>Number</highlight></codeline>
+<codeline lineno="39"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/>*<sp/>[18]<sp/><sp/><sp/><sp/><sp/>CS<sp/>Checksum<sp/>(sum<sp/>from<sp/>byte<sp/>4<sp/>to<sp/>17)</highlight></codeline>
+<codeline lineno="40"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/>*<sp/>[19]<sp/><sp/><sp/><sp/><sp/>16<sp/>(End)</highlight></codeline>
+<codeline lineno="41"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/>*<sp/>Total<sp/>length:<sp/>20<sp/>bytes</highlight></codeline>
+<codeline lineno="42"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="43"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!out_buf<sp/>||<sp/>!meter_id<sp/>||<sp/>!vendor_id<sp/>||<sp/>buf_size<sp/>&lt;<sp/>20)<sp/>{</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0;</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"></highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Preamble<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/><sp/><sp/>out_buf[0]<sp/>=<sp/><ref refid="syn__cjt188_8h_1a7ef0b36ecc104dc822329711caa374da" kindref="member">SYN_CJT188_PREAMBLE_BYTE</ref>;</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/><sp/><sp/>out_buf[1]<sp/>=<sp/><ref refid="syn__cjt188_8h_1a7ef0b36ecc104dc822329711caa374da" kindref="member">SYN_CJT188_PREAMBLE_BYTE</ref>;</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/><sp/><sp/>out_buf[2]<sp/>=<sp/><ref refid="syn__cjt188_8h_1a7ef0b36ecc104dc822329711caa374da" kindref="member">SYN_CJT188_PREAMBLE_BYTE</ref>;</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><sp/><sp/><sp/><sp/>out_buf[3]<sp/>=<sp/><ref refid="syn__cjt188_8h_1a7ef0b36ecc104dc822329711caa374da" kindref="member">SYN_CJT188_PREAMBLE_BYTE</ref>;</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"></highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Start<sp/>of<sp/>CJ/T<sp/>188<sp/>frame<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>start_idx<sp/>=<sp/>4;</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/><sp/><sp/>out_buf[start_idx]<sp/>=<sp/><ref refid="syn__cjt188_8h_1abb030b69035e4d6dc06d1fb94a64fe66" kindref="member">SYN_CJT188_START_BYTE</ref>;</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/><sp/><sp/>out_buf[start_idx<sp/>+<sp/>1]<sp/>=<sp/>meter_type;</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"></highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/>memcpy(&amp;out_buf[start_idx<sp/>+<sp/>2],<sp/>meter_id,<sp/>5);</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><sp/><sp/><sp/><sp/>memcpy(&amp;out_buf[start_idx<sp/>+<sp/>7],<sp/>vendor_id,<sp/>2);</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"></highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/><sp/><sp/>out_buf[start_idx<sp/>+<sp/>9]<sp/>=<sp/><ref refid="syn__cjt188_8h_1a6c0cba3dc5b7f128abb36224ee966b27" kindref="member">SYN_CJT188_CTRL_READ_DATA</ref>;</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"><sp/><sp/><sp/><sp/>out_buf[start_idx<sp/>+<sp/>10]<sp/>=<sp/>0x03;<sp/></highlight><highlight class="comment">/*<sp/>Fixed<sp/>length:<sp/>Data<sp/>ID<sp/>(2)<sp/>+<sp/>SER<sp/>(1)<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="63"><highlight class="normal"></highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Data<sp/>ID<sp/>in<sp/>little-endian<sp/>byte<sp/>order<sp/>as<sp/>per<sp/>CJ/T<sp/>188<sp/>standard<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/><sp/><sp/>out_buf[start_idx<sp/>+<sp/>11]<sp/>=<sp/>(uint8_t)(data_id<sp/>&amp;<sp/>0xFFU);</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/><sp/><sp/>out_buf[start_idx<sp/>+<sp/>12]<sp/>=<sp/>(uint8_t)((data_id<sp/>&gt;&gt;<sp/>8)<sp/>&amp;<sp/>0xFFU);</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/><sp/><sp/>out_buf[start_idx<sp/>+<sp/>13]<sp/>=<sp/>seq;</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"></highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Compute<sp/>CS<sp/>over<sp/>[start_idx<sp/>..<sp/>start_idx<sp/>+<sp/>13]<sp/>(14<sp/>bytes<sp/>total)<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>cs<sp/>=<sp/><ref refid="syn__cjt188_8c_1a51ec2ded61e31ea2b1303ff8c3ce0114" kindref="member">syn_cjt188_checksum</ref>(&amp;out_buf[start_idx],<sp/>14);</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"><sp/><sp/><sp/><sp/>out_buf[start_idx<sp/>+<sp/>14]<sp/>=<sp/>cs;</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"><sp/><sp/><sp/><sp/>out_buf[start_idx<sp/>+<sp/>15]<sp/>=<sp/><ref refid="syn__cjt188_8h_1ace4ba77ec145dc3818465b2fbb45c3af" kindref="member">SYN_CJT188_END_BYTE</ref>;</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"></highlight></codeline>
+<codeline lineno="74"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>20;</highlight></codeline>
+<codeline lineno="75"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"></highlight></codeline>
+<codeline lineno="77"><highlight class="normal"></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="syn__cjt188_8c_1a479c8738076fdd681d80ab40854570dc" kindref="member">syn_cjt188_encode_valve_ctrl</ref>(uint8_t<sp/>*out_buf,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>buf_size,<sp/>uint8_t<sp/>meter_type,</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>meter_id[5],<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>vendor_id[2],</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>open_valve,<sp/>uint8_t<sp/>seq)</highlight></codeline>
+<codeline lineno="80"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="82"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/>*<sp/>Frame<sp/>layout<sp/>with<sp/>4-byte<sp/>preamble:</highlight></codeline>
+<codeline lineno="83"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/>*<sp/>[0..3]<sp/><sp/><sp/>FE<sp/>FE<sp/>FE<sp/>FE</highlight></codeline>
+<codeline lineno="84"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/>*<sp/>[4]<sp/><sp/><sp/><sp/><sp/><sp/>68<sp/>(Start)</highlight></codeline>
+<codeline lineno="85"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/>*<sp/>[5]<sp/><sp/><sp/><sp/><sp/><sp/>Meter<sp/>Type<sp/>(T)</highlight></codeline>
+<codeline lineno="86"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/>*<sp/>[6..10]<sp/><sp/>Meter<sp/>ID<sp/>(5<sp/>bytes)</highlight></codeline>
+<codeline lineno="87"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/>*<sp/>[11..12]<sp/>Vendor<sp/>ID<sp/>(2<sp/>bytes)</highlight></codeline>
+<codeline lineno="88"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/>*<sp/>[13]<sp/><sp/><sp/><sp/><sp/>Control<sp/>Code<sp/>C<sp/>(0x04)</highlight></codeline>
+<codeline lineno="89"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/>*<sp/>[14]<sp/><sp/><sp/><sp/><sp/>Length<sp/>L<sp/>(0x04:<sp/>DI(2)<sp/>+<sp/>SER(1)<sp/>+<sp/>Cmd(1))</highlight></codeline>
+<codeline lineno="90"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/>*<sp/>[15..16]<sp/>Data<sp/>ID<sp/>(0x17,<sp/>0xA0)</highlight></codeline>
+<codeline lineno="91"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/>*<sp/>[17]<sp/><sp/><sp/><sp/><sp/>SER<sp/>Sequence<sp/>Number</highlight></codeline>
+<codeline lineno="92"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/>*<sp/>[18]<sp/><sp/><sp/><sp/><sp/>Command<sp/>byte<sp/>(0x55<sp/>Open<sp/>/<sp/>0x99<sp/>Close)</highlight></codeline>
+<codeline lineno="93"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/>*<sp/>[19]<sp/><sp/><sp/><sp/><sp/>CS<sp/>Checksum</highlight></codeline>
+<codeline lineno="94"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/>*<sp/>[20]<sp/><sp/><sp/><sp/><sp/>16<sp/>(End)</highlight></codeline>
+<codeline lineno="95"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/>*<sp/>Total<sp/>length:<sp/>21<sp/>bytes</highlight></codeline>
+<codeline lineno="96"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!out_buf<sp/>||<sp/>!meter_id<sp/>||<sp/>!vendor_id<sp/>||<sp/>buf_size<sp/>&lt;<sp/>21)<sp/>{</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0;</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"></highlight></codeline>
+<codeline lineno="101"><highlight class="normal"><sp/><sp/><sp/><sp/>out_buf[0]<sp/>=<sp/><ref refid="syn__cjt188_8h_1a7ef0b36ecc104dc822329711caa374da" kindref="member">SYN_CJT188_PREAMBLE_BYTE</ref>;</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><sp/><sp/><sp/><sp/>out_buf[1]<sp/>=<sp/><ref refid="syn__cjt188_8h_1a7ef0b36ecc104dc822329711caa374da" kindref="member">SYN_CJT188_PREAMBLE_BYTE</ref>;</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"><sp/><sp/><sp/><sp/>out_buf[2]<sp/>=<sp/><ref refid="syn__cjt188_8h_1a7ef0b36ecc104dc822329711caa374da" kindref="member">SYN_CJT188_PREAMBLE_BYTE</ref>;</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/><sp/><sp/><sp/>out_buf[3]<sp/>=<sp/><ref refid="syn__cjt188_8h_1a7ef0b36ecc104dc822329711caa374da" kindref="member">SYN_CJT188_PREAMBLE_BYTE</ref>;</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"></highlight></codeline>
+<codeline lineno="106"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>start_idx<sp/>=<sp/>4;</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"><sp/><sp/><sp/><sp/>out_buf[start_idx]<sp/>=<sp/><ref refid="syn__cjt188_8h_1abb030b69035e4d6dc06d1fb94a64fe66" kindref="member">SYN_CJT188_START_BYTE</ref>;</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"><sp/><sp/><sp/><sp/>out_buf[start_idx<sp/>+<sp/>1]<sp/>=<sp/>meter_type;</highlight></codeline>
+<codeline lineno="109"><highlight class="normal"></highlight></codeline>
+<codeline lineno="110"><highlight class="normal"><sp/><sp/><sp/><sp/>memcpy(&amp;out_buf[start_idx<sp/>+<sp/>2],<sp/>meter_id,<sp/>5);</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"><sp/><sp/><sp/><sp/>memcpy(&amp;out_buf[start_idx<sp/>+<sp/>7],<sp/>vendor_id,<sp/>2);</highlight></codeline>
+<codeline lineno="112"><highlight class="normal"></highlight></codeline>
+<codeline lineno="113"><highlight class="normal"><sp/><sp/><sp/><sp/>out_buf[start_idx<sp/>+<sp/>9]<sp/>=<sp/><ref refid="syn__cjt188_8h_1ade6705830a8f4ddc7031a9e944c3d89c" kindref="member">SYN_CJT188_CTRL_WRITE_DATA</ref>;</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"><sp/><sp/><sp/><sp/>out_buf[start_idx<sp/>+<sp/>10]<sp/>=<sp/>0x04;<sp/></highlight><highlight class="comment">/*<sp/>DI<sp/>(2)<sp/>+<sp/>SER<sp/>(1)<sp/>+<sp/>Cmd<sp/>(1)<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="115"><highlight class="normal"></highlight></codeline>
+<codeline lineno="116"><highlight class="normal"><sp/><sp/><sp/><sp/>out_buf[start_idx<sp/>+<sp/>11]<sp/>=<sp/>(uint8_t)(<ref refid="syn__cjt188_8h_1a9f2f6cd8c41cf30a14827b6c82d1f9b2" kindref="member">SYN_CJT188_DI_VALVE_CONTROL</ref><sp/>&amp;<sp/>0xFFU);</highlight></codeline>
+<codeline lineno="117"><highlight class="normal"><sp/><sp/><sp/><sp/>out_buf[start_idx<sp/>+<sp/>12]<sp/>=<sp/>(uint8_t)((<ref refid="syn__cjt188_8h_1a9f2f6cd8c41cf30a14827b6c82d1f9b2" kindref="member">SYN_CJT188_DI_VALVE_CONTROL</ref><sp/>&gt;&gt;<sp/>8)<sp/>&amp;<sp/>0xFFU);</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"><sp/><sp/><sp/><sp/>out_buf[start_idx<sp/>+<sp/>13]<sp/>=<sp/>seq;</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"><sp/><sp/><sp/><sp/>out_buf[start_idx<sp/>+<sp/>14]<sp/>=<sp/>open_valve<sp/>?<sp/><ref refid="syn__cjt188_8h_1aac936f912f7873c717464160235cbc17" kindref="member">SYN_CJT188_VALVE_OPEN</ref><sp/>:<sp/><ref refid="syn__cjt188_8h_1aa07a4bbf200ca9e4df3c87cdf3dcb3aa" kindref="member">SYN_CJT188_VALVE_CLOSE</ref>;</highlight></codeline>
+<codeline lineno="120"><highlight class="normal"></highlight></codeline>
+<codeline lineno="121"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>cs<sp/>=<sp/><ref refid="syn__cjt188_8c_1a51ec2ded61e31ea2b1303ff8c3ce0114" kindref="member">syn_cjt188_checksum</ref>(&amp;out_buf[start_idx],<sp/>15);</highlight></codeline>
+<codeline lineno="122"><highlight class="normal"><sp/><sp/><sp/><sp/>out_buf[start_idx<sp/>+<sp/>15]<sp/>=<sp/>cs;</highlight></codeline>
+<codeline lineno="123"><highlight class="normal"><sp/><sp/><sp/><sp/>out_buf[start_idx<sp/>+<sp/>16]<sp/>=<sp/><ref refid="syn__cjt188_8h_1ace4ba77ec145dc3818465b2fbb45c3af" kindref="member">SYN_CJT188_END_BYTE</ref>;</highlight></codeline>
+<codeline lineno="124"><highlight class="normal"></highlight></codeline>
+<codeline lineno="125"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>21;</highlight></codeline>
+<codeline lineno="126"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="127"><highlight class="normal"></highlight></codeline>
+<codeline lineno="128"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__cjt188_8c_1ae891ce64bbd3a4c9917eec5c65402826" kindref="member">syn_cjt188_parse_frame</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*buf,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>len,<sp/><ref refid="structSYN__CJT188__Frame" kindref="compound">SYN_CJT188_Frame</ref><sp/>*out_frame)</highlight></codeline>
+<codeline lineno="129"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="130"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!buf<sp/>||<sp/>!out_frame<sp/>||<sp/>len<sp/>&lt;<sp/><ref refid="syn__cjt188_8h_1a9e0954835205b7242d30a61cfcbfd4cc" kindref="member">SYN_CJT188_MIN_FRAME_SIZE</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="131"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="132"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="133"><highlight class="normal"></highlight></codeline>
+<codeline lineno="134"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Skip<sp/>leading<sp/>0xFE<sp/>preamble<sp/>bytes<sp/>if<sp/>present<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="135"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>offset<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">while</highlight><highlight class="normal"><sp/>(offset<sp/>&lt;<sp/>len<sp/>&amp;&amp;<sp/>buf[offset]<sp/>==<sp/><ref refid="syn__cjt188_8h_1a7ef0b36ecc104dc822329711caa374da" kindref="member">SYN_CJT188_PREAMBLE_BYTE</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="137"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>offset++;</highlight></codeline>
+<codeline lineno="138"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="139"><highlight class="normal"></highlight></codeline>
+<codeline lineno="140"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>((len<sp/>-<sp/>offset)<sp/>&lt;<sp/><ref refid="syn__cjt188_8h_1a9e0954835205b7242d30a61cfcbfd4cc" kindref="member">SYN_CJT188_MIN_FRAME_SIZE</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="141"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="142"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="143"><highlight class="normal"></highlight></codeline>
+<codeline lineno="144"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Verify<sp/>Start<sp/>Byte<sp/>0x68<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="145"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(buf[offset]<sp/>!=<sp/><ref refid="syn__cjt188_8h_1abb030b69035e4d6dc06d1fb94a64fe66" kindref="member">SYN_CJT188_START_BYTE</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="146"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="147"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="148"><highlight class="normal"></highlight></codeline>
+<codeline lineno="149"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>data_len<sp/>=<sp/>buf[offset<sp/>+<sp/>10];</highlight></codeline>
+<codeline lineno="150"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>expected_total<sp/>=<sp/>11<sp/>+<sp/>data_len<sp/>+<sp/>2;<sp/></highlight><highlight class="comment">/*<sp/>11<sp/>header<sp/>bytes<sp/>+<sp/>L<sp/>+<sp/>CS<sp/>+<sp/>16<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="151"><highlight class="normal"></highlight></codeline>
+<codeline lineno="152"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>((len<sp/>-<sp/>offset)<sp/>&lt;<sp/>expected_total)<sp/>{</highlight></codeline>
+<codeline lineno="153"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="154"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="155"><highlight class="normal"></highlight></codeline>
+<codeline lineno="156"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Verify<sp/>End<sp/>Byte<sp/>0x16<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="157"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(buf[offset<sp/>+<sp/>expected_total<sp/>-<sp/>1]<sp/>!=<sp/><ref refid="syn__cjt188_8h_1ace4ba77ec145dc3818465b2fbb45c3af" kindref="member">SYN_CJT188_END_BYTE</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="158"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="159"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="160"><highlight class="normal"></highlight></codeline>
+<codeline lineno="161"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Verify<sp/>Checksum<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="162"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>expected_cs<sp/>=<sp/>buf[offset<sp/>+<sp/>expected_total<sp/>-<sp/>2];</highlight></codeline>
+<codeline lineno="163"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>actual_cs<sp/>=<sp/><ref refid="syn__cjt188_8c_1a51ec2ded61e31ea2b1303ff8c3ce0114" kindref="member">syn_cjt188_checksum</ref>(&amp;buf[offset],<sp/>11<sp/>+<sp/>data_len);</highlight></codeline>
+<codeline lineno="164"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(expected_cs<sp/>!=<sp/>actual_cs)<sp/>{</highlight></codeline>
+<codeline lineno="165"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="166"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="167"><highlight class="normal"></highlight></codeline>
+<codeline lineno="168"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Populate<sp/>frame<sp/>structure<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="169"><highlight class="normal"><sp/><sp/><sp/><sp/>out_frame-&gt;<ref refid="structSYN__CJT188__Frame_1a3fb8984728b24d3891b60d8f114d48e0" kindref="member">meter_type</ref><sp/>=<sp/>buf[offset<sp/>+<sp/>1];</highlight></codeline>
+<codeline lineno="170"><highlight class="normal"><sp/><sp/><sp/><sp/>memcpy(out_frame-&gt;<ref refid="structSYN__CJT188__Frame_1a365082aa48ec68bf6452098822edf960" kindref="member">meter_id</ref>,<sp/>&amp;buf[offset<sp/>+<sp/>2],<sp/>5);</highlight></codeline>
+<codeline lineno="171"><highlight class="normal"><sp/><sp/><sp/><sp/>memcpy(out_frame-&gt;<ref refid="structSYN__CJT188__Frame_1a32c53a06142e04e5cd17fad0479287d9" kindref="member">vendor_id</ref>,<sp/>&amp;buf[offset<sp/>+<sp/>7],<sp/>2);</highlight></codeline>
+<codeline lineno="172"><highlight class="normal"><sp/><sp/><sp/><sp/>out_frame-&gt;<ref refid="structSYN__CJT188__Frame_1a6e4b9f3c901d53ba351bf045e4237e8b" kindref="member">ctrl</ref><sp/>=<sp/>buf[offset<sp/>+<sp/>9];</highlight></codeline>
+<codeline lineno="173"><highlight class="normal"><sp/><sp/><sp/><sp/>out_frame-&gt;<ref refid="structSYN__CJT188__Frame_1a221e5fbec0c1626ff3efefb59a8317da" kindref="member">len</ref><sp/>=<sp/>(uint8_t)data_len;</highlight></codeline>
+<codeline lineno="174"><highlight class="normal"></highlight></codeline>
+<codeline lineno="175"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(data_len<sp/>&gt;=<sp/>3)<sp/>{</highlight></codeline>
+<codeline lineno="176"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>out_frame-&gt;<ref refid="structSYN__CJT188__Frame_1aad93bf6b8f7ed66d22ecab7869c8a6e1" kindref="member">data_id</ref><sp/>=<sp/>(uint16_t)buf[offset<sp/>+<sp/>11]<sp/>|<sp/>((uint16_t)buf[offset<sp/>+<sp/>12]<sp/>&lt;&lt;<sp/>8);</highlight></codeline>
+<codeline lineno="177"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>out_frame-&gt;<ref refid="structSYN__CJT188__Frame_1ad1f68383713f55b4c0c704a53d9843a3" kindref="member">seq</ref><sp/>=<sp/>buf[offset<sp/>+<sp/>13];</highlight></codeline>
+<codeline lineno="178"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>out_frame-&gt;<ref refid="structSYN__CJT188__Frame_1a7cda79f197e3b9079231be36f20386a1" kindref="member">payload</ref><sp/>=<sp/>&amp;buf[offset<sp/>+<sp/>14];</highlight></codeline>
+<codeline lineno="179"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>out_frame-&gt;<ref refid="structSYN__CJT188__Frame_1a73765508824469ded5097e7505754775" kindref="member">payload_len</ref><sp/>=<sp/>data_len<sp/>-<sp/>3;</highlight></codeline>
+<codeline lineno="180"><highlight class="normal"><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="181"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>out_frame-&gt;<ref refid="structSYN__CJT188__Frame_1aad93bf6b8f7ed66d22ecab7869c8a6e1" kindref="member">data_id</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="182"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>out_frame-&gt;<ref refid="structSYN__CJT188__Frame_1ad1f68383713f55b4c0c704a53d9843a3" kindref="member">seq</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="183"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>out_frame-&gt;<ref refid="structSYN__CJT188__Frame_1a7cda79f197e3b9079231be36f20386a1" kindref="member">payload</ref><sp/>=<sp/>NULL;</highlight></codeline>
+<codeline lineno="184"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>out_frame-&gt;<ref refid="structSYN__CJT188__Frame_1a73765508824469ded5097e7505754775" kindref="member">payload_len</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="185"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="186"><highlight class="normal"></highlight></codeline>
+<codeline lineno="187"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="188"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="189"><highlight class="normal"></highlight></codeline>
+<codeline lineno="190"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__cjt188_8c_1a3c20b7df2103739acc86d88398d4f9de" kindref="member">syn_cjt188_decoder_init</ref>(<ref refid="structSYN__CJT188__Decoder" kindref="compound">SYN_CJT188_Decoder</ref><sp/>*decoder)</highlight></codeline>
+<codeline lineno="191"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="192"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(decoder)<sp/>{</highlight></codeline>
+<codeline lineno="193"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>memset(decoder,<sp/>0,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(<ref refid="structSYN__CJT188__Decoder" kindref="compound">SYN_CJT188_Decoder</ref>));</highlight></codeline>
+<codeline lineno="194"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="195"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="196"><highlight class="normal"></highlight></codeline>
+<codeline lineno="197"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__cjt188_8c_1a37bd906344877f149836c8e2019e37ed" kindref="member">syn_cjt188_decoder_feed</ref>(<ref refid="structSYN__CJT188__Decoder" kindref="compound">SYN_CJT188_Decoder</ref><sp/>*decoder,<sp/>uint8_t<sp/></highlight><highlight class="keywordtype">byte</highlight><highlight class="normal">,<sp/><ref refid="structSYN__CJT188__Frame" kindref="compound">SYN_CJT188_Frame</ref><sp/>*out_frame)</highlight></codeline>
+<codeline lineno="198"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="199"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!decoder<sp/>||<sp/>!out_frame)<sp/>{</highlight></codeline>
+<codeline lineno="200"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="201"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="202"><highlight class="normal"></highlight></codeline>
+<codeline lineno="203"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Handle<sp/>preamble<sp/>bytes<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="204"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!decoder-&gt;<ref refid="structSYN__CJT188__Decoder_1aaa907cd74dc2160c39cea204204fce5b" kindref="member">in_frame</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="205"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">byte</highlight><highlight class="normal"><sp/>==<sp/><ref refid="syn__cjt188_8h_1a7ef0b36ecc104dc822329711caa374da" kindref="member">SYN_CJT188_PREAMBLE_BYTE</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="206"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;<sp/></highlight><highlight class="comment">/*<sp/>Ignore<sp/>preamble<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="207"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="208"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">byte</highlight><highlight class="normal"><sp/>==<sp/><ref refid="syn__cjt188_8h_1abb030b69035e4d6dc06d1fb94a64fe66" kindref="member">SYN_CJT188_START_BYTE</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="209"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>decoder-&gt;<ref refid="structSYN__CJT188__Decoder_1aaa907cd74dc2160c39cea204204fce5b" kindref="member">in_frame</ref><sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="210"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>decoder-&gt;<ref refid="structSYN__CJT188__Decoder_1a26c0dc326ecb67ce52da2154c48801a2" kindref="member">index</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="211"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>decoder-&gt;<ref refid="structSYN__CJT188__Decoder_1ad6139821e2174cfe0daff960f8b3ff27" kindref="member">buf</ref>[decoder-&gt;<ref refid="structSYN__CJT188__Decoder_1a26c0dc326ecb67ce52da2154c48801a2" kindref="member">index</ref>++]<sp/>=<sp/>byte;</highlight></codeline>
+<codeline lineno="212"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>decoder-&gt;<ref refid="structSYN__CJT188__Decoder_1a61ddda9110097ca13e60b1909650c36e" kindref="member">expected_len</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="213"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="214"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="215"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="216"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="217"><highlight class="normal"></highlight></codeline>
+<codeline lineno="218"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Collect<sp/>frame<sp/>bytes<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="219"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(decoder-&gt;<ref refid="structSYN__CJT188__Decoder_1a26c0dc326ecb67ce52da2154c48801a2" kindref="member">index</ref><sp/>&lt;<sp/><ref refid="syn__cjt188_8h_1acf74a3d5e5226a827d0cb7dfc7fe509c" kindref="member">SYN_CJT188_MAX_FRAME_SIZE</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="220"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>decoder-&gt;<ref refid="structSYN__CJT188__Decoder_1ad6139821e2174cfe0daff960f8b3ff27" kindref="member">buf</ref>[decoder-&gt;<ref refid="structSYN__CJT188__Decoder_1a26c0dc326ecb67ce52da2154c48801a2" kindref="member">index</ref>++]<sp/>=<sp/>byte;</highlight></codeline>
+<codeline lineno="221"><highlight class="normal"><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="222"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Buffer<sp/>overflow,<sp/>reset<sp/>decoder<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="223"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__cjt188_8c_1a3c20b7df2103739acc86d88398d4f9de" kindref="member">syn_cjt188_decoder_init</ref>(decoder);</highlight></codeline>
+<codeline lineno="224"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="225"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="226"><highlight class="normal"></highlight></codeline>
+<codeline lineno="227"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Read<sp/>length<sp/>byte<sp/>once<sp/>offset<sp/>10<sp/>is<sp/>reached<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="228"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(decoder-&gt;<ref refid="structSYN__CJT188__Decoder_1a26c0dc326ecb67ce52da2154c48801a2" kindref="member">index</ref><sp/>==<sp/>11)<sp/>{</highlight></codeline>
+<codeline lineno="229"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>data_len<sp/>=<sp/>decoder-&gt;<ref refid="structSYN__CJT188__Decoder_1ad6139821e2174cfe0daff960f8b3ff27" kindref="member">buf</ref>[10];</highlight></codeline>
+<codeline lineno="230"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>decoder-&gt;<ref refid="structSYN__CJT188__Decoder_1a61ddda9110097ca13e60b1909650c36e" kindref="member">expected_len</ref><sp/>=<sp/>11<sp/>+<sp/>data_len<sp/>+<sp/>2;<sp/></highlight><highlight class="comment">/*<sp/>11<sp/>header<sp/>+<sp/>L<sp/>+<sp/>CS<sp/>+<sp/>0x16<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="231"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(decoder-&gt;<ref refid="structSYN__CJT188__Decoder_1a61ddda9110097ca13e60b1909650c36e" kindref="member">expected_len</ref><sp/>&gt;<sp/><ref refid="syn__cjt188_8h_1acf74a3d5e5226a827d0cb7dfc7fe509c" kindref="member">SYN_CJT188_MAX_FRAME_SIZE</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="232"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__cjt188_8c_1a3c20b7df2103739acc86d88398d4f9de" kindref="member">syn_cjt188_decoder_init</ref>(decoder);</highlight></codeline>
+<codeline lineno="233"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="234"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="235"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="236"><highlight class="normal"></highlight></codeline>
+<codeline lineno="237"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>When<sp/>expected<sp/>total<sp/>length<sp/>reached,<sp/>attempt<sp/>parsing<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="238"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(decoder-&gt;<ref refid="structSYN__CJT188__Decoder_1a61ddda9110097ca13e60b1909650c36e" kindref="member">expected_len</ref><sp/>&gt;<sp/>0<sp/>&amp;&amp;<sp/>decoder-&gt;<ref refid="structSYN__CJT188__Decoder_1a26c0dc326ecb67ce52da2154c48801a2" kindref="member">index</ref><sp/>&gt;=<sp/>decoder-&gt;<ref refid="structSYN__CJT188__Decoder_1a61ddda9110097ca13e60b1909650c36e" kindref="member">expected_len</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="239"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>ok<sp/>=<sp/><ref refid="syn__cjt188_8c_1ae891ce64bbd3a4c9917eec5c65402826" kindref="member">syn_cjt188_parse_frame</ref>(decoder-&gt;<ref refid="structSYN__CJT188__Decoder_1ad6139821e2174cfe0daff960f8b3ff27" kindref="member">buf</ref>,<sp/>decoder-&gt;<ref refid="structSYN__CJT188__Decoder_1a26c0dc326ecb67ce52da2154c48801a2" kindref="member">index</ref>,<sp/>out_frame);</highlight></codeline>
+<codeline lineno="240"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__cjt188_8c_1a3c20b7df2103739acc86d88398d4f9de" kindref="member">syn_cjt188_decoder_init</ref>(decoder);</highlight></codeline>
+<codeline lineno="241"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>ok;</highlight></codeline>
+<codeline lineno="242"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="243"><highlight class="normal"></highlight></codeline>
+<codeline lineno="244"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="245"><highlight class="normal">}</highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/proto/syn_cjt188.c"/>
+  </compounddef>
+</doxygen>

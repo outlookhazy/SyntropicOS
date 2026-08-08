@@ -1,0 +1,617 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__usb__hid_8c" kind="file" language="C++">
+    <compoundname>syn_usb_hid.c</compoundname>
+    <includes refid="syn__usb__hid_8h" local="yes">syntropic/drivers/syn_usb_hid.h</includes>
+    <includes local="no">string.h</includes>
+    <incdepgraph>
+      <node id="9">
+        <label>../common/syn_compiler.h</label>
+        <link refid="syn__compiler_8h"/>
+      </node>
+      <node id="3">
+        <label>syntropic/common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>syntropic/drivers/syn_usb.h</label>
+        <link refid="syn__usb_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/drivers/syn_usb_hid.c</label>
+        <link refid="syn__usb__hid_8c"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>syntropic/drivers/syn_usb_hid.h</label>
+        <link refid="syn__usb__hid_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>syntropic/pt/syn_pt.h</label>
+        <link refid="syn__pt_8h"/>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>stdbool.h</label>
+      </node>
+      <node id="4">
+        <label>stddef.h</label>
+      </node>
+      <node id="5">
+        <label>stdint.h</label>
+      </node>
+      <node id="10">
+        <label>string.h</label>
+      </node>
+    </incdepgraph>
+    <sectiondef kind="var">
+      <memberdef kind="variable" id="syn__usb__hid_8c_1a18635d7976fb267f6f5b7fd96ec4c455" prot="public" static="yes" mutable="no">
+        <type>const uint8_t</type>
+        <definition>const uint8_t HID_INTERFACE_DESC[25]</definition>
+        <argsstring>[25]</argsstring>
+        <name>HID_INTERFACE_DESC</name>
+        <initializer>= {
+    
+    0x09, 0x04, 0x00, 0x00, 0x01, 0x03, 0x00, 0x00, 0x00,
+    
+    0x09, 0x21, 0x11, 0x01, 0x00, 0x01, 0x22, 0x34, 0x00,
+    
+    0x07, 0x05, 0x83, 0x03, 0x40, 0x00, 0x0A}</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Standard HID Interface Descriptor Template (1 interface, 1 IN EP, 25 bytes) </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_usb_hid.c" line="11" column="22" bodyfile="src/syntropic/drivers/syn_usb_hid.c" bodystart="11" bodyend="17"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__usb__hid_8c_1a4628285f3f419591eaa64eb757da2a26" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>static SYN_Status hid_class_setup</definition>
+        <argsstring>(void *ctx, const SYN_USB_SetupPacket *pkt, uint8_t *resp, uint16_t *rlen)</argsstring>
+        <name>hid_class_setup</name>
+        <param>
+          <type>void *</type>
+          <declname>ctx</declname>
+        </param>
+        <param>
+          <type>const <ref refid="structSYN__USB__SetupPacket" kindref="compound">SYN_USB_SetupPacket</ref> *</type>
+          <declname>pkt</declname>
+        </param>
+        <param>
+          <type>uint8_t *</type>
+          <declname>resp</declname>
+        </param>
+        <param>
+          <type>uint16_t *</type>
+          <declname>rlen</declname>
+        </param>
+        <briefdescription>
+<para>Class setup request dispatcher for HID class requests. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ctx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to <ref refid="structSYN__USB__HID" kindref="compound">SYN_USB_HID</ref> instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>pkt</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to received Setup Packet. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>resp</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Response buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>rlen</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output pointer to receive response byte length. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_usb_hid.c" line="28" column="19" bodyfile="src/syntropic/drivers/syn_usb_hid.c" bodystart="28" bodyend="84"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__usb__hid_8c_1a6b0fbe85b5e262397a6522baf3b6917f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_usb_hid_init</definition>
+        <argsstring>(SYN_USB_HID *hid)</argsstring>
+        <name>syn_usb_hid_init</name>
+        <param>
+          <type><ref refid="structSYN__USB__HID" kindref="compound">SYN_USB_HID</ref> *</type>
+          <declname>hid</declname>
+        </param>
+        <briefdescription>
+<para>Initialize USB HID Class Instance. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>hid</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to USB HID instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_usb_hid.c" line="86" column="12" bodyfile="src/syntropic/drivers/syn_usb_hid.c" bodystart="86" bodyend="96"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__usb__hid_8c_1a0672ba451d4345cee9ef4949e42fdf62" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_usb_hid_register</definition>
+        <argsstring>(SYN_USB_Device *dev, SYN_USB_HID *hid, const uint8_t *report_desc, uint16_t report_desc_len)</argsstring>
+        <name>syn_usb_hid_register</name>
+        <param>
+          <type><ref refid="structSYN__USB__Device" kindref="compound">SYN_USB_Device</ref> *</type>
+          <declname>dev</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__USB__HID" kindref="compound">SYN_USB_HID</ref> *</type>
+          <declname>hid</declname>
+        </param>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>report_desc</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>report_desc_len</declname>
+        </param>
+        <briefdescription>
+<para>Register USB HID class driver with USB device core. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>dev</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to USB device core context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>hid</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to USB HID instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>report_desc</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to static HID report descriptor. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>report_desc_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Byte length of report descriptor. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_usb_hid.c" line="98" column="12" bodyfile="src/syntropic/drivers/syn_usb_hid.c" bodystart="98" bodyend="125"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__usb__hid_8c_1adb3191b718dac4b9bcdfcebd02cbca27" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_usb_hid_send_report</definition>
+        <argsstring>(SYN_USB_HID *hid, const void *report, size_t len)</argsstring>
+        <name>syn_usb_hid_send_report</name>
+        <param>
+          <type><ref refid="structSYN__USB__HID" kindref="compound">SYN_USB_HID</ref> *</type>
+          <declname>hid</declname>
+        </param>
+        <param>
+          <type>const void *</type>
+          <declname>report</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>len</declname>
+        </param>
+        <briefdescription>
+<para>Queue an IN report for transmission to host. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>hid</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to USB HID instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>report</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to report data. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Report byte length. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_usb_hid.c" line="127" column="12" bodyfile="src/syntropic/drivers/syn_usb_hid.c" bodystart="127" bodyend="141"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__usb__hid_8c_1a59085501206c50730f4ef014ba960847" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_usb_hid_read_report</definition>
+        <argsstring>(SYN_USB_HID *hid, void *buf, size_t max_len, size_t *out_len)</argsstring>
+        <name>syn_usb_hid_read_report</name>
+        <param>
+          <type><ref refid="structSYN__USB__HID" kindref="compound">SYN_USB_HID</ref> *</type>
+          <declname>hid</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>max_len</declname>
+        </param>
+        <param>
+          <type>size_t *</type>
+          <declname>out_len</declname>
+        </param>
+        <briefdescription>
+<para>Read received OUT report from host. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>hid</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to USB HID instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>max_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Capacity. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to receive read byte count. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_usb_hid.c" line="143" column="12" bodyfile="src/syntropic/drivers/syn_usb_hid.c" bodystart="143" bodyend="166"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__usb__hid_8c_1a695d5a88e5ce7e857a6916b8d963f9cc" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_usb_hid_report_available</definition>
+        <argsstring>(const SYN_USB_HID *hid)</argsstring>
+        <name>syn_usb_hid_report_available</name>
+        <param>
+          <type>const <ref refid="structSYN__USB__HID" kindref="compound">SYN_USB_HID</ref> *</type>
+          <declname>hid</declname>
+        </param>
+        <briefdescription>
+<para>Check if OUT report is available. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>hid</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to USB HID instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if unread report data exists. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_usb_hid.c" line="168" column="6" bodyfile="src/syntropic/drivers/syn_usb_hid.c" bodystart="168" bodyend="171"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__usb__hid_8c_1af74434cb617d74add831096aaa32d3a9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_usb_hid_tx_ready</definition>
+        <argsstring>(const SYN_USB_HID *hid)</argsstring>
+        <name>syn_usb_hid_tx_ready</name>
+        <param>
+          <type>const <ref refid="structSYN__USB__HID" kindref="compound">SYN_USB_HID</ref> *</type>
+          <declname>hid</declname>
+        </param>
+        <briefdescription>
+<para>Check if IN transmit buffer is ready. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>hid</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to USB HID instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if transmit buffer is free. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_usb_hid.c" line="173" column="6" bodyfile="src/syntropic/drivers/syn_usb_hid.c" bodystart="173" bodyend="176"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Zero-Heap USB 2.0 Human Interface Device (HID) Class Driver Implementation. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__usb__hid_8h" kindref="compound">syntropic/drivers/syn_usb_hid.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;string.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/><ref refid="syn__usb__hid_8c_1a18635d7976fb267f6f5b7fd96ec4c455" kindref="member">HID_INTERFACE_DESC</ref>[25]<sp/>=<sp/>{</highlight></codeline>
+<codeline lineno="12"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Interface<sp/>0:<sp/>HID<sp/>Class<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"><sp/><sp/><sp/><sp/>0x09,<sp/>0x04,<sp/>0x00,<sp/>0x00,<sp/>0x01,<sp/>0x03,<sp/>0x00,<sp/>0x00,<sp/>0x00,</highlight></codeline>
+<codeline lineno="14"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>HID<sp/>Descriptor<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"><sp/><sp/><sp/><sp/>0x09,<sp/>0x21,<sp/>0x11,<sp/>0x01,<sp/>0x00,<sp/>0x01,<sp/>0x22,<sp/>0x34,<sp/>0x00,</highlight></codeline>
+<codeline lineno="16"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Endpoint<sp/>0x83:<sp/>Interrupt<sp/>IN<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"><sp/><sp/><sp/><sp/>0x07,<sp/>0x05,<sp/>0x83,<sp/>0x03,<sp/>0x40,<sp/>0x00,<sp/>0x0A};</highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__usb__hid_8c_1a4628285f3f419591eaa64eb757da2a26" kindref="member">hid_class_setup</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*ctx,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__USB__SetupPacket" kindref="compound">SYN_USB_SetupPacket</ref><sp/>*pkt,<sp/>uint8_t<sp/>*resp,</highlight></codeline>
+<codeline lineno="29"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint16_t<sp/>*rlen)</highlight></codeline>
+<codeline lineno="30"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="31"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structSYN__USB__HID" kindref="compound">SYN_USB_HID</ref><sp/>*hid<sp/>=<sp/>(<ref refid="structSYN__USB__HID" kindref="compound">SYN_USB_HID</ref><sp/>*)ctx;</highlight></codeline>
+<codeline lineno="32"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!hid<sp/>||<sp/>!pkt<sp/>||<sp/>!resp<sp/>||<sp/>!rlen)<sp/>{</highlight></codeline>
+<codeline lineno="33"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="34"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"><sp/><sp/><sp/><sp/>*rlen<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">switch</highlight><highlight class="normal"><sp/>(pkt-&gt;<ref refid="structSYN__USB__SetupPacket_1afa2d659fae8f45520dec915e9cd1bba6" kindref="member">bRequest</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__usb__hid_8h_1a7b07c42073df5cf7369e11ed7a643fb3" kindref="member">SYN_USB_HID_REQ_GET_REPORT</ref>:</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(hid-&gt;<ref refid="structSYN__USB__HID_1a426e92055eebd8bbae83dd692aad0ec5" kindref="member">tx_len</ref><sp/>&gt;<sp/>0U)<sp/>{</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint16_t<sp/>copy_len<sp/>=<sp/>(pkt-&gt;<ref refid="structSYN__USB__SetupPacket_1a3fe5dc074b59f18d3f7ab7208ebc07a6" kindref="member">wLength</ref><sp/>&lt;<sp/>hid-&gt;<ref refid="structSYN__USB__HID_1a426e92055eebd8bbae83dd692aad0ec5" kindref="member">tx_len</ref>)<sp/>?<sp/>pkt-&gt;<ref refid="structSYN__USB__SetupPacket_1a3fe5dc074b59f18d3f7ab7208ebc07a6" kindref="member">wLength</ref><sp/>:<sp/>hid-&gt;tx_len;</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>memcpy(resp,<sp/>hid-&gt;<ref refid="structSYN__USB__HID_1ae1480f3b1e6a2ed24c77ffab498e3079" kindref="member">tx_buf</ref>,<sp/>copy_len);</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*rlen<sp/>=<sp/>copy_len;</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"></highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__usb__hid_8h_1a0f1914292849a3460ec0da370afe48ab" kindref="member">SYN_USB_HID_REQ_SET_REPORT</ref>:</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"></highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__usb__hid_8h_1a88aea60364ace7618420320ed40d41c9" kindref="member">SYN_USB_HID_REQ_GET_IDLE</ref>:</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>resp[0]<sp/>=<sp/>hid-&gt;<ref refid="structSYN__USB__HID_1aa6568c1fe6ac7e99be61121eb72eaef6" kindref="member">idle_rate</ref>;</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*rlen<sp/>=<sp/>1U;</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"></highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__usb__hid_8h_1a87e9b1640eb9b92fa3133dd1252b7d2a" kindref="member">SYN_USB_HID_REQ_SET_IDLE</ref>:</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>hid-&gt;<ref refid="structSYN__USB__HID_1aa6568c1fe6ac7e99be61121eb72eaef6" kindref="member">idle_rate</ref><sp/>=<sp/>(uint8_t)(pkt-&gt;<ref refid="structSYN__USB__SetupPacket_1ab662b0cd718ffd862834339178c78a88" kindref="member">wValue</ref><sp/>&gt;&gt;<sp/>8);</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"></highlight></codeline>
+<codeline lineno="60"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__usb__hid_8h_1abe2cbb39bab4543d2b402f77c079f35a" kindref="member">SYN_USB_HID_REQ_GET_PROTOCOL</ref>:</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>resp[0]<sp/>=<sp/>hid-&gt;<ref refid="structSYN__USB__HID_1aec777297e7a7d3ce2ef27c659fe7311a" kindref="member">active_protocol</ref>;</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*rlen<sp/>=<sp/>1U;</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"></highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__usb__hid_8h_1a6cbf951ec5d5af6658f7757ec11e2486" kindref="member">SYN_USB_HID_REQ_SET_PROTOCOL</ref>:</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>hid-&gt;<ref refid="structSYN__USB__HID_1aec777297e7a7d3ce2ef27c659fe7311a" kindref="member">active_protocol</ref><sp/>=<sp/>(uint8_t)(pkt-&gt;<ref refid="structSYN__USB__SetupPacket_1ab662b0cd718ffd862834339178c78a88" kindref="member">wValue</ref><sp/>&amp;<sp/>0xFFU);</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"></highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__usb_8h_1ac6564472d5c50a472a9a3e7ba79d7369" kindref="member">SYN_USB_REQ_GET_DESCRIPTOR</ref>:<sp/>{</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>desc_type<sp/>=<sp/>(uint8_t)(pkt-&gt;<ref refid="structSYN__USB__SetupPacket_1ab662b0cd718ffd862834339178c78a88" kindref="member">wValue</ref><sp/>&gt;&gt;<sp/>8);</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(desc_type<sp/>==<sp/>0x22U<sp/>&amp;&amp;<sp/>hid-&gt;<ref refid="structSYN__USB__HID_1a6d6f7912ab7dd806a72b451ec323fd75" kindref="member">report_desc</ref>)<sp/>{<sp/></highlight><highlight class="comment">/*<sp/>HID<sp/>Report<sp/>Descriptor<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="72"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint16_t<sp/>len<sp/>=</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(pkt-&gt;<ref refid="structSYN__USB__SetupPacket_1a3fe5dc074b59f18d3f7ab7208ebc07a6" kindref="member">wLength</ref><sp/>&lt;<sp/>hid-&gt;<ref refid="structSYN__USB__HID_1a0bb55b93eb2cadfe85c4a87db89668da" kindref="member">report_desc_len</ref>)<sp/>?<sp/>pkt-&gt;<ref refid="structSYN__USB__SetupPacket_1a3fe5dc074b59f18d3f7ab7208ebc07a6" kindref="member">wLength</ref><sp/>:<sp/>hid-&gt;report_desc_len;</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>memcpy(resp,<sp/>hid-&gt;<ref refid="structSYN__USB__HID_1a6d6f7912ab7dd806a72b451ec323fd75" kindref="member">report_desc</ref>,<sp/>len);</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*rlen<sp/>=<sp/>len;</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00acd5d2701b7cfa9fb446640ecbeb19fc9" kindref="member">SYN_ERROR</ref>;</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"></highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">default</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="84"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"></highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__usb__hid_8c_1a6b0fbe85b5e262397a6522baf3b6917f" kindref="member">syn_usb_hid_init</ref>(<ref refid="structSYN__USB__HID" kindref="compound">SYN_USB_HID</ref><sp/>*hid)</highlight></codeline>
+<codeline lineno="87"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!hid)<sp/>{</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"><sp/><sp/><sp/><sp/>memset(hid,<sp/>0,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(*hid));</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/><sp/><sp/>hid-&gt;<ref refid="structSYN__USB__HID_1a3971410b3c0bbf957f41b1b526fa82ed" kindref="member">ep_in</ref><sp/>=<sp/>0x83;</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><sp/><sp/><sp/><sp/>hid-&gt;<ref refid="structSYN__USB__HID_1aa6568c1fe6ac7e99be61121eb72eaef6" kindref="member">idle_rate</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><sp/><sp/><sp/><sp/>hid-&gt;<ref refid="structSYN__USB__HID_1aec777297e7a7d3ce2ef27c659fe7311a" kindref="member">active_protocol</ref><sp/>=<sp/>1;<sp/></highlight><highlight class="comment">/*<sp/>1<sp/>=<sp/>Report<sp/>Protocol<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="96"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"></highlight></codeline>
+<codeline lineno="98"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__usb__hid_8c_1a0672ba451d4345cee9ef4949e42fdf62" kindref="member">syn_usb_hid_register</ref>(<ref refid="structSYN__USB__Device" kindref="compound">SYN_USB_Device</ref><sp/>*dev,<sp/><ref refid="structSYN__USB__HID" kindref="compound">SYN_USB_HID</ref><sp/>*hid,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*report_desc,</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint16_t<sp/>report_desc_len)</highlight></codeline>
+<codeline lineno="100"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!dev<sp/>||<sp/>!hid<sp/>||<sp/>!report_desc<sp/>||<sp/>report_desc_len<sp/>==<sp/>0U)<sp/>{</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"></highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><sp/><sp/><sp/><sp/>hid-&gt;<ref refid="structSYN__USB__HID_1a6d6f7912ab7dd806a72b451ec323fd75" kindref="member">report_desc</ref><sp/>=<sp/>report_desc;</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"><sp/><sp/><sp/><sp/>hid-&gt;<ref refid="structSYN__USB__HID_1a0bb55b93eb2cadfe85c4a87db89668da" kindref="member">report_desc_len</ref><sp/>=<sp/>report_desc_len;</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"></highlight></codeline>
+<codeline lineno="108"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Copy<sp/>static<sp/>interface<sp/>desc<sp/>template<sp/>and<sp/>dynamically<sp/>update<sp/>Report<sp/>Desc<sp/>Length<sp/>(bytes<sp/>16..17)</highlight></codeline>
+<codeline lineno="109"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="110"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>desc_buf[</highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(<ref refid="syn__usb__hid_8c_1a18635d7976fb267f6f5b7fd96ec4c455" kindref="member">HID_INTERFACE_DESC</ref>)];</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"><sp/><sp/><sp/><sp/>memcpy(desc_buf,<sp/><ref refid="syn__usb__hid_8c_1a18635d7976fb267f6f5b7fd96ec4c455" kindref="member">HID_INTERFACE_DESC</ref>,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(<ref refid="syn__usb__hid_8c_1a18635d7976fb267f6f5b7fd96ec4c455" kindref="member">HID_INTERFACE_DESC</ref>));</highlight></codeline>
+<codeline lineno="112"><highlight class="normal"><sp/><sp/><sp/><sp/>desc_buf[16]<sp/>=<sp/>(uint8_t)(report_desc_len<sp/>&amp;<sp/>0xFFU);</highlight></codeline>
+<codeline lineno="113"><highlight class="normal"><sp/><sp/><sp/><sp/>desc_buf[17]<sp/>=<sp/>(uint8_t)((report_desc_len<sp/>&gt;&gt;<sp/>8)<sp/>&amp;<sp/>0xFFU);</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"></highlight></codeline>
+<codeline lineno="115"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structSYN__USB__ClassDriver" kindref="compound">SYN_USB_ClassDriver</ref><sp/>cls;</highlight></codeline>
+<codeline lineno="116"><highlight class="normal"><sp/><sp/><sp/><sp/>memset(&amp;cls,<sp/>0,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(cls));</highlight></codeline>
+<codeline lineno="117"><highlight class="normal"><sp/><sp/><sp/><sp/>cls.<ref refid="structSYN__USB__ClassDriver_1a96f879a4acdb499244662ef1a3947ad0" kindref="member">iface_start</ref><sp/>=<sp/>dev-&gt;<ref refid="structSYN__USB__Device_1a700ef6eae894fed9216c16fb62274ca6" kindref="member">class_count</ref>;<sp/></highlight><highlight class="comment">/*<sp/>Interface<sp/>number<sp/>assignment<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="118"><highlight class="normal"><sp/><sp/><sp/><sp/>cls.<ref refid="structSYN__USB__ClassDriver_1a40dd3c308921ef2a3cde05d330e5ddc0" kindref="member">iface_count</ref><sp/>=<sp/>1U;</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"><sp/><sp/><sp/><sp/>cls.<ref refid="structSYN__USB__ClassDriver_1ab1516fe7abf561183f534fbe52180a50" kindref="member">ctx</ref><sp/>=<sp/>hid;</highlight></codeline>
+<codeline lineno="120"><highlight class="normal"><sp/><sp/><sp/><sp/>cls.<ref refid="structSYN__USB__ClassDriver_1a8abff8d14df1d539747763fdebaf74ad" kindref="member">setup</ref><sp/>=<sp/><ref refid="syn__usb__hid_8c_1a4628285f3f419591eaa64eb757da2a26" kindref="member">hid_class_setup</ref>;</highlight></codeline>
+<codeline lineno="121"><highlight class="normal"></highlight></codeline>
+<codeline lineno="122"><highlight class="normal"><sp/><sp/><sp/><sp/>hid-&gt;<ref refid="structSYN__USB__HID_1abc354b77169e7df011457c37aeba5f8d" kindref="member">iface_num</ref><sp/>=<sp/>cls.<ref refid="structSYN__USB__ClassDriver_1a96f879a4acdb499244662ef1a3947ad0" kindref="member">iface_start</ref>;</highlight></codeline>
+<codeline lineno="123"><highlight class="normal"></highlight></codeline>
+<codeline lineno="124"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__usb_8c_1a414637321d47b15812b62cf048ce9971" kindref="member">syn_usb_register_class</ref>(dev,<sp/>&amp;cls,<sp/>desc_buf,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(desc_buf));</highlight></codeline>
+<codeline lineno="125"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="126"><highlight class="normal"></highlight></codeline>
+<codeline lineno="127"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__usb__hid_8c_1adb3191b718dac4b9bcdfcebd02cbca27" kindref="member">syn_usb_hid_send_report</ref>(<ref refid="structSYN__USB__HID" kindref="compound">SYN_USB_HID</ref><sp/>*hid,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*report,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>len)</highlight></codeline>
+<codeline lineno="128"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="129"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!hid<sp/>||<sp/>!report<sp/>||<sp/>len<sp/>==<sp/>0U)<sp/>{</highlight></codeline>
+<codeline lineno="130"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="131"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="132"><highlight class="normal"></highlight></codeline>
+<codeline lineno="133"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(len<sp/>&gt;<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(hid-&gt;<ref refid="structSYN__USB__HID_1ae1480f3b1e6a2ed24c77ffab498e3079" kindref="member">tx_buf</ref>))<sp/>{</highlight></codeline>
+<codeline lineno="134"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>len<sp/>=<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(hid-&gt;<ref refid="structSYN__USB__HID_1ae1480f3b1e6a2ed24c77ffab498e3079" kindref="member">tx_buf</ref>);</highlight></codeline>
+<codeline lineno="135"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"></highlight></codeline>
+<codeline lineno="137"><highlight class="normal"><sp/><sp/><sp/><sp/>memcpy(hid-&gt;<ref refid="structSYN__USB__HID_1ae1480f3b1e6a2ed24c77ffab498e3079" kindref="member">tx_buf</ref>,<sp/>report,<sp/>len);</highlight></codeline>
+<codeline lineno="138"><highlight class="normal"><sp/><sp/><sp/><sp/>hid-&gt;<ref refid="structSYN__USB__HID_1a426e92055eebd8bbae83dd692aad0ec5" kindref="member">tx_len</ref><sp/>=<sp/>(uint16_t)len;</highlight></codeline>
+<codeline lineno="139"><highlight class="normal"></highlight></codeline>
+<codeline lineno="140"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="141"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="142"><highlight class="normal"></highlight></codeline>
+<codeline lineno="143"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__usb__hid_8c_1a59085501206c50730f4ef014ba960847" kindref="member">syn_usb_hid_read_report</ref>(<ref refid="structSYN__USB__HID" kindref="compound">SYN_USB_HID</ref><sp/>*hid,<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*buf,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>max_len,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>*out_len)</highlight></codeline>
+<codeline lineno="144"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="145"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!hid<sp/>||<sp/>!buf<sp/>||<sp/>!out_len)<sp/>{</highlight></codeline>
+<codeline lineno="146"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="147"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="148"><highlight class="normal"></highlight></codeline>
+<codeline lineno="149"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(hid-&gt;<ref refid="structSYN__USB__HID_1a39a0ca3090a776ff05efb4136fe4e6f5" kindref="member">rx_len</ref><sp/>==<sp/>0U)<sp/>{</highlight></codeline>
+<codeline lineno="150"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*out_len<sp/>=<sp/>0U;</highlight></codeline>
+<codeline lineno="151"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="152"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="153"><highlight class="normal"></highlight></codeline>
+<codeline lineno="154"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>copy_len<sp/>=<sp/>(hid-&gt;<ref refid="structSYN__USB__HID_1a39a0ca3090a776ff05efb4136fe4e6f5" kindref="member">rx_len</ref><sp/>&lt;<sp/>max_len)<sp/>?<sp/>hid-&gt;<ref refid="structSYN__USB__HID_1a39a0ca3090a776ff05efb4136fe4e6f5" kindref="member">rx_len</ref><sp/>:<sp/>max_len;</highlight></codeline>
+<codeline lineno="155"><highlight class="normal"><sp/><sp/><sp/><sp/>memcpy(buf,<sp/>hid-&gt;<ref refid="structSYN__USB__HID_1aa8e4024f7bd7d160c7df5fb2a0ab3b8c" kindref="member">rx_buf</ref>,<sp/>copy_len);</highlight></codeline>
+<codeline lineno="156"><highlight class="normal"><sp/><sp/><sp/><sp/>*out_len<sp/>=<sp/>copy_len;</highlight></codeline>
+<codeline lineno="157"><highlight class="normal"></highlight></codeline>
+<codeline lineno="158"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(copy_len<sp/>&lt;<sp/>hid-&gt;rx_len)<sp/>{</highlight></codeline>
+<codeline lineno="159"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>memmove(hid-&gt;<ref refid="structSYN__USB__HID_1aa8e4024f7bd7d160c7df5fb2a0ab3b8c" kindref="member">rx_buf</ref>,<sp/>&amp;hid-&gt;<ref refid="structSYN__USB__HID_1aa8e4024f7bd7d160c7df5fb2a0ab3b8c" kindref="member">rx_buf</ref>[copy_len],<sp/>hid-&gt;<ref refid="structSYN__USB__HID_1a39a0ca3090a776ff05efb4136fe4e6f5" kindref="member">rx_len</ref><sp/>-<sp/>copy_len);</highlight></codeline>
+<codeline lineno="160"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>hid-&gt;<ref refid="structSYN__USB__HID_1a39a0ca3090a776ff05efb4136fe4e6f5" kindref="member">rx_len</ref><sp/>-=<sp/>(uint16_t)copy_len;</highlight></codeline>
+<codeline lineno="161"><highlight class="normal"><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="162"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>hid-&gt;<ref refid="structSYN__USB__HID_1a39a0ca3090a776ff05efb4136fe4e6f5" kindref="member">rx_len</ref><sp/>=<sp/>0U;</highlight></codeline>
+<codeline lineno="163"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="164"><highlight class="normal"></highlight></codeline>
+<codeline lineno="165"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="166"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="167"><highlight class="normal"></highlight></codeline>
+<codeline lineno="168"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__usb__hid_8c_1a695d5a88e5ce7e857a6916b8d963f9cc" kindref="member">syn_usb_hid_report_available</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__USB__HID" kindref="compound">SYN_USB_HID</ref><sp/>*hid)</highlight></codeline>
+<codeline lineno="169"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="170"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(hid<sp/>!=<sp/>NULL)<sp/>&amp;&amp;<sp/>(hid-&gt;<ref refid="structSYN__USB__HID_1a39a0ca3090a776ff05efb4136fe4e6f5" kindref="member">rx_len</ref><sp/>&gt;<sp/>0U);</highlight></codeline>
+<codeline lineno="171"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="172"><highlight class="normal"></highlight></codeline>
+<codeline lineno="173"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__usb__hid_8c_1af74434cb617d74add831096aaa32d3a9" kindref="member">syn_usb_hid_tx_ready</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__USB__HID" kindref="compound">SYN_USB_HID</ref><sp/>*hid)</highlight></codeline>
+<codeline lineno="174"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="175"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(hid<sp/>!=<sp/>NULL)<sp/>&amp;&amp;<sp/>(hid-&gt;<ref refid="structSYN__USB__HID_1a426e92055eebd8bbae83dd692aad0ec5" kindref="member">tx_len</ref><sp/>==<sp/>0U);</highlight></codeline>
+<codeline lineno="176"><highlight class="normal">}</highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/drivers/syn_usb_hid.c"/>
+  </compounddef>
+</doxygen>

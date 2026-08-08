@@ -1,0 +1,394 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__hpclock_8h" kind="file" language="C++">
+    <compoundname>syn_hpclock.h</compoundname>
+    <includes refid="syn__compiler_8h" local="yes">../common/syn_compiler.h</includes>
+    <includes refid="syn__defs_8h" local="yes">../common/syn_defs.h</includes>
+    <includes refid="syn__port__hpclock_8h" local="yes">../port/syn_port_hpclock.h</includes>
+    <includes local="no">stdbool.h</includes>
+    <includes local="no">stdint.h</includes>
+    <includedby refid="syn__hpclock_8c" local="yes">src/syntropic/drivers/syn_hpclock.c</includedby>
+    <includedby refid="syn__timesync_8h" local="yes">src/syntropic/drivers/syn_timesync.h</includedby>
+    <includedby refid="syntropic_8h" local="yes">src/syntropic/syntropic.h</includedby>
+    <incdepgraph>
+      <node id="2">
+        <label>../common/syn_compiler.h</label>
+        <link refid="syn__compiler_8h"/>
+      </node>
+      <node id="3">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/drivers/syn_hpclock.h</label>
+        <link refid="syn__hpclock_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>../port/syn_port_hpclock.h</label>
+        <link refid="syn__port__hpclock_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>stdbool.h</label>
+      </node>
+      <node id="4">
+        <label>stddef.h</label>
+      </node>
+      <node id="5">
+        <label>stdint.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="2">
+        <label>src/syntropic/drivers/syn_hpclock.c</label>
+        <link refid="syn__hpclock_8c"/>
+      </node>
+      <node id="1">
+        <label>src/syntropic/drivers/syn_hpclock.h</label>
+        <link refid="syn__hpclock_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>src/syntropic/drivers/syn_timesync.c</label>
+        <link refid="syn__timesync_8c"/>
+      </node>
+      <node id="3">
+        <label>src/syntropic/drivers/syn_timesync.h</label>
+        <link refid="syn__timesync_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>src/syntropic/proto/syn_doip.c</label>
+        <link refid="syn__doip_8c"/>
+      </node>
+      <node id="6">
+        <label>src/syntropic/proto/syn_doip.h</label>
+        <link refid="syn__doip_8h"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>src/syntropic/syntropic.h</label>
+        <link refid="syntropic_8h"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="structSYN__HPTimestamp" prot="public">SYN_HPTimestamp</innerclass>
+    <sectiondef kind="define">
+      <memberdef kind="define" id="syn__hpclock_8h_1a6bbf5f2b3c1083b492b3eff695d01629" prot="public" static="no">
+        <name>SYN_HPTIMESTAMP_INIT</name>
+        <initializer>{0, 0, 0}</initializer>
+        <briefdescription>
+<para>Static initializer for <ref refid="structSYN__HPTimestamp" kindref="compound">SYN_HPTimestamp</ref> (all zeros). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_hpclock.h" line="93" column="9" bodyfile="src/syntropic/drivers/syn_hpclock.h" bodystart="93" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__hpclock_8h_1acf80e4ae2cc5f2988fc3d26caa543698" prot="public" static="no">
+        <name>SYN_HPCLOCK_CAPTURE</name>
+        <param><defname>ts</defname></param>
+        <initializer>    do {                                                               \
+        volatile uint32_t *syn_hp_lsb_p_ = <ref refid="syn__port__hpclock_8h_1a963768431af98199d8dc26e587d33722" kindref="member">syn_port_hpclock_lsb_ptr</ref>(); \
+        (ts).msb_1 = <ref refid="syn__hpclock_8c_1acc080e324f559e5f3269b6d421ccc9b2" kindref="member">syn_hpclock_msb</ref>;                                  \
+        <ref refid="syn__compiler_8h_1a1afb4c3dfe60fc42928a5619e3100c23" kindref="member">SYN_COMPILER_BARRIER</ref>();                                        \
+        (ts).lsb = *syn_hp_lsb_p_;                                     \
+        <ref refid="syn__compiler_8h_1a1afb4c3dfe60fc42928a5619e3100c23" kindref="member">SYN_COMPILER_BARRIER</ref>();                                        \
+        (ts).msb_2 = <ref refid="syn__hpclock_8c_1acc080e324f559e5f3269b6d421ccc9b2" kindref="member">syn_hpclock_msb</ref>;                                  \
+    } while (0)</initializer>
+        <briefdescription>
+<para>Snapshot the high-precision clock into a timestamp struct. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Three volatile reads, no branching, no function call overhead. Safe to call from ISR context (provided the overflow ISR has a higher priority — see <ref refid="syn__port__hpclock_8h" kindref="compound">syn_port_hpclock.h</ref>).</para>
+<para>Compiler barriers between the MSB (SRAM) and LSB (peripheral bus) reads prevent the compiler from reordering the accesses.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ts</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>An <ref refid="structSYN__HPTimestamp" kindref="compound">SYN_HPTimestamp</ref> lvalue (not a pointer). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_hpclock.h" line="109" column="9" bodyfile="src/syntropic/drivers/syn_hpclock.h" bodystart="109" bodyend="117"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__hpclock_8h_1a718cf3f25a151f6ce2f2688593722e3b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint64_t</type>
+        <definition>uint64_t syn_hpclock_resolve</definition>
+        <argsstring>(const SYN_HPTimestamp *ts)</argsstring>
+        <name>syn_hpclock_resolve</name>
+        <param>
+          <type>const <ref refid="structSYN__HPTimestamp" kindref="compound">SYN_HPTimestamp</ref> *</type>
+          <declname>ts</declname>
+        </param>
+        <briefdescription>
+<para>Resolve a raw timestamp into a 64-bit tick count. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>If <computeroutput>msb_1 == msb_2</computeroutput>, no overflow occurred and either MSB is correct. If they differ, the overflow happened during the capture window and the LSB value determines which side of the wrap it was captured on: a small LSB (&lt; 0x80000000) means post-wrap (use msb_2), a large LSB means pre-wrap (use msb_1).</para>
+<para>This is a pure function — no side effects, no hardware access.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ts</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to a captured timestamp. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>64-bit tick count at system clock precision. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_hpclock.h" line="135" column="10" bodyfile="src/syntropic/drivers/syn_hpclock.c" bodystart="21" bodyend="68" declfile="src/syntropic/drivers/syn_hpclock.h" declline="135" declcolumn="10"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__hpclock_8h_1aff0781cf49366ff719b79e857b967fc5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint64_t</type>
+        <definition>uint64_t syn_hpclock_ticks_to_ns</definition>
+        <argsstring>(uint64_t ticks)</argsstring>
+        <name>syn_hpclock_ticks_to_ns</name>
+        <param>
+          <type>uint64_t</type>
+          <declname>ticks</declname>
+        </param>
+        <briefdescription>
+<para>Convert a tick count to nanoseconds. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Uses integer-only arithmetic: ns = ticks * 1000000000 / freq_hz. The division is performed with 64-bit precision to avoid overflow.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ticks</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Tick count from <ref refid="syn__hpclock_8h_1a718cf3f25a151f6ce2f2688593722e3b" kindref="member">syn_hpclock_resolve()</ref>. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Equivalent time in nanoseconds. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_hpclock.h" line="146" column="10" bodyfile="src/syntropic/drivers/syn_hpclock.c" bodystart="72" bodyend="95" declfile="src/syntropic/drivers/syn_hpclock.h" declline="146" declcolumn="10"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__hpclock_8h_1aa7c2ceaef6ed548fcaf2f5b68c353e21" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint64_t</type>
+        <definition>uint64_t syn_hpclock_elapsed</definition>
+        <argsstring>(const SYN_HPTimestamp *start, const SYN_HPTimestamp *end)</argsstring>
+        <name>syn_hpclock_elapsed</name>
+        <param>
+          <type>const <ref refid="structSYN__HPTimestamp" kindref="compound">SYN_HPTimestamp</ref> *</type>
+          <declname>start</declname>
+        </param>
+        <param>
+          <type>const <ref refid="structSYN__HPTimestamp" kindref="compound">SYN_HPTimestamp</ref> *</type>
+          <declname>end</declname>
+        </param>
+        <briefdescription>
+<para>Compute elapsed ticks between two timestamps. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Resolves both timestamps and returns the difference. Assumes <computeroutput>end</computeroutput> was captured after <computeroutput>start</computeroutput>.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>start</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Earlier timestamp. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>end</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Later timestamp. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Elapsed ticks (end - start). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_hpclock.h" line="158" column="10" bodyfile="src/syntropic/drivers/syn_hpclock.c" bodystart="99" bodyend="105" declfile="src/syntropic/drivers/syn_hpclock.h" declline="158" declcolumn="10"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__hpclock_8h_1a67938d8030107be66dd68166c0448f5b" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>static bool syn_hpclock_is_zero</definition>
+        <argsstring>(const SYN_HPTimestamp *ts)</argsstring>
+        <name>syn_hpclock_is_zero</name>
+        <param>
+          <type>const <ref refid="structSYN__HPTimestamp" kindref="compound">SYN_HPTimestamp</ref> *</type>
+          <declname>ts</declname>
+        </param>
+        <briefdescription>
+<para>Check if a timestamp is zero (uninitialized). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ts</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Timestamp to check. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if all fields are zero. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_hpclock.h" line="166" column="20" bodyfile="src/syntropic/drivers/syn_hpclock.h" bodystart="166" bodyend="169"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>High-precision clock — 64-bit system-clock-precision timestamps. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Provides a zero-overhead timestamp capture primitive and deferred resolution. The capture is a macro that performs three volatile reads with no branching — suitable for use inside ISRs where every cycle counts. Resolution is a pure function called lazily in main context.</para>
+<sect2 id="syn__hpclock_8h_1autotoc_md0">
+<title>Design philosophy</title>
+<para>Capture fast, resolve later. The timestamp struct stores the raw snapshot; the overflow ambiguity is resolved only when you ask for the 64-bit tick value. This keeps ISR latency deterministic and independent of the resolution logic.</para>
+</sect2>
+<sect2 id="syn__hpclock_8h_1autotoc_md1">
+<title>Read sequence: msb_1, lsb, msb_2</title>
+<para>The overflow counter is read before and after the hardware counter. Resolution uses the two MSB values to detect overflow:</para>
+<para><itemizedlist>
+<listitem><para><computeroutput>msb_1 == msb_2</computeroutput>: No overflow during the window. Use either.</para>
+</listitem><listitem><para><computeroutput>msb_1 != msb_2</computeroutput>: Overflow occurred. The LSB value tells us whether it was captured before or after the wrap:<itemizedlist>
+<listitem><para><computeroutput>lsb &lt; 0x80000000</computeroutput>: Counter already wrapped → use msb_2.</para>
+</listitem><listitem><para><computeroutput>lsb &gt;= 0x80000000</computeroutput>: Counter hasn&apos;t wrapped → use msb_1.</para>
+</listitem></itemizedlist>
+</para>
+</listitem></itemizedlist>
+</para>
+<para>The half-range check is safe because the three reads complete in ~10 CPU cycles, while half a 32-bit counter period at system clock is billions of cycles. The LSB value is always unambiguously on one side of the boundary.</para>
+</sect2>
+<sect2 id="syn__hpclock_8h_1autotoc_md2">
+<title>ISR priority constraint</title>
+<para>The timer overflow ISR <bold>must</bold> have the highest interrupt priority in the system. See <ref refid="syn__port__hpclock_8h" kindref="compound">syn_port_hpclock.h</ref> for details.</para>
+</sect2>
+<sect2 id="syn__hpclock_8h_1autotoc_md3">
+<title>Usage</title>
+<para><programlisting><codeline><highlight class="comment">//<sp/>In<sp/>an<sp/>ISR<sp/>or<sp/>anywhere<sp/>timing-critical:</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"><ref refid="structSYN__HPTimestamp" kindref="compound">SYN_HPTimestamp</ref><sp/>ts;</highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__hpclock_8h_1acf80e4ae2cc5f2988fc3d26caa543698" kindref="member">SYN_HPCLOCK_CAPTURE</ref>(ts);</highlight></codeline>
+<codeline><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="comment">//<sp/>Later,<sp/>in<sp/>main<sp/>context:</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal">uint64_t<sp/>ticks<sp/>=<sp/><ref refid="syn__hpclock_8c_1a718cf3f25a151f6ce2f2688593722e3b" kindref="member">syn_hpclock_resolve</ref>(&amp;ts);</highlight></codeline>
+<codeline><highlight class="normal">uint64_t<sp/>ns<sp/><sp/><sp/><sp/>=<sp/><ref refid="syn__hpclock_8c_1aff0781cf49366ff719b79e857b967fc5" kindref="member">syn_hpclock_ticks_to_ns</ref>(ticks);</highlight></codeline>
+<codeline><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="comment">//<sp/>Elapsed<sp/>time<sp/>between<sp/>two<sp/>events:</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal">uint64_t<sp/>dt_ticks<sp/>=<sp/><ref refid="syn__hpclock_8c_1aa7c2ceaef6ed548fcaf2f5b68c353e21" kindref="member">syn_hpclock_elapsed</ref>(&amp;ts_start,<sp/>&amp;ts_end);</highlight></codeline>
+</programlisting> </para>
+</sect2>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="54"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_HPCLOCK_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="55"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_HPCLOCK_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="56"><highlight class="normal"></highlight></codeline>
+<codeline lineno="57"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>__has_include(&quot;syn_config.h&quot;)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="58"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;syn_config.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="59"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="60"><highlight class="normal"></highlight></codeline>
+<codeline lineno="61"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>!defined(SYN_USE_HPCLOCK)<sp/>||<sp/>SYN_USE_HPCLOCK</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="62"><highlight class="normal"></highlight></codeline>
+<codeline lineno="63"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../common/syn_compiler.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="64"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../common/syn_defs.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="65"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../port/syn_port_hpclock.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="66"><highlight class="normal"></highlight></codeline>
+<codeline lineno="67"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="68"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="69"><highlight class="normal"></highlight></codeline>
+<codeline lineno="70"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="71"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="73"><highlight class="normal"></highlight></codeline>
+<codeline lineno="74"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Timestamp<sp/>───────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="75"><highlight class="normal"></highlight></codeline>
+<codeline lineno="86" refid="structSYN__HPTimestamp" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="87" refid="structSYN__HPTimestamp_1a3da5da87e8ec9e84afc20b47394239ad" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structSYN__HPTimestamp_1a3da5da87e8ec9e84afc20b47394239ad" kindref="member">msb_1</ref>;<sp/></highlight></codeline>
+<codeline lineno="88" refid="structSYN__HPTimestamp_1a70209ca13fe6591ef10f72a7a9f7eede" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structSYN__HPTimestamp_1a70209ca13fe6591ef10f72a7a9f7eede" kindref="member">lsb</ref>;<sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="89" refid="structSYN__HPTimestamp_1ab810a67f8e54619df855e5adc844d481" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structSYN__HPTimestamp_1ab810a67f8e54619df855e5adc844d481" kindref="member">msb_2</ref>;<sp/></highlight></codeline>
+<codeline lineno="90"><highlight class="normal">}<sp/><ref refid="structSYN__HPTimestamp" kindref="compound">SYN_HPTimestamp</ref>;</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"></highlight></codeline>
+<codeline lineno="93" refid="syn__hpclock_8h_1a6bbf5f2b3c1083b492b3eff695d01629" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_HPTIMESTAMP_INIT<sp/>{0,<sp/>0,<sp/>0}</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="94"><highlight class="normal"></highlight></codeline>
+<codeline lineno="95"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Capture<sp/>macro<sp/>───────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="96"><highlight class="normal"></highlight></codeline>
+<codeline lineno="109" refid="syn__hpclock_8h_1acf80e4ae2cc5f2988fc3d26caa543698" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_HPCLOCK_CAPTURE(ts)<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="110"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>do<sp/>{<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="111"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>volatile<sp/>uint32_t<sp/>*syn_hp_lsb_p_<sp/>=<sp/>syn_port_hpclock_lsb_ptr();<sp/>\</highlight></codeline>
+<codeline lineno="112"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(ts).msb_1<sp/>=<sp/>syn_hpclock_msb;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="113"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>SYN_COMPILER_BARRIER();<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="114"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(ts).lsb<sp/>=<sp/>*syn_hp_lsb_p_;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="115"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>SYN_COMPILER_BARRIER();<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="116"><highlight class="preprocessor"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(ts).msb_2<sp/>=<sp/>syn_hpclock_msb;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>\</highlight></codeline>
+<codeline lineno="117"><highlight class="preprocessor"><sp/><sp/><sp/><sp/>}<sp/>while<sp/>(0)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="118"><highlight class="normal"></highlight></codeline>
+<codeline lineno="119"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Resolution<sp/>──────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="120"><highlight class="normal"></highlight></codeline>
+<codeline lineno="135"><highlight class="normal">uint64_t<sp/><ref refid="syn__hpclock_8h_1a718cf3f25a151f6ce2f2688593722e3b" kindref="member">syn_hpclock_resolve</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__HPTimestamp" kindref="compound">SYN_HPTimestamp</ref><sp/>*ts);</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"></highlight></codeline>
+<codeline lineno="146"><highlight class="normal">uint64_t<sp/><ref refid="syn__hpclock_8h_1aff0781cf49366ff719b79e857b967fc5" kindref="member">syn_hpclock_ticks_to_ns</ref>(uint64_t<sp/>ticks);</highlight></codeline>
+<codeline lineno="147"><highlight class="normal"></highlight></codeline>
+<codeline lineno="158"><highlight class="normal">uint64_t<sp/><ref refid="syn__hpclock_8h_1aa7c2ceaef6ed548fcaf2f5b68c353e21" kindref="member">syn_hpclock_elapsed</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__HPTimestamp" kindref="compound">SYN_HPTimestamp</ref><sp/>*start,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__HPTimestamp" kindref="compound">SYN_HPTimestamp</ref><sp/>*end);</highlight></codeline>
+<codeline lineno="159"><highlight class="normal"></highlight></codeline>
+<codeline lineno="166" refid="syn__hpclock_8h_1a67938d8030107be66dd68166c0448f5b" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__hpclock_8h_1a67938d8030107be66dd68166c0448f5b" kindref="member">syn_hpclock_is_zero</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__HPTimestamp" kindref="compound">SYN_HPTimestamp</ref><sp/>*ts)</highlight></codeline>
+<codeline lineno="167"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="168"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(ts-&gt;<ref refid="structSYN__HPTimestamp_1a3da5da87e8ec9e84afc20b47394239ad" kindref="member">msb_1</ref><sp/>==<sp/>0)<sp/>&amp;&amp;<sp/>(ts-&gt;<ref refid="structSYN__HPTimestamp_1a70209ca13fe6591ef10f72a7a9f7eede" kindref="member">lsb</ref><sp/>==<sp/>0)<sp/>&amp;&amp;<sp/>(ts-&gt;<ref refid="structSYN__HPTimestamp_1ab810a67f8e54619df855e5adc844d481" kindref="member">msb_2</ref><sp/>==<sp/>0);</highlight></codeline>
+<codeline lineno="169"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="170"><highlight class="normal"></highlight></codeline>
+<codeline lineno="171"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="172"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="173"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="174"><highlight class="normal"></highlight></codeline>
+<codeline lineno="175"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_USE_HPCLOCK<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="176"><highlight class="normal"></highlight></codeline>
+<codeline lineno="177"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_HPCLOCK_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/drivers/syn_hpclock.h"/>
+  </compounddef>
+</doxygen>

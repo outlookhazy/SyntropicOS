@@ -1,0 +1,168 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__dsp_8c" kind="file" language="C++">
+    <compoundname>syn_dsp.c</compoundname>
+    <includes refid="syn__dsp_8h" local="yes">syn_dsp.h</includes>
+    <includes local="no">math.h</includes>
+    <incdepgraph>
+      <node id="6">
+        <label>syntropic/common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/util/syn_dsp.c</label>
+        <link refid="syn__dsp_8c"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>syn_dsp.h</label>
+        <link refid="syn__dsp_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>syn_qmath.h</label>
+        <link refid="syn__qmath_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>math.h</label>
+      </node>
+      <node id="4">
+        <label>stddef.h</label>
+      </node>
+      <node id="5">
+        <label>stdint.h</label>
+      </node>
+    </incdepgraph>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__dsp_8c_1a2c3228c0c04cae1325f7af250898929b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_dsp_dct2_q7</definition>
+        <argsstring>(const q7_t *time_series, size_t num_samples, q7_t *dct_coeffs, size_t num_coeffs)</argsstring>
+        <name>syn_dsp_dct2_q7</name>
+        <param>
+          <type>const <ref refid="syn__qmath_8h_1ae541b6f232c305361e9b416fc9eed263" kindref="member">q7_t</ref> *</type>
+          <declname>time_series</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>num_samples</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1ae541b6f232c305361e9b416fc9eed263" kindref="member">q7_t</ref> *</type>
+          <declname>dct_coeffs</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>num_coeffs</declname>
+        </param>
+        <briefdescription>
+<para>Compute Type-II Discrete Cosine Transform (DCT-II) on Q7 data. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Transforms time-domain sensor samples into frequency-domain coefficients. Formula: X_k = Sum_{n=0}^{N-1} x_n * cos(pi/N * (n + 0.5) * k)</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>time_series</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to input time-domain sample vector (length = num_samples). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>num_samples</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of time-domain input samples. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dct_coeffs</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Destination vector for frequency coefficients (length = num_coeffs). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>num_coeffs</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of output frequency coefficients to retain (num_coeffs &lt;= num_samples). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_INVALID_PARAM on failure. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_dsp.c" line="16" column="12" bodyfile="src/syntropic/util/syn_dsp.c" bodystart="16" bodyend="47"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Fixed-Point DSP implementation for Discrete Cosine Transform. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__dsp_8h" kindref="compound">syn_dsp.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;math.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>M_PI</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>M_PI<sp/>3.14159265358979323846</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight></codeline>
+<codeline lineno="16"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__dsp_8c_1a2c3228c0c04cae1325f7af250898929b" kindref="member">syn_dsp_dct2_q7</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="syn__qmath_8h_1ae541b6f232c305361e9b416fc9eed263" kindref="member">q7_t</ref><sp/>*time_series,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>num_samples,<sp/><ref refid="syn__qmath_8h_1ae541b6f232c305361e9b416fc9eed263" kindref="member">q7_t</ref><sp/>*dct_coeffs,</highlight></codeline>
+<codeline lineno="17"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>num_coeffs)</highlight></codeline>
+<codeline lineno="18"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="19"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!time_series<sp/>||<sp/>!dct_coeffs<sp/>||<sp/>num_samples<sp/>==<sp/>0<sp/>||<sp/>num_coeffs<sp/>==<sp/>0<sp/>||</highlight></codeline>
+<codeline lineno="20"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>num_coeffs<sp/>&gt;<sp/>num_samples)<sp/>{</highlight></codeline>
+<codeline lineno="21"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="22"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>inv_n<sp/>=<sp/>1.0<sp/>/<sp/>(double)num_samples;</highlight></codeline>
+<codeline lineno="25"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>scale_dc<sp/>=<sp/>sqrt(inv_n);</highlight></codeline>
+<codeline lineno="26"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>scale_ac<sp/>=<sp/>sqrt(2.0<sp/>*<sp/>inv_n);</highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>k<sp/>=<sp/>0;<sp/>k<sp/>&lt;<sp/>num_coeffs;<sp/>k++)<sp/>{</highlight></codeline>
+<codeline lineno="29"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>acc<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="30"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>scale<sp/>=<sp/>(k<sp/>==<sp/>0)<sp/>?<sp/>scale_dc<sp/>:<sp/>scale_ac;</highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight></codeline>
+<codeline lineno="32"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>n<sp/>=<sp/>0;<sp/>n<sp/>&lt;<sp/>num_samples;<sp/>n++)<sp/>{</highlight></codeline>
+<codeline lineno="33"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>angle<sp/>=<sp/>(M_PI<sp/>*<sp/>(double)k<sp/>*<sp/>((</highlight><highlight class="keywordtype">double</highlight><highlight class="normal">)n<sp/>+<sp/>0.5))<sp/>*<sp/>inv_n;</highlight></codeline>
+<codeline lineno="34"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>cos_val<sp/>=<sp/>cos(angle);</highlight></codeline>
+<codeline lineno="35"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1ae541b6f232c305361e9b416fc9eed263" kindref="member">q7_t</ref><sp/>cos_q7<sp/>=<sp/><ref refid="syn__qmath_8h_1ae4b01132f82bb104c4ccfee1f361fe4e" kindref="member">Q7_FROM_FLOAT</ref>((</highlight><highlight class="keywordtype">float</highlight><highlight class="normal">)cos_val);</highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>acc<sp/>=<sp/><ref refid="syn__qmath_8h_1a4260f7752538a74f8984fb3b1bd7aeb8" kindref="member">q7_mac</ref>(acc,<sp/>time_series[n],<sp/>cos_q7);</highlight></codeline>
+<codeline lineno="38"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Scale<sp/>and<sp/>convert<sp/>accumulated<sp/>Q16<sp/>back<sp/>to<sp/>Q7<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>acc_float<sp/>=<sp/>(double)acc<sp/>/<sp/>65536.0;</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">double</highlight><highlight class="normal"><sp/>scaled_val<sp/>=<sp/>acc_float<sp/>*<sp/>scale;</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>dct_coeffs[k]<sp/>=<sp/><ref refid="syn__qmath_8h_1ae4b01132f82bb104c4ccfee1f361fe4e" kindref="member">Q7_FROM_FLOAT</ref>((</highlight><highlight class="keywordtype">float</highlight><highlight class="normal">)scaled_val);</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="47"><highlight class="normal">}</highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/util/syn_dsp.c"/>
+  </compounddef>
+</doxygen>

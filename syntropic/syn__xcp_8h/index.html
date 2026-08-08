@@ -1,0 +1,2561 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Modular cooperative OS & application framework for microcontrollers">
+      
+      
+      
+        <link rel="canonical" href="https://outlookhazy.github.io/SyntropicOS/syntropic/syn__xcp_8h/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/logo.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>File syn_xcp.h - SyntropicOS</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="cyan">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#file-syn_xcph" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="SyntropicOS" class="md-header__button md-logo" aria-label="SyntropicOS" data-md-component="logo">
+      
+  <img src="../../assets/logo.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SyntropicOS
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              File syn_xcp.h
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="cyan"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="cyan"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/outlookhazy/SyntropicOS" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    outlookhazy/SyntropicOS
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="SyntropicOS" class="md-nav__button md-logo" aria-label="SyntropicOS" data-md-component="logo">
+      
+  <img src="../../assets/logo.png" alt="logo">
+
+    </a>
+    SyntropicOS
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/outlookhazy/SyntropicOS" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    outlookhazy/SyntropicOS
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ide-guides/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    IDE Setup Guides
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../arduino/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Arduino Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Modules
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Modules
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../modules/core/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Core & Utilities
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../modules/drivers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Drivers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../modules/multitasking/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Multitasking
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../modules/services/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../modules/io/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Input / Output
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../modules/display/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Display & UI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../modules/control/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Control & Motor
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../modules/dsp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DSP & Filters
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../modules/communication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Communication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../modules/crypto/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Crypto & VPN
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../modules/storage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Storage
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../modules/system/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    System
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../modules/wasm/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    WebAssembly VM
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../modules/debug/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Debug
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../modules/integration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Cross-Module Integration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../group__syn__core/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Core & Utilities
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../group__syn__sched/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scheduling
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../group__syn__drivers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Drivers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../group__syn__io/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Input / Output
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../group__syn__motor/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Motor & Control
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../group__syn__display/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Display & UI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../group__syn__net/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Networking
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../group__syn__protocol/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Protocols
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../group__syn__storage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Storage
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../group__syn__system/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    System
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../group__syn__dsp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DSP & Filters
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../group__syn__debug/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Debug & Diagnostics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../files/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    All Files
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../annotated/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    All Structs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../porting-guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Porting Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../testing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../directory-structure/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Directory Structure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#classes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Classes
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#public-functions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Public Functions
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#macros" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Macros
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#detailed-description" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Detailed Description
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#public-functions-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Public Functions Documentation
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Public Functions Documentation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_xcp_init" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_xcp_init
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_xcp_process_cto" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_xcp_process_cto
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_xcp_service_daq" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_xcp_service_daq
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_xcp_set_mta" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_xcp_set_mta
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#macro-definition-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Macro Definition Documentation
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Macro Definition Documentation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#define-syn_xcp_cmd_connect" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        define SYN_XCP_CMD_CONNECT
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#define-syn_xcp_cmd_disconnect" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        define SYN_XCP_CMD_DISCONNECT
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#define-syn_xcp_cmd_download" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        define SYN_XCP_CMD_DOWNLOAD
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#define-syn_xcp_cmd_download_max" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        define SYN_XCP_CMD_DOWNLOAD_MAX
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#define-syn_xcp_cmd_get_comm_mode_info" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        define SYN_XCP_CMD_GET_COMM_MODE_INFO
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#define-syn_xcp_cmd_get_id" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        define SYN_XCP_CMD_GET_ID
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#define-syn_xcp_cmd_get_seed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        define SYN_XCP_CMD_GET_SEED
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#define-syn_xcp_cmd_get_status" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        define SYN_XCP_CMD_GET_STATUS
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#define-syn_xcp_cmd_set_daq_list_mode" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        define SYN_XCP_CMD_SET_DAQ_LIST_MODE
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#define-syn_xcp_cmd_set_daq_ptr" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        define SYN_XCP_CMD_SET_DAQ_PTR
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#define-syn_xcp_cmd_set_mta" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        define SYN_XCP_CMD_SET_MTA
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#define-syn_xcp_cmd_set_request" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        define SYN_XCP_CMD_SET_REQUEST
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#define-syn_xcp_cmd_short_upload" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        define SYN_XCP_CMD_SHORT_UPLOAD
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#define-syn_xcp_cmd_start_stop_daq_list" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        define SYN_XCP_CMD_START_STOP_DAQ_LIST
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#define-syn_xcp_cmd_start_stop_synch" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        define SYN_XCP_CMD_START_STOP_SYNCH
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#define-syn_xcp_cmd_synch" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        define SYN_XCP_CMD_SYNCH
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#define-syn_xcp_cmd_unlock" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        define SYN_XCP_CMD_UNLOCK
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#define-syn_xcp_cmd_upload" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        define SYN_XCP_CMD_UPLOAD
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#define-syn_xcp_cmd_write_daq" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        define SYN_XCP_CMD_WRITE_DAQ
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#define-syn_xcp_err_access_denied" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        define SYN_XCP_ERR_ACCESS_DENIED
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#define-syn_xcp_err_cmd_syntax" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        define SYN_XCP_ERR_CMD_SYNTAX
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#define-syn_xcp_err_cmd_unknown" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        define SYN_XCP_ERR_CMD_UNKNOWN
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#define-syn_xcp_err_not_connected" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        define SYN_XCP_ERR_NOT_CONNECTED
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#define-syn_xcp_err_out_of_range" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        define SYN_XCP_ERR_OUT_OF_RANGE
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#define-syn_xcp_err_success" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        define SYN_XCP_ERR_SUCCESS
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#define-syn_xcp_err_write_protected" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        define SYN_XCP_ERR_WRITE_PROTECTED
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#define-syn_xcp_max_daq_lists" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        define SYN_XCP_MAX_DAQ_LISTS
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#define-syn_xcp_max_entries_per_odt" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        define SYN_XCP_MAX_ENTRIES_PER_ODT
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#define-syn_xcp_max_odt_per_daq" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        define SYN_XCP_MAX_ODT_PER_DAQ
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#define-syn_xcp_pid_err" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        define SYN_XCP_PID_ERR
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#define-syn_xcp_pid_ev" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        define SYN_XCP_PID_EV
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#define-syn_xcp_pid_res" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        define SYN_XCP_PID_RES
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#define-syn_xcp_pid_serv" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        define SYN_XCP_PID_SERV
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#define-syn_xcp_resource_cal_pag" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        define SYN_XCP_RESOURCE_CAL_PAG
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#define-syn_xcp_resource_daq" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        define SYN_XCP_RESOURCE_DAQ
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#define-syn_xcp_resource_pgm" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        define SYN_XCP_RESOURCE_PGM
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#define-syn_xcp_resource_stim" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        define SYN_XCP_RESOURCE_STIM
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="file-syn_xcph">File syn_xcp.h<a class="headerlink" href="#file-syn_xcph" title="Permanent link">&para;</a></h1>
+<p><a href="../files/"><strong>FileList</strong></a> <strong>&gt;</strong> <a href="../dir_0a7333506e1b11c22e7531106607b850/"><strong>proto</strong></a> <strong>&gt;</strong> <a href="./"><strong>syn_xcp.h</strong></a></p>
+<p><a href="../syn__xcp_8h_source/">Go to the source code of this file</a></p>
+<p><em>ASAM Universal Measurement and Calibration Protocol v1.x (XCP) Slave.</em> <a href="#detailed-description">More...</a></p>
+<ul>
+<li><code>#include &lt;stdbool.h&gt;</code></li>
+<li><code>#include &lt;stddef.h&gt;</code></li>
+<li><code>#include &lt;stdint.h&gt;</code></li>
+</ul>
+<h2 id="classes">Classes<a class="headerlink" href="#classes" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: right;">Type</th>
+<th style="text-align: left;">Name</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">struct</td>
+<td style="text-align: left;"><a href="../structSYN__XCP__DAQList/"><strong>SYN_XCP_DAQList</strong></a> <br><em>DAQ List structure.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;">struct</td>
+<td style="text-align: left;"><a href="../structSYN__XCP__ODT/"><strong>SYN_XCP_ODT</strong></a> <br><em>ODT (Object Descriptor Table) structure.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;">struct</td>
+<td style="text-align: left;"><a href="../structSYN__XCP__ODTEntry/"><strong>SYN_XCP_ODTEntry</strong></a> <br><em>ODT Element mapping entry.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;">struct</td>
+<td style="text-align: left;"><a href="../structSYN__XCP__Slave/"><strong>SYN_XCP_Slave</strong></a> <br><em>XCP Slave instance context.</em></td>
+</tr>
+</tbody>
+</table>
+<h2 id="public-functions">Public Functions<a class="headerlink" href="#public-functions" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: right;">Type</th>
+<th style="text-align: left;">Name</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;"><a href="../syn__defs_8h/#enum-bool"><strong>bool</strong></a></td>
+<td style="text-align: left;"><a href="#function-syn_xcp_init"><strong>syn_xcp_init</strong></a> (<a href="../structSYN__XCP__Slave/"><strong>SYN_XCP_Slave</strong></a> * slave, uint16_t station_id) <br><em>Initialize XCP slave instance context.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;"><a href="../syn__defs_8h/#enum-bool"><strong>bool</strong></a></td>
+<td style="text-align: left;"><a href="#function-syn_xcp_process_cto"><strong>syn_xcp_process_cto</strong></a> (<a href="../structSYN__XCP__Slave/"><strong>SYN_XCP_Slave</strong></a> * slave, const uint8_t cto, uint8_t dto_out) <br><em>Process incoming XCP CTO command packet and prepare response.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;"><a href="../syn__defs_8h/#enum-bool"><strong>bool</strong></a></td>
+<td style="text-align: left;"><a href="#function-syn_xcp_service_daq"><strong>syn_xcp_service_daq</strong></a> (<a href="../structSYN__XCP__Slave/"><strong>SYN_XCP_Slave</strong></a> * slave, uint8_t event_channel, uint8_t dto_out, uint8_t * list_idx, uint8_t * odt_idx) <br><em>Service periodic XCP DAQ sampling event channel tick.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;"><a href="../syn__defs_8h/#enum-bool"><strong>bool</strong></a></td>
+<td style="text-align: left;"><a href="#function-syn_xcp_set_mta"><strong>syn_xcp_set_mta</strong></a> (<a href="../structSYN__XCP__Slave/"><strong>SYN_XCP_Slave</strong></a> * slave, uint8_t ext, uintptr_t addr) <br><em>Set XCP Memory Transfer Address (MTA).</em></td>
+</tr>
+</tbody>
+</table>
+<h2 id="macros">Macros<a class="headerlink" href="#macros" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: right;">Type</th>
+<th style="text-align: left;">Name</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">define</td>
+<td style="text-align: left;"><a href="./#define-syn_xcp_cmd_connect"><strong>SYN_XCP_CMD_CONNECT</strong></a>  <code>0xFFU</code><br></td>
+</tr>
+<tr>
+<td style="text-align: right;">define</td>
+<td style="text-align: left;"><a href="./#define-syn_xcp_cmd_disconnect"><strong>SYN_XCP_CMD_DISCONNECT</strong></a>  <code>0xFEU</code><br></td>
+</tr>
+<tr>
+<td style="text-align: right;">define</td>
+<td style="text-align: left;"><a href="./#define-syn_xcp_cmd_download"><strong>SYN_XCP_CMD_DOWNLOAD</strong></a>  <code>0xF0U</code><br></td>
+</tr>
+<tr>
+<td style="text-align: right;">define</td>
+<td style="text-align: left;"><a href="./#define-syn_xcp_cmd_download_max"><strong>SYN_XCP_CMD_DOWNLOAD_MAX</strong></a>  <code>0xEEU</code><br></td>
+</tr>
+<tr>
+<td style="text-align: right;">define</td>
+<td style="text-align: left;"><a href="./#define-syn_xcp_cmd_get_comm_mode_info"><strong>SYN_XCP_CMD_GET_COMM_MODE_INFO</strong></a>  <code>0xFBU</code><br></td>
+</tr>
+<tr>
+<td style="text-align: right;">define</td>
+<td style="text-align: left;"><a href="./#define-syn_xcp_cmd_get_id"><strong>SYN_XCP_CMD_GET_ID</strong></a>  <code>0xFAU</code><br></td>
+</tr>
+<tr>
+<td style="text-align: right;">define</td>
+<td style="text-align: left;"><a href="./#define-syn_xcp_cmd_get_seed"><strong>SYN_XCP_CMD_GET_SEED</strong></a>  <code>0xF8U</code><br></td>
+</tr>
+<tr>
+<td style="text-align: right;">define</td>
+<td style="text-align: left;"><a href="./#define-syn_xcp_cmd_get_status"><strong>SYN_XCP_CMD_GET_STATUS</strong></a>  <code>0xFDU</code><br></td>
+</tr>
+<tr>
+<td style="text-align: right;">define</td>
+<td style="text-align: left;"><a href="./#define-syn_xcp_cmd_set_daq_list_mode"><strong>SYN_XCP_CMD_SET_DAQ_LIST_MODE</strong></a>  <code>0xE0U</code><br></td>
+</tr>
+<tr>
+<td style="text-align: right;">define</td>
+<td style="text-align: left;"><a href="./#define-syn_xcp_cmd_set_daq_ptr"><strong>SYN_XCP_CMD_SET_DAQ_PTR</strong></a>  <code>0xE2U</code><br></td>
+</tr>
+<tr>
+<td style="text-align: right;">define</td>
+<td style="text-align: left;"><a href="./#define-syn_xcp_cmd_set_mta"><strong>SYN_XCP_CMD_SET_MTA</strong></a>  <code>0xF6U</code><br></td>
+</tr>
+<tr>
+<td style="text-align: right;">define</td>
+<td style="text-align: left;"><a href="./#define-syn_xcp_cmd_set_request"><strong>SYN_XCP_CMD_SET_REQUEST</strong></a>  <code>0xF9U</code><br></td>
+</tr>
+<tr>
+<td style="text-align: right;">define</td>
+<td style="text-align: left;"><a href="./#define-syn_xcp_cmd_short_upload"><strong>SYN_XCP_CMD_SHORT_UPLOAD</strong></a>  <code>0xF4U</code><br></td>
+</tr>
+<tr>
+<td style="text-align: right;">define</td>
+<td style="text-align: left;"><a href="./#define-syn_xcp_cmd_start_stop_daq_list"><strong>SYN_XCP_CMD_START_STOP_DAQ_LIST</strong></a>  <code>0xDEU</code><br></td>
+</tr>
+<tr>
+<td style="text-align: right;">define</td>
+<td style="text-align: left;"><a href="./#define-syn_xcp_cmd_start_stop_synch"><strong>SYN_XCP_CMD_START_STOP_SYNCH</strong></a>  <code>0xDDU</code><br></td>
+</tr>
+<tr>
+<td style="text-align: right;">define</td>
+<td style="text-align: left;"><a href="./#define-syn_xcp_cmd_synch"><strong>SYN_XCP_CMD_SYNCH</strong></a>  <code>0xFCU</code><br></td>
+</tr>
+<tr>
+<td style="text-align: right;">define</td>
+<td style="text-align: left;"><a href="./#define-syn_xcp_cmd_unlock"><strong>SYN_XCP_CMD_UNLOCK</strong></a>  <code>0xF7U</code><br></td>
+</tr>
+<tr>
+<td style="text-align: right;">define</td>
+<td style="text-align: left;"><a href="./#define-syn_xcp_cmd_upload"><strong>SYN_XCP_CMD_UPLOAD</strong></a>  <code>0xF5U</code><br></td>
+</tr>
+<tr>
+<td style="text-align: right;">define</td>
+<td style="text-align: left;"><a href="./#define-syn_xcp_cmd_write_daq"><strong>SYN_XCP_CMD_WRITE_DAQ</strong></a>  <code>0xE1U</code><br></td>
+</tr>
+<tr>
+<td style="text-align: right;">define</td>
+<td style="text-align: left;"><a href="./#define-syn_xcp_err_access_denied"><strong>SYN_XCP_ERR_ACCESS_DENIED</strong></a>  <code>0x24U</code><br></td>
+</tr>
+<tr>
+<td style="text-align: right;">define</td>
+<td style="text-align: left;"><a href="./#define-syn_xcp_err_cmd_syntax"><strong>SYN_XCP_ERR_CMD_SYNTAX</strong></a>  <code>0x20U</code><br></td>
+</tr>
+<tr>
+<td style="text-align: right;">define</td>
+<td style="text-align: left;"><a href="./#define-syn_xcp_err_cmd_unknown"><strong>SYN_XCP_ERR_CMD_UNKNOWN</strong></a>  <code>0x30U</code><br></td>
+</tr>
+<tr>
+<td style="text-align: right;">define</td>
+<td style="text-align: left;"><a href="./#define-syn_xcp_err_not_connected"><strong>SYN_XCP_ERR_NOT_CONNECTED</strong></a>  <code>0x28U</code><br></td>
+</tr>
+<tr>
+<td style="text-align: right;">define</td>
+<td style="text-align: left;"><a href="./#define-syn_xcp_err_out_of_range"><strong>SYN_XCP_ERR_OUT_OF_RANGE</strong></a>  <code>0x22U</code><br></td>
+</tr>
+<tr>
+<td style="text-align: right;">define</td>
+<td style="text-align: left;"><a href="./#define-syn_xcp_err_success"><strong>SYN_XCP_ERR_SUCCESS</strong></a>  <code>0x00U</code><br></td>
+</tr>
+<tr>
+<td style="text-align: right;">define</td>
+<td style="text-align: left;"><a href="./#define-syn_xcp_err_write_protected"><strong>SYN_XCP_ERR_WRITE_PROTECTED</strong></a>  <code>0x23U</code><br></td>
+</tr>
+<tr>
+<td style="text-align: right;">define</td>
+<td style="text-align: left;"><a href="./#define-syn_xcp_max_daq_lists"><strong>SYN_XCP_MAX_DAQ_LISTS</strong></a>  <code>4U</code><br></td>
+</tr>
+<tr>
+<td style="text-align: right;">define</td>
+<td style="text-align: left;"><a href="./#define-syn_xcp_max_entries_per_odt"><strong>SYN_XCP_MAX_ENTRIES_PER_ODT</strong></a>  <code>7U</code><br></td>
+</tr>
+<tr>
+<td style="text-align: right;">define</td>
+<td style="text-align: left;"><a href="./#define-syn_xcp_max_odt_per_daq"><strong>SYN_XCP_MAX_ODT_PER_DAQ</strong></a>  <code>8U</code><br></td>
+</tr>
+<tr>
+<td style="text-align: right;">define</td>
+<td style="text-align: left;"><a href="./#define-syn_xcp_pid_err"><strong>SYN_XCP_PID_ERR</strong></a>  <code>0xFEU</code><br></td>
+</tr>
+<tr>
+<td style="text-align: right;">define</td>
+<td style="text-align: left;"><a href="./#define-syn_xcp_pid_ev"><strong>SYN_XCP_PID_EV</strong></a>  <code>0xFDU</code><br></td>
+</tr>
+<tr>
+<td style="text-align: right;">define</td>
+<td style="text-align: left;"><a href="./#define-syn_xcp_pid_res"><strong>SYN_XCP_PID_RES</strong></a>  <code>0xFFU</code><br></td>
+</tr>
+<tr>
+<td style="text-align: right;">define</td>
+<td style="text-align: left;"><a href="./#define-syn_xcp_pid_serv"><strong>SYN_XCP_PID_SERV</strong></a>  <code>0xFCU</code><br></td>
+</tr>
+<tr>
+<td style="text-align: right;">define</td>
+<td style="text-align: left;"><a href="./#define-syn_xcp_resource_cal_pag"><strong>SYN_XCP_RESOURCE_CAL_PAG</strong></a>  <code>0x01U</code><br></td>
+</tr>
+<tr>
+<td style="text-align: right;">define</td>
+<td style="text-align: left;"><a href="./#define-syn_xcp_resource_daq"><strong>SYN_XCP_RESOURCE_DAQ</strong></a>  <code>0x04U</code><br></td>
+</tr>
+<tr>
+<td style="text-align: right;">define</td>
+<td style="text-align: left;"><a href="./#define-syn_xcp_resource_pgm"><strong>SYN_XCP_RESOURCE_PGM</strong></a>  <code>0x10U</code><br></td>
+</tr>
+<tr>
+<td style="text-align: right;">define</td>
+<td style="text-align: left;"><a href="./#define-syn_xcp_resource_stim"><strong>SYN_XCP_RESOURCE_STIM</strong></a>  <code>0x08U</code><br></td>
+</tr>
+</tbody>
+</table>
+<h2 id="detailed-description">Detailed Description<a class="headerlink" href="#detailed-description" title="Permanent link">&para;</a></h2>
+<p>Provides a zero-allocation, lightweight XCP v1.x slave protocol stack for ECU calibration, live parameter measurement, memory upload/download, and DAQ (Data Acquisition) list streaming over CAN. </p>
+<h2 id="public-functions-documentation">Public Functions Documentation<a class="headerlink" href="#public-functions-documentation" title="Permanent link">&para;</a></h2>
+<h3 id="function-syn_xcp_init">function syn_xcp_init<a class="headerlink" href="#function-syn_xcp_init" title="Permanent link">&para;</a></h3>
+<p><em>Initialize XCP slave instance context.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kt">bool</span><span class="w"> </span><span class="n">syn_xcp_init</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">    </span><span class="n">SYN_XCP_Slave</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">slave</span><span class="p">,</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">    </span><span class="kt">uint16_t</span><span class="w"> </span><span class="n">station_id</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>slave</code> Pointer to XCP slave structure. </li>
+<li><code>station_id</code> XCP slave node/station ID. </li>
+</ul>
+<p><strong>Returns:</strong></p>
+<p>true on success, false if slave is NULL. </p>
+<hr>
+
+<h3 id="function-syn_xcp_process_cto">function syn_xcp_process_cto<a class="headerlink" href="#function-syn_xcp_process_cto" title="Permanent link">&para;</a></h3>
+<p><em>Process incoming XCP CTO command packet and prepare response.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kt">bool</span><span class="w"> </span><span class="n">syn_xcp_process_cto</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">    </span><span class="n">SYN_XCP_Slave</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">slave</span><span class="p">,</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">cto</span><span class="p">,</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">    </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">dto_out</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>slave</code> Pointer to XCP slave structure. </li>
+<li><code>cto</code> 8-byte input CTO CAN frame buffer. </li>
+<li><code>dto_out</code> 8-byte output response DTO/CRM frame buffer. </li>
+</ul>
+<p><strong>Returns:</strong></p>
+<p>true if response frame populated, false on invalid parameters. </p>
+<hr>
+
+<h3 id="function-syn_xcp_service_daq">function syn_xcp_service_daq<a class="headerlink" href="#function-syn_xcp_service_daq" title="Permanent link">&para;</a></h3>
+<p><em>Service periodic XCP DAQ sampling event channel tick.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kt">bool</span><span class="w"> </span><span class="n">syn_xcp_service_daq</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">    </span><span class="n">SYN_XCP_Slave</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">slave</span><span class="p">,</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">    </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">event_channel</span><span class="p">,</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">    </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">dto_out</span><span class="p">,</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">    </span><span class="kt">uint8_t</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">list_idx</span><span class="p">,</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">    </span><span class="kt">uint8_t</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">odt_idx</span>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>slave</code> Pointer to XCP slave structure. </li>
+<li><code>event_channel</code> Event channel index triggered. </li>
+<li><code>dto_out</code> 8-byte output CAN telemetry buffer. </li>
+<li><code>list_idx</code> In/Out pointer to DAQ list state iterator. </li>
+<li><code>odt_idx</code> In/Out pointer to ODT state iterator. </li>
+</ul>
+<p><strong>Returns:</strong></p>
+<p>true if a DAQ DTO packet was generated, false if no packet pending. </p>
+<hr>
+
+<h3 id="function-syn_xcp_set_mta">function syn_xcp_set_mta<a class="headerlink" href="#function-syn_xcp_set_mta" title="Permanent link">&para;</a></h3>
+<p><em>Set XCP Memory Transfer Address (MTA).</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kt">bool</span><span class="w"> </span><span class="n">syn_xcp_set_mta</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">    </span><span class="n">SYN_XCP_Slave</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">slave</span><span class="p">,</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">    </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">ext</span><span class="p">,</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">    </span><span class="kt">uintptr_t</span><span class="w"> </span><span class="n">addr</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>slave</code> Pointer to XCP slave structure. </li>
+<li><code>ext</code> Address extension byte. </li>
+<li><code>addr</code> 32-bit/64-bit target memory pointer. </li>
+</ul>
+<p><strong>Returns:</strong></p>
+<p>true on success, false if slave is NULL. </p>
+<hr>
+<h2 id="macro-definition-documentation">Macro Definition Documentation<a class="headerlink" href="#macro-definition-documentation" title="Permanent link">&para;</a></h2>
+<h3 id="define-syn_xcp_cmd_connect">define SYN_XCP_CMD_CONNECT<a class="headerlink" href="#define-syn_xcp_cmd_connect" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="cp">#define SYN_XCP_CMD_CONNECT `0xFFU`</span>
+</code></pre></div>
+<p>Connect command </p>
+<hr>
+
+<h3 id="define-syn_xcp_cmd_disconnect">define SYN_XCP_CMD_DISCONNECT<a class="headerlink" href="#define-syn_xcp_cmd_disconnect" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="cp">#define SYN_XCP_CMD_DISCONNECT `0xFEU`</span>
+</code></pre></div>
+<p>Disconnect command </p>
+<hr>
+
+<h3 id="define-syn_xcp_cmd_download">define SYN_XCP_CMD_DOWNLOAD<a class="headerlink" href="#define-syn_xcp_cmd_download" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="cp">#define SYN_XCP_CMD_DOWNLOAD `0xF0U`</span>
+</code></pre></div>
+<p>Download memory block </p>
+<hr>
+
+<h3 id="define-syn_xcp_cmd_download_max">define SYN_XCP_CMD_DOWNLOAD_MAX<a class="headerlink" href="#define-syn_xcp_cmd_download_max" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="cp">#define SYN_XCP_CMD_DOWNLOAD_MAX `0xEEU`</span>
+</code></pre></div>
+<p>Fast max download </p>
+<hr>
+
+<h3 id="define-syn_xcp_cmd_get_comm_mode_info">define SYN_XCP_CMD_GET_COMM_MODE_INFO<a class="headerlink" href="#define-syn_xcp_cmd_get_comm_mode_info" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="cp">#define SYN_XCP_CMD_GET_COMM_MODE_INFO `0xFBU`</span>
+</code></pre></div>
+<p>Get comm mode info </p>
+<hr>
+
+<h3 id="define-syn_xcp_cmd_get_id">define SYN_XCP_CMD_GET_ID<a class="headerlink" href="#define-syn_xcp_cmd_get_id" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="cp">#define SYN_XCP_CMD_GET_ID `0xFAU`</span>
+</code></pre></div>
+<p>Get station ID </p>
+<hr>
+
+<h3 id="define-syn_xcp_cmd_get_seed">define SYN_XCP_CMD_GET_SEED<a class="headerlink" href="#define-syn_xcp_cmd_get_seed" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="cp">#define SYN_XCP_CMD_GET_SEED `0xF8U`</span>
+</code></pre></div>
+<p>Get seed for unlock </p>
+<hr>
+
+<h3 id="define-syn_xcp_cmd_get_status">define SYN_XCP_CMD_GET_STATUS<a class="headerlink" href="#define-syn_xcp_cmd_get_status" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="cp">#define SYN_XCP_CMD_GET_STATUS `0xFDU`</span>
+</code></pre></div>
+<p>Get status command </p>
+<hr>
+
+<h3 id="define-syn_xcp_cmd_set_daq_list_mode">define SYN_XCP_CMD_SET_DAQ_LIST_MODE<a class="headerlink" href="#define-syn_xcp_cmd_set_daq_list_mode" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="cp">#define SYN_XCP_CMD_SET_DAQ_LIST_MODE `0xE0U`</span>
+</code></pre></div>
+<p>Set DAQ list mode </p>
+<hr>
+
+<h3 id="define-syn_xcp_cmd_set_daq_ptr">define SYN_XCP_CMD_SET_DAQ_PTR<a class="headerlink" href="#define-syn_xcp_cmd_set_daq_ptr" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="cp">#define SYN_XCP_CMD_SET_DAQ_PTR `0xE2U`</span>
+</code></pre></div>
+<p>Set DAQ pointer </p>
+<hr>
+
+<h3 id="define-syn_xcp_cmd_set_mta">define SYN_XCP_CMD_SET_MTA<a class="headerlink" href="#define-syn_xcp_cmd_set_mta" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="cp">#define SYN_XCP_CMD_SET_MTA `0xF6U`</span>
+</code></pre></div>
+<p>Set memory transfer address </p>
+<hr>
+
+<h3 id="define-syn_xcp_cmd_set_request">define SYN_XCP_CMD_SET_REQUEST<a class="headerlink" href="#define-syn_xcp_cmd_set_request" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="cp">#define SYN_XCP_CMD_SET_REQUEST `0xF9U`</span>
+</code></pre></div>
+<p>Set request </p>
+<hr>
+
+<h3 id="define-syn_xcp_cmd_short_upload">define SYN_XCP_CMD_SHORT_UPLOAD<a class="headerlink" href="#define-syn_xcp_cmd_short_upload" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="cp">#define SYN_XCP_CMD_SHORT_UPLOAD `0xF4U`</span>
+</code></pre></div>
+<p>Short upload </p>
+<hr>
+
+<h3 id="define-syn_xcp_cmd_start_stop_daq_list">define SYN_XCP_CMD_START_STOP_DAQ_LIST<a class="headerlink" href="#define-syn_xcp_cmd_start_stop_daq_list" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="cp">#define SYN_XCP_CMD_START_STOP_DAQ_LIST `0xDEU`</span>
+</code></pre></div>
+<p>Start/stop single DAQ list </p>
+<hr>
+
+<h3 id="define-syn_xcp_cmd_start_stop_synch">define SYN_XCP_CMD_START_STOP_SYNCH<a class="headerlink" href="#define-syn_xcp_cmd_start_stop_synch" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="cp">#define SYN_XCP_CMD_START_STOP_SYNCH `0xDDU`</span>
+</code></pre></div>
+<p>Start/stop synchronous DAQ </p>
+<hr>
+
+<h3 id="define-syn_xcp_cmd_synch">define SYN_XCP_CMD_SYNCH<a class="headerlink" href="#define-syn_xcp_cmd_synch" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="cp">#define SYN_XCP_CMD_SYNCH `0xFCU`</span>
+</code></pre></div>
+<p>Synchronize command </p>
+<hr>
+
+<h3 id="define-syn_xcp_cmd_unlock">define SYN_XCP_CMD_UNLOCK<a class="headerlink" href="#define-syn_xcp_cmd_unlock" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="cp">#define SYN_XCP_CMD_UNLOCK `0xF7U`</span>
+</code></pre></div>
+<p>Unlock resource with key </p>
+<hr>
+
+<h3 id="define-syn_xcp_cmd_upload">define SYN_XCP_CMD_UPLOAD<a class="headerlink" href="#define-syn_xcp_cmd_upload" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="cp">#define SYN_XCP_CMD_UPLOAD `0xF5U`</span>
+</code></pre></div>
+<p>Upload memory block </p>
+<hr>
+
+<h3 id="define-syn_xcp_cmd_write_daq">define SYN_XCP_CMD_WRITE_DAQ<a class="headerlink" href="#define-syn_xcp_cmd_write_daq" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a><span class="cp">#define SYN_XCP_CMD_WRITE_DAQ `0xE1U`</span>
+</code></pre></div>
+<p>Write DAQ entry </p>
+<hr>
+
+<h3 id="define-syn_xcp_err_access_denied">define SYN_XCP_ERR_ACCESS_DENIED<a class="headerlink" href="#define-syn_xcp_err_access_denied" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a><span class="cp">#define SYN_XCP_ERR_ACCESS_DENIED `0x24U`</span>
+</code></pre></div>
+<p>Access denied </p>
+<hr>
+
+<h3 id="define-syn_xcp_err_cmd_syntax">define SYN_XCP_ERR_CMD_SYNTAX<a class="headerlink" href="#define-syn_xcp_err_cmd_syntax" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a><span class="cp">#define SYN_XCP_ERR_CMD_SYNTAX `0x20U`</span>
+</code></pre></div>
+<p>Command syntax error </p>
+<hr>
+
+<h3 id="define-syn_xcp_err_cmd_unknown">define SYN_XCP_ERR_CMD_UNKNOWN<a class="headerlink" href="#define-syn_xcp_err_cmd_unknown" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a><span class="cp">#define SYN_XCP_ERR_CMD_UNKNOWN `0x30U`</span>
+</code></pre></div>
+<p>Command unknown </p>
+<hr>
+
+<h3 id="define-syn_xcp_err_not_connected">define SYN_XCP_ERR_NOT_CONNECTED<a class="headerlink" href="#define-syn_xcp_err_not_connected" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a><span class="cp">#define SYN_XCP_ERR_NOT_CONNECTED `0x28U`</span>
+</code></pre></div>
+<p>Station not connected </p>
+<hr>
+
+<h3 id="define-syn_xcp_err_out_of_range">define SYN_XCP_ERR_OUT_OF_RANGE<a class="headerlink" href="#define-syn_xcp_err_out_of_range" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a><span class="cp">#define SYN_XCP_ERR_OUT_OF_RANGE `0x22U`</span>
+</code></pre></div>
+<p>Parameter out of range </p>
+<hr>
+
+<h3 id="define-syn_xcp_err_success">define SYN_XCP_ERR_SUCCESS<a class="headerlink" href="#define-syn_xcp_err_success" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a><span class="cp">#define SYN_XCP_ERR_SUCCESS `0x00U`</span>
+</code></pre></div>
+<p>Action succeeded </p>
+<hr>
+
+<h3 id="define-syn_xcp_err_write_protected">define SYN_XCP_ERR_WRITE_PROTECTED<a class="headerlink" href="#define-syn_xcp_err_write_protected" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-29-1" name="__codelineno-29-1" href="#__codelineno-29-1"></a><span class="cp">#define SYN_XCP_ERR_WRITE_PROTECTED `0x23U`</span>
+</code></pre></div>
+<p>Memory write protected </p>
+<hr>
+
+<h3 id="define-syn_xcp_max_daq_lists">define SYN_XCP_MAX_DAQ_LISTS<a class="headerlink" href="#define-syn_xcp_max_daq_lists" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-30-1" name="__codelineno-30-1" href="#__codelineno-30-1"></a><span class="cp">#define SYN_XCP_MAX_DAQ_LISTS `4U`</span>
+</code></pre></div>
+<p>Maximum DAQ list count </p>
+<hr>
+
+<h3 id="define-syn_xcp_max_entries_per_odt">define SYN_XCP_MAX_ENTRIES_PER_ODT<a class="headerlink" href="#define-syn_xcp_max_entries_per_odt" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-31-1" name="__codelineno-31-1" href="#__codelineno-31-1"></a><span class="cp">#define SYN_XCP_MAX_ENTRIES_PER_ODT `7U`</span>
+</code></pre></div>
+<p>Maximum entries per ODT </p>
+<hr>
+
+<h3 id="define-syn_xcp_max_odt_per_daq">define SYN_XCP_MAX_ODT_PER_DAQ<a class="headerlink" href="#define-syn_xcp_max_odt_per_daq" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-32-1" name="__codelineno-32-1" href="#__codelineno-32-1"></a><span class="cp">#define SYN_XCP_MAX_ODT_PER_DAQ `8U`</span>
+</code></pre></div>
+<p>Maximum ODTs per DAQ list </p>
+<hr>
+
+<h3 id="define-syn_xcp_pid_err">define SYN_XCP_PID_ERR<a class="headerlink" href="#define-syn_xcp_pid_err" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-33-1" name="__codelineno-33-1" href="#__codelineno-33-1"></a><span class="cp">#define SYN_XCP_PID_ERR `0xFEU`</span>
+</code></pre></div>
+<p>Error packet </p>
+<hr>
+
+<h3 id="define-syn_xcp_pid_ev">define SYN_XCP_PID_EV<a class="headerlink" href="#define-syn_xcp_pid_ev" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-34-1" name="__codelineno-34-1" href="#__codelineno-34-1"></a><span class="cp">#define SYN_XCP_PID_EV `0xFDU`</span>
+</code></pre></div>
+<p>Event packet </p>
+<hr>
+
+<h3 id="define-syn_xcp_pid_res">define SYN_XCP_PID_RES<a class="headerlink" href="#define-syn_xcp_pid_res" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-35-1" name="__codelineno-35-1" href="#__codelineno-35-1"></a><span class="cp">#define SYN_XCP_PID_RES `0xFFU`</span>
+</code></pre></div>
+<p>Response packet </p>
+<hr>
+
+<h3 id="define-syn_xcp_pid_serv">define SYN_XCP_PID_SERV<a class="headerlink" href="#define-syn_xcp_pid_serv" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-36-1" name="__codelineno-36-1" href="#__codelineno-36-1"></a><span class="cp">#define SYN_XCP_PID_SERV `0xFCU`</span>
+</code></pre></div>
+<p>Service packet </p>
+<hr>
+
+<h3 id="define-syn_xcp_resource_cal_pag">define SYN_XCP_RESOURCE_CAL_PAG<a class="headerlink" href="#define-syn_xcp_resource_cal_pag" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-37-1" name="__codelineno-37-1" href="#__codelineno-37-1"></a><span class="cp">#define SYN_XCP_RESOURCE_CAL_PAG `0x01U`</span>
+</code></pre></div>
+<p>Calibration/paging resource mask </p>
+<hr>
+
+<h3 id="define-syn_xcp_resource_daq">define SYN_XCP_RESOURCE_DAQ<a class="headerlink" href="#define-syn_xcp_resource_daq" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-38-1" name="__codelineno-38-1" href="#__codelineno-38-1"></a><span class="cp">#define SYN_XCP_RESOURCE_DAQ `0x04U`</span>
+</code></pre></div>
+<p>Data acquisition resource mask </p>
+<hr>
+
+<h3 id="define-syn_xcp_resource_pgm">define SYN_XCP_RESOURCE_PGM<a class="headerlink" href="#define-syn_xcp_resource_pgm" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-39-1" name="__codelineno-39-1" href="#__codelineno-39-1"></a><span class="cp">#define SYN_XCP_RESOURCE_PGM `0x10U`</span>
+</code></pre></div>
+<p>Flash programming resource mask </p>
+<hr>
+
+<h3 id="define-syn_xcp_resource_stim">define SYN_XCP_RESOURCE_STIM<a class="headerlink" href="#define-syn_xcp_resource_stim" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-40-1" name="__codelineno-40-1" href="#__codelineno-40-1"></a><span class="cp">#define SYN_XCP_RESOURCE_STIM `0x08U`</span>
+</code></pre></div>
+<p>Data stimulation resource mask </p>
+<hr>
+
+<hr />
+<p>The documentation for this class was generated from the following file <code>src/syntropic/proto/syn_xcp.h</code></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.expand", "navigation.top", "search.highlight", "content.code.copy", "content.code.annotate"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>

@@ -1,0 +1,697 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__dma_8h" kind="file" language="C++">
+    <compoundname>syn_dma.h</compoundname>
+    <includes refid="syn__defs_8h" local="yes">../common/syn_defs.h</includes>
+    <includes refid="syn__port__dma_8h" local="yes">../port/syn_port_dma.h</includes>
+    <includes local="no">stdbool.h</includes>
+    <includes local="no">stddef.h</includes>
+    <includes local="no">stdint.h</includes>
+    <includedby refid="syn__dma_8c" local="yes">src/syntropic/drivers/syn_dma.c</includedby>
+    <includedby refid="syntropic_8h" local="yes">src/syntropic/syntropic.h</includedby>
+    <incdepgraph>
+      <node id="2">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/drivers/syn_dma.h</label>
+        <link refid="syn__dma_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>../port/syn_port_dma.h</label>
+        <link refid="syn__port__dma_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>stdbool.h</label>
+      </node>
+      <node id="3">
+        <label>stddef.h</label>
+      </node>
+      <node id="4">
+        <label>stdint.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="2">
+        <label>src/syntropic/drivers/syn_dma.c</label>
+        <link refid="syn__dma_8c"/>
+      </node>
+      <node id="1">
+        <label>src/syntropic/drivers/syn_dma.h</label>
+        <link refid="syn__dma_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>src/syntropic/proto/syn_doip.c</label>
+        <link refid="syn__doip_8c"/>
+      </node>
+      <node id="4">
+        <label>src/syntropic/proto/syn_doip.h</label>
+        <link refid="syn__doip_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>src/syntropic/syntropic.h</label>
+        <link refid="syntropic_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="structSYN__DMA__Config" prot="public">SYN_DMA_Config</innerclass>
+    <innerclass refid="structSYN__DMA" prot="public">SYN_DMA</innerclass>
+    <innerclass refid="structSYN__DMA__RingBuf" prot="public">SYN_DMA_RingBuf</innerclass>
+    <sectiondef kind="enum">
+      <memberdef kind="enum" id="syn__dma_8h_1aedebbf31c765b6f15c7c26aadc602775" prot="public" static="no" strong="no">
+        <type></type>
+        <name>SYN_DMA_State</name>
+        <enumvalue id="syn__dma_8h_1aedebbf31c765b6f15c7c26aadc602775a560ad21e99c4ec68865ccc7f50c98f46" prot="public">
+          <name>SYN_DMA_STATE_IDLE</name>
+          <initializer>= 0</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Channel ready for transfer </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__dma_8h_1aedebbf31c765b6f15c7c26aadc602775ab2251e581715458cab28556d043bcaee" prot="public">
+          <name>SYN_DMA_STATE_BUSY</name>
+          <initializer>= 1</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Transfer actively running </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__dma_8h_1aedebbf31c765b6f15c7c26aadc602775a9152375486c8201155fd154fd208fec0" prot="public">
+          <name>SYN_DMA_STATE_COMPLETE</name>
+          <initializer>= 2</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Last transfer finished </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__dma_8h_1aedebbf31c765b6f15c7c26aadc602775a9e4f64c4ff4f6fa3a34326cbbd652cc1" prot="public">
+          <name>SYN_DMA_STATE_ERROR</name>
+          <initializer>= 3</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Transfer error occurred </para>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>DMA channel execution state. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_dma.h" line="25" column="1" bodyfile="src/syntropic/drivers/syn_dma.h" bodystart="25" bodyend="30"/>
+      </memberdef>
+      <memberdef kind="enum" id="syn__dma_8h_1ac0d2c364f46900bbf582bfaae341ac66" prot="public" static="no" strong="no">
+        <type></type>
+        <name>SYN_DMA_Event</name>
+        <enumvalue id="syn__dma_8h_1ac0d2c364f46900bbf582bfaae341ac66a49ef3e1d874877cbc73dd6ab9d141d38" prot="public">
+          <name>SYN_DMA_EVENT_HALF_COMPLETE</name>
+          <initializer>= 0x01</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Half transfer completed </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__dma_8h_1ac0d2c364f46900bbf582bfaae341ac66ac3611d02f53b3602a6b5871d504f3cf1" prot="public">
+          <name>SYN_DMA_EVENT_COMPLETE</name>
+          <initializer>= 0x02</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Full transfer completed </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__dma_8h_1ac0d2c364f46900bbf582bfaae341ac66a1ad8d470a153363c87e679e5d13facf1" prot="public">
+          <name>SYN_DMA_EVENT_ERROR</name>
+          <initializer>= 0x04</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Hardware bus or transfer error </para>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>DMA ISR event flags. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_dma.h" line="33" column="1" bodyfile="src/syntropic/drivers/syn_dma.h" bodystart="33" bodyend="37"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="typedef">
+      <memberdef kind="typedef" id="syn__dma_8h_1ac55a08818ca750da76dd91a89afb2b01" prot="public" static="no">
+        <type>void(*</type>
+        <definition>typedef void(* SYN_DMA_Callback) (struct SYN_DMA *dma, SYN_DMA_Event event, void *user_ctx)</definition>
+        <argsstring>)(struct SYN_DMA *dma, SYN_DMA_Event event, void *user_ctx)</argsstring>
+        <name>SYN_DMA_Callback</name>
+        <briefdescription>
+<para>Callback for DMA transfer events. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_dma.h" line="42" column="9" bodyfile="src/syntropic/drivers/syn_dma.h" bodystart="42" bodyend="-1"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__dma_8h_1a649e44711fd794ab1f28362d1164f2cc" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_dma_init</definition>
+        <argsstring>(SYN_DMA *dma, const SYN_DMA_Config *cfg)</argsstring>
+        <name>syn_dma_init</name>
+        <param>
+          <type><ref refid="structSYN__DMA" kindref="compound">SYN_DMA</ref> *</type>
+          <declname>dma</declname>
+        </param>
+        <param>
+          <type>const <ref refid="structSYN__DMA__Config" kindref="compound">SYN_DMA_Config</ref> *</type>
+          <declname>cfg</declname>
+        </param>
+        <briefdescription>
+<para>Initialize a DMA channel object. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>dma</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to DMA instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>cfg</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Configuration structure. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, or SYN_INVALID_PARAM if dma/cfg is NULL. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_dma.h" line="76" column="12" bodyfile="src/syntropic/drivers/syn_dma.c" bodystart="13" bodyend="29" declfile="src/syntropic/drivers/syn_dma.h" declline="76" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__dma_8h_1ad161eca6e1cc697a55f70939869c5857" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_dma_start</definition>
+        <argsstring>(SYN_DMA *dma, const void *src, void *dst, size_t count)</argsstring>
+        <name>syn_dma_start</name>
+        <param>
+          <type><ref refid="structSYN__DMA" kindref="compound">SYN_DMA</ref> *</type>
+          <declname>dma</declname>
+        </param>
+        <param>
+          <type>const void *</type>
+          <declname>src</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>dst</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>count</declname>
+        </param>
+        <briefdescription>
+<para>Submit and trigger a DMA transfer. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Verifies address alignment against data element size (8/16/32-bit), cleans D-cache for source region, invalidates D-cache for destination region, and launches hardware transfer.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>dma</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to initialized DMA channel instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>src</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Source buffer address. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dst</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Destination buffer address. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>count</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of elements to transfer (must be &gt; 0). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+<simplesect kind="return"><para>SYN_INVALID_PARAM if buffer address is unaligned to data_size or parameters invalid. </para>
+</simplesect>
+<simplesect kind="return"><para>SYN_BUSY if channel is actively transferring. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_dma.h" line="93" column="12" bodyfile="src/syntropic/drivers/syn_dma.c" bodystart="31" bodyend="82" declfile="src/syntropic/drivers/syn_dma.h" declline="93" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__dma_8h_1ab1793ff01b2e2ccdaebe1c1a096aa093" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_dma_stop</definition>
+        <argsstring>(SYN_DMA *dma)</argsstring>
+        <name>syn_dma_stop</name>
+        <param>
+          <type><ref refid="structSYN__DMA" kindref="compound">SYN_DMA</ref> *</type>
+          <declname>dma</declname>
+        </param>
+        <briefdescription>
+<para>Stop/abort an active DMA transfer. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>dma</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to DMA channel. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_dma.h" line="100" column="12" bodyfile="src/syntropic/drivers/syn_dma.c" bodystart="84" bodyend="92" declfile="src/syntropic/drivers/syn_dma.h" declline="100" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__dma_8h_1abe88336e6845dbfbf4d299bdd58e2ca3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__dma_8h_1aedebbf31c765b6f15c7c26aadc602775" kindref="member">SYN_DMA_State</ref></type>
+        <definition>SYN_DMA_State syn_dma_get_state</definition>
+        <argsstring>(const SYN_DMA *dma)</argsstring>
+        <name>syn_dma_get_state</name>
+        <param>
+          <type>const <ref refid="structSYN__DMA" kindref="compound">SYN_DMA</ref> *</type>
+          <declname>dma</declname>
+        </param>
+        <briefdescription>
+<para>Get current state of DMA channel. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>dma</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to DMA channel. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Current SYN_DMA_State. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_dma.h" line="107" column="15" bodyfile="src/syntropic/drivers/syn_dma.c" bodystart="94" bodyend="99" declfile="src/syntropic/drivers/syn_dma.h" declline="107" declcolumn="15"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__dma_8h_1a1f64ef54e99d034597f884267d673ba7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_dma_isr_handler</definition>
+        <argsstring>(SYN_DMA *dma, SYN_DMA_Event event)</argsstring>
+        <name>syn_dma_isr_handler</name>
+        <param>
+          <type><ref refid="structSYN__DMA" kindref="compound">SYN_DMA</ref> *</type>
+          <declname>dma</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__dma_8h_1ac0d2c364f46900bbf582bfaae341ac66" kindref="member">SYN_DMA_Event</ref></type>
+          <declname>event</declname>
+        </param>
+        <briefdescription>
+<para>Hardware ISR event handler entry point. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Call this function from the MCU hardware DMA interrupt handler when a channel fires a half-transfer, complete, or error interrupt.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>dma</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to DMA channel. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>event</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Event bitmask (SYN_DMA_EVENT_*). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_dma.h" line="118" column="6" bodyfile="src/syntropic/drivers/syn_dma.c" bodystart="101" bodyend="122" declfile="src/syntropic/drivers/syn_dma.h" declline="118" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__dma_8h_1ac1b1c96e402b57bf59842dd985010fb0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_dma_ringbuf_init</definition>
+        <argsstring>(SYN_DMA_RingBuf *r, SYN_DMA *dma, uint8_t *buf, size_t capacity)</argsstring>
+        <name>syn_dma_ringbuf_init</name>
+        <param>
+          <type><ref refid="structSYN__DMA__RingBuf" kindref="compound">SYN_DMA_RingBuf</ref> *</type>
+          <declname>r</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__DMA" kindref="compound">SYN_DMA</ref> *</type>
+          <declname>dma</declname>
+        </param>
+        <param>
+          <type>uint8_t *</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>capacity</declname>
+        </param>
+        <briefdescription>
+<para>Initialize a circular DMA ring buffer receiver. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>r</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Ring buffer instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dma</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Initialized DMA channel instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Reception buffer (aligned to dma data size). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>capacity</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Buffer capacity in bytes. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_dma.h" line="140" column="12" bodyfile="src/syntropic/drivers/syn_dma.c" bodystart="126" bodyend="139" declfile="src/syntropic/drivers/syn_dma.h" declline="140" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__dma_8h_1aa732a16e7ef99c89363c91c606feb117" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_dma_ringbuf_start</definition>
+        <argsstring>(SYN_DMA_RingBuf *r, const void *periph_src)</argsstring>
+        <name>syn_dma_ringbuf_start</name>
+        <param>
+          <type><ref refid="structSYN__DMA__RingBuf" kindref="compound">SYN_DMA_RingBuf</ref> *</type>
+          <declname>r</declname>
+        </param>
+        <param>
+          <type>const void *</type>
+          <declname>periph_src</declname>
+        </param>
+        <briefdescription>
+<para>Start continuous circular DMA stream reception. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>r</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Ring buffer instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>periph_src</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Peripheral data register source address. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_dma.h" line="148" column="12" bodyfile="src/syntropic/drivers/syn_dma.c" bodystart="141" bodyend="149" declfile="src/syntropic/drivers/syn_dma.h" declline="148" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__dma_8h_1a4268dd2b3018595ed63edff45a1051ef" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>size_t</type>
+        <definition>size_t syn_dma_ringbuf_bytes_available</definition>
+        <argsstring>(const SYN_DMA_RingBuf *r)</argsstring>
+        <name>syn_dma_ringbuf_bytes_available</name>
+        <param>
+          <type>const <ref refid="structSYN__DMA__RingBuf" kindref="compound">SYN_DMA_RingBuf</ref> *</type>
+          <declname>r</declname>
+        </param>
+        <briefdescription>
+<para>Get total bytes available to read from the circular DMA stream. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>r</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Ring buffer instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Number of unread bytes. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_dma.h" line="155" column="8" bodyfile="src/syntropic/drivers/syn_dma.c" bodystart="151" bodyend="166" declfile="src/syntropic/drivers/syn_dma.h" declline="155" declcolumn="8"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__dma_8h_1abf10fcd89e17d60eb25a2e6bb8f73cdb" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>size_t</type>
+        <definition>size_t syn_dma_ringbuf_read</definition>
+        <argsstring>(SYN_DMA_RingBuf *r, uint8_t *dest, size_t len)</argsstring>
+        <name>syn_dma_ringbuf_read</name>
+        <param>
+          <type><ref refid="structSYN__DMA__RingBuf" kindref="compound">SYN_DMA_RingBuf</ref> *</type>
+          <declname>r</declname>
+        </param>
+        <param>
+          <type>uint8_t *</type>
+          <declname>dest</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>len</declname>
+        </param>
+        <briefdescription>
+<para>Read bytes from the circular DMA reception buffer into destination. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>r</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Ring buffer instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dest</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output data buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Maximum bytes to read. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Actual bytes read. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_dma.h" line="164" column="8" bodyfile="src/syntropic/drivers/syn_dma.c" bodystart="168" bodyend="196" declfile="src/syntropic/drivers/syn_dma.h" declline="164" declcolumn="8"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Bare-Metal Safe DMA Transaction Engine. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Provides safe DMA transaction submission with memory alignment verification, data cache maintenance, re-entrancy locking, and ISR event callbacks. </para>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_DMA_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_DMA_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../common/syn_defs.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../port/syn_port_dma.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stddef.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight></codeline>
+<codeline lineno="25" refid="syn__dma_8h_1aedebbf31c765b6f15c7c26aadc602775" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="26" refid="syn__dma_8h_1aedebbf31c765b6f15c7c26aadc602775a560ad21e99c4ec68865ccc7f50c98f46" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__dma_8h_1aedebbf31c765b6f15c7c26aadc602775a560ad21e99c4ec68865ccc7f50c98f46" kindref="member">SYN_DMA_STATE_IDLE</ref><sp/>=<sp/>0,<sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="27" refid="syn__dma_8h_1aedebbf31c765b6f15c7c26aadc602775ab2251e581715458cab28556d043bcaee" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__dma_8h_1aedebbf31c765b6f15c7c26aadc602775ab2251e581715458cab28556d043bcaee" kindref="member">SYN_DMA_STATE_BUSY</ref><sp/>=<sp/>1,<sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="28" refid="syn__dma_8h_1aedebbf31c765b6f15c7c26aadc602775a9152375486c8201155fd154fd208fec0" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__dma_8h_1aedebbf31c765b6f15c7c26aadc602775a9152375486c8201155fd154fd208fec0" kindref="member">SYN_DMA_STATE_COMPLETE</ref><sp/>=<sp/>2,<sp/></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__dma_8h_1aedebbf31c765b6f15c7c26aadc602775a9e4f64c4ff4f6fa3a34326cbbd652cc1" kindref="member">SYN_DMA_STATE_ERROR</ref><sp/>=<sp/>3<sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="30" refid="syn__dma_8h_1aedebbf31c765b6f15c7c26aadc602775a9e4f64c4ff4f6fa3a34326cbbd652cc1" refkind="member"><highlight class="normal">}<sp/><ref refid="syn__dma_8h_1aedebbf31c765b6f15c7c26aadc602775" kindref="member">SYN_DMA_State</ref>;</highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight></codeline>
+<codeline lineno="33" refid="syn__dma_8h_1ac0d2c364f46900bbf582bfaae341ac66" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="34" refid="syn__dma_8h_1ac0d2c364f46900bbf582bfaae341ac66a49ef3e1d874877cbc73dd6ab9d141d38" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__dma_8h_1ac0d2c364f46900bbf582bfaae341ac66a49ef3e1d874877cbc73dd6ab9d141d38" kindref="member">SYN_DMA_EVENT_HALF_COMPLETE</ref><sp/>=<sp/>0x01,<sp/></highlight></codeline>
+<codeline lineno="35" refid="syn__dma_8h_1ac0d2c364f46900bbf582bfaae341ac66ac3611d02f53b3602a6b5871d504f3cf1" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__dma_8h_1ac0d2c364f46900bbf582bfaae341ac66ac3611d02f53b3602a6b5871d504f3cf1" kindref="member">SYN_DMA_EVENT_COMPLETE</ref><sp/>=<sp/>0x02,<sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__dma_8h_1ac0d2c364f46900bbf582bfaae341ac66a1ad8d470a153363c87e679e5d13facf1" kindref="member">SYN_DMA_EVENT_ERROR</ref><sp/>=<sp/>0x04<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="37" refid="syn__dma_8h_1ac0d2c364f46900bbf582bfaae341ac66a1ad8d470a153363c87e679e5d13facf1" refkind="member"><highlight class="normal">}<sp/><ref refid="syn__dma_8h_1ac0d2c364f46900bbf582bfaae341ac66" kindref="member">SYN_DMA_Event</ref>;</highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structSYN__DMA" kindref="compound">SYN_DMA</ref>;</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight></codeline>
+<codeline lineno="42" refid="syn__dma_8h_1ac55a08818ca750da76dd91a89afb2b01" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>void<sp/>(*<ref refid="syn__dma_8h_1ac55a08818ca750da76dd91a89afb2b01" kindref="member">SYN_DMA_Callback</ref>)(</highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structSYN__DMA" kindref="compound">SYN_DMA</ref><sp/>*dma,<sp/><ref refid="syn__dma_8h_1ac0d2c364f46900bbf582bfaae341ac66" kindref="member">SYN_DMA_Event</ref><sp/>event,<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*user_ctx);</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight></codeline>
+<codeline lineno="47" refid="structSYN__DMA__Config" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="48" refid="structSYN__DMA__Config_1a387ab8eea7220c421afe118f057687e4" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><ref refid="structSYN__DMA__Config_1a387ab8eea7220c421afe118f057687e4" kindref="member">channel_id</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="49" refid="structSYN__DMA__Config_1afc21da3e3b1db9a792da8d7f23225fc9" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__port__dma_8h_1add1ff1dd94c21cba51ce064723cb64cd" kindref="member">SYN_DMA_Direction</ref><sp/><ref refid="structSYN__DMA__Config_1afc21da3e3b1db9a792da8d7f23225fc9" kindref="member">dir</ref>;<sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="50" refid="structSYN__DMA__Config_1aea200b013f9bed546b84cd55feefe3e4" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__port__dma_8h_1a0395007d01bc3ebe174bd1ea8ce77a52" kindref="member">SYN_DMA_Size</ref><sp/><ref refid="structSYN__DMA__Config_1aea200b013f9bed546b84cd55feefe3e4" kindref="member">data_size</ref>;<sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="51" refid="structSYN__DMA__Config_1a976138ee1645a03a8b1d2a9d7ce24374" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="structSYN__DMA__Config_1a976138ee1645a03a8b1d2a9d7ce24374" kindref="member">src_inc</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="52" refid="structSYN__DMA__Config_1a9b82da0fc34fc7bc5eddfc17a88627fd" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="structSYN__DMA__Config_1a9b82da0fc34fc7bc5eddfc17a88627fd" kindref="member">dst_inc</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="53" refid="structSYN__DMA__Config_1ad3a28d83cd432d393ba1773ddfddf085" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__dma_8h_1ac55a08818ca750da76dd91a89afb2b01" kindref="member">SYN_DMA_Callback</ref><sp/><ref refid="structSYN__DMA__Config_1ad3a28d83cd432d393ba1773ddfddf085" kindref="member">callback</ref>;<sp/></highlight></codeline>
+<codeline lineno="54" refid="structSYN__DMA__Config_1ac1ecd7fb21ed36a2593b91782b0f0d7b" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*<ref refid="structSYN__DMA__Config_1ac1ecd7fb21ed36a2593b91782b0f0d7b" kindref="member">user_ctx</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="55"><highlight class="normal">}<sp/><ref refid="structSYN__DMA__Config" kindref="compound">SYN_DMA_Config</ref>;</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"></highlight></codeline>
+<codeline lineno="60" refid="structSYN__DMA" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structSYN__DMA" kindref="compound">SYN_DMA</ref><sp/>{</highlight></codeline>
+<codeline lineno="61" refid="structSYN__DMA_1a4285a97a648054fd1a8f254cc43685e1" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structSYN__DMA__Config" kindref="compound">SYN_DMA_Config</ref><sp/><ref refid="structSYN__DMA_1a4285a97a648054fd1a8f254cc43685e1" kindref="member">cfg</ref>;<sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="62" refid="structSYN__DMA_1a59e5c9122d731809d6cc145f1a3caccc" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__dma_8h_1aedebbf31c765b6f15c7c26aadc602775" kindref="member">SYN_DMA_State</ref><sp/><ref refid="structSYN__DMA_1a59e5c9122d731809d6cc145f1a3caccc" kindref="member">state</ref>;<sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="63" refid="structSYN__DMA_1ad7ff6ca49c2025ad3c9ab5e5c8706c60" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*<ref refid="structSYN__DMA_1ad7ff6ca49c2025ad3c9ab5e5c8706c60" kindref="member">current_src</ref>;<sp/></highlight></codeline>
+<codeline lineno="64" refid="structSYN__DMA_1a5d8e4eca544e5d2bd4d994c7ef4831fb" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*<ref refid="structSYN__DMA_1a5d8e4eca544e5d2bd4d994c7ef4831fb" kindref="member">current_dst</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="65" refid="structSYN__DMA_1aa6872cab37160720686ad38f0c11bc22" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="structSYN__DMA_1aa6872cab37160720686ad38f0c11bc22" kindref="member">current_len</ref>;<sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="66" refid="structSYN__DMA_1ab0d9d6c338b0c3376376818ca3f928bf" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structSYN__DMA_1ab0d9d6c338b0c3376376818ca3f928bf" kindref="member">transfers_cnt</ref>;<sp/><sp/></highlight></codeline>
+<codeline lineno="67" refid="structSYN__DMA_1a17bf6a2ea61765345be12b414d014183" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structSYN__DMA_1a17bf6a2ea61765345be12b414d014183" kindref="member">errors_cnt</ref>;<sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="68"><highlight class="normal">}<sp/><ref refid="structSYN__DMA" kindref="compound">SYN_DMA</ref>;</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"></highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__dma_8h_1a649e44711fd794ab1f28362d1164f2cc" kindref="member">syn_dma_init</ref>(<ref refid="structSYN__DMA" kindref="compound">SYN_DMA</ref><sp/>*dma,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__DMA__Config" kindref="compound">SYN_DMA_Config</ref><sp/>*cfg);</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"></highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__dma_8h_1ad161eca6e1cc697a55f70939869c5857" kindref="member">syn_dma_start</ref>(<ref refid="structSYN__DMA" kindref="compound">SYN_DMA</ref><sp/>*dma,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*src,<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*dst,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>count);</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"></highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__dma_8h_1ab1793ff01b2e2ccdaebe1c1a096aa093" kindref="member">syn_dma_stop</ref>(<ref refid="structSYN__DMA" kindref="compound">SYN_DMA</ref><sp/>*dma);</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"></highlight></codeline>
+<codeline lineno="107"><highlight class="normal"><ref refid="syn__dma_8h_1aedebbf31c765b6f15c7c26aadc602775" kindref="member">SYN_DMA_State</ref><sp/><ref refid="syn__dma_8h_1abe88336e6845dbfbf4d299bdd58e2ca3" kindref="member">syn_dma_get_state</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__DMA" kindref="compound">SYN_DMA</ref><sp/>*dma);</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"></highlight></codeline>
+<codeline lineno="118"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__dma_8h_1a1f64ef54e99d034597f884267d673ba7" kindref="member">syn_dma_isr_handler</ref>(<ref refid="structSYN__DMA" kindref="compound">SYN_DMA</ref><sp/>*dma,<sp/><ref refid="syn__dma_8h_1ac0d2c364f46900bbf582bfaae341ac66" kindref="member">SYN_DMA_Event</ref><sp/>event);</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"></highlight></codeline>
+<codeline lineno="120"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Circular<sp/>DMA<sp/>Ring<sp/>Buffer<sp/>Stream<sp/>Receiver<sp/>──────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="121"><highlight class="normal"></highlight></codeline>
+<codeline lineno="125" refid="structSYN__DMA__RingBuf" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="126" refid="structSYN__DMA__RingBuf_1a5805785974e327fc092966ea02b90f9a" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structSYN__DMA" kindref="compound">SYN_DMA</ref><sp/>*<ref refid="structSYN__DMA__RingBuf_1a5805785974e327fc092966ea02b90f9a" kindref="member">dma</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="127" refid="structSYN__DMA__RingBuf_1a9110f883cba842ad1748d6bce73716f0" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>*<ref refid="structSYN__DMA__RingBuf_1a9110f883cba842ad1748d6bce73716f0" kindref="member">buf</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="128" refid="structSYN__DMA__RingBuf_1ab4acd364f370bb953a56143dce8c64ba" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="structSYN__DMA__RingBuf_1ab4acd364f370bb953a56143dce8c64ba" kindref="member">capacity</ref>;<sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="129" refid="structSYN__DMA__RingBuf_1aa93160385476f84b840228e98b5e7a43" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">volatile</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="structSYN__DMA__RingBuf_1aa93160385476f84b840228e98b5e7a43" kindref="member">tail</ref>;<sp/></highlight></codeline>
+<codeline lineno="130"><highlight class="normal">}<sp/><ref refid="structSYN__DMA__RingBuf" kindref="compound">SYN_DMA_RingBuf</ref>;</highlight></codeline>
+<codeline lineno="131"><highlight class="normal"></highlight></codeline>
+<codeline lineno="140"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__dma_8h_1ac1b1c96e402b57bf59842dd985010fb0" kindref="member">syn_dma_ringbuf_init</ref>(<ref refid="structSYN__DMA__RingBuf" kindref="compound">SYN_DMA_RingBuf</ref><sp/>*r,<sp/><ref refid="structSYN__DMA" kindref="compound">SYN_DMA</ref><sp/>*dma,<sp/>uint8_t<sp/>*buf,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>capacity);</highlight></codeline>
+<codeline lineno="141"><highlight class="normal"></highlight></codeline>
+<codeline lineno="148"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__dma_8h_1aa732a16e7ef99c89363c91c606feb117" kindref="member">syn_dma_ringbuf_start</ref>(<ref refid="structSYN__DMA__RingBuf" kindref="compound">SYN_DMA_RingBuf</ref><sp/>*r,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*periph_src);</highlight></codeline>
+<codeline lineno="149"><highlight class="normal"></highlight></codeline>
+<codeline lineno="155"><highlight class="normal"></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="syn__dma_8h_1a4268dd2b3018595ed63edff45a1051ef" kindref="member">syn_dma_ringbuf_bytes_available</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__DMA__RingBuf" kindref="compound">SYN_DMA_RingBuf</ref><sp/>*r);</highlight></codeline>
+<codeline lineno="156"><highlight class="normal"></highlight></codeline>
+<codeline lineno="164"><highlight class="normal"></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="syn__dma_8h_1abf10fcd89e17d60eb25a2e6bb8f73cdb" kindref="member">syn_dma_ringbuf_read</ref>(<ref refid="structSYN__DMA__RingBuf" kindref="compound">SYN_DMA_RingBuf</ref><sp/>*r,<sp/>uint8_t<sp/>*dest,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>len);</highlight></codeline>
+<codeline lineno="165"><highlight class="normal"></highlight></codeline>
+<codeline lineno="166"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="167"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="168"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="169"><highlight class="normal"></highlight></codeline>
+<codeline lineno="170"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_DMA_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/drivers/syn_dma.h"/>
+  </compounddef>
+</doxygen>

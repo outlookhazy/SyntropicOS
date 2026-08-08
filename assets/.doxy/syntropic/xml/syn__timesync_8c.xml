@@ -1,0 +1,513 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__timesync_8c" kind="file" language="C++">
+    <compoundname>syn_timesync.c</compoundname>
+    <includes refid="syn__assert_8h" local="yes">../util/syn_assert.h</includes>
+    <includes refid="syn__timesync_8h" local="yes">syn_timesync.h</includes>
+    <includes local="no">stdlib.h</includes>
+    <includes local="no">string.h</includes>
+    <incdepgraph>
+      <node id="3">
+        <label>../common/syn_compiler.h</label>
+        <link refid="syn__compiler_8h"/>
+      </node>
+      <node id="5">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>syn_hpclock.h</label>
+        <link refid="syn__hpclock_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/drivers/syn_timesync.c</label>
+        <link refid="syn__timesync_8c"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>syn_timesync.h</label>
+        <link refid="syn__timesync_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="9">
+        <label>../port/syn_port_hpclock.h</label>
+        <link refid="syn__port__hpclock_8h"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>../util/syn_assert.h</label>
+        <link refid="syn__assert_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="10">
+        <label>stdbool.h</label>
+      </node>
+      <node id="6">
+        <label>stddef.h</label>
+      </node>
+      <node id="7">
+        <label>stdint.h</label>
+      </node>
+      <node id="11">
+        <label>stdlib.h</label>
+      </node>
+      <node id="12">
+        <label>string.h</label>
+      </node>
+    </incdepgraph>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__timesync_8c_1aded5f7eae02fa5fe187553823751b931" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_timesync_init</definition>
+        <argsstring>(SYN_TimeSync *tsync)</argsstring>
+        <name>syn_timesync_init</name>
+        <param>
+          <type><ref refid="structSYN__TimeSync" kindref="compound">SYN_TimeSync</ref> *</type>
+          <declname>tsync</declname>
+        </param>
+        <briefdescription>
+<para>Initialize a time discipline context. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Sets default jitter (50 ns) and max holdover (60 s). If hardware RTC is enabled (<computeroutput>SYN_USE_RTC</computeroutput>), checks if the RTC is valid.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>tsync</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Context to initialize. Must not be NULL. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_timesync.c" line="20" column="6" bodyfile="src/syntropic/drivers/syn_timesync.c" bodystart="20" bodyend="38"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__timesync_8c_1a1142f6f889d348c69c661545474c7cef" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_timesync_bind_pps</definition>
+        <argsstring>(SYN_TimeSync *tsync, const SYN_HPTimestamp *pps_ts, uint64_t utc_sec)</argsstring>
+        <name>syn_timesync_bind_pps</name>
+        <param>
+          <type><ref refid="structSYN__TimeSync" kindref="compound">SYN_TimeSync</ref> *</type>
+          <declname>tsync</declname>
+        </param>
+        <param>
+          <type>const <ref refid="structSYN__HPTimestamp" kindref="compound">SYN_HPTimestamp</ref> *</type>
+          <declname>pps_ts</declname>
+        </param>
+        <param>
+          <type>uint64_t</type>
+          <declname>utc_sec</declname>
+        </param>
+        <briefdescription>
+<para>Bind a captured PPS timestamp to its corresponding UTC second. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Call this when an asynchronous epoch time sentence (e.g. NMEA $GPZDA) is received, pairing the integer UTC second with the PPS timestamp captured at the top of that second.</para>
+<para>Measures crystal drift PPM against nominal <ref refid="syn__port__hpclock_8h_1a82fc473fd84d3ba05fe524d8b0cbba96" kindref="member">syn_port_hpclock_freq_hz()</ref>.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>tsync</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>TimeSync context. Must not be NULL. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>pps_ts</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Timestamp snapshot captured by ISR at PPS rising edge. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>utc_sec</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Universal UTC epoch second corresponding to this PPS pulse. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_INVALID_PARAM if pps_ts is NULL. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_timesync.c" line="42" column="12" bodyfile="src/syntropic/drivers/syn_timesync.c" bodystart="42" bodyend="90"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__timesync_8c_1af6c84ce76c2a3f890ea00543abb6e5cc" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_timesync_resolve_utc</definition>
+        <argsstring>(const SYN_TimeSync *tsync, const SYN_HPTimestamp *event_ts, SYN_UTCTimestamp *out_utc)</argsstring>
+        <name>syn_timesync_resolve_utc</name>
+        <param>
+          <type>const <ref refid="structSYN__TimeSync" kindref="compound">SYN_TimeSync</ref> *</type>
+          <declname>tsync</declname>
+        </param>
+        <param>
+          <type>const <ref refid="structSYN__HPTimestamp" kindref="compound">SYN_HPTimestamp</ref> *</type>
+          <declname>event_ts</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__UTCTimestamp" kindref="compound">SYN_UTCTimestamp</ref> *</type>
+          <declname>out_utc</declname>
+        </param>
+        <briefdescription>
+<para>Resolve an arbitrary high-precision timestamp into UTC. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Converts a raw <ref refid="structSYN__HPTimestamp" kindref="compound">SYN_HPTimestamp</ref> (captured in an ISR or main thread) into absolute UTC time, calculating the sub-second offset, active quality tier, and linear error accumulation bound (uncertainty_ns).</para>
+<para>Handles event timestamps occurring before or after the reference PPS pulse.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>tsync</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>TimeSync context. Must not be NULL. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>event_ts</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Event timestamp to resolve. Must not be NULL. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out_utc</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output UTC timestamp. Must not be NULL. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_INVALID_PARAM if args are NULL. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_timesync.c" line="94" column="12" bodyfile="src/syntropic/drivers/syn_timesync.c" bodystart="94" bodyend="182"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__timesync_8c_1a17db8f38f5f08ca5703e4e2b2ab86a01" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint64_t</type>
+        <definition>uint64_t syn_timesync_to_epoch_ns</definition>
+        <argsstring>(const SYN_TimeSync *tsync, const SYN_HPTimestamp *event_ts)</argsstring>
+        <name>syn_timesync_to_epoch_ns</name>
+        <param>
+          <type>const <ref refid="structSYN__TimeSync" kindref="compound">SYN_TimeSync</ref> *</type>
+          <declname>tsync</declname>
+        </param>
+        <param>
+          <type>const <ref refid="structSYN__HPTimestamp" kindref="compound">SYN_HPTimestamp</ref> *</type>
+          <declname>event_ts</declname>
+        </param>
+        <briefdescription>
+<para>Helper: resolve event timestamp directly to total 64-bit UTC nanoseconds. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>tsync</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>TimeSync context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>event_ts</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Event timestamp to resolve. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Total nanoseconds since Unix epoch (1970-01-01 00:00:00 UTC). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_timesync.c" line="186" column="10" bodyfile="src/syntropic/drivers/syn_timesync.c" bodystart="186" bodyend="193"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__timesync_8c_1ad212352557ff79ae4cd30beab668d004" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_timesync_is_pps_locked</definition>
+        <argsstring>(const SYN_TimeSync *tsync)</argsstring>
+        <name>syn_timesync_is_pps_locked</name>
+        <param>
+          <type>const <ref refid="structSYN__TimeSync" kindref="compound">SYN_TimeSync</ref> *</type>
+          <declname>tsync</declname>
+        </param>
+        <briefdescription>
+<para>Check if active PPS lock is present. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>tsync</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>TimeSync context. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if PPS lock is active (received within last 1.1s). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_timesync.c" line="197" column="6" bodyfile="src/syntropic/drivers/syn_timesync.c" bodystart="197" bodyend="204"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>High-precision time discipline and clock synchronization implementation. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#if<sp/>__has_include(&quot;syn_config.h&quot;)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;syn_config.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="4"><highlight class="normal"></highlight></codeline>
+<codeline lineno="5"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>!defined(SYN_USE_TIMESYNC)<sp/>||<sp/>SYN_USE_TIMESYNC</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../util/syn_assert.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__timesync_8h" kindref="compound">syn_timesync.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdlib.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;string.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Init<sp/>─────────────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__timesync_8c_1aded5f7eae02fa5fe187553823751b931" kindref="member">syn_timesync_init</ref>(<ref refid="structSYN__TimeSync" kindref="compound">SYN_TimeSync</ref><sp/>*tsync)</highlight></codeline>
+<codeline lineno="21"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="22"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(tsync<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="23"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(tsync<sp/>==<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="24"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal">;<sp/></highlight><highlight class="comment">/*<sp/>LCOV_EXCL_LINE:<sp/>Defensive<sp/>NULL<sp/>guard<sp/>after<sp/>SYN_ASSERT<sp/>in<sp/>release<sp/>builds<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"><sp/><sp/><sp/><sp/>memset(tsync,<sp/>0,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(<ref refid="structSYN__TimeSync" kindref="compound">SYN_TimeSync</ref>));</highlight></codeline>
+<codeline lineno="28"><highlight class="normal"><sp/><sp/><sp/><sp/>tsync-&gt;<ref refid="structSYN__TimeSync_1ab1d4a217f72ffd51863d75bb413e8a55" kindref="member">base_jitter_ns</ref><sp/>=<sp/><ref refid="syn__timesync_8h_1afef52fbd448fdf0707dae6dc598754ba" kindref="member">SYN_TIMESYNC_DEFAULT_JITTER_NS</ref>;</highlight></codeline>
+<codeline lineno="29"><highlight class="normal"><sp/><sp/><sp/><sp/>tsync-&gt;<ref refid="structSYN__TimeSync_1aa40881f9f06c973c153d8c33f8d1f2e6" kindref="member">max_holdover_s</ref><sp/>=<sp/><ref refid="syn__timesync_8h_1a3e230c28408018f1b9a3f0dfdb035143" kindref="member">SYN_TIMESYNC_DEFAULT_HOLDOVER_S</ref>;</highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>SYN_TIMESYNC_HAS_RTC</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="32"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>If<sp/>hardware<sp/>RTC<sp/>is<sp/>configured<sp/>and<sp/>valid,<sp/>mark<sp/>RTC<sp/>as<sp/>available<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structSYN__RTC__DateTime" kindref="compound">SYN_RTC_DateTime</ref><sp/>dt;</highlight></codeline>
+<codeline lineno="34"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="syn__rtc_8c_1a926241f6738030cde97cf098e1a113a0" kindref="member">syn_rtc_get</ref>(&amp;dt)<sp/>==<sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref><sp/>&amp;&amp;<sp/><ref refid="syn__rtc_8c_1a152f2514a836021b32ef7351c6a7f6b8" kindref="member">syn_rtc_is_valid</ref>(&amp;dt))<sp/>{</highlight></codeline>
+<codeline lineno="35"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tsync-&gt;<ref refid="structSYN__TimeSync_1a2a13c3909b1d390b9ec7b2f3004e079a" kindref="member">rtc_synced</ref><sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="36"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Bind<sp/>PPS<sp/>─────────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__timesync_8c_1a1142f6f889d348c69c661545474c7cef" kindref="member">syn_timesync_bind_pps</ref>(<ref refid="structSYN__TimeSync" kindref="compound">SYN_TimeSync</ref><sp/>*tsync,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__HPTimestamp" kindref="compound">SYN_HPTimestamp</ref><sp/>*pps_ts,</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint64_t<sp/>utc_sec)</highlight></codeline>
+<codeline lineno="44"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(tsync<sp/>==<sp/>NULL<sp/>||<sp/>pps_ts<sp/>==<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"></highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/><sp/><sp/>uint64_t<sp/>curr_ticks<sp/>=<sp/><ref refid="syn__hpclock_8c_1a718cf3f25a151f6ce2f2688593722e3b" kindref="member">syn_hpclock_resolve</ref>(pps_ts);</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/>nominal_freq<sp/>=<sp/><ref refid="syn__port__hpclock_8h_1a82fc473fd84d3ba05fe524d8b0cbba96" kindref="member">syn_port_hpclock_freq_hz</ref>();</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"></highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(tsync-&gt;<ref refid="structSYN__TimeSync_1a60517c62c214d7d65ada4e662c283ca0" kindref="member">has_pps_lock</ref><sp/>&amp;&amp;<sp/>tsync-&gt;<ref refid="structSYN__TimeSync_1ab005226226c650d3334003b981fcfeae" kindref="member">pps_count</ref><sp/>&gt;<sp/>0<sp/>&amp;&amp;<sp/>nominal_freq<sp/>&gt;<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="54"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>Measure<sp/>actual<sp/>ticks<sp/>elapsed<sp/>between<sp/>PPS<sp/>pulses.</highlight></codeline>
+<codeline lineno="55"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>For<sp/>a<sp/>1-second<sp/>interval,<sp/>expected<sp/>ticks<sp/>=<sp/>nominal_freq.</highlight></codeline>
+<codeline lineno="56"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>Calculate<sp/>crystal<sp/>drift<sp/>PPM<sp/>=<sp/>((actual<sp/>-<sp/>expected)<sp/>*<sp/>1,000,000)<sp/>/<sp/>expected.</highlight></codeline>
+<codeline lineno="57"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint64_t<sp/>actual_ticks<sp/>=<sp/>curr_ticks<sp/>-<sp/>tsync-&gt;<ref refid="structSYN__TimeSync_1a472bb7923b11aea4c792106bf56f5e5e" kindref="member">last_pps_ticks</ref>;</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int64_t<sp/>diff_ticks<sp/>=<sp/>(int64_t)actual_ticks<sp/>-<sp/>(int64_t)nominal_freq;</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"></highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Convert<sp/>tick<sp/>difference<sp/>to<sp/>Parts-Per-Million<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="62"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int32_t<sp/>new_ppm<sp/>=<sp/>(int32_t)((diff_ticks<sp/>*<sp/>1000000LL)<sp/>/<sp/>(int64_t)nominal_freq);</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"></highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(tsync-&gt;<ref refid="structSYN__TimeSync_1ab005226226c650d3334003b981fcfeae" kindref="member">pps_count</ref><sp/>==<sp/>1<sp/>||<sp/>tsync-&gt;<ref refid="structSYN__TimeSync_1aea4870cf3e5ddd3040fb544bdcc8b1dc" kindref="member">drift_ppm</ref><sp/>==<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tsync-&gt;<ref refid="structSYN__TimeSync_1aea4870cf3e5ddd3040fb544bdcc8b1dc" kindref="member">drift_ppm</ref><sp/>=<sp/>new_ppm;</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>8-sample<sp/>Exponential<sp/>Moving<sp/>Average<sp/>(EMA)<sp/>to<sp/>smooth<sp/>out<sp/>PPS<sp/>jitter<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tsync-&gt;<ref refid="structSYN__TimeSync_1aea4870cf3e5ddd3040fb544bdcc8b1dc" kindref="member">drift_ppm</ref><sp/>=<sp/>(int32_t)(((int64_t)tsync-&gt;<ref refid="structSYN__TimeSync_1aea4870cf3e5ddd3040fb544bdcc8b1dc" kindref="member">drift_ppm</ref><sp/>*<sp/>7<sp/>+<sp/>new_ppm)<sp/>/<sp/>8);</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"></highlight></codeline>
+<codeline lineno="72"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Update<sp/>anchors<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><sp/><sp/><sp/><sp/>tsync-&gt;<ref refid="structSYN__TimeSync_1a5d0cbd7ee4a700def34c57efd998ef80" kindref="member">prev_pps_ticks</ref><sp/>=<sp/>tsync-&gt;<ref refid="structSYN__TimeSync_1a472bb7923b11aea4c792106bf56f5e5e" kindref="member">last_pps_ticks</ref>;</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"><sp/><sp/><sp/><sp/>tsync-&gt;<ref refid="structSYN__TimeSync_1a101a4e33d357c278c1080a414c9d8fea" kindref="member">last_pps_ts</ref><sp/>=<sp/>*pps_ts;</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/><sp/><sp/>tsync-&gt;<ref refid="structSYN__TimeSync_1a472bb7923b11aea4c792106bf56f5e5e" kindref="member">last_pps_ticks</ref><sp/>=<sp/>curr_ticks;</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/><sp/><sp/>tsync-&gt;<ref refid="structSYN__TimeSync_1afc322ae0b16c2d02f563e6c80d7e5449" kindref="member">last_utc_sec</ref><sp/>=<sp/>utc_sec;</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/><sp/><sp/>tsync-&gt;<ref refid="structSYN__TimeSync_1ab005226226c650d3334003b981fcfeae" kindref="member">pps_count</ref>++;</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/><sp/><sp/>tsync-&gt;<ref refid="structSYN__TimeSync_1a60517c62c214d7d65ada4e662c283ca0" kindref="member">has_pps_lock</ref><sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"></highlight></codeline>
+<codeline lineno="80"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>SYN_TIMESYNC_HAS_RTC</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Discipline<sp/>hardware<sp/>RTC<sp/>to<sp/>GPS<sp/>time<sp/>if<sp/>RTC<sp/>is<sp/>enabled<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structSYN__RTC__DateTime" kindref="compound">SYN_RTC_DateTime</ref><sp/>dt;</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__rtc_8c_1a0fe9cf60f8a3a269d83e4ca402010a88" kindref="member">syn_rtc_from_epoch</ref>((uint32_t)utc_sec,<sp/>&amp;dt);</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="syn__rtc_8c_1a5f25f12ab63bed6d1198f490c168941f" kindref="member">syn_rtc_set</ref>(&amp;dt)<sp/>==<sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tsync-&gt;<ref refid="structSYN__TimeSync_1a2a13c3909b1d390b9ec7b2f3004e079a" kindref="member">rtc_synced</ref><sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="88"><highlight class="normal"></highlight></codeline>
+<codeline lineno="89"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="90"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"></highlight></codeline>
+<codeline lineno="92"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Resolve<sp/>UTC<sp/>──────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="93"><highlight class="normal"></highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__timesync_8c_1af6c84ce76c2a3f890ea00543abb6e5cc" kindref="member">syn_timesync_resolve_utc</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__TimeSync" kindref="compound">SYN_TimeSync</ref><sp/>*tsync,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__HPTimestamp" kindref="compound">SYN_HPTimestamp</ref><sp/>*event_ts,</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__UTCTimestamp" kindref="compound">SYN_UTCTimestamp</ref><sp/>*out_utc)</highlight></codeline>
+<codeline lineno="96"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(tsync<sp/>==<sp/>NULL<sp/>||<sp/>event_ts<sp/>==<sp/>NULL<sp/>||<sp/>out_utc<sp/>==<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"></highlight></codeline>
+<codeline lineno="101"><highlight class="normal"><sp/><sp/><sp/><sp/>uint64_t<sp/>event_ticks<sp/>=<sp/><ref refid="syn__hpclock_8c_1a718cf3f25a151f6ce2f2688593722e3b" kindref="member">syn_hpclock_resolve</ref>(event_ts);</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/>freq_hz<sp/>=<sp/><ref refid="syn__port__hpclock_8h_1a82fc473fd84d3ba05fe524d8b0cbba96" kindref="member">syn_port_hpclock_freq_hz</ref>();</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"></highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!tsync-&gt;<ref refid="structSYN__TimeSync_1a60517c62c214d7d65ada4e662c283ca0" kindref="member">has_pps_lock</ref><sp/>||<sp/>freq_hz<sp/>==<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="106"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>Tier<sp/>4<sp/>/<sp/>Tier<sp/>3<sp/>Fallback:<sp/>No<sp/>active<sp/>PPS<sp/>lock<sp/>ever<sp/>acquired.</highlight></codeline>
+<codeline lineno="107"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="108"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>SYN_TIMESYNC_HAS_RTC</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="109"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(tsync-&gt;<ref refid="structSYN__TimeSync_1a2a13c3909b1d390b9ec7b2f3004e079a" kindref="member">rtc_synced</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="110"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__RTC__DateTime" kindref="compound">SYN_RTC_DateTime</ref><sp/>dt;</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="syn__rtc_8c_1a926241f6738030cde97cf098e1a113a0" kindref="member">syn_rtc_get</ref>(&amp;dt)<sp/>==<sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="112"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>out_utc-&gt;<ref refid="structSYN__UTCTimestamp_1a463f72d82042a0c1b0fe53868b008619" kindref="member">sec</ref><sp/>=<sp/><ref refid="syn__rtc_8c_1a395c6dce5393ad644d2e2bd36a513779" kindref="member">syn_rtc_to_epoch</ref>(&amp;dt);</highlight></codeline>
+<codeline lineno="113"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>out_utc-&gt;<ref refid="structSYN__UTCTimestamp_1a6ff4b388c64eeb039e263486c6072fb7" kindref="member">nsec</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>out_utc-&gt;<ref refid="structSYN__UTCTimestamp_1a28d28fc43142c1dde888382212cb7943" kindref="member">uncertainty_ns</ref><sp/>=<sp/>1000000000U;<sp/></highlight><highlight class="comment">/*<sp/>±1<sp/>second<sp/>RTC<sp/>precision<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="115"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>out_utc-&gt;<ref refid="structSYN__UTCTimestamp_1a426670d8830dcbc4d945508fb7544eef" kindref="member">source</ref><sp/>=<sp/><ref refid="syn__timesync_8h_1aeb64ce1903a4c08c7e8013d2c385d45fae661152162166ad155102ef683a83b0c" kindref="member">SYN_TIME_SOURCE_RTC_SYNCED</ref>;</highlight></codeline>
+<codeline lineno="116"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="117"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="120"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Unsynced<sp/>fallback:<sp/>Monotonic<sp/>ticks<sp/>converted<sp/>to<sp/>nanoseconds<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="121"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint64_t<sp/>total_ns<sp/>=<sp/><ref refid="syn__hpclock_8c_1aff0781cf49366ff719b79e857b967fc5" kindref="member">syn_hpclock_ticks_to_ns</ref>(event_ticks);</highlight></codeline>
+<codeline lineno="122"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>out_utc-&gt;<ref refid="structSYN__UTCTimestamp_1a463f72d82042a0c1b0fe53868b008619" kindref="member">sec</ref><sp/>=<sp/>total_ns<sp/>/<sp/>1000000000ULL;</highlight></codeline>
+<codeline lineno="123"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>out_utc-&gt;<ref refid="structSYN__UTCTimestamp_1a6ff4b388c64eeb039e263486c6072fb7" kindref="member">nsec</ref><sp/>=<sp/>(uint32_t)(total_ns<sp/>%<sp/>1000000000ULL);</highlight></codeline>
+<codeline lineno="124"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>out_utc-&gt;<ref refid="structSYN__UTCTimestamp_1a28d28fc43142c1dde888382212cb7943" kindref="member">uncertainty_ns</ref><sp/>=<sp/>0xFFFFFFFFU;<sp/></highlight><highlight class="comment">/*<sp/>Infinite<sp/>/<sp/>undefined<sp/>error<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="125"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>out_utc-&gt;<ref refid="structSYN__UTCTimestamp_1a426670d8830dcbc4d945508fb7544eef" kindref="member">source</ref><sp/>=<sp/><ref refid="syn__timesync_8h_1aeb64ce1903a4c08c7e8013d2c385d45fac949c9fe71819e87ef01aae36e497722" kindref="member">SYN_TIME_SOURCE_UNSYNCED</ref>;</highlight></codeline>
+<codeline lineno="126"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="127"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="128"><highlight class="normal"></highlight></codeline>
+<codeline lineno="129"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Compute<sp/>tick<sp/>offset<sp/>relative<sp/>to<sp/>last<sp/>PPS<sp/>anchor<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="130"><highlight class="normal"><sp/><sp/><sp/><sp/>int64_t<sp/>tick_delta<sp/>=<sp/>(int64_t)event_ticks<sp/>-<sp/>(int64_t)tsync-&gt;<ref refid="structSYN__TimeSync_1a472bb7923b11aea4c792106bf56f5e5e" kindref="member">last_pps_ticks</ref>;</highlight></codeline>
+<codeline lineno="131"><highlight class="normal"><sp/><sp/><sp/><sp/>int64_t<sp/>ns_delta;</highlight></codeline>
+<codeline lineno="132"><highlight class="normal"></highlight></codeline>
+<codeline lineno="133"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(tick_delta<sp/>&gt;=<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="134"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ns_delta<sp/>=<sp/>(int64_t)<ref refid="syn__hpclock_8c_1aff0781cf49366ff719b79e857b967fc5" kindref="member">syn_hpclock_ticks_to_ns</ref>((uint64_t)tick_delta);</highlight></codeline>
+<codeline lineno="135"><highlight class="normal"><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ns_delta<sp/>=<sp/>-(int64_t)<ref refid="syn__hpclock_8c_1aff0781cf49366ff719b79e857b967fc5" kindref="member">syn_hpclock_ticks_to_ns</ref>((uint64_t)(-tick_delta));</highlight></codeline>
+<codeline lineno="137"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="138"><highlight class="normal"></highlight></codeline>
+<codeline lineno="139"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Compute<sp/>total<sp/>seconds<sp/>and<sp/>sub-second<sp/>nanoseconds<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="140"><highlight class="normal"><sp/><sp/><sp/><sp/>int64_t<sp/>sec_offset<sp/>=<sp/>ns_delta<sp/>/<sp/>1000000000LL;</highlight></codeline>
+<codeline lineno="141"><highlight class="normal"><sp/><sp/><sp/><sp/>int64_t<sp/>nsec_rem<sp/>=<sp/>ns_delta<sp/>%<sp/>1000000000LL;</highlight></codeline>
+<codeline lineno="142"><highlight class="normal"></highlight></codeline>
+<codeline lineno="143"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(nsec_rem<sp/>&lt;<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="144"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>sec_offset<sp/>-=<sp/>1;</highlight></codeline>
+<codeline lineno="145"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>nsec_rem<sp/>+=<sp/>1000000000LL;</highlight></codeline>
+<codeline lineno="146"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="147"><highlight class="normal"></highlight></codeline>
+<codeline lineno="148"><highlight class="normal"><sp/><sp/><sp/><sp/>out_utc-&gt;<ref refid="structSYN__UTCTimestamp_1a463f72d82042a0c1b0fe53868b008619" kindref="member">sec</ref><sp/>=<sp/>(uint64_t)((int64_t)tsync-&gt;<ref refid="structSYN__TimeSync_1afc322ae0b16c2d02f563e6c80d7e5449" kindref="member">last_utc_sec</ref><sp/>+<sp/>sec_offset);</highlight></codeline>
+<codeline lineno="149"><highlight class="normal"><sp/><sp/><sp/><sp/>out_utc-&gt;<ref refid="structSYN__UTCTimestamp_1a6ff4b388c64eeb039e263486c6072fb7" kindref="member">nsec</ref><sp/>=<sp/>(uint32_t)nsec_rem;</highlight></codeline>
+<codeline lineno="150"><highlight class="normal"></highlight></codeline>
+<codeline lineno="151"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="152"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/>*<sp/>Quality<sp/>Tier<sp/>&amp;<sp/>Uncertainty<sp/>Evaluation</highlight></codeline>
+<codeline lineno="153"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="154"><highlight class="normal"><sp/><sp/><sp/><sp/>uint64_t<sp/>elapsed_s<sp/>=<sp/>(tick_delta<sp/>&gt;=<sp/>0)<sp/>?<sp/>(uint64_t)tick_delta<sp/>/<sp/>freq_hz<sp/>:<sp/>0;</highlight></codeline>
+<codeline lineno="155"><highlight class="normal"></highlight></codeline>
+<codeline lineno="156"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(elapsed_s<sp/>&lt;=<sp/>1)<sp/>{</highlight></codeline>
+<codeline lineno="157"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Tier<sp/>1:<sp/>Active<sp/>PPS<sp/>lock<sp/>within<sp/>1<sp/>second<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="158"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>out_utc-&gt;<ref refid="structSYN__UTCTimestamp_1a426670d8830dcbc4d945508fb7544eef" kindref="member">source</ref><sp/>=<sp/><ref refid="syn__timesync_8h_1aeb64ce1903a4c08c7e8013d2c385d45faa09a7698ba677972b70040a8e25566c0" kindref="member">SYN_TIME_SOURCE_GPS_PPS</ref>;</highlight></codeline>
+<codeline lineno="159"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>out_utc-&gt;<ref refid="structSYN__UTCTimestamp_1a28d28fc43142c1dde888382212cb7943" kindref="member">uncertainty_ns</ref><sp/>=<sp/>tsync-&gt;<ref refid="structSYN__TimeSync_1ab1d4a217f72ffd51863d75bb413e8a55" kindref="member">base_jitter_ns</ref>;</highlight></codeline>
+<codeline lineno="160"><highlight class="normal"><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(elapsed_s<sp/>&lt;=<sp/>tsync-&gt;max_holdover_s)<sp/>{</highlight></codeline>
+<codeline lineno="161"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Tier<sp/>2:<sp/>PPS<sp/>holdover<sp/>—<sp/>error<sp/>accumulates<sp/>with<sp/>drift<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="162"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>out_utc-&gt;<ref refid="structSYN__UTCTimestamp_1a426670d8830dcbc4d945508fb7544eef" kindref="member">source</ref><sp/>=<sp/><ref refid="syn__timesync_8h_1aeb64ce1903a4c08c7e8013d2c385d45fa35a6e7147a6e10222f66db093383ff67" kindref="member">SYN_TIME_SOURCE_GPS_HOLDOVER</ref>;</highlight></codeline>
+<codeline lineno="163"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>abs_drift<sp/>=<sp/>(uint32_t)abs(tsync-&gt;<ref refid="structSYN__TimeSync_1aea4870cf3e5ddd3040fb544bdcc8b1dc" kindref="member">drift_ppm</ref>);</highlight></codeline>
+<codeline lineno="164"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>out_utc-&gt;<ref refid="structSYN__UTCTimestamp_1a28d28fc43142c1dde888382212cb7943" kindref="member">uncertainty_ns</ref><sp/>=<sp/>tsync-&gt;<ref refid="structSYN__TimeSync_1ab1d4a217f72ffd51863d75bb413e8a55" kindref="member">base_jitter_ns</ref><sp/>+<sp/>(abs_drift<sp/>*<sp/>(uint32_t)elapsed_s<sp/>*<sp/>1000U);</highlight></codeline>
+<codeline lineno="165"><highlight class="normal"><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="166"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Tier<sp/>3<sp/>or<sp/>4:<sp/>Holdover<sp/>expired<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="167"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>SYN_TIMESYNC_HAS_RTC</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="168"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(tsync-&gt;<ref refid="structSYN__TimeSync_1a2a13c3909b1d390b9ec7b2f3004e079a" kindref="member">rtc_synced</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="169"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>out_utc-&gt;<ref refid="structSYN__UTCTimestamp_1a426670d8830dcbc4d945508fb7544eef" kindref="member">source</ref><sp/>=<sp/><ref refid="syn__timesync_8h_1aeb64ce1903a4c08c7e8013d2c385d45fae661152162166ad155102ef683a83b0c" kindref="member">SYN_TIME_SOURCE_RTC_SYNCED</ref>;</highlight></codeline>
+<codeline lineno="170"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>out_utc-&gt;<ref refid="structSYN__UTCTimestamp_1a28d28fc43142c1dde888382212cb7943" kindref="member">uncertainty_ns</ref><sp/>=<sp/>1000000000U;</highlight></codeline>
+<codeline lineno="171"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="172"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>out_utc-&gt;<ref refid="structSYN__UTCTimestamp_1a426670d8830dcbc4d945508fb7544eef" kindref="member">source</ref><sp/>=<sp/><ref refid="syn__timesync_8h_1aeb64ce1903a4c08c7e8013d2c385d45fac949c9fe71819e87ef01aae36e497722" kindref="member">SYN_TIME_SOURCE_UNSYNCED</ref>;</highlight></codeline>
+<codeline lineno="173"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>out_utc-&gt;<ref refid="structSYN__UTCTimestamp_1a28d28fc43142c1dde888382212cb7943" kindref="member">uncertainty_ns</ref><sp/>=<sp/>0xFFFFFFFFU;</highlight></codeline>
+<codeline lineno="174"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="175"><highlight class="normal"></highlight><highlight class="preprocessor">#else</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="176"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>out_utc-&gt;<ref refid="structSYN__UTCTimestamp_1a426670d8830dcbc4d945508fb7544eef" kindref="member">source</ref><sp/>=<sp/><ref refid="syn__timesync_8h_1aeb64ce1903a4c08c7e8013d2c385d45fac949c9fe71819e87ef01aae36e497722" kindref="member">SYN_TIME_SOURCE_UNSYNCED</ref>;</highlight></codeline>
+<codeline lineno="177"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>out_utc-&gt;<ref refid="structSYN__UTCTimestamp_1a28d28fc43142c1dde888382212cb7943" kindref="member">uncertainty_ns</ref><sp/>=<sp/>0xFFFFFFFFU;</highlight></codeline>
+<codeline lineno="178"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="179"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="180"><highlight class="normal"></highlight></codeline>
+<codeline lineno="181"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="182"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="183"><highlight class="normal"></highlight></codeline>
+<codeline lineno="184"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Epoch<sp/>Nanoseconds<sp/>Helper<sp/>─────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="185"><highlight class="normal"></highlight></codeline>
+<codeline lineno="186"><highlight class="normal">uint64_t<sp/><ref refid="syn__timesync_8c_1a17db8f38f5f08ca5703e4e2b2ab86a01" kindref="member">syn_timesync_to_epoch_ns</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__TimeSync" kindref="compound">SYN_TimeSync</ref><sp/>*tsync,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__HPTimestamp" kindref="compound">SYN_HPTimestamp</ref><sp/>*event_ts)</highlight></codeline>
+<codeline lineno="187"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="188"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structSYN__UTCTimestamp" kindref="compound">SYN_UTCTimestamp</ref><sp/>utc;</highlight></codeline>
+<codeline lineno="189"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="syn__timesync_8c_1af6c84ce76c2a3f890ea00543abb6e5cc" kindref="member">syn_timesync_resolve_utc</ref>(tsync,<sp/>event_ts,<sp/>&amp;utc)<sp/>!=<sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="190"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0;</highlight></codeline>
+<codeline lineno="191"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="192"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>utc.<ref refid="structSYN__UTCTimestamp_1a463f72d82042a0c1b0fe53868b008619" kindref="member">sec</ref><sp/>*<sp/>1000000000ULL<sp/>+<sp/>(uint64_t)utc.<ref refid="structSYN__UTCTimestamp_1a6ff4b388c64eeb039e263486c6072fb7" kindref="member">nsec</ref>;</highlight></codeline>
+<codeline lineno="193"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="194"><highlight class="normal"></highlight></codeline>
+<codeline lineno="195"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>PPS<sp/>Lock<sp/>Check<sp/>───────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="196"><highlight class="normal"></highlight></codeline>
+<codeline lineno="197"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__timesync_8c_1ad212352557ff79ae4cd30beab668d004" kindref="member">syn_timesync_is_pps_locked</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__TimeSync" kindref="compound">SYN_TimeSync</ref><sp/>*tsync)</highlight></codeline>
+<codeline lineno="198"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="199"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(tsync<sp/>==<sp/>NULL<sp/>||<sp/>!tsync-&gt;<ref refid="structSYN__TimeSync_1a60517c62c214d7d65ada4e662c283ca0" kindref="member">has_pps_lock</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="200"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="201"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="202"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Simple<sp/>sanity<sp/>check:<sp/>has<sp/>at<sp/>least<sp/>one<sp/>PPS<sp/>been<sp/>bound<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="203"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="204"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="205"><highlight class="normal"></highlight></codeline>
+<codeline lineno="206"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_USE_TIMESYNC<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/drivers/syn_timesync.c"/>
+  </compounddef>
+</doxygen>

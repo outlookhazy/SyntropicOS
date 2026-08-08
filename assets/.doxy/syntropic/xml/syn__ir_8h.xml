@@ -1,0 +1,681 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__ir_8h" kind="file" language="C++">
+    <compoundname>syn_ir.h</compoundname>
+    <includes refid="syn__defs_8h" local="yes">../common/syn_defs.h</includes>
+    <includes local="no">stdbool.h</includes>
+    <includes local="no">stddef.h</includes>
+    <includes local="no">stdint.h</includes>
+    <includedby refid="syn__ir_8c" local="yes">src/syntropic/proto/syn_ir.c</includedby>
+    <incdepgraph>
+      <node id="2">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/proto/syn_ir.h</label>
+        <link refid="syn__ir_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>stdbool.h</label>
+      </node>
+      <node id="3">
+        <label>stddef.h</label>
+      </node>
+      <node id="4">
+        <label>stdint.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="2">
+        <label>src/syntropic/proto/syn_ir.c</label>
+        <link refid="syn__ir_8c"/>
+      </node>
+      <node id="1">
+        <label>src/syntropic/proto/syn_ir.h</label>
+        <link refid="syn__ir_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="structSYN__IR__Frame" prot="public">SYN_IR_Frame</innerclass>
+    <innerclass refid="structSYN__IR__Pulse" prot="public">SYN_IR_Pulse</innerclass>
+    <innerclass refid="structSYN__IR__Decoder" prot="public">SYN_IR_Decoder</innerclass>
+    <sectiondef kind="define">
+      <memberdef kind="define" id="syn__ir_8h_1a922cefd993ed682e8a7eaf9a6c9cb178" prot="public" static="no">
+        <name>SYN_IR_FLAG_NONE</name>
+        <initializer>0x0000U</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>No frame flags active </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_ir.h" line="83" column="9" bodyfile="src/syntropic/proto/syn_ir.h" bodystart="83" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__ir_8h_1a13b62ce104f7f896a4e0040787598385" prot="public" static="no">
+        <name>SYN_IR_FLAG_REPEAT</name>
+        <initializer>(1U &lt;&lt; 0)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Set if this frame is a repeat code / held key </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_ir.h" line="84" column="9" bodyfile="src/syntropic/proto/syn_ir.h" bodystart="84" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__ir_8h_1a8caa8d6209d9ad37593dd7e66e98db46" prot="public" static="no">
+        <name>SYN_IR_FLAG_TOGGLE</name>
+        <initializer>(1U &lt;&lt; 1)</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Toggle bit active (RC5 / RC6) </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_ir.h" line="85" column="9" bodyfile="src/syntropic/proto/syn_ir.h" bodystart="85" bodyend="-1"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="enum">
+      <memberdef kind="enum" id="syn__ir_8h_1a3a4fcefce59b4d8dba7c004ac8832021" prot="public" static="no" strong="no">
+        <type></type>
+        <name>SYN_IR_EncodingType</name>
+        <enumvalue id="syn__ir_8h_1a3a4fcefce59b4d8dba7c004ac8832021a6cfbdaf12e1cbd5ac3d1a54f5954f402" prot="public">
+          <name>SYN_IR_ENC_PDM</name>
+          <initializer>= 0</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Pulse Distance Modulation (e.g. NEC, Samsung) </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__ir_8h_1a3a4fcefce59b4d8dba7c004ac8832021a76fc2234971cafdecf6eb8b00f4985d9" prot="public">
+          <name>SYN_IR_ENC_PWM</name>
+          <initializer>= 1</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Pulse Width Modulation (e.g. Sony SIRCS) </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__ir_8h_1a3a4fcefce59b4d8dba7c004ac8832021ad2943cf302d9422584ec923173b4892d" prot="public">
+          <name>SYN_IR_ENC_MANCHESTER</name>
+          <initializer>= 2</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Manchester Bi-Phase (e.g. RC5, RC6) </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__ir_8h_1a3a4fcefce59b4d8dba7c004ac8832021ac907f5fa7968f52d7336394f610d8100" prot="public">
+          <name>SYN_IR_ENC_PPM</name>
+          <initializer>= 3</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Pulse Position Modulation (e.g. RECS80, RCMM) </para>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>IR signal encoding types. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_ir.h" line="53" column="1" bodyfile="src/syntropic/proto/syn_ir.h" bodystart="53" bodyend="58"/>
+      </memberdef>
+      <memberdef kind="enum" id="syn__ir_8h_1af19033352c771278bf564ec103234a60" prot="public" static="no" strong="no">
+        <type></type>
+        <name>SYN_IR_Protocol</name>
+        <enumvalue id="syn__ir_8h_1af19033352c771278bf564ec103234a60aa74bd66f3d5633b7adcb39b682c8f7aa" prot="public">
+          <name>SYN_IR_PROTO_UNKNOWN</name>
+          <initializer>= 0</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__ir_8h_1af19033352c771278bf564ec103234a60a9c4a98c64e4cb2bbdf1b4574699a1de7" prot="public">
+          <name>SYN_IR_PROTO_NEC</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>NEC standard (8-bit addr, 8-bit cmd) </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__ir_8h_1af19033352c771278bf564ec103234a60a633f18a1a2bdc367933e9c299f4f7bcc" prot="public">
+          <name>SYN_IR_PROTO_NEC_EXTENDED</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>NEC extended (16-bit addr, 8-bit cmd) </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__ir_8h_1af19033352c771278bf564ec103234a60a29307f369e4e2b7b81cdf30c2bc1cb07" prot="public">
+          <name>SYN_IR_PROTO_SONY_12</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Sony SIRCS 12-bit (7 cmd, 5 addr) </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__ir_8h_1af19033352c771278bf564ec103234a60a2bf22fc216a7ea2a2bf44f0aeb0400f6" prot="public">
+          <name>SYN_IR_PROTO_SONY_15</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Sony SIRCS 15-bit (7 cmd, 8 addr) </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__ir_8h_1af19033352c771278bf564ec103234a60a4f515387b9c1edf19dc90f523551db28" prot="public">
+          <name>SYN_IR_PROTO_SONY_20</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Sony SIRCS 20-bit (7 cmd, 5 addr, 8 ext) </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__ir_8h_1af19033352c771278bf564ec103234a60a38ea860b9836a79804fe192ffb9b2ea7" prot="public">
+          <name>SYN_IR_PROTO_RC5</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Philips RC5 (5 addr, 6 cmd, toggle) </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__ir_8h_1af19033352c771278bf564ec103234a60aefa06a81f36030a31b711a038475147e" prot="public">
+          <name>SYN_IR_PROTO_RC6</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Philips RC6 Mode 0 (8 addr, 8 cmd, toggle) </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__ir_8h_1af19033352c771278bf564ec103234a60a558d107a691c4334c900c990cec4ca5a" prot="public">
+          <name>SYN_IR_PROTO_SAMSUNG</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Samsung 32-bit (8 addr, 8 addr, 8 cmd, 8 cmd_inv) </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__ir_8h_1af19033352c771278bf564ec103234a60a7b57e60d23272982230521147a8a2e35" prot="public">
+          <name>SYN_IR_PROTO_KASEIKYO</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Panasonic/Kaseikyo 48-bit </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__ir_8h_1af19033352c771278bf564ec103234a60ad8fbc7c5fa261d53615969405987fa14" prot="public">
+          <name>SYN_IR_PROTO_DENON</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Denon/Sharp 15-bit </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__ir_8h_1af19033352c771278bf564ec103234a60ab5e6332dde794d192ac4b41cbb7ffaf8" prot="public">
+          <name>SYN_IR_PROTO_APPLE</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Apple NEC variant (8 device, 8 cmd, 8 pairID) </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__ir_8h_1af19033352c771278bf564ec103234a60a8f63aabf1a878844e4ee17d670173b96" prot="public">
+          <name>SYN_IR_PROTO_COUNT</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>Supported IR remote control protocols. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_ir.h" line="65" column="1" bodyfile="src/syntropic/proto/syn_ir.h" bodystart="65" bodyend="79"/>
+      </memberdef>
+      <memberdef kind="enum" id="syn__ir_8h_1ab0a706fb3c809c822d3df8661c8eda97" prot="public" static="no" strong="no">
+        <type></type>
+        <name>SYN_IR_FsmState</name>
+        <enumvalue id="syn__ir_8h_1ab0a706fb3c809c822d3df8661c8eda97a89adcea2ea24e49514e581ce80920039" prot="public">
+          <name>SYN_IR_STATE_IDLE</name>
+          <initializer>= 0</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Idle, awaiting leader pulse </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__ir_8h_1ab0a706fb3c809c822d3df8661c8eda97ac265bb327b9082d2c7e4389b80277b30" prot="public">
+          <name>SYN_IR_STATE_LEADER</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Leader pulse received </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__ir_8h_1ab0a706fb3c809c822d3df8661c8eda97a3944a200ee3f6180fd4fd2b34379d6bc" prot="public">
+          <name>SYN_IR_STATE_DATA</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Decoding data bits </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__ir_8h_1ab0a706fb3c809c822d3df8661c8eda97a1b33967b34debfd786f02a33783f183f" prot="public">
+          <name>SYN_IR_STATE_TRAILER</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>IR Decoder Finite State Machine States. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_ir.h" line="114" column="1" bodyfile="src/syntropic/proto/syn_ir.h" bodystart="114" bodyend="119"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__ir_8h_1a621b90b9f87db4a3e246ffea455a9f1f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_ir_decoder_init</definition>
+        <argsstring>(SYN_IR_Decoder *decoder)</argsstring>
+        <name>syn_ir_decoder_init</name>
+        <param>
+          <type><ref refid="structSYN__IR__Decoder" kindref="compound">SYN_IR_Decoder</ref> *</type>
+          <declname>decoder</declname>
+        </param>
+        <briefdescription>
+<para>Initialize or reset an IR decoder instance. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>decoder</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to IR decoder handle. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_INVALID_PARAM on NULL. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_ir.h" line="144" column="12" bodyfile="src/syntropic/proto/syn_ir.c" bodystart="225" bodyend="234" declfile="src/syntropic/proto/syn_ir.h" declline="144" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__ir_8h_1af3cceca8e1534e1b07bddb66782672e2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_ir_decode_pulse</definition>
+        <argsstring>(SYN_IR_Decoder *decoder, uint16_t duration_us, bool is_mark, SYN_IR_Frame *frame_out)</argsstring>
+        <name>syn_ir_decode_pulse</name>
+        <param>
+          <type><ref refid="structSYN__IR__Decoder" kindref="compound">SYN_IR_Decoder</ref> *</type>
+          <declname>decoder</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>duration_us</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+          <declname>is_mark</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__IR__Frame" kindref="compound">SYN_IR_Frame</ref> *</type>
+          <declname>frame_out</declname>
+        </param>
+        <briefdescription>
+<para>Process a single pulse duration (mark or space) in microseconds. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>decoder</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to IR decoder handle. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>duration_us</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pulse duration in microseconds. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>is_mark</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>true if pulse is active IR carrier (mark), false if space. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>frame_out</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>[out] Populated with decoded frame when function returns true. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if a complete, valid frame was decoded, false otherwise. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_ir.h" line="154" column="6" bodyfile="src/syntropic/proto/syn_ir.c" bodystart="375" bodyend="565" declfile="src/syntropic/proto/syn_ir.h" declline="154" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__ir_8h_1a284b4bd1f3b09a2c42c3715ab0ca903d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_ir_decode_timeout</definition>
+        <argsstring>(SYN_IR_Decoder *decoder, SYN_IR_Frame *frame_out)</argsstring>
+        <name>syn_ir_decode_timeout</name>
+        <param>
+          <type><ref refid="structSYN__IR__Decoder" kindref="compound">SYN_IR_Decoder</ref> *</type>
+          <declname>decoder</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__IR__Frame" kindref="compound">SYN_IR_Frame</ref> *</type>
+          <declname>frame_out</declname>
+        </param>
+        <briefdescription>
+<para>Signal a gap/timeout (&gt;10ms silence) to finalize protocols. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>decoder</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to IR decoder handle. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>frame_out</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>[out] Populated with decoded frame if timeout completed frame. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if a complete valid frame was finalized by timeout, false otherwise. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_ir.h" line="163" column="6" bodyfile="src/syntropic/proto/syn_ir.c" bodystart="567" bodyend="584" declfile="src/syntropic/proto/syn_ir.h" declline="163" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__ir_8h_1a184faa8b42e61c95d2a5d9111dc98ca9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_ir_encode_frame</definition>
+        <argsstring>(const SYN_IR_Frame *frame, SYN_IR_Pulse *pulse_buf, size_t buf_len, size_t *count_out)</argsstring>
+        <name>syn_ir_encode_frame</name>
+        <param>
+          <type>const <ref refid="structSYN__IR__Frame" kindref="compound">SYN_IR_Frame</ref> *</type>
+          <declname>frame</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__IR__Pulse" kindref="compound">SYN_IR_Pulse</ref> *</type>
+          <declname>pulse_buf</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>buf_len</declname>
+        </param>
+        <param>
+          <type>size_t *</type>
+          <declname>count_out</declname>
+        </param>
+        <briefdescription>
+<para>Encode a frame into a sequence of pulse timing pairs. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>frame</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to frame to encode. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>pulse_buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output array for pulse timings. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>buf_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Capacity of pulse_buf. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>count_out</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>[out] Number of pulse timing pairs written. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_INVALID_PARAM or SYN_ERROR on failure. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_ir.h" line="173" column="12" bodyfile="src/syntropic/proto/syn_ir.c" bodystart="588" bodyend="737" declfile="src/syntropic/proto/syn_ir.h" declline="173" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__ir_8h_1a221fef995002d545eee7b12b0e86c2ab" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>const char *</type>
+        <definition>const char * syn_ir_protocol_name</definition>
+        <argsstring>(SYN_IR_Protocol proto)</argsstring>
+        <name>syn_ir_protocol_name</name>
+        <param>
+          <type><ref refid="syn__ir_8h_1af19033352c771278bf564ec103234a60" kindref="member">SYN_IR_Protocol</ref></type>
+          <declname>proto</declname>
+        </param>
+        <briefdescription>
+<para>Get human-readable protocol string name. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>proto</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Protocol enum value. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Pointer to const string. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_ir.h" line="181" column="12" bodyfile="src/syntropic/proto/syn_ir.c" bodystart="201" bodyend="207" declfile="src/syntropic/proto/syn_ir.h" declline="181" declcolumn="12"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Infrared (IR) Remote Control Protocol Engine (NEC, Sony, RC5, RC6, Samsung, Panasonic, Denon, Apple). </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Implements non-blocking, zero-malloc IR pulse decoding and encoding for common consumer remote control protocols using microsecond pulse timing inputs.</para>
+<para><simplesect kind="par"><title>Decoded Protocols</title><para><itemizedlist>
+<listitem><para>NEC (Standard &amp; Extended 32-bit)</para>
+</listitem><listitem><para>Sony SIRCS (12-bit, 15-bit, 20-bit)</para>
+</listitem><listitem><para>Philips RC5 (14-bit Manchester)</para>
+</listitem><listitem><para>Philips RC6 Mode 0 (21-bit Manchester)</para>
+</listitem><listitem><para>Samsung (32-bit PDM)</para>
+</listitem><listitem><para>Kaseikyo / Panasonic (48-bit PDM)</para>
+</listitem><listitem><para>Denon / Sharp (15-bit PDM)</para>
+</listitem><listitem><para>Apple (32-bit NEC variant)</para>
+</listitem></itemizedlist>
+</para>
+</simplesect>
+<simplesect kind="par"><title>Usage (Decoder)</title><para><programlisting><codeline><highlight class="keyword">static</highlight><highlight class="normal"><sp/><ref refid="structSYN__IR__Decoder" kindref="compound">SYN_IR_Decoder</ref><sp/>decoder;</highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__ir_8c_1a621b90b9f87db4a3e246ffea455a9f1f" kindref="member">syn_ir_decoder_init</ref>(&amp;decoder);</highlight></codeline>
+<codeline><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="comment">//<sp/>In<sp/>Timer<sp/>Input<sp/>Capture<sp/>/<sp/>EXTI<sp/>ISR:</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"><ref refid="structSYN__IR__Frame" kindref="compound">SYN_IR_Frame</ref><sp/>frame;</highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="syn__ir_8c_1af3cceca8e1534e1b07bddb66782672e2" kindref="member">syn_ir_decode_pulse</ref>(&amp;decoder,<sp/>duration_us,<sp/>is_mark,<sp/>&amp;frame))<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Process<sp/>decoded<sp/>frame:<sp/>frame.protocol,<sp/>frame.address,<sp/>frame.command</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal">}</highlight></codeline>
+</programlisting> </para>
+</simplesect>
+</para>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_IR_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_IR_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../common/syn_defs.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stddef.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>!defined(SYN_USE_IR)<sp/>||<sp/>SYN_USE_IR</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="47"><highlight class="normal"></highlight></codeline>
+<codeline lineno="48"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Encoding<sp/>Types<sp/>──────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="49"><highlight class="normal"></highlight></codeline>
+<codeline lineno="53" refid="syn__ir_8h_1a3a4fcefce59b4d8dba7c004ac8832021" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="54" refid="syn__ir_8h_1a3a4fcefce59b4d8dba7c004ac8832021a6cfbdaf12e1cbd5ac3d1a54f5954f402" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__ir_8h_1a3a4fcefce59b4d8dba7c004ac8832021a6cfbdaf12e1cbd5ac3d1a54f5954f402" kindref="member">SYN_IR_ENC_PDM</ref><sp/>=<sp/>0,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="55" refid="syn__ir_8h_1a3a4fcefce59b4d8dba7c004ac8832021a76fc2234971cafdecf6eb8b00f4985d9" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__ir_8h_1a3a4fcefce59b4d8dba7c004ac8832021a76fc2234971cafdecf6eb8b00f4985d9" kindref="member">SYN_IR_ENC_PWM</ref><sp/>=<sp/>1,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="56" refid="syn__ir_8h_1a3a4fcefce59b4d8dba7c004ac8832021ad2943cf302d9422584ec923173b4892d" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__ir_8h_1a3a4fcefce59b4d8dba7c004ac8832021ad2943cf302d9422584ec923173b4892d" kindref="member">SYN_IR_ENC_MANCHESTER</ref><sp/>=<sp/>2,<sp/></highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__ir_8h_1a3a4fcefce59b4d8dba7c004ac8832021ac907f5fa7968f52d7336394f610d8100" kindref="member">SYN_IR_ENC_PPM</ref><sp/>=<sp/>3<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="58" refid="syn__ir_8h_1a3a4fcefce59b4d8dba7c004ac8832021ac907f5fa7968f52d7336394f610d8100" refkind="member"><highlight class="normal">}<sp/><ref refid="syn__ir_8h_1a3a4fcefce59b4d8dba7c004ac8832021" kindref="member">SYN_IR_EncodingType</ref>;</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"></highlight></codeline>
+<codeline lineno="60"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Protocol<sp/>Identifiers<sp/>─────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="61"><highlight class="normal"></highlight></codeline>
+<codeline lineno="65" refid="syn__ir_8h_1af19033352c771278bf564ec103234a60" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/><sp/><sp/>SYN_IR_PROTO_UNKNOWN<sp/>=<sp/>0,</highlight></codeline>
+<codeline lineno="67" refid="syn__ir_8h_1af19033352c771278bf564ec103234a60a9c4a98c64e4cb2bbdf1b4574699a1de7" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__ir_8h_1af19033352c771278bf564ec103234a60a9c4a98c64e4cb2bbdf1b4574699a1de7" kindref="member">SYN_IR_PROTO_NEC</ref>,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="68" refid="syn__ir_8h_1af19033352c771278bf564ec103234a60a633f18a1a2bdc367933e9c299f4f7bcc" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__ir_8h_1af19033352c771278bf564ec103234a60a633f18a1a2bdc367933e9c299f4f7bcc" kindref="member">SYN_IR_PROTO_NEC_EXTENDED</ref>,<sp/></highlight></codeline>
+<codeline lineno="69" refid="syn__ir_8h_1af19033352c771278bf564ec103234a60a29307f369e4e2b7b81cdf30c2bc1cb07" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__ir_8h_1af19033352c771278bf564ec103234a60a29307f369e4e2b7b81cdf30c2bc1cb07" kindref="member">SYN_IR_PROTO_SONY_12</ref>,<sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="70" refid="syn__ir_8h_1af19033352c771278bf564ec103234a60a2bf22fc216a7ea2a2bf44f0aeb0400f6" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__ir_8h_1af19033352c771278bf564ec103234a60a2bf22fc216a7ea2a2bf44f0aeb0400f6" kindref="member">SYN_IR_PROTO_SONY_15</ref>,<sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="71" refid="syn__ir_8h_1af19033352c771278bf564ec103234a60a4f515387b9c1edf19dc90f523551db28" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__ir_8h_1af19033352c771278bf564ec103234a60a4f515387b9c1edf19dc90f523551db28" kindref="member">SYN_IR_PROTO_SONY_20</ref>,<sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="72" refid="syn__ir_8h_1af19033352c771278bf564ec103234a60a38ea860b9836a79804fe192ffb9b2ea7" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__ir_8h_1af19033352c771278bf564ec103234a60a38ea860b9836a79804fe192ffb9b2ea7" kindref="member">SYN_IR_PROTO_RC5</ref>,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="73" refid="syn__ir_8h_1af19033352c771278bf564ec103234a60aefa06a81f36030a31b711a038475147e" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__ir_8h_1af19033352c771278bf564ec103234a60aefa06a81f36030a31b711a038475147e" kindref="member">SYN_IR_PROTO_RC6</ref>,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="74" refid="syn__ir_8h_1af19033352c771278bf564ec103234a60a558d107a691c4334c900c990cec4ca5a" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__ir_8h_1af19033352c771278bf564ec103234a60a558d107a691c4334c900c990cec4ca5a" kindref="member">SYN_IR_PROTO_SAMSUNG</ref>,<sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="75" refid="syn__ir_8h_1af19033352c771278bf564ec103234a60a7b57e60d23272982230521147a8a2e35" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__ir_8h_1af19033352c771278bf564ec103234a60a7b57e60d23272982230521147a8a2e35" kindref="member">SYN_IR_PROTO_KASEIKYO</ref>,<sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="76" refid="syn__ir_8h_1af19033352c771278bf564ec103234a60ad8fbc7c5fa261d53615969405987fa14" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__ir_8h_1af19033352c771278bf564ec103234a60ad8fbc7c5fa261d53615969405987fa14" kindref="member">SYN_IR_PROTO_DENON</ref>,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="77" refid="syn__ir_8h_1af19033352c771278bf564ec103234a60ab5e6332dde794d192ac4b41cbb7ffaf8" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__ir_8h_1af19033352c771278bf564ec103234a60ab5e6332dde794d192ac4b41cbb7ffaf8" kindref="member">SYN_IR_PROTO_APPLE</ref>,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/><sp/><sp/>SYN_IR_PROTO_COUNT</highlight></codeline>
+<codeline lineno="79"><highlight class="normal">}<sp/><ref refid="syn__ir_8h_1af19033352c771278bf564ec103234a60" kindref="member">SYN_IR_Protocol</ref>;</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"></highlight></codeline>
+<codeline lineno="81"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Frame<sp/>Flags<sp/>──────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="82"><highlight class="normal"></highlight></codeline>
+<codeline lineno="83" refid="syn__ir_8h_1a922cefd993ed682e8a7eaf9a6c9cb178" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_IR_FLAG_NONE<sp/>0x0000U<sp/><sp/><sp/><sp/><sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="84" refid="syn__ir_8h_1a13b62ce104f7f896a4e0040787598385" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_IR_FLAG_REPEAT<sp/>(1U<sp/>&lt;&lt;<sp/>0)<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="85" refid="syn__ir_8h_1a8caa8d6209d9ad37593dd7e66e98db46" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_IR_FLAG_TOGGLE<sp/>(1U<sp/>&lt;&lt;<sp/>1)<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="87"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Decoded<sp/>IR<sp/>Frame<sp/>─────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="88"><highlight class="normal"></highlight></codeline>
+<codeline lineno="92" refid="structSYN__IR__Frame" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="93" refid="structSYN__IR__Frame_1a0886f7f9c901d0d4ce05766c82523c0f" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__ir_8h_1af19033352c771278bf564ec103234a60" kindref="member">SYN_IR_Protocol</ref><sp/><ref refid="structSYN__IR__Frame_1a0886f7f9c901d0d4ce05766c82523c0f" kindref="member">protocol</ref>;<sp/></highlight></codeline>
+<codeline lineno="94" refid="structSYN__IR__Frame_1a51dedace7d0154d402e53b7c8a77ca99" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structSYN__IR__Frame_1a51dedace7d0154d402e53b7c8a77ca99" kindref="member">address</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="95" refid="structSYN__IR__Frame_1af529af5ba22cfa66388812796cce7f0f" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structSYN__IR__Frame_1af529af5ba22cfa66388812796cce7f0f" kindref="member">command</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="96" refid="structSYN__IR__Frame_1afd25c7a0c4c58ddce5c0b6da284aa4a4" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/><ref refid="structSYN__IR__Frame_1afd25c7a0c4c58ddce5c0b6da284aa4a4" kindref="member">flags</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="97" refid="structSYN__IR__Frame_1a1066e61ef171e97ef6ff798470df5457" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><ref refid="structSYN__IR__Frame_1a1066e61ef171e97ef6ff798470df5457" kindref="member">bit_count</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="98" refid="structSYN__IR__Frame_1aac267aa7680411bc574a1daf9e4dcca3" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><ref refid="structSYN__IR__Frame_1aac267aa7680411bc574a1daf9e4dcca3" kindref="member">carrier_khz</ref>;<sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="99"><highlight class="normal">}<sp/><ref refid="structSYN__IR__Frame" kindref="compound">SYN_IR_Frame</ref>;</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"></highlight></codeline>
+<codeline lineno="101"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Timing<sp/>Pulse<sp/>Representation<sp/>(Encoder<sp/>Output)<sp/>──────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="102"><highlight class="normal"></highlight></codeline>
+<codeline lineno="106" refid="structSYN__IR__Pulse" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="107" refid="structSYN__IR__Pulse_1a127449a1dcb385efdc59f12b5f6c160d" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/><ref refid="structSYN__IR__Pulse_1a127449a1dcb385efdc59f12b5f6c160d" kindref="member">duration_us</ref>;<sp/></highlight></codeline>
+<codeline lineno="108" refid="structSYN__IR__Pulse_1ab0919cf488d6990c627c51778590ecfe" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="structSYN__IR__Pulse_1ab0919cf488d6990c627c51778590ecfe" kindref="member">is_mark</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="109"><highlight class="normal">}<sp/><ref refid="structSYN__IR__Pulse" kindref="compound">SYN_IR_Pulse</ref>;</highlight></codeline>
+<codeline lineno="110"><highlight class="normal"></highlight></codeline>
+<codeline lineno="111"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Decoder<sp/>State<sp/>Machine<sp/>Handle<sp/>─────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="112"><highlight class="normal"></highlight></codeline>
+<codeline lineno="114" refid="syn__ir_8h_1ab0a706fb3c809c822d3df8661c8eda97" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="115" refid="syn__ir_8h_1ab0a706fb3c809c822d3df8661c8eda97a89adcea2ea24e49514e581ce80920039" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__ir_8h_1ab0a706fb3c809c822d3df8661c8eda97a89adcea2ea24e49514e581ce80920039" kindref="member">SYN_IR_STATE_IDLE</ref><sp/>=<sp/>0,<sp/></highlight></codeline>
+<codeline lineno="116" refid="syn__ir_8h_1ab0a706fb3c809c822d3df8661c8eda97ac265bb327b9082d2c7e4389b80277b30" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__ir_8h_1ab0a706fb3c809c822d3df8661c8eda97ac265bb327b9082d2c7e4389b80277b30" kindref="member">SYN_IR_STATE_LEADER</ref>,<sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="117" refid="syn__ir_8h_1ab0a706fb3c809c822d3df8661c8eda97a3944a200ee3f6180fd4fd2b34379d6bc" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__ir_8h_1ab0a706fb3c809c822d3df8661c8eda97a3944a200ee3f6180fd4fd2b34379d6bc" kindref="member">SYN_IR_STATE_DATA</ref>,<sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="118"><highlight class="normal"><sp/><sp/><sp/><sp/>SYN_IR_STATE_TRAILER</highlight></codeline>
+<codeline lineno="119"><highlight class="normal">}<sp/><ref refid="syn__ir_8h_1ab0a706fb3c809c822d3df8661c8eda97" kindref="member">SYN_IR_FsmState</ref>;</highlight></codeline>
+<codeline lineno="120"><highlight class="normal"></highlight></codeline>
+<codeline lineno="124" refid="structSYN__IR__Decoder" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="125" refid="structSYN__IR__Decoder_1ab63b8a4f17509f2d4a2898353f7e64ea" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__ir_8h_1ab0a706fb3c809c822d3df8661c8eda97" kindref="member">SYN_IR_FsmState</ref><sp/><ref refid="structSYN__IR__Decoder_1ab63b8a4f17509f2d4a2898353f7e64ea" kindref="member">state</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="126" refid="structSYN__IR__Decoder_1ae39aa6351d5783dbb1f3086bff80214e" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__ir_8h_1af19033352c771278bf564ec103234a60" kindref="member">SYN_IR_Protocol</ref><sp/><ref refid="structSYN__IR__Decoder_1ae39aa6351d5783dbb1f3086bff80214e" kindref="member">active_proto</ref>;<sp/></highlight></codeline>
+<codeline lineno="127" refid="structSYN__IR__Decoder_1a81cbe963f9b65be2f83ef3af929c776b" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint64_t<sp/><ref refid="structSYN__IR__Decoder_1a81cbe963f9b65be2f83ef3af929c776b" kindref="member">bits</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="128" refid="structSYN__IR__Decoder_1aa2ae89ab7c40712b7ba308021ec661d2" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><ref refid="structSYN__IR__Decoder_1aa2ae89ab7c40712b7ba308021ec661d2" kindref="member">bit_idx</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="129" refid="structSYN__IR__Decoder_1adcced0a03291dfd3457d264083fd887e" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><ref refid="structSYN__IR__Decoder_1adcced0a03291dfd3457d264083fd887e" kindref="member">expected_bits</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="130" refid="structSYN__IR__Decoder_1ad4c2febad357394529b9578d81673951" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/><ref refid="structSYN__IR__Decoder_1ad4c2febad357394529b9578d81673951" kindref="member">last_mark_us</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="131" refid="structSYN__IR__Decoder_1a24d053f9fe2b31e1de45a0a7daa77c91" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/><ref refid="structSYN__IR__Decoder_1a24d053f9fe2b31e1de45a0a7daa77c91" kindref="member">last_space_us</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="132" refid="structSYN__IR__Decoder_1a505aba97cfb7419d0d9e2d6649a349f3" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structSYN__IR__Frame" kindref="compound">SYN_IR_Frame</ref><sp/><ref refid="structSYN__IR__Decoder_1a505aba97cfb7419d0d9e2d6649a349f3" kindref="member">last_frame</ref>;<sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="133" refid="structSYN__IR__Decoder_1a6ca1873e1826d918ca5d2615d6f7851b" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="structSYN__IR__Decoder_1a6ca1873e1826d918ca5d2615d6f7851b" kindref="member">have_last</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="134" refid="structSYN__IR__Decoder_1a6ca2191a269f9f7f9e94c9b5211ee27c" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="structSYN__IR__Decoder_1a6ca2191a269f9f7f9e94c9b5211ee27c" kindref="member">manchester_phase</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="135"><highlight class="normal">}<sp/><ref refid="structSYN__IR__Decoder" kindref="compound">SYN_IR_Decoder</ref>;</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"></highlight></codeline>
+<codeline lineno="137"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>API<sp/>Functions<sp/>────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="138"><highlight class="normal"></highlight></codeline>
+<codeline lineno="144"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__ir_8h_1a621b90b9f87db4a3e246ffea455a9f1f" kindref="member">syn_ir_decoder_init</ref>(<ref refid="structSYN__IR__Decoder" kindref="compound">SYN_IR_Decoder</ref><sp/>*decoder);</highlight></codeline>
+<codeline lineno="145"><highlight class="normal"></highlight></codeline>
+<codeline lineno="154"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__ir_8h_1af3cceca8e1534e1b07bddb66782672e2" kindref="member">syn_ir_decode_pulse</ref>(<ref refid="structSYN__IR__Decoder" kindref="compound">SYN_IR_Decoder</ref><sp/>*decoder,<sp/>uint16_t<sp/>duration_us,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>is_mark,</highlight></codeline>
+<codeline lineno="155"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__IR__Frame" kindref="compound">SYN_IR_Frame</ref><sp/>*frame_out);</highlight></codeline>
+<codeline lineno="156"><highlight class="normal"></highlight></codeline>
+<codeline lineno="163"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__ir_8h_1a284b4bd1f3b09a2c42c3715ab0ca903d" kindref="member">syn_ir_decode_timeout</ref>(<ref refid="structSYN__IR__Decoder" kindref="compound">SYN_IR_Decoder</ref><sp/>*decoder,<sp/><ref refid="structSYN__IR__Frame" kindref="compound">SYN_IR_Frame</ref><sp/>*frame_out);</highlight></codeline>
+<codeline lineno="164"><highlight class="normal"></highlight></codeline>
+<codeline lineno="173"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__ir_8h_1a184faa8b42e61c95d2a5d9111dc98ca9" kindref="member">syn_ir_encode_frame</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__IR__Frame" kindref="compound">SYN_IR_Frame</ref><sp/>*frame,<sp/><ref refid="structSYN__IR__Pulse" kindref="compound">SYN_IR_Pulse</ref><sp/>*pulse_buf,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>buf_len,</highlight></codeline>
+<codeline lineno="174"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>*count_out);</highlight></codeline>
+<codeline lineno="175"><highlight class="normal"></highlight></codeline>
+<codeline lineno="181"><highlight class="normal"></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*<ref refid="syn__ir_8h_1a221fef995002d545eee7b12b0e86c2ab" kindref="member">syn_ir_protocol_name</ref>(<ref refid="syn__ir_8h_1af19033352c771278bf564ec103234a60" kindref="member">SYN_IR_Protocol</ref><sp/>proto);</highlight></codeline>
+<codeline lineno="182"><highlight class="normal"></highlight></codeline>
+<codeline lineno="183"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="184"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="185"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="186"><highlight class="normal"></highlight></codeline>
+<codeline lineno="187"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_USE_IR<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="188"><highlight class="normal"></highlight></codeline>
+<codeline lineno="189"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_IR_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/proto/syn_ir.h"/>
+  </compounddef>
+</doxygen>
