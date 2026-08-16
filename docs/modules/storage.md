@@ -136,6 +136,14 @@ Each slot consists of a 16-byte metadata header followed by the caller's paramet
      $$\text{is\_newer} = ((\text{int16\_t})(\text{hdr.seq} - \text{best\_seq}) > 0)$$
    - This handles 16-bit sequence number rollover ($65535 \rightarrow 0$) seamlessly without data loss.
 
+5. **Power-Loss Fault Recovery Matrix**:
+
+| Fault Scenario | State of Old Data | State of New Data | Recovery on Reboot (`syn_param_init`) |
+|---|---|---|---|
+| **Power-loss during Erase** | Intact in previous sector | Partial erase (corrupted bits) | Discards erased sector; recovers latest valid slot from previous sector. Re-erases on next write. |
+| **Power-loss during Data Write** | Intact in previous slot | Partial payload | Header missing (`0xFF` != `0xC0DE`); discards incomplete slot and loads previous valid slot. |
+| **Power-loss during Header Write**| Intact in previous slot | Corrupted header | Magic / CRC-16 check fails; discards corrupt slot and loads previous valid slot. |
+
 ---
 
 ## 3. Virtual File System (`syn_vfs.h`)
