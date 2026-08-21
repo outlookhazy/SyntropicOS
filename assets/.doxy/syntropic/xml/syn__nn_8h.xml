@@ -1,0 +1,1516 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__nn_8h" kind="file" language="C++">
+    <compoundname>syn_nn.h</compoundname>
+    <includes refid="syn__qmath_8h" local="yes">syn_qmath.h</includes>
+    <includes refid="syn__defs_8h" local="yes">syntropic/common/syn_defs.h</includes>
+    <includes refid="syn__pt_8h" local="yes">syntropic/pt/syn_pt.h</includes>
+    <includedby refid="syn__nn_8c" local="yes">src/syntropic/util/syn_nn.c</includedby>
+    <incdepgraph>
+      <node id="7">
+        <label>../common/syn_compiler.h</label>
+        <link refid="syn__compiler_8h"/>
+      </node>
+      <node id="5">
+        <label>syntropic/common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>syntropic/pt/syn_pt.h</label>
+        <link refid="syn__pt_8h"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/util/syn_nn.h</label>
+        <link refid="syn__nn_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>syn_qmath.h</label>
+        <link refid="syn__qmath_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>stddef.h</label>
+      </node>
+      <node id="4">
+        <label>stdint.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="2">
+        <label>src/syntropic/util/syn_nn.c</label>
+        <link refid="syn__nn_8c"/>
+      </node>
+      <node id="1">
+        <label>src/syntropic/util/syn_nn.h</label>
+        <link refid="syn__nn_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="structsyn__nn__quant__t" prot="public">syn_nn_quant_t</innerclass>
+    <innerclass refid="structSYN__NN__Layer" prot="public">SYN_NN_Layer</innerclass>
+    <innerclass refid="structSYN__NN__Model" prot="public">SYN_NN_Model</innerclass>
+    <sectiondef kind="enum">
+      <memberdef kind="enum" id="syn__nn_8h_1a8bc11df5088c0a62af4b6f32708b9436" prot="public" static="no" strong="no">
+        <type></type>
+        <name>SYN_NN_Activation</name>
+        <enumvalue id="syn__nn_8h_1a8bc11df5088c0a62af4b6f32708b9436a346ac4d95e2fea011ebf1f9f7b916155" prot="public">
+          <name>SYN_NN_ACT_NONE</name>
+          <initializer>= 0</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Linear pass-through (no activation) </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__nn_8h_1a8bc11df5088c0a62af4b6f32708b9436a64bff6413dc0f909a2b2ccdb35fa4f60" prot="public">
+          <name>SYN_NN_ACT_RELU</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Rectified Linear Unit (max(0, x)) <linebreak/>
+ </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__nn_8h_1a8bc11df5088c0a62af4b6f32708b9436ad3caf3238f10604279a39775ab35da83" prot="public">
+          <name>SYN_NN_ACT_LEAKY_RELU</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Leaky ReLU (x &gt; 0 ? x : x / 16) <linebreak/>
+ </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__nn_8h_1a8bc11df5088c0a62af4b6f32708b9436ada44a82d041cdf348ffd87cea14f1818" prot="public">
+          <name>SYN_NN_ACT_SIGMOID</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Fixed-point Sigmoid approximation <linebreak/>
+ </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__nn_8h_1a8bc11df5088c0a62af4b6f32708b9436a7739f680be6173f9f2d24037354d3dea" prot="public">
+          <name>SYN_NN_ACT_TANH</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Fixed-point TanH approximation <linebreak/>
+ </para>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>Neural Network Activation Functions. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_nn.h" line="23" column="1" bodyfile="src/syntropic/util/syn_nn.h" bodystart="23" bodyend="29"/>
+      </memberdef>
+      <memberdef kind="enum" id="syn__nn_8h_1a373aebd7c96e842e2f8139d459bf9dac" prot="public" static="no" strong="no">
+        <type></type>
+        <name>SYN_NN_LayerType</name>
+        <enumvalue id="syn__nn_8h_1a373aebd7c96e842e2f8139d459bf9daca2e34a8f112717c6f10673b5479036813" prot="public">
+          <name>SYN_NN_LAYER_DENSE</name>
+          <initializer>= 0</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__nn_8h_1a373aebd7c96e842e2f8139d459bf9dacadb558c8c88dbf415a50e018a60230495" prot="public">
+          <name>SYN_NN_LAYER_ATTENTION</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>Layer Type Enum for Declarative Models. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_nn.h" line="46" column="1" bodyfile="src/syntropic/util/syn_nn.h" bodystart="46" bodyend="46"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__nn_8h_1a35b25a4b0492d8a9615d0262a15e5dec" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_nn_dense_q7</definition>
+        <argsstring>(const q7_t *inputs, size_t num_inputs, const q7_t *weights, const q16_t *biases, q7_t *outputs, size_t num_outputs, SYN_NN_Activation act, uint8_t out_shift)</argsstring>
+        <name>syn_nn_dense_q7</name>
+        <param>
+          <type>const <ref refid="syn__qmath_8h_1ae541b6f232c305361e9b416fc9eed263" kindref="member">q7_t</ref> *</type>
+          <declname>inputs</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>num_inputs</declname>
+        </param>
+        <param>
+          <type>const <ref refid="syn__qmath_8h_1ae541b6f232c305361e9b416fc9eed263" kindref="member">q7_t</ref> *</type>
+          <declname>weights</declname>
+        </param>
+        <param>
+          <type>const <ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref> *</type>
+          <declname>biases</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1ae541b6f232c305361e9b416fc9eed263" kindref="member">q7_t</ref> *</type>
+          <declname>outputs</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>num_outputs</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__nn_8h_1a8bc11df5088c0a62af4b6f32708b9436" kindref="member">SYN_NN_Activation</ref></type>
+          <declname>act</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>out_shift</declname>
+        </param>
+        <briefdescription>
+<para>Evaluate a Dense (Fully Connected) Neural Network layer using INT8 (q7_t) weights. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Computes: Output[i] = Activation( ((Sum(Input[j] * Weight[i][j]) + Bias[i]) &gt;&gt; out_shift) )</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>inputs</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to input vector (length = num_inputs). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>num_inputs</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of input features. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>weights</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Flat weight matrix [num_outputs * num_inputs]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>biases</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Bias vector of length num_outputs in Q16.16 (or NULL). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>outputs</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Destination buffer for outputs (length = num_outputs). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>num_outputs</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of output neurons in layer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>act</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Activation function to apply. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out_shift</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Right bit-shift scaling factor (0 to 15) to prevent overflow. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_INVALID_PARAM on failure. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_nn.h" line="84" column="12" bodyfile="src/syntropic/util/syn_nn.c" bodystart="119" bodyend="139" declfile="src/syntropic/util/syn_nn.h" declline="84" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__nn_8h_1a55d72ffbb0ae6b6fadd8db0ddfe6d6c4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__pt_8h_1a837fcf03fa24b6b73d66bb133b95d79e" kindref="member">SYN_PT_Status</ref></type>
+        <definition>SYN_PT_Status syn_nn_dense_pt</definition>
+        <argsstring>(SYN_PT *pt, const q7_t *inputs, size_t num_inputs, const q7_t *weights, const q16_t *biases, q7_t *outputs, size_t num_outputs, SYN_NN_Activation act, uint8_t out_shift, size_t *current_neuron, size_t chunk_size)</argsstring>
+        <name>syn_nn_dense_pt</name>
+        <param>
+          <type><ref refid="structSYN__PT" kindref="compound">SYN_PT</ref> *</type>
+          <declname>pt</declname>
+        </param>
+        <param>
+          <type>const <ref refid="syn__qmath_8h_1ae541b6f232c305361e9b416fc9eed263" kindref="member">q7_t</ref> *</type>
+          <declname>inputs</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>num_inputs</declname>
+        </param>
+        <param>
+          <type>const <ref refid="syn__qmath_8h_1ae541b6f232c305361e9b416fc9eed263" kindref="member">q7_t</ref> *</type>
+          <declname>weights</declname>
+        </param>
+        <param>
+          <type>const <ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref> *</type>
+          <declname>biases</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1ae541b6f232c305361e9b416fc9eed263" kindref="member">q7_t</ref> *</type>
+          <declname>outputs</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>num_outputs</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__nn_8h_1a8bc11df5088c0a62af4b6f32708b9436" kindref="member">SYN_NN_Activation</ref></type>
+          <declname>act</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>out_shift</declname>
+        </param>
+        <param>
+          <type>size_t *</type>
+          <declname>current_neuron</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>chunk_size</declname>
+        </param>
+        <briefdescription>
+<para>Evaluate a Dense Neural Network layer cooperatively inside a protothread. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>pt</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to protothread state machine. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>inputs</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to input vector. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>num_inputs</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of input features. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>weights</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Flat weight matrix. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>biases</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Bias vector or NULL. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>outputs</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Destination output vector. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>num_outputs</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of output neurons. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>act</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Activation function to apply. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out_shift</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Right bit-shift scaling factor. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>current_neuron</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>State variable tracking progress across yields. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>chunk_size</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of neurons to evaluate per protothread tick. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_PT_YIELDING while evaluating, SYN_PT_ENDED on completion. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_nn.h" line="104" column="15" bodyfile="src/syntropic/util/syn_nn.c" bodystart="141" bodyend="183" declfile="src/syntropic/util/syn_nn.h" declline="104" declcolumn="15"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__nn_8h_1a99cedadc9b68a11f10772fa9e2675204" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_nn_softmax_q7</definition>
+        <argsstring>(const q7_t *inputs, q7_t *outputs, size_t num_inputs)</argsstring>
+        <name>syn_nn_softmax_q7</name>
+        <param>
+          <type>const <ref refid="syn__qmath_8h_1ae541b6f232c305361e9b416fc9eed263" kindref="member">q7_t</ref> *</type>
+          <declname>inputs</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1ae541b6f232c305361e9b416fc9eed263" kindref="member">q7_t</ref> *</type>
+          <declname>outputs</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>num_inputs</declname>
+        </param>
+        <briefdescription>
+<para>Compute normalized Softmax probability distribution over input logits in Q7. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Output values sum to 127 (+1.0 in Q7).</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>inputs</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to logit input vector. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>outputs</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to destination probability vector. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>num_inputs</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of features / classes. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_INVALID_PARAM on failure. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_nn.h" line="119" column="12" bodyfile="src/syntropic/util/syn_nn.c" bodystart="185" bodyend="225" declfile="src/syntropic/util/syn_nn.h" declline="119" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__nn_8h_1a8d093f874a646fb6b9a2e48b6895b5c7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_nn_attention_q7</definition>
+        <argsstring>(const q7_t *q, const q7_t *k, const q7_t *v, size_t seq_len, size_t d_k, size_t d_v, q7_t *out, uint8_t attn_shift)</argsstring>
+        <name>syn_nn_attention_q7</name>
+        <param>
+          <type>const <ref refid="syn__qmath_8h_1ae541b6f232c305361e9b416fc9eed263" kindref="member">q7_t</ref> *</type>
+          <declname>q</declname>
+        </param>
+        <param>
+          <type>const <ref refid="syn__qmath_8h_1ae541b6f232c305361e9b416fc9eed263" kindref="member">q7_t</ref> *</type>
+          <declname>k</declname>
+        </param>
+        <param>
+          <type>const <ref refid="syn__qmath_8h_1ae541b6f232c305361e9b416fc9eed263" kindref="member">q7_t</ref> *</type>
+          <declname>v</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>seq_len</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>d_k</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>d_v</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1ae541b6f232c305361e9b416fc9eed263" kindref="member">q7_t</ref> *</type>
+          <declname>out</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>attn_shift</declname>
+        </param>
+        <briefdescription>
+<para>INT8 Quantized Scaled Dot-Product Self-Attention Layer. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Computes Attention(Q, K, V) = Softmax( (Q * K^T) &gt;&gt; attn_shift ) * V</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>q</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Query matrix [seq_len * d_k]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>k</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Key matrix [seq_len * d_k]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>v</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Value matrix [seq_len * d_v]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>seq_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Sequence length / token count. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>d_k</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Query/Key dimension per token. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>d_v</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Value dimension per token. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output matrix [seq_len * d_v]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>attn_shift</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Right bit-shift for dot-product scaling. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_INVALID_PARAM on failure. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_nn.h" line="136" column="12" bodyfile="src/syntropic/util/syn_nn.c" bodystart="227" bodyend="270" declfile="src/syntropic/util/syn_nn.h" declline="136" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__nn_8h_1a9e689a43c4d16da11d56e81f4036845f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_nn_conv1d_q7</definition>
+        <argsstring>(const q7_t *inputs, size_t seq_len, size_t num_channels, const q7_t *weights, const q16_t *biases, q7_t *outputs, size_t num_filters, size_t kernel_size, size_t stride, SYN_NN_Activation act, uint8_t out_shift)</argsstring>
+        <name>syn_nn_conv1d_q7</name>
+        <param>
+          <type>const <ref refid="syn__qmath_8h_1ae541b6f232c305361e9b416fc9eed263" kindref="member">q7_t</ref> *</type>
+          <declname>inputs</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>seq_len</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>num_channels</declname>
+        </param>
+        <param>
+          <type>const <ref refid="syn__qmath_8h_1ae541b6f232c305361e9b416fc9eed263" kindref="member">q7_t</ref> *</type>
+          <declname>weights</declname>
+        </param>
+        <param>
+          <type>const <ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref> *</type>
+          <declname>biases</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1ae541b6f232c305361e9b416fc9eed263" kindref="member">q7_t</ref> *</type>
+          <declname>outputs</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>num_filters</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>kernel_size</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>stride</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__nn_8h_1a8bc11df5088c0a62af4b6f32708b9436" kindref="member">SYN_NN_Activation</ref></type>
+          <declname>act</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>out_shift</declname>
+        </param>
+        <briefdescription>
+<para>Evaluate a 1D Temporal Convolutional Neural Network layer in INT8 (q7_t). </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Scans a 1D kernel filter matrix [num_filters * kernel_size * num_channels] across a time series [seq_len * num_channels].</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>inputs</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to input matrix [seq_len * num_channels]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>seq_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Input sequence length (time steps). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>num_channels</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of input channels/features per time step. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>weights</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Flat kernel weights matrix [num_filters * kernel_size * num_channels]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>biases</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Bias vector of length num_filters in Q16 (or NULL). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>outputs</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Destination output matrix [out_steps * num_filters]. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>num_filters</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of output filters/channels. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>kernel_size</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Size of 1D sliding window kernel. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>stride</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Stride step across time steps. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>act</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Activation function to apply to output filters. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out_shift</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Right bit-shift scaling factor (0 to 15) to prevent overflow. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_INVALID_PARAM on failure. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_nn.h" line="158" column="12" bodyfile="src/syntropic/util/syn_nn.c" bodystart="272" bodyend="305" declfile="src/syntropic/util/syn_nn.h" declline="158" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__nn_8h_1ae4dea3187ca76552f44206f3c63eec04" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__pt_8h_1a837fcf03fa24b6b73d66bb133b95d79e" kindref="member">SYN_PT_Status</ref></type>
+        <definition>SYN_PT_Status syn_nn_conv1d_pt</definition>
+        <argsstring>(SYN_PT *pt, const q7_t *inputs, size_t seq_len, size_t num_channels, const q7_t *weights, const q16_t *biases, q7_t *outputs, size_t num_filters, size_t kernel_size, size_t stride, SYN_NN_Activation act, uint8_t out_shift, size_t *current_step, size_t chunk_size)</argsstring>
+        <name>syn_nn_conv1d_pt</name>
+        <param>
+          <type><ref refid="structSYN__PT" kindref="compound">SYN_PT</ref> *</type>
+          <declname>pt</declname>
+        </param>
+        <param>
+          <type>const <ref refid="syn__qmath_8h_1ae541b6f232c305361e9b416fc9eed263" kindref="member">q7_t</ref> *</type>
+          <declname>inputs</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>seq_len</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>num_channels</declname>
+        </param>
+        <param>
+          <type>const <ref refid="syn__qmath_8h_1ae541b6f232c305361e9b416fc9eed263" kindref="member">q7_t</ref> *</type>
+          <declname>weights</declname>
+        </param>
+        <param>
+          <type>const <ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref> *</type>
+          <declname>biases</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1ae541b6f232c305361e9b416fc9eed263" kindref="member">q7_t</ref> *</type>
+          <declname>outputs</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>num_filters</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>kernel_size</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>stride</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__nn_8h_1a8bc11df5088c0a62af4b6f32708b9436" kindref="member">SYN_NN_Activation</ref></type>
+          <declname>act</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>out_shift</declname>
+        </param>
+        <param>
+          <type>size_t *</type>
+          <declname>current_step</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>chunk_size</declname>
+        </param>
+        <briefdescription>
+<para>Evaluate a 1D Temporal Convolution layer cooperatively inside a protothread. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>pt</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to protothread state machine. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>inputs</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to input matrix. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>seq_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Sequence length. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>num_channels</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of input channels. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>weights</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Kernel weights matrix. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>biases</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Bias vector or NULL. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>outputs</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Destination output matrix. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>num_filters</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of output filters. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>kernel_size</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Kernel window size. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>stride</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Stride step. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>act</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Activation function. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out_shift</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Right bit-shift scaling factor. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>current_step</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>State variable tracking step progress across yields. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>chunk_size</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of output steps to evaluate per tick. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_PT_YIELDING while evaluating, SYN_PT_ENDED on completion. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_nn.h" line="182" column="15" bodyfile="src/syntropic/util/syn_nn.c" bodystart="307" bodyend="358" declfile="src/syntropic/util/syn_nn.h" declline="182" declcolumn="15"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__nn_8h_1a2b76fde91f6e3979e853320644b38e67" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_nn_conv1d_quant_q7</definition>
+        <argsstring>(const q7_t *inputs, size_t seq_len, size_t num_channels, const q7_t *weights, const q16_t *biases, q7_t *outputs, size_t num_filters, size_t kernel_size, size_t stride, SYN_NN_Activation act, const syn_nn_quant_t *quant)</argsstring>
+        <name>syn_nn_conv1d_quant_q7</name>
+        <param>
+          <type>const <ref refid="syn__qmath_8h_1ae541b6f232c305361e9b416fc9eed263" kindref="member">q7_t</ref> *</type>
+          <declname>inputs</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>seq_len</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>num_channels</declname>
+        </param>
+        <param>
+          <type>const <ref refid="syn__qmath_8h_1ae541b6f232c305361e9b416fc9eed263" kindref="member">q7_t</ref> *</type>
+          <declname>weights</declname>
+        </param>
+        <param>
+          <type>const <ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref> *</type>
+          <declname>biases</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1ae541b6f232c305361e9b416fc9eed263" kindref="member">q7_t</ref> *</type>
+          <declname>outputs</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>num_filters</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>kernel_size</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>stride</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__nn_8h_1a8bc11df5088c0a62af4b6f32708b9436" kindref="member">SYN_NN_Activation</ref></type>
+          <declname>act</declname>
+        </param>
+        <param>
+          <type>const <ref refid="structsyn__nn__quant__t" kindref="compound">syn_nn_quant_t</ref> *</type>
+          <declname>quant</declname>
+        </param>
+        <briefdescription>
+<para>Evaluate a 1D Temporal Convolution layer with affine quantization scaling. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>inputs</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to input matrix. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>seq_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Sequence length. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>num_channels</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of input channels. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>weights</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Kernel weights matrix. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>biases</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Bias vector or NULL. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>outputs</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Destination output matrix. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>num_filters</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of output filters. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>kernel_size</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Kernel window size. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>stride</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Stride step. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>act</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Activation function. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>quant</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to affine quantization scaling parameters. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_INVALID_PARAM on failure. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_nn.h" line="204" column="12" bodyfile="src/syntropic/util/syn_nn.c" bodystart="379" bodyend="412" declfile="src/syntropic/util/syn_nn.h" declline="204" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__nn_8h_1ab2143dc8d94b76bbe3d338ed7ad94a32" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_nn_dense_quant_q7</definition>
+        <argsstring>(const q7_t *inputs, size_t num_inputs, const q7_t *weights, const q16_t *biases, q7_t *outputs, size_t num_outputs, SYN_NN_Activation act, const syn_nn_quant_t *quant)</argsstring>
+        <name>syn_nn_dense_quant_q7</name>
+        <param>
+          <type>const <ref refid="syn__qmath_8h_1ae541b6f232c305361e9b416fc9eed263" kindref="member">q7_t</ref> *</type>
+          <declname>inputs</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>num_inputs</declname>
+        </param>
+        <param>
+          <type>const <ref refid="syn__qmath_8h_1ae541b6f232c305361e9b416fc9eed263" kindref="member">q7_t</ref> *</type>
+          <declname>weights</declname>
+        </param>
+        <param>
+          <type>const <ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref> *</type>
+          <declname>biases</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1ae541b6f232c305361e9b416fc9eed263" kindref="member">q7_t</ref> *</type>
+          <declname>outputs</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>num_outputs</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__nn_8h_1a8bc11df5088c0a62af4b6f32708b9436" kindref="member">SYN_NN_Activation</ref></type>
+          <declname>act</declname>
+        </param>
+        <param>
+          <type>const <ref refid="structsyn__nn__quant__t" kindref="compound">syn_nn_quant_t</ref> *</type>
+          <declname>quant</declname>
+        </param>
+        <briefdescription>
+<para>Evaluate a Dense layer with affine quantization scaling. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>inputs</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to input vector. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>num_inputs</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of input features. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>weights</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Flat weight matrix. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>biases</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Bias vector or NULL. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>outputs</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Destination output vector. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>num_outputs</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of output neurons. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>act</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Activation function. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>quant</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to affine quantization scaling parameters. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_INVALID_PARAM on failure. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_nn.h" line="222" column="12" bodyfile="src/syntropic/util/syn_nn.c" bodystart="414" bodyend="434" declfile="src/syntropic/util/syn_nn.h" declline="222" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__nn_8h_1acc39b75ed9655b8699e09cc29cf128c5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_nn_maxpool1d_q7</definition>
+        <argsstring>(const q7_t *inputs, size_t seq_len, size_t num_channels, q7_t *outputs, size_t pool_size, size_t stride)</argsstring>
+        <name>syn_nn_maxpool1d_q7</name>
+        <param>
+          <type>const <ref refid="syn__qmath_8h_1ae541b6f232c305361e9b416fc9eed263" kindref="member">q7_t</ref> *</type>
+          <declname>inputs</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>seq_len</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>num_channels</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1ae541b6f232c305361e9b416fc9eed263" kindref="member">q7_t</ref> *</type>
+          <declname>outputs</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>pool_size</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>stride</declname>
+        </param>
+        <briefdescription>
+<para>1D Max Pooling Layer for INT8 Feature Maps. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>inputs</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to input feature matrix. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>seq_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Input sequence length. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>num_channels</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of feature channels. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>outputs</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Destination output matrix. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>pool_size</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pooling window size. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>stride</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Stride step size. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_INVALID_PARAM on failure. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_nn.h" line="237" column="12" bodyfile="src/syntropic/util/syn_nn.c" bodystart="436" bodyend="461" declfile="src/syntropic/util/syn_nn.h" declline="237" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__nn_8h_1a637bfc0dc5b886702a49a9f193c38ab2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_nn_avgpool1d_q7</definition>
+        <argsstring>(const q7_t *inputs, size_t seq_len, size_t num_channels, q7_t *outputs, size_t pool_size, size_t stride)</argsstring>
+        <name>syn_nn_avgpool1d_q7</name>
+        <param>
+          <type>const <ref refid="syn__qmath_8h_1ae541b6f232c305361e9b416fc9eed263" kindref="member">q7_t</ref> *</type>
+          <declname>inputs</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>seq_len</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>num_channels</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1ae541b6f232c305361e9b416fc9eed263" kindref="member">q7_t</ref> *</type>
+          <declname>outputs</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>pool_size</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>stride</declname>
+        </param>
+        <briefdescription>
+<para>1D Average Pooling Layer for INT8 Feature Maps. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>inputs</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to input feature matrix. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>seq_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Input sequence length. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>num_channels</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of feature channels. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>outputs</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Destination output matrix. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>pool_size</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pooling window size. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>stride</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Stride step size. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_INVALID_PARAM on failure. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_nn.h" line="251" column="12" bodyfile="src/syntropic/util/syn_nn.c" bodystart="463" bodyend="490" declfile="src/syntropic/util/syn_nn.h" declline="251" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__nn_8h_1a023970b82da2ebec52d154571cf994e5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>size_t</type>
+        <definition>size_t syn_nn_argmax_q7</definition>
+        <argsstring>(const q7_t *outputs, size_t num_outputs)</argsstring>
+        <name>syn_nn_argmax_q7</name>
+        <param>
+          <type>const <ref refid="syn__qmath_8h_1ae541b6f232c305361e9b416fc9eed263" kindref="member">q7_t</ref> *</type>
+          <declname>outputs</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>num_outputs</declname>
+        </param>
+        <briefdescription>
+<para>Find the class index with the highest output value (ArgMax). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>outputs</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to output vector. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>num_outputs</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of output elements. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Index of maximum value element (0 if num_outputs == 0 or NULL). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_nn.h" line="261" column="8" bodyfile="src/syntropic/util/syn_nn.c" bodystart="360" bodyend="377" declfile="src/syntropic/util/syn_nn.h" declline="261" declcolumn="8"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Zero-heap TinyML Neural Network Engine with Attention &amp; Quantization Scaling. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Implements quantized INT8 (q7_t) Dense, Attention, Softmax, and Activation functions with zero dynamic memory allocation. </para>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_NN_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_NN_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__qmath_8h" kindref="compound">syn_qmath.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__defs_8h" kindref="compound">syntropic/common/syn_defs.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__pt_8h" kindref="compound">syntropic/pt/syn_pt.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight></codeline>
+<codeline lineno="23" refid="syn__nn_8h_1a8bc11df5088c0a62af4b6f32708b9436" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="24" refid="syn__nn_8h_1a8bc11df5088c0a62af4b6f32708b9436a346ac4d95e2fea011ebf1f9f7b916155" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__nn_8h_1a8bc11df5088c0a62af4b6f32708b9436a346ac4d95e2fea011ebf1f9f7b916155" kindref="member">SYN_NN_ACT_NONE</ref><sp/>=<sp/>0,<sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="25" refid="syn__nn_8h_1a8bc11df5088c0a62af4b6f32708b9436a64bff6413dc0f909a2b2ccdb35fa4f60" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__nn_8h_1a8bc11df5088c0a62af4b6f32708b9436a64bff6413dc0f909a2b2ccdb35fa4f60" kindref="member">SYN_NN_ACT_RELU</ref>,<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="26" refid="syn__nn_8h_1a8bc11df5088c0a62af4b6f32708b9436ad3caf3238f10604279a39775ab35da83" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__nn_8h_1a8bc11df5088c0a62af4b6f32708b9436ad3caf3238f10604279a39775ab35da83" kindref="member">SYN_NN_ACT_LEAKY_RELU</ref>,<sp/></highlight></codeline>
+<codeline lineno="27" refid="syn__nn_8h_1a8bc11df5088c0a62af4b6f32708b9436ada44a82d041cdf348ffd87cea14f1818" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__nn_8h_1a8bc11df5088c0a62af4b6f32708b9436ada44a82d041cdf348ffd87cea14f1818" kindref="member">SYN_NN_ACT_SIGMOID</ref>,<sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__nn_8h_1a8bc11df5088c0a62af4b6f32708b9436a7739f680be6173f9f2d24037354d3dea" kindref="member">SYN_NN_ACT_TANH</ref><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="29" refid="syn__nn_8h_1a8bc11df5088c0a62af4b6f32708b9436a7739f680be6173f9f2d24037354d3dea" refkind="member"><highlight class="normal">}<sp/><ref refid="syn__nn_8h_1a8bc11df5088c0a62af4b6f32708b9436" kindref="member">SYN_NN_Activation</ref>;</highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight></codeline>
+<codeline lineno="37" refid="structsyn__nn__quant__t" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="38" refid="structsyn__nn__quant__t_1a71b369be29f8097c81599244311c6a20" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/><ref refid="structsyn__nn__quant__t_1a71b369be29f8097c81599244311c6a20" kindref="member">multiplier</ref>;<sp/></highlight></codeline>
+<codeline lineno="39" refid="structsyn__nn__quant__t_1a97cee8b5ada59bdd55e0575c7f1189c6" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><ref refid="structsyn__nn__quant__t_1a97cee8b5ada59bdd55e0575c7f1189c6" kindref="member">shift</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="40" refid="structsyn__nn__quant__t_1ac8a5128736d106db283b62c27c1be311" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>int8_t<sp/><ref refid="structsyn__nn__quant__t_1ac8a5128736d106db283b62c27c1be311" kindref="member">zero_point</ref>;<sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="41"><highlight class="normal">}<sp/><ref refid="structsyn__nn__quant__t" kindref="compound">syn_nn_quant_t</ref>;</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight></codeline>
+<codeline lineno="46" refid="syn__nn_8h_1a373aebd7c96e842e2f8139d459bf9dac" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{<sp/>SYN_NN_LAYER_DENSE<sp/>=<sp/>0,<sp/>SYN_NN_LAYER_ATTENTION<sp/>}<sp/><ref refid="syn__nn_8h_1a373aebd7c96e842e2f8139d459bf9dac" kindref="member">SYN_NN_LayerType</ref>;</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"></highlight></codeline>
+<codeline lineno="51" refid="structSYN__NN__Layer" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="52" refid="structSYN__NN__Layer_1a344e61e44149ef857afab38493f0c72b" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__nn_8h_1a373aebd7c96e842e2f8139d459bf9dac" kindref="member">SYN_NN_LayerType</ref><sp/><ref refid="structSYN__NN__Layer_1a344e61e44149ef857afab38493f0c72b" kindref="member">type</ref>;<sp/></highlight></codeline>
+<codeline lineno="53" refid="structSYN__NN__Layer_1ada3afab130f25e84a29d223c3e2f1c14" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="structSYN__NN__Layer_1ada3afab130f25e84a29d223c3e2f1c14" kindref="member">num_inputs</ref>;<sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="54" refid="structSYN__NN__Layer_1ad56adab8f2dbbd227bdeef4145f7e912" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="structSYN__NN__Layer_1ad56adab8f2dbbd227bdeef4145f7e912" kindref="member">num_outputs</ref>;<sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="55" refid="structSYN__NN__Layer_1a4e559f607bf9456a99d640e2bbb22185" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="syn__qmath_8h_1ae541b6f232c305361e9b416fc9eed263" kindref="member">q7_t</ref><sp/>*<ref refid="structSYN__NN__Layer_1a4e559f607bf9456a99d640e2bbb22185" kindref="member">weights</ref>;<sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="56" refid="structSYN__NN__Layer_1add8cd217757e079f4ae5d485860d8fe4" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>*<ref refid="structSYN__NN__Layer_1add8cd217757e079f4ae5d485860d8fe4" kindref="member">biases</ref>;<sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="57" refid="structSYN__NN__Layer_1a0823b01b3f74bcdc872c1f06d2141a3d" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__nn_8h_1a8bc11df5088c0a62af4b6f32708b9436" kindref="member">SYN_NN_Activation</ref><sp/><ref refid="structSYN__NN__Layer_1a0823b01b3f74bcdc872c1f06d2141a3d" kindref="member">act</ref>;<sp/></highlight></codeline>
+<codeline lineno="58" refid="structSYN__NN__Layer_1af4380124457da8a20a6143908cf796f3" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><ref refid="structSYN__NN__Layer_1af4380124457da8a20a6143908cf796f3" kindref="member">out_shift</ref>;<sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="59"><highlight class="normal">}<sp/><ref refid="structSYN__NN__Layer" kindref="compound">SYN_NN_Layer</ref>;</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"></highlight></codeline>
+<codeline lineno="64" refid="structSYN__NN__Model" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="65" refid="structSYN__NN__Model_1ac0c6c449d8c84d53772bbac455e8b440" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__NN__Layer" kindref="compound">SYN_NN_Layer</ref><sp/>*<ref refid="structSYN__NN__Model_1ac0c6c449d8c84d53772bbac455e8b440" kindref="member">layers</ref>;<sp/></highlight></codeline>
+<codeline lineno="66" refid="structSYN__NN__Model_1a484e6b87070109203df4763126a76bdb" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="structSYN__NN__Model_1a484e6b87070109203df4763126a76bdb" kindref="member">num_layers</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="67"><highlight class="normal">}<sp/><ref refid="structSYN__NN__Model" kindref="compound">SYN_NN_Model</ref>;</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"></highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__nn_8h_1a35b25a4b0492d8a9615d0262a15e5dec" kindref="member">syn_nn_dense_q7</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="syn__qmath_8h_1ae541b6f232c305361e9b416fc9eed263" kindref="member">q7_t</ref><sp/>*inputs,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>num_inputs,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="syn__qmath_8h_1ae541b6f232c305361e9b416fc9eed263" kindref="member">q7_t</ref><sp/>*weights,</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>*biases,<sp/><ref refid="syn__qmath_8h_1ae541b6f232c305361e9b416fc9eed263" kindref="member">q7_t</ref><sp/>*outputs,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>num_outputs,</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__nn_8h_1a8bc11df5088c0a62af4b6f32708b9436" kindref="member">SYN_NN_Activation</ref><sp/>act,<sp/>uint8_t<sp/>out_shift);</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"></highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><ref refid="syn__pt_8h_1a837fcf03fa24b6b73d66bb133b95d79e" kindref="member">SYN_PT_Status</ref><sp/><ref refid="syn__nn_8h_1a55d72ffbb0ae6b6fadd8db0ddfe6d6c4" kindref="member">syn_nn_dense_pt</ref>(<ref refid="structSYN__PT" kindref="compound">SYN_PT</ref><sp/>*pt,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="syn__qmath_8h_1ae541b6f232c305361e9b416fc9eed263" kindref="member">q7_t</ref><sp/>*inputs,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>num_inputs,</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="syn__qmath_8h_1ae541b6f232c305361e9b416fc9eed263" kindref="member">q7_t</ref><sp/>*weights,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>*biases,<sp/><ref refid="syn__qmath_8h_1ae541b6f232c305361e9b416fc9eed263" kindref="member">q7_t</ref><sp/>*outputs,</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>num_outputs,<sp/><ref refid="syn__nn_8h_1a8bc11df5088c0a62af4b6f32708b9436" kindref="member">SYN_NN_Activation</ref><sp/>act,<sp/>uint8_t<sp/>out_shift,</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>*current_neuron,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>chunk_size);</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"></highlight></codeline>
+<codeline lineno="119"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__nn_8h_1a99cedadc9b68a11f10772fa9e2675204" kindref="member">syn_nn_softmax_q7</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="syn__qmath_8h_1ae541b6f232c305361e9b416fc9eed263" kindref="member">q7_t</ref><sp/>*inputs,<sp/><ref refid="syn__qmath_8h_1ae541b6f232c305361e9b416fc9eed263" kindref="member">q7_t</ref><sp/>*outputs,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>num_inputs);</highlight></codeline>
+<codeline lineno="120"><highlight class="normal"></highlight></codeline>
+<codeline lineno="136"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__nn_8h_1a8d093f874a646fb6b9a2e48b6895b5c7" kindref="member">syn_nn_attention_q7</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="syn__qmath_8h_1ae541b6f232c305361e9b416fc9eed263" kindref="member">q7_t</ref><sp/>*q,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="syn__qmath_8h_1ae541b6f232c305361e9b416fc9eed263" kindref="member">q7_t</ref><sp/>*k,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="syn__qmath_8h_1ae541b6f232c305361e9b416fc9eed263" kindref="member">q7_t</ref><sp/>*v,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>seq_len,</highlight></codeline>
+<codeline lineno="137"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>d_k,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>d_v,<sp/><ref refid="syn__qmath_8h_1ae541b6f232c305361e9b416fc9eed263" kindref="member">q7_t</ref><sp/>*out,<sp/>uint8_t<sp/>attn_shift);</highlight></codeline>
+<codeline lineno="138"><highlight class="normal"></highlight></codeline>
+<codeline lineno="158"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__nn_8h_1a9e689a43c4d16da11d56e81f4036845f" kindref="member">syn_nn_conv1d_q7</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="syn__qmath_8h_1ae541b6f232c305361e9b416fc9eed263" kindref="member">q7_t</ref><sp/>*inputs,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>seq_len,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>num_channels,</highlight></codeline>
+<codeline lineno="159"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="syn__qmath_8h_1ae541b6f232c305361e9b416fc9eed263" kindref="member">q7_t</ref><sp/>*weights,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>*biases,<sp/><ref refid="syn__qmath_8h_1ae541b6f232c305361e9b416fc9eed263" kindref="member">q7_t</ref><sp/>*outputs,</highlight></codeline>
+<codeline lineno="160"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>num_filters,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>kernel_size,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>stride,</highlight></codeline>
+<codeline lineno="161"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__nn_8h_1a8bc11df5088c0a62af4b6f32708b9436" kindref="member">SYN_NN_Activation</ref><sp/>act,<sp/>uint8_t<sp/>out_shift);</highlight></codeline>
+<codeline lineno="162"><highlight class="normal"></highlight></codeline>
+<codeline lineno="182"><highlight class="normal"><ref refid="syn__pt_8h_1a837fcf03fa24b6b73d66bb133b95d79e" kindref="member">SYN_PT_Status</ref><sp/><ref refid="syn__nn_8h_1ae4dea3187ca76552f44206f3c63eec04" kindref="member">syn_nn_conv1d_pt</ref>(<ref refid="structSYN__PT" kindref="compound">SYN_PT</ref><sp/>*pt,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="syn__qmath_8h_1ae541b6f232c305361e9b416fc9eed263" kindref="member">q7_t</ref><sp/>*inputs,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>seq_len,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>num_channels,</highlight></codeline>
+<codeline lineno="183"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="syn__qmath_8h_1ae541b6f232c305361e9b416fc9eed263" kindref="member">q7_t</ref><sp/>*weights,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>*biases,<sp/><ref refid="syn__qmath_8h_1ae541b6f232c305361e9b416fc9eed263" kindref="member">q7_t</ref><sp/>*outputs,</highlight></codeline>
+<codeline lineno="184"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>num_filters,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>kernel_size,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>stride,</highlight></codeline>
+<codeline lineno="185"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__nn_8h_1a8bc11df5088c0a62af4b6f32708b9436" kindref="member">SYN_NN_Activation</ref><sp/>act,<sp/>uint8_t<sp/>out_shift,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>*current_step,</highlight></codeline>
+<codeline lineno="186"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>chunk_size);</highlight></codeline>
+<codeline lineno="187"><highlight class="normal"></highlight></codeline>
+<codeline lineno="204"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__nn_8h_1a2b76fde91f6e3979e853320644b38e67" kindref="member">syn_nn_conv1d_quant_q7</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="syn__qmath_8h_1ae541b6f232c305361e9b416fc9eed263" kindref="member">q7_t</ref><sp/>*inputs,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>seq_len,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>num_channels,</highlight></codeline>
+<codeline lineno="205"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="syn__qmath_8h_1ae541b6f232c305361e9b416fc9eed263" kindref="member">q7_t</ref><sp/>*weights,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>*biases,<sp/><ref refid="syn__qmath_8h_1ae541b6f232c305361e9b416fc9eed263" kindref="member">q7_t</ref><sp/>*outputs,</highlight></codeline>
+<codeline lineno="206"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>num_filters,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>kernel_size,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>stride,</highlight></codeline>
+<codeline lineno="207"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__nn_8h_1a8bc11df5088c0a62af4b6f32708b9436" kindref="member">SYN_NN_Activation</ref><sp/>act,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structsyn__nn__quant__t" kindref="compound">syn_nn_quant_t</ref><sp/>*quant);</highlight></codeline>
+<codeline lineno="208"><highlight class="normal"></highlight></codeline>
+<codeline lineno="222"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__nn_8h_1ab2143dc8d94b76bbe3d338ed7ad94a32" kindref="member">syn_nn_dense_quant_q7</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="syn__qmath_8h_1ae541b6f232c305361e9b416fc9eed263" kindref="member">q7_t</ref><sp/>*inputs,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>num_inputs,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="syn__qmath_8h_1ae541b6f232c305361e9b416fc9eed263" kindref="member">q7_t</ref><sp/>*weights,</highlight></codeline>
+<codeline lineno="223"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>*biases,<sp/><ref refid="syn__qmath_8h_1ae541b6f232c305361e9b416fc9eed263" kindref="member">q7_t</ref><sp/>*outputs,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>num_outputs,</highlight></codeline>
+<codeline lineno="224"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__nn_8h_1a8bc11df5088c0a62af4b6f32708b9436" kindref="member">SYN_NN_Activation</ref><sp/>act,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structsyn__nn__quant__t" kindref="compound">syn_nn_quant_t</ref><sp/>*quant);</highlight></codeline>
+<codeline lineno="225"><highlight class="normal"></highlight></codeline>
+<codeline lineno="237"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__nn_8h_1acc39b75ed9655b8699e09cc29cf128c5" kindref="member">syn_nn_maxpool1d_q7</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="syn__qmath_8h_1ae541b6f232c305361e9b416fc9eed263" kindref="member">q7_t</ref><sp/>*inputs,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>seq_len,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>num_channels,</highlight></codeline>
+<codeline lineno="238"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1ae541b6f232c305361e9b416fc9eed263" kindref="member">q7_t</ref><sp/>*outputs,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>pool_size,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>stride);</highlight></codeline>
+<codeline lineno="239"><highlight class="normal"></highlight></codeline>
+<codeline lineno="251"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__nn_8h_1a637bfc0dc5b886702a49a9f193c38ab2" kindref="member">syn_nn_avgpool1d_q7</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="syn__qmath_8h_1ae541b6f232c305361e9b416fc9eed263" kindref="member">q7_t</ref><sp/>*inputs,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>seq_len,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>num_channels,</highlight></codeline>
+<codeline lineno="252"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1ae541b6f232c305361e9b416fc9eed263" kindref="member">q7_t</ref><sp/>*outputs,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>pool_size,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>stride);</highlight></codeline>
+<codeline lineno="253"><highlight class="normal"></highlight></codeline>
+<codeline lineno="261"><highlight class="normal"></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="syn__nn_8h_1a023970b82da2ebec52d154571cf994e5" kindref="member">syn_nn_argmax_q7</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="syn__qmath_8h_1ae541b6f232c305361e9b416fc9eed263" kindref="member">q7_t</ref><sp/>*outputs,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>num_outputs);</highlight></codeline>
+<codeline lineno="262"><highlight class="normal"></highlight></codeline>
+<codeline lineno="263"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="264"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="265"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="266"><highlight class="normal"></highlight></codeline>
+<codeline lineno="267"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_NN_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/util/syn_nn.h"/>
+  </compounddef>
+</doxygen>

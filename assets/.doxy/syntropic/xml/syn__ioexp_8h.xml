@@ -1,0 +1,491 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__ioexp_8h" kind="file" language="C++">
+    <compoundname>syn_ioexp.h</compoundname>
+    <includes refid="syn__defs_8h" local="yes">../common/syn_defs.h</includes>
+    <includes refid="syn__soft__i2c_8h" local="yes">../drivers/syn_soft_i2c.h</includes>
+    <includes local="no">stdbool.h</includes>
+    <includes local="no">stddef.h</includes>
+    <includes local="no">stdint.h</includes>
+    <includedby refid="syn__ioexp_8c" local="yes">src/syntropic/drivers/syn_ioexp.c</includedby>
+    <includedby refid="syntropic_8h" local="yes">src/syntropic/syntropic.h</includedby>
+    <incdepgraph>
+      <node id="2">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/drivers/syn_ioexp.h</label>
+        <link refid="syn__ioexp_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>../drivers/syn_soft_i2c.h</label>
+        <link refid="syn__soft__i2c_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>stdbool.h</label>
+      </node>
+      <node id="3">
+        <label>stddef.h</label>
+      </node>
+      <node id="4">
+        <label>stdint.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="2">
+        <label>src/syntropic/drivers/syn_ioexp.c</label>
+        <link refid="syn__ioexp_8c"/>
+      </node>
+      <node id="1">
+        <label>src/syntropic/drivers/syn_ioexp.h</label>
+        <link refid="syn__ioexp_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>src/syntropic/proto/syn_doip.c</label>
+        <link refid="syn__doip_8c"/>
+      </node>
+      <node id="4">
+        <label>src/syntropic/proto/syn_doip.h</label>
+        <link refid="syn__doip_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>src/syntropic/syntropic.h</label>
+        <link refid="syntropic_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="structSYN__IOExp" prot="public">SYN_IOExp</innerclass>
+    <sectiondef kind="enum">
+      <memberdef kind="enum" id="syn__ioexp_8h_1aac345d69b400928e1b8eaeb26d1f3378" prot="public" static="no" strong="no">
+        <type></type>
+        <name>SYN_IOExpType</name>
+        <enumvalue id="syn__ioexp_8h_1aac345d69b400928e1b8eaeb26d1f3378a45bc38b7ca9536ed504c88e06fea29a2" prot="public">
+          <name>SYN_IOEXP_MCP23017</name>
+          <initializer>= 0</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>16-bit I2C GPIO Expander (Port A &amp; B) </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__ioexp_8h_1aac345d69b400928e1b8eaeb26d1f3378ae280629aa1860e4c7045fecd2059c772" prot="public">
+          <name>SYN_IOEXP_MCP23008</name>
+          <initializer>= 1</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>8-bit I2C GPIO Expander </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__ioexp_8h_1aac345d69b400928e1b8eaeb26d1f3378afe3498d74021cfb7215ced5cd5a03abf" prot="public">
+          <name>SYN_IOEXP_PCF8574</name>
+          <initializer>= 2</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>8-bit Pseudo-bidirectional I2C Expander </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__ioexp_8h_1aac345d69b400928e1b8eaeb26d1f3378ab9a77bf6ecde1cb5c4d0ee3a20ba0aee" prot="public">
+          <name>SYN_IOEXP_TCA9555</name>
+          <initializer>= 3</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>16-bit I2C GPIO Expander </para>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>I2C GPIO Expander IC Type. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_ioexp.h" line="24" column="1" bodyfile="src/syntropic/drivers/syn_ioexp.h" bodystart="24" bodyend="29"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__ioexp_8h_1acff6d77c3f2b0bc09a2569ed7d023aaa" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_ioexp_init</definition>
+        <argsstring>(SYN_IOExp *ioexp, SYN_GPIO_Pin scl, SYN_GPIO_Pin sda, uint8_t i2c_addr, SYN_IOExpType type)</argsstring>
+        <name>syn_ioexp_init</name>
+        <param>
+          <type><ref refid="structSYN__IOExp" kindref="compound">SYN_IOExp</ref> *</type>
+          <declname>ioexp</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref></type>
+          <declname>scl</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref></type>
+          <declname>sda</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>i2c_addr</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__ioexp_8h_1aac345d69b400928e1b8eaeb26d1f3378" kindref="member">SYN_IOExpType</ref></type>
+          <declname>type</declname>
+        </param>
+        <briefdescription>
+<para>Initialize an I2C GPIO Expander instance. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ioexp</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Expander context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>scl</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>I2C SCL pin. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>sda</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>I2C SDA pin. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>i2c_addr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>I2C slave address (e.g. 0x20 or 0x27). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>type</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Expander IC type (MCP23017, MCP23008, PCF8574, TCA9555). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_ioexp.h" line="54" column="12" bodyfile="src/syntropic/drivers/syn_ioexp.c" bodystart="29" bodyend="58" declfile="src/syntropic/drivers/syn_ioexp.h" declline="54" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__ioexp_8h_1a19aa8daf2e4ba3fb544cee7a134cec70" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_ioexp_set_pin_mode</definition>
+        <argsstring>(SYN_IOExp *ioexp, uint8_t pin, SYN_GPIO_Mode mode)</argsstring>
+        <name>syn_ioexp_set_pin_mode</name>
+        <param>
+          <type><ref refid="structSYN__IOExp" kindref="compound">SYN_IOExp</ref> *</type>
+          <declname>ioexp</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>pin</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__defs_8h_1aa3126491e1d1a15a159caaa4640d0866" kindref="member">SYN_GPIO_Mode</ref></type>
+          <declname>mode</declname>
+        </param>
+        <briefdescription>
+<para>Set pin mode (input vs output). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ioexp</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Expander context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>pin</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pin index (0 to num_pins-1). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>mode</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Mode (SYN_GPIO_INPUT, SYN_GPIO_OUTPUT, SYN_GPIO_INPUT_PULLUP). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_ioexp.h" line="64" column="6" bodyfile="src/syntropic/drivers/syn_ioexp.c" bodystart="60" bodyend="81" declfile="src/syntropic/drivers/syn_ioexp.h" declline="64" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__ioexp_8h_1ae683740d5d83cb2e30a199d553214ca1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_ioexp_write_pin</definition>
+        <argsstring>(SYN_IOExp *ioexp, uint8_t pin, SYN_GPIO_State state)</argsstring>
+        <name>syn_ioexp_write_pin</name>
+        <param>
+          <type><ref refid="structSYN__IOExp" kindref="compound">SYN_IOExp</ref> *</type>
+          <declname>ioexp</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>pin</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__defs_8h_1aaa3b9a5c8a9518fd3c3ca7bbe8b4de4a" kindref="member">SYN_GPIO_State</ref></type>
+          <declname>state</declname>
+        </param>
+        <briefdescription>
+<para>Write digital output state to a pin. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ioexp</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Expander context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>pin</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pin index (0 to num_pins-1). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>state</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>State (SYN_GPIO_HIGH or SYN_GPIO_LOW). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_ioexp.h" line="73" column="6" bodyfile="src/syntropic/drivers/syn_ioexp.c" bodystart="83" bodyend="95" declfile="src/syntropic/drivers/syn_ioexp.h" declline="73" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__ioexp_8h_1af1fa64bee165e8bd3250d1266ae4ccad" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1aaa3b9a5c8a9518fd3c3ca7bbe8b4de4a" kindref="member">SYN_GPIO_State</ref></type>
+        <definition>SYN_GPIO_State syn_ioexp_read_pin</definition>
+        <argsstring>(SYN_IOExp *ioexp, uint8_t pin)</argsstring>
+        <name>syn_ioexp_read_pin</name>
+        <param>
+          <type><ref refid="structSYN__IOExp" kindref="compound">SYN_IOExp</ref> *</type>
+          <declname>ioexp</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>pin</declname>
+        </param>
+        <briefdescription>
+<para>Read digital input state from a pin. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ioexp</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Expander context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>pin</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pin index (0 to num_pins-1). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_GPIO_HIGH or SYN_GPIO_LOW. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_ioexp.h" line="82" column="16" bodyfile="src/syntropic/drivers/syn_ioexp.c" bodystart="97" bodyend="104" declfile="src/syntropic/drivers/syn_ioexp.h" declline="82" declcolumn="16"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__ioexp_8h_1a40a62f2b4735f5956ca681b84aa4f7f6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_ioexp_write_port</definition>
+        <argsstring>(SYN_IOExp *ioexp, uint16_t mask)</argsstring>
+        <name>syn_ioexp_write_port</name>
+        <param>
+          <type><ref refid="structSYN__IOExp" kindref="compound">SYN_IOExp</ref> *</type>
+          <declname>ioexp</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>mask</declname>
+        </param>
+        <briefdescription>
+<para>Write entire 16-bit output port mask. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ioexp</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Expander context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>mask</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>16-bit port value. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_ioexp.h" line="90" column="6" bodyfile="src/syntropic/drivers/syn_ioexp.c" bodystart="106" bodyend="126" declfile="src/syntropic/drivers/syn_ioexp.h" declline="90" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__ioexp_8h_1ad468841c744ef2d687ab2f42816be181" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint16_t</type>
+        <definition>uint16_t syn_ioexp_read_port</definition>
+        <argsstring>(SYN_IOExp *ioexp)</argsstring>
+        <name>syn_ioexp_read_port</name>
+        <param>
+          <type><ref refid="structSYN__IOExp" kindref="compound">SYN_IOExp</ref> *</type>
+          <declname>ioexp</declname>
+        </param>
+        <briefdescription>
+<para>Read entire 16-bit input port mask. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ioexp</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Expander context. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>16-bit port value. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_ioexp.h" line="98" column="10" bodyfile="src/syntropic/drivers/syn_ioexp.c" bodystart="128" bodyend="133" declfile="src/syntropic/drivers/syn_ioexp.h" declline="98" declcolumn="10"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Generic I2C GPIO Expander Driver (MCP23017, MCP23008, PCF8574, TCA9555). </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_IOEXP_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_IOEXP_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../common/syn_defs.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../drivers/syn_soft_i2c.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stddef.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight></codeline>
+<codeline lineno="24" refid="syn__ioexp_8h_1aac345d69b400928e1b8eaeb26d1f3378" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="25" refid="syn__ioexp_8h_1aac345d69b400928e1b8eaeb26d1f3378a45bc38b7ca9536ed504c88e06fea29a2" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__ioexp_8h_1aac345d69b400928e1b8eaeb26d1f3378a45bc38b7ca9536ed504c88e06fea29a2" kindref="member">SYN_IOEXP_MCP23017</ref><sp/>=<sp/>0,<sp/></highlight></codeline>
+<codeline lineno="26" refid="syn__ioexp_8h_1aac345d69b400928e1b8eaeb26d1f3378ae280629aa1860e4c7045fecd2059c772" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__ioexp_8h_1aac345d69b400928e1b8eaeb26d1f3378ae280629aa1860e4c7045fecd2059c772" kindref="member">SYN_IOEXP_MCP23008</ref><sp/>=<sp/>1,<sp/></highlight></codeline>
+<codeline lineno="27" refid="syn__ioexp_8h_1aac345d69b400928e1b8eaeb26d1f3378afe3498d74021cfb7215ced5cd5a03abf" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__ioexp_8h_1aac345d69b400928e1b8eaeb26d1f3378afe3498d74021cfb7215ced5cd5a03abf" kindref="member">SYN_IOEXP_PCF8574</ref><sp/>=<sp/>2,<sp/><sp/></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__ioexp_8h_1aac345d69b400928e1b8eaeb26d1f3378ab9a77bf6ecde1cb5c4d0ee3a20ba0aee" kindref="member">SYN_IOEXP_TCA9555</ref><sp/>=<sp/>3<sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="29" refid="syn__ioexp_8h_1aac345d69b400928e1b8eaeb26d1f3378ab9a77bf6ecde1cb5c4d0ee3a20ba0aee" refkind="member"><highlight class="normal">}<sp/><ref refid="syn__ioexp_8h_1aac345d69b400928e1b8eaeb26d1f3378" kindref="member">SYN_IOExpType</ref>;</highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight></codeline>
+<codeline lineno="34" refid="structSYN__IOExp" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="35" refid="structSYN__IOExp_1a14287cc3f551669235fef407e6aabc4b" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__ioexp_8h_1aac345d69b400928e1b8eaeb26d1f3378" kindref="member">SYN_IOExpType</ref><sp/><ref refid="structSYN__IOExp_1a14287cc3f551669235fef407e6aabc4b" kindref="member">type</ref>;<sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="36" refid="structSYN__IOExp_1adc3e949d37efb344cf4c08b8e53d4b11" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structSYN__SoftI2C" kindref="compound">SYN_SoftI2C</ref><sp/><ref refid="structSYN__IOExp_1adc3e949d37efb344cf4c08b8e53d4b11" kindref="member">i2c</ref>;<sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="37" refid="structSYN__IOExp_1a62d10d7983f298f1d2102a498ecdbb9b" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><ref refid="structSYN__IOExp_1a62d10d7983f298f1d2102a498ecdbb9b" kindref="member">i2c_addr</ref>;<sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="38" refid="structSYN__IOExp_1a7a2e59af8a55cb30868150e56f8a8690" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><ref refid="structSYN__IOExp_1a7a2e59af8a55cb30868150e56f8a8690" kindref="member">num_pins</ref>;<sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="39" refid="structSYN__IOExp_1a2c0389a1ade4f77d77e18c0a967981f0" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/><ref refid="structSYN__IOExp_1a2c0389a1ade4f77d77e18c0a967981f0" kindref="member">out_mask</ref>;<sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="40" refid="structSYN__IOExp_1a941cbe2285ca0048326ef5c04c59f384" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/><ref refid="structSYN__IOExp_1a941cbe2285ca0048326ef5c04c59f384" kindref="member">dir_mask</ref>;<sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="41" refid="structSYN__IOExp_1a6d852b16b103582f0c6a58baf7a13857" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/><ref refid="structSYN__IOExp_1a6d852b16b103582f0c6a58baf7a13857" kindref="member">pullup_mask</ref>;<sp/></highlight></codeline>
+<codeline lineno="42"><highlight class="normal">}<sp/><ref refid="structSYN__IOExp" kindref="compound">SYN_IOExp</ref>;</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__ioexp_8h_1acff6d77c3f2b0bc09a2569ed7d023aaa" kindref="member">syn_ioexp_init</ref>(<ref refid="structSYN__IOExp" kindref="compound">SYN_IOExp</ref><sp/>*ioexp,<sp/><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref><sp/>scl,<sp/><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref><sp/>sda,<sp/>uint8_t<sp/>i2c_addr,</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__ioexp_8h_1aac345d69b400928e1b8eaeb26d1f3378" kindref="member">SYN_IOExpType</ref><sp/>type);</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"></highlight></codeline>
+<codeline lineno="64"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__ioexp_8h_1a19aa8daf2e4ba3fb544cee7a134cec70" kindref="member">syn_ioexp_set_pin_mode</ref>(<ref refid="structSYN__IOExp" kindref="compound">SYN_IOExp</ref><sp/>*ioexp,<sp/>uint8_t<sp/>pin,<sp/><ref refid="syn__defs_8h_1aa3126491e1d1a15a159caaa4640d0866" kindref="member">SYN_GPIO_Mode</ref><sp/>mode);</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"></highlight></codeline>
+<codeline lineno="73"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__ioexp_8h_1ae683740d5d83cb2e30a199d553214ca1" kindref="member">syn_ioexp_write_pin</ref>(<ref refid="structSYN__IOExp" kindref="compound">SYN_IOExp</ref><sp/>*ioexp,<sp/>uint8_t<sp/>pin,<sp/><ref refid="syn__defs_8h_1aaa3b9a5c8a9518fd3c3ca7bbe8b4de4a" kindref="member">SYN_GPIO_State</ref><sp/>state);</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"></highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><ref refid="syn__defs_8h_1aaa3b9a5c8a9518fd3c3ca7bbe8b4de4a" kindref="member">SYN_GPIO_State</ref><sp/><ref refid="syn__ioexp_8h_1af1fa64bee165e8bd3250d1266ae4ccad" kindref="member">syn_ioexp_read_pin</ref>(<ref refid="structSYN__IOExp" kindref="compound">SYN_IOExp</ref><sp/>*ioexp,<sp/>uint8_t<sp/>pin);</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"></highlight></codeline>
+<codeline lineno="90"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__ioexp_8h_1a40a62f2b4735f5956ca681b84aa4f7f6" kindref="member">syn_ioexp_write_port</ref>(<ref refid="structSYN__IOExp" kindref="compound">SYN_IOExp</ref><sp/>*ioexp,<sp/>uint16_t<sp/>mask);</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"></highlight></codeline>
+<codeline lineno="98"><highlight class="normal">uint16_t<sp/><ref refid="syn__ioexp_8h_1ad468841c744ef2d687ab2f42816be181" kindref="member">syn_ioexp_read_port</ref>(<ref refid="structSYN__IOExp" kindref="compound">SYN_IOExp</ref><sp/>*ioexp);</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"></highlight></codeline>
+<codeline lineno="100"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="101"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="103"><highlight class="normal"></highlight></codeline>
+<codeline lineno="104"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_IOEXP_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/drivers/syn_ioexp.h"/>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,746 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__uart_8c" kind="file" language="C++">
+    <compoundname>syn_uart.c</compoundname>
+    <includes refid="syn__assert_8h" local="yes">../util/syn_assert.h</includes>
+    <includes refid="syn__uart_8h" local="yes">syn_uart.h</includes>
+    <includes local="no">string.h</includes>
+    <incdepgraph>
+      <node id="3">
+        <label>../common/syn_compiler.h</label>
+        <link refid="syn__compiler_8h"/>
+      </node>
+      <node id="5">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/drivers/syn_uart.c</label>
+        <link refid="syn__uart_8c"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>syn_uart.h</label>
+        <link refid="syn__uart_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>../port/syn_port_uart.h</label>
+        <link refid="syn__port__uart_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>../util/syn_assert.h</label>
+        <link refid="syn__assert_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="9">
+        <label>../util/syn_ringbuf.h</label>
+        <link refid="syn__ringbuf_8h"/>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="10">
+        <label>stdbool.h</label>
+      </node>
+      <node id="6">
+        <label>stddef.h</label>
+      </node>
+      <node id="7">
+        <label>stdint.h</label>
+      </node>
+      <node id="11">
+        <label>string.h</label>
+      </node>
+    </incdepgraph>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__uart_8c_1ab4289bf055bb7e144ecead198dd6ca99" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_uart_init</definition>
+        <argsstring>(SYN_UART *uart, SYN_UARTInstance instance, uint32_t baudrate)</argsstring>
+        <name>syn_uart_init</name>
+        <param>
+          <type><ref refid="structSYN__UART" kindref="compound">SYN_UART</ref> *</type>
+          <declname>uart</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__defs_8h_1abdfd779da7f3b81b031f57b4778905f6" kindref="member">SYN_UARTInstance</ref></type>
+          <declname>instance</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>baudrate</declname>
+        </param>
+        <briefdescription>
+<para>Initialize a UART instance with buffered I/O. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>uart</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to a caller-owned <ref refid="structSYN__UART" kindref="compound">SYN_UART</ref> struct. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>instance</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>UART peripheral number (0, 1, …). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>baudrate</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Desired baud rate. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_uart.c" line="19" column="12" bodyfile="src/syntropic/drivers/syn_uart.c" bodystart="19" bodyend="23"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__uart_8c_1a021c9e6ac3f8b83e5a25d4c529b59e35" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_uart_init_config</definition>
+        <argsstring>(SYN_UART *uart, const SYN_UART_Config *cfg)</argsstring>
+        <name>syn_uart_init_config</name>
+        <param>
+          <type><ref refid="structSYN__UART" kindref="compound">SYN_UART</ref> *</type>
+          <declname>uart</declname>
+        </param>
+        <param>
+          <type>const <ref refid="structSYN__UART__Config" kindref="compound">SYN_UART_Config</ref> *</type>
+          <declname>cfg</declname>
+        </param>
+        <briefdescription>
+<para>Initialize a UART instance with custom configuration (optional DMA). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>uart</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to a caller-owned <ref refid="structSYN__UART" kindref="compound">SYN_UART</ref> struct. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>cfg</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to initialization configuration. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_uart.c" line="25" column="12" bodyfile="src/syntropic/drivers/syn_uart.c" bodystart="25" bodyend="67"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__uart_8c_1a2cb94ac023b2988aeb7cfb3e42a29583" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_uart_deinit</definition>
+        <argsstring>(SYN_UART *uart)</argsstring>
+        <name>syn_uart_deinit</name>
+        <param>
+          <type><ref refid="structSYN__UART" kindref="compound">SYN_UART</ref> *</type>
+          <declname>uart</declname>
+        </param>
+        <briefdescription>
+<para>De-initialize a UART instance. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>uart</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>UART handle to deinitialize. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_uart.c" line="69" column="12" bodyfile="src/syntropic/drivers/syn_uart.c" bodystart="69" bodyend="89"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__uart_8c_1a32a47997442109f020a9227faee0a678" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_uart_write_str</definition>
+        <argsstring>(const SYN_UART *uart, const char *str, uint32_t timeout_ms)</argsstring>
+        <name>syn_uart_write_str</name>
+        <param>
+          <type>const <ref refid="structSYN__UART" kindref="compound">SYN_UART</ref> *</type>
+          <declname>uart</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>str</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>timeout_ms</declname>
+        </param>
+        <briefdescription>
+<para>Write a string to the UART (blocking). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>uart</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>UART handle. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>str</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Null-terminated string. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>timeout_ms</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Timeout in milliseconds (0 = no timeout). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_uart.c" line="91" column="12" bodyfile="src/syntropic/drivers/syn_uart.c" bodystart="91" bodyend="103"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__uart_8c_1a7a1efdbbb998881e67f835c9a15bd0e4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_uart_write</definition>
+        <argsstring>(const SYN_UART *uart, const uint8_t *data, size_t len, uint32_t timeout_ms)</argsstring>
+        <name>syn_uart_write</name>
+        <param>
+          <type>const <ref refid="structSYN__UART" kindref="compound">SYN_UART</ref> *</type>
+          <declname>uart</declname>
+        </param>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>len</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>timeout_ms</declname>
+        </param>
+        <briefdescription>
+<para>Write a buffer of bytes to the UART (blocking). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>uart</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>UART handle. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>data</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Data to transmit. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of bytes. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>timeout_ms</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Timeout in milliseconds (0 = no timeout). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_uart.c" line="105" column="12" bodyfile="src/syntropic/drivers/syn_uart.c" bodystart="105" bodyend="117"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__uart_8c_1a6b04b5d4692ea86f4faa75a082134a0b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>size_t</type>
+        <definition>size_t syn_uart_read</definition>
+        <argsstring>(SYN_UART *uart, uint8_t *data, size_t max_len)</argsstring>
+        <name>syn_uart_read</name>
+        <param>
+          <type><ref refid="structSYN__UART" kindref="compound">SYN_UART</ref> *</type>
+          <declname>uart</declname>
+        </param>
+        <param>
+          <type>uint8_t *</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>max_len</declname>
+        </param>
+        <briefdescription>
+<para>Read bytes from the UART RX ring buffer. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Reads up to <computeroutput>max_len</computeroutput> bytes that have been received. Non-blocking: returns immediately with however many bytes are available.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>uart</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>UART handle. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>data</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Buffer to read into. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>max_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Maximum number of bytes to read. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Number of bytes actually read. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_uart.c" line="119" column="8" bodyfile="src/syntropic/drivers/syn_uart.c" bodystart="119" bodyend="139"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__uart_8c_1a2d5a4241df0f1d2ffdc68876a33657c7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_uart_rx_isr_feed</definition>
+        <argsstring>(SYN_UART *uart, uint8_t byte)</argsstring>
+        <name>syn_uart_rx_isr_feed</name>
+        <param>
+          <type><ref refid="structSYN__UART" kindref="compound">SYN_UART</ref> *</type>
+          <declname>uart</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>byte</declname>
+        </param>
+        <briefdescription>
+<para>Feed a received byte into the UART RX ring buffer. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Call this from your UART RX ISR to push incoming data into the driver&apos;s buffer.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>uart</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>UART handle. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>byte</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The received byte. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if the byte was stored, false if the RX buffer is full. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_uart.c" line="141" column="6" bodyfile="src/syntropic/drivers/syn_uart.c" bodystart="141" bodyend="145"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__uart_8c_1a05d6bc940932de7058bf7acfe6624fac" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_uart_write_async</definition>
+        <argsstring>(SYN_UART *uart, const uint8_t *data, size_t len)</argsstring>
+        <name>syn_uart_write_async</name>
+        <param>
+          <type><ref refid="structSYN__UART" kindref="compound">SYN_UART</ref> *</type>
+          <declname>uart</declname>
+        </param>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>len</declname>
+        </param>
+        <briefdescription>
+<para>Non-blocking write to UART TX ring buffer (all-or-nothing atomic). </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Pushes data into the internal TX ring buffer if space is available for all <computeroutput>len</computeroutput> bytes, and enables the TX interrupt to drain asynchronously. Returns SYN_BUSY without modifying the buffer if space is insufficient.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>uart</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>UART handle. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>data</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Data to transmit. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of bytes. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_BUSY if ring buffer free space &lt; len. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_uart.c" line="147" column="12" bodyfile="src/syntropic/drivers/syn_uart.c" bodystart="147" bodyend="171"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__uart_8c_1a7ad14f33de6c9c1d5882b7aced5243b1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_uart_tx_isr_flush</definition>
+        <argsstring>(SYN_UART *uart)</argsstring>
+        <name>syn_uart_tx_isr_flush</name>
+        <param>
+          <type><ref refid="structSYN__UART" kindref="compound">SYN_UART</ref> *</type>
+          <declname>uart</declname>
+        </param>
+        <briefdescription>
+<para>TX ISR drain callback — call from UART TXE interrupt. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Pops the next byte from tx_rb into the hardware data register. When the ring buffer empties, disables the TXE interrupt.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>uart</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>UART handle. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if a byte was transmitted, false if tx_rb is empty. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_uart.c" line="173" column="6" bodyfile="src/syntropic/drivers/syn_uart.c" bodystart="173" bodyend="190"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__uart_8c_1a0f79a291cf99b5122b0b6fb0790ec93f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_uart_tx_complete</definition>
+        <argsstring>(const SYN_UART *uart)</argsstring>
+        <name>syn_uart_tx_complete</name>
+        <param>
+          <type>const <ref refid="structSYN__UART" kindref="compound">SYN_UART</ref> *</type>
+          <declname>uart</declname>
+        </param>
+        <briefdescription>
+<para>Check if asynchronous TX is complete (tx_rb drained AND hardware shift register clear). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>uart</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>UART handle. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if no bytes remain in software tx_rb AND hardware TC flag is set. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_uart.c" line="192" column="6" bodyfile="src/syntropic/drivers/syn_uart.c" bodystart="192" bodyend="202"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>UART driver implementation. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#if<sp/>__has_include(&quot;syn_config.h&quot;)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;syn_config.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="4"><highlight class="normal"></highlight></codeline>
+<codeline lineno="5"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>!defined(SYN_USE_UART)<sp/>||<sp/>SYN_USE_UART</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../util/syn_assert.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__uart_8h" kindref="compound">syn_uart.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;string.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>API<sp/>──────────────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__uart_8c_1ab4289bf055bb7e144ecead198dd6ca99" kindref="member">syn_uart_init</ref>(<ref refid="structSYN__UART" kindref="compound">SYN_UART</ref><sp/>*uart,<sp/><ref refid="syn__defs_8h_1abdfd779da7f3b81b031f57b4778905f6" kindref="member">SYN_UARTInstance</ref><sp/>instance,<sp/>uint32_t<sp/>baudrate)</highlight></codeline>
+<codeline lineno="20"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="21"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structSYN__UART__Config" kindref="compound">SYN_UART_Config</ref><sp/>cfg<sp/>=<sp/>{.<ref refid="structSYN__UART__Config_1ab308738526dc51f496e8f1e7e1134391" kindref="member">instance</ref><sp/>=<sp/>instance,<sp/>.baudrate<sp/>=<sp/>baudrate,<sp/>.use_dma<sp/>=<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">};</highlight></codeline>
+<codeline lineno="22"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__uart_8c_1a021c9e6ac3f8b83e5a25d4c529b59e35" kindref="member">syn_uart_init_config</ref>(uart,<sp/>&amp;cfg);</highlight></codeline>
+<codeline lineno="23"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__uart_8c_1a021c9e6ac3f8b83e5a25d4c529b59e35" kindref="member">syn_uart_init_config</ref>(<ref refid="structSYN__UART" kindref="compound">SYN_UART</ref><sp/>*uart,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__UART__Config" kindref="compound">SYN_UART_Config</ref><sp/>*cfg)</highlight></codeline>
+<codeline lineno="26"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="27"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(uart<sp/>==<sp/>NULL<sp/>||<sp/>cfg<sp/>==<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="28"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="29"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight></codeline>
+<codeline lineno="31"><highlight class="normal"><sp/><sp/><sp/><sp/>memset(uart,<sp/>0,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(*uart));</highlight></codeline>
+<codeline lineno="32"><highlight class="normal"><sp/><sp/><sp/><sp/>uart-&gt;<ref refid="structSYN__UART_1ad2b7a2a681acf1a285d75fa273a95e38" kindref="member">instance</ref><sp/>=<sp/>cfg-&gt;<ref refid="structSYN__UART__Config_1ab308738526dc51f496e8f1e7e1134391" kindref="member">instance</ref>;</highlight></codeline>
+<codeline lineno="33"><highlight class="normal"><sp/><sp/><sp/><sp/>uart-&gt;<ref refid="structSYN__UART_1a9dea9138252dda5f383d055d45562f12" kindref="member">initialized</ref><sp/>=<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="34"><highlight class="normal"><sp/><sp/><sp/><sp/>uart-&gt;<ref refid="structSYN__UART_1a16614d3aedf26eeaf7e9e3c867e2ccf9" kindref="member">use_dma</ref><sp/>=<sp/>cfg-&gt;<ref refid="structSYN__UART__Config_1a07faaaaefa0ea1d87c0df0ddfab3d76c" kindref="member">use_dma</ref>;</highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__ringbuf_8c_1aa4a7f4a7b74e7c07a3a199086f0cbeec" kindref="member">syn_ringbuf_init</ref>(&amp;uart-&gt;<ref refid="structSYN__UART_1a0720f1969143cbc1d20cf4fd19d42503" kindref="member">tx_rb</ref>,<sp/>uart-&gt;<ref refid="structSYN__UART_1a90ddbcac1a1343c73b79b0b28c9e133c" kindref="member">tx_buf</ref>,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(uart-&gt;<ref refid="structSYN__UART_1a90ddbcac1a1343c73b79b0b28c9e133c" kindref="member">tx_buf</ref>));</highlight></codeline>
+<codeline lineno="37"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__ringbuf_8c_1aa4a7f4a7b74e7c07a3a199086f0cbeec" kindref="member">syn_ringbuf_init</ref>(&amp;uart-&gt;<ref refid="structSYN__UART_1a636154b729f847f3da89695f981d20a3" kindref="member">rx_rb</ref>,<sp/>uart-&gt;<ref refid="structSYN__UART_1a21a753452e6b98da193bdb444ef5d091" kindref="member">rx_buf</ref>,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(uart-&gt;<ref refid="structSYN__UART_1a21a753452e6b98da193bdb444ef5d091" kindref="member">rx_buf</ref>));</highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/>status<sp/>=<sp/><ref refid="syn__port__uart_8h_1a7e72fc65555103919c446d972c6d3b44" kindref="member">syn_port_uart_init</ref>(cfg-&gt;<ref refid="structSYN__UART__Config_1ab308738526dc51f496e8f1e7e1134391" kindref="member">instance</ref>,<sp/>cfg-&gt;<ref refid="structSYN__UART__Config_1ae45cad49b21cc739da124a2f1da4a56f" kindref="member">baudrate</ref>);</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(status<sp/>!=<sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>status;</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(SYN_USE_DMA)<sp/>&amp;&amp;<sp/>SYN_USE_DMA</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(cfg-&gt;<ref refid="structSYN__UART__Config_1a07faaaaefa0ea1d87c0df0ddfab3d76c" kindref="member">use_dma</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__DMA__Config" kindref="compound">SYN_DMA_Config</ref><sp/>dma_cfg<sp/>=<sp/>{.<ref refid="structSYN__DMA__Config_1a387ab8eea7220c421afe118f057687e4" kindref="member">channel_id</ref><sp/>=<sp/>cfg-&gt;dma_channel_rx,</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>.dir<sp/>=<sp/><ref refid="syn__port__dma_8h_1add1ff1dd94c21cba51ce064723cb64cdae4f32c6ae1d6f8c26354fb654ac53d72" kindref="member">SYN_DMA_DIR_PERIPH_TO_MEM</ref>,</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>.data_size<sp/>=<sp/><ref refid="syn__port__dma_8h_1a0395007d01bc3ebe174bd1ea8ce77a52a7a3a3c2735e2e758cad1e924cb4b968a" kindref="member">SYN_DMA_SIZE_8BIT</ref>,</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>.src_inc<sp/>=<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">,</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>.dst_inc<sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">,</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>.callback<sp/>=<sp/>NULL,</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>.user_ctx<sp/>=<sp/>NULL};</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(void)<ref refid="syn__dma_8c_1a649e44711fd794ab1f28362d1164f2cc" kindref="member">syn_dma_init</ref>(&amp;uart-&gt;dma_rx,<sp/>&amp;dma_cfg);</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(void)<ref refid="syn__dma_8c_1ac1b1c96e402b57bf59842dd985010fb0" kindref="member">syn_dma_ringbuf_init</ref>(&amp;uart-&gt;dma_ring_rx,<sp/>&amp;uart-&gt;dma_rx,<sp/>uart-&gt;<ref refid="structSYN__UART_1a21a753452e6b98da193bdb444ef5d091" kindref="member">rx_buf</ref>,</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(uart-&gt;<ref refid="structSYN__UART_1a21a753452e6b98da193bdb444ef5d091" kindref="member">rx_buf</ref>));</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"></highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>status<sp/>=<sp/><ref refid="syn__dma_8c_1aa732a16e7ef99c89363c91c606feb117" kindref="member">syn_dma_ringbuf_start</ref>(&amp;uart-&gt;dma_ring_rx,<sp/>cfg-&gt;periph_rx_reg);</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(status<sp/>!=<sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__port__uart_8h_1ae0939b214f47bccde9ebff04335e23bb" kindref="member">syn_port_uart_deinit</ref>(cfg-&gt;<ref refid="structSYN__UART__Config_1ab308738526dc51f496e8f1e7e1134391" kindref="member">instance</ref>);</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>status;</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="64"><highlight class="normal"></highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/><sp/><sp/>uart-&gt;<ref refid="structSYN__UART_1a9dea9138252dda5f383d055d45562f12" kindref="member">initialized</ref><sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="67"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"></highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__uart_8c_1a2cb94ac023b2988aeb7cfb3e42a29583" kindref="member">syn_uart_deinit</ref>(<ref refid="structSYN__UART" kindref="compound">SYN_UART</ref><sp/>*uart)</highlight></codeline>
+<codeline lineno="70"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(uart<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"></highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!uart-&gt;<ref refid="structSYN__UART_1a9dea9138252dda5f383d055d45562f12" kindref="member">initialized</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"></highlight></codeline>
+<codeline lineno="77"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(SYN_USE_DMA)<sp/>&amp;&amp;<sp/>SYN_USE_DMA</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(uart-&gt;<ref refid="structSYN__UART_1a16614d3aedf26eeaf7e9e3c867e2ccf9" kindref="member">use_dma</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__dma_8c_1ab1793ff01b2e2ccdaebe1c1a096aa093" kindref="member">syn_dma_stop</ref>(&amp;uart-&gt;dma_rx);</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="82"><highlight class="normal"></highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/>status<sp/>=<sp/><ref refid="syn__port__uart_8h_1ae0939b214f47bccde9ebff04335e23bb" kindref="member">syn_port_uart_deinit</ref>(uart-&gt;<ref refid="structSYN__UART_1ad2b7a2a681acf1a285d75fa273a95e38" kindref="member">instance</ref>);</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/><sp/><sp/>uart-&gt;<ref refid="structSYN__UART_1a9dea9138252dda5f383d055d45562f12" kindref="member">initialized</ref><sp/>=<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__ringbuf_8c_1a67704e92917d22a143eb1878fd10df6a" kindref="member">syn_ringbuf_reset</ref>(&amp;uart-&gt;<ref refid="structSYN__UART_1a0720f1969143cbc1d20cf4fd19d42503" kindref="member">tx_rb</ref>);</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__ringbuf_8c_1a67704e92917d22a143eb1878fd10df6a" kindref="member">syn_ringbuf_reset</ref>(&amp;uart-&gt;<ref refid="structSYN__UART_1a636154b729f847f3da89695f981d20a3" kindref="member">rx_rb</ref>);</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"></highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>status;</highlight></codeline>
+<codeline lineno="89"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"></highlight></codeline>
+<codeline lineno="91"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__uart_8c_1a32a47997442109f020a9227faee0a678" kindref="member">syn_uart_write_str</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__UART" kindref="compound">SYN_UART</ref><sp/>*uart,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*str,<sp/>uint32_t<sp/>timeout_ms)</highlight></codeline>
+<codeline lineno="92"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(uart<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(str<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(uart-&gt;<ref refid="structSYN__UART_1a9dea9138252dda5f383d055d45562f12" kindref="member">initialized</ref>);</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"></highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>len<sp/>=<sp/>strlen(str);</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(len<sp/>==<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"></highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__port__uart_8h_1af75eff5e3b3ab26f27c2fbb0bad81aa7" kindref="member">syn_port_uart_transmit</ref>(uart-&gt;<ref refid="structSYN__UART_1ad2b7a2a681acf1a285d75fa273a95e38" kindref="member">instance</ref>,<sp/>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*)str,<sp/>len,<sp/>timeout_ms);</highlight></codeline>
+<codeline lineno="103"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"></highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__uart_8c_1a7a1efdbbb998881e67f835c9a15bd0e4" kindref="member">syn_uart_write</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__UART" kindref="compound">SYN_UART</ref><sp/>*uart,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*data,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>len,</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>timeout_ms)</highlight></codeline>
+<codeline lineno="107"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(uart<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="109"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(data<sp/>!=<sp/>NULL<sp/>||<sp/>len<sp/>==<sp/>0);</highlight></codeline>
+<codeline lineno="110"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(uart-&gt;<ref refid="structSYN__UART_1a9dea9138252dda5f383d055d45562f12" kindref="member">initialized</ref>);</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"></highlight></codeline>
+<codeline lineno="112"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(len<sp/>==<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="113"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="115"><highlight class="normal"></highlight></codeline>
+<codeline lineno="116"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__port__uart_8h_1af75eff5e3b3ab26f27c2fbb0bad81aa7" kindref="member">syn_port_uart_transmit</ref>(uart-&gt;<ref refid="structSYN__UART_1ad2b7a2a681acf1a285d75fa273a95e38" kindref="member">instance</ref>,<sp/>data,<sp/>len,<sp/>timeout_ms);</highlight></codeline>
+<codeline lineno="117"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"></highlight></codeline>
+<codeline lineno="119"><highlight class="normal"></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="syn__uart_8c_1a6b04b5d4692ea86f4faa75a082134a0b" kindref="member">syn_uart_read</ref>(<ref refid="structSYN__UART" kindref="compound">SYN_UART</ref><sp/>*uart,<sp/>uint8_t<sp/>*data,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>max_len)</highlight></codeline>
+<codeline lineno="120"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="121"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(uart<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="122"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(data<sp/>!=<sp/>NULL<sp/>||<sp/>max_len<sp/>==<sp/>0);</highlight></codeline>
+<codeline lineno="123"><highlight class="normal"></highlight></codeline>
+<codeline lineno="124"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(SYN_USE_DMA)<sp/>&amp;&amp;<sp/>SYN_USE_DMA</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="125"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(uart-&gt;<ref refid="structSYN__UART_1a16614d3aedf26eeaf7e9e3c867e2ccf9" kindref="member">use_dma</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="126"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__dma_8c_1abf10fcd89e17d60eb25a2e6bb8f73cdb" kindref="member">syn_dma_ringbuf_read</ref>(&amp;uart-&gt;dma_ring_rx,<sp/>data,<sp/>max_len);</highlight></codeline>
+<codeline lineno="127"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="128"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="129"><highlight class="normal"></highlight></codeline>
+<codeline lineno="130"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>count<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="131"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">while</highlight><highlight class="normal"><sp/>(count<sp/>&lt;<sp/>max_len)<sp/>{</highlight></codeline>
+<codeline lineno="132"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>byte;</highlight></codeline>
+<codeline lineno="133"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!<ref refid="syn__ringbuf_8c_1a24d2361d16c53073a9bc4737ffd17fb8" kindref="member">syn_ringbuf_get</ref>(&amp;uart-&gt;<ref refid="structSYN__UART_1a636154b729f847f3da89695f981d20a3" kindref="member">rx_rb</ref>,<sp/>&amp;</highlight><highlight class="keywordtype">byte</highlight><highlight class="normal">))<sp/>{</highlight></codeline>
+<codeline lineno="134"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="135"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>data[count++]<sp/>=<sp/>byte;</highlight></codeline>
+<codeline lineno="137"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="138"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>count;</highlight></codeline>
+<codeline lineno="139"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="140"><highlight class="normal"></highlight></codeline>
+<codeline lineno="141"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__uart_8c_1a2d5a4241df0f1d2ffdc68876a33657c7" kindref="member">syn_uart_rx_isr_feed</ref>(<ref refid="structSYN__UART" kindref="compound">SYN_UART</ref><sp/>*uart,<sp/>uint8_t<sp/></highlight><highlight class="keywordtype">byte</highlight><highlight class="normal">)</highlight></codeline>
+<codeline lineno="142"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="143"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(uart<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="144"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__ringbuf_8c_1ac1b45c7cbbe0ff518d04e28c960fa2bb" kindref="member">syn_ringbuf_put</ref>(&amp;uart-&gt;<ref refid="structSYN__UART_1a636154b729f847f3da89695f981d20a3" kindref="member">rx_rb</ref>,<sp/></highlight><highlight class="keywordtype">byte</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="145"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="146"><highlight class="normal"></highlight></codeline>
+<codeline lineno="147"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__uart_8c_1a05d6bc940932de7058bf7acfe6624fac" kindref="member">syn_uart_write_async</ref>(<ref refid="structSYN__UART" kindref="compound">SYN_UART</ref><sp/>*uart,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*data,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>len)</highlight></codeline>
+<codeline lineno="148"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="149"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(uart<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="150"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(data<sp/>!=<sp/>NULL<sp/>||<sp/>len<sp/>==<sp/>0);</highlight></codeline>
+<codeline lineno="151"><highlight class="normal"></highlight></codeline>
+<codeline lineno="152"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(uart<sp/>==<sp/>NULL<sp/>||<sp/>(!uart-&gt;<ref refid="structSYN__UART_1a9dea9138252dda5f383d055d45562f12" kindref="member">initialized</ref>))<sp/>{<sp/></highlight><highlight class="comment">/*<sp/>LCOV_EXCL_LINE:<sp/>Defensive<sp/>fallback<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="153"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>LCOV_EXCL_LINE<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="154"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="155"><highlight class="normal"></highlight></codeline>
+<codeline lineno="156"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(len<sp/>==<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="157"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="158"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="159"><highlight class="normal"></highlight></codeline>
+<codeline lineno="160"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>All-or-nothing<sp/>atomic<sp/>check:<sp/>reject<sp/>write<sp/>if<sp/>insufficient<sp/>free<sp/>buffer<sp/>space<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="161"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="syn__ringbuf_8c_1ada70bac7c55186376d3db23b6a217f52" kindref="member">syn_ringbuf_free</ref>(&amp;uart-&gt;<ref refid="structSYN__UART_1a0720f1969143cbc1d20cf4fd19d42503" kindref="member">tx_rb</ref>)<sp/>&lt;<sp/>len)<sp/>{</highlight></codeline>
+<codeline lineno="162"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a3be376d242928cd8de46b32c69647539" kindref="member">SYN_BUSY</ref>;</highlight></codeline>
+<codeline lineno="163"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="164"><highlight class="normal"></highlight></codeline>
+<codeline lineno="165"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Bulk<sp/>copy<sp/>data<sp/>into<sp/>TX<sp/>ring<sp/>buffer<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="166"><highlight class="normal"><sp/><sp/><sp/><sp/>(void)<ref refid="syn__ringbuf_8c_1abb5bce664333d07db34b1ae0cbf2a8d6" kindref="member">syn_ringbuf_write</ref>(&amp;uart-&gt;<ref refid="structSYN__UART_1a0720f1969143cbc1d20cf4fd19d42503" kindref="member">tx_rb</ref>,<sp/>data,<sp/>len);</highlight></codeline>
+<codeline lineno="167"><highlight class="normal"></highlight></codeline>
+<codeline lineno="168"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Kickstart<sp/>hardware<sp/>TX<sp/>interrupt<sp/>chain<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="169"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__port__uart_8h_1a6d081439abf1c876fe7f90d33c280627" kindref="member">syn_port_uart_enable_txe_irq</ref>(uart-&gt;<ref refid="structSYN__UART_1ad2b7a2a681acf1a285d75fa273a95e38" kindref="member">instance</ref>);</highlight></codeline>
+<codeline lineno="170"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="171"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="172"><highlight class="normal"></highlight></codeline>
+<codeline lineno="173"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__uart_8c_1a7ad14f33de6c9c1d5882b7aced5243b1" kindref="member">syn_uart_tx_isr_flush</ref>(<ref refid="structSYN__UART" kindref="compound">SYN_UART</ref><sp/>*uart)</highlight></codeline>
+<codeline lineno="174"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="175"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(uart<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="176"><highlight class="normal"></highlight></codeline>
+<codeline lineno="177"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(uart<sp/>==<sp/>NULL)<sp/>{<sp/></highlight><highlight class="comment">/*<sp/>LCOV_EXCL_LINE:<sp/>Defensive<sp/>fallback<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="178"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;<sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>LCOV_EXCL_LINE<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="179"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="180"><highlight class="normal"></highlight></codeline>
+<codeline lineno="181"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>byte;</highlight></codeline>
+<codeline lineno="182"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="syn__ringbuf_8c_1a24d2361d16c53073a9bc4737ffd17fb8" kindref="member">syn_ringbuf_get</ref>(&amp;uart-&gt;<ref refid="structSYN__UART_1a0720f1969143cbc1d20cf4fd19d42503" kindref="member">tx_rb</ref>,<sp/>&amp;</highlight><highlight class="keywordtype">byte</highlight><highlight class="normal">))<sp/>{</highlight></codeline>
+<codeline lineno="183"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__port__uart_8h_1a9f7c510d072eab49f70ee5865a813d9e" kindref="member">syn_port_uart_write_dr</ref>(uart-&gt;<ref refid="structSYN__UART_1ad2b7a2a681acf1a285d75fa273a95e38" kindref="member">instance</ref>,<sp/></highlight><highlight class="keywordtype">byte</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="184"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="185"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="186"><highlight class="normal"></highlight></codeline>
+<codeline lineno="187"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Ring<sp/>buffer<sp/>empty<sp/>—<sp/>disable<sp/>TXE<sp/>interrupt<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="188"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__port__uart_8h_1a105881090ad47d40847728ce04bded3b" kindref="member">syn_port_uart_disable_txe_irq</ref>(uart-&gt;<ref refid="structSYN__UART_1ad2b7a2a681acf1a285d75fa273a95e38" kindref="member">instance</ref>);</highlight></codeline>
+<codeline lineno="189"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="190"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="191"><highlight class="normal"></highlight></codeline>
+<codeline lineno="192"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__uart_8c_1a0f79a291cf99b5122b0b6fb0790ec93f" kindref="member">syn_uart_tx_complete</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__UART" kindref="compound">SYN_UART</ref><sp/>*uart)</highlight></codeline>
+<codeline lineno="193"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="194"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(uart<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="195"><highlight class="normal"></highlight></codeline>
+<codeline lineno="196"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(uart<sp/>==<sp/>NULL)<sp/>{<sp/></highlight><highlight class="comment">/*<sp/>LCOV_EXCL_LINE:<sp/>Defensive<sp/>fallback<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="197"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;<sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>LCOV_EXCL_LINE<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="198"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="199"><highlight class="normal"></highlight></codeline>
+<codeline lineno="200"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Complete<sp/>ONLY<sp/>when<sp/>software<sp/>tx_rb<sp/>is<sp/>empty<sp/>AND<sp/>hardware<sp/>shift<sp/>register<sp/>is<sp/>clear<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="201"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__ringbuf_8c_1a086df8ee8ed916ab4a320756bb84b395" kindref="member">syn_ringbuf_empty</ref>(&amp;uart-&gt;<ref refid="structSYN__UART_1a0720f1969143cbc1d20cf4fd19d42503" kindref="member">tx_rb</ref>)<sp/>&amp;&amp;<sp/><ref refid="syn__port__uart_8h_1a5f75ac47d57fa771f8f804903c66d3f1" kindref="member">syn_port_uart_is_tc_set</ref>(uart-&gt;<ref refid="structSYN__UART_1ad2b7a2a681acf1a285d75fa273a95e38" kindref="member">instance</ref>);</highlight></codeline>
+<codeline lineno="202"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="203"><highlight class="normal"></highlight></codeline>
+<codeline lineno="204"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_USE_UART<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/drivers/syn_uart.c"/>
+  </compounddef>
+</doxygen>

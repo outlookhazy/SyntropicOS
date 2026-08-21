@@ -1,0 +1,410 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__crsf_8h" kind="file" language="C++">
+    <compoundname>syn_crsf.h</compoundname>
+    <includes refid="syn__defs_8h" local="yes">syntropic/common/syn_defs.h</includes>
+    <includes local="no">stdbool.h</includes>
+    <includes local="no">stddef.h</includes>
+    <includes local="no">stdint.h</includes>
+    <includedby refid="syn__crsf_8c" local="yes">src/syntropic/proto/syn_crsf.c</includedby>
+    <includedby refid="syntropic_8h" local="yes">src/syntropic/syntropic.h</includedby>
+    <incdepgraph>
+      <node id="2">
+        <label>syntropic/common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/proto/syn_crsf.h</label>
+        <link refid="syn__crsf_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>stdbool.h</label>
+      </node>
+      <node id="3">
+        <label>stddef.h</label>
+      </node>
+      <node id="4">
+        <label>stdint.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="2">
+        <label>src/syntropic/proto/syn_crsf.c</label>
+        <link refid="syn__crsf_8c"/>
+      </node>
+      <node id="1">
+        <label>src/syntropic/proto/syn_crsf.h</label>
+        <link refid="syn__crsf_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>src/syntropic/proto/syn_doip.c</label>
+        <link refid="syn__doip_8c"/>
+      </node>
+      <node id="4">
+        <label>src/syntropic/proto/syn_doip.h</label>
+        <link refid="syn__doip_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>src/syntropic/syntropic.h</label>
+        <link refid="syntropic_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="structSYN__CRSF__ChannelsFrame" prot="public">SYN_CRSF_ChannelsFrame</innerclass>
+    <innerclass refid="structSYN__CRSF__LinkStats" prot="public">SYN_CRSF_LinkStats</innerclass>
+    <innerclass refid="structSYN__CRSF__Parser" prot="public">SYN_CRSF_Parser</innerclass>
+    <sectiondef kind="define">
+      <memberdef kind="define" id="syn__crsf_8h_1af11ec44fb7a6a285e811c51a209856bf" prot="public" static="no">
+        <name>SYN_CRSF_MAX_PACKET_LEN</name>
+        <initializer>64U</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Maximum CRSF frame byte length </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_crsf.h" line="31" column="9" bodyfile="src/syntropic/proto/syn_crsf.h" bodystart="31" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__crsf_8h_1a0b504f5d3f676c3d3241d60d221901cf" prot="public" static="no">
+        <name>SYN_CRSF_NUM_CHANNELS</name>
+        <initializer>16U</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Number of RC channels in CRSF frame (16) </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_crsf.h" line="32" column="9" bodyfile="src/syntropic/proto/syn_crsf.h" bodystart="32" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__crsf_8h_1a46907f5ddba8b18bd0971c4dbe7b64dc" prot="public" static="no">
+        <name>SYN_CRSF_ADDR_FC</name>
+        <initializer>0xC8U</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Flight Controller sync address (0xC8) </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_crsf.h" line="33" column="9" bodyfile="src/syntropic/proto/syn_crsf.h" bodystart="33" bodyend="-1"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="enum">
+      <memberdef kind="enum" id="syn__crsf_8h_1af4f642044c449787e0302ab6428fb0b7" prot="public" static="no" strong="no">
+        <type></type>
+        <name>SYN_CRSF_FrameType</name>
+        <enumvalue id="syn__crsf_8h_1af4f642044c449787e0302ab6428fb0b7aa5265da9eb7d861dc0c3554f3ad3446f" prot="public">
+          <name>SYN_CRSF_TYPE_GPS</name>
+          <initializer>= 0x02U</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__crsf_8h_1af4f642044c449787e0302ab6428fb0b7a2113bd6612c51c36208791b2db5629ab" prot="public">
+          <name>SYN_CRSF_TYPE_BATTERY</name>
+          <initializer>= 0x08U</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__crsf_8h_1af4f642044c449787e0302ab6428fb0b7afb7000b5c65739e9dc8c163031e56c0e" prot="public">
+          <name>SYN_CRSF_TYPE_LINK_STATISTICS</name>
+          <initializer>= 0x14U</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__crsf_8h_1af4f642044c449787e0302ab6428fb0b7af7355918643857f41c130d3c10349d76" prot="public">
+          <name>SYN_CRSF_TYPE_RC_CHANNELS</name>
+          <initializer>= 0x16U</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>CRSF Frame Types. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_crsf.h" line="36" column="1" bodyfile="src/syntropic/proto/syn_crsf.h" bodystart="36" bodyend="41"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__crsf_8h_1abe85cebfb66a06d0760388ca5423d0b3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint8_t</type>
+        <definition>uint8_t syn_crsf_calc_crc</definition>
+        <argsstring>(const uint8_t *buf, size_t len)</argsstring>
+        <name>syn_crsf_calc_crc</name>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>len</declname>
+        </param>
+        <briefdescription>
+<para>Calculate CRC8 DVB-S2 (poly 0xD5) for CRSF buffer. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to data. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Length in bytes. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>8-bit CRC value. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_crsf.h" line="80" column="9" bodyfile="src/syntropic/proto/syn_crsf.c" bodystart="10" bodyend="28" declfile="src/syntropic/proto/syn_crsf.h" declline="80" declcolumn="9"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__crsf_8h_1a08e7d2543cf927db7f10cd5f85ed6258" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_crsf_init</definition>
+        <argsstring>(SYN_CRSF_Parser *parser)</argsstring>
+        <name>syn_crsf_init</name>
+        <param>
+          <type><ref refid="structSYN__CRSF__Parser" kindref="compound">SYN_CRSF_Parser</ref> *</type>
+          <declname>parser</declname>
+        </param>
+        <briefdescription>
+<para>Initialize CRSF parser. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>parser</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to parser struct. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_crsf.h" line="88" column="12" bodyfile="src/syntropic/proto/syn_crsf.c" bodystart="30" bodyend="37" declfile="src/syntropic/proto/syn_crsf.h" declline="88" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__crsf_8h_1a22f5dcee312fc3a475d1206e2d828ca1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_crsf_parse_byte</definition>
+        <argsstring>(SYN_CRSF_Parser *parser, uint8_t byte, SYN_CRSF_FrameType *type_out)</argsstring>
+        <name>syn_crsf_parse_byte</name>
+        <param>
+          <type><ref refid="structSYN__CRSF__Parser" kindref="compound">SYN_CRSF_Parser</ref> *</type>
+          <declname>parser</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>byte</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__crsf_8h_1af4f642044c449787e0302ab6428fb0b7" kindref="member">SYN_CRSF_FrameType</ref> *</type>
+          <declname>type_out</declname>
+        </param>
+        <briefdescription>
+<para>Process single byte from serial RX stream. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>parser</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to parser struct. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>byte</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Incoming byte. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>type_out</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Optional pointer to receive frame type when a complete valid packet is parsed. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on complete packet, SYN_BUSY if incomplete, SYN_ERROR on CRC failure. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_crsf.h" line="98" column="12" bodyfile="src/syntropic/proto/syn_crsf.c" bodystart="87" bodyend="136" declfile="src/syntropic/proto/syn_crsf.h" declline="98" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__crsf_8h_1ad17a61835395c34a1e317819cd861cf8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint16_t</type>
+        <definition>uint16_t syn_crsf_raw_to_us</definition>
+        <argsstring>(uint16_t raw_val)</argsstring>
+        <name>syn_crsf_raw_to_us</name>
+        <param>
+          <type>uint16_t</type>
+          <declname>raw_val</declname>
+        </param>
+        <briefdescription>
+<para>Convert raw 11-bit CRSF channel value to pulse width in microseconds (us). </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Standard scaling:<itemizedlist>
+<listitem><para>170 raw -&gt; 988 us</para>
+</listitem><listitem><para>992 raw -&gt; 1500 us</para>
+</listitem><listitem><para>1908 raw -&gt; 2012 us</para>
+</listitem></itemizedlist>
+</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>raw_val</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>11-bit raw value (170..1908). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Pulse width in microseconds (clamped 988..2012 us). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_crsf.h" line="111" column="10" bodyfile="src/syntropic/proto/syn_crsf.c" bodystart="138" bodyend="156" declfile="src/syntropic/proto/syn_crsf.h" declline="111" declcolumn="10"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Zero-Heap CRSF (TBS Crossfire / ExpressLRS) Protocol Parser. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>CRSF Specifications:<itemizedlist>
+<listitem><para>Baud rate: 420,000 / 921,600 / 1,875,000 bps, 8N1.</para>
+</listitem><listitem><para>Frame Format: [Device Addr] [Payload Length] [Frame Type] [Payload...] [CRC8]</para>
+</listitem><listitem><para>Address: 0xC8 (Flight Controller), 0xEA (Radio Transmitter).</para>
+</listitem><listitem><para>Types:<itemizedlist>
+<listitem><para>0x16: RC Channels Frame (16 11-bit channels packed in 22 bytes, raw 170..1908 -&gt; 988..2012 us).</para>
+</listitem><listitem><para>0x14: Link Statistics (RSSI 1 &amp; 2, Link Quality, SNR).</para>
+</listitem><listitem><para>0x08: Battery Telemetry (Voltage, Current, Capacity, Remaining %).</para>
+</listitem><listitem><para>0x02: GPS Telemetry (Lat, Lon, Groundspeed, Heading, Altitude, Satellites).</para>
+</listitem></itemizedlist>
+</para>
+</listitem><listitem><para>CRC: CRC8 DVB-S2 (poly 0xD5) over Frame Type + Payload. </para>
+</listitem></itemizedlist>
+</para>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_CRSF_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_CRSF_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__defs_8h" kindref="compound">syntropic/common/syn_defs.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stddef.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight></codeline>
+<codeline lineno="31" refid="syn__crsf_8h_1af11ec44fb7a6a285e811c51a209856bf" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_CRSF_MAX_PACKET_LEN<sp/>64U<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="32" refid="syn__crsf_8h_1a0b504f5d3f676c3d3241d60d221901cf" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_CRSF_NUM_CHANNELS<sp/>16U<sp/><sp/><sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33" refid="syn__crsf_8h_1a46907f5ddba8b18bd0971c4dbe7b64dc" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_CRSF_ADDR_FC<sp/>0xC8U<sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="36" refid="syn__crsf_8h_1af4f642044c449787e0302ab6428fb0b7" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="37"><highlight class="normal"><sp/><sp/><sp/><sp/>SYN_CRSF_TYPE_GPS<sp/>=<sp/>0x02U,</highlight></codeline>
+<codeline lineno="38"><highlight class="normal"><sp/><sp/><sp/><sp/>SYN_CRSF_TYPE_BATTERY<sp/>=<sp/>0x08U,</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"><sp/><sp/><sp/><sp/>SYN_CRSF_TYPE_LINK_STATISTICS<sp/>=<sp/>0x14U,</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"><sp/><sp/><sp/><sp/>SYN_CRSF_TYPE_RC_CHANNELS<sp/>=<sp/>0x16U</highlight></codeline>
+<codeline lineno="41"><highlight class="normal">}<sp/><ref refid="syn__crsf_8h_1af4f642044c449787e0302ab6428fb0b7" kindref="member">SYN_CRSF_FrameType</ref>;</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight></codeline>
+<codeline lineno="44" refid="structSYN__CRSF__ChannelsFrame" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="45" refid="structSYN__CRSF__ChannelsFrame_1ae4276cb8c34aebd98baa900babe83000" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/>channels[<ref refid="syn__crsf_8h_1a0b504f5d3f676c3d3241d60d221901cf" kindref="member">SYN_CRSF_NUM_CHANNELS</ref>];<sp/></highlight></codeline>
+<codeline lineno="46"><highlight class="normal">}<sp/><ref refid="structSYN__CRSF__ChannelsFrame" kindref="compound">SYN_CRSF_ChannelsFrame</ref>;</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"></highlight></codeline>
+<codeline lineno="49" refid="structSYN__CRSF__LinkStats" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="50" refid="structSYN__CRSF__LinkStats_1ad187b43416f3eeca7edb29193ed0dfbf" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><ref refid="structSYN__CRSF__LinkStats_1ad187b43416f3eeca7edb29193ed0dfbf" kindref="member">uplink_rssi1</ref>;<sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="51" refid="structSYN__CRSF__LinkStats_1ade7386f72f642cb4026f0b5d3ce239c9" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><ref refid="structSYN__CRSF__LinkStats_1ade7386f72f642cb4026f0b5d3ce239c9" kindref="member">uplink_rssi2</ref>;<sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="52" refid="structSYN__CRSF__LinkStats_1a35a7c9a0b48cdd2b5f36045ac672339c" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><ref refid="structSYN__CRSF__LinkStats_1a35a7c9a0b48cdd2b5f36045ac672339c" kindref="member">uplink_quality</ref>;<sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="53" refid="structSYN__CRSF__LinkStats_1a2bd2a7ef71f39873a87d715b8bfe158c" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>int8_t<sp/><ref refid="structSYN__CRSF__LinkStats_1a2bd2a7ef71f39873a87d715b8bfe158c" kindref="member">uplink_snr</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="54" refid="structSYN__CRSF__LinkStats_1a9fe4c7365f496119d778aa46a071f52f" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><ref refid="structSYN__CRSF__LinkStats_1a9fe4c7365f496119d778aa46a071f52f" kindref="member">active_antenna</ref>;<sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="55" refid="structSYN__CRSF__LinkStats_1a8a3011d6e377bf23b71d9a8651fae798" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><ref refid="structSYN__CRSF__LinkStats_1a8a3011d6e377bf23b71d9a8651fae798" kindref="member">rf_mode</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="56" refid="structSYN__CRSF__LinkStats_1aebeebd1b5b72273b8efbba67fc7604d1" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><ref refid="structSYN__CRSF__LinkStats_1aebeebd1b5b72273b8efbba67fc7604d1" kindref="member">tx_power</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="57" refid="structSYN__CRSF__LinkStats_1a214bbfddee1c1b00492669052751d70c" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><ref refid="structSYN__CRSF__LinkStats_1a214bbfddee1c1b00492669052751d70c" kindref="member">downlink_rssi</ref>;<sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="58" refid="structSYN__CRSF__LinkStats_1a7ddacaad37155eff6c660856dd74d1e1" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><ref refid="structSYN__CRSF__LinkStats_1a7ddacaad37155eff6c660856dd74d1e1" kindref="member">downlink_quality</ref>;<sp/></highlight></codeline>
+<codeline lineno="59" refid="structSYN__CRSF__LinkStats_1a3d1998aa199f4abb6a6a68365656f71d" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>int8_t<sp/><ref refid="structSYN__CRSF__LinkStats_1a3d1998aa199f4abb6a6a68365656f71d" kindref="member">downlink_snr</ref>;<sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="60"><highlight class="normal">}<sp/><ref refid="structSYN__CRSF__LinkStats" kindref="compound">SYN_CRSF_LinkStats</ref>;</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"></highlight></codeline>
+<codeline lineno="63" refid="structSYN__CRSF__Parser" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="64" refid="structSYN__CRSF__Parser_1abdfb5dc80f895a44911d6835e3240f8f" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>buf[<ref refid="syn__crsf_8h_1af11ec44fb7a6a285e811c51a209856bf" kindref="member">SYN_CRSF_MAX_PACKET_LEN</ref>];<sp/></highlight></codeline>
+<codeline lineno="65" refid="structSYN__CRSF__Parser_1a10bc9ff2bec61a08afb5c185a7e74b6f" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><ref refid="structSYN__CRSF__Parser_1a10bc9ff2bec61a08afb5c185a7e74b6f" kindref="member">idx</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="66" refid="structSYN__CRSF__Parser_1a3cf5f323db201cdbb0b133ad592a8bf6" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><ref refid="structSYN__CRSF__Parser_1a3cf5f323db201cdbb0b133ad592a8bf6" kindref="member">payload_len</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="67" refid="structSYN__CRSF__Parser_1afcc7f2a19f1c791362bb1994fb1b7fae" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structSYN__CRSF__Parser_1afcc7f2a19f1c791362bb1994fb1b7fae" kindref="member">packets_received</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="68" refid="structSYN__CRSF__Parser_1a268c12f8a0d5073ec0afafc55f6a7bfe" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structSYN__CRSF__Parser_1a268c12f8a0d5073ec0afafc55f6a7bfe" kindref="member">crc_errors</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="69" refid="structSYN__CRSF__Parser_1ad80dc2cd184fad3917b37dec351e7ca6" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structSYN__CRSF__ChannelsFrame" kindref="compound">SYN_CRSF_ChannelsFrame</ref><sp/><ref refid="structSYN__CRSF__Parser_1ad80dc2cd184fad3917b37dec351e7ca6" kindref="member">last_channels</ref>;<sp/></highlight></codeline>
+<codeline lineno="70" refid="structSYN__CRSF__Parser_1a74ec6cddab8a863434f61ce53f2cc4c1" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structSYN__CRSF__LinkStats" kindref="compound">SYN_CRSF_LinkStats</ref><sp/><ref refid="structSYN__CRSF__Parser_1a74ec6cddab8a863434f61ce53f2cc4c1" kindref="member">last_link_stats</ref>;<sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="71"><highlight class="normal">}<sp/><ref refid="structSYN__CRSF__Parser" kindref="compound">SYN_CRSF_Parser</ref>;</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"></highlight></codeline>
+<codeline lineno="80"><highlight class="normal">uint8_t<sp/><ref refid="syn__crsf_8h_1abe85cebfb66a06d0760388ca5423d0b3" kindref="member">syn_crsf_calc_crc</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*buf,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>len);</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"></highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__crsf_8h_1a08e7d2543cf927db7f10cd5f85ed6258" kindref="member">syn_crsf_init</ref>(<ref refid="structSYN__CRSF__Parser" kindref="compound">SYN_CRSF_Parser</ref><sp/>*parser);</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"></highlight></codeline>
+<codeline lineno="98"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__crsf_8h_1a22f5dcee312fc3a475d1206e2d828ca1" kindref="member">syn_crsf_parse_byte</ref>(<ref refid="structSYN__CRSF__Parser" kindref="compound">SYN_CRSF_Parser</ref><sp/>*parser,<sp/>uint8_t<sp/></highlight><highlight class="keywordtype">byte</highlight><highlight class="normal">,<sp/><ref refid="syn__crsf_8h_1af4f642044c449787e0302ab6428fb0b7" kindref="member">SYN_CRSF_FrameType</ref><sp/>*type_out);</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"></highlight></codeline>
+<codeline lineno="111"><highlight class="normal">uint16_t<sp/><ref refid="syn__crsf_8h_1ad17a61835395c34a1e317819cd861cf8" kindref="member">syn_crsf_raw_to_us</ref>(uint16_t<sp/>raw_val);</highlight></codeline>
+<codeline lineno="112"><highlight class="normal"></highlight></codeline>
+<codeline lineno="113"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="114"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="115"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="116"><highlight class="normal"></highlight></codeline>
+<codeline lineno="117"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_CRSF_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/proto/syn_crsf.h"/>
+  </compounddef>
+</doxygen>

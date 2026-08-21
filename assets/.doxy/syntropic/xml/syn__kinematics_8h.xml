@@ -1,0 +1,1285 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__kinematics_8h" kind="file" language="C++">
+    <compoundname>syn_kinematics.h</compoundname>
+    <includes refid="syn__defs_8h" local="yes">../common/syn_defs.h</includes>
+    <includes refid="syn__matrix_8h" local="yes">../util/syn_matrix.h</includes>
+    <includes refid="syn__qmath_8h" local="yes">../util/syn_qmath.h</includes>
+    <includes local="no">stdbool.h</includes>
+    <includes local="no">stddef.h</includes>
+    <includes local="no">stdint.h</includes>
+    <includedby refid="syn__kinematics_8c" local="yes">src/syntropic/motor/syn_kinematics.c</includedby>
+    <includedby refid="syntropic_8h" local="yes">src/syntropic/syntropic.h</includedby>
+    <incdepgraph>
+      <node id="2">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/motor/syn_kinematics.h</label>
+        <link refid="syn__kinematics_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>../util/syn_matrix.h</label>
+        <link refid="syn__matrix_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>syn_qmath.h</label>
+        <link refid="syn__qmath_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>stdbool.h</label>
+      </node>
+      <node id="3">
+        <label>stddef.h</label>
+      </node>
+      <node id="4">
+        <label>stdint.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="2">
+        <label>src/syntropic/motor/syn_kinematics.c</label>
+        <link refid="syn__kinematics_8c"/>
+      </node>
+      <node id="1">
+        <label>src/syntropic/motor/syn_kinematics.h</label>
+        <link refid="syn__kinematics_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>src/syntropic/proto/syn_doip.c</label>
+        <link refid="syn__doip_8c"/>
+      </node>
+      <node id="4">
+        <label>src/syntropic/proto/syn_doip.h</label>
+        <link refid="syn__doip_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>src/syntropic/syntropic.h</label>
+        <link refid="syntropic_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="structSYN__DH__Param" prot="public">SYN_DH_Param</innerclass>
+    <innerclass refid="structSYN__Position3D" prot="public">SYN_Position3D</innerclass>
+    <innerclass refid="structSYN__Orientation3D" prot="public">SYN_Orientation3D</innerclass>
+    <innerclass refid="structSYN__Pose6D" prot="public">SYN_Pose6D</innerclass>
+    <innerclass refid="structSYN__Kinematics__Planar3Config" prot="public">SYN_Kinematics_Planar3Config</innerclass>
+    <innerclass refid="structSYN__Kinematics__SCARAConfig" prot="public">SYN_Kinematics_SCARAConfig</innerclass>
+    <innerclass refid="structSYN__Kinematics__6DOFConfig" prot="public">SYN_Kinematics_6DOFConfig</innerclass>
+    <innerclass refid="structSYN__Kinematics__DeltaConfig" prot="public">SYN_Kinematics_DeltaConfig</innerclass>
+    <sectiondef kind="define">
+      <memberdef kind="define" id="syn__kinematics_8h_1a07a78befb2db3fbfdb64533efa4dbb9f" prot="public" static="no">
+        <name>SYN_KINEMATICS_MAX_JOINTS</name>
+        <initializer>8U</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Maximum supported joints in a kinematic chain </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/motor/syn_kinematics.h" line="36" column="9" bodyfile="src/syntropic/motor/syn_kinematics.h" bodystart="36" bodyend="-1"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="enum">
+      <memberdef kind="enum" id="syn__kinematics_8h_1a9671468beb5a570455def60ba2f391e8" prot="public" static="no" strong="no">
+        <type></type>
+        <name>SYN_DH_Convention</name>
+        <enumvalue id="syn__kinematics_8h_1a9671468beb5a570455def60ba2f391e8ad134e73fa67135271f52e3a16c4146c4" prot="public">
+          <name>SYN_DH_CONVENTION_STANDARD</name>
+          <initializer>= 0</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Standard DH convention (Craig / Paul) </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__kinematics_8h_1a9671468beb5a570455def60ba2f391e8ac46ae57cca69e54980fd4ced442e5919" prot="public">
+          <name>SYN_DH_CONVENTION_MODIFIED</name>
+          <initializer>= 1</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Modified DH convention (Khalil / Kleinfinger) </para>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>Denavit-Hartenberg parameter convention. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/motor/syn_kinematics.h" line="43" column="1" bodyfile="src/syntropic/motor/syn_kinematics.h" bodystart="43" bodyend="46"/>
+      </memberdef>
+      <memberdef kind="enum" id="syn__kinematics_8h_1a83d0bf48aeb8a9a1b7550c754f2bb3fb" prot="public" static="no" strong="no">
+        <type></type>
+        <name>SYN_ArmElbow</name>
+        <enumvalue id="syn__kinematics_8h_1a83d0bf48aeb8a9a1b7550c754f2bb3fba85ecd063273d62458cc277af40bec867" prot="public">
+          <name>SYN_ARM_ELBOW_UP</name>
+          <initializer>= 0</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Elbow up / Left-handed configuration </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__kinematics_8h_1a83d0bf48aeb8a9a1b7550c754f2bb3fba9cc5218b0552630d29b50faddec811c0" prot="public">
+          <name>SYN_ARM_ELBOW_DOWN</name>
+          <initializer>= 1</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Elbow down / Right-handed configuration </para>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>Elbow configuration for 2D/3D arm inverse kinematics. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/motor/syn_kinematics.h" line="103" column="1" bodyfile="src/syntropic/motor/syn_kinematics.h" bodystart="103" bodyend="106"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__kinematics_8h_1a5271bfdbf3a916ffc640bacfe8549616" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_dh_matrix</definition>
+        <argsstring>(const SYN_DH_Param *param, q16_t joint_val, SYN_DH_Convention conv, SYN_Matrix *out_t44)</argsstring>
+        <name>syn_dh_matrix</name>
+        <param>
+          <type>const <ref refid="structSYN__DH__Param" kindref="compound">SYN_DH_Param</ref> *</type>
+          <declname>param</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+          <declname>joint_val</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__kinematics_8h_1a9671468beb5a570455def60ba2f391e8" kindref="member">SYN_DH_Convention</ref></type>
+          <declname>conv</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__Matrix" kindref="compound">SYN_Matrix</ref> *</type>
+          <declname>out_t44</declname>
+        </param>
+        <briefdescription>
+<para>Compute single-link 4x4 Homogeneous Transformation Matrix from DH parameters. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>param</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>DH parameters for link. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>joint_val</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Joint variable (angle in rad for revolute, displacement for prismatic). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>conv</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>DH convention (standard or modified). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out_t44</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output 4x4 matrix (must be initialized with 4 rows, 4 cols). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_INVALID_PARAM on NULL or dimension error. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/motor/syn_kinematics.h" line="149" column="12" bodyfile="src/syntropic/motor/syn_kinematics.c" bodystart="80" bodyend="137" declfile="src/syntropic/motor/syn_kinematics.h" declline="149" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__kinematics_8h_1a0b1478d5b596f90f881b700175b259e6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_kinematics_forward</definition>
+        <argsstring>(const SYN_DH_Param *chain, size_t num_joints, const q16_t *joint_vals, SYN_DH_Convention conv, SYN_Matrix *out_t44, SYN_Pose6D *out_pose)</argsstring>
+        <name>syn_kinematics_forward</name>
+        <param>
+          <type>const <ref refid="structSYN__DH__Param" kindref="compound">SYN_DH_Param</ref> *</type>
+          <declname>chain</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>num_joints</declname>
+        </param>
+        <param>
+          <type>const <ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref> *</type>
+          <declname>joint_vals</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__kinematics_8h_1a9671468beb5a570455def60ba2f391e8" kindref="member">SYN_DH_Convention</ref></type>
+          <declname>conv</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__Matrix" kindref="compound">SYN_Matrix</ref> *</type>
+          <declname>out_t44</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__Pose6D" kindref="compound">SYN_Pose6D</ref> *</type>
+          <declname>out_pose</declname>
+        </param>
+        <briefdescription>
+<para>Compute Forward Kinematics for a general serial DH chain. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>chain</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Array of DH joint parameters. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>num_joints</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of joints in chain (&lt;= SYN_KINEMATICS_MAX_JOINTS). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>joint_vals</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Array of joint values. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>conv</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>DH convention. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out_t44</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Optional output 4x4 end-effector transform matrix (can be NULL). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out_pose</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Optional output 6-DOF pose (can be NULL). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_INVALID_PARAM on invalid inputs. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/motor/syn_kinematics.h" line="162" column="12" bodyfile="src/syntropic/motor/syn_kinematics.c" bodystart="139" bodyend="185" declfile="src/syntropic/motor/syn_kinematics.h" declline="162" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__kinematics_8h_1a1441e4381761f92ecea388f87833c6e1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_kinematics_jacobian</definition>
+        <argsstring>(const SYN_DH_Param *chain, size_t num_joints, const q16_t *joint_vals, SYN_DH_Convention conv, SYN_Matrix *out_j6xn)</argsstring>
+        <name>syn_kinematics_jacobian</name>
+        <param>
+          <type>const <ref refid="structSYN__DH__Param" kindref="compound">SYN_DH_Param</ref> *</type>
+          <declname>chain</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>num_joints</declname>
+        </param>
+        <param>
+          <type>const <ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref> *</type>
+          <declname>joint_vals</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__kinematics_8h_1a9671468beb5a570455def60ba2f391e8" kindref="member">SYN_DH_Convention</ref></type>
+          <declname>conv</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__Matrix" kindref="compound">SYN_Matrix</ref> *</type>
+          <declname>out_j6xn</declname>
+        </param>
+        <briefdescription>
+<para>Calculate Geometric 6xN Jacobian Matrix for a serial link chain. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>chain</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Array of DH joint parameters. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>num_joints</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of joints in chain. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>joint_vals</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Current joint positions. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>conv</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>DH convention. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out_j6xn</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output 6xN matrix (rows=6, cols=num_joints). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_INVALID_PARAM on invalid inputs. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/motor/syn_kinematics.h" line="175" column="12" bodyfile="src/syntropic/motor/syn_kinematics.c" bodystart="187" bodyend="257" declfile="src/syntropic/motor/syn_kinematics.h" declline="175" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__kinematics_8h_1a4a33b123084bbfca50c74e66693743d0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_kinematics_planar3_fk</definition>
+        <argsstring>(const SYN_Kinematics_Planar3Config *cfg, q16_t q1, q16_t q2, q16_t q3, q16_t *out_x, q16_t *out_y, q16_t *out_phi)</argsstring>
+        <name>syn_kinematics_planar3_fk</name>
+        <param>
+          <type>const <ref refid="structSYN__Kinematics__Planar3Config" kindref="compound">SYN_Kinematics_Planar3Config</ref> *</type>
+          <declname>cfg</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+          <declname>q1</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+          <declname>q2</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+          <declname>q3</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref> *</type>
+          <declname>out_x</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref> *</type>
+          <declname>out_y</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref> *</type>
+          <declname>out_phi</declname>
+        </param>
+        <briefdescription>
+<para>Forward kinematics for 3-DOF planar arm. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>cfg</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Planar arm configuration. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>q1</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Joint 1 angle (rad). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>q2</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Joint 2 angle (rad). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>q3</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Joint 3 angle (rad). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out_x</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to receive X position. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out_y</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to receive Y position. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out_phi</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to receive tool orientation angle (rad). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/motor/syn_kinematics.h" line="192" column="12" bodyfile="src/syntropic/motor/syn_kinematics.c" bodystart="261" bodyend="286" declfile="src/syntropic/motor/syn_kinematics.h" declline="192" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__kinematics_8h_1a9b23ffde585b52f9258b99f13dae57d7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_kinematics_planar3_ik</definition>
+        <argsstring>(const SYN_Kinematics_Planar3Config *cfg, q16_t x, q16_t y, q16_t phi, SYN_ArmElbow elbow, q16_t *out_q1, q16_t *out_q2, q16_t *out_q3)</argsstring>
+        <name>syn_kinematics_planar3_ik</name>
+        <param>
+          <type>const <ref refid="structSYN__Kinematics__Planar3Config" kindref="compound">SYN_Kinematics_Planar3Config</ref> *</type>
+          <declname>cfg</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+          <declname>y</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+          <declname>phi</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__kinematics_8h_1a83d0bf48aeb8a9a1b7550c754f2bb3fb" kindref="member">SYN_ArmElbow</ref></type>
+          <declname>elbow</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref> *</type>
+          <declname>out_q1</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref> *</type>
+          <declname>out_q2</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref> *</type>
+          <declname>out_q3</declname>
+        </param>
+        <briefdescription>
+<para>Closed-form inverse kinematics for 3-DOF planar arm. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>cfg</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Planar arm configuration. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>x</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Target X position. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>y</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Target Y position. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>phi</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Target end-effector orientation angle (rad). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>elbow</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Elbow configuration (up or down). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out_q1</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output joint 1 angle. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out_q2</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output joint 2 angle. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out_q3</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output joint 3 angle. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_ERROR if target unreachable. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/motor/syn_kinematics.h" line="207" column="12" bodyfile="src/syntropic/motor/syn_kinematics.c" bodystart="288" bodyend="337" declfile="src/syntropic/motor/syn_kinematics.h" declline="207" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__kinematics_8h_1a76c4a43eead3438bdf62e0392ace209a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_kinematics_scara_fk</definition>
+        <argsstring>(const SYN_Kinematics_SCARAConfig *cfg, q16_t q1, q16_t q2, q16_t d3, q16_t q4, SYN_Pose6D *out_pose)</argsstring>
+        <name>syn_kinematics_scara_fk</name>
+        <param>
+          <type>const <ref refid="structSYN__Kinematics__SCARAConfig" kindref="compound">SYN_Kinematics_SCARAConfig</ref> *</type>
+          <declname>cfg</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+          <declname>q1</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+          <declname>q2</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+          <declname>d3</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+          <declname>q4</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__Pose6D" kindref="compound">SYN_Pose6D</ref> *</type>
+          <declname>out_pose</declname>
+        </param>
+        <briefdescription>
+<para>Forward kinematics for 4-DOF SCARA robot. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>cfg</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>SCARA configuration. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>q1</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Joint 1 shoulder angle (rad). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>q2</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Joint 2 elbow angle (rad). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>d3</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Joint 3 prismatic vertical displacement (distance down). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>q4</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Joint 4 wrist roll angle (rad). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out_pose</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output 4-DOF pose (X, Y, Z, Yaw). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/motor/syn_kinematics.h" line="223" column="12" bodyfile="src/syntropic/motor/syn_kinematics.c" bodystart="341" bodyend="357" declfile="src/syntropic/motor/syn_kinematics.h" declline="223" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__kinematics_8h_1a9fa5c93cccc3647d9195004a618ef49d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_kinematics_scara_ik</definition>
+        <argsstring>(const SYN_Kinematics_SCARAConfig *cfg, const SYN_Pose6D *target, SYN_ArmElbow elbow, q16_t *out_q1, q16_t *out_q2, q16_t *out_d3, q16_t *out_q4)</argsstring>
+        <name>syn_kinematics_scara_ik</name>
+        <param>
+          <type>const <ref refid="structSYN__Kinematics__SCARAConfig" kindref="compound">SYN_Kinematics_SCARAConfig</ref> *</type>
+          <declname>cfg</declname>
+        </param>
+        <param>
+          <type>const <ref refid="structSYN__Pose6D" kindref="compound">SYN_Pose6D</ref> *</type>
+          <declname>target</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__kinematics_8h_1a83d0bf48aeb8a9a1b7550c754f2bb3fb" kindref="member">SYN_ArmElbow</ref></type>
+          <declname>elbow</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref> *</type>
+          <declname>out_q1</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref> *</type>
+          <declname>out_q2</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref> *</type>
+          <declname>out_d3</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref> *</type>
+          <declname>out_q4</declname>
+        </param>
+        <briefdescription>
+<para>Closed-form inverse kinematics for 4-DOF SCARA robot. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>cfg</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>SCARA configuration. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>target</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Target 6-DOF pose (X, Y, Z, Yaw). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>elbow</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Elbow configuration (up/left or down/right). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out_q1</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output joint 1 angle. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out_q2</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output joint 2 angle. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out_d3</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output joint 3 vertical position. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out_q4</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output joint 4 wrist angle. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_ERROR if target unreachable. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/motor/syn_kinematics.h" line="237" column="12" bodyfile="src/syntropic/motor/syn_kinematics.c" bodystart="359" bodyend="415" declfile="src/syntropic/motor/syn_kinematics.h" declline="237" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__kinematics_8h_1a08965a3a953ec4aefea2583ab8eda8a7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_kinematics_6dof_fk</definition>
+        <argsstring>(const SYN_Kinematics_6DOFConfig *cfg, const q16_t q[6], SYN_Pose6D *out_pose)</argsstring>
+        <name>syn_kinematics_6dof_fk</name>
+        <param>
+          <type>const <ref refid="structSYN__Kinematics__6DOFConfig" kindref="compound">SYN_Kinematics_6DOFConfig</ref> *</type>
+          <declname>cfg</declname>
+        </param>
+        <param>
+          <type>const <ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+          <declname>q</declname>
+          <array>[6]</array>
+        </param>
+        <param>
+          <type><ref refid="structSYN__Pose6D" kindref="compound">SYN_Pose6D</ref> *</type>
+          <declname>out_pose</declname>
+        </param>
+        <briefdescription>
+<para>Forward kinematics for 6-DOF articulated arm. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>cfg</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>6-DOF arm configuration. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>q</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Array of 6 joint angles in radians. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out_pose</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output 6-DOF Cartesian pose. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/motor/syn_kinematics.h" line="250" column="12" bodyfile="src/syntropic/motor/syn_kinematics.c" bodystart="419" bodyend="435" declfile="src/syntropic/motor/syn_kinematics.h" declline="250" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__kinematics_8h_1ac1ede9c28bfe54016cc2cbb45ed6fcd3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_kinematics_6dof_ik</definition>
+        <argsstring>(const SYN_Kinematics_6DOFConfig *cfg, const SYN_Pose6D *target, SYN_ArmElbow elbow, bool wrist_flip, q16_t out_q[6])</argsstring>
+        <name>syn_kinematics_6dof_ik</name>
+        <param>
+          <type>const <ref refid="structSYN__Kinematics__6DOFConfig" kindref="compound">SYN_Kinematics_6DOFConfig</ref> *</type>
+          <declname>cfg</declname>
+        </param>
+        <param>
+          <type>const <ref refid="structSYN__Pose6D" kindref="compound">SYN_Pose6D</ref> *</type>
+          <declname>target</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__kinematics_8h_1a83d0bf48aeb8a9a1b7550c754f2bb3fb" kindref="member">SYN_ArmElbow</ref></type>
+          <declname>elbow</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+          <declname>wrist_flip</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+          <declname>out_q</declname>
+          <array>[6]</array>
+        </param>
+        <briefdescription>
+<para>Closed-form inverse kinematics for 6-DOF arm with spherical wrist (Pieper solution). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>cfg</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>6-DOF arm configuration. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>target</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Target 6-DOF pose. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>elbow</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Shoulder/elbow solution choice. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>wrist_flip</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Invert wrist pitch/yaw solution if true. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out_q</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output array of 6 joint angles in radians. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_ERROR if target position or orientation unreachable. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/motor/syn_kinematics.h" line="262" column="12" bodyfile="src/syntropic/motor/syn_kinematics.c" bodystart="437" bodyend="546" declfile="src/syntropic/motor/syn_kinematics.h" declline="262" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__kinematics_8h_1a8ea2fc134582af688f55be12f09665d9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_kinematics_delta_fk</definition>
+        <argsstring>(const SYN_Kinematics_DeltaConfig *cfg, q16_t theta1, q16_t theta2, q16_t theta3, SYN_Position3D *out_pos)</argsstring>
+        <name>syn_kinematics_delta_fk</name>
+        <param>
+          <type>const <ref refid="structSYN__Kinematics__DeltaConfig" kindref="compound">SYN_Kinematics_DeltaConfig</ref> *</type>
+          <declname>cfg</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+          <declname>theta1</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+          <declname>theta2</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref></type>
+          <declname>theta3</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__Position3D" kindref="compound">SYN_Position3D</ref> *</type>
+          <declname>out_pos</declname>
+        </param>
+        <briefdescription>
+<para>Forward kinematics for 3-axis Delta parallel robot. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>cfg</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Delta robot geometry configuration. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>theta1</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Actuator 1 angle (rad). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>theta2</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Actuator 2 angle (rad). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>theta3</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Actuator 3 angle (rad). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out_pos</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output 3D Cartesian position of traveling plate center. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_ERROR if no real geometric intersection exists. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/motor/syn_kinematics.h" line="276" column="12" bodyfile="src/syntropic/motor/syn_kinematics.c" bodystart="641" bodyend="702" declfile="src/syntropic/motor/syn_kinematics.h" declline="276" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__kinematics_8h_1a9cb7bde40b75f705ea33449917c53543" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_kinematics_delta_ik</definition>
+        <argsstring>(const SYN_Kinematics_DeltaConfig *cfg, const SYN_Position3D *target, q16_t *out_theta1, q16_t *out_theta2, q16_t *out_theta3)</argsstring>
+        <name>syn_kinematics_delta_ik</name>
+        <param>
+          <type>const <ref refid="structSYN__Kinematics__DeltaConfig" kindref="compound">SYN_Kinematics_DeltaConfig</ref> *</type>
+          <declname>cfg</declname>
+        </param>
+        <param>
+          <type>const <ref refid="structSYN__Position3D" kindref="compound">SYN_Position3D</ref> *</type>
+          <declname>target</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref> *</type>
+          <declname>out_theta1</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref> *</type>
+          <declname>out_theta2</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref> *</type>
+          <declname>out_theta3</declname>
+        </param>
+        <briefdescription>
+<para>Inverse kinematics for 3-axis Delta parallel robot. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>cfg</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Delta robot geometry configuration. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>target</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Target 3D Cartesian position (X, Y, Z). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out_theta1</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output actuator 1 angle (rad). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out_theta2</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output actuator 2 angle (rad). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out_theta3</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output actuator 3 angle (rad). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_ERROR if position is outside workspace. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/motor/syn_kinematics.h" line="288" column="12" bodyfile="src/syntropic/motor/syn_kinematics.c" bodystart="593" bodyend="639" declfile="src/syntropic/motor/syn_kinematics.h" declline="288" declcolumn="12"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Multi-Axis Robot Forward &amp; Inverse Kinematics Engine (Q16.16 fixed-point). </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Provides a zero-heap robotics kinematics engine for embedded microcontrollers:<itemizedlist>
+<listitem><para>Standard &amp; Modified Denavit-Hartenberg (DH) parameter chain transforms.</para>
+</listitem><listitem><para>Multi-joint forward kinematics with position vector and orientation extraction.</para>
+</listitem><listitem><para>Closed-form inverse kinematics solvers for:<itemizedlist>
+<listitem><para>3-DOF Planar Articulated Arm.</para>
+</listitem><listitem><para>4-DOF SCARA Robot (X, Y, Z, Yaw) with elbow-left / elbow-right configurations.</para>
+</listitem><listitem><para>6-DOF Articulated Robot Arm with spherical wrist (Pieper&apos;s decoupling).</para>
+</listitem><listitem><para>3-Axis Delta Parallel Robot.</para>
+</listitem></itemizedlist>
+</para>
+</listitem><listitem><para>Geometric Jacobian computation (6 x N) for differential velocity kinematics. </para>
+</listitem></itemizedlist>
+</para>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_KINEMATICS_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_KINEMATICS_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../common/syn_defs.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../util/syn_matrix.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../util/syn_qmath.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stddef.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>!defined(SYN_USE_KINEMATICS)<sp/>||<sp/>SYN_USE_KINEMATICS</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Constants<sp/>&amp;<sp/>Limits<sp/>───────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight></codeline>
+<codeline lineno="36" refid="syn__kinematics_8h_1a07a78befb2db3fbfdb64533efa4dbb9f" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_KINEMATICS_MAX_JOINTS<sp/>8U<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Denavit-Hartenberg<sp/>Types<sp/>──────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight></codeline>
+<codeline lineno="43" refid="syn__kinematics_8h_1a9671468beb5a570455def60ba2f391e8" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="44" refid="syn__kinematics_8h_1a9671468beb5a570455def60ba2f391e8ad134e73fa67135271f52e3a16c4146c4" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__kinematics_8h_1a9671468beb5a570455def60ba2f391e8ad134e73fa67135271f52e3a16c4146c4" kindref="member">SYN_DH_CONVENTION_STANDARD</ref><sp/>=<sp/>0,<sp/></highlight></codeline>
+<codeline lineno="45"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__kinematics_8h_1a9671468beb5a570455def60ba2f391e8ac46ae57cca69e54980fd4ced442e5919" kindref="member">SYN_DH_CONVENTION_MODIFIED</ref><sp/>=<sp/>1<sp/><sp/></highlight></codeline>
+<codeline lineno="46" refid="syn__kinematics_8h_1a9671468beb5a570455def60ba2f391e8ac46ae57cca69e54980fd4ced442e5919" refkind="member"><highlight class="normal">}<sp/><ref refid="syn__kinematics_8h_1a9671468beb5a570455def60ba2f391e8" kindref="member">SYN_DH_Convention</ref>;</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"></highlight></codeline>
+<codeline lineno="51" refid="structSYN__DH__Param" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="52" refid="structSYN__DH__Param_1aba2f7246adc72c678561d0ef67ddc6b4" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/><ref refid="structSYN__DH__Param_1aba2f7246adc72c678561d0ef67ddc6b4" kindref="member">a</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="53" refid="structSYN__DH__Param_1a34a967354ae167cf2e5558fc5eabeb9e" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/><ref refid="structSYN__DH__Param_1a34a967354ae167cf2e5558fc5eabeb9e" kindref="member">alpha</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="54" refid="structSYN__DH__Param_1a6fcdead2a6462fae468ab1d7ca10ca9b" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/><ref refid="structSYN__DH__Param_1a6fcdead2a6462fae468ab1d7ca10ca9b" kindref="member">d</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="55" refid="structSYN__DH__Param_1a4b46b6b4e51fec05e9c7dc18bad8949e" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/><ref refid="structSYN__DH__Param_1a4b46b6b4e51fec05e9c7dc18bad8949e" kindref="member">theta</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="56" refid="structSYN__DH__Param_1a1336d801836a341d36ecb35c1516a669" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="structSYN__DH__Param_1a1336d801836a341d36ecb35c1516a669" kindref="member">is_prismatic</ref>;<sp/></highlight></codeline>
+<codeline lineno="57" refid="structSYN__DH__Param_1a2741310e5590f2067251eaa34266ff5e" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/><ref refid="structSYN__DH__Param_1a2741310e5590f2067251eaa34266ff5e" kindref="member">min_limit</ref>;<sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="58" refid="structSYN__DH__Param_1a2cc6f2888f4cb71549fabf02ad9623bf" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/><ref refid="structSYN__DH__Param_1a2cc6f2888f4cb71549fabf02ad9623bf" kindref="member">max_limit</ref>;<sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="59"><highlight class="normal">}<sp/><ref refid="structSYN__DH__Param" kindref="compound">SYN_DH_Param</ref>;</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"></highlight></codeline>
+<codeline lineno="61"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Spatial<sp/>Pose<sp/>Types<sp/>────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="62"><highlight class="normal"></highlight></codeline>
+<codeline lineno="66" refid="structSYN__Position3D" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="67" refid="structSYN__Position3D_1a21ed1295b8afc5ec3b5dc9fd1589177b" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/><ref refid="structSYN__Position3D_1a21ed1295b8afc5ec3b5dc9fd1589177b" kindref="member">x</ref>;<sp/></highlight></codeline>
+<codeline lineno="68" refid="structSYN__Position3D_1a54cc423365a118e309b9d5ed3df09fcc" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/><ref refid="structSYN__Position3D_1a54cc423365a118e309b9d5ed3df09fcc" kindref="member">y</ref>;<sp/></highlight></codeline>
+<codeline lineno="69" refid="structSYN__Position3D_1a2a3c3c57dacf2cbb6e6f34d02796bfb7" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/><ref refid="structSYN__Position3D_1a2a3c3c57dacf2cbb6e6f34d02796bfb7" kindref="member">z</ref>;<sp/></highlight></codeline>
+<codeline lineno="70"><highlight class="normal">}<sp/><ref refid="structSYN__Position3D" kindref="compound">SYN_Position3D</ref>;</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"></highlight></codeline>
+<codeline lineno="75" refid="structSYN__Orientation3D" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="76" refid="structSYN__Orientation3D_1adff03aacea974dec54b39d39893dad73" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/><ref refid="structSYN__Orientation3D_1adff03aacea974dec54b39d39893dad73" kindref="member">roll</ref>;<sp/><sp/></highlight></codeline>
+<codeline lineno="77" refid="structSYN__Orientation3D_1a7f858eb402a04a990eecd824e35ec956" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/><ref refid="structSYN__Orientation3D_1a7f858eb402a04a990eecd824e35ec956" kindref="member">pitch</ref>;<sp/></highlight></codeline>
+<codeline lineno="78" refid="structSYN__Orientation3D_1acc46b2f3ba78411263ec35fe72e3b0d8" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/><ref refid="structSYN__Orientation3D_1acc46b2f3ba78411263ec35fe72e3b0d8" kindref="member">yaw</ref>;<sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="79"><highlight class="normal">}<sp/><ref refid="structSYN__Orientation3D" kindref="compound">SYN_Orientation3D</ref>;</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"></highlight></codeline>
+<codeline lineno="84" refid="structSYN__Pose6D" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="85" refid="structSYN__Pose6D_1a75b5154f1477e7268b608fbec08a6de3" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structSYN__Position3D" kindref="compound">SYN_Position3D</ref><sp/><ref refid="structSYN__Pose6D_1a75b5154f1477e7268b608fbec08a6de3" kindref="member">position</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="86" refid="structSYN__Pose6D_1a197a89c3ba9a2f3228b658e8a02ffd54" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structSYN__Orientation3D" kindref="compound">SYN_Orientation3D</ref><sp/><ref refid="structSYN__Pose6D_1a197a89c3ba9a2f3228b658e8a02ffd54" kindref="member">orientation</ref>;<sp/></highlight></codeline>
+<codeline lineno="87"><highlight class="normal">}<sp/><ref refid="structSYN__Pose6D" kindref="compound">SYN_Pose6D</ref>;</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"></highlight></codeline>
+<codeline lineno="89"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Mechanism<sp/>Configuration<sp/>Descriptors<sp/>───────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="90"><highlight class="normal"></highlight></codeline>
+<codeline lineno="94" refid="structSYN__Kinematics__Planar3Config" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="95" refid="structSYN__Kinematics__Planar3Config_1a25affd82fb8ed0dc9b890c7e612d0a0a" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/><ref refid="structSYN__Kinematics__Planar3Config_1a25affd82fb8ed0dc9b890c7e612d0a0a" kindref="member">l1</ref>;<sp/></highlight></codeline>
+<codeline lineno="96" refid="structSYN__Kinematics__Planar3Config_1a2796ac79cf2d15bbb3261cb799e65d8f" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/><ref refid="structSYN__Kinematics__Planar3Config_1a2796ac79cf2d15bbb3261cb799e65d8f" kindref="member">l2</ref>;<sp/></highlight></codeline>
+<codeline lineno="97" refid="structSYN__Kinematics__Planar3Config_1a97c89641b2bbdf479599a7eb4d1c6d31" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/><ref refid="structSYN__Kinematics__Planar3Config_1a97c89641b2bbdf479599a7eb4d1c6d31" kindref="member">l3</ref>;<sp/></highlight></codeline>
+<codeline lineno="98"><highlight class="normal">}<sp/><ref refid="structSYN__Kinematics__Planar3Config" kindref="compound">SYN_Kinematics_Planar3Config</ref>;</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"></highlight></codeline>
+<codeline lineno="103" refid="syn__kinematics_8h_1a83d0bf48aeb8a9a1b7550c754f2bb3fb" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="104" refid="syn__kinematics_8h_1a83d0bf48aeb8a9a1b7550c754f2bb3fba85ecd063273d62458cc277af40bec867" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__kinematics_8h_1a83d0bf48aeb8a9a1b7550c754f2bb3fba85ecd063273d62458cc277af40bec867" kindref="member">SYN_ARM_ELBOW_UP</ref><sp/>=<sp/>0,<sp/><sp/></highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__kinematics_8h_1a83d0bf48aeb8a9a1b7550c754f2bb3fba9cc5218b0552630d29b50faddec811c0" kindref="member">SYN_ARM_ELBOW_DOWN</ref><sp/>=<sp/>1<sp/></highlight></codeline>
+<codeline lineno="106" refid="syn__kinematics_8h_1a83d0bf48aeb8a9a1b7550c754f2bb3fba9cc5218b0552630d29b50faddec811c0" refkind="member"><highlight class="normal">}<sp/><ref refid="syn__kinematics_8h_1a83d0bf48aeb8a9a1b7550c754f2bb3fb" kindref="member">SYN_ArmElbow</ref>;</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"></highlight></codeline>
+<codeline lineno="111" refid="structSYN__Kinematics__SCARAConfig" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="112" refid="structSYN__Kinematics__SCARAConfig_1a9542a20236a29e76f4189164dcaf8719" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/><ref refid="structSYN__Kinematics__SCARAConfig_1a9542a20236a29e76f4189164dcaf8719" kindref="member">l1</ref>;<sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="113" refid="structSYN__Kinematics__SCARAConfig_1aa7b6b9b69de8108ea00bcd8d8bd6922c" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/><ref refid="structSYN__Kinematics__SCARAConfig_1aa7b6b9b69de8108ea00bcd8d8bd6922c" kindref="member">l2</ref>;<sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="114" refid="structSYN__Kinematics__SCARAConfig_1a365a7984b6a87620d71fa079d6ec980a" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/><ref refid="structSYN__Kinematics__SCARAConfig_1a365a7984b6a87620d71fa079d6ec980a" kindref="member">d_max</ref>;<sp/><sp/></highlight></codeline>
+<codeline lineno="115" refid="structSYN__Kinematics__SCARAConfig_1ac7d7849d18ea9b020338a7787c08214f" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/><ref refid="structSYN__Kinematics__SCARAConfig_1ac7d7849d18ea9b020338a7787c08214f" kindref="member">z_home</ref>;<sp/></highlight></codeline>
+<codeline lineno="116"><highlight class="normal">}<sp/><ref refid="structSYN__Kinematics__SCARAConfig" kindref="compound">SYN_Kinematics_SCARAConfig</ref>;</highlight></codeline>
+<codeline lineno="117"><highlight class="normal"></highlight></codeline>
+<codeline lineno="121" refid="structSYN__Kinematics__6DOFConfig" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="122" refid="structSYN__Kinematics__6DOFConfig_1a0cd5b715b8100c8f65663d84e67c510e" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/><ref refid="structSYN__Kinematics__6DOFConfig_1a0cd5b715b8100c8f65663d84e67c510e" kindref="member">d1</ref>;<sp/></highlight></codeline>
+<codeline lineno="123" refid="structSYN__Kinematics__6DOFConfig_1abd66b22eba03ed25eb4171f980e38bbf" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/><ref refid="structSYN__Kinematics__6DOFConfig_1abd66b22eba03ed25eb4171f980e38bbf" kindref="member">a1</ref>;<sp/></highlight></codeline>
+<codeline lineno="124" refid="structSYN__Kinematics__6DOFConfig_1ade8ec4d82f1c33571d7b1d7378051400" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/><ref refid="structSYN__Kinematics__6DOFConfig_1ade8ec4d82f1c33571d7b1d7378051400" kindref="member">a2</ref>;<sp/></highlight></codeline>
+<codeline lineno="125" refid="structSYN__Kinematics__6DOFConfig_1afda45982d171b3a9e8c3aba8a81cca35" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/><ref refid="structSYN__Kinematics__6DOFConfig_1afda45982d171b3a9e8c3aba8a81cca35" kindref="member">d4</ref>;<sp/></highlight></codeline>
+<codeline lineno="126" refid="structSYN__Kinematics__6DOFConfig_1ad7b8d22c0eb6d03776a7659015110d76" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/><ref refid="structSYN__Kinematics__6DOFConfig_1ad7b8d22c0eb6d03776a7659015110d76" kindref="member">d6</ref>;<sp/></highlight></codeline>
+<codeline lineno="127"><highlight class="normal">}<sp/><ref refid="structSYN__Kinematics__6DOFConfig" kindref="compound">SYN_Kinematics_6DOFConfig</ref>;</highlight></codeline>
+<codeline lineno="128"><highlight class="normal"></highlight></codeline>
+<codeline lineno="132" refid="structSYN__Kinematics__DeltaConfig" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="133" refid="structSYN__Kinematics__DeltaConfig_1a35f47ec99878d117e19ee5df3177cb46" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/><ref refid="structSYN__Kinematics__DeltaConfig_1a35f47ec99878d117e19ee5df3177cb46" kindref="member">base_radius</ref>;<sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="134" refid="structSYN__Kinematics__DeltaConfig_1af6e674b50d1037ecc5d757a0d39eb568" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/><ref refid="structSYN__Kinematics__DeltaConfig_1af6e674b50d1037ecc5d757a0d39eb568" kindref="member">effector_radius</ref>;<sp/></highlight></codeline>
+<codeline lineno="135" refid="structSYN__Kinematics__DeltaConfig_1ada0b58f95db99f3f2c61c021da535198" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/><ref refid="structSYN__Kinematics__DeltaConfig_1ada0b58f95db99f3f2c61c021da535198" kindref="member">upper_arm_len</ref>;<sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="136" refid="structSYN__Kinematics__DeltaConfig_1a2114c7876dff0e77cdd7487f91f06f07" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/><ref refid="structSYN__Kinematics__DeltaConfig_1a2114c7876dff0e77cdd7487f91f06f07" kindref="member">lower_arm_len</ref>;<sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="137"><highlight class="normal">}<sp/><ref refid="structSYN__Kinematics__DeltaConfig" kindref="compound">SYN_Kinematics_DeltaConfig</ref>;</highlight></codeline>
+<codeline lineno="138"><highlight class="normal"></highlight></codeline>
+<codeline lineno="139"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>General<sp/>Denavit-Hartenberg<sp/>&amp;<sp/>Chain<sp/>API<sp/>────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="140"><highlight class="normal"></highlight></codeline>
+<codeline lineno="149"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__kinematics_8h_1a5271bfdbf3a916ffc640bacfe8549616" kindref="member">syn_dh_matrix</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__DH__Param" kindref="compound">SYN_DH_Param</ref><sp/>*param,<sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>joint_val,<sp/><ref refid="syn__kinematics_8h_1a9671468beb5a570455def60ba2f391e8" kindref="member">SYN_DH_Convention</ref><sp/>conv,</highlight></codeline>
+<codeline lineno="150"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__Matrix" kindref="compound">SYN_Matrix</ref><sp/>*out_t44);</highlight></codeline>
+<codeline lineno="151"><highlight class="normal"></highlight></codeline>
+<codeline lineno="162"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__kinematics_8h_1a0b1478d5b596f90f881b700175b259e6" kindref="member">syn_kinematics_forward</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__DH__Param" kindref="compound">SYN_DH_Param</ref><sp/>*chain,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>num_joints,</highlight></codeline>
+<codeline lineno="163"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>*joint_vals,<sp/><ref refid="syn__kinematics_8h_1a9671468beb5a570455def60ba2f391e8" kindref="member">SYN_DH_Convention</ref><sp/>conv,</highlight></codeline>
+<codeline lineno="164"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__Matrix" kindref="compound">SYN_Matrix</ref><sp/>*out_t44,<sp/><ref refid="structSYN__Pose6D" kindref="compound">SYN_Pose6D</ref><sp/>*out_pose);</highlight></codeline>
+<codeline lineno="165"><highlight class="normal"></highlight></codeline>
+<codeline lineno="175"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__kinematics_8h_1a1441e4381761f92ecea388f87833c6e1" kindref="member">syn_kinematics_jacobian</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__DH__Param" kindref="compound">SYN_DH_Param</ref><sp/>*chain,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>num_joints,</highlight></codeline>
+<codeline lineno="176"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>*joint_vals,<sp/><ref refid="syn__kinematics_8h_1a9671468beb5a570455def60ba2f391e8" kindref="member">SYN_DH_Convention</ref><sp/>conv,</highlight></codeline>
+<codeline lineno="177"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__Matrix" kindref="compound">SYN_Matrix</ref><sp/>*out_j6xn);</highlight></codeline>
+<codeline lineno="178"><highlight class="normal"></highlight></codeline>
+<codeline lineno="179"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>3-DOF<sp/>Planar<sp/>Arm<sp/>API<sp/>──────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="180"><highlight class="normal"></highlight></codeline>
+<codeline lineno="192"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__kinematics_8h_1a4a33b123084bbfca50c74e66693743d0" kindref="member">syn_kinematics_planar3_fk</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__Kinematics__Planar3Config" kindref="compound">SYN_Kinematics_Planar3Config</ref><sp/>*cfg,<sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>q1,<sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>q2,</highlight></codeline>
+<codeline lineno="193"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>q3,<sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>*out_x,<sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>*out_y,<sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>*out_phi);</highlight></codeline>
+<codeline lineno="194"><highlight class="normal"></highlight></codeline>
+<codeline lineno="207"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__kinematics_8h_1a9b23ffde585b52f9258b99f13dae57d7" kindref="member">syn_kinematics_planar3_ik</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__Kinematics__Planar3Config" kindref="compound">SYN_Kinematics_Planar3Config</ref><sp/>*cfg,<sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>x,<sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>y,</highlight></codeline>
+<codeline lineno="208"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>phi,<sp/><ref refid="syn__kinematics_8h_1a83d0bf48aeb8a9a1b7550c754f2bb3fb" kindref="member">SYN_ArmElbow</ref><sp/>elbow,<sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>*out_q1,<sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>*out_q2,</highlight></codeline>
+<codeline lineno="209"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>*out_q3);</highlight></codeline>
+<codeline lineno="210"><highlight class="normal"></highlight></codeline>
+<codeline lineno="211"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>4-DOF<sp/>SCARA<sp/>API<sp/>───────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="212"><highlight class="normal"></highlight></codeline>
+<codeline lineno="223"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__kinematics_8h_1a76c4a43eead3438bdf62e0392ace209a" kindref="member">syn_kinematics_scara_fk</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__Kinematics__SCARAConfig" kindref="compound">SYN_Kinematics_SCARAConfig</ref><sp/>*cfg,<sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>q1,<sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>q2,</highlight></codeline>
+<codeline lineno="224"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>d3,<sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>q4,<sp/><ref refid="structSYN__Pose6D" kindref="compound">SYN_Pose6D</ref><sp/>*out_pose);</highlight></codeline>
+<codeline lineno="225"><highlight class="normal"></highlight></codeline>
+<codeline lineno="237"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__kinematics_8h_1a9fa5c93cccc3647d9195004a618ef49d" kindref="member">syn_kinematics_scara_ik</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__Kinematics__SCARAConfig" kindref="compound">SYN_Kinematics_SCARAConfig</ref><sp/>*cfg,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__Pose6D" kindref="compound">SYN_Pose6D</ref><sp/>*target,</highlight></codeline>
+<codeline lineno="238"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__kinematics_8h_1a83d0bf48aeb8a9a1b7550c754f2bb3fb" kindref="member">SYN_ArmElbow</ref><sp/>elbow,<sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>*out_q1,<sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>*out_q2,<sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>*out_d3,</highlight></codeline>
+<codeline lineno="239"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>*out_q4);</highlight></codeline>
+<codeline lineno="240"><highlight class="normal"></highlight></codeline>
+<codeline lineno="241"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>6-DOF<sp/>Articulated<sp/>Arm<sp/>(Spherical<sp/>Wrist)<sp/>API<sp/>───────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="242"><highlight class="normal"></highlight></codeline>
+<codeline lineno="250"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__kinematics_8h_1a08965a3a953ec4aefea2583ab8eda8a7" kindref="member">syn_kinematics_6dof_fk</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__Kinematics__6DOFConfig" kindref="compound">SYN_Kinematics_6DOFConfig</ref><sp/>*cfg,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>q[6],</highlight></codeline>
+<codeline lineno="251"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__Pose6D" kindref="compound">SYN_Pose6D</ref><sp/>*out_pose);</highlight></codeline>
+<codeline lineno="252"><highlight class="normal"></highlight></codeline>
+<codeline lineno="262"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__kinematics_8h_1ac1ede9c28bfe54016cc2cbb45ed6fcd3" kindref="member">syn_kinematics_6dof_ik</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__Kinematics__6DOFConfig" kindref="compound">SYN_Kinematics_6DOFConfig</ref><sp/>*cfg,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__Pose6D" kindref="compound">SYN_Pose6D</ref><sp/>*target,</highlight></codeline>
+<codeline lineno="263"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__kinematics_8h_1a83d0bf48aeb8a9a1b7550c754f2bb3fb" kindref="member">SYN_ArmElbow</ref><sp/>elbow,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>wrist_flip,<sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>out_q[6]);</highlight></codeline>
+<codeline lineno="264"><highlight class="normal"></highlight></codeline>
+<codeline lineno="265"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>3-Axis<sp/>Delta<sp/>Parallel<sp/>Robot<sp/>API<sp/>───────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="266"><highlight class="normal"></highlight></codeline>
+<codeline lineno="276"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__kinematics_8h_1a8ea2fc134582af688f55be12f09665d9" kindref="member">syn_kinematics_delta_fk</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__Kinematics__DeltaConfig" kindref="compound">SYN_Kinematics_DeltaConfig</ref><sp/>*cfg,<sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>theta1,</highlight></codeline>
+<codeline lineno="277"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>theta2,<sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>theta3,<sp/><ref refid="structSYN__Position3D" kindref="compound">SYN_Position3D</ref><sp/>*out_pos);</highlight></codeline>
+<codeline lineno="278"><highlight class="normal"></highlight></codeline>
+<codeline lineno="288"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__kinematics_8h_1a9cb7bde40b75f705ea33449917c53543" kindref="member">syn_kinematics_delta_ik</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__Kinematics__DeltaConfig" kindref="compound">SYN_Kinematics_DeltaConfig</ref><sp/>*cfg,</highlight></codeline>
+<codeline lineno="289"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__Position3D" kindref="compound">SYN_Position3D</ref><sp/>*target,<sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>*out_theta1,</highlight></codeline>
+<codeline lineno="290"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>*out_theta2,<sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>*out_theta3);</highlight></codeline>
+<codeline lineno="291"><highlight class="normal"></highlight></codeline>
+<codeline lineno="292"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="293"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="294"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="295"><highlight class="normal"></highlight></codeline>
+<codeline lineno="296"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>!defined(SYN_USE_KINEMATICS)<sp/>||<sp/>SYN_USE_KINEMATICS<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="297"><highlight class="normal"></highlight></codeline>
+<codeline lineno="298"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_KINEMATICS_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/motor/syn_kinematics.h"/>
+  </compounddef>
+</doxygen>

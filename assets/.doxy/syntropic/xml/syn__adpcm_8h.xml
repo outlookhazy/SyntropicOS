@@ -1,0 +1,371 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__adpcm_8h" kind="file" language="C++">
+    <compoundname>syn_adpcm.h</compoundname>
+    <includes refid="syn__defs_8h" local="yes">../common/syn_defs.h</includes>
+    <includes local="no">stdbool.h</includes>
+    <includes local="no">stddef.h</includes>
+    <includes local="no">stdint.h</includes>
+    <includedby refid="syn__adpcm_8c" local="yes">src/syntropic/audio/syn_adpcm.c</includedby>
+    <includedby refid="syntropic_8h" local="yes">src/syntropic/syntropic.h</includedby>
+    <incdepgraph>
+      <node id="1">
+        <label>src/syntropic/audio/syn_adpcm.h</label>
+        <link refid="syn__adpcm_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>stdbool.h</label>
+      </node>
+      <node id="3">
+        <label>stddef.h</label>
+      </node>
+      <node id="4">
+        <label>stdint.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="2">
+        <label>src/syntropic/audio/syn_adpcm.c</label>
+        <link refid="syn__adpcm_8c"/>
+      </node>
+      <node id="1">
+        <label>src/syntropic/audio/syn_adpcm.h</label>
+        <link refid="syn__adpcm_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>src/syntropic/proto/syn_doip.c</label>
+        <link refid="syn__doip_8c"/>
+      </node>
+      <node id="4">
+        <label>src/syntropic/proto/syn_doip.h</label>
+        <link refid="syn__doip_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>src/syntropic/syntropic.h</label>
+        <link refid="syntropic_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="structSYN__ADPCM__State" prot="public">SYN_ADPCM_State</innerclass>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__adpcm_8h_1a0d04b5aa45afe6050786f3ae2749afd4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_adpcm_init</definition>
+        <argsstring>(SYN_ADPCM_State *state)</argsstring>
+        <name>syn_adpcm_init</name>
+        <param>
+          <type><ref refid="structSYN__ADPCM__State" kindref="compound">SYN_ADPCM_State</ref> *</type>
+          <declname>state</declname>
+        </param>
+        <briefdescription>
+<para>Initialize or reset an IMA-ADPCM state context. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>state</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>State context pointer. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/audio/syn_adpcm.h" line="43" column="6" bodyfile="src/syntropic/audio/syn_adpcm.c" bodystart="55" bodyend="62" declfile="src/syntropic/audio/syn_adpcm.h" declline="43" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__adpcm_8h_1a291d21af3f22a7672c95432779f57012" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int16_t</type>
+        <definition>int16_t syn_adpcm_decode_sample</definition>
+        <argsstring>(SYN_ADPCM_State *state, uint8_t nibble)</argsstring>
+        <name>syn_adpcm_decode_sample</name>
+        <param>
+          <type><ref refid="structSYN__ADPCM__State" kindref="compound">SYN_ADPCM_State</ref> *</type>
+          <declname>state</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>nibble</declname>
+        </param>
+        <briefdescription>
+<para>Decode a single 4-bit ADPCM nibble to a 16-bit PCM sample. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>state</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>State context pointer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>nibble</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>4-bit ADPCM code (lower 4 bits used). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Decoded 16-bit PCM sample. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/audio/syn_adpcm.h" line="52" column="9" bodyfile="src/syntropic/audio/syn_adpcm.c" bodystart="64" bodyend="97" declfile="src/syntropic/audio/syn_adpcm.h" declline="52" declcolumn="9"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__adpcm_8h_1af9f04d15e8dc1dc3f37e6d041d5e9824" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint8_t</type>
+        <definition>uint8_t syn_adpcm_encode_sample</definition>
+        <argsstring>(SYN_ADPCM_State *state, int16_t sample)</argsstring>
+        <name>syn_adpcm_encode_sample</name>
+        <param>
+          <type><ref refid="structSYN__ADPCM__State" kindref="compound">SYN_ADPCM_State</ref> *</type>
+          <declname>state</declname>
+        </param>
+        <param>
+          <type>int16_t</type>
+          <declname>sample</declname>
+        </param>
+        <briefdescription>
+<para>Encode a single 16-bit PCM sample to a 4-bit ADPCM nibble. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>state</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>State context pointer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>sample</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>16-bit linear PCM sample. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Encoded 4-bit ADPCM nibble (in bits 0-3). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/audio/syn_adpcm.h" line="61" column="9" bodyfile="src/syntropic/audio/syn_adpcm.c" bodystart="99" bodyend="140" declfile="src/syntropic/audio/syn_adpcm.h" declline="61" declcolumn="9"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__adpcm_8h_1abb7b433dacc551414912d3c429c0aba4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>size_t</type>
+        <definition>size_t syn_adpcm_decode_block</definition>
+        <argsstring>(SYN_ADPCM_State *state, const uint8_t *in, int16_t *out, size_t sample_count)</argsstring>
+        <name>syn_adpcm_decode_block</name>
+        <param>
+          <type><ref refid="structSYN__ADPCM__State" kindref="compound">SYN_ADPCM_State</ref> *</type>
+          <declname>state</declname>
+        </param>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>in</declname>
+        </param>
+        <param>
+          <type>int16_t *</type>
+          <declname>out</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>sample_count</declname>
+        </param>
+        <briefdescription>
+<para>Decode a buffer of packed 4-bit ADPCM bytes into 16-bit PCM samples. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>state</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>State context pointer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>in</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Input packed ADPCM byte buffer (2 nibbles per byte, low nibble first). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output 16-bit PCM sample buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>sample_count</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Total number of samples to decode. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Number of samples successfully decoded. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/audio/syn_adpcm.h" line="72" column="8" bodyfile="src/syntropic/audio/syn_adpcm.c" bodystart="142" bodyend="161" declfile="src/syntropic/audio/syn_adpcm.h" declline="72" declcolumn="8"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__adpcm_8h_1a9f35ed95dc42351e4959cfb5ce6f4866" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>size_t</type>
+        <definition>size_t syn_adpcm_encode_block</definition>
+        <argsstring>(SYN_ADPCM_State *state, const int16_t *in, uint8_t *out, size_t sample_count)</argsstring>
+        <name>syn_adpcm_encode_block</name>
+        <param>
+          <type><ref refid="structSYN__ADPCM__State" kindref="compound">SYN_ADPCM_State</ref> *</type>
+          <declname>state</declname>
+        </param>
+        <param>
+          <type>const int16_t *</type>
+          <declname>in</declname>
+        </param>
+        <param>
+          <type>uint8_t *</type>
+          <declname>out</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>sample_count</declname>
+        </param>
+        <briefdescription>
+<para>Encode 16-bit PCM samples into packed 4-bit ADPCM bytes. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>state</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>State context pointer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>in</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Input 16-bit PCM sample buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output packed ADPCM byte buffer (requires at least (sample_count + 1)/2 bytes). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>sample_count</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of samples to encode. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Number of packed bytes produced. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/audio/syn_adpcm.h" line="85" column="8" bodyfile="src/syntropic/audio/syn_adpcm.c" bodystart="163" bodyend="183" declfile="src/syntropic/audio/syn_adpcm.h" declline="85" declcolumn="8"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>IMA/DVI ADPCM Speech and Audio Codec (Encoder &amp; Decoder). </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Implements a lightweight, zero-heap, integer-only IMA-ADPCM codec. Achieves 4:1 compression ratio (16-bit linear PCM &lt;-&gt; 4-bit ADPCM nibbles). Fully compatible with standard WAV IMA-ADPCM files and tools (ffmpeg, Audacity).</para>
+<para><simplesect kind="par"><title>Usage Example</title><para><programlisting><codeline><highlight class="normal"><ref refid="structSYN__ADPCM__State" kindref="compound">SYN_ADPCM_State</ref><sp/>state;</highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__adpcm_8c_1a0d04b5aa45afe6050786f3ae2749afd4" kindref="member">syn_adpcm_init</ref>(&amp;state);</highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__adpcm_8c_1abb7b433dacc551414912d3c429c0aba4" kindref="member">syn_adpcm_decode_block</ref>(&amp;state,<sp/>adpcm_data,<sp/>pcm_output,<sp/>sample_count);</highlight></codeline>
+</programlisting> </para>
+</simplesect>
+</para>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_ADPCM_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_ADPCM_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../common/syn_defs.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stddef.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight></codeline>
+<codeline lineno="34" refid="structSYN__ADPCM__State" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="35" refid="structSYN__ADPCM__State_1aa3e28e0202847b335e93773c47c6be03" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>int16_t<sp/><ref refid="structSYN__ADPCM__State_1aa3e28e0202847b335e93773c47c6be03" kindref="member">predicted_sample</ref>;<sp/></highlight></codeline>
+<codeline lineno="36" refid="structSYN__ADPCM__State_1af00572fda663cd11883367cb18114979" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>int8_t<sp/><ref refid="structSYN__ADPCM__State_1af00572fda663cd11883367cb18114979" kindref="member">step_index</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="37"><highlight class="normal">}<sp/><ref refid="structSYN__ADPCM__State" kindref="compound">SYN_ADPCM_State</ref>;</highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__adpcm_8h_1a0d04b5aa45afe6050786f3ae2749afd4" kindref="member">syn_adpcm_init</ref>(<ref refid="structSYN__ADPCM__State" kindref="compound">SYN_ADPCM_State</ref><sp/>*state);</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight></codeline>
+<codeline lineno="52"><highlight class="normal">int16_t<sp/><ref refid="syn__adpcm_8h_1a291d21af3f22a7672c95432779f57012" kindref="member">syn_adpcm_decode_sample</ref>(<ref refid="structSYN__ADPCM__State" kindref="compound">SYN_ADPCM_State</ref><sp/>*state,<sp/>uint8_t<sp/>nibble);</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"></highlight></codeline>
+<codeline lineno="61"><highlight class="normal">uint8_t<sp/><ref refid="syn__adpcm_8h_1af9f04d15e8dc1dc3f37e6d041d5e9824" kindref="member">syn_adpcm_encode_sample</ref>(<ref refid="structSYN__ADPCM__State" kindref="compound">SYN_ADPCM_State</ref><sp/>*state,<sp/>int16_t<sp/>sample);</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"></highlight></codeline>
+<codeline lineno="72"><highlight class="normal"></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="syn__adpcm_8h_1abb7b433dacc551414912d3c429c0aba4" kindref="member">syn_adpcm_decode_block</ref>(<ref refid="structSYN__ADPCM__State" kindref="compound">SYN_ADPCM_State</ref><sp/>*state,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*in,<sp/>int16_t<sp/>*out,</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>sample_count);</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"></highlight></codeline>
+<codeline lineno="85"><highlight class="normal"></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="syn__adpcm_8h_1a9f35ed95dc42351e4959cfb5ce6f4866" kindref="member">syn_adpcm_encode_block</ref>(<ref refid="structSYN__ADPCM__State" kindref="compound">SYN_ADPCM_State</ref><sp/>*state,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>int16_t<sp/>*in,<sp/>uint8_t<sp/>*out,</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>sample_count);</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"></highlight></codeline>
+<codeline lineno="88"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="89"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="91"><highlight class="normal"></highlight></codeline>
+<codeline lineno="92"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_ADPCM_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/audio/syn_adpcm.h"/>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,801 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__hmac__drbg_8c" kind="file" language="C++">
+    <compoundname>syn_hmac_drbg.c</compoundname>
+    <includes refid="syn__assert_8h" local="yes">../util/syn_assert.h</includes>
+    <includes refid="syn__hmac__drbg_8h" local="yes">syn_hmac_drbg.h</includes>
+    <includes local="no">string.h</includes>
+    <incdepgraph>
+      <node id="3">
+        <label>../common/syn_compiler.h</label>
+        <link refid="syn__compiler_8h"/>
+      </node>
+      <node id="5">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>syn_hmac.h</label>
+        <link refid="syn__hmac_8h"/>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/crypto/syn_hmac_drbg.c</label>
+        <link refid="syn__hmac__drbg_8c"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>syn_hmac_drbg.h</label>
+        <link refid="syn__hmac__drbg_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="9">
+        <label>syn_sha256.h</label>
+        <link refid="syn__sha256_8h"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>../util/syn_assert.h</label>
+        <link refid="syn__assert_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="11">
+        <label>stdbool.h</label>
+      </node>
+      <node id="6">
+        <label>stddef.h</label>
+      </node>
+      <node id="7">
+        <label>stdint.h</label>
+      </node>
+      <node id="10">
+        <label>string.h</label>
+      </node>
+    </incdepgraph>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__hmac__drbg_8c_1a023622f6fc9e42f1ff78aa2e435bc0be" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void drbg_update</definition>
+        <argsstring>(SYN_HMAC_DRBG *ctx, const uint8_t *c1, size_t l1, const uint8_t *c2, size_t l2, const uint8_t *c3, size_t l3)</argsstring>
+        <name>drbg_update</name>
+        <param>
+          <type><ref refid="structSYN__HMAC__DRBG" kindref="compound">SYN_HMAC_DRBG</ref> *</type>
+          <declname>ctx</declname>
+        </param>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>c1</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>l1</declname>
+        </param>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>c2</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>l2</declname>
+        </param>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>c3</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>l3</declname>
+        </param>
+        <briefdescription>
+<para>Internal HMAC-DRBG state update function per NIST SP 800-90A Rev 1 Section 10.1.2.2. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ctx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to DRBG context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>c1</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>First chunk of provided data (or NULL). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>l1</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Length of first chunk. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>c2</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Second chunk of provided data (or NULL). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>l2</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Length of second chunk. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>c3</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Third chunk of provided data (or NULL). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>l3</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Length of third chunk. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/crypto/syn_hmac_drbg.c" line="28" column="13" bodyfile="src/syntropic/crypto/syn_hmac_drbg.c" bodystart="28" bodyend="75"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__hmac__drbg_8c_1aeddc305a23ebd36635965050fc97ff6d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_hmac_drbg_init</definition>
+        <argsstring>(SYN_HMAC_DRBG *ctx, const uint8_t *entropy, size_t ent_len, const uint8_t *nonce, size_t nonce_len, const uint8_t *pers_str, size_t pers_len)</argsstring>
+        <name>syn_hmac_drbg_init</name>
+        <param>
+          <type><ref refid="structSYN__HMAC__DRBG" kindref="compound">SYN_HMAC_DRBG</ref> *</type>
+          <declname>ctx</declname>
+        </param>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>entropy</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>ent_len</declname>
+        </param>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>nonce</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>nonce_len</declname>
+        </param>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>pers_str</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>pers_len</declname>
+        </param>
+        <briefdescription>
+<para>Instantiate the HMAC-DRBG state with initial entropy, nonce, and optional personalization. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Implements NIST SP 800-90A Rev 1 Section 10.1.2.3.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ctx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to caller-allocated DRBG context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>entropy</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Initial entropy input buffer (must be at least 32 bytes). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>ent_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Length of entropy in bytes (must be &gt;= 32). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>nonce</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Nonce buffer (can be NULL if ent_len includes extra entropy). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>nonce_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Length of nonce in bytes. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>pers_str</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Optional personalization string (can be NULL). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>pers_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Length of personalization string in bytes. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_INVALID_PARAM if inputs are invalid. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/crypto/syn_hmac_drbg.c" line="77" column="12" bodyfile="src/syntropic/crypto/syn_hmac_drbg.c" bodystart="77" bodyend="95"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__hmac__drbg_8c_1a43aa6ea6c78ac7009e6d06d3a4e123e5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_hmac_drbg_reseed</definition>
+        <argsstring>(SYN_HMAC_DRBG *ctx, const uint8_t *entropy, size_t ent_len, const uint8_t *add_input, size_t add_len)</argsstring>
+        <name>syn_hmac_drbg_reseed</name>
+        <param>
+          <type><ref refid="structSYN__HMAC__DRBG" kindref="compound">SYN_HMAC_DRBG</ref> *</type>
+          <declname>ctx</declname>
+        </param>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>entropy</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>ent_len</declname>
+        </param>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>add_input</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>add_len</declname>
+        </param>
+        <briefdescription>
+<para>Reseed the HMAC-DRBG with fresh entropy and optional additional input. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Implements NIST SP 800-90A Rev 1 Section 10.1.2.4.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ctx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to initialized DRBG context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>entropy</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Fresh entropy input buffer (must be at least 32 bytes). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>ent_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Length of entropy in bytes (must be &gt;= 32). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>add_input</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Optional additional input buffer (can be NULL). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>add_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Length of additional input in bytes. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_INVALID_PARAM if inputs or state are invalid. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/crypto/syn_hmac_drbg.c" line="97" column="12" bodyfile="src/syntropic/crypto/syn_hmac_drbg.c" bodystart="97" bodyend="109"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__hmac__drbg_8c_1a295a5e512718ba06401a7958aa5ec5fa" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_hmac_drbg_generate</definition>
+        <argsstring>(SYN_HMAC_DRBG *ctx, uint8_t *out, size_t out_len, const uint8_t *add_input, size_t add_len)</argsstring>
+        <name>syn_hmac_drbg_generate</name>
+        <param>
+          <type><ref refid="structSYN__HMAC__DRBG" kindref="compound">SYN_HMAC_DRBG</ref> *</type>
+          <declname>ctx</declname>
+        </param>
+        <param>
+          <type>uint8_t *</type>
+          <declname>out</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>out_len</declname>
+        </param>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>add_input</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>add_len</declname>
+        </param>
+        <briefdescription>
+<para>Generate pseudorandom bytes from the HMAC-DRBG. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Implements NIST SP 800-90A Rev 1 Section 10.1.2.5 without prediction resistance.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ctx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to initialized DRBG context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>[out] Destination buffer for generated random bytes. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of random bytes to generate (&lt;= 65536). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>add_input</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Optional additional input buffer (can be NULL). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>add_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Length of additional input in bytes. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_ERROR if reseed interval is exceeded (reseed required), SYN_INVALID_PARAM if parameters or state are invalid. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/crypto/syn_hmac_drbg.c" line="111" column="12" bodyfile="src/syntropic/crypto/syn_hmac_drbg.c" bodystart="111" bodyend="146"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__hmac__drbg_8c_1a2d22cad28666b0c633e0fc48e019e3cf" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_hmac_drbg_generate_pr</definition>
+        <argsstring>(SYN_HMAC_DRBG *ctx, uint8_t *out, size_t out_len, const uint8_t *entropy, size_t ent_len, const uint8_t *add_input, size_t add_len)</argsstring>
+        <name>syn_hmac_drbg_generate_pr</name>
+        <param>
+          <type><ref refid="structSYN__HMAC__DRBG" kindref="compound">SYN_HMAC_DRBG</ref> *</type>
+          <declname>ctx</declname>
+        </param>
+        <param>
+          <type>uint8_t *</type>
+          <declname>out</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>out_len</declname>
+        </param>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>entropy</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>ent_len</declname>
+        </param>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>add_input</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>add_len</declname>
+        </param>
+        <briefdescription>
+<para>Generate pseudorandom bytes with Prediction Resistance (PR). </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Reseeds the DRBG with fresh entropy before generating pseudorandom bytes.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ctx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to initialized DRBG context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>[out] Destination buffer for generated random bytes. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of random bytes to generate (&lt;= 65536). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>entropy</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Fresh entropy for prediction resistance (must be &gt;= 32 bytes). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>ent_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Length of entropy in bytes (must be &gt;= 32). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>add_input</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Optional additional input buffer (can be NULL). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>add_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Length of additional input in bytes. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_INVALID_PARAM on invalid inputs. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/crypto/syn_hmac_drbg.c" line="148" column="12" bodyfile="src/syntropic/crypto/syn_hmac_drbg.c" bodystart="148" bodyend="160"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__hmac__drbg_8c_1aa67c3bf6a7e855819cc55245caca56ee" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_hmac_drbg_set_reseed_interval</definition>
+        <argsstring>(SYN_HMAC_DRBG *ctx, uint32_t interval)</argsstring>
+        <name>syn_hmac_drbg_set_reseed_interval</name>
+        <param>
+          <type><ref refid="structSYN__HMAC__DRBG" kindref="compound">SYN_HMAC_DRBG</ref> *</type>
+          <declname>ctx</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>interval</declname>
+        </param>
+        <briefdescription>
+<para>Set the maximum reseed interval for the DRBG instance. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ctx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to DRBG context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>interval</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Maximum number of generate calls before reseed is required (default: 10000). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/crypto/syn_hmac_drbg.c" line="162" column="6" bodyfile="src/syntropic/crypto/syn_hmac_drbg.c" bodystart="162" bodyend="167"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__hmac__drbg_8c_1ac0fb848e7f3842053f4128bdcfc7a5a3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_hmac_drbg_wipe</definition>
+        <argsstring>(SYN_HMAC_DRBG *ctx)</argsstring>
+        <name>syn_hmac_drbg_wipe</name>
+        <param>
+          <type><ref refid="structSYN__HMAC__DRBG" kindref="compound">SYN_HMAC_DRBG</ref> *</type>
+          <declname>ctx</declname>
+        </param>
+        <briefdescription>
+<para>Securely wipe internal working key, state vector, and counters. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ctx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to DRBG context. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/crypto/syn_hmac_drbg.c" line="169" column="6" bodyfile="src/syntropic/crypto/syn_hmac_drbg.c" bodystart="169" bodyend="188"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>NIST SP 800-90A HMAC-DRBG (Deterministic Random Bit Generator) implementation. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#if<sp/>__has_include(&quot;syn_config.h&quot;)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;syn_config.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="4"><highlight class="normal"></highlight></codeline>
+<codeline lineno="5"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>!defined(SYN_USE_HMAC_DRBG)<sp/>||<sp/>SYN_USE_HMAC_DRBG</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../util/syn_assert.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__hmac__drbg_8h" kindref="compound">syn_hmac_drbg.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;string.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__hmac__drbg_8c_1a023622f6fc9e42f1ff78aa2e435bc0be" kindref="member">drbg_update</ref>(<ref refid="structSYN__HMAC__DRBG" kindref="compound">SYN_HMAC_DRBG</ref><sp/>*ctx,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*c1,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>l1,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*c2,</highlight></codeline>
+<codeline lineno="29"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>l2,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*c3,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>l3)</highlight></codeline>
+<codeline lineno="30"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="31"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>has_data<sp/>=<sp/>(c1<sp/>!=<sp/>NULL<sp/>&amp;&amp;<sp/>l1<sp/>&gt;<sp/>0U)<sp/>||<sp/>(c2<sp/>!=<sp/>NULL<sp/>&amp;&amp;<sp/>l2<sp/>&gt;<sp/>0U)<sp/>||<sp/>(c3<sp/>!=<sp/>NULL<sp/>&amp;&amp;<sp/>l3<sp/>&gt;<sp/>0U);</highlight></codeline>
+<codeline lineno="32"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structSYN__HMAC__SHA256" kindref="compound">SYN_HMAC_SHA256</ref><sp/>hmac;</highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Step<sp/>1:<sp/>K<sp/>=<sp/>HMAC(K,<sp/>V<sp/>||<sp/>0x00<sp/>||<sp/>provided_data)<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__hmac_8h_1a6067f8ebcdec74b2b877caad3380df56" kindref="member">syn_hmac_sha256_init</ref>(&amp;hmac,<sp/>ctx-&gt;<ref refid="structSYN__HMAC__DRBG_1a0a9da1ee2efd62e9567784f717b99827" kindref="member">k</ref>,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(ctx-&gt;<ref refid="structSYN__HMAC__DRBG_1a0a9da1ee2efd62e9567784f717b99827" kindref="member">k</ref>));</highlight></codeline>
+<codeline lineno="36"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__hmac_8h_1a9071c35fe8ffef2e89762b2090594255" kindref="member">syn_hmac_sha256_update</ref>(&amp;hmac,<sp/>ctx-&gt;<ref refid="structSYN__HMAC__DRBG_1adde717a82db3b051aef9896eb9549d1a" kindref="member">v</ref>,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(ctx-&gt;<ref refid="structSYN__HMAC__DRBG_1adde717a82db3b051aef9896eb9549d1a" kindref="member">v</ref>));</highlight></codeline>
+<codeline lineno="37"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>sep0<sp/>=<sp/>0x00U;</highlight></codeline>
+<codeline lineno="38"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__hmac_8h_1a9071c35fe8ffef2e89762b2090594255" kindref="member">syn_hmac_sha256_update</ref>(&amp;hmac,<sp/>&amp;sep0,<sp/>1U);</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(c1<sp/>!=<sp/>NULL<sp/>&amp;&amp;<sp/>l1<sp/>&gt;<sp/>0U)<sp/>{</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__hmac_8h_1a9071c35fe8ffef2e89762b2090594255" kindref="member">syn_hmac_sha256_update</ref>(&amp;hmac,<sp/>c1,<sp/>l1);</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(c2<sp/>!=<sp/>NULL<sp/>&amp;&amp;<sp/>l2<sp/>&gt;<sp/>0U)<sp/>{</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__hmac_8h_1a9071c35fe8ffef2e89762b2090594255" kindref="member">syn_hmac_sha256_update</ref>(&amp;hmac,<sp/>c2,<sp/>l2);</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(c3<sp/>!=<sp/>NULL<sp/>&amp;&amp;<sp/>l3<sp/>&gt;<sp/>0U)<sp/>{</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__hmac_8h_1a9071c35fe8ffef2e89762b2090594255" kindref="member">syn_hmac_sha256_update</ref>(&amp;hmac,<sp/>c3,<sp/>l3);</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__hmac_8h_1a79f9790e1355ed0efeaf1ca745729d6e" kindref="member">syn_hmac_sha256_final</ref>(&amp;hmac,<sp/>ctx-&gt;<ref refid="structSYN__HMAC__DRBG_1a0a9da1ee2efd62e9567784f717b99827" kindref="member">k</ref>);</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"></highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Step<sp/>2:<sp/>V<sp/>=<sp/>HMAC(K,<sp/>V)<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__hmac_8h_1a8756a6bdfa948349ef3aff050ce40ca3" kindref="member">syn_hmac_sha256</ref>(ctx-&gt;<ref refid="structSYN__HMAC__DRBG_1a0a9da1ee2efd62e9567784f717b99827" kindref="member">k</ref>,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(ctx-&gt;<ref refid="structSYN__HMAC__DRBG_1a0a9da1ee2efd62e9567784f717b99827" kindref="member">k</ref>),<sp/>ctx-&gt;<ref refid="structSYN__HMAC__DRBG_1adde717a82db3b051aef9896eb9549d1a" kindref="member">v</ref>,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(ctx-&gt;<ref refid="structSYN__HMAC__DRBG_1adde717a82db3b051aef9896eb9549d1a" kindref="member">v</ref>),<sp/>ctx-&gt;<ref refid="structSYN__HMAC__DRBG_1adde717a82db3b051aef9896eb9549d1a" kindref="member">v</ref>);</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"></highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!has_data)<sp/>{</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"></highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Step<sp/>4:<sp/>K<sp/>=<sp/>HMAC(K,<sp/>V<sp/>||<sp/>0x01<sp/>||<sp/>provided_data)<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__hmac_8h_1a6067f8ebcdec74b2b877caad3380df56" kindref="member">syn_hmac_sha256_init</ref>(&amp;hmac,<sp/>ctx-&gt;<ref refid="structSYN__HMAC__DRBG_1a0a9da1ee2efd62e9567784f717b99827" kindref="member">k</ref>,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(ctx-&gt;<ref refid="structSYN__HMAC__DRBG_1a0a9da1ee2efd62e9567784f717b99827" kindref="member">k</ref>));</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__hmac_8h_1a9071c35fe8ffef2e89762b2090594255" kindref="member">syn_hmac_sha256_update</ref>(&amp;hmac,<sp/>ctx-&gt;<ref refid="structSYN__HMAC__DRBG_1adde717a82db3b051aef9896eb9549d1a" kindref="member">v</ref>,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(ctx-&gt;<ref refid="structSYN__HMAC__DRBG_1adde717a82db3b051aef9896eb9549d1a" kindref="member">v</ref>));</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>sep1<sp/>=<sp/>0x01U;</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__hmac_8h_1a9071c35fe8ffef2e89762b2090594255" kindref="member">syn_hmac_sha256_update</ref>(&amp;hmac,<sp/>&amp;sep1,<sp/>1U);</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(c1<sp/>!=<sp/>NULL<sp/>&amp;&amp;<sp/>l1<sp/>&gt;<sp/>0U)<sp/>{</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__hmac_8h_1a9071c35fe8ffef2e89762b2090594255" kindref="member">syn_hmac_sha256_update</ref>(&amp;hmac,<sp/>c1,<sp/>l1);</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(c2<sp/>!=<sp/>NULL<sp/>&amp;&amp;<sp/>l2<sp/>&gt;<sp/>0U)<sp/>{</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__hmac_8h_1a9071c35fe8ffef2e89762b2090594255" kindref="member">syn_hmac_sha256_update</ref>(&amp;hmac,<sp/>c2,<sp/>l2);</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(c3<sp/>!=<sp/>NULL<sp/>&amp;&amp;<sp/>l3<sp/>&gt;<sp/>0U)<sp/>{</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__hmac_8h_1a9071c35fe8ffef2e89762b2090594255" kindref="member">syn_hmac_sha256_update</ref>(&amp;hmac,<sp/>c3,<sp/>l3);</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__hmac_8h_1a79f9790e1355ed0efeaf1ca745729d6e" kindref="member">syn_hmac_sha256_final</ref>(&amp;hmac,<sp/>ctx-&gt;<ref refid="structSYN__HMAC__DRBG_1a0a9da1ee2efd62e9567784f717b99827" kindref="member">k</ref>);</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"></highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Step<sp/>5:<sp/>V<sp/>=<sp/>HMAC(K,<sp/>V)<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="74"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__hmac_8h_1a8756a6bdfa948349ef3aff050ce40ca3" kindref="member">syn_hmac_sha256</ref>(ctx-&gt;<ref refid="structSYN__HMAC__DRBG_1a0a9da1ee2efd62e9567784f717b99827" kindref="member">k</ref>,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(ctx-&gt;<ref refid="structSYN__HMAC__DRBG_1a0a9da1ee2efd62e9567784f717b99827" kindref="member">k</ref>),<sp/>ctx-&gt;<ref refid="structSYN__HMAC__DRBG_1adde717a82db3b051aef9896eb9549d1a" kindref="member">v</ref>,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(ctx-&gt;<ref refid="structSYN__HMAC__DRBG_1adde717a82db3b051aef9896eb9549d1a" kindref="member">v</ref>),<sp/>ctx-&gt;<ref refid="structSYN__HMAC__DRBG_1adde717a82db3b051aef9896eb9549d1a" kindref="member">v</ref>);</highlight></codeline>
+<codeline lineno="75"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"></highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__hmac__drbg_8c_1aeddc305a23ebd36635965050fc97ff6d" kindref="member">syn_hmac_drbg_init</ref>(<ref refid="structSYN__HMAC__DRBG" kindref="compound">SYN_HMAC_DRBG</ref><sp/>*ctx,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*entropy,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>ent_len,</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*nonce,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>nonce_len,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*pers_str,</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>pers_len)</highlight></codeline>
+<codeline lineno="80"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(ctx<sp/>==<sp/>NULL<sp/>||<sp/>entropy<sp/>==<sp/>NULL<sp/>||<sp/>ent_len<sp/>&lt;<sp/><ref refid="syn__hmac__drbg_8h_1afe5c77454dd2a3526119d27f6c9b3701" kindref="member">SYN_HMAC_DRBG_MIN_ENTROPY_LEN</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"></highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/>(void)memset(ctx-&gt;<ref refid="structSYN__HMAC__DRBG_1a0a9da1ee2efd62e9567784f717b99827" kindref="member">k</ref>,<sp/>0x00,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(ctx-&gt;<ref refid="structSYN__HMAC__DRBG_1a0a9da1ee2efd62e9567784f717b99827" kindref="member">k</ref>));</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/><sp/><sp/>(void)memset(ctx-&gt;<ref refid="structSYN__HMAC__DRBG_1adde717a82db3b051aef9896eb9549d1a" kindref="member">v</ref>,<sp/>0x01,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(ctx-&gt;<ref refid="structSYN__HMAC__DRBG_1adde717a82db3b051aef9896eb9549d1a" kindref="member">v</ref>));</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/><sp/><sp/>ctx-&gt;<ref refid="structSYN__HMAC__DRBG_1affbf7e453f8c2d3750c7b3e1e4666e57" kindref="member">reseed_interval</ref><sp/>=<sp/><ref refid="syn__hmac__drbg_8h_1a0098f676ccdbb74df9b9e58160ca0999" kindref="member">SYN_HMAC_DRBG_DEFAULT_RESEED_INTERVAL</ref>;</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"></highlight></codeline>
+<codeline lineno="89"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__hmac__drbg_8c_1a023622f6fc9e42f1ff78aa2e435bc0be" kindref="member">drbg_update</ref>(ctx,<sp/>entropy,<sp/>ent_len,<sp/>nonce,<sp/>nonce_len,<sp/>pers_str,<sp/>pers_len);</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"></highlight></codeline>
+<codeline lineno="91"><highlight class="normal"><sp/><sp/><sp/><sp/>ctx-&gt;<ref refid="structSYN__HMAC__DRBG_1aa50d2940635e012976715d7ce69100ad" kindref="member">reseed_counter</ref><sp/>=<sp/>1U;</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/><sp/><sp/>ctx-&gt;<ref refid="structSYN__HMAC__DRBG_1aee745bbedcc2a5fb812238c5d334ee1c" kindref="member">initialized</ref><sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"></highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="95"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"></highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__hmac__drbg_8c_1a43aa6ea6c78ac7009e6d06d3a4e123e5" kindref="member">syn_hmac_drbg_reseed</ref>(<ref refid="structSYN__HMAC__DRBG" kindref="compound">SYN_HMAC_DRBG</ref><sp/>*ctx,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*entropy,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>ent_len,</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*add_input,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>add_len)</highlight></codeline>
+<codeline lineno="99"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(ctx<sp/>==<sp/>NULL<sp/>||<sp/>!ctx-&gt;<ref refid="structSYN__HMAC__DRBG_1aee745bbedcc2a5fb812238c5d334ee1c" kindref="member">initialized</ref><sp/>||<sp/>entropy<sp/>==<sp/>NULL<sp/>||</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ent_len<sp/>&lt;<sp/><ref refid="syn__hmac__drbg_8h_1afe5c77454dd2a3526119d27f6c9b3701" kindref="member">SYN_HMAC_DRBG_MIN_ENTROPY_LEN</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"></highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__hmac__drbg_8c_1a023622f6fc9e42f1ff78aa2e435bc0be" kindref="member">drbg_update</ref>(ctx,<sp/>entropy,<sp/>ent_len,<sp/>add_input,<sp/>add_len,<sp/>NULL,<sp/>0U);</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"></highlight></codeline>
+<codeline lineno="107"><highlight class="normal"><sp/><sp/><sp/><sp/>ctx-&gt;<ref refid="structSYN__HMAC__DRBG_1aa50d2940635e012976715d7ce69100ad" kindref="member">reseed_counter</ref><sp/>=<sp/>1U;</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="109"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="110"><highlight class="normal"></highlight></codeline>
+<codeline lineno="111"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__hmac__drbg_8c_1a295a5e512718ba06401a7958aa5ec5fa" kindref="member">syn_hmac_drbg_generate</ref>(<ref refid="structSYN__HMAC__DRBG" kindref="compound">SYN_HMAC_DRBG</ref><sp/>*ctx,<sp/>uint8_t<sp/>*out,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>out_len,</highlight></codeline>
+<codeline lineno="112"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*add_input,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>add_len)</highlight></codeline>
+<codeline lineno="113"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(ctx<sp/>==<sp/>NULL<sp/>||<sp/>!ctx-&gt;<ref refid="structSYN__HMAC__DRBG_1aee745bbedcc2a5fb812238c5d334ee1c" kindref="member">initialized</ref><sp/>||<sp/>out<sp/>==<sp/>NULL<sp/>||</highlight></codeline>
+<codeline lineno="115"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>out_len<sp/>&gt;<sp/><ref refid="syn__hmac__drbg_8h_1a628ef0a032789a067f398bbc4dd45951" kindref="member">SYN_HMAC_DRBG_MAX_REQUEST_BYTES</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="116"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="117"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"></highlight></codeline>
+<codeline lineno="119"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(out_len<sp/>==<sp/>0U)<sp/>{</highlight></codeline>
+<codeline lineno="120"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="121"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="122"><highlight class="normal"></highlight></codeline>
+<codeline lineno="123"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(ctx-&gt;<ref refid="structSYN__HMAC__DRBG_1aa50d2940635e012976715d7ce69100ad" kindref="member">reseed_counter</ref><sp/>&gt;<sp/>ctx-&gt;<ref refid="structSYN__HMAC__DRBG_1affbf7e453f8c2d3750c7b3e1e4666e57" kindref="member">reseed_interval</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="124"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00acd5d2701b7cfa9fb446640ecbeb19fc9" kindref="member">SYN_ERROR</ref>;</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="126"><highlight class="normal"></highlight></codeline>
+<codeline lineno="127"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(add_input<sp/>!=<sp/>NULL<sp/>&amp;&amp;<sp/>add_len<sp/>&gt;<sp/>0U)<sp/>{</highlight></codeline>
+<codeline lineno="128"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__hmac__drbg_8c_1a023622f6fc9e42f1ff78aa2e435bc0be" kindref="member">drbg_update</ref>(ctx,<sp/>add_input,<sp/>add_len,<sp/>NULL,<sp/>0U,<sp/>NULL,<sp/>0U);</highlight></codeline>
+<codeline lineno="129"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="130"><highlight class="normal"></highlight></codeline>
+<codeline lineno="131"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>generated<sp/>=<sp/>0U;</highlight></codeline>
+<codeline lineno="132"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">while</highlight><highlight class="normal"><sp/>(generated<sp/>&lt;<sp/>out_len)<sp/>{</highlight></codeline>
+<codeline lineno="133"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__hmac_8h_1a8756a6bdfa948349ef3aff050ce40ca3" kindref="member">syn_hmac_sha256</ref>(ctx-&gt;<ref refid="structSYN__HMAC__DRBG_1a0a9da1ee2efd62e9567784f717b99827" kindref="member">k</ref>,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(ctx-&gt;<ref refid="structSYN__HMAC__DRBG_1a0a9da1ee2efd62e9567784f717b99827" kindref="member">k</ref>),<sp/>ctx-&gt;<ref refid="structSYN__HMAC__DRBG_1adde717a82db3b051aef9896eb9549d1a" kindref="member">v</ref>,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(ctx-&gt;<ref refid="structSYN__HMAC__DRBG_1adde717a82db3b051aef9896eb9549d1a" kindref="member">v</ref>),<sp/>ctx-&gt;<ref refid="structSYN__HMAC__DRBG_1adde717a82db3b051aef9896eb9549d1a" kindref="member">v</ref>);</highlight></codeline>
+<codeline lineno="134"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>to_copy<sp/>=<sp/>out_len<sp/>-<sp/>generated;</highlight></codeline>
+<codeline lineno="135"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(to_copy<sp/>&gt;<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(ctx-&gt;<ref refid="structSYN__HMAC__DRBG_1adde717a82db3b051aef9896eb9549d1a" kindref="member">v</ref>))<sp/>{</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>to_copy<sp/>=<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(ctx-&gt;<ref refid="structSYN__HMAC__DRBG_1adde717a82db3b051aef9896eb9549d1a" kindref="member">v</ref>);</highlight></codeline>
+<codeline lineno="137"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="138"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(void)memcpy(&amp;out[generated],<sp/>ctx-&gt;<ref refid="structSYN__HMAC__DRBG_1adde717a82db3b051aef9896eb9549d1a" kindref="member">v</ref>,<sp/>to_copy);</highlight></codeline>
+<codeline lineno="139"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>generated<sp/>+=<sp/>to_copy;</highlight></codeline>
+<codeline lineno="140"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="141"><highlight class="normal"></highlight></codeline>
+<codeline lineno="142"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__hmac__drbg_8c_1a023622f6fc9e42f1ff78aa2e435bc0be" kindref="member">drbg_update</ref>(ctx,<sp/>add_input,<sp/>add_len,<sp/>NULL,<sp/>0U,<sp/>NULL,<sp/>0U);</highlight></codeline>
+<codeline lineno="143"><highlight class="normal"></highlight></codeline>
+<codeline lineno="144"><highlight class="normal"><sp/><sp/><sp/><sp/>ctx-&gt;<ref refid="structSYN__HMAC__DRBG_1aa50d2940635e012976715d7ce69100ad" kindref="member">reseed_counter</ref>++;</highlight></codeline>
+<codeline lineno="145"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="146"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="147"><highlight class="normal"></highlight></codeline>
+<codeline lineno="148"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__hmac__drbg_8c_1a2d22cad28666b0c633e0fc48e019e3cf" kindref="member">syn_hmac_drbg_generate_pr</ref>(<ref refid="structSYN__HMAC__DRBG" kindref="compound">SYN_HMAC_DRBG</ref><sp/>*ctx,<sp/>uint8_t<sp/>*out,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>out_len,</highlight></codeline>
+<codeline lineno="149"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*entropy,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>ent_len,</highlight></codeline>
+<codeline lineno="150"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*add_input,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>add_len)</highlight></codeline>
+<codeline lineno="151"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="152"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(ctx<sp/>==<sp/>NULL<sp/>||<sp/>!ctx-&gt;<ref refid="structSYN__HMAC__DRBG_1aee745bbedcc2a5fb812238c5d334ee1c" kindref="member">initialized</ref><sp/>||<sp/>out<sp/>==<sp/>NULL<sp/>||</highlight></codeline>
+<codeline lineno="153"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>out_len<sp/>&gt;<sp/><ref refid="syn__hmac__drbg_8h_1a628ef0a032789a067f398bbc4dd45951" kindref="member">SYN_HMAC_DRBG_MAX_REQUEST_BYTES</ref><sp/>||<sp/>entropy<sp/>==<sp/>NULL<sp/>||</highlight></codeline>
+<codeline lineno="154"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ent_len<sp/>&lt;<sp/><ref refid="syn__hmac__drbg_8h_1afe5c77454dd2a3526119d27f6c9b3701" kindref="member">SYN_HMAC_DRBG_MIN_ENTROPY_LEN</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="155"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="156"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="157"><highlight class="normal"></highlight></codeline>
+<codeline lineno="158"><highlight class="normal"><sp/><sp/><sp/><sp/>(void)<ref refid="syn__hmac__drbg_8c_1a43aa6ea6c78ac7009e6d06d3a4e123e5" kindref="member">syn_hmac_drbg_reseed</ref>(ctx,<sp/>entropy,<sp/>ent_len,<sp/>add_input,<sp/>add_len);</highlight></codeline>
+<codeline lineno="159"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__hmac__drbg_8c_1a295a5e512718ba06401a7958aa5ec5fa" kindref="member">syn_hmac_drbg_generate</ref>(ctx,<sp/>out,<sp/>out_len,<sp/>NULL,<sp/>0U);</highlight></codeline>
+<codeline lineno="160"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="161"><highlight class="normal"></highlight></codeline>
+<codeline lineno="162"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__hmac__drbg_8c_1aa67c3bf6a7e855819cc55245caca56ee" kindref="member">syn_hmac_drbg_set_reseed_interval</ref>(<ref refid="structSYN__HMAC__DRBG" kindref="compound">SYN_HMAC_DRBG</ref><sp/>*ctx,<sp/>uint32_t<sp/>interval)</highlight></codeline>
+<codeline lineno="163"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="164"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(ctx<sp/>!=<sp/>NULL<sp/>&amp;&amp;<sp/>interval<sp/>&gt;<sp/>0U)<sp/>{</highlight></codeline>
+<codeline lineno="165"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ctx-&gt;<ref refid="structSYN__HMAC__DRBG_1affbf7e453f8c2d3750c7b3e1e4666e57" kindref="member">reseed_interval</ref><sp/>=<sp/>interval;</highlight></codeline>
+<codeline lineno="166"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="167"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="168"><highlight class="normal"></highlight></codeline>
+<codeline lineno="169"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__hmac__drbg_8c_1ac0fb848e7f3842053f4128bdcfc7a5a3" kindref="member">syn_hmac_drbg_wipe</ref>(<ref refid="structSYN__HMAC__DRBG" kindref="compound">SYN_HMAC_DRBG</ref><sp/>*ctx)</highlight></codeline>
+<codeline lineno="170"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="171"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(ctx<sp/>==<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="172"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="173"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="174"><highlight class="normal"></highlight></codeline>
+<codeline lineno="175"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">volatile</highlight><highlight class="normal"><sp/>uint8_t<sp/>*p_k<sp/>=<sp/>(</highlight><highlight class="keyword">volatile</highlight><highlight class="normal"><sp/>uint8_t<sp/>*)ctx-&gt;<ref refid="structSYN__HMAC__DRBG_1a0a9da1ee2efd62e9567784f717b99827" kindref="member">k</ref>;</highlight></codeline>
+<codeline lineno="176"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>i<sp/>=<sp/>0U;<sp/>i<sp/>&lt;<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(ctx-&gt;<ref refid="structSYN__HMAC__DRBG_1a0a9da1ee2efd62e9567784f717b99827" kindref="member">k</ref>);<sp/>i++)<sp/>{</highlight></codeline>
+<codeline lineno="177"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>p_k[i]<sp/>=<sp/>0U;</highlight></codeline>
+<codeline lineno="178"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="179"><highlight class="normal"></highlight></codeline>
+<codeline lineno="180"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">volatile</highlight><highlight class="normal"><sp/>uint8_t<sp/>*p_v<sp/>=<sp/>(</highlight><highlight class="keyword">volatile</highlight><highlight class="normal"><sp/>uint8_t<sp/>*)ctx-&gt;<ref refid="structSYN__HMAC__DRBG_1adde717a82db3b051aef9896eb9549d1a" kindref="member">v</ref>;</highlight></codeline>
+<codeline lineno="181"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>i<sp/>=<sp/>0U;<sp/>i<sp/>&lt;<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(ctx-&gt;<ref refid="structSYN__HMAC__DRBG_1adde717a82db3b051aef9896eb9549d1a" kindref="member">v</ref>);<sp/>i++)<sp/>{</highlight></codeline>
+<codeline lineno="182"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>p_v[i]<sp/>=<sp/>0U;</highlight></codeline>
+<codeline lineno="183"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="184"><highlight class="normal"></highlight></codeline>
+<codeline lineno="185"><highlight class="normal"><sp/><sp/><sp/><sp/>ctx-&gt;<ref refid="structSYN__HMAC__DRBG_1aa50d2940635e012976715d7ce69100ad" kindref="member">reseed_counter</ref><sp/>=<sp/>0U;</highlight></codeline>
+<codeline lineno="186"><highlight class="normal"><sp/><sp/><sp/><sp/>ctx-&gt;<ref refid="structSYN__HMAC__DRBG_1affbf7e453f8c2d3750c7b3e1e4666e57" kindref="member">reseed_interval</ref><sp/>=<sp/>0U;</highlight></codeline>
+<codeline lineno="187"><highlight class="normal"><sp/><sp/><sp/><sp/>ctx-&gt;<ref refid="structSYN__HMAC__DRBG_1aee745bbedcc2a5fb812238c5d334ee1c" kindref="member">initialized</ref><sp/>=<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="188"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="189"><highlight class="normal"></highlight></codeline>
+<codeline lineno="190"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_USE_HMAC_DRBG<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/crypto/syn_hmac_drbg.c"/>
+  </compounddef>
+</doxygen>

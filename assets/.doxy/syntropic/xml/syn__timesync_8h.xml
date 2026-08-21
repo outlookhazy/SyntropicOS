@@ -1,0 +1,535 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__timesync_8h" kind="file" language="C++">
+    <compoundname>syn_timesync.h</compoundname>
+    <includes refid="syn__defs_8h" local="yes">../common/syn_defs.h</includes>
+    <includes refid="syn__hpclock_8h" local="yes">syn_hpclock.h</includes>
+    <includes local="no">stdbool.h</includes>
+    <includes local="no">stdint.h</includes>
+    <includedby refid="syn__timesync_8c" local="yes">src/syntropic/drivers/syn_timesync.c</includedby>
+    <includedby refid="syntropic_8h" local="yes">src/syntropic/syntropic.h</includedby>
+    <incdepgraph>
+      <node id="6">
+        <label>../common/syn_compiler.h</label>
+        <link refid="syn__compiler_8h"/>
+      </node>
+      <node id="2">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>syn_hpclock.h</label>
+        <link refid="syn__hpclock_8h"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/drivers/syn_timesync.h</label>
+        <link refid="syn__timesync_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>../port/syn_port_hpclock.h</label>
+        <link refid="syn__port__hpclock_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>stdbool.h</label>
+      </node>
+      <node id="3">
+        <label>stddef.h</label>
+      </node>
+      <node id="4">
+        <label>stdint.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="2">
+        <label>src/syntropic/drivers/syn_timesync.c</label>
+        <link refid="syn__timesync_8c"/>
+      </node>
+      <node id="1">
+        <label>src/syntropic/drivers/syn_timesync.h</label>
+        <link refid="syn__timesync_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>src/syntropic/proto/syn_doip.c</label>
+        <link refid="syn__doip_8c"/>
+      </node>
+      <node id="4">
+        <label>src/syntropic/proto/syn_doip.h</label>
+        <link refid="syn__doip_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>src/syntropic/syntropic.h</label>
+        <link refid="syntropic_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="structSYN__UTCTimestamp" prot="public">SYN_UTCTimestamp</innerclass>
+    <innerclass refid="structSYN__TimeSync" prot="public">SYN_TimeSync</innerclass>
+    <sectiondef kind="define">
+      <memberdef kind="define" id="syn__timesync_8h_1a72a749eba827f3ad8b9a578cb73c7a2b" prot="public" static="no">
+        <name>SYN_TIMESYNC_HAS_RTC</name>
+        <initializer>0</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>RTC driver presence flag (0) </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_timesync.h" line="56" column="10" bodyfile="src/syntropic/drivers/syn_timesync.h" bodystart="56" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__timesync_8h_1afef52fbd448fdf0707dae6dc598754ba" prot="public" static="no">
+        <name>SYN_TIMESYNC_DEFAULT_JITTER_NS</name>
+        <initializer>50U</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Default assumed PPS reference jitter (50 nanoseconds). </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_timesync.h" line="119" column="9" bodyfile="src/syntropic/drivers/syn_timesync.h" bodystart="119" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__timesync_8h_1a3e230c28408018f1b9a3f0dfdb035143" prot="public" static="no">
+        <name>SYN_TIMESYNC_DEFAULT_HOLDOVER_S</name>
+        <initializer>60U</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Default max holdover duration before degrading to RTC (60 seconds). </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_timesync.h" line="124" column="9" bodyfile="src/syntropic/drivers/syn_timesync.h" bodystart="124" bodyend="-1"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="enum">
+      <memberdef kind="enum" id="syn__timesync_8h_1aeb64ce1903a4c08c7e8013d2c385d45f" prot="public" static="no" strong="no">
+        <type></type>
+        <name>SYN_TimeSource</name>
+        <enumvalue id="syn__timesync_8h_1aeb64ce1903a4c08c7e8013d2c385d45fac949c9fe71819e87ef01aae36e497722" prot="public">
+          <name>SYN_TIME_SOURCE_UNSYNCED</name>
+          <initializer>= 0</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>No time reference; arbitrary/monotonic epoch </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__timesync_8h_1aeb64ce1903a4c08c7e8013d2c385d45fae661152162166ad155102ef683a83b0c" prot="public">
+          <name>SYN_TIME_SOURCE_RTC_SYNCED</name>
+          <initializer>= 1</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Hardware RTC (coarse wall-clock date) <linebreak/>
+ </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__timesync_8h_1aeb64ce1903a4c08c7e8013d2c385d45fa35a6e7147a6e10222f66db093383ff67" prot="public">
+          <name>SYN_TIME_SOURCE_GPS_HOLDOVER</name>
+          <initializer>= 2</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>PPS lost; extrapolating with crystal drift PPM </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__timesync_8h_1aeb64ce1903a4c08c7e8013d2c385d45faa09a7698ba677972b70040a8e25566c0" prot="public">
+          <name>SYN_TIME_SOURCE_GPS_PPS</name>
+          <initializer>= 3</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Active PPS lock (sub-microsecond accuracy) <linebreak/>
+ </para>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>Quality tier of a resolved UTC timestamp. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_timesync.h" line="71" column="1" bodyfile="src/syntropic/drivers/syn_timesync.h" bodystart="71" bodyend="76"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__timesync_8h_1aded5f7eae02fa5fe187553823751b931" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_timesync_init</definition>
+        <argsstring>(SYN_TimeSync *tsync)</argsstring>
+        <name>syn_timesync_init</name>
+        <param>
+          <type><ref refid="structSYN__TimeSync" kindref="compound">SYN_TimeSync</ref> *</type>
+          <declname>tsync</declname>
+        </param>
+        <briefdescription>
+<para>Initialize a time discipline context. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Sets default jitter (50 ns) and max holdover (60 s). If hardware RTC is enabled (<computeroutput>SYN_USE_RTC</computeroutput>), checks if the RTC is valid.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>tsync</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Context to initialize. Must not be NULL. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_timesync.h" line="137" column="6" bodyfile="src/syntropic/drivers/syn_timesync.c" bodystart="20" bodyend="38" declfile="src/syntropic/drivers/syn_timesync.h" declline="137" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__timesync_8h_1a1142f6f889d348c69c661545474c7cef" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_timesync_bind_pps</definition>
+        <argsstring>(SYN_TimeSync *tsync, const SYN_HPTimestamp *pps_ts, uint64_t utc_sec)</argsstring>
+        <name>syn_timesync_bind_pps</name>
+        <param>
+          <type><ref refid="structSYN__TimeSync" kindref="compound">SYN_TimeSync</ref> *</type>
+          <declname>tsync</declname>
+        </param>
+        <param>
+          <type>const <ref refid="structSYN__HPTimestamp" kindref="compound">SYN_HPTimestamp</ref> *</type>
+          <declname>pps_ts</declname>
+        </param>
+        <param>
+          <type>uint64_t</type>
+          <declname>utc_sec</declname>
+        </param>
+        <briefdescription>
+<para>Bind a captured PPS timestamp to its corresponding UTC second. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Call this when an asynchronous epoch time sentence (e.g. NMEA $GPZDA) is received, pairing the integer UTC second with the PPS timestamp captured at the top of that second.</para>
+<para>Measures crystal drift PPM against nominal <ref refid="syn__port__hpclock_8h_1a82fc473fd84d3ba05fe524d8b0cbba96" kindref="member">syn_port_hpclock_freq_hz()</ref>.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>tsync</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>TimeSync context. Must not be NULL. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>pps_ts</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Timestamp snapshot captured by ISR at PPS rising edge. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>utc_sec</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Universal UTC epoch second corresponding to this PPS pulse. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_INVALID_PARAM if pps_ts is NULL. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_timesync.h" line="153" column="12" bodyfile="src/syntropic/drivers/syn_timesync.c" bodystart="42" bodyend="90" declfile="src/syntropic/drivers/syn_timesync.h" declline="153" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__timesync_8h_1af6c84ce76c2a3f890ea00543abb6e5cc" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_timesync_resolve_utc</definition>
+        <argsstring>(const SYN_TimeSync *tsync, const SYN_HPTimestamp *event_ts, SYN_UTCTimestamp *out_utc)</argsstring>
+        <name>syn_timesync_resolve_utc</name>
+        <param>
+          <type>const <ref refid="structSYN__TimeSync" kindref="compound">SYN_TimeSync</ref> *</type>
+          <declname>tsync</declname>
+        </param>
+        <param>
+          <type>const <ref refid="structSYN__HPTimestamp" kindref="compound">SYN_HPTimestamp</ref> *</type>
+          <declname>event_ts</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__UTCTimestamp" kindref="compound">SYN_UTCTimestamp</ref> *</type>
+          <declname>out_utc</declname>
+        </param>
+        <briefdescription>
+<para>Resolve an arbitrary high-precision timestamp into UTC. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Converts a raw <ref refid="structSYN__HPTimestamp" kindref="compound">SYN_HPTimestamp</ref> (captured in an ISR or main thread) into absolute UTC time, calculating the sub-second offset, active quality tier, and linear error accumulation bound (uncertainty_ns).</para>
+<para>Handles event timestamps occurring before or after the reference PPS pulse.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>tsync</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>TimeSync context. Must not be NULL. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>event_ts</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Event timestamp to resolve. Must not be NULL. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out_utc</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output UTC timestamp. Must not be NULL. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_INVALID_PARAM if args are NULL. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_timesync.h" line="170" column="12" bodyfile="src/syntropic/drivers/syn_timesync.c" bodystart="94" bodyend="182" declfile="src/syntropic/drivers/syn_timesync.h" declline="170" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__timesync_8h_1a17db8f38f5f08ca5703e4e2b2ab86a01" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint64_t</type>
+        <definition>uint64_t syn_timesync_to_epoch_ns</definition>
+        <argsstring>(const SYN_TimeSync *tsync, const SYN_HPTimestamp *event_ts)</argsstring>
+        <name>syn_timesync_to_epoch_ns</name>
+        <param>
+          <type>const <ref refid="structSYN__TimeSync" kindref="compound">SYN_TimeSync</ref> *</type>
+          <declname>tsync</declname>
+        </param>
+        <param>
+          <type>const <ref refid="structSYN__HPTimestamp" kindref="compound">SYN_HPTimestamp</ref> *</type>
+          <declname>event_ts</declname>
+        </param>
+        <briefdescription>
+<para>Helper: resolve event timestamp directly to total 64-bit UTC nanoseconds. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>tsync</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>TimeSync context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>event_ts</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Event timestamp to resolve. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Total nanoseconds since Unix epoch (1970-01-01 00:00:00 UTC). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_timesync.h" line="180" column="10" bodyfile="src/syntropic/drivers/syn_timesync.c" bodystart="186" bodyend="193" declfile="src/syntropic/drivers/syn_timesync.h" declline="180" declcolumn="10"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__timesync_8h_1ad212352557ff79ae4cd30beab668d004" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_timesync_is_pps_locked</definition>
+        <argsstring>(const SYN_TimeSync *tsync)</argsstring>
+        <name>syn_timesync_is_pps_locked</name>
+        <param>
+          <type>const <ref refid="structSYN__TimeSync" kindref="compound">SYN_TimeSync</ref> *</type>
+          <declname>tsync</declname>
+        </param>
+        <briefdescription>
+<para>Check if active PPS lock is present. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>tsync</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>TimeSync context. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if PPS lock is active (received within last 1.1s). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_timesync.h" line="187" column="6" bodyfile="src/syntropic/drivers/syn_timesync.c" bodystart="197" bodyend="204" declfile="src/syntropic/drivers/syn_timesync.h" declline="187" declcolumn="6"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>High-precision time discipline and clock synchronization service. </para>
+    </briefdescription>
+    <detaileddescription>
+<para><computeroutput>syn_timesync</computeroutput> converts raw high-precision hardware timestamps (<computeroutput><ref refid="structSYN__HPTimestamp" kindref="compound">SYN_HPTimestamp</ref></computeroutput> from <computeroutput>syn_hpclock</computeroutput>) into universal UTC wall-clock time with quantified uncertainty bounds (± nanoseconds).</para>
+<para>It combines an asynchronous 1 Hz pulse reference (such as a GPS PPS signal) with an epoch date/time source (such as NMEA UTC sentences), estimates hardware crystal oscillator drift in Parts-Per-Million (PPM), and provides a 4-tier quality fallback hierarchy:</para>
+<para><orderedlist>
+<listitem><para>SYN_TIME_SOURCE_GPS_PPS Active PPS lock (sub-microsecond UTC)</para>
+</listitem><listitem><para>SYN_TIME_SOURCE_GPS_HOLDOVER PPS pulse lost; extrapolating with drift PPM</para>
+</listitem><listitem><para>SYN_TIME_SOURCE_RTC_SYNCED Long outage; using hardware RTC (if enabled)</para>
+</listitem><listitem><para>SYN_TIME_SOURCE_UNSYNCED No time reference; raw monotonic uptime</para>
+</listitem></orderedlist>
+</para>
+<sect2 id="syn__timesync_8h_1autotoc_md4">
+<title>Usage Example</title>
+<para><programlisting><codeline><highlight class="keyword">static</highlight><highlight class="normal"><sp/><ref refid="structSYN__TimeSync" kindref="compound">SYN_TimeSync</ref><sp/>tsync;</highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__timesync_8c_1aded5f7eae02fa5fe187553823751b931" kindref="member">syn_timesync_init</ref>(&amp;tsync);</highlight></codeline>
+<codeline><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="comment">//<sp/>In<sp/>PPS<sp/>ISR:</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__hpclock_8h_1acf80e4ae2cc5f2988fc3d26caa543698" kindref="member">SYN_HPCLOCK_CAPTURE</ref>(pps_ts);</highlight></codeline>
+<codeline><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="comment">//<sp/>In<sp/>GPS<sp/>UART<sp/>task<sp/>(after<sp/>NMEA<sp/>UTC<sp/>second<sp/>parsed):</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__timesync_8c_1a1142f6f889d348c69c661545474c7cef" kindref="member">syn_timesync_bind_pps</ref>(&amp;tsync,<sp/>&amp;pps_ts,<sp/>utc_epoch_seconds);</highlight></codeline>
+<codeline><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="comment">//<sp/>Resolving<sp/>an<sp/>event<sp/>timestamp:</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"><ref refid="structSYN__UTCTimestamp" kindref="compound">SYN_UTCTimestamp</ref><sp/>utc;</highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__timesync_8c_1af6c84ce76c2a3f890ea00543abb6e5cc" kindref="member">syn_timesync_resolve_utc</ref>(&amp;tsync,<sp/>&amp;event_ts,<sp/>&amp;utc);</highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(utc.<ref refid="structSYN__UTCTimestamp_1a426670d8830dcbc4d945508fb7544eef" kindref="member">source</ref><sp/>==<sp/><ref refid="syn__timesync_8h_1aeb64ce1903a4c08c7e8013d2c385d45faa09a7698ba677972b70040a8e25566c0" kindref="member">SYN_TIME_SOURCE_GPS_PPS</ref><sp/>&amp;&amp;<sp/>utc.<ref refid="structSYN__UTCTimestamp_1a28d28fc43142c1dde888382212cb7943" kindref="member">uncertainty_ns</ref><sp/>&lt;<sp/>1000)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>High-precision<sp/>event<sp/>processing</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal">}</highlight></codeline>
+</programlisting> </para>
+</sect2>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_TIMESYNC_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_TIMESYNC_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>__has_include(&quot;syn_config.h&quot;)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;syn_config.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="46"><highlight class="normal"></highlight></codeline>
+<codeline lineno="47"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>!defined(SYN_USE_TIMESYNC)<sp/>||<sp/>SYN_USE_TIMESYNC</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="48"><highlight class="normal"></highlight></codeline>
+<codeline lineno="49"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../common/syn_defs.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="50"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__hpclock_8h" kindref="compound">syn_hpclock.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="51"><highlight class="normal"></highlight></codeline>
+<codeline lineno="52"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(SYN_USE_RTC)<sp/>&amp;&amp;<sp/>SYN_USE_RTC</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="53"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__rtc_8h" kindref="compound">syn_rtc.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="54"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_TIMESYNC_HAS_RTC<sp/>1<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="55"><highlight class="normal"></highlight><highlight class="preprocessor">#else</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="56" refid="syn__timesync_8h_1a72a749eba827f3ad8b9a578cb73c7a2b" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_TIMESYNC_HAS_RTC<sp/>0<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="57"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="58"><highlight class="normal"></highlight></codeline>
+<codeline lineno="59"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="60"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="61"><highlight class="normal"></highlight></codeline>
+<codeline lineno="62"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="63"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="65"><highlight class="normal"></highlight></codeline>
+<codeline lineno="66"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Time<sp/>Quality<sp/>Source<sp/>Tiers<sp/>───────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="67"><highlight class="normal"></highlight></codeline>
+<codeline lineno="71" refid="syn__timesync_8h_1aeb64ce1903a4c08c7e8013d2c385d45f" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="72" refid="syn__timesync_8h_1aeb64ce1903a4c08c7e8013d2c385d45fac949c9fe71819e87ef01aae36e497722" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__timesync_8h_1aeb64ce1903a4c08c7e8013d2c385d45fac949c9fe71819e87ef01aae36e497722" kindref="member">SYN_TIME_SOURCE_UNSYNCED</ref><sp/>=<sp/>0,<sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="73" refid="syn__timesync_8h_1aeb64ce1903a4c08c7e8013d2c385d45fae661152162166ad155102ef683a83b0c" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__timesync_8h_1aeb64ce1903a4c08c7e8013d2c385d45fae661152162166ad155102ef683a83b0c" kindref="member">SYN_TIME_SOURCE_RTC_SYNCED</ref><sp/>=<sp/>1,<sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="74" refid="syn__timesync_8h_1aeb64ce1903a4c08c7e8013d2c385d45fa35a6e7147a6e10222f66db093383ff67" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__timesync_8h_1aeb64ce1903a4c08c7e8013d2c385d45fa35a6e7147a6e10222f66db093383ff67" kindref="member">SYN_TIME_SOURCE_GPS_HOLDOVER</ref><sp/>=<sp/>2,<sp/></highlight></codeline>
+<codeline lineno="75" refid="syn__timesync_8h_1aeb64ce1903a4c08c7e8013d2c385d45faa09a7698ba677972b70040a8e25566c0" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__timesync_8h_1aeb64ce1903a4c08c7e8013d2c385d45faa09a7698ba677972b70040a8e25566c0" kindref="member">SYN_TIME_SOURCE_GPS_PPS</ref><sp/>=<sp/>3,<sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="76"><highlight class="normal">}<sp/><ref refid="syn__timesync_8h_1aeb64ce1903a4c08c7e8013d2c385d45f" kindref="member">SYN_TimeSource</ref>;</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"></highlight></codeline>
+<codeline lineno="78"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Structured<sp/>UTC<sp/>Output<sp/>────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="79"><highlight class="normal"></highlight></codeline>
+<codeline lineno="83" refid="structSYN__UTCTimestamp" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="84" refid="structSYN__UTCTimestamp_1a463f72d82042a0c1b0fe53868b008619" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint64_t<sp/><ref refid="structSYN__UTCTimestamp_1a463f72d82042a0c1b0fe53868b008619" kindref="member">sec</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="85" refid="structSYN__UTCTimestamp_1a6ff4b388c64eeb039e263486c6072fb7" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structSYN__UTCTimestamp_1a6ff4b388c64eeb039e263486c6072fb7" kindref="member">nsec</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="86" refid="structSYN__UTCTimestamp_1a28d28fc43142c1dde888382212cb7943" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structSYN__UTCTimestamp_1a28d28fc43142c1dde888382212cb7943" kindref="member">uncertainty_ns</ref>;<sp/></highlight></codeline>
+<codeline lineno="87" refid="structSYN__UTCTimestamp_1a426670d8830dcbc4d945508fb7544eef" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__timesync_8h_1aeb64ce1903a4c08c7e8013d2c385d45f" kindref="member">SYN_TimeSource</ref><sp/><ref refid="structSYN__UTCTimestamp_1a426670d8830dcbc4d945508fb7544eef" kindref="member">source</ref>;<sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="88"><highlight class="normal">}<sp/><ref refid="structSYN__UTCTimestamp" kindref="compound">SYN_UTCTimestamp</ref>;</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"></highlight></codeline>
+<codeline lineno="90"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Context<sp/>──────────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="91"><highlight class="normal"></highlight></codeline>
+<codeline lineno="95" refid="structSYN__TimeSync" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Anchors<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="97" refid="structSYN__TimeSync_1a101a4e33d357c278c1080a414c9d8fea" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structSYN__HPTimestamp" kindref="compound">SYN_HPTimestamp</ref><sp/><ref refid="structSYN__TimeSync_1a101a4e33d357c278c1080a414c9d8fea" kindref="member">last_pps_ts</ref>;<sp/></highlight></codeline>
+<codeline lineno="98" refid="structSYN__TimeSync_1a472bb7923b11aea4c792106bf56f5e5e" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint64_t<sp/><ref refid="structSYN__TimeSync_1a472bb7923b11aea4c792106bf56f5e5e" kindref="member">last_pps_ticks</ref>;<sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="99" refid="structSYN__TimeSync_1afc322ae0b16c2d02f563e6c80d7e5449" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint64_t<sp/><ref refid="structSYN__TimeSync_1afc322ae0b16c2d02f563e6c80d7e5449" kindref="member">last_utc_sec</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="101"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Drift<sp/>calculation<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="102" refid="structSYN__TimeSync_1a5d0cbd7ee4a700def34c57efd998ef80" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint64_t<sp/><ref refid="structSYN__TimeSync_1a5d0cbd7ee4a700def34c57efd998ef80" kindref="member">prev_pps_ticks</ref>;<sp/></highlight></codeline>
+<codeline lineno="103" refid="structSYN__TimeSync_1aea4870cf3e5ddd3040fb544bdcc8b1dc" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>int32_t<sp/><ref refid="structSYN__TimeSync_1aea4870cf3e5ddd3040fb544bdcc8b1dc" kindref="member">drift_ppm</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="104" refid="structSYN__TimeSync_1ab005226226c650d3334003b981fcfeae" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structSYN__TimeSync_1ab005226226c650d3334003b981fcfeae" kindref="member">pps_count</ref>;<sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="106"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Tuning<sp/>/<sp/>Config<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="107" refid="structSYN__TimeSync_1ab1d4a217f72ffd51863d75bb413e8a55" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structSYN__TimeSync_1ab1d4a217f72ffd51863d75bb413e8a55" kindref="member">base_jitter_ns</ref>;<sp/></highlight></codeline>
+<codeline lineno="108" refid="structSYN__TimeSync_1aa40881f9f06c973c153d8c33f8d1f2e6" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structSYN__TimeSync_1aa40881f9f06c973c153d8c33f8d1f2e6" kindref="member">max_holdover_s</ref>;<sp/></highlight></codeline>
+<codeline lineno="110"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Status<sp/>flags<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="111" refid="structSYN__TimeSync_1a60517c62c214d7d65ada4e662c283ca0" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="structSYN__TimeSync_1a60517c62c214d7d65ada4e662c283ca0" kindref="member">has_pps_lock</ref>;<sp/></highlight></codeline>
+<codeline lineno="112" refid="structSYN__TimeSync_1a2a13c3909b1d390b9ec7b2f3004e079a" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="structSYN__TimeSync_1a2a13c3909b1d390b9ec7b2f3004e079a" kindref="member">rtc_synced</ref>;<sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="113"><highlight class="normal">}<sp/><ref refid="structSYN__TimeSync" kindref="compound">SYN_TimeSync</ref>;</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"></highlight></codeline>
+<codeline lineno="115"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Default<sp/>Configuration<sp/>Constants<sp/>─────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="116"><highlight class="normal"></highlight></codeline>
+<codeline lineno="118"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_TIMESYNC_DEFAULT_JITTER_NS</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="119" refid="syn__timesync_8h_1afef52fbd448fdf0707dae6dc598754ba" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_TIMESYNC_DEFAULT_JITTER_NS<sp/>50U</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="120"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="121"><highlight class="normal"></highlight></codeline>
+<codeline lineno="123"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_TIMESYNC_DEFAULT_HOLDOVER_S</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="124" refid="syn__timesync_8h_1a3e230c28408018f1b9a3f0dfdb035143" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_TIMESYNC_DEFAULT_HOLDOVER_S<sp/>60U</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="125"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="126"><highlight class="normal"></highlight></codeline>
+<codeline lineno="127"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>API<sp/>──────────────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="128"><highlight class="normal"></highlight></codeline>
+<codeline lineno="137"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__timesync_8h_1aded5f7eae02fa5fe187553823751b931" kindref="member">syn_timesync_init</ref>(<ref refid="structSYN__TimeSync" kindref="compound">SYN_TimeSync</ref><sp/>*tsync);</highlight></codeline>
+<codeline lineno="138"><highlight class="normal"></highlight></codeline>
+<codeline lineno="153"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__timesync_8h_1a1142f6f889d348c69c661545474c7cef" kindref="member">syn_timesync_bind_pps</ref>(<ref refid="structSYN__TimeSync" kindref="compound">SYN_TimeSync</ref><sp/>*tsync,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__HPTimestamp" kindref="compound">SYN_HPTimestamp</ref><sp/>*pps_ts,</highlight></codeline>
+<codeline lineno="154"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint64_t<sp/>utc_sec);</highlight></codeline>
+<codeline lineno="155"><highlight class="normal"></highlight></codeline>
+<codeline lineno="170"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__timesync_8h_1af6c84ce76c2a3f890ea00543abb6e5cc" kindref="member">syn_timesync_resolve_utc</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__TimeSync" kindref="compound">SYN_TimeSync</ref><sp/>*tsync,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__HPTimestamp" kindref="compound">SYN_HPTimestamp</ref><sp/>*event_ts,</highlight></codeline>
+<codeline lineno="171"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__UTCTimestamp" kindref="compound">SYN_UTCTimestamp</ref><sp/>*out_utc);</highlight></codeline>
+<codeline lineno="172"><highlight class="normal"></highlight></codeline>
+<codeline lineno="180"><highlight class="normal">uint64_t<sp/><ref refid="syn__timesync_8h_1a17db8f38f5f08ca5703e4e2b2ab86a01" kindref="member">syn_timesync_to_epoch_ns</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__TimeSync" kindref="compound">SYN_TimeSync</ref><sp/>*tsync,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__HPTimestamp" kindref="compound">SYN_HPTimestamp</ref><sp/>*event_ts);</highlight></codeline>
+<codeline lineno="181"><highlight class="normal"></highlight></codeline>
+<codeline lineno="187"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__timesync_8h_1ad212352557ff79ae4cd30beab668d004" kindref="member">syn_timesync_is_pps_locked</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__TimeSync" kindref="compound">SYN_TimeSync</ref><sp/>*tsync);</highlight></codeline>
+<codeline lineno="188"><highlight class="normal"></highlight></codeline>
+<codeline lineno="189"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="190"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="191"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="192"><highlight class="normal"></highlight></codeline>
+<codeline lineno="193"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_USE_TIMESYNC<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="194"><highlight class="normal"></highlight></codeline>
+<codeline lineno="195"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_TIMESYNC_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/drivers/syn_timesync.h"/>
+  </compounddef>
+</doxygen>

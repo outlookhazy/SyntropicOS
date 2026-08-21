@@ -1,0 +1,386 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__port__hrpwm_8h" kind="file" language="C++">
+    <compoundname>syn_port_hrpwm.h</compoundname>
+    <includes refid="syn__defs_8h" local="yes">../common/syn_defs.h</includes>
+    <includes refid="syn__qmath_8h" local="yes">../util/syn_qmath.h</includes>
+    <includes local="no">stdbool.h</includes>
+    <includes local="no">stdint.h</includes>
+    <includedby refid="syn__hrpwm_8h" local="yes">src/syntropic/drivers/syn_hrpwm.h</includedby>
+    <incdepgraph>
+      <node id="2">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/port/syn_port_hrpwm.h</label>
+        <link refid="syn__port__hrpwm_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>../util/syn_qmath.h</label>
+        <link refid="syn__qmath_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>stdbool.h</label>
+      </node>
+      <node id="3">
+        <label>stddef.h</label>
+      </node>
+      <node id="4">
+        <label>stdint.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="3">
+        <label>src/syntropic/drivers/syn_hrpwm.c</label>
+        <link refid="syn__hrpwm_8c"/>
+      </node>
+      <node id="2">
+        <label>src/syntropic/drivers/syn_hrpwm.h</label>
+        <link refid="syn__hrpwm_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/port/syn_port_hrpwm.h</label>
+        <link refid="syn__port__hrpwm_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__port__hrpwm_8h_1ad7b0be85e1297f0658384fdc98b8817c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_port_hrpwm_init</definition>
+        <argsstring>(uint8_t channel, uint32_t freq_hz)</argsstring>
+        <name>syn_port_hrpwm_init</name>
+        <param>
+          <type>uint8_t</type>
+          <declname>channel</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>freq_hz</declname>
+        </param>
+        <briefdescription>
+<para>Initialize high-resolution PWM hardware timer channel. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>channel</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Platform-specific HRPWM channel index (0..5). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>freq_hz</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Switching frequency in Hz. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_INVALID_PARAM or SYN_ERROR on hardware error. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/port/syn_port_hrpwm.h" line="30" column="12" declfile="src/syntropic/port/syn_port_hrpwm.h" declline="30" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__port__hrpwm_8h_1aa16c0c2de7d653872c7ebac8dc0eea53" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_port_hrpwm_set_duty_q16</definition>
+        <argsstring>(uint8_t channel, int32_t duty_q16)</argsstring>
+        <name>syn_port_hrpwm_set_duty_q16</name>
+        <param>
+          <type>uint8_t</type>
+          <declname>channel</declname>
+        </param>
+        <param>
+          <type>int32_t</type>
+          <declname>duty_q16</declname>
+        </param>
+        <briefdescription>
+<para>Set high-resolution duty cycle using Q16.16 fixed-point ratio. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>channel</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Platform-specific HRPWM channel index. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>duty_q16</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Q16.16 fixed point ratio (0 = 0.0, 65536 = 1.0). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/port/syn_port_hrpwm.h" line="38" column="12" declfile="src/syntropic/port/syn_port_hrpwm.h" declline="38" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__port__hrpwm_8h_1a65579172a4dd951caace1d4f2a1af2eb" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_port_hrpwm_set_deadtime_ns</definition>
+        <argsstring>(uint8_t channel, uint16_t rise_ns, uint16_t fall_ns)</argsstring>
+        <name>syn_port_hrpwm_set_deadtime_ns</name>
+        <param>
+          <type>uint8_t</type>
+          <declname>channel</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>rise_ns</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>fall_ns</declname>
+        </param>
+        <briefdescription>
+<para>Configure complementary dead-time insertion in nanoseconds. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>channel</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Platform-specific HRPWM channel index. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>rise_ns</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>High-side turn-on rise dead-time in nanoseconds. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>fall_ns</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Low-side turn-on fall dead-time in nanoseconds. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/port/syn_port_hrpwm.h" line="47" column="12" declfile="src/syntropic/port/syn_port_hrpwm.h" declline="47" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__port__hrpwm_8h_1a0c58a7d6da5cecd9e1dc7ab8b3fba3d9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_port_hrpwm_set_phase_deg</definition>
+        <argsstring>(uint8_t channel, uint16_t phase_deg)</argsstring>
+        <name>syn_port_hrpwm_set_phase_deg</name>
+        <param>
+          <type>uint8_t</type>
+          <declname>channel</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>phase_deg</declname>
+        </param>
+        <briefdescription>
+<para>Set phase shift angle in degrees (0–360). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>channel</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Platform-specific HRPWM channel index. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>phase_deg</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Phase offset angle in degrees. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/port/syn_port_hrpwm.h" line="55" column="12" declfile="src/syntropic/port/syn_port_hrpwm.h" declline="55" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__port__hrpwm_8h_1ad40a074655cbd7126690b9ba582d090a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_port_hrpwm_enable_fault</definition>
+        <argsstring>(uint8_t channel, uint8_t fault_id, bool enable)</argsstring>
+        <name>syn_port_hrpwm_enable_fault</name>
+        <param>
+          <type>uint8_t</type>
+          <declname>channel</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>fault_id</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+          <declname>enable</declname>
+        </param>
+        <briefdescription>
+<para>Enable hardware emergency fault trip protection input. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>channel</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Platform-specific HRPWM channel index. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>fault_id</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Hardware fault pin/comparator ID. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>enable</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>true to enable hardware trip interlock. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/port/syn_port_hrpwm.h" line="64" column="12" declfile="src/syntropic/port/syn_port_hrpwm.h" declline="64" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__port__hrpwm_8h_1ac641f984d290657a86298cbcb2f4cc7e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_port_hrpwm_enable</definition>
+        <argsstring>(uint8_t channel, bool enable)</argsstring>
+        <name>syn_port_hrpwm_enable</name>
+        <param>
+          <type>uint8_t</type>
+          <declname>channel</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+          <declname>enable</declname>
+        </param>
+        <briefdescription>
+<para>Enable or disable HRPWM complementary outputs. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>channel</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Platform-specific HRPWM channel index. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>enable</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>true to enable complementary gate drivers, false to disable. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/port/syn_port_hrpwm.h" line="72" column="12" declfile="src/syntropic/port/syn_port_hrpwm.h" declline="72" declcolumn="12"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Platform Port Interface for High-Resolution PWM &amp; Power Driver. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Defines low-level target hardware binding for sub-nanosecond edge placement, complementary gate output pairs with dead-time insertion, phase shifting, and zero-latency hardware fault trip interlocks. </para>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_PORT_HRPWM_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_PORT_HRPWM_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../common/syn_defs.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../util/syn_qmath.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight></codeline>
+<codeline lineno="30" refid="syn__port__hrpwm_8h_1ad7b0be85e1297f0658384fdc98b8817c" refkind="member"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__port__hrpwm_8h_1ad7b0be85e1297f0658384fdc98b8817c" kindref="member">syn_port_hrpwm_init</ref>(uint8_t<sp/>channel,<sp/>uint32_t<sp/>freq_hz);</highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight></codeline>
+<codeline lineno="38" refid="syn__port__hrpwm_8h_1aa16c0c2de7d653872c7ebac8dc0eea53" refkind="member"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__port__hrpwm_8h_1aa16c0c2de7d653872c7ebac8dc0eea53" kindref="member">syn_port_hrpwm_set_duty_q16</ref>(uint8_t<sp/>channel,<sp/>int32_t<sp/>duty_q16);</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight></codeline>
+<codeline lineno="47" refid="syn__port__hrpwm_8h_1a65579172a4dd951caace1d4f2a1af2eb" refkind="member"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__port__hrpwm_8h_1a65579172a4dd951caace1d4f2a1af2eb" kindref="member">syn_port_hrpwm_set_deadtime_ns</ref>(uint8_t<sp/>channel,<sp/>uint16_t<sp/>rise_ns,<sp/>uint16_t<sp/>fall_ns);</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"></highlight></codeline>
+<codeline lineno="55" refid="syn__port__hrpwm_8h_1a0c58a7d6da5cecd9e1dc7ab8b3fba3d9" refkind="member"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__port__hrpwm_8h_1a0c58a7d6da5cecd9e1dc7ab8b3fba3d9" kindref="member">syn_port_hrpwm_set_phase_deg</ref>(uint8_t<sp/>channel,<sp/>uint16_t<sp/>phase_deg);</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"></highlight></codeline>
+<codeline lineno="64" refid="syn__port__hrpwm_8h_1ad40a074655cbd7126690b9ba582d090a" refkind="member"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__port__hrpwm_8h_1ad40a074655cbd7126690b9ba582d090a" kindref="member">syn_port_hrpwm_enable_fault</ref>(uint8_t<sp/>channel,<sp/>uint8_t<sp/>fault_id,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>enable);</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"></highlight></codeline>
+<codeline lineno="72" refid="syn__port__hrpwm_8h_1ac641f984d290657a86298cbcb2f4cc7e" refkind="member"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__port__hrpwm_8h_1ac641f984d290657a86298cbcb2f4cc7e" kindref="member">syn_port_hrpwm_enable</ref>(uint8_t<sp/>channel,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>enable);</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"></highlight></codeline>
+<codeline lineno="74"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="75"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="77"><highlight class="normal"></highlight></codeline>
+<codeline lineno="78"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_PORT_HRPWM_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/port/syn_port_hrpwm.h"/>
+  </compounddef>
+</doxygen>

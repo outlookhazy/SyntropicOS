@@ -1,0 +1,402 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__goertzel_8c" kind="file" language="C++">
+    <compoundname>syn_goertzel.c</compoundname>
+    <includes refid="syn__goertzel_8h" local="yes">syn_goertzel.h</includes>
+    <includes refid="syn__qmath_8h" local="yes">../util/syn_qmath.h</includes>
+    <includes local="no">string.h</includes>
+    <incdepgraph>
+      <node id="3">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/dsp/syn_goertzel.c</label>
+        <link refid="syn__goertzel_8c"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>syn_goertzel.h</label>
+        <link refid="syn__goertzel_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>../util/syn_qmath.h</label>
+        <link refid="syn__qmath_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>stdbool.h</label>
+      </node>
+      <node id="4">
+        <label>stddef.h</label>
+      </node>
+      <node id="5">
+        <label>stdint.h</label>
+      </node>
+      <node id="8">
+        <label>string.h</label>
+      </node>
+    </incdepgraph>
+    <sectiondef kind="define">
+      <memberdef kind="define" id="syn__goertzel_8c_1a29e7a86b0c0348dfee5d593cec2856d8" prot="public" static="no">
+        <name>Q14_ONE</name>
+        <initializer>16384L</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Q14 fixed-point unity multiplier (2^14 = 16384) </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/dsp/syn_goertzel.c" line="13" column="9" bodyfile="src/syntropic/dsp/syn_goertzel.c" bodystart="13" bodyend="-1"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__goertzel_8c_1a57cb319b0e01fec101f1f0091045e786" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_goertzel_init</definition>
+        <argsstring>(SYN_Goertzel *g, uint32_t sample_rate_hz, uint32_t target_freq_hz, size_t block_size)</argsstring>
+        <name>syn_goertzel_init</name>
+        <param>
+          <type><ref refid="structSYN__Goertzel" kindref="compound">SYN_Goertzel</ref> *</type>
+          <declname>g</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>sample_rate_hz</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>target_freq_hz</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>block_size</declname>
+        </param>
+        <briefdescription>
+<para>Initialize a Goertzel Filter instance. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>g</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to Goertzel instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>sample_rate_hz</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Sampling frequency in Hz (e.g. 8000). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>target_freq_hz</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Target tone frequency in Hz (e.g. 697 for DTMF row 1). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>block_size</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Sample block size N (e.g. 205). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, or SYN_INVALID_PARAM. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/dsp/syn_goertzel.c" line="15" column="12" bodyfile="src/syntropic/dsp/syn_goertzel.c" bodystart="15" bodyend="40"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__goertzel_8c_1af2897c613dbcbae63186834e82bf5843" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_goertzel_reset</definition>
+        <argsstring>(SYN_Goertzel *g)</argsstring>
+        <name>syn_goertzel_reset</name>
+        <param>
+          <type><ref refid="structSYN__Goertzel" kindref="compound">SYN_Goertzel</ref> *</type>
+          <declname>g</declname>
+        </param>
+        <briefdescription>
+<para>Reset Goertzel filter delay accumulators for a new sample block. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>g</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to Goertzel instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, or SYN_INVALID_PARAM. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/dsp/syn_goertzel.c" line="42" column="12" bodyfile="src/syntropic/dsp/syn_goertzel.c" bodystart="42" bodyend="53"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__goertzel_8c_1ad0190e45d28fcd8aa910e53848d19b8a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_goertzel_process_sample</definition>
+        <argsstring>(SYN_Goertzel *g, int16_t sample)</argsstring>
+        <name>syn_goertzel_process_sample</name>
+        <param>
+          <type><ref refid="structSYN__Goertzel" kindref="compound">SYN_Goertzel</ref> *</type>
+          <declname>g</declname>
+        </param>
+        <param>
+          <type>int16_t</type>
+          <declname>sample</declname>
+        </param>
+        <briefdescription>
+<para>Process a single 16-bit PCM sample through the Goertzel filter. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>g</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to Goertzel instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>sample</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>16-bit signed PCM input sample. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, or SYN_INVALID_PARAM. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/dsp/syn_goertzel.c" line="55" column="12" bodyfile="src/syntropic/dsp/syn_goertzel.c" bodystart="55" bodyend="67"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__goertzel_8c_1a614d590baeca319dba66b774c9492d17" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>size_t</type>
+        <definition>size_t syn_goertzel_process_block</definition>
+        <argsstring>(SYN_Goertzel *g, const int16_t *samples, size_t count)</argsstring>
+        <name>syn_goertzel_process_block</name>
+        <param>
+          <type><ref refid="structSYN__Goertzel" kindref="compound">SYN_Goertzel</ref> *</type>
+          <declname>g</declname>
+        </param>
+        <param>
+          <type>const int16_t *</type>
+          <declname>samples</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>count</declname>
+        </param>
+        <briefdescription>
+<para>Process a buffer of 16-bit PCM samples through the Goertzel filter. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>g</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to Goertzel instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>samples</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Array of 16-bit signed PCM input samples. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>count</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Sample count in array. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Number of samples actually processed. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/dsp/syn_goertzel.c" line="69" column="8" bodyfile="src/syntropic/dsp/syn_goertzel.c" bodystart="69" bodyend="83"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__goertzel_8c_1af84fdbdd360ba9de4fa2172e8bb9fdf1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint64_t</type>
+        <definition>uint64_t syn_goertzel_get_magnitude_sq</definition>
+        <argsstring>(const SYN_Goertzel *g)</argsstring>
+        <name>syn_goertzel_get_magnitude_sq</name>
+        <param>
+          <type>const <ref refid="structSYN__Goertzel" kindref="compound">SYN_Goertzel</ref> *</type>
+          <declname>g</declname>
+        </param>
+        <briefdescription>
+<para>Calculate the squared magnitude |X(k)|^2 at the end of a sample block. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>g</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to Goertzel instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>64-bit squared magnitude value |X(k)|^2 (or 0 if invalid). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/dsp/syn_goertzel.c" line="85" column="10" bodyfile="src/syntropic/dsp/syn_goertzel.c" bodystart="85" bodyend="101"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Implementation of Integer-Only Goertzel Algorithm. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__goertzel_8h" kindref="compound">syn_goertzel.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../util/syn_qmath.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;string.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>Q14_ONE<sp/>16384L<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__goertzel_8c_1a57cb319b0e01fec101f1f0091045e786" kindref="member">syn_goertzel_init</ref>(<ref refid="structSYN__Goertzel" kindref="compound">SYN_Goertzel</ref><sp/>*g,<sp/>uint32_t<sp/>sample_rate_hz,<sp/>uint32_t<sp/>target_freq_hz,</highlight></codeline>
+<codeline lineno="16"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>block_size)</highlight></codeline>
+<codeline lineno="17"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="18"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>((g<sp/>==<sp/>NULL)<sp/>||<sp/>(sample_rate_hz<sp/>==<sp/>0U)<sp/>||<sp/>(target_freq_hz<sp/>==<sp/>0U)<sp/>||<sp/>(block_size<sp/>==<sp/>0U)<sp/>||</highlight></codeline>
+<codeline lineno="19"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(target_freq_hz<sp/>&gt;=<sp/>sample_rate_hz<sp/>/<sp/>2U))<sp/>{</highlight></codeline>
+<codeline lineno="20"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="21"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"><sp/><sp/><sp/><sp/>memset(g,<sp/>0,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(<ref refid="structSYN__Goertzel" kindref="compound">SYN_Goertzel</ref>));</highlight></codeline>
+<codeline lineno="24"><highlight class="normal"><sp/><sp/><sp/><sp/>g-&gt;<ref refid="structSYN__Goertzel_1af48b3a0b16fc19a2c2d076d0e470ef86" kindref="member">n_total</ref><sp/>=<sp/>block_size;</highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Calculate<sp/>bin<sp/>index<sp/>k<sp/>=<sp/>round(N<sp/>*<sp/>f_target<sp/>/<sp/>f_s)<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/>k<sp/>=<sp/>(uint32_t)(((uint64_t)block_size<sp/>*<sp/>target_freq_hz<sp/>+<sp/>(sample_rate_hz<sp/>/<sp/>2U))<sp/>/</highlight></codeline>
+<codeline lineno="28"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>sample_rate_hz);</highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Angle<sp/>omega<sp/>=<sp/>2<sp/>*<sp/>pi<sp/>*<sp/>k<sp/>/<sp/>N<sp/>in<sp/>Q16<sp/>format<sp/>(2<sp/>*<sp/>pi<sp/>=<sp/>411775<sp/>Q16)<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="31"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>omega<sp/>=<sp/>(<ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref>)(((uint64_t)411775U<sp/>*<sp/>k)<sp/>/<sp/>block_size);</highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Cosine<sp/>in<sp/>Q16<sp/>format<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>cos_val<sp/>=<sp/><ref refid="syn__qmath_8c_1a74949e55423f04de44c2e5a583b6bb9f" kindref="member">q16_cos</ref>(omega);</highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Goertzel<sp/>coeff<sp/>=<sp/>2<sp/>*<sp/>cos(omega)<sp/>in<sp/>Q14<sp/>format<sp/>(16384<sp/>=<sp/>1.0)<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"><sp/><sp/><sp/><sp/>g-&gt;<ref refid="structSYN__Goertzel_1af4ac4c31149030167d708a97a93524c6" kindref="member">coeff_q15</ref><sp/>=<sp/>(int32_t)(cos_val<sp/>&gt;&gt;<sp/>1);</highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="40"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__goertzel_8c_1af2897c613dbcbae63186834e82bf5843" kindref="member">syn_goertzel_reset</ref>(<ref refid="structSYN__Goertzel" kindref="compound">SYN_Goertzel</ref><sp/>*g)</highlight></codeline>
+<codeline lineno="43"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(g<sp/>==<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"></highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/><sp/><sp/>g-&gt;<ref refid="structSYN__Goertzel_1ae47be139e00efdf64504593a15b49541" kindref="member">s1</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/><sp/><sp/>g-&gt;<ref refid="structSYN__Goertzel_1a87a527ce1a64f5685552b609ee510233" kindref="member">s2</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/><sp/><sp/>g-&gt;<ref refid="structSYN__Goertzel_1ac41bf7204a58b33dbe0dee32db3f3afd" kindref="member">n_count</ref><sp/>=<sp/>0U;</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"></highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="53"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"></highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__goertzel_8c_1ad0190e45d28fcd8aa910e53848d19b8a" kindref="member">syn_goertzel_process_sample</ref>(<ref refid="structSYN__Goertzel" kindref="compound">SYN_Goertzel</ref><sp/>*g,<sp/>int16_t<sp/>sample)</highlight></codeline>
+<codeline lineno="56"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(g<sp/>==<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"></highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/><sp/><sp/>int32_t<sp/>s0<sp/>=<sp/>(int32_t)sample<sp/>+<sp/>(((int64_t)g-&gt;<ref refid="structSYN__Goertzel_1af4ac4c31149030167d708a97a93524c6" kindref="member">coeff_q15</ref><sp/>*<sp/>g-&gt;<ref refid="structSYN__Goertzel_1ae47be139e00efdf64504593a15b49541" kindref="member">s1</ref>)<sp/>&gt;&gt;<sp/>14)<sp/>-<sp/>g-&gt;<ref refid="structSYN__Goertzel_1a87a527ce1a64f5685552b609ee510233" kindref="member">s2</ref>;</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"><sp/><sp/><sp/><sp/>g-&gt;<ref refid="structSYN__Goertzel_1a87a527ce1a64f5685552b609ee510233" kindref="member">s2</ref><sp/>=<sp/>g-&gt;<ref refid="structSYN__Goertzel_1ae47be139e00efdf64504593a15b49541" kindref="member">s1</ref>;</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"><sp/><sp/><sp/><sp/>g-&gt;<ref refid="structSYN__Goertzel_1ae47be139e00efdf64504593a15b49541" kindref="member">s1</ref><sp/>=<sp/>s0;</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/><sp/><sp/>g-&gt;<ref refid="structSYN__Goertzel_1ac41bf7204a58b33dbe0dee32db3f3afd" kindref="member">n_count</ref>++;</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"></highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="67"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"></highlight></codeline>
+<codeline lineno="69"><highlight class="normal"></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="syn__goertzel_8c_1a614d590baeca319dba66b774c9492d17" kindref="member">syn_goertzel_process_block</ref>(<ref refid="structSYN__Goertzel" kindref="compound">SYN_Goertzel</ref><sp/>*g,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>int16_t<sp/>*samples,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>count)</highlight></codeline>
+<codeline lineno="70"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>((g<sp/>==<sp/>NULL)<sp/>||<sp/>(samples<sp/>==<sp/>NULL)<sp/>||<sp/>(count<sp/>==<sp/>0U))<sp/>{</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0U;</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"></highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>processed<sp/>=<sp/>0U;</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>i<sp/>=<sp/>0U;<sp/>i<sp/>&lt;<sp/>count;<sp/>i++)<sp/>{</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="syn__goertzel_8c_1ad0190e45d28fcd8aa910e53848d19b8a" kindref="member">syn_goertzel_process_sample</ref>(g,<sp/>samples[i])<sp/>==<sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>processed++;</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"></highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>processed;</highlight></codeline>
+<codeline lineno="83"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"></highlight></codeline>
+<codeline lineno="85"><highlight class="normal">uint64_t<sp/><ref refid="syn__goertzel_8c_1af84fdbdd360ba9de4fa2172e8bb9fdf1" kindref="member">syn_goertzel_get_magnitude_sq</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__Goertzel" kindref="compound">SYN_Goertzel</ref><sp/>*g)</highlight></codeline>
+<codeline lineno="86"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(g<sp/>==<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0ULL;</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"></highlight></codeline>
+<codeline lineno="91"><highlight class="normal"><sp/><sp/><sp/><sp/>int64_t<sp/>s1<sp/>=<sp/>g-&gt;<ref refid="structSYN__Goertzel_1ae47be139e00efdf64504593a15b49541" kindref="member">s1</ref>;</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/><sp/><sp/>int64_t<sp/>s2<sp/>=<sp/>g-&gt;<ref refid="structSYN__Goertzel_1a87a527ce1a64f5685552b609ee510233" kindref="member">s2</ref>;</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><sp/><sp/><sp/><sp/>int64_t<sp/>prod<sp/>=<sp/>((int64_t)g-&gt;<ref refid="structSYN__Goertzel_1af4ac4c31149030167d708a97a93524c6" kindref="member">coeff_q15</ref><sp/>*<sp/>s1<sp/>*<sp/>s2)<sp/>&gt;&gt;<sp/>14;</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"></highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/>int64_t<sp/>mag_sq<sp/>=<sp/>(s1<sp/>*<sp/>s1)<sp/>+<sp/>(s2<sp/>*<sp/>s2)<sp/>-<sp/>prod;</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(mag_sq<sp/>&lt;<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>mag_sq<sp/>=<sp/>0;<sp/></highlight><highlight class="comment">/*<sp/>LCOV_EXCL_LINE:<sp/>Defensive<sp/>guard<sp/>for<sp/>fixed-point<sp/>rounding<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="98"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"></highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(uint64_t)mag_sq;</highlight></codeline>
+<codeline lineno="101"><highlight class="normal">}</highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/dsp/syn_goertzel.c"/>
+  </compounddef>
+</doxygen>

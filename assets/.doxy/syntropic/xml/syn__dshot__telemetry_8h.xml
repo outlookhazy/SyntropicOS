@@ -1,0 +1,226 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__dshot__telemetry_8h" kind="file" language="C++">
+    <compoundname>syn_dshot_telemetry.h</compoundname>
+    <includes refid="syn__defs_8h" local="yes">syntropic/common/syn_defs.h</includes>
+    <includes local="no">stdbool.h</includes>
+    <includes local="no">stddef.h</includes>
+    <includes local="no">stdint.h</includes>
+    <includedby refid="syn__dshot__telemetry_8c" local="yes">src/syntropic/output/syn_dshot_telemetry.c</includedby>
+    <includedby refid="syntropic_8h" local="yes">src/syntropic/syntropic.h</includedby>
+    <incdepgraph>
+      <node id="2">
+        <label>syntropic/common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/output/syn_dshot_telemetry.h</label>
+        <link refid="syn__dshot__telemetry_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>stdbool.h</label>
+      </node>
+      <node id="3">
+        <label>stddef.h</label>
+      </node>
+      <node id="4">
+        <label>stdint.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="2">
+        <label>src/syntropic/output/syn_dshot_telemetry.c</label>
+        <link refid="syn__dshot__telemetry_8c"/>
+      </node>
+      <node id="1">
+        <label>src/syntropic/output/syn_dshot_telemetry.h</label>
+        <link refid="syn__dshot__telemetry_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>src/syntropic/proto/syn_doip.c</label>
+        <link refid="syn__doip_8c"/>
+      </node>
+      <node id="4">
+        <label>src/syntropic/proto/syn_doip.h</label>
+        <link refid="syn__doip_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>src/syntropic/syntropic.h</label>
+        <link refid="syntropic_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="structSYN__DShot__Telemetry" prot="public">SYN_DShot_Telemetry</innerclass>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__dshot__telemetry_8h_1ab2b9cce23dd3ff7853b6b144e5a298bf" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_dshot_decode_gcr_20bit</definition>
+        <argsstring>(uint32_t gcr_20bit, uint16_t *payload_out)</argsstring>
+        <name>syn_dshot_decode_gcr_20bit</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>gcr_20bit</declname>
+        </param>
+        <param>
+          <type>uint16_t *</type>
+          <declname>payload_out</declname>
+        </param>
+        <briefdescription>
+<para>Decode 20-bit raw GCR bitstream into 16-bit BDShot telemetry payload. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>gcr_20bit</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>20-bit raw GCR frame. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>payload_out</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to receive 16-bit decoded payload (<computeroutput>[15:4] period</computeroutput>, <computeroutput>[3:0] crc</computeroutput>). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on valid GCR decode, SYN_ERROR if invalid GCR symbol found. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/output/syn_dshot_telemetry.h" line="44" column="12" bodyfile="src/syntropic/output/syn_dshot_telemetry.c" bodystart="15" bodyend="38" declfile="src/syntropic/output/syn_dshot_telemetry.h" declline="44" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__dshot__telemetry_8h_1a56a0f730906798e3ec55264b062db0a2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_dshot_parse_telemetry</definition>
+        <argsstring>(uint32_t gcr_20bit, uint8_t pole_pairs, SYN_DShot_Telemetry *telemetry)</argsstring>
+        <name>syn_dshot_parse_telemetry</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>gcr_20bit</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>pole_pairs</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__DShot__Telemetry" kindref="compound">SYN_DShot_Telemetry</ref> *</type>
+          <declname>telemetry</declname>
+        </param>
+        <briefdescription>
+<para>Decode complete 20-bit BDShot GCR packet into telemetry measurements. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>gcr_20bit</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>20-bit raw GCR frame. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>pole_pairs</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Motor pole pairs (e.g., 14 poles = 7 pole pairs). Default 7 if 0. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>telemetry</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to output telemetry structure. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on valid decode and CRC, SYN_ERROR on bad GCR/CRC. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/output/syn_dshot_telemetry.h" line="54" column="12" bodyfile="src/syntropic/output/syn_dshot_telemetry.c" bodystart="40" bodyend="81" declfile="src/syntropic/output/syn_dshot_telemetry.h" declline="54" declcolumn="12"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Zero-Heap Bidirectional DShot (BDShot) Telemetry Decoder. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>BDShot Specifications:<itemizedlist>
+<listitem><para>ESC returns a 20-bit GCR (Group Code Recording 5b/4b) encoded packet on the DShot line.</para>
+</listitem><listitem><para>20 GCR bits -&gt; 16 decoded data bits:<itemizedlist>
+<listitem><para>Bits [15:4]: 12-bit eRPM period value (mantissa &amp; exponent format).</para>
+</listitem><listitem><para>Bits [3:0]: 4-bit CRC (computed via <computeroutput>(payload ^ (payload &gt;&gt; 4) ^ (payload &gt;&gt; 8)) &amp; 0x0F</computeroutput>).</para>
+</listitem></itemizedlist>
+</para>
+</listitem><listitem><para>eRPM Calculation:<itemizedlist>
+<listitem><para><computeroutput>period_us = (mantissa &lt;&lt; exponent)</computeroutput></para>
+</listitem><listitem><para><computeroutput>eRPM = 60,000,000 / period_us</computeroutput></para>
+</listitem><listitem><para><computeroutput>RPM = eRPM / (pole_pairs / 2)</computeroutput> </para>
+</listitem></itemizedlist>
+</para>
+</listitem></itemizedlist>
+</para>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_DSHOT_TELEMETRY_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_DSHOT_TELEMETRY_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__defs_8h" kindref="compound">syntropic/common/syn_defs.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stddef.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight></codeline>
+<codeline lineno="30" refid="structSYN__DShot__Telemetry" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="31" refid="structSYN__DShot__Telemetry_1a7132f633e51ac839f0170964396a1284" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structSYN__DShot__Telemetry_1a7132f633e51ac839f0170964396a1284" kindref="member">period_us</ref>;<sp/></highlight></codeline>
+<codeline lineno="32" refid="structSYN__DShot__Telemetry_1ad6d4e06c61b569743143e4c27754a3f9" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structSYN__DShot__Telemetry_1ad6d4e06c61b569743143e4c27754a3f9" kindref="member">erpm</ref>;<sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="33" refid="structSYN__DShot__Telemetry_1a81b43473223a6b84257c443765233844" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structSYN__DShot__Telemetry_1a81b43473223a6b84257c443765233844" kindref="member">rpm</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="34" refid="structSYN__DShot__Telemetry_1a5ab623778622009d20fb93555b082035" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="structSYN__DShot__Telemetry_1a5ab623778622009d20fb93555b082035" kindref="member">valid</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="35"><highlight class="normal">}<sp/><ref refid="structSYN__DShot__Telemetry" kindref="compound">SYN_DShot_Telemetry</ref>;</highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__dshot__telemetry_8h_1ab2b9cce23dd3ff7853b6b144e5a298bf" kindref="member">syn_dshot_decode_gcr_20bit</ref>(uint32_t<sp/>gcr_20bit,<sp/>uint16_t<sp/>*payload_out);</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__dshot__telemetry_8h_1a56a0f730906798e3ec55264b062db0a2" kindref="member">syn_dshot_parse_telemetry</ref>(uint32_t<sp/>gcr_20bit,<sp/>uint8_t<sp/>pole_pairs,</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__DShot__Telemetry" kindref="compound">SYN_DShot_Telemetry</ref><sp/>*telemetry);</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"></highlight></codeline>
+<codeline lineno="57"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="58"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="60"><highlight class="normal"></highlight></codeline>
+<codeline lineno="61"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_DSHOT_TELEMETRY_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/output/syn_dshot_telemetry.h"/>
+  </compounddef>
+</doxygen>

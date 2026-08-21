@@ -1,0 +1,669 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__p256_8h" kind="file" language="C++">
+    <compoundname>syn_p256.h</compoundname>
+    <includes refid="syn__defs_8h" local="yes">../common/syn_defs.h</includes>
+    <includes local="no">stdbool.h</includes>
+    <includes local="no">stddef.h</includes>
+    <includes local="no">stdint.h</includes>
+    <includedby refid="syn__p256_8c" local="yes">src/syntropic/crypto/syn_p256.c</includedby>
+    <includedby refid="syn__x509_8c" local="yes">src/syntropic/crypto/syn_x509.c</includedby>
+    <includedby refid="syn__dtls_8c" local="yes">src/syntropic/net/syn_dtls.c</includedby>
+    <includedby refid="syn__cose_8h" local="yes">src/syntropic/proto/syn_cose.h</includedby>
+    <incdepgraph>
+      <node id="2">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/crypto/syn_p256.h</label>
+        <link refid="syn__p256_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>stdbool.h</label>
+      </node>
+      <node id="3">
+        <label>stddef.h</label>
+      </node>
+      <node id="4">
+        <label>stdint.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="2">
+        <label>src/syntropic/crypto/syn_p256.c</label>
+        <link refid="syn__p256_8c"/>
+      </node>
+      <node id="1">
+        <label>src/syntropic/crypto/syn_p256.h</label>
+        <link refid="syn__p256_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>src/syntropic/crypto/syn_x509.c</label>
+        <link refid="syn__x509_8c"/>
+      </node>
+      <node id="4">
+        <label>src/syntropic/net/syn_dtls.c</label>
+        <link refid="syn__dtls_8c"/>
+      </node>
+      <node id="6">
+        <label>src/syntropic/proto/syn_cose.c</label>
+        <link refid="syn__cose_8c"/>
+      </node>
+      <node id="5">
+        <label>src/syntropic/proto/syn_cose.h</label>
+        <link refid="syn__cose_8h"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="9">
+        <label>src/syntropic/proto/syn_doip.c</label>
+        <link refid="syn__doip_8c"/>
+      </node>
+      <node id="8">
+        <label>src/syntropic/proto/syn_doip.h</label>
+        <link refid="syn__doip_8h"/>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>src/syntropic/syntropic.h</label>
+        <link refid="syntropic_8h"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <sectiondef kind="define">
+      <memberdef kind="define" id="syn__p256_8h_1ac49aab6e3c49c7677df0921491cb3a99" prot="public" static="no">
+        <name>SYN_P256_BYTE_LEN</name>
+        <initializer>32U</initializer>
+        <briefdescription>
+<para>NIST P-256 coordinate / scalar byte size (32 bytes). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/crypto/syn_p256.h" line="24" column="9" bodyfile="src/syntropic/crypto/syn_p256.h" bodystart="24" bodyend="-1"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__p256_8h_1ac306c864e80a62d3415a063b21838da7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_p256_base_mul</definition>
+        <argsstring>(const uint8_t scalar[SYN_P256_BYTE_LEN], uint8_t pub_x[SYN_P256_BYTE_LEN], uint8_t pub_y[SYN_P256_BYTE_LEN])</argsstring>
+        <name>syn_p256_base_mul</name>
+        <param>
+          <type>const uint8_t</type>
+          <declname>scalar</declname>
+          <array>[SYN_P256_BYTE_LEN]</array>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>pub_x</declname>
+          <array>[SYN_P256_BYTE_LEN]</array>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>pub_y</declname>
+          <array>[SYN_P256_BYTE_LEN]</array>
+        </param>
+        <briefdescription>
+<para>Multiply the P-256 base generator G by a 32-byte scalar. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Computes Q = scalar * G.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>scalar</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>32-byte scalar in big-endian format. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>pub_x</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>[out] 32-byte X-coordinate of resulting point. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>pub_y</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>[out] 32-byte Y-coordinate of resulting point. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true on success, false if scalar is 0 or &gt;= curve order. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/crypto/syn_p256.h" line="36" column="6" bodyfile="src/syntropic/crypto/syn_p256.c" bodystart="758" bodyend="781" declfile="src/syntropic/crypto/syn_p256.h" declline="36" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__p256_8h_1a82e6d32d905c348ee687f2e57fa96720" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_p256_point_mul</definition>
+        <argsstring>(const uint8_t scalar[SYN_P256_BYTE_LEN], const uint8_t px[SYN_P256_BYTE_LEN], const uint8_t py[SYN_P256_BYTE_LEN], uint8_t rx[SYN_P256_BYTE_LEN], uint8_t ry[SYN_P256_BYTE_LEN])</argsstring>
+        <name>syn_p256_point_mul</name>
+        <param>
+          <type>const uint8_t</type>
+          <declname>scalar</declname>
+          <array>[SYN_P256_BYTE_LEN]</array>
+        </param>
+        <param>
+          <type>const uint8_t</type>
+          <declname>px</declname>
+          <array>[SYN_P256_BYTE_LEN]</array>
+        </param>
+        <param>
+          <type>const uint8_t</type>
+          <declname>py</declname>
+          <array>[SYN_P256_BYTE_LEN]</array>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>rx</declname>
+          <array>[SYN_P256_BYTE_LEN]</array>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>ry</declname>
+          <array>[SYN_P256_BYTE_LEN]</array>
+        </param>
+        <briefdescription>
+<para>Multiply an arbitrary P-256 point by a 32-byte scalar. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Computes R = scalar * P.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>scalar</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>32-byte scalar in big-endian format. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>px</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>32-byte X-coordinate of input point P. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>py</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>32-byte Y-coordinate of input point P. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>rx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>[out] 32-byte X-coordinate of resulting point R. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>ry</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>[out] 32-byte Y-coordinate of resulting point R. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true on success, false if point is invalid or scalar out of range. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/crypto/syn_p256.h" line="51" column="6" bodyfile="src/syntropic/crypto/syn_p256.c" bodystart="783" bodyend="815" declfile="src/syntropic/crypto/syn_p256.h" declline="51" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__p256_8h_1ac75f95ca362910a3dbab33f97c4646cc" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_p256_ecdh</definition>
+        <argsstring>(const uint8_t priv_key[SYN_P256_BYTE_LEN], const uint8_t peer_pub_x[SYN_P256_BYTE_LEN], const uint8_t peer_pub_y[SYN_P256_BYTE_LEN], uint8_t shared_secret[SYN_P256_BYTE_LEN])</argsstring>
+        <name>syn_p256_ecdh</name>
+        <param>
+          <type>const uint8_t</type>
+          <declname>priv_key</declname>
+          <array>[SYN_P256_BYTE_LEN]</array>
+        </param>
+        <param>
+          <type>const uint8_t</type>
+          <declname>peer_pub_x</declname>
+          <array>[SYN_P256_BYTE_LEN]</array>
+        </param>
+        <param>
+          <type>const uint8_t</type>
+          <declname>peer_pub_y</declname>
+          <array>[SYN_P256_BYTE_LEN]</array>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>shared_secret</declname>
+          <array>[SYN_P256_BYTE_LEN]</array>
+        </param>
+        <briefdescription>
+<para>Perform ECDH Key Agreement. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Computes shared_secret = priv_key * peer_pub_point.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>priv_key</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>32-byte private key scalar. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>peer_pub_x</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>32-byte X-coordinate of peer&apos;s public key. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>peer_pub_y</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>32-byte Y-coordinate of peer&apos;s public key. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>shared_secret</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>[out] 32-byte shared secret (X-coordinate of product point). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true on success, false on invalid point or scalar. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/crypto/syn_p256.h" line="66" column="6" bodyfile="src/syntropic/crypto/syn_p256.c" bodystart="817" bodyend="824" declfile="src/syntropic/crypto/syn_p256.h" declline="66" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__p256_8h_1a500789ac288b4bfb3b47b417d8bb817a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_p256_sign_ecdsa</definition>
+        <argsstring>(const uint8_t priv_key[SYN_P256_BYTE_LEN], const uint8_t nonce_k[SYN_P256_BYTE_LEN], const uint8_t hash[SYN_P256_BYTE_LEN], uint8_t r_out[SYN_P256_BYTE_LEN], uint8_t s_out[SYN_P256_BYTE_LEN])</argsstring>
+        <name>syn_p256_sign_ecdsa</name>
+        <param>
+          <type>const uint8_t</type>
+          <declname>priv_key</declname>
+          <array>[SYN_P256_BYTE_LEN]</array>
+        </param>
+        <param>
+          <type>const uint8_t</type>
+          <declname>nonce_k</declname>
+          <array>[SYN_P256_BYTE_LEN]</array>
+        </param>
+        <param>
+          <type>const uint8_t</type>
+          <declname>hash</declname>
+          <array>[SYN_P256_BYTE_LEN]</array>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>r_out</declname>
+          <array>[SYN_P256_BYTE_LEN]</array>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>s_out</declname>
+          <array>[SYN_P256_BYTE_LEN]</array>
+        </param>
+        <briefdescription>
+<para>Generate a NIST P-256 ECDSA signature (FIPS 186-4). </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Computes signature (r, s) for a given message hash using a private key and nonce k.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>priv_key</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>32-byte private key scalar. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>nonce_k</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>32-byte ephemeral private nonce k (must be in [1, n-1]). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>hash</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>32-byte message hash (typically SHA-256). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>r_out</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>[out] 32-byte signature component r. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>s_out</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>[out] 32-byte signature component s. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true on success, false on invalid parameters. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/crypto/syn_p256.h" line="83" column="6" bodyfile="src/syntropic/crypto/syn_p256.c" bodystart="826" bodyend="871" declfile="src/syntropic/crypto/syn_p256.h" declline="83" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__p256_8h_1a7da32f24cab2cc45e3e1946c968c174c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_p256_sign_ecdsa_deterministic</definition>
+        <argsstring>(const uint8_t priv_key[SYN_P256_BYTE_LEN], const uint8_t hash[SYN_P256_BYTE_LEN], uint8_t r_out[SYN_P256_BYTE_LEN], uint8_t s_out[SYN_P256_BYTE_LEN])</argsstring>
+        <name>syn_p256_sign_ecdsa_deterministic</name>
+        <param>
+          <type>const uint8_t</type>
+          <declname>priv_key</declname>
+          <array>[SYN_P256_BYTE_LEN]</array>
+        </param>
+        <param>
+          <type>const uint8_t</type>
+          <declname>hash</declname>
+          <array>[SYN_P256_BYTE_LEN]</array>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>r_out</declname>
+          <array>[SYN_P256_BYTE_LEN]</array>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>s_out</declname>
+          <array>[SYN_P256_BYTE_LEN]</array>
+        </param>
+        <briefdescription>
+<para>Generate a deterministic NIST P-256 ECDSA signature (RFC 6979 / FIPS 186-4). </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Derives the ephemeral nonce k deterministically using NIST SP 800-90A HMAC-DRBG (SHA-256) keyed with the private key and message hash.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>priv_key</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>32-byte private key scalar. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>hash</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>32-byte message hash (typically SHA-256). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>r_out</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>[out] 32-byte signature component r. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>s_out</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>[out] 32-byte signature component s. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true on success, false on invalid parameters. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/crypto/syn_p256.h" line="100" column="6" bodyfile="src/syntropic/crypto/syn_p256.c" bodystart="873" bodyend="911" declfile="src/syntropic/crypto/syn_p256.h" declline="100" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__p256_8h_1aea49722a2a2e1c5e8446c2cea7b3eeb6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_p256_verify_ecdsa</definition>
+        <argsstring>(const uint8_t hash[SYN_P256_BYTE_LEN], const uint8_t r[SYN_P256_BYTE_LEN], const uint8_t s[SYN_P256_BYTE_LEN], const uint8_t pub_x[SYN_P256_BYTE_LEN], const uint8_t pub_y[SYN_P256_BYTE_LEN])</argsstring>
+        <name>syn_p256_verify_ecdsa</name>
+        <param>
+          <type>const uint8_t</type>
+          <declname>hash</declname>
+          <array>[SYN_P256_BYTE_LEN]</array>
+        </param>
+        <param>
+          <type>const uint8_t</type>
+          <declname>r</declname>
+          <array>[SYN_P256_BYTE_LEN]</array>
+        </param>
+        <param>
+          <type>const uint8_t</type>
+          <declname>s</declname>
+          <array>[SYN_P256_BYTE_LEN]</array>
+        </param>
+        <param>
+          <type>const uint8_t</type>
+          <declname>pub_x</declname>
+          <array>[SYN_P256_BYTE_LEN]</array>
+        </param>
+        <param>
+          <type>const uint8_t</type>
+          <declname>pub_y</declname>
+          <array>[SYN_P256_BYTE_LEN]</array>
+        </param>
+        <briefdescription>
+<para>Verify a NIST P-256 ECDSA signature (FIPS 186-4). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>hash</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>32-byte message hash (typically SHA-256). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>r</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>32-byte signature component r. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>s</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>32-byte signature component s. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>pub_x</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>32-byte public key X-coordinate. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>pub_y</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>32-byte public key Y-coordinate. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if signature is mathematically valid, false otherwise. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/crypto/syn_p256.h" line="115" column="6" bodyfile="src/syntropic/crypto/syn_p256.c" bodystart="913" bodyend="972" declfile="src/syntropic/crypto/syn_p256.h" declline="115" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__p256_8h_1a0fb4dddbf9f084f7031b6c7672a2f985" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_p256_is_on_curve</definition>
+        <argsstring>(const uint8_t px[SYN_P256_BYTE_LEN], const uint8_t py[SYN_P256_BYTE_LEN])</argsstring>
+        <name>syn_p256_is_on_curve</name>
+        <param>
+          <type>const uint8_t</type>
+          <declname>px</declname>
+          <array>[SYN_P256_BYTE_LEN]</array>
+        </param>
+        <param>
+          <type>const uint8_t</type>
+          <declname>py</declname>
+          <array>[SYN_P256_BYTE_LEN]</array>
+        </param>
+        <briefdescription>
+<para>Validate if a point (x, y) lies on the NIST P-256 curve: y^2 = x^3 - 3x + b (mod p). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>px</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>32-byte X-coordinate. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>py</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>32-byte Y-coordinate. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if point is on curve, false otherwise. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/crypto/syn_p256.h" line="127" column="6" bodyfile="src/syntropic/crypto/syn_p256.c" bodystart="726" bodyend="756" declfile="src/syntropic/crypto/syn_p256.h" declline="127" declcolumn="6"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>NIST P-256 (secp256r1 / prime256v1) Elliptic Curve Cryptography. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Provides zero-allocation, cleanroom NIST P-256 scalar multiplication, ECDH shared secret generation, and FIPS 186-4 ECDSA signature verification. </para>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_P256_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_P256_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../common/syn_defs.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stddef.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight></codeline>
+<codeline lineno="24" refid="syn__p256_8h_1ac49aab6e3c49c7677df0921491cb3a99" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_P256_BYTE_LEN<sp/>32U</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__p256_8h_1ac306c864e80a62d3415a063b21838da7" kindref="member">syn_p256_base_mul</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>scalar[<ref refid="syn__p256_8h_1ac49aab6e3c49c7677df0921491cb3a99" kindref="member">SYN_P256_BYTE_LEN</ref>],<sp/>uint8_t<sp/>pub_x[<ref refid="syn__p256_8h_1ac49aab6e3c49c7677df0921491cb3a99" kindref="member">SYN_P256_BYTE_LEN</ref>],</highlight></codeline>
+<codeline lineno="37"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>pub_y[<ref refid="syn__p256_8h_1ac49aab6e3c49c7677df0921491cb3a99" kindref="member">SYN_P256_BYTE_LEN</ref>]);</highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight></codeline>
+<codeline lineno="51"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__p256_8h_1a82e6d32d905c348ee687f2e57fa96720" kindref="member">syn_p256_point_mul</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>scalar[<ref refid="syn__p256_8h_1ac49aab6e3c49c7677df0921491cb3a99" kindref="member">SYN_P256_BYTE_LEN</ref>],</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>px[<ref refid="syn__p256_8h_1ac49aab6e3c49c7677df0921491cb3a99" kindref="member">SYN_P256_BYTE_LEN</ref>],<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>py[<ref refid="syn__p256_8h_1ac49aab6e3c49c7677df0921491cb3a99" kindref="member">SYN_P256_BYTE_LEN</ref>],</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>rx[<ref refid="syn__p256_8h_1ac49aab6e3c49c7677df0921491cb3a99" kindref="member">SYN_P256_BYTE_LEN</ref>],<sp/>uint8_t<sp/>ry[<ref refid="syn__p256_8h_1ac49aab6e3c49c7677df0921491cb3a99" kindref="member">SYN_P256_BYTE_LEN</ref>]);</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"></highlight></codeline>
+<codeline lineno="66"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__p256_8h_1ac75f95ca362910a3dbab33f97c4646cc" kindref="member">syn_p256_ecdh</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>priv_key[<ref refid="syn__p256_8h_1ac49aab6e3c49c7677df0921491cb3a99" kindref="member">SYN_P256_BYTE_LEN</ref>],</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>peer_pub_x[<ref refid="syn__p256_8h_1ac49aab6e3c49c7677df0921491cb3a99" kindref="member">SYN_P256_BYTE_LEN</ref>],</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>peer_pub_y[<ref refid="syn__p256_8h_1ac49aab6e3c49c7677df0921491cb3a99" kindref="member">SYN_P256_BYTE_LEN</ref>],</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>shared_secret[<ref refid="syn__p256_8h_1ac49aab6e3c49c7677df0921491cb3a99" kindref="member">SYN_P256_BYTE_LEN</ref>]);</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"></highlight></codeline>
+<codeline lineno="83"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__p256_8h_1a500789ac288b4bfb3b47b417d8bb817a" kindref="member">syn_p256_sign_ecdsa</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>priv_key[<ref refid="syn__p256_8h_1ac49aab6e3c49c7677df0921491cb3a99" kindref="member">SYN_P256_BYTE_LEN</ref>],</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>nonce_k[<ref refid="syn__p256_8h_1ac49aab6e3c49c7677df0921491cb3a99" kindref="member">SYN_P256_BYTE_LEN</ref>],</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>hash[<ref refid="syn__p256_8h_1ac49aab6e3c49c7677df0921491cb3a99" kindref="member">SYN_P256_BYTE_LEN</ref>],<sp/>uint8_t<sp/>r_out[<ref refid="syn__p256_8h_1ac49aab6e3c49c7677df0921491cb3a99" kindref="member">SYN_P256_BYTE_LEN</ref>],</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>s_out[<ref refid="syn__p256_8h_1ac49aab6e3c49c7677df0921491cb3a99" kindref="member">SYN_P256_BYTE_LEN</ref>]);</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"></highlight></codeline>
+<codeline lineno="100"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__p256_8h_1a7da32f24cab2cc45e3e1946c968c174c" kindref="member">syn_p256_sign_ecdsa_deterministic</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>priv_key[<ref refid="syn__p256_8h_1ac49aab6e3c49c7677df0921491cb3a99" kindref="member">SYN_P256_BYTE_LEN</ref>],</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>hash[<ref refid="syn__p256_8h_1ac49aab6e3c49c7677df0921491cb3a99" kindref="member">SYN_P256_BYTE_LEN</ref>],</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>r_out[<ref refid="syn__p256_8h_1ac49aab6e3c49c7677df0921491cb3a99" kindref="member">SYN_P256_BYTE_LEN</ref>],</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>s_out[<ref refid="syn__p256_8h_1ac49aab6e3c49c7677df0921491cb3a99" kindref="member">SYN_P256_BYTE_LEN</ref>]);</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"></highlight></codeline>
+<codeline lineno="115"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__p256_8h_1aea49722a2a2e1c5e8446c2cea7b3eeb6" kindref="member">syn_p256_verify_ecdsa</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>hash[<ref refid="syn__p256_8h_1ac49aab6e3c49c7677df0921491cb3a99" kindref="member">SYN_P256_BYTE_LEN</ref>],</highlight></codeline>
+<codeline lineno="116"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>r[<ref refid="syn__p256_8h_1ac49aab6e3c49c7677df0921491cb3a99" kindref="member">SYN_P256_BYTE_LEN</ref>],<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>s[<ref refid="syn__p256_8h_1ac49aab6e3c49c7677df0921491cb3a99" kindref="member">SYN_P256_BYTE_LEN</ref>],</highlight></codeline>
+<codeline lineno="117"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>pub_x[<ref refid="syn__p256_8h_1ac49aab6e3c49c7677df0921491cb3a99" kindref="member">SYN_P256_BYTE_LEN</ref>],</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>pub_y[<ref refid="syn__p256_8h_1ac49aab6e3c49c7677df0921491cb3a99" kindref="member">SYN_P256_BYTE_LEN</ref>]);</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"></highlight></codeline>
+<codeline lineno="127"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__p256_8h_1a0fb4dddbf9f084f7031b6c7672a2f985" kindref="member">syn_p256_is_on_curve</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>px[<ref refid="syn__p256_8h_1ac49aab6e3c49c7677df0921491cb3a99" kindref="member">SYN_P256_BYTE_LEN</ref>],<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>py[<ref refid="syn__p256_8h_1ac49aab6e3c49c7677df0921491cb3a99" kindref="member">SYN_P256_BYTE_LEN</ref>]);</highlight></codeline>
+<codeline lineno="128"><highlight class="normal"></highlight></codeline>
+<codeline lineno="129"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="130"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="131"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="132"><highlight class="normal"></highlight></codeline>
+<codeline lineno="133"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_P256_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/crypto/syn_p256.h"/>
+  </compounddef>
+</doxygen>

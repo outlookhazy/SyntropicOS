@@ -1,0 +1,784 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__bacnet_8c" kind="file" language="C++">
+    <compoundname>syn_bacnet.c</compoundname>
+    <includes refid="syn__bacnet_8h" local="yes">syn_bacnet.h</includes>
+    <includes local="no">string.h</includes>
+    <incdepgraph>
+      <node id="3">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/proto/syn_bacnet.c</label>
+        <link refid="syn__bacnet_8c"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>syn_bacnet.h</label>
+        <link refid="syn__bacnet_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>stdbool.h</label>
+      </node>
+      <node id="4">
+        <label>stddef.h</label>
+      </node>
+      <node id="5">
+        <label>stdint.h</label>
+      </node>
+      <node id="7">
+        <label>string.h</label>
+      </node>
+    </incdepgraph>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__bacnet_8c_1a08dd6c70cf81305ca51059c2dde3e195" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint8_t</type>
+        <definition>uint8_t syn_bacnet_crc8</definition>
+        <argsstring>(const uint8_t *data, size_t len)</argsstring>
+        <name>syn_bacnet_crc8</name>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>len</declname>
+        </param>
+        <briefdescription>
+<para>Calculate BACnet MS/TP Header CRC-8. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>data</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Data buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Byte count. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>CRC-8 checksum value. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_bacnet.c" line="12" column="9" bodyfile="src/syntropic/proto/syn_bacnet.c" bodystart="12" bodyend="26"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__bacnet_8c_1ad70b269d52e5b461c173dba6455f0ad9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint16_t</type>
+        <definition>uint16_t syn_bacnet_crc16</definition>
+        <argsstring>(const uint8_t *data, size_t len)</argsstring>
+        <name>syn_bacnet_crc16</name>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>len</declname>
+        </param>
+        <briefdescription>
+<para>Calculate BACnet MS/TP Data CRC-16. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>data</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Data buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Byte count. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>CRC-16 checksum value. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_bacnet.c" line="28" column="10" bodyfile="src/syntropic/proto/syn_bacnet.c" bodystart="28" bodyend="42"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__bacnet_8c_1a7c371371e935298ec575cd6da4535502" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>size_t</type>
+        <definition>size_t syn_bacnet_mstp_encode_frame</definition>
+        <argsstring>(uint8_t frame_type, uint8_t dest_mac, uint8_t src_mac, const uint8_t *payload, uint16_t payload_len, uint8_t *out_buf)</argsstring>
+        <name>syn_bacnet_mstp_encode_frame</name>
+        <param>
+          <type>uint8_t</type>
+          <declname>frame_type</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>dest_mac</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>src_mac</declname>
+        </param>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>payload</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>payload_len</declname>
+        </param>
+        <param>
+          <type>uint8_t *</type>
+          <declname>out_buf</declname>
+        </param>
+        <briefdescription>
+<para>Encode a complete BACnet MS/TP Frame. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>frame_type</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Frame Type enum. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dest_mac</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Destination MAC address. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>src_mac</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Source MAC address. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>payload</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Payload buffer (can be NULL if payload_len == 0). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>payload_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Payload byte count. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out_buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Destination output buffer (must be &gt;= payload_len + 10 bytes). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Total encoded frame byte count. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_bacnet.c" line="46" column="8" bodyfile="src/syntropic/proto/syn_bacnet.c" bodystart="46" bodyend="72"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__bacnet_8c_1a39defcc5833b8f50ce6bebc05ac33159" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_bacnet_mstp_decode_frame</definition>
+        <argsstring>(const uint8_t *buf, size_t len, SYN_BACnet_MSTP_Frame *frame)</argsstring>
+        <name>syn_bacnet_mstp_decode_frame</name>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>len</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__BACnet__MSTP__Frame" kindref="compound">SYN_BACnet_MSTP_Frame</ref> *</type>
+          <declname>frame</declname>
+        </param>
+        <briefdescription>
+<para>Decode a raw byte buffer into a BACnet MS/TP Frame structure. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Input raw frame byte array. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Input byte count. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>frame</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>[out] Decoded MS/TP Frame structure. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if valid MS/TP frame header and CRC-8/CRC-16 match. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_bacnet.c" line="74" column="6" bodyfile="src/syntropic/proto/syn_bacnet.c" bodystart="74" bodyend="109"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__bacnet_8c_1aefb3979b96930a67006061ea6f3fd0be" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_bacnet_node_init</definition>
+        <argsstring>(SYN_BACnet_Node *node, uint8_t mac_address, uint32_t device_id)</argsstring>
+        <name>syn_bacnet_node_init</name>
+        <param>
+          <type><ref refid="structSYN__BACnet__Node" kindref="compound">SYN_BACnet_Node</ref> *</type>
+          <declname>node</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>mac_address</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>device_id</declname>
+        </param>
+        <briefdescription>
+<para>Initialize a BACnet MS/TP Node context. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>node</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Node handle. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>mac_address</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Local MAC address (0..127). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>device_id</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>BACnet Device Instance ID (0..4194302). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_bacnet.c" line="113" column="12" bodyfile="src/syntropic/proto/syn_bacnet.c" bodystart="113" bodyend="128"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__bacnet_8c_1a65a8c0cdc7e067b2588f1ffa674e08b7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_bacnet_add_object</definition>
+        <argsstring>(SYN_BACnet_Node *node, uint8_t object_type, uint32_t instance_id, float init_value, const char *name)</argsstring>
+        <name>syn_bacnet_add_object</name>
+        <param>
+          <type><ref refid="structSYN__BACnet__Node" kindref="compound">SYN_BACnet_Node</ref> *</type>
+          <declname>node</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>object_type</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>instance_id</declname>
+        </param>
+        <param>
+          <type>float</type>
+          <declname>init_value</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>name</declname>
+        </param>
+        <briefdescription>
+<para>Register an Object in the BACnet Node database. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>node</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Node handle. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>object_type</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>SYN_BACnet_ObjectType (AI, AO, BI, BO). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>instance_id</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Instance ID. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>init_value</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Initial Present Value. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>name</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Object Name string. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_ERROR if database full. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_bacnet.c" line="130" column="12" bodyfile="src/syntropic/proto/syn_bacnet.c" bodystart="130" bodyend="143"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__bacnet_8c_1a5864554fe03634c4fbaedebcae9b18af" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_bacnet_node_process</definition>
+        <argsstring>(SYN_BACnet_Node *node, const SYN_BACnet_MSTP_Frame *rx_frame, SYN_BACnet_MSTP_Frame *tx_frame, bool *has_tx)</argsstring>
+        <name>syn_bacnet_node_process</name>
+        <param>
+          <type><ref refid="structSYN__BACnet__Node" kindref="compound">SYN_BACnet_Node</ref> *</type>
+          <declname>node</declname>
+        </param>
+        <param>
+          <type>const <ref refid="structSYN__BACnet__MSTP__Frame" kindref="compound">SYN_BACnet_MSTP_Frame</ref> *</type>
+          <declname>rx_frame</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__BACnet__MSTP__Frame" kindref="compound">SYN_BACnet_MSTP_Frame</ref> *</type>
+          <declname>tx_frame</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref> *</type>
+          <declname>has_tx</declname>
+        </param>
+        <briefdescription>
+<para>Process an incoming BACnet MS/TP frame and generate a response if required. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>node</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Node context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>rx_frame</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Incoming received frame. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>tx_frame</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>[out] Outgoing response frame structure. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>has_tx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>[out] Set to true if a response frame must be transmitted. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_bacnet.c" line="147" column="12" bodyfile="src/syntropic/proto/syn_bacnet.c" bodystart="147" bodyend="302"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Zero-malloc, cleanroom BACnet MS/TP &amp; APDU protocol stack implementation. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__bacnet_8h" kindref="compound">syn_bacnet.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;string.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>CRC<sp/>Calculations<sp/>(ISO<sp/>16484-5<sp/>Clause<sp/>9.3)<sp/>───────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal">uint8_t<sp/><ref refid="syn__bacnet_8c_1a08dd6c70cf81305ca51059c2dde3e195" kindref="member">syn_bacnet_crc8</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*data,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>len)</highlight></codeline>
+<codeline lineno="13"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="14"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>crc<sp/>=<sp/>0xFFU;</highlight></codeline>
+<codeline lineno="15"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>len;<sp/>i++)<sp/>{</highlight></codeline>
+<codeline lineno="16"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>crc<sp/>^=<sp/>data[i];</highlight></codeline>
+<codeline lineno="17"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(uint8_t<sp/>j<sp/>=<sp/>0;<sp/>j<sp/>&lt;<sp/>8;<sp/>j++)<sp/>{</highlight></codeline>
+<codeline lineno="18"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(crc<sp/>&amp;<sp/>0x01U)<sp/>{</highlight></codeline>
+<codeline lineno="19"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>crc<sp/>=<sp/>(uint8_t)((crc<sp/>&gt;&gt;<sp/>1)<sp/>^<sp/>0x91U);</highlight></codeline>
+<codeline lineno="20"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="21"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>crc<sp/>=<sp/>(uint8_t)(crc<sp/>&gt;&gt;<sp/>1);</highlight></codeline>
+<codeline lineno="22"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="23"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="24"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="25"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(uint8_t)(~crc);</highlight></codeline>
+<codeline lineno="26"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal">uint16_t<sp/><ref refid="syn__bacnet_8c_1ad70b269d52e5b461c173dba6455f0ad9" kindref="member">syn_bacnet_crc16</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*data,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>len)</highlight></codeline>
+<codeline lineno="29"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="30"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/>crc<sp/>=<sp/>0xFFFFU;</highlight></codeline>
+<codeline lineno="31"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>len;<sp/>i++)<sp/>{</highlight></codeline>
+<codeline lineno="32"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>crc<sp/>^=<sp/>(uint16_t)data[i];</highlight></codeline>
+<codeline lineno="33"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(uint8_t<sp/>j<sp/>=<sp/>0;<sp/>j<sp/>&lt;<sp/>8;<sp/>j++)<sp/>{</highlight></codeline>
+<codeline lineno="34"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(crc<sp/>&amp;<sp/>0x0001U)<sp/>{</highlight></codeline>
+<codeline lineno="35"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>crc<sp/>=<sp/>(uint16_t)((crc<sp/>&gt;&gt;<sp/>1)<sp/>^<sp/>0xA001U);</highlight></codeline>
+<codeline lineno="36"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="37"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>crc<sp/>=<sp/>(uint16_t)(crc<sp/>&gt;&gt;<sp/>1);</highlight></codeline>
+<codeline lineno="38"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(uint16_t)(~crc);</highlight></codeline>
+<codeline lineno="42"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>MS/TP<sp/>Framing<sp/>────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight></codeline>
+<codeline lineno="46"><highlight class="normal"></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="syn__bacnet_8c_1a7c371371e935298ec575cd6da4535502" kindref="member">syn_bacnet_mstp_encode_frame</ref>(uint8_t<sp/>frame_type,<sp/>uint8_t<sp/>dest_mac,<sp/>uint8_t<sp/>src_mac,</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*payload,<sp/>uint16_t<sp/>payload_len,<sp/>uint8_t<sp/>*out_buf)</highlight></codeline>
+<codeline lineno="48"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!out_buf)</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0;</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"></highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/><sp/><sp/>out_buf[0]<sp/>=<sp/><ref refid="syn__bacnet_8h_1a04a35a8c1811090eca48373b6cecce82" kindref="member">SYN_BACNET_MSTP_PREAMBLE_1</ref>;</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/><sp/><sp/>out_buf[1]<sp/>=<sp/><ref refid="syn__bacnet_8h_1aee4a1efb53ee28b3f5102bbbfc85a2ef" kindref="member">SYN_BACNET_MSTP_PREAMBLE_2</ref>;</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/><sp/><sp/>out_buf[2]<sp/>=<sp/>frame_type;</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/><sp/><sp/>out_buf[3]<sp/>=<sp/>dest_mac;</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/><sp/><sp/>out_buf[4]<sp/>=<sp/>src_mac;</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/><sp/><sp/>out_buf[5]<sp/>=<sp/>(uint8_t)((payload_len<sp/>&gt;&gt;<sp/>8)<sp/>&amp;<sp/>0xFFU);</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/>out_buf[6]<sp/>=<sp/>(uint8_t)(payload_len<sp/>&amp;<sp/>0xFFU);</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><sp/><sp/><sp/><sp/>out_buf[7]<sp/>=<sp/><ref refid="syn__bacnet_8c_1a08dd6c70cf81305ca51059c2dde3e195" kindref="member">syn_bacnet_crc8</ref>(&amp;out_buf[2],<sp/>5);</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"></highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>idx<sp/>=<sp/>8;</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(payload<sp/>&amp;&amp;<sp/>payload_len<sp/>&gt;<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>memcpy(&amp;out_buf[idx],<sp/>payload,<sp/>payload_len);</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>idx<sp/>+=<sp/>payload_len;</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"></highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint16_t<sp/>data_crc<sp/>=<sp/><ref refid="syn__bacnet_8c_1ad70b269d52e5b461c173dba6455f0ad9" kindref="member">syn_bacnet_crc16</ref>(payload,<sp/>payload_len);</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>out_buf[idx++]<sp/>=<sp/>(uint8_t)(data_crc<sp/>&amp;<sp/>0xFFU);</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>out_buf[idx++]<sp/>=<sp/>(uint8_t)((data_crc<sp/>&gt;&gt;<sp/>8)<sp/>&amp;<sp/>0xFFU);</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"></highlight></codeline>
+<codeline lineno="71"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>idx;</highlight></codeline>
+<codeline lineno="72"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"></highlight></codeline>
+<codeline lineno="74"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__bacnet_8c_1a39defcc5833b8f50ce6bebc05ac33159" kindref="member">syn_bacnet_mstp_decode_frame</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*buf,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>len,<sp/><ref refid="structSYN__BACnet__MSTP__Frame" kindref="compound">SYN_BACnet_MSTP_Frame</ref><sp/>*frame)</highlight></codeline>
+<codeline lineno="75"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!buf<sp/>||<sp/>!frame<sp/>||<sp/>len<sp/>&lt;<sp/>8)</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"></highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(buf[0]<sp/>!=<sp/><ref refid="syn__bacnet_8h_1a04a35a8c1811090eca48373b6cecce82" kindref="member">SYN_BACNET_MSTP_PREAMBLE_1</ref><sp/>||<sp/>buf[1]<sp/>!=<sp/><ref refid="syn__bacnet_8h_1aee4a1efb53ee28b3f5102bbbfc85a2ef" kindref="member">SYN_BACNET_MSTP_PREAMBLE_2</ref>)</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"></highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>header_crc<sp/>=<sp/><ref refid="syn__bacnet_8c_1a08dd6c70cf81305ca51059c2dde3e195" kindref="member">syn_bacnet_crc8</ref>(&amp;buf[2],<sp/>5);</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(header_crc<sp/>!=<sp/>buf[7])</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"></highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/><sp/><sp/>frame-&gt;<ref refid="structSYN__BACnet__MSTP__Frame_1ad9c76b09e8daf9ab391f33b4f0b88bb7" kindref="member">frame_type</ref><sp/>=<sp/>buf[2];</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/><sp/><sp/>frame-&gt;<ref refid="structSYN__BACnet__MSTP__Frame_1a67c7fbb61abf45f93052ccae5725eaf9" kindref="member">destination_mac</ref><sp/>=<sp/>buf[3];</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/><sp/><sp/>frame-&gt;<ref refid="structSYN__BACnet__MSTP__Frame_1ac72210af80296219433c478fb1120cd2" kindref="member">source_mac</ref><sp/>=<sp/>buf[4];</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"><sp/><sp/><sp/><sp/>frame-&gt;<ref refid="structSYN__BACnet__MSTP__Frame_1a2da06daff2411c534fa9ae01cc9745fe" kindref="member">data_len</ref><sp/>=<sp/>((uint16_t)buf[5]<sp/>&lt;&lt;<sp/>8)<sp/>|<sp/>(uint16_t)buf[6];</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"></highlight></codeline>
+<codeline lineno="91"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(frame-&gt;<ref refid="structSYN__BACnet__MSTP__Frame_1a2da06daff2411c534fa9ae01cc9745fe" kindref="member">data_len</ref><sp/>&gt;<sp/>501)</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"></highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(frame-&gt;<ref refid="structSYN__BACnet__MSTP__Frame_1a2da06daff2411c534fa9ae01cc9745fe" kindref="member">data_len</ref><sp/>&gt;<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(len<sp/>&lt;<sp/>(</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal">)(8<sp/>+<sp/>frame-&gt;<ref refid="structSYN__BACnet__MSTP__Frame_1a2da06daff2411c534fa9ae01cc9745fe" kindref="member">data_len</ref><sp/>+<sp/>2))</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"></highlight></codeline>
+<codeline lineno="98"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>memcpy(frame-&gt;<ref refid="structSYN__BACnet__MSTP__Frame_1af07122c9127afe8657df304c2b10a7f5" kindref="member">payload</ref>,<sp/>&amp;buf[8],<sp/>frame-&gt;<ref refid="structSYN__BACnet__MSTP__Frame_1a2da06daff2411c534fa9ae01cc9745fe" kindref="member">data_len</ref>);</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"></highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint16_t<sp/>expected_crc<sp/>=<sp/><ref refid="syn__bacnet_8c_1ad70b269d52e5b461c173dba6455f0ad9" kindref="member">syn_bacnet_crc16</ref>(frame-&gt;<ref refid="structSYN__BACnet__MSTP__Frame_1af07122c9127afe8657df304c2b10a7f5" kindref="member">payload</ref>,<sp/>frame-&gt;<ref refid="structSYN__BACnet__MSTP__Frame_1a2da06daff2411c534fa9ae01cc9745fe" kindref="member">data_len</ref>);</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint16_t<sp/>actual_crc<sp/>=</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(uint16_t)buf[8<sp/>+<sp/>frame-&gt;<ref refid="structSYN__BACnet__MSTP__Frame_1a2da06daff2411c534fa9ae01cc9745fe" kindref="member">data_len</ref>]<sp/>|<sp/>((uint16_t)buf[8<sp/>+<sp/>frame-&gt;<ref refid="structSYN__BACnet__MSTP__Frame_1a2da06daff2411c534fa9ae01cc9745fe" kindref="member">data_len</ref><sp/>+<sp/>1]<sp/>&lt;&lt;<sp/>8);</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"></highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(expected_crc<sp/>!=<sp/>actual_crc)</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"></highlight></codeline>
+<codeline lineno="108"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="109"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="110"><highlight class="normal"></highlight></codeline>
+<codeline lineno="111"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Node<sp/>&amp;<sp/>Object<sp/>Management<sp/>─────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="112"><highlight class="normal"></highlight></codeline>
+<codeline lineno="113"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__bacnet_8c_1aefb3979b96930a67006061ea6f3fd0be" kindref="member">syn_bacnet_node_init</ref>(<ref refid="structSYN__BACnet__Node" kindref="compound">SYN_BACnet_Node</ref><sp/>*node,<sp/>uint8_t<sp/>mac_address,<sp/>uint32_t<sp/>device_id)</highlight></codeline>
+<codeline lineno="114"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="115"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!node)</highlight></codeline>
+<codeline lineno="116"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="117"><highlight class="normal"></highlight></codeline>
+<codeline lineno="118"><highlight class="normal"><sp/><sp/><sp/><sp/>memset(node,<sp/>0,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(<ref refid="structSYN__BACnet__Node" kindref="compound">SYN_BACnet_Node</ref>));</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"><sp/><sp/><sp/><sp/>node-&gt;<ref refid="structSYN__BACnet__Node_1abbe7eb125879e8de5a61a3791f277719" kindref="member">mac_address</ref><sp/>=<sp/>mac_address;</highlight></codeline>
+<codeline lineno="120"><highlight class="normal"><sp/><sp/><sp/><sp/>node-&gt;<ref refid="structSYN__BACnet__Node_1af538c657a32277246b7d7c5c030a33d5" kindref="member">device_id</ref><sp/>=<sp/>device_id;</highlight></codeline>
+<codeline lineno="121"><highlight class="normal"><sp/><sp/><sp/><sp/>node-&gt;<ref refid="structSYN__BACnet__Node_1a619723570e27964183ad4b808102719d" kindref="member">max_master</ref><sp/>=<sp/>127;</highlight></codeline>
+<codeline lineno="122"><highlight class="normal"></highlight></codeline>
+<codeline lineno="123"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Automatically<sp/>register<sp/>Device<sp/>Object<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="124"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__bacnet_8c_1a65a8c0cdc7e067b2588f1ffa674e08b7" kindref="member">syn_bacnet_add_object</ref>(node,<sp/>SYN_BACNET_OBJ_DEVICE,<sp/>device_id,<sp/>0.0f,</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="stringliteral">&quot;SyntropicOS-BACnet-Device&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="126"><highlight class="normal"></highlight></codeline>
+<codeline lineno="127"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="128"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="129"><highlight class="normal"></highlight></codeline>
+<codeline lineno="130"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__bacnet_8c_1a65a8c0cdc7e067b2588f1ffa674e08b7" kindref="member">syn_bacnet_add_object</ref>(<ref refid="structSYN__BACnet__Node" kindref="compound">SYN_BACnet_Node</ref><sp/>*node,<sp/>uint8_t<sp/>object_type,<sp/>uint32_t<sp/>instance_id,</highlight></codeline>
+<codeline lineno="131"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>init_value,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*name)</highlight></codeline>
+<codeline lineno="132"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="133"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!node<sp/>||<sp/>node-&gt;<ref refid="structSYN__BACnet__Node_1a1d82db4dc855b1a2303f378336b2b7eb" kindref="member">object_count</ref><sp/>&gt;=<sp/><ref refid="syn__bacnet_8h_1abdb65838ce5928ca6518b22b5918b171" kindref="member">SYN_BACNET_MAX_OBJECTS</ref>)</highlight></codeline>
+<codeline lineno="134"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00acd5d2701b7cfa9fb446640ecbeb19fc9" kindref="member">SYN_ERROR</ref>;</highlight></codeline>
+<codeline lineno="135"><highlight class="normal"></highlight></codeline>
+<codeline lineno="136"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structSYN__BACnet__Object" kindref="compound">SYN_BACnet_Object</ref><sp/>*obj<sp/>=<sp/>&amp;node-&gt;<ref refid="structSYN__BACnet__Node_1afce965f7d24401ed0449d959ca6c493a" kindref="member">objects</ref>[node-&gt;<ref refid="structSYN__BACnet__Node_1a1d82db4dc855b1a2303f378336b2b7eb" kindref="member">object_count</ref>++];</highlight></codeline>
+<codeline lineno="137"><highlight class="normal"><sp/><sp/><sp/><sp/>obj-&gt;<ref refid="structSYN__BACnet__Object_1afc5b3cd7009a6368f922ceb41581a679" kindref="member">object_type</ref><sp/>=<sp/>object_type;</highlight></codeline>
+<codeline lineno="138"><highlight class="normal"><sp/><sp/><sp/><sp/>obj-&gt;<ref refid="structSYN__BACnet__Object_1ad3b9dee6e4d479d7ce8cb8d36e2b0113" kindref="member">instance_id</ref><sp/>=<sp/>instance_id;</highlight></codeline>
+<codeline lineno="139"><highlight class="normal"><sp/><sp/><sp/><sp/>obj-&gt;<ref refid="structSYN__BACnet__Object_1aca69125a251052beb6fa1ebbaaa9e162" kindref="member">present_value</ref><sp/>=<sp/>init_value;</highlight></codeline>
+<codeline lineno="140"><highlight class="normal"><sp/><sp/><sp/><sp/>obj-&gt;<ref refid="structSYN__BACnet__Object_1afd0478cc2512999f6efc6de19b174b18" kindref="member">name</ref><sp/>=<sp/>name;</highlight></codeline>
+<codeline lineno="141"><highlight class="normal"></highlight></codeline>
+<codeline lineno="142"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="143"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="144"><highlight class="normal"></highlight></codeline>
+<codeline lineno="145"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Process<sp/>Incoming<sp/>APDU<sp/>Requests<sp/>───────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="146"><highlight class="normal"></highlight></codeline>
+<codeline lineno="147"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__bacnet_8c_1a5864554fe03634c4fbaedebcae9b18af" kindref="member">syn_bacnet_node_process</ref>(<ref refid="structSYN__BACnet__Node" kindref="compound">SYN_BACnet_Node</ref><sp/>*node,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__BACnet__MSTP__Frame" kindref="compound">SYN_BACnet_MSTP_Frame</ref><sp/>*rx_frame,</highlight></codeline>
+<codeline lineno="148"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__BACnet__MSTP__Frame" kindref="compound">SYN_BACnet_MSTP_Frame</ref><sp/>*tx_frame,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>*has_tx)</highlight></codeline>
+<codeline lineno="149"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="150"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!node<sp/>||<sp/>!rx_frame<sp/>||<sp/>!tx_frame<sp/>||<sp/>!has_tx)</highlight></codeline>
+<codeline lineno="151"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="152"><highlight class="normal"></highlight></codeline>
+<codeline lineno="153"><highlight class="normal"><sp/><sp/><sp/><sp/>*has_tx<sp/>=<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="154"><highlight class="normal"></highlight></codeline>
+<codeline lineno="155"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Ignore<sp/>frames<sp/>not<sp/>addressed<sp/>to<sp/>local<sp/>MAC<sp/>or<sp/>Broadcast<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="156"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(rx_frame-&gt;<ref refid="structSYN__BACnet__MSTP__Frame_1a67c7fbb61abf45f93052ccae5725eaf9" kindref="member">destination_mac</ref><sp/>!=<sp/>node-&gt;<ref refid="structSYN__BACnet__Node_1abbe7eb125879e8de5a61a3791f277719" kindref="member">mac_address</ref><sp/>&amp;&amp;</highlight></codeline>
+<codeline lineno="157"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rx_frame-&gt;<ref refid="structSYN__BACnet__MSTP__Frame_1a67c7fbb61abf45f93052ccae5725eaf9" kindref="member">destination_mac</ref><sp/>!=<sp/><ref refid="syn__bacnet_8h_1a2723ff4e3e5ada280499d41fdcdb98f1" kindref="member">SYN_BACNET_BROADCAST_MAC</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="158"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="159"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="160"><highlight class="normal"></highlight></codeline>
+<codeline lineno="161"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Handle<sp/>Token<sp/>/<sp/>Poll<sp/>For<sp/>Master<sp/>MS/TP<sp/>control<sp/>frames<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="162"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(rx_frame-&gt;<ref refid="structSYN__BACnet__MSTP__Frame_1ad9c76b09e8daf9ab391f33b4f0b88bb7" kindref="member">frame_type</ref><sp/>==<sp/>SYN_BACNET_MSTP_FRAME_TOKEN)<sp/>{</highlight></codeline>
+<codeline lineno="163"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="164"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="165"><highlight class="normal"></highlight></codeline>
+<codeline lineno="166"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(rx_frame-&gt;<ref refid="structSYN__BACnet__MSTP__Frame_1ad9c76b09e8daf9ab391f33b4f0b88bb7" kindref="member">frame_type</ref><sp/>==<sp/>SYN_BACNET_MSTP_FRAME_POLL_FOR_MASTER)<sp/>{</highlight></codeline>
+<codeline lineno="167"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(rx_frame-&gt;<ref refid="structSYN__BACnet__MSTP__Frame_1a67c7fbb61abf45f93052ccae5725eaf9" kindref="member">destination_mac</ref><sp/>==<sp/>node-&gt;<ref refid="structSYN__BACnet__Node_1abbe7eb125879e8de5a61a3791f277719" kindref="member">mac_address</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="168"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tx_frame-&gt;<ref refid="structSYN__BACnet__MSTP__Frame_1ad9c76b09e8daf9ab391f33b4f0b88bb7" kindref="member">frame_type</ref><sp/>=<sp/>SYN_BACNET_MSTP_FRAME_REPLY_TO_POLL_FOR_MASTER;</highlight></codeline>
+<codeline lineno="169"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tx_frame-&gt;<ref refid="structSYN__BACnet__MSTP__Frame_1a67c7fbb61abf45f93052ccae5725eaf9" kindref="member">destination_mac</ref><sp/>=<sp/>rx_frame-&gt;<ref refid="structSYN__BACnet__MSTP__Frame_1ac72210af80296219433c478fb1120cd2" kindref="member">source_mac</ref>;</highlight></codeline>
+<codeline lineno="170"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tx_frame-&gt;<ref refid="structSYN__BACnet__MSTP__Frame_1ac72210af80296219433c478fb1120cd2" kindref="member">source_mac</ref><sp/>=<sp/>node-&gt;<ref refid="structSYN__BACnet__Node_1abbe7eb125879e8de5a61a3791f277719" kindref="member">mac_address</ref>;</highlight></codeline>
+<codeline lineno="171"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tx_frame-&gt;<ref refid="structSYN__BACnet__MSTP__Frame_1a2da06daff2411c534fa9ae01cc9745fe" kindref="member">data_len</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="172"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*has_tx<sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="173"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="174"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="175"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="176"><highlight class="normal"></highlight></codeline>
+<codeline lineno="177"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Process<sp/>APDU<sp/>Payload<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="178"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(rx_frame-&gt;<ref refid="structSYN__BACnet__MSTP__Frame_1a2da06daff2411c534fa9ae01cc9745fe" kindref="member">data_len</ref><sp/>&lt;<sp/>2)<sp/>{</highlight></codeline>
+<codeline lineno="179"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="180"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="181"><highlight class="normal"></highlight></codeline>
+<codeline lineno="182"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>pdu_type<sp/>=<sp/>rx_frame-&gt;<ref refid="structSYN__BACnet__MSTP__Frame_1af07122c9127afe8657df304c2b10a7f5" kindref="member">payload</ref>[0]<sp/>&amp;<sp/>0xF0U;</highlight></codeline>
+<codeline lineno="183"><highlight class="normal"></highlight></codeline>
+<codeline lineno="184"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>1.<sp/>Unconfirmed<sp/>Request<sp/>(PDU<sp/>Type<sp/>0x10):<sp/>Who-Is<sp/>-&gt;<sp/>Respond<sp/>with<sp/>I-Am<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="185"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(pdu_type<sp/>==<sp/>0x10U)<sp/>{</highlight></codeline>
+<codeline lineno="186"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>service_choice<sp/>=<sp/>rx_frame-&gt;<ref refid="structSYN__BACnet__MSTP__Frame_1af07122c9127afe8657df304c2b10a7f5" kindref="member">payload</ref>[1];</highlight></codeline>
+<codeline lineno="187"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(service_choice<sp/>==<sp/>SYN_BACNET_SERVICE_UNCONFIRMED_WHO_IS)<sp/>{</highlight></codeline>
+<codeline lineno="188"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>payload[16];</highlight></codeline>
+<codeline lineno="189"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>payload[0]<sp/>=<sp/>0x10;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Unconfirmed<sp/>APDU<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="190"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>payload[1]<sp/>=<sp/>SYN_BACNET_SERVICE_UNCONFIRMED_I_AM;<sp/></highlight><highlight class="comment">/*<sp/>Service<sp/>Choice<sp/>I-Am<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="191"><highlight class="normal"></highlight></codeline>
+<codeline lineno="192"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Device<sp/>Object<sp/>Identifier<sp/>(4<sp/>bytes)<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="193"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>payload[2]<sp/>=<sp/>0xC4;</highlight></codeline>
+<codeline lineno="194"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>payload[3]<sp/>=<sp/>(uint8_t)((node-&gt;<ref refid="structSYN__BACnet__Node_1af538c657a32277246b7d7c5c030a33d5" kindref="member">device_id</ref><sp/>&gt;&gt;<sp/>16)<sp/>&amp;<sp/>0xFFU);</highlight></codeline>
+<codeline lineno="195"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>payload[4]<sp/>=<sp/>(uint8_t)((node-&gt;<ref refid="structSYN__BACnet__Node_1af538c657a32277246b7d7c5c030a33d5" kindref="member">device_id</ref><sp/>&gt;&gt;<sp/>8)<sp/>&amp;<sp/>0xFFU);</highlight></codeline>
+<codeline lineno="196"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>payload[5]<sp/>=<sp/>(uint8_t)(node-&gt;<ref refid="structSYN__BACnet__Node_1af538c657a32277246b7d7c5c030a33d5" kindref="member">device_id</ref><sp/>&amp;<sp/>0xFFU);</highlight></codeline>
+<codeline lineno="197"><highlight class="normal"></highlight></codeline>
+<codeline lineno="198"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Vendor<sp/>ID<sp/>(2<sp/>bytes)<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="199"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>payload[6]<sp/>=<sp/>0x21;</highlight></codeline>
+<codeline lineno="200"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>payload[7]<sp/>=<sp/>0x05;</highlight></codeline>
+<codeline lineno="201"><highlight class="normal"></highlight></codeline>
+<codeline lineno="202"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tx_frame-&gt;<ref refid="structSYN__BACnet__MSTP__Frame_1ad9c76b09e8daf9ab391f33b4f0b88bb7" kindref="member">frame_type</ref><sp/>=<sp/>SYN_BACNET_MSTP_FRAME_DATA_NOT_EXPECTING_REPLY;</highlight></codeline>
+<codeline lineno="203"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tx_frame-&gt;<ref refid="structSYN__BACnet__MSTP__Frame_1a67c7fbb61abf45f93052ccae5725eaf9" kindref="member">destination_mac</ref><sp/>=<sp/><ref refid="syn__bacnet_8h_1a2723ff4e3e5ada280499d41fdcdb98f1" kindref="member">SYN_BACNET_BROADCAST_MAC</ref>;</highlight></codeline>
+<codeline lineno="204"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tx_frame-&gt;<ref refid="structSYN__BACnet__MSTP__Frame_1ac72210af80296219433c478fb1120cd2" kindref="member">source_mac</ref><sp/>=<sp/>node-&gt;<ref refid="structSYN__BACnet__Node_1abbe7eb125879e8de5a61a3791f277719" kindref="member">mac_address</ref>;</highlight></codeline>
+<codeline lineno="205"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tx_frame-&gt;<ref refid="structSYN__BACnet__MSTP__Frame_1a2da06daff2411c534fa9ae01cc9745fe" kindref="member">data_len</ref><sp/>=<sp/>8;</highlight></codeline>
+<codeline lineno="206"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>memcpy(tx_frame-&gt;<ref refid="structSYN__BACnet__MSTP__Frame_1af07122c9127afe8657df304c2b10a7f5" kindref="member">payload</ref>,<sp/>payload,<sp/>8);</highlight></codeline>
+<codeline lineno="207"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*has_tx<sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="208"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="209"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="210"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="211"><highlight class="normal"></highlight></codeline>
+<codeline lineno="212"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>2.<sp/>Confirmed<sp/>Request<sp/>(PDU<sp/>Type<sp/>0x00)<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="213"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(pdu_type<sp/>==<sp/>0x00U<sp/>&amp;&amp;<sp/>rx_frame-&gt;<ref refid="structSYN__BACnet__MSTP__Frame_1a2da06daff2411c534fa9ae01cc9745fe" kindref="member">data_len</ref><sp/>&gt;=<sp/>4)<sp/>{</highlight></codeline>
+<codeline lineno="214"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>invoke_id<sp/>=<sp/>rx_frame-&gt;<ref refid="structSYN__BACnet__MSTP__Frame_1af07122c9127afe8657df304c2b10a7f5" kindref="member">payload</ref>[2];</highlight></codeline>
+<codeline lineno="215"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>service_choice<sp/>=<sp/>rx_frame-&gt;<ref refid="structSYN__BACnet__MSTP__Frame_1af07122c9127afe8657df304c2b10a7f5" kindref="member">payload</ref>[3];</highlight></codeline>
+<codeline lineno="216"><highlight class="normal"></highlight></codeline>
+<codeline lineno="217"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(service_choice<sp/>==<sp/>SYN_BACNET_SERVICE_CONFIRMED_READ_PROPERTY)<sp/>{</highlight></codeline>
+<codeline lineno="218"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Decode<sp/>requested<sp/>instance_id<sp/>if<sp/>payload<sp/>contains<sp/>Context<sp/>Tag<sp/>0<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="219"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>req_instance<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="220"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(rx_frame-&gt;<ref refid="structSYN__BACnet__MSTP__Frame_1a2da06daff2411c534fa9ae01cc9745fe" kindref="member">data_len</ref><sp/>&gt;=<sp/>9<sp/>&amp;&amp;<sp/>rx_frame-&gt;<ref refid="structSYN__BACnet__MSTP__Frame_1af07122c9127afe8657df304c2b10a7f5" kindref="member">payload</ref>[4]<sp/>==<sp/>0x0C)<sp/>{</highlight></codeline>
+<codeline lineno="221"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>obj_id<sp/>=<sp/>((uint32_t)rx_frame-&gt;<ref refid="structSYN__BACnet__MSTP__Frame_1af07122c9127afe8657df304c2b10a7f5" kindref="member">payload</ref>[5]<sp/>&lt;&lt;<sp/>24)<sp/>|</highlight></codeline>
+<codeline lineno="222"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>((uint32_t)rx_frame-&gt;<ref refid="structSYN__BACnet__MSTP__Frame_1af07122c9127afe8657df304c2b10a7f5" kindref="member">payload</ref>[6]<sp/>&lt;&lt;<sp/>16)<sp/>|</highlight></codeline>
+<codeline lineno="223"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>((uint32_t)rx_frame-&gt;<ref refid="structSYN__BACnet__MSTP__Frame_1af07122c9127afe8657df304c2b10a7f5" kindref="member">payload</ref>[7]<sp/>&lt;&lt;<sp/>8)<sp/>|</highlight></codeline>
+<codeline lineno="224"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(uint32_t)rx_frame-&gt;<ref refid="structSYN__BACnet__MSTP__Frame_1af07122c9127afe8657df304c2b10a7f5" kindref="member">payload</ref>[8];</highlight></codeline>
+<codeline lineno="225"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>req_instance<sp/>=<sp/>obj_id<sp/>&amp;<sp/>0x003FFFFFU;</highlight></codeline>
+<codeline lineno="226"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="227"><highlight class="normal"></highlight></codeline>
+<codeline lineno="228"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Look<sp/>up<sp/>requested<sp/>object<sp/>by<sp/>instance_id<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="229"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>val<sp/>=<sp/>0.0f;</highlight></codeline>
+<codeline lineno="230"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>found<sp/>=<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="231"><highlight class="normal"></highlight></codeline>
+<codeline lineno="232"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>node-&gt;<ref refid="structSYN__BACnet__Node_1a1d82db4dc855b1a2303f378336b2b7eb" kindref="member">object_count</ref>;<sp/>i++)<sp/>{</highlight></codeline>
+<codeline lineno="233"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(node-&gt;<ref refid="structSYN__BACnet__Node_1afce965f7d24401ed0449d959ca6c493a" kindref="member">objects</ref>[i].<ref refid="structSYN__BACnet__Object_1ad3b9dee6e4d479d7ce8cb8d36e2b0113" kindref="member">instance_id</ref><sp/>==<sp/>req_instance)<sp/>{</highlight></codeline>
+<codeline lineno="234"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>val<sp/>=<sp/>node-&gt;<ref refid="structSYN__BACnet__Node_1afce965f7d24401ed0449d959ca6c493a" kindref="member">objects</ref>[i].<ref refid="structSYN__BACnet__Object_1aca69125a251052beb6fa1ebbaaa9e162" kindref="member">present_value</ref>;</highlight></codeline>
+<codeline lineno="235"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>found<sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="236"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="237"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="238"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="239"><highlight class="normal"></highlight></codeline>
+<codeline lineno="240"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(found)<sp/>{</highlight></codeline>
+<codeline lineno="241"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>payload[32];</highlight></codeline>
+<codeline lineno="242"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>payload[0]<sp/>=<sp/>0x30;<sp/></highlight><highlight class="comment">/*<sp/>Complex-ACK<sp/>APDU<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="243"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>payload[1]<sp/>=<sp/>invoke_id;</highlight></codeline>
+<codeline lineno="244"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>payload[2]<sp/>=<sp/>SYN_BACNET_SERVICE_CONFIRMED_READ_PROPERTY;</highlight></codeline>
+<codeline lineno="245"><highlight class="normal"></highlight></codeline>
+<codeline lineno="246"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Encoded<sp/>Present<sp/>Value<sp/>Float<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="247"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>payload[3]<sp/>=<sp/>0x44;<sp/></highlight><highlight class="comment">/*<sp/>Real<sp/>tag<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="248"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>memcpy(&amp;payload[4],<sp/>&amp;val,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(</highlight><highlight class="keywordtype">float</highlight><highlight class="normal">));</highlight></codeline>
+<codeline lineno="249"><highlight class="normal"></highlight></codeline>
+<codeline lineno="250"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tx_frame-&gt;<ref refid="structSYN__BACnet__MSTP__Frame_1ad9c76b09e8daf9ab391f33b4f0b88bb7" kindref="member">frame_type</ref><sp/>=<sp/>SYN_BACNET_MSTP_FRAME_DATA_NOT_EXPECTING_REPLY;</highlight></codeline>
+<codeline lineno="251"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tx_frame-&gt;<ref refid="structSYN__BACnet__MSTP__Frame_1a67c7fbb61abf45f93052ccae5725eaf9" kindref="member">destination_mac</ref><sp/>=<sp/>rx_frame-&gt;<ref refid="structSYN__BACnet__MSTP__Frame_1ac72210af80296219433c478fb1120cd2" kindref="member">source_mac</ref>;</highlight></codeline>
+<codeline lineno="252"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tx_frame-&gt;<ref refid="structSYN__BACnet__MSTP__Frame_1ac72210af80296219433c478fb1120cd2" kindref="member">source_mac</ref><sp/>=<sp/>node-&gt;<ref refid="structSYN__BACnet__Node_1abbe7eb125879e8de5a61a3791f277719" kindref="member">mac_address</ref>;</highlight></codeline>
+<codeline lineno="253"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tx_frame-&gt;<ref refid="structSYN__BACnet__MSTP__Frame_1a2da06daff2411c534fa9ae01cc9745fe" kindref="member">data_len</ref><sp/>=<sp/>8;</highlight></codeline>
+<codeline lineno="254"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>memcpy(tx_frame-&gt;<ref refid="structSYN__BACnet__MSTP__Frame_1af07122c9127afe8657df304c2b10a7f5" kindref="member">payload</ref>,<sp/>payload,<sp/>8);</highlight></codeline>
+<codeline lineno="255"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*has_tx<sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="256"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="257"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="258"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="259"><highlight class="normal"></highlight></codeline>
+<codeline lineno="260"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(service_choice<sp/>==<sp/>SYN_BACNET_SERVICE_CONFIRMED_WRITE_PROPERTY)<sp/>{</highlight></codeline>
+<codeline lineno="261"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>WriteProperty<sp/>APDU:<sp/>Object<sp/>ID<sp/>at<sp/>payload[4..8],<sp/>Property<sp/>Value<sp/>float<sp/>at</highlight></codeline>
+<codeline lineno="262"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*<sp/>payload[10..13]<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="263"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>req_instance<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="264"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(rx_frame-&gt;<ref refid="structSYN__BACnet__MSTP__Frame_1a2da06daff2411c534fa9ae01cc9745fe" kindref="member">data_len</ref><sp/>&gt;=<sp/>9<sp/>&amp;&amp;<sp/>rx_frame-&gt;<ref refid="structSYN__BACnet__MSTP__Frame_1af07122c9127afe8657df304c2b10a7f5" kindref="member">payload</ref>[4]<sp/>==<sp/>0x0C)<sp/>{</highlight></codeline>
+<codeline lineno="265"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>obj_id<sp/>=<sp/>((uint32_t)rx_frame-&gt;<ref refid="structSYN__BACnet__MSTP__Frame_1af07122c9127afe8657df304c2b10a7f5" kindref="member">payload</ref>[5]<sp/>&lt;&lt;<sp/>24)<sp/>|</highlight></codeline>
+<codeline lineno="266"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>((uint32_t)rx_frame-&gt;<ref refid="structSYN__BACnet__MSTP__Frame_1af07122c9127afe8657df304c2b10a7f5" kindref="member">payload</ref>[6]<sp/>&lt;&lt;<sp/>16)<sp/>|</highlight></codeline>
+<codeline lineno="267"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>((uint32_t)rx_frame-&gt;<ref refid="structSYN__BACnet__MSTP__Frame_1af07122c9127afe8657df304c2b10a7f5" kindref="member">payload</ref>[7]<sp/>&lt;&lt;<sp/>8)<sp/>|</highlight></codeline>
+<codeline lineno="268"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(uint32_t)rx_frame-&gt;<ref refid="structSYN__BACnet__MSTP__Frame_1af07122c9127afe8657df304c2b10a7f5" kindref="member">payload</ref>[8];</highlight></codeline>
+<codeline lineno="269"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>req_instance<sp/>=<sp/>obj_id<sp/>&amp;<sp/>0x003FFFFFU;</highlight></codeline>
+<codeline lineno="270"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="271"><highlight class="normal"></highlight></codeline>
+<codeline lineno="272"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>new_val<sp/>=<sp/>0.0f;</highlight></codeline>
+<codeline lineno="273"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(rx_frame-&gt;<ref refid="structSYN__BACnet__MSTP__Frame_1a2da06daff2411c534fa9ae01cc9745fe" kindref="member">data_len</ref><sp/>&gt;=<sp/>14<sp/>&amp;&amp;<sp/>rx_frame-&gt;<ref refid="structSYN__BACnet__MSTP__Frame_1af07122c9127afe8657df304c2b10a7f5" kindref="member">payload</ref>[9]<sp/>==<sp/>0x44)<sp/>{</highlight></codeline>
+<codeline lineno="274"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>memcpy(&amp;new_val,<sp/>&amp;rx_frame-&gt;<ref refid="structSYN__BACnet__MSTP__Frame_1af07122c9127afe8657df304c2b10a7f5" kindref="member">payload</ref>[10],<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(</highlight><highlight class="keywordtype">float</highlight><highlight class="normal">));</highlight></codeline>
+<codeline lineno="275"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="276"><highlight class="normal"></highlight></codeline>
+<codeline lineno="277"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Update<sp/>object<sp/>value<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="278"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>node-&gt;<ref refid="structSYN__BACnet__Node_1a1d82db4dc855b1a2303f378336b2b7eb" kindref="member">object_count</ref>;<sp/>i++)<sp/>{</highlight></codeline>
+<codeline lineno="279"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(node-&gt;<ref refid="structSYN__BACnet__Node_1afce965f7d24401ed0449d959ca6c493a" kindref="member">objects</ref>[i].<ref refid="structSYN__BACnet__Object_1ad3b9dee6e4d479d7ce8cb8d36e2b0113" kindref="member">instance_id</ref><sp/>==<sp/>req_instance)<sp/>{</highlight></codeline>
+<codeline lineno="280"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>node-&gt;<ref refid="structSYN__BACnet__Node_1afce965f7d24401ed0449d959ca6c493a" kindref="member">objects</ref>[i].<ref refid="structSYN__BACnet__Object_1aca69125a251052beb6fa1ebbaaa9e162" kindref="member">present_value</ref><sp/>=<sp/>new_val;</highlight></codeline>
+<codeline lineno="281"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="282"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="283"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="284"><highlight class="normal"></highlight></codeline>
+<codeline lineno="285"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Return<sp/>WriteProperty<sp/>Simple-ACK<sp/>APDU<sp/>(PDU<sp/>Type<sp/>0x20)<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="286"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>payload[4];</highlight></codeline>
+<codeline lineno="287"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>payload[0]<sp/>=<sp/>0x20;<sp/></highlight><highlight class="comment">/*<sp/>Simple-ACK<sp/>APDU<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="288"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>payload[1]<sp/>=<sp/>invoke_id;</highlight></codeline>
+<codeline lineno="289"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>payload[2]<sp/>=<sp/>SYN_BACNET_SERVICE_CONFIRMED_WRITE_PROPERTY;</highlight></codeline>
+<codeline lineno="290"><highlight class="normal"></highlight></codeline>
+<codeline lineno="291"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tx_frame-&gt;<ref refid="structSYN__BACnet__MSTP__Frame_1ad9c76b09e8daf9ab391f33b4f0b88bb7" kindref="member">frame_type</ref><sp/>=<sp/>SYN_BACNET_MSTP_FRAME_DATA_NOT_EXPECTING_REPLY;</highlight></codeline>
+<codeline lineno="292"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tx_frame-&gt;<ref refid="structSYN__BACnet__MSTP__Frame_1a67c7fbb61abf45f93052ccae5725eaf9" kindref="member">destination_mac</ref><sp/>=<sp/>rx_frame-&gt;<ref refid="structSYN__BACnet__MSTP__Frame_1ac72210af80296219433c478fb1120cd2" kindref="member">source_mac</ref>;</highlight></codeline>
+<codeline lineno="293"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tx_frame-&gt;<ref refid="structSYN__BACnet__MSTP__Frame_1ac72210af80296219433c478fb1120cd2" kindref="member">source_mac</ref><sp/>=<sp/>node-&gt;<ref refid="structSYN__BACnet__Node_1abbe7eb125879e8de5a61a3791f277719" kindref="member">mac_address</ref>;</highlight></codeline>
+<codeline lineno="294"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tx_frame-&gt;<ref refid="structSYN__BACnet__MSTP__Frame_1a2da06daff2411c534fa9ae01cc9745fe" kindref="member">data_len</ref><sp/>=<sp/>3;</highlight></codeline>
+<codeline lineno="295"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>memcpy(tx_frame-&gt;<ref refid="structSYN__BACnet__MSTP__Frame_1af07122c9127afe8657df304c2b10a7f5" kindref="member">payload</ref>,<sp/>payload,<sp/>3);</highlight></codeline>
+<codeline lineno="296"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*has_tx<sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="297"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="298"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="299"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="300"><highlight class="normal"></highlight></codeline>
+<codeline lineno="301"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="302"><highlight class="normal">}</highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/proto/syn_bacnet.c"/>
+  </compounddef>
+</doxygen>

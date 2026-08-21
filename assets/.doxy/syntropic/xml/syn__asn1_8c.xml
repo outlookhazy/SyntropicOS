@@ -1,0 +1,523 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__asn1_8c" kind="file" language="C++">
+    <compoundname>syn_asn1.c</compoundname>
+    <includes refid="syn__asn1_8h" local="yes">syntropic/crypto/syn_asn1.h</includes>
+    <includes local="no">string.h</includes>
+    <incdepgraph>
+      <node id="1">
+        <label>src/syntropic/crypto/syn_asn1.c</label>
+        <link refid="syn__asn1_8c"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>syntropic/crypto/syn_asn1.h</label>
+        <link refid="syn__asn1_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>stdbool.h</label>
+      </node>
+      <node id="4">
+        <label>stddef.h</label>
+      </node>
+      <node id="5">
+        <label>stdint.h</label>
+      </node>
+      <node id="6">
+        <label>string.h</label>
+      </node>
+    </incdepgraph>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__asn1_8c_1aa4bb3c553e80ac67074bceee6c339339" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_asn1_parse_element</definition>
+        <argsstring>(const uint8_t *buf, size_t len, SYN_ASN1_Element *elem_out)</argsstring>
+        <name>syn_asn1_parse_element</name>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>len</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__ASN1__Element" kindref="compound">SYN_ASN1_Element</ref> *</type>
+          <declname>elem_out</declname>
+        </param>
+        <briefdescription>
+<para>Parse a single ASN.1 DER TLV element from buffer. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Data buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Length of available bytes in buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>elem_out</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>[out] Output parsed element. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if valid TLV element parsed, false on truncation or encoding error. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/crypto/syn_asn1.c" line="10" column="6" bodyfile="src/syntropic/crypto/syn_asn1.c" bodystart="10" bodyend="57"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__asn1_8c_1ab71717669f071f3fb895b141701e34c7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_asn1_step</definition>
+        <argsstring>(const uint8_t **buf, size_t *len, SYN_ASN1_Element *elem_out)</argsstring>
+        <name>syn_asn1_step</name>
+        <param>
+          <type>const uint8_t **</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type>size_t *</type>
+          <declname>len</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__ASN1__Element" kindref="compound">SYN_ASN1_Element</ref> *</type>
+          <declname>elem_out</declname>
+        </param>
+        <briefdescription>
+<para>Skip/advance past current TLV element in a DER buffer. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to buffer pointer (updated on success). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to available length (updated on success). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>elem_out</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>[out] Optional parsed element header. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/crypto/syn_asn1.c" line="59" column="6" bodyfile="src/syntropic/crypto/syn_asn1.c" bodystart="59" bodyend="79"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__asn1_8c_1a1dae34dddc3bc17d8275c827c085f05d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_asn1_enter_container</definition>
+        <argsstring>(const SYN_ASN1_Element *container, const uint8_t **child_buf, size_t *child_len)</argsstring>
+        <name>syn_asn1_enter_container</name>
+        <param>
+          <type>const <ref refid="structSYN__ASN1__Element" kindref="compound">SYN_ASN1_Element</ref> *</type>
+          <declname>container</declname>
+        </param>
+        <param>
+          <type>const uint8_t **</type>
+          <declname>child_buf</declname>
+        </param>
+        <param>
+          <type>size_t *</type>
+          <declname>child_len</declname>
+        </param>
+        <briefdescription>
+<para>Unwraps a constructed container (SEQUENCE, SET, or context-specific tag) for child iteration. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>container</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to container TLV element header. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>child_buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>[out] Sub-slice buffer pointer to container payload. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>child_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>[out] Length of container payload. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if element is constructed and valid payload extracted. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/crypto/syn_asn1.c" line="81" column="6" bodyfile="src/syntropic/crypto/syn_asn1.c" bodystart="81" bodyend="91"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__asn1_8c_1a624fb705537f844a80e84a22941a9349" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_asn1_match_oid</definition>
+        <argsstring>(const SYN_ASN1_Element *elem, const uint8_t *expected_oid, size_t oid_len)</argsstring>
+        <name>syn_asn1_match_oid</name>
+        <param>
+          <type>const <ref refid="structSYN__ASN1__Element" kindref="compound">SYN_ASN1_Element</ref> *</type>
+          <declname>elem</declname>
+        </param>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>expected_oid</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>oid_len</declname>
+        </param>
+        <briefdescription>
+<para>Compare ASN.1 Object Identifier (OID) against expected byte array. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>elem</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Parsed ASN.1 OID element. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>expected_oid</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Expected encoded OID payload bytes. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>oid_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Length of expected OID payload bytes. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if OIDs match. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/crypto/syn_asn1.c" line="93" column="6" bodyfile="src/syntropic/crypto/syn_asn1.c" bodystart="93" bodyend="104"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__asn1_8c_1a45d3f9642422288feddeefc2ea3adc47" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_asn1_get_integer</definition>
+        <argsstring>(const SYN_ASN1_Element *elem, const uint8_t **int_out, size_t *int_len_out)</argsstring>
+        <name>syn_asn1_get_integer</name>
+        <param>
+          <type>const <ref refid="structSYN__ASN1__Element" kindref="compound">SYN_ASN1_Element</ref> *</type>
+          <declname>elem</declname>
+        </param>
+        <param>
+          <type>const uint8_t **</type>
+          <declname>int_out</declname>
+        </param>
+        <param>
+          <type>size_t *</type>
+          <declname>int_len_out</declname>
+        </param>
+        <briefdescription>
+<para>Extract raw integer bytes (stripping leading sign zero padding if present). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>elem</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Parsed ASN.1 INTEGER element. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>int_out</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>[out] Pointer to integer payload bytes. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>int_len_out</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>[out] Length of integer payload bytes. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/crypto/syn_asn1.c" line="106" column="6" bodyfile="src/syntropic/crypto/syn_asn1.c" bodystart="106" bodyend="130"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__asn1_8c_1ac90c501235af4aa3e5aeed192da59c88" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_asn1_get_bit_string</definition>
+        <argsstring>(const SYN_ASN1_Element *elem, const uint8_t **bits_out, size_t *bit_len_out)</argsstring>
+        <name>syn_asn1_get_bit_string</name>
+        <param>
+          <type>const <ref refid="structSYN__ASN1__Element" kindref="compound">SYN_ASN1_Element</ref> *</type>
+          <declname>elem</declname>
+        </param>
+        <param>
+          <type>const uint8_t **</type>
+          <declname>bits_out</declname>
+        </param>
+        <param>
+          <type>size_t *</type>
+          <declname>bit_len_out</declname>
+        </param>
+        <briefdescription>
+<para>Extract Bit String payload (stripping unused bits count prefix byte). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>elem</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Parsed ASN.1 BIT STRING element. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>bits_out</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>[out] Pointer to raw bit string bytes. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>bit_len_out</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>[out] Number of valid bits in payload. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/crypto/syn_asn1.c" line="132" column="6" bodyfile="src/syntropic/crypto/syn_asn1.c" bodystart="132" bodyend="153"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Zero-Heap ASN.1 DER (Distinguished Encoding Rules) TLV Parser implementation. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__asn1_8h" kindref="compound">syntropic/crypto/syn_asn1.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;string.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__asn1_8c_1aa4bb3c553e80ac67074bceee6c339339" kindref="member">syn_asn1_parse_element</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*buf,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>len,<sp/><ref refid="structSYN__ASN1__Element" kindref="compound">SYN_ASN1_Element</ref><sp/>*elem_out)</highlight></codeline>
+<codeline lineno="11"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="12"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(buf<sp/>==<sp/>NULL<sp/>||<sp/>elem_out<sp/>==<sp/>NULL<sp/>||<sp/>len<sp/>&lt;<sp/>2)<sp/>{</highlight></codeline>
+<codeline lineno="13"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="14"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"><sp/><sp/><sp/><sp/>memset(elem_out,<sp/>0,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(<ref refid="structSYN__ASN1__Element" kindref="compound">SYN_ASN1_Element</ref>));</highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>cur<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="19"><highlight class="normal"><sp/><sp/><sp/><sp/>elem_out-&gt;<ref refid="structSYN__ASN1__Element_1abc2733dcff3cbf800a2bfb8ff2b08321" kindref="member">tag</ref><sp/>=<sp/>buf[cur++];</highlight></codeline>
+<codeline lineno="20"><highlight class="normal"><sp/><sp/><sp/><sp/>elem_out-&gt;<ref refid="structSYN__ASN1__Element_1a0b55ecae1ca18a5a7a2fd11db85666d3" kindref="member">tag_class</ref><sp/>=<sp/>elem_out-&gt;<ref refid="structSYN__ASN1__Element_1abc2733dcff3cbf800a2bfb8ff2b08321" kindref="member">tag</ref><sp/>&amp;<sp/><ref refid="syn__asn1_8h_1abb56a29ea0b6064f6b78a5127264dace" kindref="member">SYN_ASN1_CLASS_MASK</ref>;</highlight></codeline>
+<codeline lineno="21"><highlight class="normal"><sp/><sp/><sp/><sp/>elem_out-&gt;<ref refid="structSYN__ASN1__Element_1ada46922910a2742a476ddc270dc0b8d6" kindref="member">constructed</ref><sp/>=<sp/>(elem_out-&gt;<ref refid="structSYN__ASN1__Element_1abc2733dcff3cbf800a2bfb8ff2b08321" kindref="member">tag</ref><sp/>&amp;<sp/><ref refid="syn__asn1_8h_1a3859185c45fa9313ec19f0cd429d771e" kindref="member">SYN_ASN1_CONSTRUCTED_MASK</ref>)<sp/>!=<sp/>0;</highlight></codeline>
+<codeline lineno="22"><highlight class="normal"><sp/><sp/><sp/><sp/>elem_out-&gt;<ref refid="structSYN__ASN1__Element_1a7a31c24f36926a99bb5e63673fbe7866" kindref="member">tag_number</ref><sp/>=<sp/>elem_out-&gt;<ref refid="structSYN__ASN1__Element_1abc2733dcff3cbf800a2bfb8ff2b08321" kindref="member">tag</ref><sp/>&amp;<sp/><ref refid="syn__asn1_8h_1a2b9ff003f856de64503fe1a987d90e2c" kindref="member">SYN_ASN1_TAG_NUM_MASK</ref>;</highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>High<sp/>tag<sp/>number<sp/>extension<sp/>(tag_number<sp/>==<sp/>0x1F)<sp/>not<sp/>standard<sp/>in<sp/>basic<sp/>DER<sp/>certs,</highlight></codeline>
+<codeline lineno="25"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/>*<sp/>but<sp/>we<sp/>support<sp/>single<sp/>byte<sp/>tag<sp/>parsing<sp/>for<sp/>standard<sp/>universal<sp/>&amp;<sp/>context-specific<sp/>tags<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(elem_out-&gt;<ref refid="structSYN__ASN1__Element_1a7a31c24f36926a99bb5e63673fbe7866" kindref="member">tag_number</ref><sp/>==<sp/>0x1FU)<sp/>{</highlight></codeline>
+<codeline lineno="27"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="28"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>len_byte<sp/>=<sp/>buf[cur++];</highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight></codeline>
+<codeline lineno="32"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>((len_byte<sp/>&amp;<sp/>0x80U)<sp/>==<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="33"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Short<sp/>form<sp/>length:<sp/>0..127<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>elem_out-&gt;<ref refid="structSYN__ASN1__Element_1a802436d2e8f68987869c4efadf66aef6" kindref="member">length</ref><sp/>=<sp/>len_byte;</highlight></codeline>
+<codeline lineno="35"><highlight class="normal"><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="36"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Long<sp/>form<sp/>length:<sp/>0x80<sp/>|<sp/>num_length_bytes<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>num_len_bytes<sp/>=<sp/>len_byte<sp/>&amp;<sp/>0x7FU;</highlight></codeline>
+<codeline lineno="38"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(num_len_bytes<sp/>==<sp/>0<sp/>||<sp/>num_len_bytes<sp/>&gt;<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal">)<sp/>||<sp/>(cur<sp/>+<sp/>num_len_bytes)<sp/>&gt;<sp/>len)<sp/>{</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>parsed_len<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(uint8_t<sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>num_len_bytes;<sp/>i++)<sp/>{</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>parsed_len<sp/>=<sp/>(parsed_len<sp/>&lt;&lt;<sp/>8)<sp/>|<sp/>buf[cur++];</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>elem_out-&gt;<ref refid="structSYN__ASN1__Element_1a802436d2e8f68987869c4efadf66aef6" kindref="member">length</ref><sp/>=<sp/>parsed_len;</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"></highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/><sp/><sp/>elem_out-&gt;<ref refid="structSYN__ASN1__Element_1a78ceadb90d8fdf58b54641879e8928e7" kindref="member">header_len</ref><sp/>=<sp/>cur;</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/><sp/><sp/>elem_out-&gt;<ref refid="structSYN__ASN1__Element_1a36513c9bb529194d5f386fc53b5b0143" kindref="member">value</ref><sp/>=<sp/>buf<sp/>+<sp/>cur;</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"></highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(cur<sp/>&gt;<sp/>len<sp/>||<sp/>elem_out-&gt;<ref refid="structSYN__ASN1__Element_1a802436d2e8f68987869c4efadf66aef6" kindref="member">length</ref><sp/>&gt;<sp/>(len<sp/>-<sp/>cur))<sp/>{</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"></highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="57"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"></highlight></codeline>
+<codeline lineno="59"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__asn1_8c_1ab71717669f071f3fb895b141701e34c7" kindref="member">syn_asn1_step</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>**buf,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>*len,<sp/><ref refid="structSYN__ASN1__Element" kindref="compound">SYN_ASN1_Element</ref><sp/>*elem_out)</highlight></codeline>
+<codeline lineno="60"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(buf<sp/>==<sp/>NULL<sp/>||<sp/>*buf<sp/>==<sp/>NULL<sp/>||<sp/>len<sp/>==<sp/>NULL<sp/>||<sp/>*len<sp/>==<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"></highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structSYN__ASN1__Element" kindref="compound">SYN_ASN1_Element</ref><sp/>elem;</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!<ref refid="syn__asn1_8c_1aa4bb3c553e80ac67074bceee6c339339" kindref="member">syn_asn1_parse_element</ref>(*buf,<sp/>*len,<sp/>&amp;elem))<sp/>{</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"></highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>total_consumed<sp/>=<sp/>elem.<ref refid="structSYN__ASN1__Element_1a78ceadb90d8fdf58b54641879e8928e7" kindref="member">header_len</ref><sp/>+<sp/>elem.<ref refid="structSYN__ASN1__Element_1a802436d2e8f68987869c4efadf66aef6" kindref="member">length</ref>;</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"><sp/><sp/><sp/><sp/>*buf<sp/>+=<sp/>total_consumed;</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"><sp/><sp/><sp/><sp/>*len<sp/>-=<sp/>total_consumed;</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"></highlight></codeline>
+<codeline lineno="74"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(elem_out<sp/>!=<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*elem_out<sp/>=<sp/>elem;</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"></highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="79"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"></highlight></codeline>
+<codeline lineno="81"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__asn1_8c_1a1dae34dddc3bc17d8275c827c085f05d" kindref="member">syn_asn1_enter_container</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__ASN1__Element" kindref="compound">SYN_ASN1_Element</ref><sp/>*container,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>**child_buf,</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>*child_len)</highlight></codeline>
+<codeline lineno="83"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(container<sp/>==<sp/>NULL<sp/>||<sp/>child_buf<sp/>==<sp/>NULL<sp/>||<sp/>child_len<sp/>==<sp/>NULL<sp/>||<sp/>!container-&gt;<ref refid="structSYN__ASN1__Element_1ada46922910a2742a476ddc270dc0b8d6" kindref="member">constructed</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"></highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/><sp/><sp/>*child_buf<sp/>=<sp/>container-&gt;<ref refid="structSYN__ASN1__Element_1a36513c9bb529194d5f386fc53b5b0143" kindref="member">value</ref>;</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"><sp/><sp/><sp/><sp/>*child_len<sp/>=<sp/>container-&gt;<ref refid="structSYN__ASN1__Element_1a802436d2e8f68987869c4efadf66aef6" kindref="member">length</ref>;</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="91"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"></highlight></codeline>
+<codeline lineno="93"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__asn1_8c_1a624fb705537f844a80e84a22941a9349" kindref="member">syn_asn1_match_oid</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__ASN1__Element" kindref="compound">SYN_ASN1_Element</ref><sp/>*elem,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*expected_oid,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>oid_len)</highlight></codeline>
+<codeline lineno="94"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(elem<sp/>==<sp/>NULL<sp/>||<sp/>expected_oid<sp/>==<sp/>NULL<sp/>||<sp/>elem-&gt;<ref refid="structSYN__ASN1__Element_1abc2733dcff3cbf800a2bfb8ff2b08321" kindref="member">tag</ref><sp/>!=<sp/><ref refid="syn__asn1_8h_1ac75f989b58e0c401bd2db981c387d20b" kindref="member">SYN_ASN1_TAG_OID</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"></highlight></codeline>
+<codeline lineno="99"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(elem-&gt;<ref refid="structSYN__ASN1__Element_1a802436d2e8f68987869c4efadf66aef6" kindref="member">length</ref><sp/>!=<sp/>oid_len)<sp/>{</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"></highlight></codeline>
+<codeline lineno="103"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(memcmp(elem-&gt;<ref refid="structSYN__ASN1__Element_1a36513c9bb529194d5f386fc53b5b0143" kindref="member">value</ref>,<sp/>expected_oid,<sp/>oid_len)<sp/>==<sp/>0);</highlight></codeline>
+<codeline lineno="104"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"></highlight></codeline>
+<codeline lineno="106"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__asn1_8c_1a45d3f9642422288feddeefc2ea3adc47" kindref="member">syn_asn1_get_integer</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__ASN1__Element" kindref="compound">SYN_ASN1_Element</ref><sp/>*elem,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>**int_out,</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>*int_len_out)</highlight></codeline>
+<codeline lineno="108"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="109"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(elem<sp/>==<sp/>NULL<sp/>||<sp/>int_out<sp/>==<sp/>NULL<sp/>||<sp/>int_len_out<sp/>==<sp/>NULL<sp/>||</highlight></codeline>
+<codeline lineno="110"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>elem-&gt;<ref refid="structSYN__ASN1__Element_1abc2733dcff3cbf800a2bfb8ff2b08321" kindref="member">tag</ref><sp/>!=<sp/><ref refid="syn__asn1_8h_1ab31f3302cb61b0374b11c898f7c6d325" kindref="member">SYN_ASN1_TAG_INTEGER</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="112"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="113"><highlight class="normal"></highlight></codeline>
+<codeline lineno="114"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*val<sp/>=<sp/>elem-&gt;<ref refid="structSYN__ASN1__Element_1a36513c9bb529194d5f386fc53b5b0143" kindref="member">value</ref>;</highlight></codeline>
+<codeline lineno="115"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>val_len<sp/>=<sp/>elem-&gt;<ref refid="structSYN__ASN1__Element_1a802436d2e8f68987869c4efadf66aef6" kindref="member">length</ref>;</highlight></codeline>
+<codeline lineno="116"><highlight class="normal"></highlight></codeline>
+<codeline lineno="117"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(val_len<sp/>==<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="120"><highlight class="normal"></highlight></codeline>
+<codeline lineno="121"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Strip<sp/>leading<sp/>0x00<sp/>byte<sp/>for<sp/>positive<sp/>integers<sp/>where<sp/>top<sp/>bit<sp/>of<sp/>next<sp/>byte<sp/>is<sp/>set<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="122"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(val_len<sp/>&gt;<sp/>1<sp/>&amp;&amp;<sp/>val[0]<sp/>==<sp/>0x00U<sp/>&amp;&amp;<sp/>(val[1]<sp/>&amp;<sp/>0x80U)<sp/>!=<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="123"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>val++;</highlight></codeline>
+<codeline lineno="124"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>val_len--;</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="126"><highlight class="normal"></highlight></codeline>
+<codeline lineno="127"><highlight class="normal"><sp/><sp/><sp/><sp/>*int_out<sp/>=<sp/>val;</highlight></codeline>
+<codeline lineno="128"><highlight class="normal"><sp/><sp/><sp/><sp/>*int_len_out<sp/>=<sp/>val_len;</highlight></codeline>
+<codeline lineno="129"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="130"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="131"><highlight class="normal"></highlight></codeline>
+<codeline lineno="132"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__asn1_8c_1ac90c501235af4aa3e5aeed192da59c88" kindref="member">syn_asn1_get_bit_string</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__ASN1__Element" kindref="compound">SYN_ASN1_Element</ref><sp/>*elem,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>**bits_out,</highlight></codeline>
+<codeline lineno="133"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>*bit_len_out)</highlight></codeline>
+<codeline lineno="134"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="135"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(elem<sp/>==<sp/>NULL<sp/>||<sp/>bits_out<sp/>==<sp/>NULL<sp/>||<sp/>bit_len_out<sp/>==<sp/>NULL<sp/>||</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>elem-&gt;<ref refid="structSYN__ASN1__Element_1abc2733dcff3cbf800a2bfb8ff2b08321" kindref="member">tag</ref><sp/>!=<sp/><ref refid="syn__asn1_8h_1abd3ac4449f82b6392e2d33d6159cec48" kindref="member">SYN_ASN1_TAG_BIT_STRING</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="137"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="138"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="139"><highlight class="normal"></highlight></codeline>
+<codeline lineno="140"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(elem-&gt;<ref refid="structSYN__ASN1__Element_1a802436d2e8f68987869c4efadf66aef6" kindref="member">length</ref><sp/>&lt;<sp/>1)<sp/>{</highlight></codeline>
+<codeline lineno="141"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="142"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="143"><highlight class="normal"></highlight></codeline>
+<codeline lineno="144"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>unused_bits<sp/>=<sp/>elem-&gt;<ref refid="structSYN__ASN1__Element_1a36513c9bb529194d5f386fc53b5b0143" kindref="member">value</ref>[0];</highlight></codeline>
+<codeline lineno="145"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(unused_bits<sp/>&gt;<sp/>7)<sp/>{</highlight></codeline>
+<codeline lineno="146"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="147"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="148"><highlight class="normal"></highlight></codeline>
+<codeline lineno="149"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>total_payload_bytes<sp/>=<sp/>elem-&gt;<ref refid="structSYN__ASN1__Element_1a802436d2e8f68987869c4efadf66aef6" kindref="member">length</ref><sp/>-<sp/>1;</highlight></codeline>
+<codeline lineno="150"><highlight class="normal"><sp/><sp/><sp/><sp/>*bits_out<sp/>=<sp/>elem-&gt;<ref refid="structSYN__ASN1__Element_1a36513c9bb529194d5f386fc53b5b0143" kindref="member">value</ref><sp/>+<sp/>1;</highlight></codeline>
+<codeline lineno="151"><highlight class="normal"><sp/><sp/><sp/><sp/>*bit_len_out<sp/>=<sp/>(total_payload_bytes<sp/>*<sp/>8U)<sp/>-<sp/>unused_bits;</highlight></codeline>
+<codeline lineno="152"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="153"><highlight class="normal">}</highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/crypto/syn_asn1.c"/>
+  </compounddef>
+</doxygen>

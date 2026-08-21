@@ -1,0 +1,1652 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__hkdf_8c" kind="file" language="C++">
+    <compoundname>syn_hkdf.c</compoundname>
+    <includes refid="syn__hkdf_8h" local="yes">syn_hkdf.h</includes>
+    <includes local="no">string.h</includes>
+    <incdepgraph>
+      <node id="1">
+        <label>src/syntropic/crypto/syn_hkdf.c</label>
+        <link refid="syn__hkdf_8c"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>syn_hkdf.h</label>
+        <link refid="syn__hkdf_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>syn_hmac.h</label>
+        <link refid="syn__hmac_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>syn_sha256.h</label>
+        <link refid="syn__sha256_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>syn_sha512.h</label>
+        <link refid="syn__sha512_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="9">
+        <label>stdbool.h</label>
+      </node>
+      <node id="5">
+        <label>stddef.h</label>
+      </node>
+      <node id="6">
+        <label>stdint.h</label>
+      </node>
+      <node id="7">
+        <label>string.h</label>
+      </node>
+    </incdepgraph>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__hkdf_8c_1aecd0cd53e7adc2a029ac0f75f5816a2f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_hkdf_extract</definition>
+        <argsstring>(const uint8_t *salt, size_t salt_len, const uint8_t *ikm, size_t ikm_len, uint8_t prk_out[SYN_SHA256_DIGEST_SIZE])</argsstring>
+        <name>syn_hkdf_extract</name>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>salt</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>salt_len</declname>
+        </param>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>ikm</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>ikm_len</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>prk_out</declname>
+          <array>[SYN_SHA256_DIGEST_SIZE]</array>
+        </param>
+        <briefdescription>
+<para>HKDF-SHA256 Extract step (RFC 5869 Section 2.2). </para>
+        </briefdescription>
+        <detaileddescription>
+<para>PRK = HMAC-Hash(salt, IKM)</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>salt</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Salt value (if NULL, a string of 32 zero bytes is used). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>salt_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Salt length in bytes. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>ikm</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Input keying material. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>ikm_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>IKM length in bytes. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>prk_out</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>[out] Output Pseudorandom Key buffer (must be at least 32 bytes). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/crypto/syn_hkdf.c" line="10" column="6" bodyfile="src/syntropic/crypto/syn_hkdf.c" bodystart="10" bodyend="29"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__hkdf_8c_1ab85c8d6d5d34312d8fa7a367846643bc" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_hkdf_expand</definition>
+        <argsstring>(const uint8_t *prk, size_t prk_len, const uint8_t *info, size_t info_len, uint8_t *okm_out, size_t okm_len)</argsstring>
+        <name>syn_hkdf_expand</name>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>prk</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>prk_len</declname>
+        </param>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>info</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>info_len</declname>
+        </param>
+        <param>
+          <type>uint8_t *</type>
+          <declname>okm_out</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>okm_len</declname>
+        </param>
+        <briefdescription>
+<para>HKDF-SHA256 Expand step (RFC 5869 Section 2.3). </para>
+        </briefdescription>
+        <detaileddescription>
+<para>OKM = HKDF-Expand(PRK, info, L)</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>prk</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pseudorandom Key (at least 32 bytes). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>prk_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>PRK length in bytes. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>info</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Optional context and application specific information. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>info_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Info length in bytes. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>okm_out</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>[out] Output keying material buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>okm_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Desired length of output keying material (max 255 * 32 = 8160 bytes). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true on success, false on invalid parameters. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/crypto/syn_hkdf.c" line="31" column="6" bodyfile="src/syntropic/crypto/syn_hkdf.c" bodystart="31" bodyend="78"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__hkdf_8c_1a5faddb856170ea2e580e118e308b3244" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_hkdf</definition>
+        <argsstring>(const uint8_t *salt, size_t salt_len, const uint8_t *ikm, size_t ikm_len, const uint8_t *info, size_t info_len, uint8_t *okm_out, size_t okm_len)</argsstring>
+        <name>syn_hkdf</name>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>salt</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>salt_len</declname>
+        </param>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>ikm</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>ikm_len</declname>
+        </param>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>info</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>info_len</declname>
+        </param>
+        <param>
+          <type>uint8_t *</type>
+          <declname>okm_out</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>okm_len</declname>
+        </param>
+        <briefdescription>
+<para>Complete HKDF-SHA256 (Extract then Expand). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>salt</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Salt value (optional). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>salt_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Salt length. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>ikm</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Input keying material. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>ikm_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>IKM length. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>info</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Context info (optional). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>info_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Info length. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>okm_out</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>[out] Output keying material. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>okm_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Desired output length. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/crypto/syn_hkdf.c" line="80" column="6" bodyfile="src/syntropic/crypto/syn_hkdf.c" bodystart="80" bodyend="86"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__hkdf_8c_1a3cbe6e7a06f4094a7e6f2bba55c7d3d8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_hkdf_expand_label</definition>
+        <argsstring>(const uint8_t *secret, size_t secret_len, const char *label, size_t label_len, const uint8_t *context, size_t context_len, uint8_t *out, size_t out_len)</argsstring>
+        <name>syn_hkdf_expand_label</name>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>secret</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>secret_len</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>label</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>label_len</declname>
+        </param>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>context</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>context_len</declname>
+        </param>
+        <param>
+          <type>uint8_t *</type>
+          <declname>out</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>out_len</declname>
+        </param>
+        <briefdescription>
+<para>TLS 1.3 HKDF-Expand-Label with SHA-256 (RFC 8446 Section 7.1). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>secret</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Secret key (at least 32 bytes). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>secret_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Secret length. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>label</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Label string (e.g. &quot;c hs traffic&quot;, &quot;s hs traffic&quot;, &quot;derived&quot;, etc.). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>label_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Label length (excluding null terminator). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>context</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Transcript hash context bytes (or NULL if 0-length). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>context_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Context length (e.g. 32 bytes for SHA-256 transcript hash). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>[out] Output key buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Desired output key length. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/crypto/syn_hkdf.c" line="88" column="6" bodyfile="src/syntropic/crypto/syn_hkdf.c" bodystart="88" bodyend="135"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__hkdf_8c_1ad96d8aaba91b0355e2018baa97b0c119" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_hkdf_sha384_extract</definition>
+        <argsstring>(const uint8_t *salt, size_t salt_len, const uint8_t *ikm, size_t ikm_len, uint8_t prk_out[SYN_SHA384_DIGEST_SIZE])</argsstring>
+        <name>syn_hkdf_sha384_extract</name>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>salt</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>salt_len</declname>
+        </param>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>ikm</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>ikm_len</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>prk_out</declname>
+          <array>[SYN_SHA384_DIGEST_SIZE]</array>
+        </param>
+        <briefdescription>
+<para>HKDF-SHA384 Extract step (RFC 5869 Section 2.2). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>salt</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Salt value (if NULL, a string of 48 zero bytes is used). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>salt_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Salt length in bytes. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>ikm</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Input keying material. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>ikm_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>IKM length in bytes. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>prk_out</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>[out] Output Pseudorandom Key buffer (must be at least 48 bytes). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/crypto/syn_hkdf.c" line="139" column="6" bodyfile="src/syntropic/crypto/syn_hkdf.c" bodystart="139" bodyend="158"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__hkdf_8c_1a72d4b161458344e53a6690b7864156f9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_hkdf_sha384_expand</definition>
+        <argsstring>(const uint8_t *prk, size_t prk_len, const uint8_t *info, size_t info_len, uint8_t *okm_out, size_t okm_len)</argsstring>
+        <name>syn_hkdf_sha384_expand</name>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>prk</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>prk_len</declname>
+        </param>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>info</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>info_len</declname>
+        </param>
+        <param>
+          <type>uint8_t *</type>
+          <declname>okm_out</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>okm_len</declname>
+        </param>
+        <briefdescription>
+<para>HKDF-SHA384 Expand step (RFC 5869 Section 2.3). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>prk</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pseudorandom Key (at least 48 bytes). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>prk_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>PRK length in bytes. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>info</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Optional context and application specific information. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>info_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Info length in bytes. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>okm_out</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>[out] Output keying material buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>okm_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Desired length of output keying material (max 255 * 48 = 12240 bytes). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true on success, false on invalid parameters. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/crypto/syn_hkdf.c" line="160" column="6" bodyfile="src/syntropic/crypto/syn_hkdf.c" bodystart="160" bodyend="207"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__hkdf_8c_1ae1c71554c93ffb42749ad9f6169ad2b8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_hkdf_sha384</definition>
+        <argsstring>(const uint8_t *salt, size_t salt_len, const uint8_t *ikm, size_t ikm_len, const uint8_t *info, size_t info_len, uint8_t *okm_out, size_t okm_len)</argsstring>
+        <name>syn_hkdf_sha384</name>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>salt</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>salt_len</declname>
+        </param>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>ikm</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>ikm_len</declname>
+        </param>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>info</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>info_len</declname>
+        </param>
+        <param>
+          <type>uint8_t *</type>
+          <declname>okm_out</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>okm_len</declname>
+        </param>
+        <briefdescription>
+<para>Complete HKDF-SHA384 (Extract then Expand). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>salt</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Salt value (optional). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>salt_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Salt length. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>ikm</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Input keying material. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>ikm_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>IKM length. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>info</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Context info (optional). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>info_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Info length. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>okm_out</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>[out] Output keying material. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>okm_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Desired output length. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/crypto/syn_hkdf.c" line="209" column="6" bodyfile="src/syntropic/crypto/syn_hkdf.c" bodystart="209" bodyend="215"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__hkdf_8c_1ab9d1135be4bd7a371417ac39eff2cb04" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_hkdf_sha384_expand_label</definition>
+        <argsstring>(const uint8_t *secret, size_t secret_len, const char *label, size_t label_len, const uint8_t *context, size_t context_len, uint8_t *out, size_t out_len)</argsstring>
+        <name>syn_hkdf_sha384_expand_label</name>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>secret</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>secret_len</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>label</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>label_len</declname>
+        </param>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>context</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>context_len</declname>
+        </param>
+        <param>
+          <type>uint8_t *</type>
+          <declname>out</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>out_len</declname>
+        </param>
+        <briefdescription>
+<para>TLS 1.3 HKDF-Expand-Label with SHA-384 (RFC 8446 Section 7.1). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>secret</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Secret key (at least 48 bytes). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>secret_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Secret length. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>label</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Label string. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>label_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Label length (excluding null terminator). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>context</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Transcript hash context bytes (or NULL if 0-length). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>context_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Context length (e.g. 48 bytes for SHA-384 transcript hash). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>[out] Output key buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Desired output key length. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/crypto/syn_hkdf.c" line="217" column="6" bodyfile="src/syntropic/crypto/syn_hkdf.c" bodystart="217" bodyend="260"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__hkdf_8c_1a348cdd9e075a683ff16a9ee9015b8e64" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_hkdf_sha512_extract</definition>
+        <argsstring>(const uint8_t *salt, size_t salt_len, const uint8_t *ikm, size_t ikm_len, uint8_t prk_out[SYN_SHA512_DIGEST_SIZE])</argsstring>
+        <name>syn_hkdf_sha512_extract</name>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>salt</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>salt_len</declname>
+        </param>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>ikm</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>ikm_len</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>prk_out</declname>
+          <array>[SYN_SHA512_DIGEST_SIZE]</array>
+        </param>
+        <briefdescription>
+<para>HKDF-SHA512 Extract step (RFC 5869 Section 2.2). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>salt</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Salt value (if NULL, a string of 64 zero bytes is used). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>salt_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Salt length in bytes. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>ikm</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Input keying material. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>ikm_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>IKM length in bytes. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>prk_out</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>[out] Output Pseudorandom Key buffer (must be at least 64 bytes). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/crypto/syn_hkdf.c" line="264" column="6" bodyfile="src/syntropic/crypto/syn_hkdf.c" bodystart="264" bodyend="283"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__hkdf_8c_1abcbab6df2fdf176683eb2cc65790c4fb" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_hkdf_sha512_expand</definition>
+        <argsstring>(const uint8_t *prk, size_t prk_len, const uint8_t *info, size_t info_len, uint8_t *okm_out, size_t okm_len)</argsstring>
+        <name>syn_hkdf_sha512_expand</name>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>prk</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>prk_len</declname>
+        </param>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>info</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>info_len</declname>
+        </param>
+        <param>
+          <type>uint8_t *</type>
+          <declname>okm_out</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>okm_len</declname>
+        </param>
+        <briefdescription>
+<para>HKDF-SHA512 Expand step (RFC 5869 Section 2.3). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>prk</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pseudorandom Key (at least 64 bytes). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>prk_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>PRK length in bytes. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>info</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Optional context and application specific information. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>info_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Info length in bytes. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>okm_out</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>[out] Output keying material buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>okm_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Desired length of output keying material (max 255 * 64 = 16320 bytes). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true on success, false on invalid parameters. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/crypto/syn_hkdf.c" line="285" column="6" bodyfile="src/syntropic/crypto/syn_hkdf.c" bodystart="285" bodyend="332"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__hkdf_8c_1ad7da53bacc7c6938f01b9e1d62ab6bc7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_hkdf_sha512</definition>
+        <argsstring>(const uint8_t *salt, size_t salt_len, const uint8_t *ikm, size_t ikm_len, const uint8_t *info, size_t info_len, uint8_t *okm_out, size_t okm_len)</argsstring>
+        <name>syn_hkdf_sha512</name>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>salt</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>salt_len</declname>
+        </param>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>ikm</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>ikm_len</declname>
+        </param>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>info</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>info_len</declname>
+        </param>
+        <param>
+          <type>uint8_t *</type>
+          <declname>okm_out</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>okm_len</declname>
+        </param>
+        <briefdescription>
+<para>Complete HKDF-SHA512 (Extract then Expand). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>salt</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Salt value (optional). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>salt_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Salt length. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>ikm</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Input keying material. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>ikm_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>IKM length. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>info</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Context info (optional). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>info_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Info length. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>okm_out</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>[out] Output keying material. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>okm_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Desired output length. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/crypto/syn_hkdf.c" line="334" column="6" bodyfile="src/syntropic/crypto/syn_hkdf.c" bodystart="334" bodyend="340"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__hkdf_8c_1aae0f3b674b731ae0afd13eecbcd73d84" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_hkdf_sha512_expand_label</definition>
+        <argsstring>(const uint8_t *secret, size_t secret_len, const char *label, size_t label_len, const uint8_t *context, size_t context_len, uint8_t *out, size_t out_len)</argsstring>
+        <name>syn_hkdf_sha512_expand_label</name>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>secret</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>secret_len</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>label</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>label_len</declname>
+        </param>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>context</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>context_len</declname>
+        </param>
+        <param>
+          <type>uint8_t *</type>
+          <declname>out</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>out_len</declname>
+        </param>
+        <briefdescription>
+<para>TLS 1.3 HKDF-Expand-Label with SHA-512 (RFC 8446 Section 7.1). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>secret</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Secret key (at least 64 bytes). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>secret_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Secret length. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>label</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Label string. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>label_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Label length (excluding null terminator). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>context</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Transcript hash context bytes (or NULL if 0-length). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>context_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Context length. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>[out] Output key buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Desired output key length. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/crypto/syn_hkdf.c" line="342" column="6" bodyfile="src/syntropic/crypto/syn_hkdf.c" bodystart="342" bodyend="385"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>HMAC-based Extract-and-Expand Key Derivation Function (HKDF-SHA256, RFC 5869). </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__hkdf_8h" kindref="compound">syn_hkdf.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;string.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__hkdf_8c_1aecd0cd53e7adc2a029ac0f75f5816a2f" kindref="member">syn_hkdf_extract</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*salt,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>salt_len,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*ikm,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>ikm_len,</highlight></codeline>
+<codeline lineno="11"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>prk_out[<ref refid="syn__sha256_8h_1a1bc25b6c24baf84a400cc8e51842a3bb" kindref="member">SYN_SHA256_DIGEST_SIZE</ref>])</highlight></codeline>
+<codeline lineno="12"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="13"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>zero_salt[<ref refid="syn__sha256_8h_1a1bc25b6c24baf84a400cc8e51842a3bb" kindref="member">SYN_SHA256_DIGEST_SIZE</ref>]<sp/>=<sp/>{0};</highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(prk_out<sp/>==<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="16"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="17"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(salt<sp/>==<sp/>NULL<sp/>||<sp/>salt_len<sp/>==<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="20"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>salt<sp/>=<sp/>zero_salt;</highlight></codeline>
+<codeline lineno="21"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>salt_len<sp/>=<sp/><ref refid="syn__sha256_8h_1a1bc25b6c24baf84a400cc8e51842a3bb" kindref="member">SYN_SHA256_DIGEST_SIZE</ref>;</highlight></codeline>
+<codeline lineno="22"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(ikm<sp/>==<sp/>NULL<sp/>&amp;&amp;<sp/>ikm_len<sp/>&gt;<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="25"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ikm_len<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="26"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__hmac_8h_1a8756a6bdfa948349ef3aff050ce40ca3" kindref="member">syn_hmac_sha256</ref>(salt,<sp/>salt_len,<sp/>ikm,<sp/>ikm_len,<sp/>prk_out);</highlight></codeline>
+<codeline lineno="29"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__hkdf_8c_1ab85c8d6d5d34312d8fa7a367846643bc" kindref="member">syn_hkdf_expand</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*prk,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>prk_len,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*info,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>info_len,</highlight></codeline>
+<codeline lineno="32"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>*okm_out,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>okm_len)</highlight></codeline>
+<codeline lineno="33"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="34"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(prk<sp/>==<sp/>NULL<sp/>||<sp/>okm_out<sp/>==<sp/>NULL<sp/>||<sp/>prk_len<sp/>&lt;<sp/><ref refid="syn__sha256_8h_1a1bc25b6c24baf84a400cc8e51842a3bb" kindref="member">SYN_SHA256_DIGEST_SIZE</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="35"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="36"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(okm_len<sp/>==<sp/>0<sp/>||<sp/>okm_len<sp/>&gt;<sp/>(255U<sp/>*<sp/><ref refid="syn__sha256_8h_1a1bc25b6c24baf84a400cc8e51842a3bb" kindref="member">SYN_SHA256_DIGEST_SIZE</ref>))<sp/>{</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(info<sp/>==<sp/>NULL<sp/>&amp;&amp;<sp/>info_len<sp/>&gt;<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>info_len<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>t[<ref refid="syn__sha256_8h_1a1bc25b6c24baf84a400cc8e51842a3bb" kindref="member">SYN_SHA256_DIGEST_SIZE</ref>];</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>t_len<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>written<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>counter<sp/>=<sp/>1;</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"></highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">while</highlight><highlight class="normal"><sp/>(written<sp/>&lt;<sp/>okm_len)<sp/>{</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__HMAC__SHA256" kindref="compound">SYN_HMAC_SHA256</ref><sp/>hmac;</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__hmac_8h_1a6067f8ebcdec74b2b877caad3380df56" kindref="member">syn_hmac_sha256_init</ref>(&amp;hmac,<sp/>prk,<sp/>prk_len);</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"></highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(counter<sp/>&gt;<sp/>1)<sp/>{</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__hmac_8h_1a9071c35fe8ffef2e89762b2090594255" kindref="member">syn_hmac_sha256_update</ref>(&amp;hmac,<sp/>t,<sp/>t_len);</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"></highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(info_len<sp/>&gt;<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__hmac_8h_1a9071c35fe8ffef2e89762b2090594255" kindref="member">syn_hmac_sha256_update</ref>(&amp;hmac,<sp/>info,<sp/>info_len);</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"></highlight></codeline>
+<codeline lineno="63"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__hmac_8h_1a9071c35fe8ffef2e89762b2090594255" kindref="member">syn_hmac_sha256_update</ref>(&amp;hmac,<sp/>&amp;counter,<sp/>1);</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__hmac_8h_1a79f9790e1355ed0efeaf1ca745729d6e" kindref="member">syn_hmac_sha256_final</ref>(&amp;hmac,<sp/>t);</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>t_len<sp/>=<sp/><ref refid="syn__sha256_8h_1a1bc25b6c24baf84a400cc8e51842a3bb" kindref="member">SYN_SHA256_DIGEST_SIZE</ref>;</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"></highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>todo<sp/>=<sp/>okm_len<sp/>-<sp/>written;</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(todo<sp/>&gt;<sp/><ref refid="syn__sha256_8h_1a1bc25b6c24baf84a400cc8e51842a3bb" kindref="member">SYN_SHA256_DIGEST_SIZE</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>todo<sp/>=<sp/><ref refid="syn__sha256_8h_1a1bc25b6c24baf84a400cc8e51842a3bb" kindref="member">SYN_SHA256_DIGEST_SIZE</ref>;</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"></highlight></codeline>
+<codeline lineno="72"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>memcpy(okm_out<sp/>+<sp/>written,<sp/>t,<sp/>todo);</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>written<sp/>+=<sp/>todo;</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>counter++;</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"></highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="78"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"></highlight></codeline>
+<codeline lineno="80"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__hkdf_8c_1a5faddb856170ea2e580e118e308b3244" kindref="member">syn_hkdf</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*salt,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>salt_len,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*ikm,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>ikm_len,</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*info,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>info_len,<sp/>uint8_t<sp/>*okm_out,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>okm_len)</highlight></codeline>
+<codeline lineno="82"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>prk[<ref refid="syn__sha256_8h_1a1bc25b6c24baf84a400cc8e51842a3bb" kindref="member">SYN_SHA256_DIGEST_SIZE</ref>];</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__hkdf_8c_1aecd0cd53e7adc2a029ac0f75f5816a2f" kindref="member">syn_hkdf_extract</ref>(salt,<sp/>salt_len,<sp/>ikm,<sp/>ikm_len,<sp/>prk);</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__hkdf_8c_1ab85c8d6d5d34312d8fa7a367846643bc" kindref="member">syn_hkdf_expand</ref>(prk,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(prk),<sp/>info,<sp/>info_len,<sp/>okm_out,<sp/>okm_len);</highlight></codeline>
+<codeline lineno="86"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"></highlight></codeline>
+<codeline lineno="88"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__hkdf_8c_1a3cbe6e7a06f4094a7e6f2bba55c7d3d8" kindref="member">syn_hkdf_expand_label</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*secret,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>secret_len,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*label,</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>label_len,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*context,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>context_len,</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>*out,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>out_len)</highlight></codeline>
+<codeline lineno="91"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(secret<sp/>==<sp/>NULL<sp/>||<sp/>label<sp/>==<sp/>NULL<sp/>||<sp/>out<sp/>==<sp/>NULL<sp/>||<sp/>out_len<sp/>==<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"></highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>prefix[]<sp/>=<sp/></highlight><highlight class="stringliteral">&quot;tls13<sp/>&quot;</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>prefix_len<sp/>=<sp/>6;</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>full_label_len<sp/>=<sp/>prefix_len<sp/>+<sp/>label_len;</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"></highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(full_label_len<sp/>&gt;<sp/>255)<sp/>{</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"></highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(context<sp/>==<sp/>NULL<sp/>&amp;&amp;<sp/>context_len<sp/>&gt;<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>context_len<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"></highlight></codeline>
+<codeline lineno="108"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(context_len<sp/>&gt;<sp/>255)<sp/>{</highlight></codeline>
+<codeline lineno="109"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="110"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"></highlight></codeline>
+<codeline lineno="112"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>HkdfLabel<sp/>structure<sp/>buffer:</highlight></codeline>
+<codeline lineno="113"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/>*<sp/>uint16<sp/>length<sp/>(2B)<sp/>+<sp/>uint8<sp/>label_len<sp/>(1B)<sp/>+<sp/>label<sp/>(full_label_len)<sp/>+</highlight></codeline>
+<codeline lineno="114"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/>*<sp/>uint8<sp/>context_len<sp/>(1B)<sp/>+<sp/>context<sp/>(context_len)</highlight></codeline>
+<codeline lineno="115"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="116"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>hkdf_label[512];</highlight></codeline>
+<codeline lineno="117"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>offset<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"></highlight></codeline>
+<codeline lineno="119"><highlight class="normal"><sp/><sp/><sp/><sp/>hkdf_label[offset++]<sp/>=<sp/>(uint8_t)((out_len<sp/>&gt;&gt;<sp/>8)<sp/>&amp;<sp/>0xFF);</highlight></codeline>
+<codeline lineno="120"><highlight class="normal"><sp/><sp/><sp/><sp/>hkdf_label[offset++]<sp/>=<sp/>(uint8_t)(out_len<sp/>&amp;<sp/>0xFF);</highlight></codeline>
+<codeline lineno="121"><highlight class="normal"></highlight></codeline>
+<codeline lineno="122"><highlight class="normal"><sp/><sp/><sp/><sp/>hkdf_label[offset++]<sp/>=<sp/>(uint8_t)full_label_len;</highlight></codeline>
+<codeline lineno="123"><highlight class="normal"><sp/><sp/><sp/><sp/>memcpy(hkdf_label<sp/>+<sp/>offset,<sp/>prefix,<sp/>prefix_len);</highlight></codeline>
+<codeline lineno="124"><highlight class="normal"><sp/><sp/><sp/><sp/>offset<sp/>+=<sp/>prefix_len;</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"><sp/><sp/><sp/><sp/>memcpy(hkdf_label<sp/>+<sp/>offset,<sp/>label,<sp/>label_len);</highlight></codeline>
+<codeline lineno="126"><highlight class="normal"><sp/><sp/><sp/><sp/>offset<sp/>+=<sp/>label_len;</highlight></codeline>
+<codeline lineno="127"><highlight class="normal"></highlight></codeline>
+<codeline lineno="128"><highlight class="normal"><sp/><sp/><sp/><sp/>hkdf_label[offset++]<sp/>=<sp/>(uint8_t)context_len;</highlight></codeline>
+<codeline lineno="129"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(context_len<sp/>&gt;<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="130"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>memcpy(hkdf_label<sp/>+<sp/>offset,<sp/>context,<sp/>context_len);</highlight></codeline>
+<codeline lineno="131"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>offset<sp/>+=<sp/>context_len;</highlight></codeline>
+<codeline lineno="132"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="133"><highlight class="normal"></highlight></codeline>
+<codeline lineno="134"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__hkdf_8c_1ab85c8d6d5d34312d8fa7a367846643bc" kindref="member">syn_hkdf_expand</ref>(secret,<sp/>secret_len,<sp/>hkdf_label,<sp/>offset,<sp/>out,<sp/>out_len);</highlight></codeline>
+<codeline lineno="135"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"></highlight></codeline>
+<codeline lineno="137"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>HKDF-SHA384<sp/>───────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="138"><highlight class="normal"></highlight></codeline>
+<codeline lineno="139"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__hkdf_8c_1ad96d8aaba91b0355e2018baa97b0c119" kindref="member">syn_hkdf_sha384_extract</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*salt,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>salt_len,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*ikm,</highlight></codeline>
+<codeline lineno="140"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>ikm_len,<sp/>uint8_t<sp/>prk_out[<ref refid="syn__sha512_8h_1a5682137e517e3ed6f3aaf95c3e39e011" kindref="member">SYN_SHA384_DIGEST_SIZE</ref>])</highlight></codeline>
+<codeline lineno="141"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="142"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>zero_salt[<ref refid="syn__sha512_8h_1a5682137e517e3ed6f3aaf95c3e39e011" kindref="member">SYN_SHA384_DIGEST_SIZE</ref>]<sp/>=<sp/>{0};</highlight></codeline>
+<codeline lineno="143"><highlight class="normal"></highlight></codeline>
+<codeline lineno="144"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(prk_out<sp/>==<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="145"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="146"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="147"><highlight class="normal"></highlight></codeline>
+<codeline lineno="148"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(salt<sp/>==<sp/>NULL<sp/>||<sp/>salt_len<sp/>==<sp/>0U)<sp/>{</highlight></codeline>
+<codeline lineno="149"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>salt<sp/>=<sp/>zero_salt;</highlight></codeline>
+<codeline lineno="150"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>salt_len<sp/>=<sp/><ref refid="syn__sha512_8h_1a5682137e517e3ed6f3aaf95c3e39e011" kindref="member">SYN_SHA384_DIGEST_SIZE</ref>;</highlight></codeline>
+<codeline lineno="151"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="152"><highlight class="normal"></highlight></codeline>
+<codeline lineno="153"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(ikm<sp/>==<sp/>NULL<sp/>&amp;&amp;<sp/>ikm_len<sp/>&gt;<sp/>0U)<sp/>{</highlight></codeline>
+<codeline lineno="154"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ikm_len<sp/>=<sp/>0U;</highlight></codeline>
+<codeline lineno="155"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="156"><highlight class="normal"></highlight></codeline>
+<codeline lineno="157"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__sha512_8c_1a911ec622bebf85f0a635fc4e49548a18" kindref="member">syn_hmac_sha384</ref>(salt,<sp/>salt_len,<sp/>ikm,<sp/>ikm_len,<sp/>prk_out);</highlight></codeline>
+<codeline lineno="158"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="159"><highlight class="normal"></highlight></codeline>
+<codeline lineno="160"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__hkdf_8c_1a72d4b161458344e53a6690b7864156f9" kindref="member">syn_hkdf_sha384_expand</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*prk,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>prk_len,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*info,</highlight></codeline>
+<codeline lineno="161"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>info_len,<sp/>uint8_t<sp/>*okm_out,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>okm_len)</highlight></codeline>
+<codeline lineno="162"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="163"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(prk<sp/>==<sp/>NULL<sp/>||<sp/>okm_out<sp/>==<sp/>NULL<sp/>||<sp/>prk_len<sp/>&lt;<sp/><ref refid="syn__sha512_8h_1a5682137e517e3ed6f3aaf95c3e39e011" kindref="member">SYN_SHA384_DIGEST_SIZE</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="164"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="165"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="166"><highlight class="normal"></highlight></codeline>
+<codeline lineno="167"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(okm_len<sp/>==<sp/>0U<sp/>||<sp/>okm_len<sp/>&gt;<sp/>(255U<sp/>*<sp/><ref refid="syn__sha512_8h_1a5682137e517e3ed6f3aaf95c3e39e011" kindref="member">SYN_SHA384_DIGEST_SIZE</ref>))<sp/>{</highlight></codeline>
+<codeline lineno="168"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="169"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="170"><highlight class="normal"></highlight></codeline>
+<codeline lineno="171"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(info<sp/>==<sp/>NULL<sp/>&amp;&amp;<sp/>info_len<sp/>&gt;<sp/>0U)<sp/>{</highlight></codeline>
+<codeline lineno="172"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>info_len<sp/>=<sp/>0U;</highlight></codeline>
+<codeline lineno="173"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="174"><highlight class="normal"></highlight></codeline>
+<codeline lineno="175"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>t[<ref refid="syn__sha512_8h_1a5682137e517e3ed6f3aaf95c3e39e011" kindref="member">SYN_SHA384_DIGEST_SIZE</ref>];</highlight></codeline>
+<codeline lineno="176"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>t_len<sp/>=<sp/>0U;</highlight></codeline>
+<codeline lineno="177"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>written<sp/>=<sp/>0U;</highlight></codeline>
+<codeline lineno="178"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>counter<sp/>=<sp/>1U;</highlight></codeline>
+<codeline lineno="179"><highlight class="normal"></highlight></codeline>
+<codeline lineno="180"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">while</highlight><highlight class="normal"><sp/>(written<sp/>&lt;<sp/>okm_len)<sp/>{</highlight></codeline>
+<codeline lineno="181"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__HMAC__SHA384" kindref="compound">SYN_HMAC_SHA384</ref><sp/>hmac;</highlight></codeline>
+<codeline lineno="182"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__sha512_8c_1a31496519efe43ed8a2d3123bfdaa15e8" kindref="member">syn_hmac_sha384_init</ref>(&amp;hmac,<sp/>prk,<sp/>prk_len);</highlight></codeline>
+<codeline lineno="183"><highlight class="normal"></highlight></codeline>
+<codeline lineno="184"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(counter<sp/>&gt;<sp/>1U)<sp/>{</highlight></codeline>
+<codeline lineno="185"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__sha512_8c_1aa18f9aa065faf5440f3d684ca6d08851" kindref="member">syn_hmac_sha384_update</ref>(&amp;hmac,<sp/>t,<sp/>t_len);</highlight></codeline>
+<codeline lineno="186"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="187"><highlight class="normal"></highlight></codeline>
+<codeline lineno="188"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(info_len<sp/>&gt;<sp/>0U)<sp/>{</highlight></codeline>
+<codeline lineno="189"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__sha512_8c_1aa18f9aa065faf5440f3d684ca6d08851" kindref="member">syn_hmac_sha384_update</ref>(&amp;hmac,<sp/>info,<sp/>info_len);</highlight></codeline>
+<codeline lineno="190"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="191"><highlight class="normal"></highlight></codeline>
+<codeline lineno="192"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__sha512_8c_1aa18f9aa065faf5440f3d684ca6d08851" kindref="member">syn_hmac_sha384_update</ref>(&amp;hmac,<sp/>&amp;counter,<sp/>1U);</highlight></codeline>
+<codeline lineno="193"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__sha512_8c_1abc679be7d1c218adead5b3c1e15f3117" kindref="member">syn_hmac_sha384_final</ref>(&amp;hmac,<sp/>t);</highlight></codeline>
+<codeline lineno="194"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>t_len<sp/>=<sp/><ref refid="syn__sha512_8h_1a5682137e517e3ed6f3aaf95c3e39e011" kindref="member">SYN_SHA384_DIGEST_SIZE</ref>;</highlight></codeline>
+<codeline lineno="195"><highlight class="normal"></highlight></codeline>
+<codeline lineno="196"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>todo<sp/>=<sp/>okm_len<sp/>-<sp/>written;</highlight></codeline>
+<codeline lineno="197"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(todo<sp/>&gt;<sp/><ref refid="syn__sha512_8h_1a5682137e517e3ed6f3aaf95c3e39e011" kindref="member">SYN_SHA384_DIGEST_SIZE</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="198"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>todo<sp/>=<sp/><ref refid="syn__sha512_8h_1a5682137e517e3ed6f3aaf95c3e39e011" kindref="member">SYN_SHA384_DIGEST_SIZE</ref>;</highlight></codeline>
+<codeline lineno="199"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="200"><highlight class="normal"></highlight></codeline>
+<codeline lineno="201"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>memcpy(okm_out<sp/>+<sp/>written,<sp/>t,<sp/>todo);</highlight></codeline>
+<codeline lineno="202"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>written<sp/>+=<sp/>todo;</highlight></codeline>
+<codeline lineno="203"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>counter++;</highlight></codeline>
+<codeline lineno="204"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="205"><highlight class="normal"></highlight></codeline>
+<codeline lineno="206"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="207"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="208"><highlight class="normal"></highlight></codeline>
+<codeline lineno="209"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__hkdf_8c_1ae1c71554c93ffb42749ad9f6169ad2b8" kindref="member">syn_hkdf_sha384</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*salt,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>salt_len,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*ikm,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>ikm_len,</highlight></codeline>
+<codeline lineno="210"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*info,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>info_len,<sp/>uint8_t<sp/>*okm_out,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>okm_len)</highlight></codeline>
+<codeline lineno="211"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="212"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>prk[<ref refid="syn__sha512_8h_1a5682137e517e3ed6f3aaf95c3e39e011" kindref="member">SYN_SHA384_DIGEST_SIZE</ref>];</highlight></codeline>
+<codeline lineno="213"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__hkdf_8c_1ad96d8aaba91b0355e2018baa97b0c119" kindref="member">syn_hkdf_sha384_extract</ref>(salt,<sp/>salt_len,<sp/>ikm,<sp/>ikm_len,<sp/>prk);</highlight></codeline>
+<codeline lineno="214"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__hkdf_8c_1a72d4b161458344e53a6690b7864156f9" kindref="member">syn_hkdf_sha384_expand</ref>(prk,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(prk),<sp/>info,<sp/>info_len,<sp/>okm_out,<sp/>okm_len);</highlight></codeline>
+<codeline lineno="215"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="216"><highlight class="normal"></highlight></codeline>
+<codeline lineno="217"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__hkdf_8c_1ab9d1135be4bd7a371417ac39eff2cb04" kindref="member">syn_hkdf_sha384_expand_label</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*secret,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>secret_len,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*label,</highlight></codeline>
+<codeline lineno="218"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>label_len,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*context,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>context_len,</highlight></codeline>
+<codeline lineno="219"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>*out,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>out_len)</highlight></codeline>
+<codeline lineno="220"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="221"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(secret<sp/>==<sp/>NULL<sp/>||<sp/>label<sp/>==<sp/>NULL<sp/>||<sp/>out<sp/>==<sp/>NULL<sp/>||<sp/>out_len<sp/>==<sp/>0U)<sp/>{</highlight></codeline>
+<codeline lineno="222"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="223"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="224"><highlight class="normal"></highlight></codeline>
+<codeline lineno="225"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>prefix[]<sp/>=<sp/></highlight><highlight class="stringliteral">&quot;tls13<sp/>&quot;</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="226"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>prefix_len<sp/>=<sp/>6U;</highlight></codeline>
+<codeline lineno="227"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>full_label_len<sp/>=<sp/>prefix_len<sp/>+<sp/>label_len;</highlight></codeline>
+<codeline lineno="228"><highlight class="normal"></highlight></codeline>
+<codeline lineno="229"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(full_label_len<sp/>&gt;<sp/>255U)<sp/>{</highlight></codeline>
+<codeline lineno="230"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="231"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="232"><highlight class="normal"></highlight></codeline>
+<codeline lineno="233"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(context<sp/>==<sp/>NULL<sp/>&amp;&amp;<sp/>context_len<sp/>&gt;<sp/>0U)<sp/>{</highlight></codeline>
+<codeline lineno="234"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>context_len<sp/>=<sp/>0U;</highlight></codeline>
+<codeline lineno="235"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="236"><highlight class="normal"></highlight></codeline>
+<codeline lineno="237"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(context_len<sp/>&gt;<sp/>255U)<sp/>{</highlight></codeline>
+<codeline lineno="238"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="239"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="240"><highlight class="normal"></highlight></codeline>
+<codeline lineno="241"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>hkdf_label[512];</highlight></codeline>
+<codeline lineno="242"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>offset<sp/>=<sp/>0U;</highlight></codeline>
+<codeline lineno="243"><highlight class="normal"></highlight></codeline>
+<codeline lineno="244"><highlight class="normal"><sp/><sp/><sp/><sp/>hkdf_label[offset++]<sp/>=<sp/>(uint8_t)((out_len<sp/>&gt;&gt;<sp/>8U)<sp/>&amp;<sp/>0xFFU);</highlight></codeline>
+<codeline lineno="245"><highlight class="normal"><sp/><sp/><sp/><sp/>hkdf_label[offset++]<sp/>=<sp/>(uint8_t)(out_len<sp/>&amp;<sp/>0xFFU);</highlight></codeline>
+<codeline lineno="246"><highlight class="normal"></highlight></codeline>
+<codeline lineno="247"><highlight class="normal"><sp/><sp/><sp/><sp/>hkdf_label[offset++]<sp/>=<sp/>(uint8_t)full_label_len;</highlight></codeline>
+<codeline lineno="248"><highlight class="normal"><sp/><sp/><sp/><sp/>memcpy(hkdf_label<sp/>+<sp/>offset,<sp/>prefix,<sp/>prefix_len);</highlight></codeline>
+<codeline lineno="249"><highlight class="normal"><sp/><sp/><sp/><sp/>offset<sp/>+=<sp/>prefix_len;</highlight></codeline>
+<codeline lineno="250"><highlight class="normal"><sp/><sp/><sp/><sp/>memcpy(hkdf_label<sp/>+<sp/>offset,<sp/>label,<sp/>label_len);</highlight></codeline>
+<codeline lineno="251"><highlight class="normal"><sp/><sp/><sp/><sp/>offset<sp/>+=<sp/>label_len;</highlight></codeline>
+<codeline lineno="252"><highlight class="normal"></highlight></codeline>
+<codeline lineno="253"><highlight class="normal"><sp/><sp/><sp/><sp/>hkdf_label[offset++]<sp/>=<sp/>(uint8_t)context_len;</highlight></codeline>
+<codeline lineno="254"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(context_len<sp/>&gt;<sp/>0U)<sp/>{</highlight></codeline>
+<codeline lineno="255"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>memcpy(hkdf_label<sp/>+<sp/>offset,<sp/>context,<sp/>context_len);</highlight></codeline>
+<codeline lineno="256"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>offset<sp/>+=<sp/>context_len;</highlight></codeline>
+<codeline lineno="257"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="258"><highlight class="normal"></highlight></codeline>
+<codeline lineno="259"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__hkdf_8c_1a72d4b161458344e53a6690b7864156f9" kindref="member">syn_hkdf_sha384_expand</ref>(secret,<sp/>secret_len,<sp/>hkdf_label,<sp/>offset,<sp/>out,<sp/>out_len);</highlight></codeline>
+<codeline lineno="260"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="261"><highlight class="normal"></highlight></codeline>
+<codeline lineno="262"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>HKDF-SHA512<sp/>───────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="263"><highlight class="normal"></highlight></codeline>
+<codeline lineno="264"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__hkdf_8c_1a348cdd9e075a683ff16a9ee9015b8e64" kindref="member">syn_hkdf_sha512_extract</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*salt,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>salt_len,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*ikm,</highlight></codeline>
+<codeline lineno="265"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>ikm_len,<sp/>uint8_t<sp/>prk_out[<ref refid="syn__sha512_8h_1a932688c5948f88a9f652cbc52b69bc25" kindref="member">SYN_SHA512_DIGEST_SIZE</ref>])</highlight></codeline>
+<codeline lineno="266"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="267"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>zero_salt[<ref refid="syn__sha512_8h_1a932688c5948f88a9f652cbc52b69bc25" kindref="member">SYN_SHA512_DIGEST_SIZE</ref>]<sp/>=<sp/>{0};</highlight></codeline>
+<codeline lineno="268"><highlight class="normal"></highlight></codeline>
+<codeline lineno="269"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(prk_out<sp/>==<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="270"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="271"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="272"><highlight class="normal"></highlight></codeline>
+<codeline lineno="273"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(salt<sp/>==<sp/>NULL<sp/>||<sp/>salt_len<sp/>==<sp/>0U)<sp/>{</highlight></codeline>
+<codeline lineno="274"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>salt<sp/>=<sp/>zero_salt;</highlight></codeline>
+<codeline lineno="275"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>salt_len<sp/>=<sp/><ref refid="syn__sha512_8h_1a932688c5948f88a9f652cbc52b69bc25" kindref="member">SYN_SHA512_DIGEST_SIZE</ref>;</highlight></codeline>
+<codeline lineno="276"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="277"><highlight class="normal"></highlight></codeline>
+<codeline lineno="278"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(ikm<sp/>==<sp/>NULL<sp/>&amp;&amp;<sp/>ikm_len<sp/>&gt;<sp/>0U)<sp/>{</highlight></codeline>
+<codeline lineno="279"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ikm_len<sp/>=<sp/>0U;</highlight></codeline>
+<codeline lineno="280"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="281"><highlight class="normal"></highlight></codeline>
+<codeline lineno="282"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__sha512_8c_1a8eb0354618393ac8fd8ee96d1eb87080" kindref="member">syn_hmac_sha512</ref>(salt,<sp/>salt_len,<sp/>ikm,<sp/>ikm_len,<sp/>prk_out);</highlight></codeline>
+<codeline lineno="283"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="284"><highlight class="normal"></highlight></codeline>
+<codeline lineno="285"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__hkdf_8c_1abcbab6df2fdf176683eb2cc65790c4fb" kindref="member">syn_hkdf_sha512_expand</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*prk,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>prk_len,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*info,</highlight></codeline>
+<codeline lineno="286"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>info_len,<sp/>uint8_t<sp/>*okm_out,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>okm_len)</highlight></codeline>
+<codeline lineno="287"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="288"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(prk<sp/>==<sp/>NULL<sp/>||<sp/>okm_out<sp/>==<sp/>NULL<sp/>||<sp/>prk_len<sp/>&lt;<sp/><ref refid="syn__sha512_8h_1a932688c5948f88a9f652cbc52b69bc25" kindref="member">SYN_SHA512_DIGEST_SIZE</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="289"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="290"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="291"><highlight class="normal"></highlight></codeline>
+<codeline lineno="292"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(okm_len<sp/>==<sp/>0U<sp/>||<sp/>okm_len<sp/>&gt;<sp/>(255U<sp/>*<sp/><ref refid="syn__sha512_8h_1a932688c5948f88a9f652cbc52b69bc25" kindref="member">SYN_SHA512_DIGEST_SIZE</ref>))<sp/>{</highlight></codeline>
+<codeline lineno="293"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="294"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="295"><highlight class="normal"></highlight></codeline>
+<codeline lineno="296"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(info<sp/>==<sp/>NULL<sp/>&amp;&amp;<sp/>info_len<sp/>&gt;<sp/>0U)<sp/>{</highlight></codeline>
+<codeline lineno="297"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>info_len<sp/>=<sp/>0U;</highlight></codeline>
+<codeline lineno="298"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="299"><highlight class="normal"></highlight></codeline>
+<codeline lineno="300"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>t[<ref refid="syn__sha512_8h_1a932688c5948f88a9f652cbc52b69bc25" kindref="member">SYN_SHA512_DIGEST_SIZE</ref>];</highlight></codeline>
+<codeline lineno="301"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>t_len<sp/>=<sp/>0U;</highlight></codeline>
+<codeline lineno="302"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>written<sp/>=<sp/>0U;</highlight></codeline>
+<codeline lineno="303"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>counter<sp/>=<sp/>1U;</highlight></codeline>
+<codeline lineno="304"><highlight class="normal"></highlight></codeline>
+<codeline lineno="305"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">while</highlight><highlight class="normal"><sp/>(written<sp/>&lt;<sp/>okm_len)<sp/>{</highlight></codeline>
+<codeline lineno="306"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__HMAC__SHA512" kindref="compound">SYN_HMAC_SHA512</ref><sp/>hmac;</highlight></codeline>
+<codeline lineno="307"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__sha512_8c_1a865640756523a88de1d721fba80508b9" kindref="member">syn_hmac_sha512_init</ref>(&amp;hmac,<sp/>prk,<sp/>prk_len);</highlight></codeline>
+<codeline lineno="308"><highlight class="normal"></highlight></codeline>
+<codeline lineno="309"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(counter<sp/>&gt;<sp/>1U)<sp/>{</highlight></codeline>
+<codeline lineno="310"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__sha512_8c_1a838fd544edf6d6979d673beae895e948" kindref="member">syn_hmac_sha512_update</ref>(&amp;hmac,<sp/>t,<sp/>t_len);</highlight></codeline>
+<codeline lineno="311"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="312"><highlight class="normal"></highlight></codeline>
+<codeline lineno="313"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(info_len<sp/>&gt;<sp/>0U)<sp/>{</highlight></codeline>
+<codeline lineno="314"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__sha512_8c_1a838fd544edf6d6979d673beae895e948" kindref="member">syn_hmac_sha512_update</ref>(&amp;hmac,<sp/>info,<sp/>info_len);</highlight></codeline>
+<codeline lineno="315"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="316"><highlight class="normal"></highlight></codeline>
+<codeline lineno="317"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__sha512_8c_1a838fd544edf6d6979d673beae895e948" kindref="member">syn_hmac_sha512_update</ref>(&amp;hmac,<sp/>&amp;counter,<sp/>1U);</highlight></codeline>
+<codeline lineno="318"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__sha512_8c_1ae00911334a9c89c591d77141c38469ae" kindref="member">syn_hmac_sha512_final</ref>(&amp;hmac,<sp/>t);</highlight></codeline>
+<codeline lineno="319"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>t_len<sp/>=<sp/><ref refid="syn__sha512_8h_1a932688c5948f88a9f652cbc52b69bc25" kindref="member">SYN_SHA512_DIGEST_SIZE</ref>;</highlight></codeline>
+<codeline lineno="320"><highlight class="normal"></highlight></codeline>
+<codeline lineno="321"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>todo<sp/>=<sp/>okm_len<sp/>-<sp/>written;</highlight></codeline>
+<codeline lineno="322"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(todo<sp/>&gt;<sp/><ref refid="syn__sha512_8h_1a932688c5948f88a9f652cbc52b69bc25" kindref="member">SYN_SHA512_DIGEST_SIZE</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="323"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>todo<sp/>=<sp/><ref refid="syn__sha512_8h_1a932688c5948f88a9f652cbc52b69bc25" kindref="member">SYN_SHA512_DIGEST_SIZE</ref>;</highlight></codeline>
+<codeline lineno="324"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="325"><highlight class="normal"></highlight></codeline>
+<codeline lineno="326"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>memcpy(okm_out<sp/>+<sp/>written,<sp/>t,<sp/>todo);</highlight></codeline>
+<codeline lineno="327"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>written<sp/>+=<sp/>todo;</highlight></codeline>
+<codeline lineno="328"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>counter++;</highlight></codeline>
+<codeline lineno="329"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="330"><highlight class="normal"></highlight></codeline>
+<codeline lineno="331"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="332"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="333"><highlight class="normal"></highlight></codeline>
+<codeline lineno="334"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__hkdf_8c_1ad7da53bacc7c6938f01b9e1d62ab6bc7" kindref="member">syn_hkdf_sha512</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*salt,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>salt_len,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*ikm,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>ikm_len,</highlight></codeline>
+<codeline lineno="335"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*info,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>info_len,<sp/>uint8_t<sp/>*okm_out,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>okm_len)</highlight></codeline>
+<codeline lineno="336"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="337"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>prk[<ref refid="syn__sha512_8h_1a932688c5948f88a9f652cbc52b69bc25" kindref="member">SYN_SHA512_DIGEST_SIZE</ref>];</highlight></codeline>
+<codeline lineno="338"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__hkdf_8c_1a348cdd9e075a683ff16a9ee9015b8e64" kindref="member">syn_hkdf_sha512_extract</ref>(salt,<sp/>salt_len,<sp/>ikm,<sp/>ikm_len,<sp/>prk);</highlight></codeline>
+<codeline lineno="339"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__hkdf_8c_1abcbab6df2fdf176683eb2cc65790c4fb" kindref="member">syn_hkdf_sha512_expand</ref>(prk,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(prk),<sp/>info,<sp/>info_len,<sp/>okm_out,<sp/>okm_len);</highlight></codeline>
+<codeline lineno="340"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="341"><highlight class="normal"></highlight></codeline>
+<codeline lineno="342"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__hkdf_8c_1aae0f3b674b731ae0afd13eecbcd73d84" kindref="member">syn_hkdf_sha512_expand_label</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*secret,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>secret_len,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*label,</highlight></codeline>
+<codeline lineno="343"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>label_len,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*context,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>context_len,</highlight></codeline>
+<codeline lineno="344"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>*out,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>out_len)</highlight></codeline>
+<codeline lineno="345"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="346"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(secret<sp/>==<sp/>NULL<sp/>||<sp/>label<sp/>==<sp/>NULL<sp/>||<sp/>out<sp/>==<sp/>NULL<sp/>||<sp/>out_len<sp/>==<sp/>0U)<sp/>{</highlight></codeline>
+<codeline lineno="347"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="348"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="349"><highlight class="normal"></highlight></codeline>
+<codeline lineno="350"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>prefix[]<sp/>=<sp/></highlight><highlight class="stringliteral">&quot;tls13<sp/>&quot;</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="351"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>prefix_len<sp/>=<sp/>6U;</highlight></codeline>
+<codeline lineno="352"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>full_label_len<sp/>=<sp/>prefix_len<sp/>+<sp/>label_len;</highlight></codeline>
+<codeline lineno="353"><highlight class="normal"></highlight></codeline>
+<codeline lineno="354"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(full_label_len<sp/>&gt;<sp/>255U)<sp/>{</highlight></codeline>
+<codeline lineno="355"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="356"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="357"><highlight class="normal"></highlight></codeline>
+<codeline lineno="358"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(context<sp/>==<sp/>NULL<sp/>&amp;&amp;<sp/>context_len<sp/>&gt;<sp/>0U)<sp/>{</highlight></codeline>
+<codeline lineno="359"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>context_len<sp/>=<sp/>0U;</highlight></codeline>
+<codeline lineno="360"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="361"><highlight class="normal"></highlight></codeline>
+<codeline lineno="362"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(context_len<sp/>&gt;<sp/>255U)<sp/>{</highlight></codeline>
+<codeline lineno="363"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="364"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="365"><highlight class="normal"></highlight></codeline>
+<codeline lineno="366"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>hkdf_label[512];</highlight></codeline>
+<codeline lineno="367"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>offset<sp/>=<sp/>0U;</highlight></codeline>
+<codeline lineno="368"><highlight class="normal"></highlight></codeline>
+<codeline lineno="369"><highlight class="normal"><sp/><sp/><sp/><sp/>hkdf_label[offset++]<sp/>=<sp/>(uint8_t)((out_len<sp/>&gt;&gt;<sp/>8U)<sp/>&amp;<sp/>0xFFU);</highlight></codeline>
+<codeline lineno="370"><highlight class="normal"><sp/><sp/><sp/><sp/>hkdf_label[offset++]<sp/>=<sp/>(uint8_t)(out_len<sp/>&amp;<sp/>0xFFU);</highlight></codeline>
+<codeline lineno="371"><highlight class="normal"></highlight></codeline>
+<codeline lineno="372"><highlight class="normal"><sp/><sp/><sp/><sp/>hkdf_label[offset++]<sp/>=<sp/>(uint8_t)full_label_len;</highlight></codeline>
+<codeline lineno="373"><highlight class="normal"><sp/><sp/><sp/><sp/>memcpy(hkdf_label<sp/>+<sp/>offset,<sp/>prefix,<sp/>prefix_len);</highlight></codeline>
+<codeline lineno="374"><highlight class="normal"><sp/><sp/><sp/><sp/>offset<sp/>+=<sp/>prefix_len;</highlight></codeline>
+<codeline lineno="375"><highlight class="normal"><sp/><sp/><sp/><sp/>memcpy(hkdf_label<sp/>+<sp/>offset,<sp/>label,<sp/>label_len);</highlight></codeline>
+<codeline lineno="376"><highlight class="normal"><sp/><sp/><sp/><sp/>offset<sp/>+=<sp/>label_len;</highlight></codeline>
+<codeline lineno="377"><highlight class="normal"></highlight></codeline>
+<codeline lineno="378"><highlight class="normal"><sp/><sp/><sp/><sp/>hkdf_label[offset++]<sp/>=<sp/>(uint8_t)context_len;</highlight></codeline>
+<codeline lineno="379"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(context_len<sp/>&gt;<sp/>0U)<sp/>{</highlight></codeline>
+<codeline lineno="380"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>memcpy(hkdf_label<sp/>+<sp/>offset,<sp/>context,<sp/>context_len);</highlight></codeline>
+<codeline lineno="381"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>offset<sp/>+=<sp/>context_len;</highlight></codeline>
+<codeline lineno="382"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="383"><highlight class="normal"></highlight></codeline>
+<codeline lineno="384"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__hkdf_8c_1abcbab6df2fdf176683eb2cc65790c4fb" kindref="member">syn_hkdf_sha512_expand</ref>(secret,<sp/>secret_len,<sp/>hkdf_label,<sp/>offset,<sp/>out,<sp/>out_len);</highlight></codeline>
+<codeline lineno="385"><highlight class="normal">}</highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/crypto/syn_hkdf.c"/>
+  </compounddef>
+</doxygen>

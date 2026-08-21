@@ -1,0 +1,398 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__rfid_8h" kind="file" language="C++">
+    <compoundname>syn_rfid.h</compoundname>
+    <includes refid="syn__defs_8h" local="yes">../common/syn_defs.h</includes>
+    <includes refid="syn__port__gpio_8h" local="yes">../port/syn_port_gpio.h</includes>
+    <includes local="no">stdbool.h</includes>
+    <includes local="no">stddef.h</includes>
+    <includes local="no">stdint.h</includes>
+    <includedby refid="syn__rfid_8c" local="yes">src/syntropic/drivers/syn_rfid.c</includedby>
+    <includedby refid="syntropic_8h" local="yes">src/syntropic/syntropic.h</includedby>
+    <incdepgraph>
+      <node id="2">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/drivers/syn_rfid.h</label>
+        <link refid="syn__rfid_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>../port/syn_port_gpio.h</label>
+        <link refid="syn__port__gpio_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>stdbool.h</label>
+      </node>
+      <node id="3">
+        <label>stddef.h</label>
+      </node>
+      <node id="4">
+        <label>stdint.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="2">
+        <label>src/syntropic/drivers/syn_rfid.c</label>
+        <link refid="syn__rfid_8c"/>
+      </node>
+      <node id="1">
+        <label>src/syntropic/drivers/syn_rfid.h</label>
+        <link refid="syn__rfid_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>src/syntropic/proto/syn_doip.c</label>
+        <link refid="syn__doip_8c"/>
+      </node>
+      <node id="4">
+        <label>src/syntropic/proto/syn_doip.h</label>
+        <link refid="syn__doip_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>src/syntropic/syntropic.h</label>
+        <link refid="syntropic_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="structSYN__RFID" prot="public">SYN_RFID</innerclass>
+    <sectiondef kind="enum">
+      <memberdef kind="enum" id="syn__rfid_8h_1a9e7fd6232844dcc04f7d3ed3eb605922" prot="public" static="no" strong="no">
+        <type></type>
+        <name>SYN_RFIDType</name>
+        <enumvalue id="syn__rfid_8h_1a9e7fd6232844dcc04f7d3ed3eb605922aad9d3342a0612efdb3377a9a83d19cc5" prot="public">
+          <name>SYN_RFID_MFRC522</name>
+          <initializer>= 0</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>MFRC522 13.56MHz SPI/I2C Reader </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__rfid_8h_1a9e7fd6232844dcc04f7d3ed3eb605922a742049779e6b9f47a874fea3d1729bba" prot="public">
+          <name>SYN_RFID_PN532</name>
+          <initializer>= 1</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>PN532 NFC/RFID Reader </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__rfid_8h_1a9e7fd6232844dcc04f7d3ed3eb605922a1f8a312ff6478b0265beec355381da7e" prot="public">
+          <name>SYN_RFID_RDM6300</name>
+          <initializer>= 2</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>RDM6300 125kHz UART Reader </para>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>RFID Reader Type. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_rfid.h" line="24" column="1" bodyfile="src/syntropic/drivers/syn_rfid.h" bodystart="24" bodyend="28"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__rfid_8h_1abf491e1580a995033fe2340f2382e9e6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_rfid_init</definition>
+        <argsstring>(SYN_RFID *rfid, SYN_GPIO_Pin ss_pin, SYN_GPIO_Pin rst_pin, SYN_RFIDType type)</argsstring>
+        <name>syn_rfid_init</name>
+        <param>
+          <type><ref refid="structSYN__RFID" kindref="compound">SYN_RFID</ref> *</type>
+          <declname>rfid</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref></type>
+          <declname>ss_pin</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref></type>
+          <declname>rst_pin</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__rfid_8h_1a9e7fd6232844dcc04f7d3ed3eb605922" kindref="member">SYN_RFIDType</ref></type>
+          <declname>type</declname>
+        </param>
+        <briefdescription>
+<para>Initialize RFID Reader context. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>rfid</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>RFID context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>ss_pin</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>SPI SS / I2C SDA pin. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>rst_pin</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Reset GPIO pin. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>type</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>RFID IC type (MFRC522, PN532, RDM6300). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_rfid.h" line="51" column="12" bodyfile="src/syntropic/drivers/syn_rfid.c" bodystart="12" bodyend="23" declfile="src/syntropic/drivers/syn_rfid.h" declline="51" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__rfid_8h_1acea81c80debca92d1eb52a61fc7c54da" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_rfid_feed_card</definition>
+        <argsstring>(SYN_RFID *rfid, const uint8_t *uid, uint8_t len)</argsstring>
+        <name>syn_rfid_feed_card</name>
+        <param>
+          <type><ref refid="structSYN__RFID" kindref="compound">SYN_RFID</ref> *</type>
+          <declname>rfid</declname>
+        </param>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>uid</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>len</declname>
+        </param>
+        <briefdescription>
+<para>Feed raw UID scan bytes. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>rfid</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>RFID context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>uid</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>UID byte buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>UID byte count (4, 7, or 10). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_rfid.h" line="61" column="6" bodyfile="src/syntropic/drivers/syn_rfid.c" bodystart="25" bodyend="36" declfile="src/syntropic/drivers/syn_rfid.h" declline="61" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__rfid_8h_1ab5a9530e92bd58aaf21bf668bac8efba" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_rfid_clear_card</definition>
+        <argsstring>(SYN_RFID *rfid)</argsstring>
+        <name>syn_rfid_clear_card</name>
+        <param>
+          <type><ref refid="structSYN__RFID" kindref="compound">SYN_RFID</ref> *</type>
+          <declname>rfid</declname>
+        </param>
+        <briefdescription>
+<para>Clear card presence state (card removed). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>rfid</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>RFID context. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_rfid.h" line="68" column="6" bodyfile="src/syntropic/drivers/syn_rfid.c" bodystart="38" bodyend="44" declfile="src/syntropic/drivers/syn_rfid.h" declline="68" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__rfid_8h_1a0383fbbd6e4133ff52109842cc6e85b1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_rfid_is_card_present</definition>
+        <argsstring>(const SYN_RFID *rfid)</argsstring>
+        <name>syn_rfid_is_card_present</name>
+        <param>
+          <type>const <ref refid="structSYN__RFID" kindref="compound">SYN_RFID</ref> *</type>
+          <declname>rfid</declname>
+        </param>
+        <briefdescription>
+<para>Check if a card is present. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>rfid</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>RFID context. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>True if card present. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_rfid.h" line="76" column="6" bodyfile="src/syntropic/drivers/syn_rfid.c" bodystart="46" bodyend="51" declfile="src/syntropic/drivers/syn_rfid.h" declline="76" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__rfid_8h_1a3acb11f0209e7f1c8dafc52318b33392" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>const uint8_t *</type>
+        <definition>const uint8_t * syn_rfid_get_uid</definition>
+        <argsstring>(const SYN_RFID *rfid, uint8_t *len)</argsstring>
+        <name>syn_rfid_get_uid</name>
+        <param>
+          <type>const <ref refid="structSYN__RFID" kindref="compound">SYN_RFID</ref> *</type>
+          <declname>rfid</declname>
+        </param>
+        <param>
+          <type>uint8_t *</type>
+          <declname>len</declname>
+        </param>
+        <briefdescription>
+<para>Get last scanned UID byte array. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>rfid</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>RFID context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to receive UID length. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Pointer to UID bytes (or NULL). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_rfid.h" line="85" column="15" bodyfile="src/syntropic/drivers/syn_rfid.c" bodystart="53" bodyend="63" declfile="src/syntropic/drivers/syn_rfid.h" declline="85" declcolumn="15"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Generic RFID &amp; NFC Card Reader Driver (MFRC522 13.56MHz, PN532, RDM6300 125kHz). </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_RFID_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_RFID_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../common/syn_defs.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../port/syn_port_gpio.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stddef.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight></codeline>
+<codeline lineno="24" refid="syn__rfid_8h_1a9e7fd6232844dcc04f7d3ed3eb605922" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="25" refid="syn__rfid_8h_1a9e7fd6232844dcc04f7d3ed3eb605922aad9d3342a0612efdb3377a9a83d19cc5" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__rfid_8h_1a9e7fd6232844dcc04f7d3ed3eb605922aad9d3342a0612efdb3377a9a83d19cc5" kindref="member">SYN_RFID_MFRC522</ref><sp/>=<sp/>0,<sp/></highlight></codeline>
+<codeline lineno="26" refid="syn__rfid_8h_1a9e7fd6232844dcc04f7d3ed3eb605922a742049779e6b9f47a874fea3d1729bba" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__rfid_8h_1a9e7fd6232844dcc04f7d3ed3eb605922a742049779e6b9f47a874fea3d1729bba" kindref="member">SYN_RFID_PN532</ref><sp/>=<sp/>1,<sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__rfid_8h_1a9e7fd6232844dcc04f7d3ed3eb605922a1f8a312ff6478b0265beec355381da7e" kindref="member">SYN_RFID_RDM6300</ref><sp/>=<sp/>2<sp/><sp/></highlight></codeline>
+<codeline lineno="28" refid="syn__rfid_8h_1a9e7fd6232844dcc04f7d3ed3eb605922a1f8a312ff6478b0265beec355381da7e" refkind="member"><highlight class="normal">}<sp/><ref refid="syn__rfid_8h_1a9e7fd6232844dcc04f7d3ed3eb605922" kindref="member">SYN_RFIDType</ref>;</highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight></codeline>
+<codeline lineno="33" refid="structSYN__RFID" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="34" refid="structSYN__RFID_1a38391bc28e106a2ea6727af0cb81ac27" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__rfid_8h_1a9e7fd6232844dcc04f7d3ed3eb605922" kindref="member">SYN_RFIDType</ref><sp/><ref refid="structSYN__RFID_1a38391bc28e106a2ea6727af0cb81ac27" kindref="member">type</ref>;<sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="35" refid="structSYN__RFID_1ac4f4ea0010fdf298397eb3ac32094d05" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref><sp/><ref refid="structSYN__RFID_1ac4f4ea0010fdf298397eb3ac32094d05" kindref="member">ss_pin</ref>;<sp/><sp/></highlight></codeline>
+<codeline lineno="36" refid="structSYN__RFID_1aeaa29975b75abbd08add23f80b97233b" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref><sp/><ref refid="structSYN__RFID_1aeaa29975b75abbd08add23f80b97233b" kindref="member">rst_pin</ref>;<sp/></highlight></codeline>
+<codeline lineno="37" refid="structSYN__RFID_1a9c696bba3c83aec8f0ce170f573a7616" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>uid[10];<sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="38" refid="structSYN__RFID_1abc71a2af73f2cb273395d68b7fd8d483" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><ref refid="structSYN__RFID_1abc71a2af73f2cb273395d68b7fd8d483" kindref="member">uid_len</ref>;<sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="39" refid="structSYN__RFID_1a88c5456796bd1377349d5ffe0ad5f88d" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="structSYN__RFID_1a88c5456796bd1377349d5ffe0ad5f88d" kindref="member">card_present</ref>;<sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="40"><highlight class="normal">}<sp/><ref refid="structSYN__RFID" kindref="compound">SYN_RFID</ref>;</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__rfid_8h_1abf491e1580a995033fe2340f2382e9e6" kindref="member">syn_rfid_init</ref>(<ref refid="structSYN__RFID" kindref="compound">SYN_RFID</ref><sp/>*rfid,<sp/><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref><sp/>ss_pin,<sp/><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref><sp/>rst_pin,</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__rfid_8h_1a9e7fd6232844dcc04f7d3ed3eb605922" kindref="member">SYN_RFIDType</ref><sp/>type);</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"></highlight></codeline>
+<codeline lineno="61"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__rfid_8h_1acea81c80debca92d1eb52a61fc7c54da" kindref="member">syn_rfid_feed_card</ref>(<ref refid="structSYN__RFID" kindref="compound">SYN_RFID</ref><sp/>*rfid,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*uid,<sp/>uint8_t<sp/>len);</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"></highlight></codeline>
+<codeline lineno="68"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__rfid_8h_1ab5a9530e92bd58aaf21bf668bac8efba" kindref="member">syn_rfid_clear_card</ref>(<ref refid="structSYN__RFID" kindref="compound">SYN_RFID</ref><sp/>*rfid);</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"></highlight></codeline>
+<codeline lineno="76"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__rfid_8h_1a0383fbbd6e4133ff52109842cc6e85b1" kindref="member">syn_rfid_is_card_present</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__RFID" kindref="compound">SYN_RFID</ref><sp/>*rfid);</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"></highlight></codeline>
+<codeline lineno="85"><highlight class="normal"></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*<ref refid="syn__rfid_8h_1a3acb11f0209e7f1c8dafc52318b33392" kindref="member">syn_rfid_get_uid</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__RFID" kindref="compound">SYN_RFID</ref><sp/>*rfid,<sp/>uint8_t<sp/>*len);</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"></highlight></codeline>
+<codeline lineno="87"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="88"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="90"><highlight class="normal"></highlight></codeline>
+<codeline lineno="91"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_RFID_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/drivers/syn_rfid.h"/>
+  </compounddef>
+</doxygen>
