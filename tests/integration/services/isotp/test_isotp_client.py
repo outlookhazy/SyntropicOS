@@ -93,7 +93,7 @@ def main():
         'blocksize': 0,
         'stmin': 0,
         'tx_data_length': 8,
-        'tx_padding': 0x00,
+        'tx_padding': 0xCC,
         'rx_flowcontrol_timeout': 2000,
         'rx_consecutive_frame_timeout': 2000
     }

@@ -623,6 +623,84 @@ static void test_isotp_canfd_multi_frame(void)
         TEST_ASSERT_EQUAL(0x21, cf.data[0]); /* CF seq 1 */
     }
 
+    static void test_isotp_frame_padding(void)
+    {
+        SYN_ISOTP_Link link;
+        syn_isotp_init(&link, 0x7E8, 0x7E0, rx_buf_a, sizeof(rx_buf_a), tx_buf_a, sizeof(tx_buf_a));
+
+        /* 1. Default padding value 0xCC for Single Frame */
+        TEST_ASSERT_EQUAL_HEX8(SYN_ISOTP_DEFAULT_PADDING, link.padding_byte);
+        uint8_t sf_payload[3] = {0x02, 0x10, 0x01};
+        TEST_ASSERT_EQUAL(SYN_OK, syn_isotp_send(&link, sf_payload, sizeof(sf_payload)));
+
+        SYN_CAN_Frame sf_frame;
+        TEST_ASSERT_TRUE(syn_isotp_get_tx_frame(&link, &sf_frame));
+        TEST_ASSERT_EQUAL(0x03, sf_frame.data[0]);
+        TEST_ASSERT_EQUAL(0x02, sf_frame.data[1]);
+        TEST_ASSERT_EQUAL(0x10, sf_frame.data[2]);
+        TEST_ASSERT_EQUAL(0x01, sf_frame.data[3]);
+        TEST_ASSERT_EQUAL_HEX8(0xCC, sf_frame.data[4]);
+        TEST_ASSERT_EQUAL_HEX8(0xCC, sf_frame.data[5]);
+        TEST_ASSERT_EQUAL_HEX8(0xCC, sf_frame.data[6]);
+        TEST_ASSERT_EQUAL_HEX8(0xCC, sf_frame.data[7]);
+
+        /* 2. Custom padding value configured via syn_isotp_set_padding */
+        syn_isotp_set_padding(&link, 0xAA);
+        TEST_ASSERT_EQUAL_HEX8(0xAA, link.padding_byte);
+        TEST_ASSERT_EQUAL(SYN_OK, syn_isotp_send(&link, sf_payload, sizeof(sf_payload)));
+        TEST_ASSERT_TRUE(syn_isotp_get_tx_frame(&link, &sf_frame));
+        TEST_ASSERT_EQUAL_HEX8(0xAA, sf_frame.data[4]);
+        TEST_ASSERT_EQUAL_HEX8(0xAA, sf_frame.data[5]);
+        TEST_ASSERT_EQUAL_HEX8(0xAA, sf_frame.data[6]);
+        TEST_ASSERT_EQUAL_HEX8(0xAA, sf_frame.data[7]);
+
+        /* 3. Null guard for syn_isotp_set_padding */
+        syn_isotp_set_padding(NULL, 0x55);
+
+        /* 4. Flow Control (FC) frame padding */
+        syn_isotp_init(&link, 0x7E8, 0x7E0, rx_buf_a, sizeof(rx_buf_a), tx_buf_a, sizeof(tx_buf_a));
+        SYN_CAN_Frame incoming_ff = {.id = 0x7E8, .dlc = 8, .data = {0x10, 20, 1, 2, 3, 4, 5, 6}};
+        syn_isotp_process_rx_frame(&link, &incoming_ff);
+        TEST_ASSERT_TRUE(link.rx_fc_pending);
+
+        SYN_CAN_Frame fc_frame;
+        TEST_ASSERT_TRUE(syn_isotp_get_tx_frame(&link, &fc_frame));
+        TEST_ASSERT_EQUAL(0x30, fc_frame.data[0]); /* FC CTS */
+        TEST_ASSERT_EQUAL(0x00, fc_frame.data[1]); /* BS = 0 */
+        TEST_ASSERT_EQUAL(0x00, fc_frame.data[2]); /* STmin = 0 */
+        TEST_ASSERT_EQUAL_HEX8(0xCC, fc_frame.data[3]);
+        TEST_ASSERT_EQUAL_HEX8(0xCC, fc_frame.data[4]);
+        TEST_ASSERT_EQUAL_HEX8(0xCC, fc_frame.data[5]);
+        TEST_ASSERT_EQUAL_HEX8(0xCC, fc_frame.data[6]);
+        TEST_ASSERT_EQUAL_HEX8(0xCC, fc_frame.data[7]);
+
+        /* 5. Last Consecutive Frame (CF) padding */
+        SYN_ISOTP_Link sender;
+        syn_isotp_init(&sender, 0x7E8, 0x7E0, rx_buf_a, sizeof(rx_buf_a), tx_buf_a,
+                       sizeof(tx_buf_a));
+        uint8_t mf_payload[10] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+        TEST_ASSERT_EQUAL(SYN_OK, syn_isotp_send(&sender, mf_payload, sizeof(mf_payload)));
+
+        SYN_CAN_Frame ff_out;
+        TEST_ASSERT_TRUE(syn_isotp_get_tx_frame(&sender, &ff_out)); /* FF: 6 payload bytes */
+
+        SYN_CAN_Frame fc_cts_in = {
+            .id = 0x7E8, .dlc = 8, .data = {0x30, 0, 0, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC}};
+        syn_isotp_process_rx_frame(&sender, &fc_cts_in);
+
+        SYN_CAN_Frame cf_out;
+        TEST_ASSERT_TRUE(syn_isotp_get_tx_frame(
+            &sender, &cf_out));                  /* Last CF: 4 payload bytes + PCI = 5 bytes used */
+        TEST_ASSERT_EQUAL(0x21, cf_out.data[0]); /* CF seq 1 */
+        TEST_ASSERT_EQUAL(7, cf_out.data[1]);
+        TEST_ASSERT_EQUAL(8, cf_out.data[2]);
+        TEST_ASSERT_EQUAL(9, cf_out.data[3]);
+        TEST_ASSERT_EQUAL(10, cf_out.data[4]);
+        TEST_ASSERT_EQUAL_HEX8(0xCC, cf_out.data[5]);
+        TEST_ASSERT_EQUAL_HEX8(0xCC, cf_out.data[6]);
+        TEST_ASSERT_EQUAL_HEX8(0xCC, cf_out.data[7]);
+    }
+
     void run_isotp_tests(void)
     {
         RUN_TEST(test_isotp_single_frame);
@@ -640,6 +718,7 @@ static void test_isotp_canfd_multi_frame(void)
         RUN_TEST(test_isotp_tx_consecutive_frame_flow_control);
         RUN_TEST(test_isotp_block_size_flow_control);
         RUN_TEST(test_isotp_tx_wait_flow_control);
+        RUN_TEST(test_isotp_frame_padding);
 #if defined(SYN_USE_CAN_FD) && SYN_USE_CAN_FD
         RUN_TEST(test_isotp_canfd_single_frame);
         RUN_TEST(test_isotp_canfd_multi_frame);

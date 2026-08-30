@@ -98,6 +98,9 @@ extern "C" {
 #define SYN_ISOTP_PCI_CF 0x20U /**< Consecutive Frame         */
 #define SYN_ISOTP_PCI_FC 0x30U /**< Flow Control Frame        */
 
+/** @brief ISO 15765-2 Default Frame Padding Byte (ISO 15765-2:2016 Clause 10.4.2.1) */
+#define SYN_ISOTP_DEFAULT_PADDING 0xCCU
+
 /** @brief ISO 15765-2 Network Layer Default Timeouts (ISO 15765-2:2016) */
 #define SYN_ISOTP_DEFAULT_N_BS_MS 1000U /**< N_Bs max time for FC reception (1000 ms) */
 #define SYN_ISOTP_DEFAULT_N_CR_MS 1000U /**< N_Cr max time for CF reception (1000 ms) */
@@ -145,6 +148,7 @@ typedef struct {
     uint32_t tx_st_timer_us;      /**< STmin timer (microseconds) */
     uint32_t n_bs_timeout_us;     /**< N_Bs timeout (microseconds)*/
     uint32_t tx_timeout_timer_us; /**< Active N_Bs timer us  */
+    uint8_t padding_byte;         /**< Tx frame padding byte (default 0xCC per ISO 15765-2:2016) */
 
     /* Rx Channel */
     uint8_t *rx_buf;              /**< Rx assembly buffer         */
@@ -177,6 +181,13 @@ void syn_isotp_set_fc_params(SYN_ISOTP_Link *link, uint8_t bs, uint8_t stmin);
  * @param n_cr_ms N_Cr max timeout in milliseconds (0 = use default 1000ms).
  */
 void syn_isotp_set_timeouts(SYN_ISOTP_Link *link, uint32_t n_bs_ms, uint32_t n_cr_ms);
+
+/**
+ * @brief Configure padding byte value for unused frame bytes.
+ * @param link     Link handle.
+ * @param pad_byte Fill byte value (default 0xCC per ISO 15765-2:2016).
+ */
+void syn_isotp_set_padding(SYN_ISOTP_Link *link, uint8_t pad_byte);
 
 /**
  * @brief Initialize ISO-TP Link in Classic CAN mode (8-byte frames).
