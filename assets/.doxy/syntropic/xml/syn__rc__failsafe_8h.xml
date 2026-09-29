@@ -1,0 +1,350 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__rc__failsafe_8h" kind="file" language="C++">
+    <compoundname>syn_rc_failsafe.h</compoundname>
+    <includes refid="syn__defs_8h" local="yes">syntropic/common/syn_defs.h</includes>
+    <includes local="no">stdbool.h</includes>
+    <includes local="no">stddef.h</includes>
+    <includes local="no">stdint.h</includes>
+    <includedby refid="syn__rc__failsafe_8c" local="yes">src/syntropic/control/syn_rc_failsafe.c</includedby>
+    <includedby refid="syntropic_8h" local="yes">src/syntropic/syntropic.h</includedby>
+    <incdepgraph>
+      <node id="2">
+        <label>syntropic/common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/control/syn_rc_failsafe.h</label>
+        <link refid="syn__rc__failsafe_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>stdbool.h</label>
+      </node>
+      <node id="3">
+        <label>stddef.h</label>
+      </node>
+      <node id="4">
+        <label>stdint.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="2">
+        <label>src/syntropic/control/syn_rc_failsafe.c</label>
+        <link refid="syn__rc__failsafe_8c"/>
+      </node>
+      <node id="1">
+        <label>src/syntropic/control/syn_rc_failsafe.h</label>
+        <link refid="syn__rc__failsafe_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>src/syntropic/proto/syn_doip.c</label>
+        <link refid="syn__doip_8c"/>
+      </node>
+      <node id="4">
+        <label>src/syntropic/proto/syn_doip.h</label>
+        <link refid="syn__doip_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>src/syntropic/syntropic.h</label>
+        <link refid="syntropic_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="structSYN__Failsafe__Config" prot="public">SYN_Failsafe_Config</innerclass>
+    <innerclass refid="structSYN__Failsafe__Manager" prot="public">SYN_Failsafe_Manager</innerclass>
+    <sectiondef kind="define">
+      <memberdef kind="define" id="syn__rc__failsafe_8h_1ab083822ef1683e2b20113ed98263bd00" prot="public" static="no">
+        <name>SYN_RC_FAILSAFE_MAX_CHANNELS</name>
+        <initializer>16U</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Maximum supported failsafe RC channels. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/control/syn_rc_failsafe.h" line="23" column="9" bodyfile="src/syntropic/control/syn_rc_failsafe.h" bodystart="23" bodyend="-1"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="enum">
+      <memberdef kind="enum" id="syn__rc__failsafe_8h_1aa849f64ab74ba8105262836819bb5cff" prot="public" static="no" strong="no">
+        <type></type>
+        <name>SYN_Failsafe_ChannelMode</name>
+        <enumvalue id="syn__rc__failsafe_8h_1aa849f64ab74ba8105262836819bb5cffabc45cff0ca86a79b934febdb98bfbd22" prot="public">
+          <name>SYN_FAILSAFE_HOLD</name>
+          <initializer>= 0</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Hold last valid channel position. </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__rc__failsafe_8h_1aa849f64ab74ba8105262836819bb5cffa55194b8dbf9370939b5ce8d62fe8f993" prot="public">
+          <name>SYN_FAILSAFE_FALLBACK</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Go to preset fallback position. </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__rc__failsafe_8h_1aa849f64ab74ba8105262836819bb5cffa9a4d7afeeda0732dcab058f4e7456400" prot="public">
+          <name>SYN_FAILSAFE_DISARM</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Force channel to 1000 us (minimum/disarm). </para>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Failsafe Channel Mode. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/control/syn_rc_failsafe.h" line="26" column="1" bodyfile="src/syntropic/control/syn_rc_failsafe.h" bodystart="26" bodyend="30"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__rc__failsafe_8h_1a730dd45353d91dd9c5b3f5b128a45cb8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_failsafe_init</definition>
+        <argsstring>(SYN_Failsafe_Manager *mgr, const SYN_Failsafe_Config *config)</argsstring>
+        <name>syn_failsafe_init</name>
+        <param>
+          <type><ref refid="structSYN__Failsafe__Manager" kindref="compound">SYN_Failsafe_Manager</ref> *</type>
+          <declname>mgr</declname>
+        </param>
+        <param>
+          <type>const <ref refid="structSYN__Failsafe__Config" kindref="compound">SYN_Failsafe_Config</ref> *</type>
+          <declname>config</declname>
+        </param>
+        <briefdescription>
+<para>Initialize failsafe manager instance. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>mgr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to failsafe manager struct. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>config</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to failsafe configuration struct. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_INVALID_PARAM if NULL. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/control/syn_rc_failsafe.h" line="56" column="12" bodyfile="src/syntropic/control/syn_rc_failsafe.c" bodystart="10" bodyend="25" declfile="src/syntropic/control/syn_rc_failsafe.h" declline="56" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__rc__failsafe_8h_1a80cf586fb8575b32a5e1a9142a13e048" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_failsafe_feed_frame</definition>
+        <argsstring>(SYN_Failsafe_Manager *mgr, const uint16_t *in_channels, uint8_t num_channels, uint32_t timestamp_ms)</argsstring>
+        <name>syn_failsafe_feed_frame</name>
+        <param>
+          <type><ref refid="structSYN__Failsafe__Manager" kindref="compound">SYN_Failsafe_Manager</ref> *</type>
+          <declname>mgr</declname>
+        </param>
+        <param>
+          <type>const uint16_t *</type>
+          <declname>in_channels</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>num_channels</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>timestamp_ms</declname>
+        </param>
+        <briefdescription>
+<para>Register valid incoming frame from RC receiver (resets watchdog timer). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>mgr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to failsafe manager struct. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>in_channels</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to array of channel pulse widths in us. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>num_channels</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Total channels provided (max 16). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>timestamp_ms</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Current system timestamp in ms. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/control/syn_rc_failsafe.h" line="67" column="12" bodyfile="src/syntropic/control/syn_rc_failsafe.c" bodystart="27" bodyend="46" declfile="src/syntropic/control/syn_rc_failsafe.h" declline="67" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__rc__failsafe_8h_1a09e2ec73ff3b18ba4625d0b6a8d731ad" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_failsafe_step</definition>
+        <argsstring>(SYN_Failsafe_Manager *mgr, uint32_t now_ms, uint16_t *out_channels)</argsstring>
+        <name>syn_failsafe_step</name>
+        <param>
+          <type><ref refid="structSYN__Failsafe__Manager" kindref="compound">SYN_Failsafe_Manager</ref> *</type>
+          <declname>mgr</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>now_ms</declname>
+        </param>
+        <param>
+          <type>uint16_t *</type>
+          <declname>out_channels</declname>
+        </param>
+        <briefdescription>
+<para>Step failsafe manager state machine and retrieve active channels (or fallback channels if timed out). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>mgr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to failsafe manager struct. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>now_ms</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Current system timestamp in ms. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out_channels</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to output channel array (must hold at least 16 uint16_t values). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if system is currently in Failsafe state, false if active link. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/control/syn_rc_failsafe.h" line="79" column="6" bodyfile="src/syntropic/control/syn_rc_failsafe.c" bodystart="48" bodyend="84" declfile="src/syntropic/control/syn_rc_failsafe.h" declline="79" declcolumn="6"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Zero-Heap RC Safety Failsafe Manager &amp; Watchdog. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Monitors receiver frame updates and enforces pre-configured failsafe fallback positions or emergency disarming if signal loss exceeds timeout threshold. </para>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_RC_FAILSAFE_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_RC_FAILSAFE_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__defs_8h" kindref="compound">syntropic/common/syn_defs.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stddef.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight></codeline>
+<codeline lineno="23" refid="syn__rc__failsafe_8h_1ab083822ef1683e2b20113ed98263bd00" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_RC_FAILSAFE_MAX_CHANNELS<sp/>16U</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight></codeline>
+<codeline lineno="26" refid="syn__rc__failsafe_8h_1aa849f64ab74ba8105262836819bb5cff" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="27" refid="syn__rc__failsafe_8h_1aa849f64ab74ba8105262836819bb5cffabc45cff0ca86a79b934febdb98bfbd22" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__rc__failsafe_8h_1aa849f64ab74ba8105262836819bb5cffabc45cff0ca86a79b934febdb98bfbd22" kindref="member">SYN_FAILSAFE_HOLD</ref><sp/>=<sp/>0,<sp/></highlight></codeline>
+<codeline lineno="28" refid="syn__rc__failsafe_8h_1aa849f64ab74ba8105262836819bb5cffa55194b8dbf9370939b5ce8d62fe8f993" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__rc__failsafe_8h_1aa849f64ab74ba8105262836819bb5cffa55194b8dbf9370939b5ce8d62fe8f993" kindref="member">SYN_FAILSAFE_FALLBACK</ref>,<sp/></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__rc__failsafe_8h_1aa849f64ab74ba8105262836819bb5cffa9a4d7afeeda0732dcab058f4e7456400" kindref="member">SYN_FAILSAFE_DISARM</ref><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="30" refid="syn__rc__failsafe_8h_1aa849f64ab74ba8105262836819bb5cffa9a4d7afeeda0732dcab058f4e7456400" refkind="member"><highlight class="normal">}<sp/><ref refid="syn__rc__failsafe_8h_1aa849f64ab74ba8105262836819bb5cff" kindref="member">SYN_Failsafe_ChannelMode</ref>;</highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight></codeline>
+<codeline lineno="33" refid="structSYN__Failsafe__Config" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="34" refid="structSYN__Failsafe__Config_1a6fa0a0010074e67fff23509d0c6fb7ac" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structSYN__Failsafe__Config_1a6fa0a0010074e67fff23509d0c6fb7ac" kindref="member">timeout_ms</ref>;<sp/></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__rc__failsafe_8h_1aa849f64ab74ba8105262836819bb5cff" kindref="member">SYN_Failsafe_ChannelMode</ref></highlight></codeline>
+<codeline lineno="36" refid="structSYN__Failsafe__Config_1a72419188a249d48e1b2a99cc36a348ce" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>channel_modes[<ref refid="syn__rc__failsafe_8h_1ab083822ef1683e2b20113ed98263bd00" kindref="member">SYN_RC_FAILSAFE_MAX_CHANNELS</ref>];<sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="37" refid="structSYN__Failsafe__Config_1a8e605a6c98983c5594995acac39fecda" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/>fallback_us[<ref refid="syn__rc__failsafe_8h_1ab083822ef1683e2b20113ed98263bd00" kindref="member">SYN_RC_FAILSAFE_MAX_CHANNELS</ref>];<sp/></highlight></codeline>
+<codeline lineno="38"><highlight class="normal">}<sp/><ref refid="structSYN__Failsafe__Config" kindref="compound">SYN_Failsafe_Config</ref>;</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight></codeline>
+<codeline lineno="41" refid="structSYN__Failsafe__Manager" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="42" refid="structSYN__Failsafe__Manager_1a0269cc3c6a63d25ac24442523e1b1430" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structSYN__Failsafe__Config" kindref="compound">SYN_Failsafe_Config</ref><sp/><ref refid="structSYN__Failsafe__Manager_1a0269cc3c6a63d25ac24442523e1b1430" kindref="member">config</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="43" refid="structSYN__Failsafe__Manager_1a320e68f1eb2606d45a7214bf55852502" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structSYN__Failsafe__Manager_1a320e68f1eb2606d45a7214bf55852502" kindref="member">last_frame_ms</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="44" refid="structSYN__Failsafe__Manager_1a550230e15f97615d888e8782944b2bd9" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="structSYN__Failsafe__Manager_1a550230e15f97615d888e8782944b2bd9" kindref="member">in_failsafe</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="45" refid="structSYN__Failsafe__Manager_1aab148ba441cc97a89eb0a5825cc3456e" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structSYN__Failsafe__Manager_1aab148ba441cc97a89eb0a5825cc3456e" kindref="member">failsafe_events</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="46" refid="structSYN__Failsafe__Manager_1a417406cb403a7be5e3202ff0f9f8020b" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/>channels[<ref refid="syn__rc__failsafe_8h_1ab083822ef1683e2b20113ed98263bd00" kindref="member">SYN_RC_FAILSAFE_MAX_CHANNELS</ref>];<sp/></highlight></codeline>
+<codeline lineno="47"><highlight class="normal">}<sp/><ref refid="structSYN__Failsafe__Manager" kindref="compound">SYN_Failsafe_Manager</ref>;</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"></highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__rc__failsafe_8h_1a730dd45353d91dd9c5b3f5b128a45cb8" kindref="member">syn_failsafe_init</ref>(<ref refid="structSYN__Failsafe__Manager" kindref="compound">SYN_Failsafe_Manager</ref><sp/>*mgr,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__Failsafe__Config" kindref="compound">SYN_Failsafe_Config</ref><sp/>*config);</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"></highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__rc__failsafe_8h_1a80cf586fb8575b32a5e1a9142a13e048" kindref="member">syn_failsafe_feed_frame</ref>(<ref refid="structSYN__Failsafe__Manager" kindref="compound">SYN_Failsafe_Manager</ref><sp/>*mgr,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint16_t<sp/>*in_channels,</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>num_channels,<sp/>uint32_t<sp/>timestamp_ms);</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"></highlight></codeline>
+<codeline lineno="79"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__rc__failsafe_8h_1a09e2ec73ff3b18ba4625d0b6a8d731ad" kindref="member">syn_failsafe_step</ref>(<ref refid="structSYN__Failsafe__Manager" kindref="compound">SYN_Failsafe_Manager</ref><sp/>*mgr,<sp/>uint32_t<sp/>now_ms,<sp/>uint16_t<sp/>*out_channels);</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"></highlight></codeline>
+<codeline lineno="81"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="82"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="84"><highlight class="normal"></highlight></codeline>
+<codeline lineno="85"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_RC_FAILSAFE_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/control/syn_rc_failsafe.h"/>
+  </compounddef>
+</doxygen>

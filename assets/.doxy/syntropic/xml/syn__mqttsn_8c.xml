@@ -1,0 +1,1853 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__mqttsn_8c" kind="file" language="C++">
+    <compoundname>syn_mqttsn.c</compoundname>
+    <includes refid="syn__port__system_8h" local="yes">../port/syn_port_system.h</includes>
+    <includes refid="syn__mqttsn_8h" local="yes">syn_mqttsn.h</includes>
+    <includes local="no">string.h</includes>
+    <incdepgraph>
+      <node id="3">
+        <label>../common/syn_compiler.h</label>
+        <link refid="syn__compiler_8h"/>
+      </node>
+      <node id="4">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>../net/syn_transport.h</label>
+        <link refid="syn__transport_8h"/>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>../port/syn_port_system.h</label>
+        <link refid="syn__port__system_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/proto/syn_mqttsn.c</label>
+        <link refid="syn__mqttsn_8c"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>syn_mqttsn.h</label>
+        <link refid="syn__mqttsn_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="10">
+        <label>../pt/syn_pt.h</label>
+        <link refid="syn__pt_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="13">
+        <label>syn_event_flags.h</label>
+        <link refid="syn__event__flags_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="11">
+        <label>../sched/syn_sched.h</label>
+        <link refid="syn__sched_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="12">
+        <label>syn_task.h</label>
+        <link refid="syn__task_8h"/>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+      </node>
+      <node id="9">
+        <label>stdbool.h</label>
+      </node>
+      <node id="5">
+        <label>stddef.h</label>
+      </node>
+      <node id="6">
+        <label>stdint.h</label>
+      </node>
+      <node id="14">
+        <label>string.h</label>
+      </node>
+    </incdepgraph>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__mqttsn_8c_1a79c6ee301e4aff8bb3bba76644f70ffe" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>size_t</type>
+        <definition>static size_t mqttsn_encode_header</definition>
+        <argsstring>(uint8_t *buf, size_t max_buf, uint8_t msg_type, size_t payload_len)</argsstring>
+        <name>mqttsn_encode_header</name>
+        <param>
+          <type>uint8_t *</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>max_buf</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>msg_type</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>payload_len</declname>
+        </param>
+        <briefdescription>
+<para>Encode MQTT-SN packet header into buffer. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>max_buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Maximum buffer capacity. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>msg_type</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>MQTT-SN message type. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>payload_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Length of payload that follows the header. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Header length in bytes (2 or 4), or 0 on buffer overflow. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_mqttsn.c" line="27" column="15" bodyfile="src/syntropic/proto/syn_mqttsn.c" bodystart="27" bodyend="49"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__mqttsn_8c_1a554431e9d7eb5ffd6b19f17a08d6ff2b" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>static bool mqttsn_decode_header</definition>
+        <argsstring>(const uint8_t *buf, size_t len, uint8_t *out_msg_type, size_t *out_payload_offset, size_t *out_payload_len)</argsstring>
+        <name>mqttsn_decode_header</name>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>len</declname>
+        </param>
+        <param>
+          <type>uint8_t *</type>
+          <declname>out_msg_type</declname>
+        </param>
+        <param>
+          <type>size_t *</type>
+          <declname>out_payload_offset</declname>
+        </param>
+        <param>
+          <type>size_t *</type>
+          <declname>out_payload_len</declname>
+        </param>
+        <briefdescription>
+<para>Decode MQTT-SN packet header from buffer. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Input buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Buffer length. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out_msg_type</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output message type. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out_payload_offset</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output byte offset to payload. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out_payload_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output payload length. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if valid header, false if incomplete or malformed. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_mqttsn.c" line="60" column="13" bodyfile="src/syntropic/proto/syn_mqttsn.c" bodystart="60" bodyend="89"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__mqttsn_8c_1ade767a04c90ce80d69ff15dd1daad54c" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="structSYN__MQTTSN__TopicEntry" kindref="compound">SYN_MQTTSN_TopicEntry</ref> *</type>
+        <definition>static SYN_MQTTSN_TopicEntry * mqttsn_find_or_add_topic</definition>
+        <argsstring>(SYN_MQTTSN_Client *client, const char *topic_name)</argsstring>
+        <name>mqttsn_find_or_add_topic</name>
+        <param>
+          <type><ref refid="structSYN__MQTTSN__Client" kindref="compound">SYN_MQTTSN_Client</ref> *</type>
+          <declname>client</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>topic_name</declname>
+        </param>
+        <briefdescription>
+<para>Find or allocate topic entry in client table. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>client</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Client instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>topic_name</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Topic string. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Pointer to topic entry, or NULL if table is full. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_mqttsn.c" line="97" column="30" bodyfile="src/syntropic/proto/syn_mqttsn.c" bodystart="97" bodyend="117"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__mqttsn_8c_1a1fede0aefb99c0fa2f77fee3a21ab8dd" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_mqttsn_client_init</definition>
+        <argsstring>(SYN_MQTTSN_Client *client, const SYN_MQTTSN_Config *cfg)</argsstring>
+        <name>syn_mqttsn_client_init</name>
+        <param>
+          <type><ref refid="structSYN__MQTTSN__Client" kindref="compound">SYN_MQTTSN_Client</ref> *</type>
+          <declname>client</declname>
+        </param>
+        <param>
+          <type>const <ref refid="structSYN__MQTTSN__Config" kindref="compound">SYN_MQTTSN_Config</ref> *</type>
+          <declname>cfg</declname>
+        </param>
+        <briefdescription>
+<para>Initialize MQTT-SN client. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>client</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Client instance pointer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>cfg</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Configuration descriptor. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_INVALID_PARAM on invalid argument. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_mqttsn.c" line="121" column="12" bodyfile="src/syntropic/proto/syn_mqttsn.c" bodystart="121" bodyend="141"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__mqttsn_8c_1a4b134c89c5da70f55c6cdf395351bd5a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_mqttsn_client_searchgw</definition>
+        <argsstring>(SYN_MQTTSN_Client *client, uint8_t radius)</argsstring>
+        <name>syn_mqttsn_client_searchgw</name>
+        <param>
+          <type><ref refid="structSYN__MQTTSN__Client" kindref="compound">SYN_MQTTSN_Client</ref> *</type>
+          <declname>client</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>radius</declname>
+        </param>
+        <briefdescription>
+<para>Broadcast SEARCHGW to discover active MQTT-SN gateways. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>client</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Client instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>radius</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Search radius hop count. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_mqttsn.c" line="143" column="12" bodyfile="src/syntropic/proto/syn_mqttsn.c" bodystart="143" bodyend="164"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__mqttsn_8c_1ab55d65be2f94606babdfa68b9d04fbbf" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_mqttsn_client_connect</definition>
+        <argsstring>(SYN_MQTTSN_Client *client)</argsstring>
+        <name>syn_mqttsn_client_connect</name>
+        <param>
+          <type><ref refid="structSYN__MQTTSN__Client" kindref="compound">SYN_MQTTSN_Client</ref> *</type>
+          <declname>client</declname>
+        </param>
+        <briefdescription>
+<para>Send CONNECT packet to MQTT-SN gateway. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>client</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Client instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_mqttsn.c" line="166" column="12" bodyfile="src/syntropic/proto/syn_mqttsn.c" bodystart="166" bodyend="204"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__mqttsn_8c_1acdd2e6187414693cbfe6a0018d10b455" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_mqttsn_client_register_topic</definition>
+        <argsstring>(SYN_MQTTSN_Client *client, const char *topic_name, uint16_t *out_msg_id)</argsstring>
+        <name>syn_mqttsn_client_register_topic</name>
+        <param>
+          <type><ref refid="structSYN__MQTTSN__Client" kindref="compound">SYN_MQTTSN_Client</ref> *</type>
+          <declname>client</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>topic_name</declname>
+        </param>
+        <param>
+          <type>uint16_t *</type>
+          <declname>out_msg_id</declname>
+        </param>
+        <briefdescription>
+<para>Register a topic name with gateway to obtain a 16-bit Topic ID. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>client</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Client instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>topic_name</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>String topic name. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out_msg_id</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Optional pointer to receive allocated MsgId. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_mqttsn.c" line="206" column="12" bodyfile="src/syntropic/proto/syn_mqttsn.c" bodystart="206" bodyend="251"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__mqttsn_8c_1acb28f756158aab8b05a01a767a337bf7" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>static SYN_Status mqttsn_publish_internal</definition>
+        <argsstring>(SYN_MQTTSN_Client *client, uint16_t topic_id, uint8_t topic_type_flag, int8_t qos, bool retain, const uint8_t *payload, size_t len)</argsstring>
+        <name>mqttsn_publish_internal</name>
+        <param>
+          <type><ref refid="structSYN__MQTTSN__Client" kindref="compound">SYN_MQTTSN_Client</ref> *</type>
+          <declname>client</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>topic_id</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>topic_type_flag</declname>
+        </param>
+        <param>
+          <type>int8_t</type>
+          <declname>qos</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+          <declname>retain</declname>
+        </param>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>payload</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>len</declname>
+        </param>
+        <briefdescription>
+<para>Internal helper to publish with configurable topic ID type flag. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>client</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Client instance pointer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>topic_id</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Topic ID or 2-byte short topic name. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>topic_type_flag</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Topic ID type flag (Normal, Predefined, Short). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>qos</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>QoS level (0, 1, -1). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>retain</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Retain flag. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>payload</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Payload data buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Payload length in bytes. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_mqttsn.c" line="264" column="19" bodyfile="src/syntropic/proto/syn_mqttsn.c" bodystart="264" bodyend="310"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__mqttsn_8c_1a30b28954fa6ec336a708f9afe7545ce4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_mqttsn_client_publish</definition>
+        <argsstring>(SYN_MQTTSN_Client *client, uint16_t topic_id, int8_t qos, bool retain, const uint8_t *payload, size_t len)</argsstring>
+        <name>syn_mqttsn_client_publish</name>
+        <param>
+          <type><ref refid="structSYN__MQTTSN__Client" kindref="compound">SYN_MQTTSN_Client</ref> *</type>
+          <declname>client</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>topic_id</declname>
+        </param>
+        <param>
+          <type>int8_t</type>
+          <declname>qos</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+          <declname>retain</declname>
+        </param>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>payload</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>len</declname>
+        </param>
+        <briefdescription>
+<para>Publish data payload using a registered 16-bit Topic ID. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>client</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Client instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>topic_id</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>16-bit Topic ID. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>qos</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Quality of Service (0, 1, or -1). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>retain</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Retain flag. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>payload</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Payload buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Payload length. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_mqttsn.c" line="312" column="12" bodyfile="src/syntropic/proto/syn_mqttsn.c" bodystart="312" bodyend="317"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__mqttsn_8c_1ae0de51860aae0066dcfd35660e8aeec6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_mqttsn_client_publish_short</definition>
+        <argsstring>(SYN_MQTTSN_Client *client, const char short_topic[2], int8_t qos, bool retain, const uint8_t *payload, size_t len)</argsstring>
+        <name>syn_mqttsn_client_publish_short</name>
+        <param>
+          <type><ref refid="structSYN__MQTTSN__Client" kindref="compound">SYN_MQTTSN_Client</ref> *</type>
+          <declname>client</declname>
+        </param>
+        <param>
+          <type>const char</type>
+          <declname>short_topic</declname>
+          <array>[2]</array>
+        </param>
+        <param>
+          <type>int8_t</type>
+          <declname>qos</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+          <declname>retain</declname>
+        </param>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>payload</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>len</declname>
+        </param>
+        <briefdescription>
+<para>Publish data payload using a short 2-character topic name. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>client</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Client instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>short_topic</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>2-character topic string. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>qos</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Quality of Service (0, 1, or -1). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>retain</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Retain flag. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>payload</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Payload buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Payload length. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_mqttsn.c" line="319" column="12" bodyfile="src/syntropic/proto/syn_mqttsn.c" bodystart="319" bodyend="329"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__mqttsn_8c_1afa09784a2f7a27bfd4c695319ac62981" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_mqttsn_client_publish_predefined</definition>
+        <argsstring>(SYN_MQTTSN_Client *client, uint16_t predef_id, int8_t qos, bool retain, const uint8_t *payload, size_t len)</argsstring>
+        <name>syn_mqttsn_client_publish_predefined</name>
+        <param>
+          <type><ref refid="structSYN__MQTTSN__Client" kindref="compound">SYN_MQTTSN_Client</ref> *</type>
+          <declname>client</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>predef_id</declname>
+        </param>
+        <param>
+          <type>int8_t</type>
+          <declname>qos</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+          <declname>retain</declname>
+        </param>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>payload</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>len</declname>
+        </param>
+        <briefdescription>
+<para>Publish data payload using a predefined 16-bit Topic ID. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>client</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Client instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>predef_id</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Predefined 16-bit Topic ID. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>qos</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Quality of Service (0, 1, or -1). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>retain</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Retain flag. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>payload</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Payload buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Payload length. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_mqttsn.c" line="331" column="12" bodyfile="src/syntropic/proto/syn_mqttsn.c" bodystart="331" bodyend="337"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__mqttsn_8c_1a5889f552cfdff4a4e1e698021d59b907" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_mqttsn_client_subscribe</definition>
+        <argsstring>(SYN_MQTTSN_Client *client, const char *topic_name, uint16_t predef_id, int8_t qos)</argsstring>
+        <name>syn_mqttsn_client_subscribe</name>
+        <param>
+          <type><ref refid="structSYN__MQTTSN__Client" kindref="compound">SYN_MQTTSN_Client</ref> *</type>
+          <declname>client</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>topic_name</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>predef_id</declname>
+        </param>
+        <param>
+          <type>int8_t</type>
+          <declname>qos</declname>
+        </param>
+        <briefdescription>
+<para>Subscribe to a topic name or predefined ID. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>client</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Client instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>topic_name</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Topic name string (or NULL if subscribing by predef_id). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>predef_id</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Predefined Topic ID (if topic_name is NULL). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>qos</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Requested QoS level. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_mqttsn.c" line="339" column="12" bodyfile="src/syntropic/proto/syn_mqttsn.c" bodystart="339" bodyend="402"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__mqttsn_8c_1aa56125f225fd74776df5e8e906ccf573" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_mqttsn_client_unsubscribe</definition>
+        <argsstring>(SYN_MQTTSN_Client *client, const char *topic_name, uint16_t predef_id)</argsstring>
+        <name>syn_mqttsn_client_unsubscribe</name>
+        <param>
+          <type><ref refid="structSYN__MQTTSN__Client" kindref="compound">SYN_MQTTSN_Client</ref> *</type>
+          <declname>client</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>topic_name</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>predef_id</declname>
+        </param>
+        <briefdescription>
+<para>Unsubscribe from a topic. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>client</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Client instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>topic_name</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Topic name string. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>predef_id</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Predefined Topic ID. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_mqttsn.c" line="404" column="12" bodyfile="src/syntropic/proto/syn_mqttsn.c" bodystart="404" bodyend="460"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__mqttsn_8c_1a82561c071347a32df23db326ebb0f04a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_mqttsn_client_sleep</definition>
+        <argsstring>(SYN_MQTTSN_Client *client, uint16_t sleep_duration_s)</argsstring>
+        <name>syn_mqttsn_client_sleep</name>
+        <param>
+          <type><ref refid="structSYN__MQTTSN__Client" kindref="compound">SYN_MQTTSN_Client</ref> *</type>
+          <declname>client</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>sleep_duration_s</declname>
+        </param>
+        <briefdescription>
+<para>Put client into low-power SLEEP state with specified sleep duration. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>client</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Client instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>sleep_duration_s</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Sleep duration in seconds. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_mqttsn.c" line="462" column="12" bodyfile="src/syntropic/proto/syn_mqttsn.c" bodystart="462" bodyend="485"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__mqttsn_8c_1a7a7e1561cd5d35e01c4f142d29bee717" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_mqttsn_client_wake</definition>
+        <argsstring>(SYN_MQTTSN_Client *client)</argsstring>
+        <name>syn_mqttsn_client_wake</name>
+        <param>
+          <type><ref refid="structSYN__MQTTSN__Client" kindref="compound">SYN_MQTTSN_Client</ref> *</type>
+          <declname>client</declname>
+        </param>
+        <briefdescription>
+<para>Wake up from sleep to flush messages or return to connected state. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>client</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Client instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_mqttsn.c" line="487" column="12" bodyfile="src/syntropic/proto/syn_mqttsn.c" bodystart="487" bodyend="516"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__mqttsn_8c_1a624b0f3d5d3ddfa6d75a9a4dae539573" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_mqttsn_client_disconnect</definition>
+        <argsstring>(SYN_MQTTSN_Client *client)</argsstring>
+        <name>syn_mqttsn_client_disconnect</name>
+        <param>
+          <type><ref refid="structSYN__MQTTSN__Client" kindref="compound">SYN_MQTTSN_Client</ref> *</type>
+          <declname>client</declname>
+        </param>
+        <briefdescription>
+<para>Disconnect client from gateway. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>client</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Client instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_mqttsn.c" line="518" column="12" bodyfile="src/syntropic/proto/syn_mqttsn.c" bodystart="518" bodyend="534"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__mqttsn_8c_1a6e10b41ad438e999854673e3ab08a946" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void mqttsn_process_rx_frame</definition>
+        <argsstring>(SYN_MQTTSN_Client *client, uint8_t msg_type, const uint8_t *payload, size_t payload_len)</argsstring>
+        <name>mqttsn_process_rx_frame</name>
+        <param>
+          <type><ref refid="structSYN__MQTTSN__Client" kindref="compound">SYN_MQTTSN_Client</ref> *</type>
+          <declname>client</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>msg_type</declname>
+        </param>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>payload</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>payload_len</declname>
+        </param>
+        <briefdescription>
+<para>Handle incoming decoded MQTT-SN message frame. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>client</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Client instance pointer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>msg_type</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Decoded MQTT-SN message type. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>payload</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to payload buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>payload_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Length of payload in bytes. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_mqttsn.c" line="543" column="13" bodyfile="src/syntropic/proto/syn_mqttsn.c" bodystart="543" bodyend="611"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__mqttsn_8c_1a9bc18c12101c7a147bf9a6b4b369f22a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_mqttsn_client_step</definition>
+        <argsstring>(SYN_MQTTSN_Client *client, uint32_t now_ms)</argsstring>
+        <name>syn_mqttsn_client_step</name>
+        <param>
+          <type><ref refid="structSYN__MQTTSN__Client" kindref="compound">SYN_MQTTSN_Client</ref> *</type>
+          <declname>client</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>now_ms</declname>
+        </param>
+        <briefdescription>
+<para>Non-blocking poll step processing received frames and keep-alive ping timers. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>client</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Client instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>now_ms</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Current timestamp in milliseconds. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_mqttsn.c" line="613" column="12" bodyfile="src/syntropic/proto/syn_mqttsn.c" bodystart="613" bodyend="650"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__mqttsn_8c_1acaf1b85a4d23f21d714e3d364f05ead1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__pt_8h_1a837fcf03fa24b6b73d66bb133b95d79e" kindref="member">SYN_PT_Status</ref></type>
+        <definition>SYN_PT_Status syn_mqttsn_client_pt</definition>
+        <argsstring>(SYN_PT *pt, SYN_Task *task)</argsstring>
+        <name>syn_mqttsn_client_pt</name>
+        <param>
+          <type><ref refid="structSYN__PT" kindref="compound">SYN_PT</ref> *</type>
+          <declname>pt</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__Task" kindref="compound">SYN_Task</ref> *</type>
+          <declname>task</declname>
+        </param>
+        <briefdescription>
+<para>Protothread continuation function for <computeroutput>syn_sched</computeroutput>. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>pt</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Protothread continuation structure. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>task</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Task handle containing <ref refid="structSYN__MQTTSN__Client" kindref="compound">SYN_MQTTSN_Client</ref> in user_data. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_PT_Status continuation status. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_mqttsn.c" line="652" column="15" bodyfile="src/syntropic/proto/syn_mqttsn.c" bodystart="652" bodyend="670"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>MQTT for Sensor Networks (MQTT-SN v1.2) Protocol Client Engine Implementation. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>__has_include(&quot;syn_config.h&quot;)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;syn_config.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>!defined(SYN_USE_MQTTSN)<sp/>||<sp/>SYN_USE_MQTTSN</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../port/syn_port_system.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__mqttsn_8h" kindref="compound">syn_mqttsn.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;string.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Internal<sp/>Framing<sp/>Helpers<sp/>──────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="syn__mqttsn_8c_1a79c6ee301e4aff8bb3bba76644f70ffe" kindref="member">mqttsn_encode_header</ref>(uint8_t<sp/>*buf,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>max_buf,<sp/>uint8_t<sp/>msg_type,</highlight></codeline>
+<codeline lineno="28"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>payload_len)</highlight></codeline>
+<codeline lineno="29"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="30"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>total_len<sp/>=<sp/>payload_len<sp/>+<sp/>2U;</highlight></codeline>
+<codeline lineno="31"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(total_len<sp/>&lt;<sp/>256U)<sp/>{</highlight></codeline>
+<codeline lineno="32"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(max_buf<sp/>&lt;<sp/>total_len)<sp/>{</highlight></codeline>
+<codeline lineno="33"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0U;</highlight></codeline>
+<codeline lineno="34"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="35"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>buf[0]<sp/>=<sp/>(uint8_t)total_len;</highlight></codeline>
+<codeline lineno="36"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>buf[1]<sp/>=<sp/>msg_type;</highlight></codeline>
+<codeline lineno="37"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>2U;</highlight></codeline>
+<codeline lineno="38"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"><sp/><sp/><sp/><sp/>total_len<sp/>=<sp/>payload_len<sp/>+<sp/>4U;</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(max_buf<sp/>&lt;<sp/>total_len<sp/>||<sp/>total_len<sp/>&gt;<sp/>0xFFFFU)<sp/>{</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0U;</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"><sp/><sp/><sp/><sp/>buf[0]<sp/>=<sp/>0x01U;</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"><sp/><sp/><sp/><sp/>buf[1]<sp/>=<sp/>(uint8_t)((total_len<sp/>&gt;&gt;<sp/>8U)<sp/>&amp;<sp/>0xFFU);</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/><sp/><sp/>buf[2]<sp/>=<sp/>(uint8_t)(total_len<sp/>&amp;<sp/>0xFFU);</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/><sp/><sp/>buf[3]<sp/>=<sp/>msg_type;</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>4U;</highlight></codeline>
+<codeline lineno="49"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"></highlight></codeline>
+<codeline lineno="60"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__mqttsn_8c_1a554431e9d7eb5ffd6b19f17a08d6ff2b" kindref="member">mqttsn_decode_header</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*buf,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>len,<sp/>uint8_t<sp/>*out_msg_type,</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>*out_payload_offset,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>*out_payload_len)</highlight></codeline>
+<codeline lineno="62"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(buf<sp/>==<sp/>NULL<sp/>||<sp/>len<sp/>&lt;<sp/>2U)<sp/>{</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"></highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(buf[0]<sp/>!=<sp/>0x01U)<sp/>{</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>total_len<sp/>=<sp/>buf[0];</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(total_len<sp/>&lt;<sp/>2U<sp/>||<sp/>total_len<sp/>&gt;<sp/>len)<sp/>{</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*out_msg_type<sp/>=<sp/>buf[1];</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*out_payload_offset<sp/>=<sp/>2U;</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*out_payload_len<sp/>=<sp/>total_len<sp/>-<sp/>2U;</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"></highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(len<sp/>&lt;<sp/>4U)<sp/>{</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>total_len<sp/>=<sp/>((size_t)buf[1]<sp/>&lt;&lt;<sp/>8U)<sp/>|<sp/>buf[2];</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(total_len<sp/>&lt;<sp/>4U<sp/>||<sp/>total_len<sp/>&gt;<sp/>len)<sp/>{</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/>*out_msg_type<sp/>=<sp/>buf[3];</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/><sp/><sp/>*out_payload_offset<sp/>=<sp/>4U;</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/><sp/><sp/>*out_payload_len<sp/>=<sp/>total_len<sp/>-<sp/>4U;</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="89"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"></highlight></codeline>
+<codeline lineno="97"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/><ref refid="structSYN__MQTTSN__TopicEntry" kindref="compound">SYN_MQTTSN_TopicEntry</ref><sp/>*<ref refid="syn__mqttsn_8c_1ade767a04c90ce80d69ff15dd1daad54c" kindref="member">mqttsn_find_or_add_topic</ref>(<ref refid="structSYN__MQTTSN__Client" kindref="compound">SYN_MQTTSN_Client</ref><sp/>*client,</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*topic_name)</highlight></codeline>
+<codeline lineno="99"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>i<sp/>=<sp/>0U;<sp/>i<sp/>&lt;<sp/>client-&gt;<ref refid="structSYN__MQTTSN__Client_1a72b6ce9aeb194412d2bb14ab31cacad9" kindref="member">topic_count</ref>;<sp/>i++)<sp/>{</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(client-&gt;<ref refid="structSYN__MQTTSN__Client_1a0d15c90eb9f9abe514e37aae98dc06b9" kindref="member">topics</ref>[i].<ref refid="structSYN__MQTTSN__TopicEntry_1aee0eae1b8ffcdd6ce45a6112beb42042" kindref="member">active</ref><sp/>&amp;&amp;</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>strncmp(client-&gt;<ref refid="structSYN__MQTTSN__Client_1a0d15c90eb9f9abe514e37aae98dc06b9" kindref="member">topics</ref>[i].<ref refid="structSYN__MQTTSN__TopicEntry_1a76781fc05bba5522f8bc5337e19e0ff2" kindref="member">name</ref>,<sp/>topic_name,<sp/><ref refid="syn__mqttsn_8h_1a7ec2f34f85e2aa830dfc0b6a27a55ecd" kindref="member">SYN_MQTTSN_MAX_TOPIC_NAME</ref>)<sp/>==<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>&amp;client-&gt;<ref refid="structSYN__MQTTSN__Client_1a0d15c90eb9f9abe514e37aae98dc06b9" kindref="member">topics</ref>[i];</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"></highlight></codeline>
+<codeline lineno="107"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(client-&gt;<ref refid="structSYN__MQTTSN__Client_1a72b6ce9aeb194412d2bb14ab31cacad9" kindref="member">topic_count</ref><sp/>&gt;=<sp/><ref refid="syn__mqttsn_8h_1aed65fe5b81a30656ef70963dd70fb178" kindref="member">SYN_MQTTSN_MAX_REGISTRATIONS</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>NULL;</highlight></codeline>
+<codeline lineno="109"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="110"><highlight class="normal"></highlight></codeline>
+<codeline lineno="111"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structSYN__MQTTSN__TopicEntry" kindref="compound">SYN_MQTTSN_TopicEntry</ref><sp/>*entry<sp/>=<sp/>&amp;client-&gt;<ref refid="structSYN__MQTTSN__Client_1a0d15c90eb9f9abe514e37aae98dc06b9" kindref="member">topics</ref>[client-&gt;<ref refid="structSYN__MQTTSN__Client_1a72b6ce9aeb194412d2bb14ab31cacad9" kindref="member">topic_count</ref>++];</highlight></codeline>
+<codeline lineno="112"><highlight class="normal"><sp/><sp/><sp/><sp/>(void)strncpy(entry-&gt;<ref refid="structSYN__MQTTSN__TopicEntry_1a76781fc05bba5522f8bc5337e19e0ff2" kindref="member">name</ref>,<sp/>topic_name,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(entry-&gt;<ref refid="structSYN__MQTTSN__TopicEntry_1a76781fc05bba5522f8bc5337e19e0ff2" kindref="member">name</ref>)<sp/>-<sp/>1U);</highlight></codeline>
+<codeline lineno="113"><highlight class="normal"><sp/><sp/><sp/><sp/>entry-&gt;<ref refid="structSYN__MQTTSN__TopicEntry_1a76781fc05bba5522f8bc5337e19e0ff2" kindref="member">name</ref>[</highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(entry-&gt;<ref refid="structSYN__MQTTSN__TopicEntry_1a76781fc05bba5522f8bc5337e19e0ff2" kindref="member">name</ref>)<sp/>-<sp/>1U]<sp/>=<sp/></highlight><highlight class="charliteral">&apos;\0&apos;</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"><sp/><sp/><sp/><sp/>entry-&gt;<ref refid="structSYN__MQTTSN__TopicEntry_1a68c30a547088c97b9501359f606c9cd0" kindref="member">topic_id</ref><sp/>=<sp/>0U;</highlight></codeline>
+<codeline lineno="115"><highlight class="normal"><sp/><sp/><sp/><sp/>entry-&gt;<ref refid="structSYN__MQTTSN__TopicEntry_1aee0eae1b8ffcdd6ce45a6112beb42042" kindref="member">active</ref><sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="116"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>entry;</highlight></codeline>
+<codeline lineno="117"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"></highlight></codeline>
+<codeline lineno="119"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Public<sp/>API<sp/>Implementation<sp/>─────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="120"><highlight class="normal"></highlight></codeline>
+<codeline lineno="121"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__mqttsn_8c_1a1fede0aefb99c0fa2f77fee3a21ab8dd" kindref="member">syn_mqttsn_client_init</ref>(<ref refid="structSYN__MQTTSN__Client" kindref="compound">SYN_MQTTSN_Client</ref><sp/>*client,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__MQTTSN__Config" kindref="compound">SYN_MQTTSN_Config</ref><sp/>*cfg)</highlight></codeline>
+<codeline lineno="122"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="123"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(client<sp/>==<sp/>NULL<sp/>||<sp/>cfg<sp/>==<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="124"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="126"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(cfg-&gt;<ref refid="structSYN__MQTTSN__Config_1a6d57ab2068b1aca41b8b091391119341" kindref="member">transport</ref><sp/>==<sp/>NULL<sp/>||<sp/>cfg-&gt;<ref refid="structSYN__MQTTSN__Config_1a4e0e9f3417deabead2a2acabb5572c55" kindref="member">rx_buf</ref><sp/>==<sp/>NULL<sp/>||<sp/>cfg-&gt;<ref refid="structSYN__MQTTSN__Config_1ac8ea54e2a77af0598a4afe37bf2bc278" kindref="member">tx_buf</ref><sp/>==<sp/>NULL<sp/>||</highlight></codeline>
+<codeline lineno="127"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>cfg-&gt;<ref refid="structSYN__MQTTSN__Config_1a5059b4a0dd7a3a7f80847e209fdf843d" kindref="member">rx_buf_size</ref><sp/>&lt;<sp/>128U<sp/>||<sp/>cfg-&gt;<ref refid="structSYN__MQTTSN__Config_1a71b0603378edf4a1b5a2d3273ec16536" kindref="member">tx_buf_size</ref><sp/>&lt;<sp/>128U)<sp/>{</highlight></codeline>
+<codeline lineno="128"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="129"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="130"><highlight class="normal"></highlight></codeline>
+<codeline lineno="131"><highlight class="normal"><sp/><sp/><sp/><sp/>(void)memset(client,<sp/>0,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(*client));</highlight></codeline>
+<codeline lineno="132"><highlight class="normal"><sp/><sp/><sp/><sp/>client-&gt;<ref refid="structSYN__MQTTSN__Client_1a40d313ddbfa943213bc993e5ba727446" kindref="member">cfg</ref><sp/>=<sp/>*cfg;</highlight></codeline>
+<codeline lineno="133"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(client-&gt;<ref refid="structSYN__MQTTSN__Client_1a40d313ddbfa943213bc993e5ba727446" kindref="member">cfg</ref>.<ref refid="structSYN__MQTTSN__Config_1a2cefc840591a17456e464017b6cd13b7" kindref="member">duration_s</ref><sp/>==<sp/>0U)<sp/>{</highlight></codeline>
+<codeline lineno="134"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>client-&gt;<ref refid="structSYN__MQTTSN__Client_1a40d313ddbfa943213bc993e5ba727446" kindref="member">cfg</ref>.<ref refid="structSYN__MQTTSN__Config_1a2cefc840591a17456e464017b6cd13b7" kindref="member">duration_s</ref><sp/>=<sp/><ref refid="syn__mqttsn_8h_1a3155c212a2a24c02915f9fecdb766601" kindref="member">SYN_MQTTSN_DEFAULT_DURATION_S</ref>;</highlight></codeline>
+<codeline lineno="135"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"></highlight></codeline>
+<codeline lineno="137"><highlight class="normal"><sp/><sp/><sp/><sp/>client-&gt;<ref refid="structSYN__MQTTSN__Client_1a1a779fe641c1052803e3572a95ae70bd" kindref="member">state</ref><sp/>=<sp/><ref refid="syn__mqttsn_8h_1aa9802c43e1f19c64c349a475527850cfad65b4aa324b29273a3fad02bbc0a7241" kindref="member">SYN_MQTTSN_STATE_DISCONNECTED</ref>;</highlight></codeline>
+<codeline lineno="138"><highlight class="normal"><sp/><sp/><sp/><sp/>client-&gt;<ref refid="structSYN__MQTTSN__Client_1a2afbb2f629d5320a03ad6afdec564477" kindref="member">next_msg_id</ref><sp/>=<sp/>1U;</highlight></codeline>
+<codeline lineno="139"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__pt_8h_1ae6bae7dc0225468c8a5ac269df549892" kindref="member">PT_INIT</ref>(&amp;client-&gt;<ref refid="structSYN__MQTTSN__Client_1ae83a0baadb6d8bab98e6e3593bdedf8f" kindref="member">pt</ref>);</highlight></codeline>
+<codeline lineno="140"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="141"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="142"><highlight class="normal"></highlight></codeline>
+<codeline lineno="143"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__mqttsn_8c_1a4b134c89c5da70f55c6cdf395351bd5a" kindref="member">syn_mqttsn_client_searchgw</ref>(<ref refid="structSYN__MQTTSN__Client" kindref="compound">SYN_MQTTSN_Client</ref><sp/>*client,<sp/>uint8_t<sp/>radius)</highlight></codeline>
+<codeline lineno="144"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="145"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(client<sp/>==<sp/>NULL<sp/>||<sp/>client-&gt;<ref refid="structSYN__MQTTSN__Client_1a40d313ddbfa943213bc993e5ba727446" kindref="member">cfg</ref>.<ref refid="structSYN__MQTTSN__Config_1a6d57ab2068b1aca41b8b091391119341" kindref="member">transport</ref><sp/>==<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="146"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="147"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="148"><highlight class="normal"></highlight></codeline>
+<codeline lineno="149"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>*tx<sp/>=<sp/>client-&gt;<ref refid="structSYN__MQTTSN__Client_1a40d313ddbfa943213bc993e5ba727446" kindref="member">cfg</ref>.<ref refid="structSYN__MQTTSN__Config_1ac8ea54e2a77af0598a4afe37bf2bc278" kindref="member">tx_buf</ref>;</highlight></codeline>
+<codeline lineno="150"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>hdr_len<sp/>=<sp/><ref refid="syn__mqttsn_8c_1a79c6ee301e4aff8bb3bba76644f70ffe" kindref="member">mqttsn_encode_header</ref>(tx,<sp/>client-&gt;<ref refid="structSYN__MQTTSN__Client_1a40d313ddbfa943213bc993e5ba727446" kindref="member">cfg</ref>.<ref refid="structSYN__MQTTSN__Config_1a71b0603378edf4a1b5a2d3273ec16536" kindref="member">tx_buf_size</ref>,<sp/><ref refid="syn__mqttsn_8h_1a58ed475e76dbfe8972e81daa575989ac" kindref="member">SYN_MQTTSN_MSG_SEARCHGW</ref>,<sp/>1U);</highlight></codeline>
+<codeline lineno="151"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(hdr_len<sp/>==<sp/>0U)<sp/>{</highlight></codeline>
+<codeline lineno="152"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00acd5d2701b7cfa9fb446640ecbeb19fc9" kindref="member">SYN_ERROR</ref>;</highlight></codeline>
+<codeline lineno="153"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="154"><highlight class="normal"></highlight></codeline>
+<codeline lineno="155"><highlight class="normal"><sp/><sp/><sp/><sp/>tx[hdr_len]<sp/>=<sp/>radius;</highlight></codeline>
+<codeline lineno="156"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>total_len<sp/>=<sp/>hdr_len<sp/>+<sp/>1U;</highlight></codeline>
+<codeline lineno="157"><highlight class="normal"></highlight></codeline>
+<codeline lineno="158"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!<ref refid="syn__transport_8h_1a52679f9a0d69fdc254843656b5ae51d3" kindref="member">syn_transport_send</ref>(client-&gt;<ref refid="structSYN__MQTTSN__Client_1a40d313ddbfa943213bc993e5ba727446" kindref="member">cfg</ref>.<ref refid="structSYN__MQTTSN__Config_1a6d57ab2068b1aca41b8b091391119341" kindref="member">transport</ref>,<sp/>tx,<sp/>total_len))<sp/>{</highlight></codeline>
+<codeline lineno="159"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00acd5d2701b7cfa9fb446640ecbeb19fc9" kindref="member">SYN_ERROR</ref>;</highlight></codeline>
+<codeline lineno="160"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="161"><highlight class="normal"></highlight></codeline>
+<codeline lineno="162"><highlight class="normal"><sp/><sp/><sp/><sp/>client-&gt;<ref refid="structSYN__MQTTSN__Client_1a1a779fe641c1052803e3572a95ae70bd" kindref="member">state</ref><sp/>=<sp/><ref refid="syn__mqttsn_8h_1aa9802c43e1f19c64c349a475527850cfafa3b2cffa80d75af45bab7bff84bfa13" kindref="member">SYN_MQTTSN_STATE_SEARCHING_GW</ref>;</highlight></codeline>
+<codeline lineno="163"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="164"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="165"><highlight class="normal"></highlight></codeline>
+<codeline lineno="166"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__mqttsn_8c_1ab55d65be2f94606babdfa68b9d04fbbf" kindref="member">syn_mqttsn_client_connect</ref>(<ref refid="structSYN__MQTTSN__Client" kindref="compound">SYN_MQTTSN_Client</ref><sp/>*client)</highlight></codeline>
+<codeline lineno="167"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="168"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(client<sp/>==<sp/>NULL<sp/>||<sp/>client-&gt;<ref refid="structSYN__MQTTSN__Client_1a40d313ddbfa943213bc993e5ba727446" kindref="member">cfg</ref>.<ref refid="structSYN__MQTTSN__Config_1a6d57ab2068b1aca41b8b091391119341" kindref="member">transport</ref><sp/>==<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="169"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="170"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="171"><highlight class="normal"></highlight></codeline>
+<codeline lineno="172"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*cid<sp/>=<sp/>(client-&gt;<ref refid="structSYN__MQTTSN__Client_1a40d313ddbfa943213bc993e5ba727446" kindref="member">cfg</ref>.<ref refid="structSYN__MQTTSN__Config_1ad3ab6010018edc3d18c373903cd0c8e7" kindref="member">client_id</ref><sp/>!=<sp/>NULL)<sp/>?<sp/>client-&gt;<ref refid="structSYN__MQTTSN__Client_1a40d313ddbfa943213bc993e5ba727446" kindref="member">cfg</ref>.<ref refid="structSYN__MQTTSN__Config_1ad3ab6010018edc3d18c373903cd0c8e7" kindref="member">client_id</ref><sp/>:<sp/></highlight><highlight class="stringliteral">&quot;SyntropicClient&quot;</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="173"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>cid_len<sp/>=<sp/>strlen(cid);</highlight></codeline>
+<codeline lineno="174"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(cid_len<sp/>&gt;<sp/><ref refid="syn__mqttsn_8h_1a2445a85a33eb46dce1f72a4e8b360c08" kindref="member">SYN_MQTTSN_MAX_CLIENT_ID</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="175"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>cid_len<sp/>=<sp/><ref refid="syn__mqttsn_8h_1a2445a85a33eb46dce1f72a4e8b360c08" kindref="member">SYN_MQTTSN_MAX_CLIENT_ID</ref>;</highlight></codeline>
+<codeline lineno="176"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="177"><highlight class="normal"></highlight></codeline>
+<codeline lineno="178"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>flags<sp/>=<sp/>0U;</highlight></codeline>
+<codeline lineno="179"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(client-&gt;<ref refid="structSYN__MQTTSN__Client_1a40d313ddbfa943213bc993e5ba727446" kindref="member">cfg</ref>.<ref refid="structSYN__MQTTSN__Config_1af46eca4d4f8c6a43a30f63eb526365fa" kindref="member">clean_session</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="180"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>flags<sp/>|=<sp/><ref refid="syn__mqttsn_8h_1a3d65fd49796a68b23a9681b8049a1692" kindref="member">SYN_MQTTSN_FLAG_CLEAN_SESSION</ref>;</highlight></codeline>
+<codeline lineno="181"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="182"><highlight class="normal"></highlight></codeline>
+<codeline lineno="183"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>*tx<sp/>=<sp/>client-&gt;<ref refid="structSYN__MQTTSN__Client_1a40d313ddbfa943213bc993e5ba727446" kindref="member">cfg</ref>.<ref refid="structSYN__MQTTSN__Config_1ac8ea54e2a77af0598a4afe37bf2bc278" kindref="member">tx_buf</ref>;</highlight></codeline>
+<codeline lineno="184"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>payload_len<sp/>=<sp/>4U<sp/>+<sp/>cid_len;</highlight></codeline>
+<codeline lineno="185"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>hdr_len<sp/>=</highlight></codeline>
+<codeline lineno="186"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__mqttsn_8c_1a79c6ee301e4aff8bb3bba76644f70ffe" kindref="member">mqttsn_encode_header</ref>(tx,<sp/>client-&gt;<ref refid="structSYN__MQTTSN__Client_1a40d313ddbfa943213bc993e5ba727446" kindref="member">cfg</ref>.<ref refid="structSYN__MQTTSN__Config_1a71b0603378edf4a1b5a2d3273ec16536" kindref="member">tx_buf_size</ref>,<sp/><ref refid="syn__mqttsn_8h_1a03cecc19079f32978f62a6484abcf212" kindref="member">SYN_MQTTSN_MSG_CONNECT</ref>,<sp/>payload_len);</highlight></codeline>
+<codeline lineno="187"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(hdr_len<sp/>==<sp/>0U)<sp/>{</highlight></codeline>
+<codeline lineno="188"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00acd5d2701b7cfa9fb446640ecbeb19fc9" kindref="member">SYN_ERROR</ref>;</highlight></codeline>
+<codeline lineno="189"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="190"><highlight class="normal"></highlight></codeline>
+<codeline lineno="191"><highlight class="normal"><sp/><sp/><sp/><sp/>tx[hdr_len]<sp/>=<sp/>flags;</highlight></codeline>
+<codeline lineno="192"><highlight class="normal"><sp/><sp/><sp/><sp/>tx[hdr_len<sp/>+<sp/>1U]<sp/>=<sp/><ref refid="syn__mqttsn_8h_1a00fdb102139daff5664f10630b3b4c5c" kindref="member">SYN_MQTTSN_PROTOCOL_ID</ref>;</highlight></codeline>
+<codeline lineno="193"><highlight class="normal"><sp/><sp/><sp/><sp/>tx[hdr_len<sp/>+<sp/>2U]<sp/>=<sp/>(uint8_t)((client-&gt;<ref refid="structSYN__MQTTSN__Client_1a40d313ddbfa943213bc993e5ba727446" kindref="member">cfg</ref>.<ref refid="structSYN__MQTTSN__Config_1a2cefc840591a17456e464017b6cd13b7" kindref="member">duration_s</ref><sp/>&gt;&gt;<sp/>8U)<sp/>&amp;<sp/>0xFFU);</highlight></codeline>
+<codeline lineno="194"><highlight class="normal"><sp/><sp/><sp/><sp/>tx[hdr_len<sp/>+<sp/>3U]<sp/>=<sp/>(uint8_t)(client-&gt;<ref refid="structSYN__MQTTSN__Client_1a40d313ddbfa943213bc993e5ba727446" kindref="member">cfg</ref>.<ref refid="structSYN__MQTTSN__Config_1a2cefc840591a17456e464017b6cd13b7" kindref="member">duration_s</ref><sp/>&amp;<sp/>0xFFU);</highlight></codeline>
+<codeline lineno="195"><highlight class="normal"><sp/><sp/><sp/><sp/>(void)memcpy(&amp;tx[hdr_len<sp/>+<sp/>4U],<sp/>cid,<sp/>cid_len);</highlight></codeline>
+<codeline lineno="196"><highlight class="normal"></highlight></codeline>
+<codeline lineno="197"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>total_len<sp/>=<sp/>hdr_len<sp/>+<sp/>payload_len;</highlight></codeline>
+<codeline lineno="198"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!<ref refid="syn__transport_8h_1a52679f9a0d69fdc254843656b5ae51d3" kindref="member">syn_transport_send</ref>(client-&gt;<ref refid="structSYN__MQTTSN__Client_1a40d313ddbfa943213bc993e5ba727446" kindref="member">cfg</ref>.<ref refid="structSYN__MQTTSN__Config_1a6d57ab2068b1aca41b8b091391119341" kindref="member">transport</ref>,<sp/>tx,<sp/>total_len))<sp/>{</highlight></codeline>
+<codeline lineno="199"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00acd5d2701b7cfa9fb446640ecbeb19fc9" kindref="member">SYN_ERROR</ref>;</highlight></codeline>
+<codeline lineno="200"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="201"><highlight class="normal"></highlight></codeline>
+<codeline lineno="202"><highlight class="normal"><sp/><sp/><sp/><sp/>client-&gt;<ref refid="structSYN__MQTTSN__Client_1a1a779fe641c1052803e3572a95ae70bd" kindref="member">state</ref><sp/>=<sp/><ref refid="syn__mqttsn_8h_1aa9802c43e1f19c64c349a475527850cfa14b0584cdc59c4fd97e8edb807515453" kindref="member">SYN_MQTTSN_STATE_CONNECTING</ref>;</highlight></codeline>
+<codeline lineno="203"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="204"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="205"><highlight class="normal"></highlight></codeline>
+<codeline lineno="206"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__mqttsn_8c_1acdd2e6187414693cbfe6a0018d10b455" kindref="member">syn_mqttsn_client_register_topic</ref>(<ref refid="structSYN__MQTTSN__Client" kindref="compound">SYN_MQTTSN_Client</ref><sp/>*client,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*topic_name,</highlight></codeline>
+<codeline lineno="207"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint16_t<sp/>*out_msg_id)</highlight></codeline>
+<codeline lineno="208"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="209"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(client<sp/>==<sp/>NULL<sp/>||<sp/>topic_name<sp/>==<sp/>NULL<sp/>||<sp/>client-&gt;<ref refid="structSYN__MQTTSN__Client_1a40d313ddbfa943213bc993e5ba727446" kindref="member">cfg</ref>.<ref refid="structSYN__MQTTSN__Config_1a6d57ab2068b1aca41b8b091391119341" kindref="member">transport</ref><sp/>==<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="210"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="211"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="212"><highlight class="normal"></highlight></codeline>
+<codeline lineno="213"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>name_len<sp/>=<sp/>strlen(topic_name);</highlight></codeline>
+<codeline lineno="214"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(name_len<sp/>==<sp/>0U<sp/>||<sp/>name_len<sp/>&gt;=<sp/><ref refid="syn__mqttsn_8h_1a7ec2f34f85e2aa830dfc0b6a27a55ecd" kindref="member">SYN_MQTTSN_MAX_TOPIC_NAME</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="215"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="216"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="217"><highlight class="normal"></highlight></codeline>
+<codeline lineno="218"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structSYN__MQTTSN__TopicEntry" kindref="compound">SYN_MQTTSN_TopicEntry</ref><sp/>*entry<sp/>=<sp/><ref refid="syn__mqttsn_8c_1ade767a04c90ce80d69ff15dd1daad54c" kindref="member">mqttsn_find_or_add_topic</ref>(client,<sp/>topic_name);</highlight></codeline>
+<codeline lineno="219"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(entry<sp/>==<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="220"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00acd5d2701b7cfa9fb446640ecbeb19fc9" kindref="member">SYN_ERROR</ref>;</highlight></codeline>
+<codeline lineno="221"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="222"><highlight class="normal"></highlight></codeline>
+<codeline lineno="223"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/>msg_id<sp/>=<sp/>client-&gt;<ref refid="structSYN__MQTTSN__Client_1a2afbb2f629d5320a03ad6afdec564477" kindref="member">next_msg_id</ref>++;</highlight></codeline>
+<codeline lineno="224"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(client-&gt;<ref refid="structSYN__MQTTSN__Client_1a2afbb2f629d5320a03ad6afdec564477" kindref="member">next_msg_id</ref><sp/>==<sp/>0U)<sp/>{</highlight></codeline>
+<codeline lineno="225"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>client-&gt;<ref refid="structSYN__MQTTSN__Client_1a2afbb2f629d5320a03ad6afdec564477" kindref="member">next_msg_id</ref><sp/>=<sp/>1U;</highlight></codeline>
+<codeline lineno="226"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="227"><highlight class="normal"></highlight></codeline>
+<codeline lineno="228"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>*tx<sp/>=<sp/>client-&gt;<ref refid="structSYN__MQTTSN__Client_1a40d313ddbfa943213bc993e5ba727446" kindref="member">cfg</ref>.<ref refid="structSYN__MQTTSN__Config_1ac8ea54e2a77af0598a4afe37bf2bc278" kindref="member">tx_buf</ref>;</highlight></codeline>
+<codeline lineno="229"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>payload_len<sp/>=<sp/>4U<sp/>+<sp/>name_len;</highlight></codeline>
+<codeline lineno="230"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>hdr_len<sp/>=</highlight></codeline>
+<codeline lineno="231"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__mqttsn_8c_1a79c6ee301e4aff8bb3bba76644f70ffe" kindref="member">mqttsn_encode_header</ref>(tx,<sp/>client-&gt;<ref refid="structSYN__MQTTSN__Client_1a40d313ddbfa943213bc993e5ba727446" kindref="member">cfg</ref>.<ref refid="structSYN__MQTTSN__Config_1a71b0603378edf4a1b5a2d3273ec16536" kindref="member">tx_buf_size</ref>,<sp/><ref refid="syn__mqttsn_8h_1acef385d7a8ab5ae4d8b7ab28c614b577" kindref="member">SYN_MQTTSN_MSG_REGISTER</ref>,<sp/>payload_len);</highlight></codeline>
+<codeline lineno="232"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(hdr_len<sp/>==<sp/>0U)<sp/>{</highlight></codeline>
+<codeline lineno="233"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00acd5d2701b7cfa9fb446640ecbeb19fc9" kindref="member">SYN_ERROR</ref>;</highlight></codeline>
+<codeline lineno="234"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="235"><highlight class="normal"></highlight></codeline>
+<codeline lineno="236"><highlight class="normal"><sp/><sp/><sp/><sp/>tx[hdr_len]<sp/>=<sp/>0U;<sp/></highlight><highlight class="comment">/*<sp/>TopicId<sp/>=<sp/>0<sp/>in<sp/>request<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="237"><highlight class="normal"><sp/><sp/><sp/><sp/>tx[hdr_len<sp/>+<sp/>1U]<sp/>=<sp/>0U;</highlight></codeline>
+<codeline lineno="238"><highlight class="normal"><sp/><sp/><sp/><sp/>tx[hdr_len<sp/>+<sp/>2U]<sp/>=<sp/>(uint8_t)((msg_id<sp/>&gt;&gt;<sp/>8U)<sp/>&amp;<sp/>0xFFU);</highlight></codeline>
+<codeline lineno="239"><highlight class="normal"><sp/><sp/><sp/><sp/>tx[hdr_len<sp/>+<sp/>3U]<sp/>=<sp/>(uint8_t)(msg_id<sp/>&amp;<sp/>0xFFU);</highlight></codeline>
+<codeline lineno="240"><highlight class="normal"><sp/><sp/><sp/><sp/>(void)memcpy(&amp;tx[hdr_len<sp/>+<sp/>4U],<sp/>topic_name,<sp/>name_len);</highlight></codeline>
+<codeline lineno="241"><highlight class="normal"></highlight></codeline>
+<codeline lineno="242"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>total_len<sp/>=<sp/>hdr_len<sp/>+<sp/>payload_len;</highlight></codeline>
+<codeline lineno="243"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!<ref refid="syn__transport_8h_1a52679f9a0d69fdc254843656b5ae51d3" kindref="member">syn_transport_send</ref>(client-&gt;<ref refid="structSYN__MQTTSN__Client_1a40d313ddbfa943213bc993e5ba727446" kindref="member">cfg</ref>.<ref refid="structSYN__MQTTSN__Config_1a6d57ab2068b1aca41b8b091391119341" kindref="member">transport</ref>,<sp/>tx,<sp/>total_len))<sp/>{</highlight></codeline>
+<codeline lineno="244"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00acd5d2701b7cfa9fb446640ecbeb19fc9" kindref="member">SYN_ERROR</ref>;</highlight></codeline>
+<codeline lineno="245"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="246"><highlight class="normal"></highlight></codeline>
+<codeline lineno="247"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(out_msg_id<sp/>!=<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="248"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*out_msg_id<sp/>=<sp/>msg_id;</highlight></codeline>
+<codeline lineno="249"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="250"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="251"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="252"><highlight class="normal"></highlight></codeline>
+<codeline lineno="264"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__mqttsn_8c_1acb28f756158aab8b05a01a767a337bf7" kindref="member">mqttsn_publish_internal</ref>(<ref refid="structSYN__MQTTSN__Client" kindref="compound">SYN_MQTTSN_Client</ref><sp/>*client,<sp/>uint16_t<sp/>topic_id,</highlight></codeline>
+<codeline lineno="265"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>topic_type_flag,<sp/>int8_t<sp/>qos,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>retain,</highlight></codeline>
+<codeline lineno="266"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*payload,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>len)</highlight></codeline>
+<codeline lineno="267"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="268"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(client<sp/>==<sp/>NULL<sp/>||<sp/>client-&gt;<ref refid="structSYN__MQTTSN__Client_1a40d313ddbfa943213bc993e5ba727446" kindref="member">cfg</ref>.<ref refid="structSYN__MQTTSN__Config_1a6d57ab2068b1aca41b8b091391119341" kindref="member">transport</ref><sp/>==<sp/>NULL<sp/>||<sp/>(payload<sp/>==<sp/>NULL<sp/>&amp;&amp;<sp/>len<sp/>&gt;<sp/>0U))<sp/>{</highlight></codeline>
+<codeline lineno="269"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="270"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="271"><highlight class="normal"></highlight></codeline>
+<codeline lineno="272"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>flags<sp/>=<sp/>topic_type_flag<sp/>&amp;<sp/><ref refid="syn__mqttsn_8h_1aaa3aa1e87f5b8236f0c7df849d8114f5" kindref="member">SYN_MQTTSN_FLAG_TOPIC_MASK</ref>;</highlight></codeline>
+<codeline lineno="273"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(retain)<sp/>{</highlight></codeline>
+<codeline lineno="274"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>flags<sp/>|=<sp/><ref refid="syn__mqttsn_8h_1a6a2caea2f536a804093b416e91bf1753" kindref="member">SYN_MQTTSN_FLAG_RETAIN</ref>;</highlight></codeline>
+<codeline lineno="275"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="276"><highlight class="normal"></highlight></codeline>
+<codeline lineno="277"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/>msg_id<sp/>=<sp/>0U;</highlight></codeline>
+<codeline lineno="278"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(qos<sp/>==<sp/>1)<sp/>{</highlight></codeline>
+<codeline lineno="279"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>flags<sp/>|=<sp/><ref refid="syn__mqttsn_8h_1a29111a4d5b1b9141bcc4432d9f823cd1" kindref="member">SYN_MQTTSN_FLAG_QOS_1</ref>;</highlight></codeline>
+<codeline lineno="280"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>msg_id<sp/>=<sp/>client-&gt;<ref refid="structSYN__MQTTSN__Client_1a2afbb2f629d5320a03ad6afdec564477" kindref="member">next_msg_id</ref>++;</highlight></codeline>
+<codeline lineno="281"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(client-&gt;<ref refid="structSYN__MQTTSN__Client_1a2afbb2f629d5320a03ad6afdec564477" kindref="member">next_msg_id</ref><sp/>==<sp/>0U)<sp/>{</highlight></codeline>
+<codeline lineno="282"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>client-&gt;<ref refid="structSYN__MQTTSN__Client_1a2afbb2f629d5320a03ad6afdec564477" kindref="member">next_msg_id</ref><sp/>=<sp/>1U;</highlight></codeline>
+<codeline lineno="283"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="284"><highlight class="normal"><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(qos<sp/>==<sp/>-1)<sp/>{</highlight></codeline>
+<codeline lineno="285"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>flags<sp/>|=<sp/><ref refid="syn__mqttsn_8h_1ae65fef07b9840b0ceefdf94d37edd6b6" kindref="member">SYN_MQTTSN_FLAG_QOS_NEG1</ref>;</highlight></codeline>
+<codeline lineno="286"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="287"><highlight class="normal"></highlight></codeline>
+<codeline lineno="288"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>*tx<sp/>=<sp/>client-&gt;<ref refid="structSYN__MQTTSN__Client_1a40d313ddbfa943213bc993e5ba727446" kindref="member">cfg</ref>.<ref refid="structSYN__MQTTSN__Config_1ac8ea54e2a77af0598a4afe37bf2bc278" kindref="member">tx_buf</ref>;</highlight></codeline>
+<codeline lineno="289"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>payload_len<sp/>=<sp/>5U<sp/>+<sp/>len;</highlight></codeline>
+<codeline lineno="290"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>hdr_len<sp/>=</highlight></codeline>
+<codeline lineno="291"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__mqttsn_8c_1a79c6ee301e4aff8bb3bba76644f70ffe" kindref="member">mqttsn_encode_header</ref>(tx,<sp/>client-&gt;<ref refid="structSYN__MQTTSN__Client_1a40d313ddbfa943213bc993e5ba727446" kindref="member">cfg</ref>.<ref refid="structSYN__MQTTSN__Config_1a71b0603378edf4a1b5a2d3273ec16536" kindref="member">tx_buf_size</ref>,<sp/><ref refid="syn__mqttsn_8h_1ab1b7c909f8ac224fe9e4c07b3535565f" kindref="member">SYN_MQTTSN_MSG_PUBLISH</ref>,<sp/>payload_len);</highlight></codeline>
+<codeline lineno="292"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(hdr_len<sp/>==<sp/>0U)<sp/>{</highlight></codeline>
+<codeline lineno="293"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00acd5d2701b7cfa9fb446640ecbeb19fc9" kindref="member">SYN_ERROR</ref>;</highlight></codeline>
+<codeline lineno="294"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="295"><highlight class="normal"></highlight></codeline>
+<codeline lineno="296"><highlight class="normal"><sp/><sp/><sp/><sp/>tx[hdr_len]<sp/>=<sp/>flags;</highlight></codeline>
+<codeline lineno="297"><highlight class="normal"><sp/><sp/><sp/><sp/>tx[hdr_len<sp/>+<sp/>1U]<sp/>=<sp/>(uint8_t)((topic_id<sp/>&gt;&gt;<sp/>8U)<sp/>&amp;<sp/>0xFFU);</highlight></codeline>
+<codeline lineno="298"><highlight class="normal"><sp/><sp/><sp/><sp/>tx[hdr_len<sp/>+<sp/>2U]<sp/>=<sp/>(uint8_t)(topic_id<sp/>&amp;<sp/>0xFFU);</highlight></codeline>
+<codeline lineno="299"><highlight class="normal"><sp/><sp/><sp/><sp/>tx[hdr_len<sp/>+<sp/>3U]<sp/>=<sp/>(uint8_t)((msg_id<sp/>&gt;&gt;<sp/>8U)<sp/>&amp;<sp/>0xFFU);</highlight></codeline>
+<codeline lineno="300"><highlight class="normal"><sp/><sp/><sp/><sp/>tx[hdr_len<sp/>+<sp/>4U]<sp/>=<sp/>(uint8_t)(msg_id<sp/>&amp;<sp/>0xFFU);</highlight></codeline>
+<codeline lineno="301"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(len<sp/>&gt;<sp/>0U)<sp/>{</highlight></codeline>
+<codeline lineno="302"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(void)memcpy(&amp;tx[hdr_len<sp/>+<sp/>5U],<sp/>payload,<sp/>len);</highlight></codeline>
+<codeline lineno="303"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="304"><highlight class="normal"></highlight></codeline>
+<codeline lineno="305"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>total_len<sp/>=<sp/>hdr_len<sp/>+<sp/>payload_len;</highlight></codeline>
+<codeline lineno="306"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!<ref refid="syn__transport_8h_1a52679f9a0d69fdc254843656b5ae51d3" kindref="member">syn_transport_send</ref>(client-&gt;<ref refid="structSYN__MQTTSN__Client_1a40d313ddbfa943213bc993e5ba727446" kindref="member">cfg</ref>.<ref refid="structSYN__MQTTSN__Config_1a6d57ab2068b1aca41b8b091391119341" kindref="member">transport</ref>,<sp/>tx,<sp/>total_len))<sp/>{</highlight></codeline>
+<codeline lineno="307"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00acd5d2701b7cfa9fb446640ecbeb19fc9" kindref="member">SYN_ERROR</ref>;</highlight></codeline>
+<codeline lineno="308"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="309"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="310"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="311"><highlight class="normal"></highlight></codeline>
+<codeline lineno="312"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__mqttsn_8c_1a30b28954fa6ec336a708f9afe7545ce4" kindref="member">syn_mqttsn_client_publish</ref>(<ref refid="structSYN__MQTTSN__Client" kindref="compound">SYN_MQTTSN_Client</ref><sp/>*client,<sp/>uint16_t<sp/>topic_id,<sp/>int8_t<sp/>qos,</highlight></codeline>
+<codeline lineno="313"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>retain,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*payload,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>len)</highlight></codeline>
+<codeline lineno="314"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="315"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__mqttsn_8c_1acb28f756158aab8b05a01a767a337bf7" kindref="member">mqttsn_publish_internal</ref>(client,<sp/>topic_id,<sp/><ref refid="syn__mqttsn_8h_1a43c2dcac267bb5b4c12591e36b65629b" kindref="member">SYN_MQTTSN_FLAG_TOPIC_NORMAL</ref>,<sp/>qos,<sp/>retain,</highlight></codeline>
+<codeline lineno="316"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>payload,<sp/>len);</highlight></codeline>
+<codeline lineno="317"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="318"><highlight class="normal"></highlight></codeline>
+<codeline lineno="319"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__mqttsn_8c_1ae0de51860aae0066dcfd35660e8aeec6" kindref="member">syn_mqttsn_client_publish_short</ref>(<ref refid="structSYN__MQTTSN__Client" kindref="compound">SYN_MQTTSN_Client</ref><sp/>*client,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>short_topic[2],</highlight></codeline>
+<codeline lineno="320"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int8_t<sp/>qos,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>retain,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*payload,</highlight></codeline>
+<codeline lineno="321"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>len)</highlight></codeline>
+<codeline lineno="322"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="323"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(short_topic<sp/>==<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="324"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="325"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="326"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/>topic_id<sp/>=<sp/>((uint16_t)(uint8_t)short_topic[0]<sp/>&lt;&lt;<sp/>8U)<sp/>|<sp/>(uint8_t)short_topic[1];</highlight></codeline>
+<codeline lineno="327"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__mqttsn_8c_1acb28f756158aab8b05a01a767a337bf7" kindref="member">mqttsn_publish_internal</ref>(client,<sp/>topic_id,<sp/><ref refid="syn__mqttsn_8h_1a46954dd5a47397893f7bb31a1593fc1e" kindref="member">SYN_MQTTSN_FLAG_TOPIC_SHORT</ref>,<sp/>qos,<sp/>retain,</highlight></codeline>
+<codeline lineno="328"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>payload,<sp/>len);</highlight></codeline>
+<codeline lineno="329"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="330"><highlight class="normal"></highlight></codeline>
+<codeline lineno="331"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__mqttsn_8c_1afa09784a2f7a27bfd4c695319ac62981" kindref="member">syn_mqttsn_client_publish_predefined</ref>(<ref refid="structSYN__MQTTSN__Client" kindref="compound">SYN_MQTTSN_Client</ref><sp/>*client,<sp/>uint16_t<sp/>predef_id,</highlight></codeline>
+<codeline lineno="332"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int8_t<sp/>qos,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>retain,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*payload,</highlight></codeline>
+<codeline lineno="333"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>len)</highlight></codeline>
+<codeline lineno="334"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="335"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__mqttsn_8c_1acb28f756158aab8b05a01a767a337bf7" kindref="member">mqttsn_publish_internal</ref>(client,<sp/>predef_id,<sp/><ref refid="syn__mqttsn_8h_1a934801590da79aa54e503fef9f6b6db0" kindref="member">SYN_MQTTSN_FLAG_TOPIC_PREDEF</ref>,<sp/>qos,<sp/>retain,</highlight></codeline>
+<codeline lineno="336"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>payload,<sp/>len);</highlight></codeline>
+<codeline lineno="337"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="338"><highlight class="normal"></highlight></codeline>
+<codeline lineno="339"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__mqttsn_8c_1a5889f552cfdff4a4e1e698021d59b907" kindref="member">syn_mqttsn_client_subscribe</ref>(<ref refid="structSYN__MQTTSN__Client" kindref="compound">SYN_MQTTSN_Client</ref><sp/>*client,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*topic_name,</highlight></codeline>
+<codeline lineno="340"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint16_t<sp/>predef_id,<sp/>int8_t<sp/>qos)</highlight></codeline>
+<codeline lineno="341"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="342"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(client<sp/>==<sp/>NULL<sp/>||<sp/>client-&gt;<ref refid="structSYN__MQTTSN__Client_1a40d313ddbfa943213bc993e5ba727446" kindref="member">cfg</ref>.<ref refid="structSYN__MQTTSN__Config_1a6d57ab2068b1aca41b8b091391119341" kindref="member">transport</ref><sp/>==<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="343"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="344"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="345"><highlight class="normal"></highlight></codeline>
+<codeline lineno="346"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>flags<sp/>=<sp/>0U;</highlight></codeline>
+<codeline lineno="347"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(qos<sp/>==<sp/>1)<sp/>{</highlight></codeline>
+<codeline lineno="348"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>flags<sp/>|=<sp/><ref refid="syn__mqttsn_8h_1a29111a4d5b1b9141bcc4432d9f823cd1" kindref="member">SYN_MQTTSN_FLAG_QOS_1</ref>;</highlight></codeline>
+<codeline lineno="349"><highlight class="normal"><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(qos<sp/>==<sp/>-1)<sp/>{</highlight></codeline>
+<codeline lineno="350"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>flags<sp/>|=<sp/><ref refid="syn__mqttsn_8h_1ae65fef07b9840b0ceefdf94d37edd6b6" kindref="member">SYN_MQTTSN_FLAG_QOS_NEG1</ref>;</highlight></codeline>
+<codeline lineno="351"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="352"><highlight class="normal"></highlight></codeline>
+<codeline lineno="353"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/>msg_id<sp/>=<sp/>client-&gt;<ref refid="structSYN__MQTTSN__Client_1a2afbb2f629d5320a03ad6afdec564477" kindref="member">next_msg_id</ref>++;</highlight></codeline>
+<codeline lineno="354"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(client-&gt;<ref refid="structSYN__MQTTSN__Client_1a2afbb2f629d5320a03ad6afdec564477" kindref="member">next_msg_id</ref><sp/>==<sp/>0U)<sp/>{</highlight></codeline>
+<codeline lineno="355"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>client-&gt;<ref refid="structSYN__MQTTSN__Client_1a2afbb2f629d5320a03ad6afdec564477" kindref="member">next_msg_id</ref><sp/>=<sp/>1U;</highlight></codeline>
+<codeline lineno="356"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="357"><highlight class="normal"></highlight></codeline>
+<codeline lineno="358"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>*tx<sp/>=<sp/>client-&gt;<ref refid="structSYN__MQTTSN__Client_1a40d313ddbfa943213bc993e5ba727446" kindref="member">cfg</ref>.<ref refid="structSYN__MQTTSN__Config_1ac8ea54e2a77af0598a4afe37bf2bc278" kindref="member">tx_buf</ref>;</highlight></codeline>
+<codeline lineno="359"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>payload_len<sp/>=<sp/>0U;</highlight></codeline>
+<codeline lineno="360"><highlight class="normal"></highlight></codeline>
+<codeline lineno="361"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(topic_name<sp/>!=<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="362"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>name_len<sp/>=<sp/>strlen(topic_name);</highlight></codeline>
+<codeline lineno="363"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(name_len<sp/>==<sp/>2U)<sp/>{</highlight></codeline>
+<codeline lineno="364"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>flags<sp/>|=<sp/><ref refid="syn__mqttsn_8h_1a46954dd5a47397893f7bb31a1593fc1e" kindref="member">SYN_MQTTSN_FLAG_TOPIC_SHORT</ref>;</highlight></codeline>
+<codeline lineno="365"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>payload_len<sp/>=<sp/>5U;</highlight></codeline>
+<codeline lineno="366"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="367"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>flags<sp/>|=<sp/><ref refid="syn__mqttsn_8h_1a43c2dcac267bb5b4c12591e36b65629b" kindref="member">SYN_MQTTSN_FLAG_TOPIC_NORMAL</ref>;</highlight></codeline>
+<codeline lineno="368"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>payload_len<sp/>=<sp/>3U<sp/>+<sp/>name_len;</highlight></codeline>
+<codeline lineno="369"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="370"><highlight class="normal"></highlight></codeline>
+<codeline lineno="371"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>hdr_len<sp/>=<sp/><ref refid="syn__mqttsn_8c_1a79c6ee301e4aff8bb3bba76644f70ffe" kindref="member">mqttsn_encode_header</ref>(tx,<sp/>client-&gt;<ref refid="structSYN__MQTTSN__Client_1a40d313ddbfa943213bc993e5ba727446" kindref="member">cfg</ref>.<ref refid="structSYN__MQTTSN__Config_1a71b0603378edf4a1b5a2d3273ec16536" kindref="member">tx_buf_size</ref>,<sp/><ref refid="syn__mqttsn_8h_1a64d1c946a99152b410e26cc2464f09e6" kindref="member">SYN_MQTTSN_MSG_SUBSCRIBE</ref>,</highlight></codeline>
+<codeline lineno="372"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>payload_len);</highlight></codeline>
+<codeline lineno="373"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(hdr_len<sp/>==<sp/>0U)<sp/>{</highlight></codeline>
+<codeline lineno="374"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00acd5d2701b7cfa9fb446640ecbeb19fc9" kindref="member">SYN_ERROR</ref>;</highlight></codeline>
+<codeline lineno="375"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="376"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tx[hdr_len]<sp/>=<sp/>flags;</highlight></codeline>
+<codeline lineno="377"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tx[hdr_len<sp/>+<sp/>1U]<sp/>=<sp/>(uint8_t)((msg_id<sp/>&gt;&gt;<sp/>8U)<sp/>&amp;<sp/>0xFFU);</highlight></codeline>
+<codeline lineno="378"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tx[hdr_len<sp/>+<sp/>2U]<sp/>=<sp/>(uint8_t)(msg_id<sp/>&amp;<sp/>0xFFU);</highlight></codeline>
+<codeline lineno="379"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(void)memcpy(&amp;tx[hdr_len<sp/>+<sp/>3U],<sp/>topic_name,<sp/>name_len);</highlight></codeline>
+<codeline lineno="380"><highlight class="normal"></highlight></codeline>
+<codeline lineno="381"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__transport_8h_1a52679f9a0d69fdc254843656b5ae51d3" kindref="member">syn_transport_send</ref>(client-&gt;<ref refid="structSYN__MQTTSN__Client_1a40d313ddbfa943213bc993e5ba727446" kindref="member">cfg</ref>.<ref refid="structSYN__MQTTSN__Config_1a6d57ab2068b1aca41b8b091391119341" kindref="member">transport</ref>,<sp/>tx,<sp/>hdr_len<sp/>+<sp/>payload_len)<sp/>?<sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref></highlight></codeline>
+<codeline lineno="382"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>:<sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00acd5d2701b7cfa9fb446640ecbeb19fc9" kindref="member">SYN_ERROR</ref>;</highlight></codeline>
+<codeline lineno="383"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="384"><highlight class="normal"></highlight></codeline>
+<codeline lineno="385"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Subscribing<sp/>by<sp/>Predefined<sp/>ID<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="386"><highlight class="normal"><sp/><sp/><sp/><sp/>flags<sp/>|=<sp/><ref refid="syn__mqttsn_8h_1a934801590da79aa54e503fef9f6b6db0" kindref="member">SYN_MQTTSN_FLAG_TOPIC_PREDEF</ref>;</highlight></codeline>
+<codeline lineno="387"><highlight class="normal"><sp/><sp/><sp/><sp/>payload_len<sp/>=<sp/>5U;</highlight></codeline>
+<codeline lineno="388"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>hdr_len<sp/>=</highlight></codeline>
+<codeline lineno="389"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__mqttsn_8c_1a79c6ee301e4aff8bb3bba76644f70ffe" kindref="member">mqttsn_encode_header</ref>(tx,<sp/>client-&gt;<ref refid="structSYN__MQTTSN__Client_1a40d313ddbfa943213bc993e5ba727446" kindref="member">cfg</ref>.<ref refid="structSYN__MQTTSN__Config_1a71b0603378edf4a1b5a2d3273ec16536" kindref="member">tx_buf_size</ref>,<sp/><ref refid="syn__mqttsn_8h_1a64d1c946a99152b410e26cc2464f09e6" kindref="member">SYN_MQTTSN_MSG_SUBSCRIBE</ref>,<sp/>payload_len);</highlight></codeline>
+<codeline lineno="390"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(hdr_len<sp/>==<sp/>0U)<sp/>{</highlight></codeline>
+<codeline lineno="391"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00acd5d2701b7cfa9fb446640ecbeb19fc9" kindref="member">SYN_ERROR</ref>;</highlight></codeline>
+<codeline lineno="392"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="393"><highlight class="normal"></highlight></codeline>
+<codeline lineno="394"><highlight class="normal"><sp/><sp/><sp/><sp/>tx[hdr_len]<sp/>=<sp/>flags;</highlight></codeline>
+<codeline lineno="395"><highlight class="normal"><sp/><sp/><sp/><sp/>tx[hdr_len<sp/>+<sp/>1U]<sp/>=<sp/>(uint8_t)((msg_id<sp/>&gt;&gt;<sp/>8U)<sp/>&amp;<sp/>0xFFU);</highlight></codeline>
+<codeline lineno="396"><highlight class="normal"><sp/><sp/><sp/><sp/>tx[hdr_len<sp/>+<sp/>2U]<sp/>=<sp/>(uint8_t)(msg_id<sp/>&amp;<sp/>0xFFU);</highlight></codeline>
+<codeline lineno="397"><highlight class="normal"><sp/><sp/><sp/><sp/>tx[hdr_len<sp/>+<sp/>3U]<sp/>=<sp/>(uint8_t)((predef_id<sp/>&gt;&gt;<sp/>8U)<sp/>&amp;<sp/>0xFFU);</highlight></codeline>
+<codeline lineno="398"><highlight class="normal"><sp/><sp/><sp/><sp/>tx[hdr_len<sp/>+<sp/>4U]<sp/>=<sp/>(uint8_t)(predef_id<sp/>&amp;<sp/>0xFFU);</highlight></codeline>
+<codeline lineno="399"><highlight class="normal"></highlight></codeline>
+<codeline lineno="400"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__transport_8h_1a52679f9a0d69fdc254843656b5ae51d3" kindref="member">syn_transport_send</ref>(client-&gt;<ref refid="structSYN__MQTTSN__Client_1a40d313ddbfa943213bc993e5ba727446" kindref="member">cfg</ref>.<ref refid="structSYN__MQTTSN__Config_1a6d57ab2068b1aca41b8b091391119341" kindref="member">transport</ref>,<sp/>tx,<sp/>hdr_len<sp/>+<sp/>payload_len)<sp/>?<sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref></highlight></codeline>
+<codeline lineno="401"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>:<sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00acd5d2701b7cfa9fb446640ecbeb19fc9" kindref="member">SYN_ERROR</ref>;</highlight></codeline>
+<codeline lineno="402"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="403"><highlight class="normal"></highlight></codeline>
+<codeline lineno="404"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__mqttsn_8c_1aa56125f225fd74776df5e8e906ccf573" kindref="member">syn_mqttsn_client_unsubscribe</ref>(<ref refid="structSYN__MQTTSN__Client" kindref="compound">SYN_MQTTSN_Client</ref><sp/>*client,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*topic_name,</highlight></codeline>
+<codeline lineno="405"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint16_t<sp/>predef_id)</highlight></codeline>
+<codeline lineno="406"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="407"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(client<sp/>==<sp/>NULL<sp/>||<sp/>client-&gt;<ref refid="structSYN__MQTTSN__Client_1a40d313ddbfa943213bc993e5ba727446" kindref="member">cfg</ref>.<ref refid="structSYN__MQTTSN__Config_1a6d57ab2068b1aca41b8b091391119341" kindref="member">transport</ref><sp/>==<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="408"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="409"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="410"><highlight class="normal"></highlight></codeline>
+<codeline lineno="411"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>flags<sp/>=<sp/>0U;</highlight></codeline>
+<codeline lineno="412"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/>msg_id<sp/>=<sp/>client-&gt;<ref refid="structSYN__MQTTSN__Client_1a2afbb2f629d5320a03ad6afdec564477" kindref="member">next_msg_id</ref>++;</highlight></codeline>
+<codeline lineno="413"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(client-&gt;<ref refid="structSYN__MQTTSN__Client_1a2afbb2f629d5320a03ad6afdec564477" kindref="member">next_msg_id</ref><sp/>==<sp/>0U)<sp/>{</highlight></codeline>
+<codeline lineno="414"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>client-&gt;<ref refid="structSYN__MQTTSN__Client_1a2afbb2f629d5320a03ad6afdec564477" kindref="member">next_msg_id</ref><sp/>=<sp/>1U;</highlight></codeline>
+<codeline lineno="415"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="416"><highlight class="normal"></highlight></codeline>
+<codeline lineno="417"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>*tx<sp/>=<sp/>client-&gt;<ref refid="structSYN__MQTTSN__Client_1a40d313ddbfa943213bc993e5ba727446" kindref="member">cfg</ref>.<ref refid="structSYN__MQTTSN__Config_1ac8ea54e2a77af0598a4afe37bf2bc278" kindref="member">tx_buf</ref>;</highlight></codeline>
+<codeline lineno="418"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>payload_len<sp/>=<sp/>0U;</highlight></codeline>
+<codeline lineno="419"><highlight class="normal"></highlight></codeline>
+<codeline lineno="420"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(topic_name<sp/>!=<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="421"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>name_len<sp/>=<sp/>strlen(topic_name);</highlight></codeline>
+<codeline lineno="422"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(name_len<sp/>==<sp/>2U)<sp/>{</highlight></codeline>
+<codeline lineno="423"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>flags<sp/>|=<sp/><ref refid="syn__mqttsn_8h_1a46954dd5a47397893f7bb31a1593fc1e" kindref="member">SYN_MQTTSN_FLAG_TOPIC_SHORT</ref>;</highlight></codeline>
+<codeline lineno="424"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>payload_len<sp/>=<sp/>5U;</highlight></codeline>
+<codeline lineno="425"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="426"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>flags<sp/>|=<sp/><ref refid="syn__mqttsn_8h_1a43c2dcac267bb5b4c12591e36b65629b" kindref="member">SYN_MQTTSN_FLAG_TOPIC_NORMAL</ref>;</highlight></codeline>
+<codeline lineno="427"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>payload_len<sp/>=<sp/>3U<sp/>+<sp/>name_len;</highlight></codeline>
+<codeline lineno="428"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="429"><highlight class="normal"></highlight></codeline>
+<codeline lineno="430"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>hdr_len<sp/>=<sp/><ref refid="syn__mqttsn_8c_1a79c6ee301e4aff8bb3bba76644f70ffe" kindref="member">mqttsn_encode_header</ref>(tx,<sp/>client-&gt;<ref refid="structSYN__MQTTSN__Client_1a40d313ddbfa943213bc993e5ba727446" kindref="member">cfg</ref>.<ref refid="structSYN__MQTTSN__Config_1a71b0603378edf4a1b5a2d3273ec16536" kindref="member">tx_buf_size</ref>,</highlight></codeline>
+<codeline lineno="431"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__mqttsn_8h_1af3f103ecc506cbb48b39de8487f80858" kindref="member">SYN_MQTTSN_MSG_UNSUBSCRIBE</ref>,<sp/>payload_len);</highlight></codeline>
+<codeline lineno="432"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(hdr_len<sp/>==<sp/>0U)<sp/>{</highlight></codeline>
+<codeline lineno="433"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00acd5d2701b7cfa9fb446640ecbeb19fc9" kindref="member">SYN_ERROR</ref>;</highlight></codeline>
+<codeline lineno="434"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="435"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tx[hdr_len]<sp/>=<sp/>flags;</highlight></codeline>
+<codeline lineno="436"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tx[hdr_len<sp/>+<sp/>1U]<sp/>=<sp/>(uint8_t)((msg_id<sp/>&gt;&gt;<sp/>8U)<sp/>&amp;<sp/>0xFFU);</highlight></codeline>
+<codeline lineno="437"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tx[hdr_len<sp/>+<sp/>2U]<sp/>=<sp/>(uint8_t)(msg_id<sp/>&amp;<sp/>0xFFU);</highlight></codeline>
+<codeline lineno="438"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(void)memcpy(&amp;tx[hdr_len<sp/>+<sp/>3U],<sp/>topic_name,<sp/>name_len);</highlight></codeline>
+<codeline lineno="439"><highlight class="normal"></highlight></codeline>
+<codeline lineno="440"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__transport_8h_1a52679f9a0d69fdc254843656b5ae51d3" kindref="member">syn_transport_send</ref>(client-&gt;<ref refid="structSYN__MQTTSN__Client_1a40d313ddbfa943213bc993e5ba727446" kindref="member">cfg</ref>.<ref refid="structSYN__MQTTSN__Config_1a6d57ab2068b1aca41b8b091391119341" kindref="member">transport</ref>,<sp/>tx,<sp/>hdr_len<sp/>+<sp/>payload_len)<sp/>?<sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref></highlight></codeline>
+<codeline lineno="441"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>:<sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00acd5d2701b7cfa9fb446640ecbeb19fc9" kindref="member">SYN_ERROR</ref>;</highlight></codeline>
+<codeline lineno="442"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="443"><highlight class="normal"></highlight></codeline>
+<codeline lineno="444"><highlight class="normal"><sp/><sp/><sp/><sp/>flags<sp/>|=<sp/><ref refid="syn__mqttsn_8h_1a934801590da79aa54e503fef9f6b6db0" kindref="member">SYN_MQTTSN_FLAG_TOPIC_PREDEF</ref>;</highlight></codeline>
+<codeline lineno="445"><highlight class="normal"><sp/><sp/><sp/><sp/>payload_len<sp/>=<sp/>5U;</highlight></codeline>
+<codeline lineno="446"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>hdr_len<sp/>=</highlight></codeline>
+<codeline lineno="447"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__mqttsn_8c_1a79c6ee301e4aff8bb3bba76644f70ffe" kindref="member">mqttsn_encode_header</ref>(tx,<sp/>client-&gt;<ref refid="structSYN__MQTTSN__Client_1a40d313ddbfa943213bc993e5ba727446" kindref="member">cfg</ref>.<ref refid="structSYN__MQTTSN__Config_1a71b0603378edf4a1b5a2d3273ec16536" kindref="member">tx_buf_size</ref>,<sp/><ref refid="syn__mqttsn_8h_1af3f103ecc506cbb48b39de8487f80858" kindref="member">SYN_MQTTSN_MSG_UNSUBSCRIBE</ref>,<sp/>payload_len);</highlight></codeline>
+<codeline lineno="448"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(hdr_len<sp/>==<sp/>0U)<sp/>{</highlight></codeline>
+<codeline lineno="449"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00acd5d2701b7cfa9fb446640ecbeb19fc9" kindref="member">SYN_ERROR</ref>;</highlight></codeline>
+<codeline lineno="450"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="451"><highlight class="normal"></highlight></codeline>
+<codeline lineno="452"><highlight class="normal"><sp/><sp/><sp/><sp/>tx[hdr_len]<sp/>=<sp/>flags;</highlight></codeline>
+<codeline lineno="453"><highlight class="normal"><sp/><sp/><sp/><sp/>tx[hdr_len<sp/>+<sp/>1U]<sp/>=<sp/>(uint8_t)((msg_id<sp/>&gt;&gt;<sp/>8U)<sp/>&amp;<sp/>0xFFU);</highlight></codeline>
+<codeline lineno="454"><highlight class="normal"><sp/><sp/><sp/><sp/>tx[hdr_len<sp/>+<sp/>2U]<sp/>=<sp/>(uint8_t)(msg_id<sp/>&amp;<sp/>0xFFU);</highlight></codeline>
+<codeline lineno="455"><highlight class="normal"><sp/><sp/><sp/><sp/>tx[hdr_len<sp/>+<sp/>3U]<sp/>=<sp/>(uint8_t)((predef_id<sp/>&gt;&gt;<sp/>8U)<sp/>&amp;<sp/>0xFFU);</highlight></codeline>
+<codeline lineno="456"><highlight class="normal"><sp/><sp/><sp/><sp/>tx[hdr_len<sp/>+<sp/>4U]<sp/>=<sp/>(uint8_t)(predef_id<sp/>&amp;<sp/>0xFFU);</highlight></codeline>
+<codeline lineno="457"><highlight class="normal"></highlight></codeline>
+<codeline lineno="458"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__transport_8h_1a52679f9a0d69fdc254843656b5ae51d3" kindref="member">syn_transport_send</ref>(client-&gt;<ref refid="structSYN__MQTTSN__Client_1a40d313ddbfa943213bc993e5ba727446" kindref="member">cfg</ref>.<ref refid="structSYN__MQTTSN__Config_1a6d57ab2068b1aca41b8b091391119341" kindref="member">transport</ref>,<sp/>tx,<sp/>hdr_len<sp/>+<sp/>payload_len)<sp/>?<sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref></highlight></codeline>
+<codeline lineno="459"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>:<sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00acd5d2701b7cfa9fb446640ecbeb19fc9" kindref="member">SYN_ERROR</ref>;</highlight></codeline>
+<codeline lineno="460"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="461"><highlight class="normal"></highlight></codeline>
+<codeline lineno="462"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__mqttsn_8c_1a82561c071347a32df23db326ebb0f04a" kindref="member">syn_mqttsn_client_sleep</ref>(<ref refid="structSYN__MQTTSN__Client" kindref="compound">SYN_MQTTSN_Client</ref><sp/>*client,<sp/>uint16_t<sp/>sleep_duration_s)</highlight></codeline>
+<codeline lineno="463"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="464"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(client<sp/>==<sp/>NULL<sp/>||<sp/>client-&gt;<ref refid="structSYN__MQTTSN__Client_1a40d313ddbfa943213bc993e5ba727446" kindref="member">cfg</ref>.<ref refid="structSYN__MQTTSN__Config_1a6d57ab2068b1aca41b8b091391119341" kindref="member">transport</ref><sp/>==<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="465"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="466"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="467"><highlight class="normal"></highlight></codeline>
+<codeline lineno="468"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>*tx<sp/>=<sp/>client-&gt;<ref refid="structSYN__MQTTSN__Client_1a40d313ddbfa943213bc993e5ba727446" kindref="member">cfg</ref>.<ref refid="structSYN__MQTTSN__Config_1ac8ea54e2a77af0598a4afe37bf2bc278" kindref="member">tx_buf</ref>;</highlight></codeline>
+<codeline lineno="469"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>payload_len<sp/>=<sp/>2U;</highlight></codeline>
+<codeline lineno="470"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>hdr_len<sp/>=</highlight></codeline>
+<codeline lineno="471"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__mqttsn_8c_1a79c6ee301e4aff8bb3bba76644f70ffe" kindref="member">mqttsn_encode_header</ref>(tx,<sp/>client-&gt;<ref refid="structSYN__MQTTSN__Client_1a40d313ddbfa943213bc993e5ba727446" kindref="member">cfg</ref>.<ref refid="structSYN__MQTTSN__Config_1a71b0603378edf4a1b5a2d3273ec16536" kindref="member">tx_buf_size</ref>,<sp/><ref refid="syn__mqttsn_8h_1ac0ff2e2ca86207ff26dc62a24c64fc97" kindref="member">SYN_MQTTSN_MSG_DISCONNECT</ref>,<sp/>payload_len);</highlight></codeline>
+<codeline lineno="472"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(hdr_len<sp/>==<sp/>0U)<sp/>{</highlight></codeline>
+<codeline lineno="473"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00acd5d2701b7cfa9fb446640ecbeb19fc9" kindref="member">SYN_ERROR</ref>;</highlight></codeline>
+<codeline lineno="474"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="475"><highlight class="normal"></highlight></codeline>
+<codeline lineno="476"><highlight class="normal"><sp/><sp/><sp/><sp/>tx[hdr_len]<sp/>=<sp/>(uint8_t)((sleep_duration_s<sp/>&gt;&gt;<sp/>8U)<sp/>&amp;<sp/>0xFFU);</highlight></codeline>
+<codeline lineno="477"><highlight class="normal"><sp/><sp/><sp/><sp/>tx[hdr_len<sp/>+<sp/>1U]<sp/>=<sp/>(uint8_t)(sleep_duration_s<sp/>&amp;<sp/>0xFFU);</highlight></codeline>
+<codeline lineno="478"><highlight class="normal"></highlight></codeline>
+<codeline lineno="479"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!<ref refid="syn__transport_8h_1a52679f9a0d69fdc254843656b5ae51d3" kindref="member">syn_transport_send</ref>(client-&gt;<ref refid="structSYN__MQTTSN__Client_1a40d313ddbfa943213bc993e5ba727446" kindref="member">cfg</ref>.<ref refid="structSYN__MQTTSN__Config_1a6d57ab2068b1aca41b8b091391119341" kindref="member">transport</ref>,<sp/>tx,<sp/>hdr_len<sp/>+<sp/>payload_len))<sp/>{</highlight></codeline>
+<codeline lineno="480"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00acd5d2701b7cfa9fb446640ecbeb19fc9" kindref="member">SYN_ERROR</ref>;</highlight></codeline>
+<codeline lineno="481"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="482"><highlight class="normal"></highlight></codeline>
+<codeline lineno="483"><highlight class="normal"><sp/><sp/><sp/><sp/>client-&gt;<ref refid="structSYN__MQTTSN__Client_1a1a779fe641c1052803e3572a95ae70bd" kindref="member">state</ref><sp/>=<sp/><ref refid="syn__mqttsn_8h_1aa9802c43e1f19c64c349a475527850cfaf05696b5f760cec7174ac03d3e490e08" kindref="member">SYN_MQTTSN_STATE_ASLEEP</ref>;</highlight></codeline>
+<codeline lineno="484"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="485"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="486"><highlight class="normal"></highlight></codeline>
+<codeline lineno="487"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__mqttsn_8c_1a7a7e1561cd5d35e01c4f142d29bee717" kindref="member">syn_mqttsn_client_wake</ref>(<ref refid="structSYN__MQTTSN__Client" kindref="compound">SYN_MQTTSN_Client</ref><sp/>*client)</highlight></codeline>
+<codeline lineno="488"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="489"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(client<sp/>==<sp/>NULL<sp/>||<sp/>client-&gt;<ref refid="structSYN__MQTTSN__Client_1a40d313ddbfa943213bc993e5ba727446" kindref="member">cfg</ref>.<ref refid="structSYN__MQTTSN__Config_1a6d57ab2068b1aca41b8b091391119341" kindref="member">transport</ref><sp/>==<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="490"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="491"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="492"><highlight class="normal"></highlight></codeline>
+<codeline lineno="493"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*cid<sp/>=<sp/>(client-&gt;<ref refid="structSYN__MQTTSN__Client_1a40d313ddbfa943213bc993e5ba727446" kindref="member">cfg</ref>.<ref refid="structSYN__MQTTSN__Config_1ad3ab6010018edc3d18c373903cd0c8e7" kindref="member">client_id</ref><sp/>!=<sp/>NULL)<sp/>?<sp/>client-&gt;<ref refid="structSYN__MQTTSN__Client_1a40d313ddbfa943213bc993e5ba727446" kindref="member">cfg</ref>.<ref refid="structSYN__MQTTSN__Config_1ad3ab6010018edc3d18c373903cd0c8e7" kindref="member">client_id</ref><sp/>:<sp/></highlight><highlight class="stringliteral">&quot;SyntropicClient&quot;</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="494"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>cid_len<sp/>=<sp/>strlen(cid);</highlight></codeline>
+<codeline lineno="495"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(cid_len<sp/>&gt;<sp/><ref refid="syn__mqttsn_8h_1a2445a85a33eb46dce1f72a4e8b360c08" kindref="member">SYN_MQTTSN_MAX_CLIENT_ID</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="496"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>cid_len<sp/>=<sp/><ref refid="syn__mqttsn_8h_1a2445a85a33eb46dce1f72a4e8b360c08" kindref="member">SYN_MQTTSN_MAX_CLIENT_ID</ref>;</highlight></codeline>
+<codeline lineno="497"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="498"><highlight class="normal"></highlight></codeline>
+<codeline lineno="499"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>*tx<sp/>=<sp/>client-&gt;<ref refid="structSYN__MQTTSN__Client_1a40d313ddbfa943213bc993e5ba727446" kindref="member">cfg</ref>.<ref refid="structSYN__MQTTSN__Config_1ac8ea54e2a77af0598a4afe37bf2bc278" kindref="member">tx_buf</ref>;</highlight></codeline>
+<codeline lineno="500"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>hdr_len<sp/>=</highlight></codeline>
+<codeline lineno="501"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__mqttsn_8c_1a79c6ee301e4aff8bb3bba76644f70ffe" kindref="member">mqttsn_encode_header</ref>(tx,<sp/>client-&gt;<ref refid="structSYN__MQTTSN__Client_1a40d313ddbfa943213bc993e5ba727446" kindref="member">cfg</ref>.<ref refid="structSYN__MQTTSN__Config_1a71b0603378edf4a1b5a2d3273ec16536" kindref="member">tx_buf_size</ref>,<sp/><ref refid="syn__mqttsn_8h_1a315a1dff083c71b94e5ff9b5bfa0fcbc" kindref="member">SYN_MQTTSN_MSG_PINGREQ</ref>,<sp/>cid_len);</highlight></codeline>
+<codeline lineno="502"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(hdr_len<sp/>==<sp/>0U)<sp/>{</highlight></codeline>
+<codeline lineno="503"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00acd5d2701b7cfa9fb446640ecbeb19fc9" kindref="member">SYN_ERROR</ref>;</highlight></codeline>
+<codeline lineno="504"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="505"><highlight class="normal"></highlight></codeline>
+<codeline lineno="506"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(cid_len<sp/>&gt;<sp/>0U)<sp/>{</highlight></codeline>
+<codeline lineno="507"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(void)memcpy(&amp;tx[hdr_len],<sp/>cid,<sp/>cid_len);</highlight></codeline>
+<codeline lineno="508"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="509"><highlight class="normal"></highlight></codeline>
+<codeline lineno="510"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!<ref refid="syn__transport_8h_1a52679f9a0d69fdc254843656b5ae51d3" kindref="member">syn_transport_send</ref>(client-&gt;<ref refid="structSYN__MQTTSN__Client_1a40d313ddbfa943213bc993e5ba727446" kindref="member">cfg</ref>.<ref refid="structSYN__MQTTSN__Config_1a6d57ab2068b1aca41b8b091391119341" kindref="member">transport</ref>,<sp/>tx,<sp/>hdr_len<sp/>+<sp/>cid_len))<sp/>{</highlight></codeline>
+<codeline lineno="511"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00acd5d2701b7cfa9fb446640ecbeb19fc9" kindref="member">SYN_ERROR</ref>;</highlight></codeline>
+<codeline lineno="512"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="513"><highlight class="normal"></highlight></codeline>
+<codeline lineno="514"><highlight class="normal"><sp/><sp/><sp/><sp/>client-&gt;<ref refid="structSYN__MQTTSN__Client_1a1a779fe641c1052803e3572a95ae70bd" kindref="member">state</ref><sp/>=<sp/><ref refid="syn__mqttsn_8h_1aa9802c43e1f19c64c349a475527850cfa065be34de27eb99c611182378746b3d0" kindref="member">SYN_MQTTSN_STATE_AWAKE</ref>;</highlight></codeline>
+<codeline lineno="515"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="516"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="517"><highlight class="normal"></highlight></codeline>
+<codeline lineno="518"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__mqttsn_8c_1a624b0f3d5d3ddfa6d75a9a4dae539573" kindref="member">syn_mqttsn_client_disconnect</ref>(<ref refid="structSYN__MQTTSN__Client" kindref="compound">SYN_MQTTSN_Client</ref><sp/>*client)</highlight></codeline>
+<codeline lineno="519"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="520"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(client<sp/>==<sp/>NULL<sp/>||<sp/>client-&gt;<ref refid="structSYN__MQTTSN__Client_1a40d313ddbfa943213bc993e5ba727446" kindref="member">cfg</ref>.<ref refid="structSYN__MQTTSN__Config_1a6d57ab2068b1aca41b8b091391119341" kindref="member">transport</ref><sp/>==<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="521"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="522"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="523"><highlight class="normal"></highlight></codeline>
+<codeline lineno="524"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>*tx<sp/>=<sp/>client-&gt;<ref refid="structSYN__MQTTSN__Client_1a40d313ddbfa943213bc993e5ba727446" kindref="member">cfg</ref>.<ref refid="structSYN__MQTTSN__Config_1ac8ea54e2a77af0598a4afe37bf2bc278" kindref="member">tx_buf</ref>;</highlight></codeline>
+<codeline lineno="525"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>hdr_len<sp/>=</highlight></codeline>
+<codeline lineno="526"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__mqttsn_8c_1a79c6ee301e4aff8bb3bba76644f70ffe" kindref="member">mqttsn_encode_header</ref>(tx,<sp/>client-&gt;<ref refid="structSYN__MQTTSN__Client_1a40d313ddbfa943213bc993e5ba727446" kindref="member">cfg</ref>.<ref refid="structSYN__MQTTSN__Config_1a71b0603378edf4a1b5a2d3273ec16536" kindref="member">tx_buf_size</ref>,<sp/><ref refid="syn__mqttsn_8h_1ac0ff2e2ca86207ff26dc62a24c64fc97" kindref="member">SYN_MQTTSN_MSG_DISCONNECT</ref>,<sp/>0U);</highlight></codeline>
+<codeline lineno="527"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(hdr_len<sp/>==<sp/>0U)<sp/>{</highlight></codeline>
+<codeline lineno="528"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00acd5d2701b7cfa9fb446640ecbeb19fc9" kindref="member">SYN_ERROR</ref>;</highlight></codeline>
+<codeline lineno="529"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="530"><highlight class="normal"></highlight></codeline>
+<codeline lineno="531"><highlight class="normal"><sp/><sp/><sp/><sp/>(void)<ref refid="syn__transport_8h_1a52679f9a0d69fdc254843656b5ae51d3" kindref="member">syn_transport_send</ref>(client-&gt;<ref refid="structSYN__MQTTSN__Client_1a40d313ddbfa943213bc993e5ba727446" kindref="member">cfg</ref>.<ref refid="structSYN__MQTTSN__Config_1a6d57ab2068b1aca41b8b091391119341" kindref="member">transport</ref>,<sp/>tx,<sp/>hdr_len);</highlight></codeline>
+<codeline lineno="532"><highlight class="normal"><sp/><sp/><sp/><sp/>client-&gt;<ref refid="structSYN__MQTTSN__Client_1a1a779fe641c1052803e3572a95ae70bd" kindref="member">state</ref><sp/>=<sp/><ref refid="syn__mqttsn_8h_1aa9802c43e1f19c64c349a475527850cfad65b4aa324b29273a3fad02bbc0a7241" kindref="member">SYN_MQTTSN_STATE_DISCONNECTED</ref>;</highlight></codeline>
+<codeline lineno="533"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="534"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="535"><highlight class="normal"></highlight></codeline>
+<codeline lineno="543"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__mqttsn_8c_1a6e10b41ad438e999854673e3ab08a946" kindref="member">mqttsn_process_rx_frame</ref>(<ref refid="structSYN__MQTTSN__Client" kindref="compound">SYN_MQTTSN_Client</ref><sp/>*client,<sp/>uint8_t<sp/>msg_type,</highlight></codeline>
+<codeline lineno="544"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*payload,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>payload_len)</highlight></codeline>
+<codeline lineno="545"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="546"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">switch</highlight><highlight class="normal"><sp/>(msg_type)<sp/>{</highlight></codeline>
+<codeline lineno="547"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__mqttsn_8h_1aef4b28b9d3d7262460042853415b2d9e" kindref="member">SYN_MQTTSN_MSG_ADVERTISE</ref>:</highlight></codeline>
+<codeline lineno="548"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__mqttsn_8h_1ac6e143fd45daa5999ff3cd3fe8fdca98" kindref="member">SYN_MQTTSN_MSG_GWINFO</ref>:</highlight></codeline>
+<codeline lineno="549"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(payload_len<sp/>&gt;=<sp/>1U)<sp/>{</highlight></codeline>
+<codeline lineno="550"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>client-&gt;<ref refid="structSYN__MQTTSN__Client_1aa242ddb711027b94f844721353eccab8" kindref="member">gateway_id</ref><sp/>=<sp/>payload[0];</highlight></codeline>
+<codeline lineno="551"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(client-&gt;<ref refid="structSYN__MQTTSN__Client_1a1a779fe641c1052803e3572a95ae70bd" kindref="member">state</ref><sp/>==<sp/><ref refid="syn__mqttsn_8h_1aa9802c43e1f19c64c349a475527850cfafa3b2cffa80d75af45bab7bff84bfa13" kindref="member">SYN_MQTTSN_STATE_SEARCHING_GW</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="552"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(void)<ref refid="syn__mqttsn_8c_1ab55d65be2f94606babdfa68b9d04fbbf" kindref="member">syn_mqttsn_client_connect</ref>(client);</highlight></codeline>
+<codeline lineno="553"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="554"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="555"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="556"><highlight class="normal"></highlight></codeline>
+<codeline lineno="557"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__mqttsn_8h_1ac44b5f4210bf3e505800233e2903d7ba" kindref="member">SYN_MQTTSN_MSG_CONNACK</ref>:</highlight></codeline>
+<codeline lineno="558"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(payload_len<sp/>&gt;=<sp/>1U<sp/>&amp;&amp;<sp/>payload[0]<sp/>==<sp/><ref refid="syn__mqttsn_8h_1a29b6fbdb95bc720af9a402f79a521c6b" kindref="member">SYN_MQTTSN_RC_ACCEPTED</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="559"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>client-&gt;<ref refid="structSYN__MQTTSN__Client_1a1a779fe641c1052803e3572a95ae70bd" kindref="member">state</ref><sp/>=<sp/><ref refid="syn__mqttsn_8h_1aa9802c43e1f19c64c349a475527850cfa2c1d395ca228603ed744c86e216636fc" kindref="member">SYN_MQTTSN_STATE_CONNECTED</ref>;</highlight></codeline>
+<codeline lineno="560"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="561"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="562"><highlight class="normal"></highlight></codeline>
+<codeline lineno="563"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__mqttsn_8h_1ad77787430ebe0b4ca2cb13f4e1f009ac" kindref="member">SYN_MQTTSN_MSG_REGACK</ref>:</highlight></codeline>
+<codeline lineno="564"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(payload_len<sp/>&gt;=<sp/>5U<sp/>&amp;&amp;<sp/>payload[4]<sp/>==<sp/><ref refid="syn__mqttsn_8h_1a29b6fbdb95bc720af9a402f79a521c6b" kindref="member">SYN_MQTTSN_RC_ACCEPTED</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="565"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint16_t<sp/>topic_id<sp/>=<sp/>((uint16_t)payload[0]<sp/>&lt;&lt;<sp/>8U)<sp/>|<sp/>payload[1];</highlight></codeline>
+<codeline lineno="566"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Update<sp/>registered<sp/>topic<sp/>entry<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="567"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(client-&gt;<ref refid="structSYN__MQTTSN__Client_1a72b6ce9aeb194412d2bb14ab31cacad9" kindref="member">topic_count</ref><sp/>&gt;<sp/>0U)<sp/>{</highlight></codeline>
+<codeline lineno="568"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>client-&gt;<ref refid="structSYN__MQTTSN__Client_1a0d15c90eb9f9abe514e37aae98dc06b9" kindref="member">topics</ref>[client-&gt;<ref refid="structSYN__MQTTSN__Client_1a72b6ce9aeb194412d2bb14ab31cacad9" kindref="member">topic_count</ref><sp/>-<sp/>1U].<ref refid="structSYN__MQTTSN__TopicEntry_1a68c30a547088c97b9501359f606c9cd0" kindref="member">topic_id</ref><sp/>=<sp/>topic_id;</highlight></codeline>
+<codeline lineno="569"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="570"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="571"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="572"><highlight class="normal"></highlight></codeline>
+<codeline lineno="573"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__mqttsn_8h_1ab1b7c909f8ac224fe9e4c07b3535565f" kindref="member">SYN_MQTTSN_MSG_PUBLISH</ref>:</highlight></codeline>
+<codeline lineno="574"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(payload_len<sp/>&gt;=<sp/>5U)<sp/>{</highlight></codeline>
+<codeline lineno="575"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>flags<sp/>=<sp/>payload[0];</highlight></codeline>
+<codeline lineno="576"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>topic_type<sp/>=<sp/>flags<sp/>&amp;<sp/><ref refid="syn__mqttsn_8h_1aaa3aa1e87f5b8236f0c7df849d8114f5" kindref="member">SYN_MQTTSN_FLAG_TOPIC_MASK</ref>;</highlight></codeline>
+<codeline lineno="577"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint16_t<sp/>topic_id<sp/>=<sp/>((uint16_t)payload[1]<sp/>&lt;&lt;<sp/>8U)<sp/>|<sp/>payload[2];</highlight></codeline>
+<codeline lineno="578"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint16_t<sp/>msg_id<sp/>=<sp/>((uint16_t)payload[3]<sp/>&lt;&lt;<sp/>8U)<sp/>|<sp/>payload[4];</highlight></codeline>
+<codeline lineno="579"><highlight class="normal"></highlight></codeline>
+<codeline lineno="580"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(client-&gt;<ref refid="structSYN__MQTTSN__Client_1a40d313ddbfa943213bc993e5ba727446" kindref="member">cfg</ref>.<ref refid="structSYN__MQTTSN__Config_1a61193ffbf3a36256ac42af40641e503c" kindref="member">on_message</ref><sp/>!=<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="581"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>client-&gt;<ref refid="structSYN__MQTTSN__Client_1a40d313ddbfa943213bc993e5ba727446" kindref="member">cfg</ref>.<ref refid="structSYN__MQTTSN__Config_1a61193ffbf3a36256ac42af40641e503c" kindref="member">on_message</ref>(client,<sp/>topic_id,<sp/>topic_type,<sp/>&amp;payload[5],<sp/>payload_len<sp/>-<sp/>5U,</highlight></codeline>
+<codeline lineno="582"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>client-&gt;<ref refid="structSYN__MQTTSN__Client_1a40d313ddbfa943213bc993e5ba727446" kindref="member">cfg</ref>.<ref refid="structSYN__MQTTSN__Config_1a0ecab0342e5a7666361765e564b03218" kindref="member">user_data</ref>);</highlight></codeline>
+<codeline lineno="583"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="584"><highlight class="normal"></highlight></codeline>
+<codeline lineno="585"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Send<sp/>PUBACK<sp/>if<sp/>QoS<sp/>1<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="586"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>((flags<sp/>&amp;<sp/><ref refid="syn__mqttsn_8h_1ad374f24bff59c81a55a3cde29795e735" kindref="member">SYN_MQTTSN_FLAG_QOS_MASK</ref>)<sp/>==<sp/><ref refid="syn__mqttsn_8h_1a29111a4d5b1b9141bcc4432d9f823cd1" kindref="member">SYN_MQTTSN_FLAG_QOS_1</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="587"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>*tx<sp/>=<sp/>client-&gt;<ref refid="structSYN__MQTTSN__Client_1a40d313ddbfa943213bc993e5ba727446" kindref="member">cfg</ref>.<ref refid="structSYN__MQTTSN__Config_1ac8ea54e2a77af0598a4afe37bf2bc278" kindref="member">tx_buf</ref>;</highlight></codeline>
+<codeline lineno="588"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>hdr_len<sp/>=</highlight></codeline>
+<codeline lineno="589"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__mqttsn_8c_1a79c6ee301e4aff8bb3bba76644f70ffe" kindref="member">mqttsn_encode_header</ref>(tx,<sp/>client-&gt;<ref refid="structSYN__MQTTSN__Client_1a40d313ddbfa943213bc993e5ba727446" kindref="member">cfg</ref>.<ref refid="structSYN__MQTTSN__Config_1a71b0603378edf4a1b5a2d3273ec16536" kindref="member">tx_buf_size</ref>,<sp/><ref refid="syn__mqttsn_8h_1a57aa9e3d902c3d5ecf2986860fca24b9" kindref="member">SYN_MQTTSN_MSG_PUBACK</ref>,<sp/>5U);</highlight></codeline>
+<codeline lineno="590"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(hdr_len<sp/>&gt;<sp/>0U)<sp/>{</highlight></codeline>
+<codeline lineno="591"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tx[hdr_len]<sp/>=<sp/>(uint8_t)((topic_id<sp/>&gt;&gt;<sp/>8U)<sp/>&amp;<sp/>0xFFU);</highlight></codeline>
+<codeline lineno="592"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tx[hdr_len<sp/>+<sp/>1U]<sp/>=<sp/>(uint8_t)(topic_id<sp/>&amp;<sp/>0xFFU);</highlight></codeline>
+<codeline lineno="593"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tx[hdr_len<sp/>+<sp/>2U]<sp/>=<sp/>(uint8_t)((msg_id<sp/>&gt;&gt;<sp/>8U)<sp/>&amp;<sp/>0xFFU);</highlight></codeline>
+<codeline lineno="594"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tx[hdr_len<sp/>+<sp/>3U]<sp/>=<sp/>(uint8_t)(msg_id<sp/>&amp;<sp/>0xFFU);</highlight></codeline>
+<codeline lineno="595"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>tx[hdr_len<sp/>+<sp/>4U]<sp/>=<sp/><ref refid="syn__mqttsn_8h_1a29b6fbdb95bc720af9a402f79a521c6b" kindref="member">SYN_MQTTSN_RC_ACCEPTED</ref>;</highlight></codeline>
+<codeline lineno="596"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(void)<ref refid="syn__transport_8h_1a52679f9a0d69fdc254843656b5ae51d3" kindref="member">syn_transport_send</ref>(client-&gt;<ref refid="structSYN__MQTTSN__Client_1a40d313ddbfa943213bc993e5ba727446" kindref="member">cfg</ref>.<ref refid="structSYN__MQTTSN__Config_1a6d57ab2068b1aca41b8b091391119341" kindref="member">transport</ref>,<sp/>tx,<sp/>hdr_len<sp/>+<sp/>5U);</highlight></codeline>
+<codeline lineno="597"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="598"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="599"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="600"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="601"><highlight class="normal"></highlight></codeline>
+<codeline lineno="602"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__mqttsn_8h_1ad094f58f5f1196d0621d8c1c1eb60063" kindref="member">SYN_MQTTSN_MSG_PINGRESP</ref>:</highlight></codeline>
+<codeline lineno="603"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(client-&gt;<ref refid="structSYN__MQTTSN__Client_1a1a779fe641c1052803e3572a95ae70bd" kindref="member">state</ref><sp/>==<sp/><ref refid="syn__mqttsn_8h_1aa9802c43e1f19c64c349a475527850cfa065be34de27eb99c611182378746b3d0" kindref="member">SYN_MQTTSN_STATE_AWAKE</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="604"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>client-&gt;<ref refid="structSYN__MQTTSN__Client_1a1a779fe641c1052803e3572a95ae70bd" kindref="member">state</ref><sp/>=<sp/><ref refid="syn__mqttsn_8h_1aa9802c43e1f19c64c349a475527850cfaf05696b5f760cec7174ac03d3e490e08" kindref="member">SYN_MQTTSN_STATE_ASLEEP</ref>;</highlight></codeline>
+<codeline lineno="605"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="606"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="607"><highlight class="normal"></highlight></codeline>
+<codeline lineno="608"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">default</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="609"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="610"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="611"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="612"><highlight class="normal"></highlight></codeline>
+<codeline lineno="613"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__mqttsn_8c_1a9bc18c12101c7a147bf9a6b4b369f22a" kindref="member">syn_mqttsn_client_step</ref>(<ref refid="structSYN__MQTTSN__Client" kindref="compound">SYN_MQTTSN_Client</ref><sp/>*client,<sp/>uint32_t<sp/>now_ms)</highlight></codeline>
+<codeline lineno="614"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="615"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(client<sp/>==<sp/>NULL<sp/>||<sp/>client-&gt;<ref refid="structSYN__MQTTSN__Client_1a40d313ddbfa943213bc993e5ba727446" kindref="member">cfg</ref>.<ref refid="structSYN__MQTTSN__Config_1a6d57ab2068b1aca41b8b091391119341" kindref="member">transport</ref><sp/>==<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="616"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="617"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="618"><highlight class="normal"></highlight></codeline>
+<codeline lineno="619"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>rx_len<sp/>=<sp/>0U;</highlight></codeline>
+<codeline lineno="620"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="syn__transport_8h_1acb0dfb2b94f35576c974d7d2636986bf" kindref="member">syn_transport_recv</ref>(client-&gt;<ref refid="structSYN__MQTTSN__Client_1a40d313ddbfa943213bc993e5ba727446" kindref="member">cfg</ref>.<ref refid="structSYN__MQTTSN__Config_1a6d57ab2068b1aca41b8b091391119341" kindref="member">transport</ref>,<sp/>client-&gt;<ref refid="structSYN__MQTTSN__Client_1a40d313ddbfa943213bc993e5ba727446" kindref="member">cfg</ref>.<ref refid="structSYN__MQTTSN__Config_1a4e0e9f3417deabead2a2acabb5572c55" kindref="member">rx_buf</ref>,<sp/>client-&gt;<ref refid="structSYN__MQTTSN__Client_1a40d313ddbfa943213bc993e5ba727446" kindref="member">cfg</ref>.<ref refid="structSYN__MQTTSN__Config_1a5059b4a0dd7a3a7f80847e209fdf843d" kindref="member">rx_buf_size</ref>,</highlight></codeline>
+<codeline lineno="621"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>&amp;rx_len)<sp/>&amp;&amp;</highlight></codeline>
+<codeline lineno="622"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>rx_len<sp/>&gt;<sp/>0U)<sp/>{</highlight></codeline>
+<codeline lineno="623"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>client-&gt;<ref refid="structSYN__MQTTSN__Client_1ac8d35f5ab7e3e97764cbdbe7bf7f8a7c" kindref="member">last_activity_ms</ref><sp/>=<sp/>now_ms;</highlight></codeline>
+<codeline lineno="624"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>msg_type<sp/>=<sp/>0U;</highlight></codeline>
+<codeline lineno="625"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>payload_offset<sp/>=<sp/>0U;</highlight></codeline>
+<codeline lineno="626"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>payload_len<sp/>=<sp/>0U;</highlight></codeline>
+<codeline lineno="627"><highlight class="normal"></highlight></codeline>
+<codeline lineno="628"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="syn__mqttsn_8c_1a554431e9d7eb5ffd6b19f17a08d6ff2b" kindref="member">mqttsn_decode_header</ref>(client-&gt;<ref refid="structSYN__MQTTSN__Client_1a40d313ddbfa943213bc993e5ba727446" kindref="member">cfg</ref>.<ref refid="structSYN__MQTTSN__Config_1a4e0e9f3417deabead2a2acabb5572c55" kindref="member">rx_buf</ref>,<sp/>rx_len,<sp/>&amp;msg_type,<sp/>&amp;payload_offset,</highlight></codeline>
+<codeline lineno="629"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>&amp;payload_len))<sp/>{</highlight></codeline>
+<codeline lineno="630"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__mqttsn_8c_1a6e10b41ad438e999854673e3ab08a946" kindref="member">mqttsn_process_rx_frame</ref>(client,<sp/>msg_type,<sp/>&amp;client-&gt;<ref refid="structSYN__MQTTSN__Client_1a40d313ddbfa943213bc993e5ba727446" kindref="member">cfg</ref>.<ref refid="structSYN__MQTTSN__Config_1a4e0e9f3417deabead2a2acabb5572c55" kindref="member">rx_buf</ref>[payload_offset],</highlight></codeline>
+<codeline lineno="631"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>payload_len);</highlight></codeline>
+<codeline lineno="632"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="633"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="634"><highlight class="normal"></highlight></codeline>
+<codeline lineno="635"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Keep-alive<sp/>ping<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="636"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(client-&gt;<ref refid="structSYN__MQTTSN__Client_1a1a779fe641c1052803e3572a95ae70bd" kindref="member">state</ref><sp/>==<sp/><ref refid="syn__mqttsn_8h_1aa9802c43e1f19c64c349a475527850cfa2c1d395ca228603ed744c86e216636fc" kindref="member">SYN_MQTTSN_STATE_CONNECTED</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="637"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>period_ms<sp/>=<sp/>(uint32_t)client-&gt;<ref refid="structSYN__MQTTSN__Client_1a40d313ddbfa943213bc993e5ba727446" kindref="member">cfg</ref>.<ref refid="structSYN__MQTTSN__Config_1a2cefc840591a17456e464017b6cd13b7" kindref="member">duration_s</ref><sp/>*<sp/>1000U;</highlight></codeline>
+<codeline lineno="638"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(period_ms<sp/>&gt;<sp/>0U<sp/>&amp;&amp;<sp/>(now_ms<sp/>-<sp/>client-&gt;<ref refid="structSYN__MQTTSN__Client_1ac8d35f5ab7e3e97764cbdbe7bf7f8a7c" kindref="member">last_activity_ms</ref><sp/>&gt;=<sp/>period_ms))<sp/>{</highlight></codeline>
+<codeline lineno="639"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>client-&gt;<ref refid="structSYN__MQTTSN__Client_1ac8d35f5ab7e3e97764cbdbe7bf7f8a7c" kindref="member">last_activity_ms</ref><sp/>=<sp/>now_ms;</highlight></codeline>
+<codeline lineno="640"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>*tx<sp/>=<sp/>client-&gt;<ref refid="structSYN__MQTTSN__Client_1a40d313ddbfa943213bc993e5ba727446" kindref="member">cfg</ref>.<ref refid="structSYN__MQTTSN__Config_1ac8ea54e2a77af0598a4afe37bf2bc278" kindref="member">tx_buf</ref>;</highlight></codeline>
+<codeline lineno="641"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>hdr_len<sp/>=</highlight></codeline>
+<codeline lineno="642"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__mqttsn_8c_1a79c6ee301e4aff8bb3bba76644f70ffe" kindref="member">mqttsn_encode_header</ref>(tx,<sp/>client-&gt;<ref refid="structSYN__MQTTSN__Client_1a40d313ddbfa943213bc993e5ba727446" kindref="member">cfg</ref>.<ref refid="structSYN__MQTTSN__Config_1a71b0603378edf4a1b5a2d3273ec16536" kindref="member">tx_buf_size</ref>,<sp/><ref refid="syn__mqttsn_8h_1a315a1dff083c71b94e5ff9b5bfa0fcbc" kindref="member">SYN_MQTTSN_MSG_PINGREQ</ref>,<sp/>0U);</highlight></codeline>
+<codeline lineno="643"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(hdr_len<sp/>&gt;<sp/>0U)<sp/>{</highlight></codeline>
+<codeline lineno="644"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(void)<ref refid="syn__transport_8h_1a52679f9a0d69fdc254843656b5ae51d3" kindref="member">syn_transport_send</ref>(client-&gt;<ref refid="structSYN__MQTTSN__Client_1a40d313ddbfa943213bc993e5ba727446" kindref="member">cfg</ref>.<ref refid="structSYN__MQTTSN__Config_1a6d57ab2068b1aca41b8b091391119341" kindref="member">transport</ref>,<sp/>tx,<sp/>hdr_len);</highlight></codeline>
+<codeline lineno="645"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="646"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="647"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="648"><highlight class="normal"></highlight></codeline>
+<codeline lineno="649"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="650"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="651"><highlight class="normal"></highlight></codeline>
+<codeline lineno="652"><highlight class="normal"><ref refid="syn__pt_8h_1a837fcf03fa24b6b73d66bb133b95d79e" kindref="member">SYN_PT_Status</ref><sp/><ref refid="syn__mqttsn_8c_1acaf1b85a4d23f21d714e3d364f05ead1" kindref="member">syn_mqttsn_client_pt</ref>(<ref refid="structSYN__PT" kindref="compound">SYN_PT</ref><sp/>*pt,<sp/><ref refid="structSYN__Task" kindref="compound">SYN_Task</ref><sp/>*task)</highlight></codeline>
+<codeline lineno="653"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="654"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(pt<sp/>==<sp/>NULL<sp/>||<sp/>task<sp/>==<sp/>NULL<sp/>||<sp/>task-&gt;<ref refid="structSYN__Task_1ad82f94502787f1474239b4cadff17a14" kindref="member">user_data</ref><sp/>==<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="655"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__pt_8h_1a837fcf03fa24b6b73d66bb133b95d79ead338963c60d0f5ef97e3788ffbd85698" kindref="member">PT_ENDED</ref>;</highlight></codeline>
+<codeline lineno="656"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="657"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structSYN__MQTTSN__Client" kindref="compound">SYN_MQTTSN_Client</ref><sp/>*client<sp/>=<sp/>(<ref refid="structSYN__MQTTSN__Client" kindref="compound">SYN_MQTTSN_Client</ref><sp/>*)task-&gt;<ref refid="structSYN__Task_1ad82f94502787f1474239b4cadff17a14" kindref="member">user_data</ref>;</highlight></codeline>
+<codeline lineno="658"><highlight class="normal"></highlight></codeline>
+<codeline lineno="659"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__pt_8h_1a2ffbb9e554e08a343ae2f9de4bedfdfc" kindref="member">PT_BEGIN</ref>(pt);</highlight></codeline>
+<codeline lineno="660"><highlight class="normal"></highlight></codeline>
+<codeline lineno="661"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(;;)<sp/>{</highlight></codeline>
+<codeline lineno="662"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>now<sp/>=<sp/><ref refid="syn__port__system_8h_1a6c7d98587814b2c0d9c09da02d318873" kindref="member">syn_port_get_tick_ms</ref>();</highlight></codeline>
+<codeline lineno="663"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="syn__mqttsn_8c_1a9bc18c12101c7a147bf9a6b4b369f22a" kindref="member">syn_mqttsn_client_step</ref>(client,<sp/>now)<sp/>!=<sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="664"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="665"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="666"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__pt_8h_1a155cba6121323726d02c00284428fed6" kindref="member">PT_YIELD</ref>(pt);</highlight></codeline>
+<codeline lineno="667"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="668"><highlight class="normal"></highlight></codeline>
+<codeline lineno="669"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__pt_8h_1a7b04a0035bef29d905496c23bae066d2" kindref="member">PT_END</ref>(pt);</highlight></codeline>
+<codeline lineno="670"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="671"><highlight class="normal"></highlight></codeline>
+<codeline lineno="672"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>!defined(SYN_USE_MQTTSN)<sp/>||<sp/>SYN_USE_MQTTSN<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/proto/syn_mqttsn.c"/>
+  </compounddef>
+</doxygen>

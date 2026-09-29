@@ -1,0 +1,369 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__blackbox_8c" kind="file" language="C++">
+    <compoundname>syn_blackbox.c</compoundname>
+    <includes refid="syn__blackbox_8h" local="yes">syntropic/log/syn_blackbox.h</includes>
+    <includes local="no">string.h</includes>
+    <incdepgraph>
+      <node id="3">
+        <label>syntropic/common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/log/syn_blackbox.c</label>
+        <link refid="syn__blackbox_8c"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>syntropic/log/syn_blackbox.h</label>
+        <link refid="syn__blackbox_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>stdbool.h</label>
+      </node>
+      <node id="4">
+        <label>stddef.h</label>
+      </node>
+      <node id="5">
+        <label>stdint.h</label>
+      </node>
+      <node id="7">
+        <label>string.h</label>
+      </node>
+    </incdepgraph>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__blackbox_8c_1a2ed94d41a0bcc46cd60c9bac8456f16a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>size_t</type>
+        <definition>size_t syn_blackbox_encode_varint</definition>
+        <argsstring>(int32_t val, uint8_t *buf_out)</argsstring>
+        <name>syn_blackbox_encode_varint</name>
+        <param>
+          <type>int32_t</type>
+          <declname>val</declname>
+        </param>
+        <param>
+          <type>uint8_t *</type>
+          <declname>buf_out</declname>
+        </param>
+        <briefdescription>
+<para>Encode a 32-bit signed integer using ZigZag + LEB128 variable-length format. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>val</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Signed integer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>buf_out</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output buffer (must hold at least 5 bytes). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Number of bytes written to buffer (1..5). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/log/syn_blackbox.c" line="10" column="8" bodyfile="src/syntropic/log/syn_blackbox.c" bodystart="10" bodyend="27"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__blackbox_8c_1aca7f7652342df382516f3dc57894fade" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_blackbox_init</definition>
+        <argsstring>(SYN_Blackbox *bb)</argsstring>
+        <name>syn_blackbox_init</name>
+        <param>
+          <type><ref refid="structSYN__Blackbox" kindref="compound">SYN_Blackbox</ref> *</type>
+          <declname>bb</declname>
+        </param>
+        <briefdescription>
+<para>Initialize Blackbox recorder. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>bb</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to Blackbox instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/log/syn_blackbox.c" line="29" column="12" bodyfile="src/syntropic/log/syn_blackbox.c" bodystart="29" bodyend="36"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__blackbox_8c_1aec034caa3beb68c22891f9eadd12fd88" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_blackbox_encode_intra</definition>
+        <argsstring>(SYN_Blackbox *bb, const SYN_Blackbox_Record *record, uint8_t *buf_out, size_t *out_len)</argsstring>
+        <name>syn_blackbox_encode_intra</name>
+        <param>
+          <type><ref refid="structSYN__Blackbox" kindref="compound">SYN_Blackbox</ref> *</type>
+          <declname>bb</declname>
+        </param>
+        <param>
+          <type>const <ref refid="structSYN__Blackbox__Record" kindref="compound">SYN_Blackbox_Record</ref> *</type>
+          <declname>record</declname>
+        </param>
+        <param>
+          <type>uint8_t *</type>
+          <declname>buf_out</declname>
+        </param>
+        <param>
+          <type>size_t *</type>
+          <declname>out_len</declname>
+        </param>
+        <briefdescription>
+<para>Encode a full Intra Frame (&apos;I&apos;) into raw binary log stream. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>bb</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to Blackbox instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>record</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to flight state record. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>buf_out</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output buffer (must hold at least 32 bytes). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to receive encoded byte length. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/log/syn_blackbox.c" line="38" column="12" bodyfile="src/syntropic/log/syn_blackbox.c" bodystart="38" bodyend="70"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__blackbox_8c_1a283c477cb327af3220dfec656fd51c73" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_blackbox_encode_delta</definition>
+        <argsstring>(SYN_Blackbox *bb, const SYN_Blackbox_Record *record, uint8_t *buf_out, size_t *out_len)</argsstring>
+        <name>syn_blackbox_encode_delta</name>
+        <param>
+          <type><ref refid="structSYN__Blackbox" kindref="compound">SYN_Blackbox</ref> *</type>
+          <declname>bb</declname>
+        </param>
+        <param>
+          <type>const <ref refid="structSYN__Blackbox__Record" kindref="compound">SYN_Blackbox_Record</ref> *</type>
+          <declname>record</declname>
+        </param>
+        <param>
+          <type>uint8_t *</type>
+          <declname>buf_out</declname>
+        </param>
+        <param>
+          <type>size_t *</type>
+          <declname>out_len</declname>
+        </param>
+        <briefdescription>
+<para>Encode a compact Predictive Delta Frame (&apos;P&apos;) relative to last frame. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>bb</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to Blackbox instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>record</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to flight state record. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>buf_out</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output buffer (must hold at least 32 bytes). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to receive encoded byte length. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/log/syn_blackbox.c" line="72" column="12" bodyfile="src/syntropic/log/syn_blackbox.c" bodystart="72" bodyend="109"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Zero-Heap Flight Telemetry Blackbox Binary Recorder Implementation. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__blackbox_8h" kindref="compound">syntropic/log/syn_blackbox.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;string.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="syn__blackbox_8c_1a2ed94d41a0bcc46cd60c9bac8456f16a" kindref="member">syn_blackbox_encode_varint</ref>(int32_t<sp/>val,<sp/>uint8_t<sp/>*buf_out)</highlight></codeline>
+<codeline lineno="11"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="12"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!buf_out)<sp/>{</highlight></codeline>
+<codeline lineno="13"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0;<sp/></highlight><highlight class="comment">/*<sp/>LCOV_EXCL_LINE:<sp/>Defensive<sp/>NULL<sp/>check<sp/>or<sp/>invalid<sp/>parameter<sp/>fallback<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>ZigZag<sp/>encoding:<sp/>maps<sp/>signed<sp/>integers<sp/>to<sp/>unsigned<sp/>integers<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/>uval<sp/>=<sp/>((uint32_t)val<sp/>&lt;&lt;<sp/>1)<sp/>^<sp/>(uint32_t)(val<sp/>&gt;&gt;<sp/>31);</highlight></codeline>
+<codeline lineno="18"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>len<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">while</highlight><highlight class="normal"><sp/>(uval<sp/>&gt;=<sp/>0x80)<sp/>{</highlight></codeline>
+<codeline lineno="21"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>buf_out[len++]<sp/>=<sp/>(uint8_t)((uval<sp/>&amp;<sp/>0x7F)<sp/>|<sp/>0x80);</highlight></codeline>
+<codeline lineno="22"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uval<sp/>&gt;&gt;=<sp/>7;</highlight></codeline>
+<codeline lineno="23"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="24"><highlight class="normal"><sp/><sp/><sp/><sp/>buf_out[len++]<sp/>=<sp/>(uint8_t)(uval<sp/>&amp;<sp/>0x7F);</highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>len;</highlight></codeline>
+<codeline lineno="27"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__blackbox_8c_1aca7f7652342df382516f3dc57894fade" kindref="member">syn_blackbox_init</ref>(<ref refid="structSYN__Blackbox" kindref="compound">SYN_Blackbox</ref><sp/>*bb)</highlight></codeline>
+<codeline lineno="30"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="31"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!bb)<sp/>{</highlight></codeline>
+<codeline lineno="32"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="33"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="34"><highlight class="normal"><sp/><sp/><sp/><sp/>memset(bb,<sp/>0,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(*bb));</highlight></codeline>
+<codeline lineno="35"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="36"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__blackbox_8c_1aec034caa3beb68c22891f9eadd12fd88" kindref="member">syn_blackbox_encode_intra</ref>(<ref refid="structSYN__Blackbox" kindref="compound">SYN_Blackbox</ref><sp/>*bb,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__Blackbox__Record" kindref="compound">SYN_Blackbox_Record</ref><sp/>*record,</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>*buf_out,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>*out_len)</highlight></codeline>
+<codeline lineno="40"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!bb<sp/>||<sp/>!record<sp/>||<sp/>!buf_out<sp/>||<sp/>!out_len)<sp/>{</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>idx<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/><sp/><sp/>buf_out[idx++]<sp/>=<sp/><ref refid="syn__blackbox_8h_1a9af128cfdade0745a6de04fa9a587d91" kindref="member">SYN_BLACKBOX_FRAME_INTRA</ref>;</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"></highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/><sp/><sp/>idx<sp/>+=<sp/><ref refid="syn__blackbox_8c_1a2ed94d41a0bcc46cd60c9bac8456f16a" kindref="member">syn_blackbox_encode_varint</ref>((int32_t)record-&gt;<ref refid="structSYN__Blackbox__Record_1a8ffbf23b7b4fadf3e04ea4fcdb745c93" kindref="member">iteration</ref>,<sp/>&amp;buf_out[idx]);</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/><sp/><sp/>idx<sp/>+=<sp/><ref refid="syn__blackbox_8c_1a2ed94d41a0bcc46cd60c9bac8456f16a" kindref="member">syn_blackbox_encode_varint</ref>((int32_t)record-&gt;<ref refid="structSYN__Blackbox__Record_1a6493e7d879163e07e5a9535b2c03ce3f" kindref="member">time_us</ref>,<sp/>&amp;buf_out[idx]);</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"></highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>3;<sp/>i++)<sp/>{</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>idx<sp/>+=<sp/><ref refid="syn__blackbox_8c_1a2ed94d41a0bcc46cd60c9bac8456f16a" kindref="member">syn_blackbox_encode_varint</ref>(record-&gt;<ref refid="structSYN__Blackbox__Record_1ada97b64179852b4faf6dd521a19e6da6" kindref="member">gyro</ref>[i],<sp/>&amp;buf_out[idx]);</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>3;<sp/>i++)<sp/>{</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>idx<sp/>+=<sp/><ref refid="syn__blackbox_8c_1a2ed94d41a0bcc46cd60c9bac8456f16a" kindref="member">syn_blackbox_encode_varint</ref>(record-&gt;<ref refid="structSYN__Blackbox__Record_1a1a1ff08f1d8180b28f5d69373bb74214" kindref="member">accel</ref>[i],<sp/>&amp;buf_out[idx]);</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>4;<sp/>i++)<sp/>{</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>idx<sp/>+=<sp/><ref refid="syn__blackbox_8c_1a2ed94d41a0bcc46cd60c9bac8456f16a" kindref="member">syn_blackbox_encode_varint</ref>(record-&gt;<ref refid="structSYN__Blackbox__Record_1a33e891991fc19189f106b52e28c7a370" kindref="member">setpoint</ref>[i],<sp/>&amp;buf_out[idx]);</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>4;<sp/>i++)<sp/>{</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>idx<sp/>+=<sp/><ref refid="syn__blackbox_8c_1a2ed94d41a0bcc46cd60c9bac8456f16a" kindref="member">syn_blackbox_encode_varint</ref>(record-&gt;<ref refid="structSYN__Blackbox__Record_1a8100e64015f92930b6ea9baf7a0c8abf" kindref="member">motor</ref>[i],<sp/>&amp;buf_out[idx]);</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"></highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/><sp/><sp/>bb-&gt;<ref refid="structSYN__Blackbox_1a47acb55107fe0101ff89d640fac8ca80" kindref="member">last_record</ref><sp/>=<sp/>*record;</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/><sp/><sp/>bb-&gt;<ref refid="structSYN__Blackbox_1a16a3854b85dc1c14d2c98fe3054f1514" kindref="member">frame_count</ref>++;</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/><sp/><sp/>bb-&gt;<ref refid="structSYN__Blackbox_1a4ac0331bbca8978b74b54e51b25e3173" kindref="member">bytes_written</ref><sp/>+=<sp/>idx;</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/><sp/><sp/>*out_len<sp/>=<sp/>idx;</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"></highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="70"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"></highlight></codeline>
+<codeline lineno="72"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__blackbox_8c_1a283c477cb327af3220dfec656fd51c73" kindref="member">syn_blackbox_encode_delta</ref>(<ref refid="structSYN__Blackbox" kindref="compound">SYN_Blackbox</ref><sp/>*bb,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__Blackbox__Record" kindref="compound">SYN_Blackbox_Record</ref><sp/>*record,</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>*buf_out,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>*out_len)</highlight></codeline>
+<codeline lineno="74"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!bb<sp/>||<sp/>!record<sp/>||<sp/>!buf_out<sp/>||<sp/>!out_len)<sp/>{</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"></highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>idx<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/><sp/><sp/>buf_out[idx++]<sp/>=<sp/><ref refid="syn__blackbox_8h_1ad2cec13ff770028bbaca1aa1e4759d96" kindref="member">SYN_BLACKBOX_FRAME_DELTA</ref>;</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"></highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/>idx<sp/>+=<sp/><ref refid="syn__blackbox_8c_1a2ed94d41a0bcc46cd60c9bac8456f16a" kindref="member">syn_blackbox_encode_varint</ref>((int32_t)(record-&gt;<ref refid="structSYN__Blackbox__Record_1a8ffbf23b7b4fadf3e04ea4fcdb745c93" kindref="member">iteration</ref><sp/>-<sp/>bb-&gt;<ref refid="structSYN__Blackbox_1a47acb55107fe0101ff89d640fac8ca80" kindref="member">last_record</ref>.<ref refid="structSYN__Blackbox__Record_1a8ffbf23b7b4fadf3e04ea4fcdb745c93" kindref="member">iteration</ref>),</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>&amp;buf_out[idx]);</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/><sp/><sp/>idx<sp/>+=<sp/><ref refid="syn__blackbox_8c_1a2ed94d41a0bcc46cd60c9bac8456f16a" kindref="member">syn_blackbox_encode_varint</ref>((int32_t)(record-&gt;<ref refid="structSYN__Blackbox__Record_1a6493e7d879163e07e5a9535b2c03ce3f" kindref="member">time_us</ref><sp/>-<sp/>bb-&gt;<ref refid="structSYN__Blackbox_1a47acb55107fe0101ff89d640fac8ca80" kindref="member">last_record</ref>.<ref refid="structSYN__Blackbox__Record_1a6493e7d879163e07e5a9535b2c03ce3f" kindref="member">time_us</ref>),</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>&amp;buf_out[idx]);</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"></highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>3;<sp/>i++)<sp/>{</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>idx<sp/>+=<sp/><ref refid="syn__blackbox_8c_1a2ed94d41a0bcc46cd60c9bac8456f16a" kindref="member">syn_blackbox_encode_varint</ref>(record-&gt;<ref refid="structSYN__Blackbox__Record_1ada97b64179852b4faf6dd521a19e6da6" kindref="member">gyro</ref>[i]<sp/>-<sp/>bb-&gt;<ref refid="structSYN__Blackbox_1a47acb55107fe0101ff89d640fac8ca80" kindref="member">last_record</ref>.<ref refid="structSYN__Blackbox__Record_1ada97b64179852b4faf6dd521a19e6da6" kindref="member">gyro</ref>[i],<sp/>&amp;buf_out[idx]);</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>3;<sp/>i++)<sp/>{</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>idx<sp/>+=</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__blackbox_8c_1a2ed94d41a0bcc46cd60c9bac8456f16a" kindref="member">syn_blackbox_encode_varint</ref>(record-&gt;<ref refid="structSYN__Blackbox__Record_1a1a1ff08f1d8180b28f5d69373bb74214" kindref="member">accel</ref>[i]<sp/>-<sp/>bb-&gt;<ref refid="structSYN__Blackbox_1a47acb55107fe0101ff89d640fac8ca80" kindref="member">last_record</ref>.<ref refid="structSYN__Blackbox__Record_1a1a1ff08f1d8180b28f5d69373bb74214" kindref="member">accel</ref>[i],<sp/>&amp;buf_out[idx]);</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>4;<sp/>i++)<sp/>{</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>idx<sp/>+=<sp/><ref refid="syn__blackbox_8c_1a2ed94d41a0bcc46cd60c9bac8456f16a" kindref="member">syn_blackbox_encode_varint</ref>(record-&gt;<ref refid="structSYN__Blackbox__Record_1a33e891991fc19189f106b52e28c7a370" kindref="member">setpoint</ref>[i]<sp/>-<sp/>bb-&gt;<ref refid="structSYN__Blackbox_1a47acb55107fe0101ff89d640fac8ca80" kindref="member">last_record</ref>.<ref refid="structSYN__Blackbox__Record_1a33e891991fc19189f106b52e28c7a370" kindref="member">setpoint</ref>[i],</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>&amp;buf_out[idx]);</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>4;<sp/>i++)<sp/>{</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>idx<sp/>+=<sp/><ref refid="syn__blackbox_8c_1a2ed94d41a0bcc46cd60c9bac8456f16a" kindref="member">syn_blackbox_encode_varint</ref>(</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(int32_t)record-&gt;<ref refid="structSYN__Blackbox__Record_1a8100e64015f92930b6ea9baf7a0c8abf" kindref="member">motor</ref>[i]<sp/>-<sp/>(int32_t)bb-&gt;<ref refid="structSYN__Blackbox_1a47acb55107fe0101ff89d640fac8ca80" kindref="member">last_record</ref>.<ref refid="structSYN__Blackbox__Record_1a8100e64015f92930b6ea9baf7a0c8abf" kindref="member">motor</ref>[i],<sp/>&amp;buf_out[idx]);</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"></highlight></codeline>
+<codeline lineno="103"><highlight class="normal"><sp/><sp/><sp/><sp/>bb-&gt;<ref refid="structSYN__Blackbox_1a47acb55107fe0101ff89d640fac8ca80" kindref="member">last_record</ref><sp/>=<sp/>*record;</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/><sp/><sp/><sp/>bb-&gt;<ref refid="structSYN__Blackbox_1a16a3854b85dc1c14d2c98fe3054f1514" kindref="member">frame_count</ref>++;</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><sp/><sp/><sp/><sp/>bb-&gt;<ref refid="structSYN__Blackbox_1a4ac0331bbca8978b74b54e51b25e3173" kindref="member">bytes_written</ref><sp/>+=<sp/>idx;</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"><sp/><sp/><sp/><sp/>*out_len<sp/>=<sp/>idx;</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"></highlight></codeline>
+<codeline lineno="108"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="109"><highlight class="normal">}</highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/log/syn_blackbox.c"/>
+  </compounddef>
+</doxygen>

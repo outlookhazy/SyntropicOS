@@ -1,0 +1,619 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__at__parser_8h" kind="file" language="C++">
+    <compoundname>syn_at_parser.h</compoundname>
+    <includes refid="syn__defs_8h" local="yes">../common/syn_defs.h</includes>
+    <includes refid="syn__pt_8h" local="yes">../pt/syn_pt.h</includes>
+    <includes refid="syn__stream_8h" local="yes">../util/syn_stream.h</includes>
+    <includes local="no">stdbool.h</includes>
+    <includes local="no">stddef.h</includes>
+    <includes local="no">stdint.h</includes>
+    <includedby refid="syn__at__parser_8c" local="yes">src/syntropic/proto/syn_at_parser.c</includedby>
+    <includedby refid="syntropic_8h" local="yes">src/syntropic/syntropic.h</includedby>
+    <incdepgraph>
+      <node id="6">
+        <label>../common/syn_compiler.h</label>
+        <link refid="syn__compiler_8h"/>
+      </node>
+      <node id="2">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/proto/syn_at_parser.h</label>
+        <link refid="syn__at__parser_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>../pt/syn_pt.h</label>
+        <link refid="syn__pt_8h"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>../util/syn_ringbuf.h</label>
+        <link refid="syn__ringbuf_8h"/>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>../util/syn_stream.h</label>
+        <link refid="syn__stream_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="9">
+        <label>stdbool.h</label>
+      </node>
+      <node id="3">
+        <label>stddef.h</label>
+      </node>
+      <node id="4">
+        <label>stdint.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="2">
+        <label>src/syntropic/proto/syn_at_parser.c</label>
+        <link refid="syn__at__parser_8c"/>
+      </node>
+      <node id="1">
+        <label>src/syntropic/proto/syn_at_parser.h</label>
+        <link refid="syn__at__parser_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>src/syntropic/proto/syn_doip.c</label>
+        <link refid="syn__doip_8c"/>
+      </node>
+      <node id="4">
+        <label>src/syntropic/proto/syn_doip.h</label>
+        <link refid="syn__doip_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>src/syntropic/syntropic.h</label>
+        <link refid="syntropic_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="structSYN__AtParser" prot="public">SYN_AtParser</innerclass>
+    <sectiondef kind="enum">
+      <memberdef kind="enum" id="syn__at__parser_8h_1a3f3d6c6522a9b10b8a6293bdde0c983e" prot="public" static="no" strong="no">
+        <type></type>
+        <name>SYN_AtRespType</name>
+        <enumvalue id="syn__at__parser_8h_1a3f3d6c6522a9b10b8a6293bdde0c983eaa78ebf4dc72b9f20335a2ed4d3e111c7" prot="public">
+          <name>SYN_AT_RESP_NONE</name>
+          <initializer>= 0</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>No complete response line or prompt decoded yet </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__at__parser_8h_1a3f3d6c6522a9b10b8a6293bdde0c983ea9ef7c2f1319052958e4857cc561ade85" prot="public">
+          <name>SYN_AT_RESP_OK</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Standard &apos;OK&apos; response </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__at__parser_8h_1a3f3d6c6522a9b10b8a6293bdde0c983ea9ef741abb8e75c4156b3c7a983a1926c" prot="public">
+          <name>SYN_AT_RESP_ERROR</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Standard &apos;ERROR&apos; response </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__at__parser_8h_1a3f3d6c6522a9b10b8a6293bdde0c983eae4e9865a28a197842f77e3bad130a39f" prot="public">
+          <name>SYN_AT_RESP_CME_ERROR</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Extended &apos;+CME ERROR: err_code&apos; or &apos;+CMS ERROR: err_code&apos; </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__at__parser_8h_1a3f3d6c6522a9b10b8a6293bdde0c983ea8d43639dbf47f1201f8fbb150f622d12" prot="public">
+          <name>SYN_AT_RESP_PROMPT</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Modem data entry prompt &apos;&gt;&apos; </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__at__parser_8h_1a3f3d6c6522a9b10b8a6293bdde0c983eacc6690b87bc9a1619da7d34fb90a25e8" prot="public">
+          <name>SYN_AT_RESP_LINE</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Response data line (e.g. &quot;+CSQ: 20,0&quot;, &quot;CONNECT OK&quot;, IP address) </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__at__parser_8h_1a3f3d6c6522a9b10b8a6293bdde0c983eaa4496217e4cbca1007f16425ac8e1cbd" prot="public">
+          <name>SYN_AT_RESP_URC</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Unsolicited Result Code line (e.g. &quot;+RECEIVE,0,17&quot;, &quot;CLOSED&quot;) </para>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>Decoded AT response types. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_at_parser.h" line="44" column="1" bodyfile="src/syntropic/proto/syn_at_parser.h" bodystart="44" bodyend="52"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__at__parser_8h_1abca55828a716837e94444820c401de18" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_at_parser_init</definition>
+        <argsstring>(SYN_AtParser *parser, char *buf, size_t buf_size)</argsstring>
+        <name>syn_at_parser_init</name>
+        <param>
+          <type><ref refid="structSYN__AtParser" kindref="compound">SYN_AtParser</ref> *</type>
+          <declname>parser</declname>
+        </param>
+        <param>
+          <type>char *</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>buf_size</declname>
+        </param>
+        <briefdescription>
+<para>Initialize an AT command parser. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>parser</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Parser instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Caller-owned buffer for line accumulation. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>buf_size</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Capacity of buffer in bytes. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, or SYN_ERR_INVALID_PARAM. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_at_parser.h" line="74" column="12" bodyfile="src/syntropic/proto/syn_at_parser.c" bodystart="13" bodyend="24" declfile="src/syntropic/proto/syn_at_parser.h" declline="74" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__at__parser_8h_1a882204717752ad8538b5232be321e8bd" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_at_parser_reset</definition>
+        <argsstring>(SYN_AtParser *parser)</argsstring>
+        <name>syn_at_parser_reset</name>
+        <param>
+          <type><ref refid="structSYN__AtParser" kindref="compound">SYN_AtParser</ref> *</type>
+          <declname>parser</declname>
+        </param>
+        <briefdescription>
+<para>Reset internal parser state. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Clears accumulated line buffer and last decoded response.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>parser</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Parser instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_at_parser.h" line="83" column="6" bodyfile="src/syntropic/proto/syn_at_parser.c" bodystart="26" bodyend="39" declfile="src/syntropic/proto/syn_at_parser.h" declline="83" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__at__parser_8h_1ad75b790ea8b0ec23b671a5693c4f28d1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__at__parser_8h_1a3f3d6c6522a9b10b8a6293bdde0c983e" kindref="member">SYN_AtRespType</ref></type>
+        <definition>SYN_AtRespType syn_at_parser_feed_char</definition>
+        <argsstring>(SYN_AtParser *parser, char c)</argsstring>
+        <name>syn_at_parser_feed_char</name>
+        <param>
+          <type><ref refid="structSYN__AtParser" kindref="compound">SYN_AtParser</ref> *</type>
+          <declname>parser</declname>
+        </param>
+        <param>
+          <type>char</type>
+          <declname>c</declname>
+        </param>
+        <briefdescription>
+<para>Feed a single byte into the AT parser. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Processes a single character. Returns response type if a complete line (CRLF) or prompt (&apos;&gt;&apos;) has been parsed.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>parser</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Parser instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>c</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Byte to process. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Decoded response type, or SYN_AT_RESP_NONE if line incomplete. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_at_parser.h" line="95" column="16" bodyfile="src/syntropic/proto/syn_at_parser.c" bodystart="62" bodyend="121" declfile="src/syntropic/proto/syn_at_parser.h" declline="95" declcolumn="16"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__at__parser_8h_1a8cf0af73eaf5d0b22b925c45ea893a61" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__at__parser_8h_1a3f3d6c6522a9b10b8a6293bdde0c983e" kindref="member">SYN_AtRespType</ref></type>
+        <definition>SYN_AtRespType syn_at_parser_feed_stream</definition>
+        <argsstring>(SYN_AtParser *parser, SYN_Stream *stream)</argsstring>
+        <name>syn_at_parser_feed_stream</name>
+        <param>
+          <type><ref refid="structSYN__AtParser" kindref="compound">SYN_AtParser</ref> *</type>
+          <declname>parser</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__Stream" kindref="compound">SYN_Stream</ref> *</type>
+          <declname>stream</declname>
+        </param>
+        <briefdescription>
+<para>Feed available bytes from a <ref refid="structSYN__Stream" kindref="compound">SYN_Stream</ref> into the AT parser. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Reads bytes non-blockingly from the stream until a complete response line/prompt is parsed or the stream is empty.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>parser</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Parser instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>stream</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to input stream. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Decoded response type, or SYN_AT_RESP_NONE if line incomplete. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_at_parser.h" line="107" column="16" bodyfile="src/syntropic/proto/syn_at_parser.c" bodystart="123" bodyend="138" declfile="src/syntropic/proto/syn_at_parser.h" declline="107" declcolumn="16"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__at__parser_8h_1aefde7f75ecfe5ef8f333c74e6399963a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>const char *</type>
+        <definition>const char * syn_at_parser_get_line</definition>
+        <argsstring>(const SYN_AtParser *parser)</argsstring>
+        <name>syn_at_parser_get_line</name>
+        <param>
+          <type>const <ref refid="structSYN__AtParser" kindref="compound">SYN_AtParser</ref> *</type>
+          <declname>parser</declname>
+        </param>
+        <briefdescription>
+<para>Get the current accumulated response line string. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>parser</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Parser instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Null-terminated line string. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_at_parser.h" line="115" column="12" bodyfile="src/syntropic/proto/syn_at_parser.c" bodystart="140" bodyend="146" declfile="src/syntropic/proto/syn_at_parser.h" declline="115" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__at__parser_8h_1a35444468ae689126d4a7d50da6459645" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int syn_at_parser_get_cme_error</definition>
+        <argsstring>(const SYN_AtParser *parser)</argsstring>
+        <name>syn_at_parser_get_cme_error</name>
+        <param>
+          <type>const <ref refid="structSYN__AtParser" kindref="compound">SYN_AtParser</ref> *</type>
+          <declname>parser</declname>
+        </param>
+        <briefdescription>
+<para>Get the parsed error code for SYN_AT_RESP_CME_ERROR. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>parser</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Parser instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Numerical CME/CMS error code, or -1 if unavailable. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_at_parser.h" line="123" column="5" bodyfile="src/syntropic/proto/syn_at_parser.c" bodystart="148" bodyend="154" declfile="src/syntropic/proto/syn_at_parser.h" declline="123" declcolumn="5"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__at__parser_8h_1ad7ecfd97ab7a98f0cd070cb1899d17a6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_at_parser_get_param_int</definition>
+        <argsstring>(const char *line, size_t param_idx, int *out_val)</argsstring>
+        <name>syn_at_parser_get_param_int</name>
+        <param>
+          <type>const char *</type>
+          <declname>line</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>param_idx</declname>
+        </param>
+        <param>
+          <type>int *</type>
+          <declname>out_val</declname>
+        </param>
+        <briefdescription>
+<para>Helper: Extract an integer parameter from a comma-delimited AT response line. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Example line: &quot;+CSQ: 20,0&quot; -&gt; param 0 is 20, param 1 is 0.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>line</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Response text line. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>param_idx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>0-based parameter index. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out_val</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>[out] Extracted integer value. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if parameter was found and successfully parsed. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_at_parser.h" line="135" column="6" bodyfile="src/syntropic/proto/syn_at_parser.c" bodystart="196" bodyend="209" declfile="src/syntropic/proto/syn_at_parser.h" declline="135" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__at__parser_8h_1a6f0e68e3cd2d53ee42df9e4db23ad87a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_at_parser_get_param_str</definition>
+        <argsstring>(const char *line, size_t param_idx, char *out_buf, size_t max_len)</argsstring>
+        <name>syn_at_parser_get_param_str</name>
+        <param>
+          <type>const char *</type>
+          <declname>line</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>param_idx</declname>
+        </param>
+        <param>
+          <type>char *</type>
+          <declname>out_buf</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>max_len</declname>
+        </param>
+        <briefdescription>
+<para>Helper: Extract a string parameter from a comma-delimited AT response line. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Handles quoted strings (e.g. &quot;+CPIN: \&quot;READY\&quot;&quot;) and strips quotes.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>line</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Response text line. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>param_idx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>0-based parameter index. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out_buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Destination buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>max_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Destination capacity. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if parameter was found and extracted. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_at_parser.h" line="148" column="6" bodyfile="src/syntropic/proto/syn_at_parser.c" bodystart="211" bodyend="235" declfile="src/syntropic/proto/syn_at_parser.h" declline="148" declcolumn="6"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Zero-allocation, stream-oriented AT command parser for cellular &amp; serial modems. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Lightweight, non-blocking line and prompt parser for modems (SIM800, Quectel, ESP-AT, etc.). Feeds from <ref refid="structSYN__Stream" kindref="compound">SYN_Stream</ref> or raw byte feeds, handles CRLF line framing, prompt &apos;&gt;&apos; detection, CME ERROR decoding, URC filtering, and parameter extraction without dynamic memory allocation.</para>
+<para><simplesect kind="par"><title>Usage</title><para><programlisting><codeline><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>line_buf[128];</highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/><ref refid="structSYN__AtParser" kindref="compound">SYN_AtParser</ref><sp/>parser;</highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__at__parser_8c_1abca55828a716837e94444820c401de18" kindref="member">syn_at_parser_init</ref>(&amp;parser,<sp/>line_buf,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(line_buf));</highlight></codeline>
+<codeline><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="comment">//<sp/>In<sp/>protothread<sp/>or<sp/>main<sp/>loop:</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__at__parser_8h_1a3f3d6c6522a9b10b8a6293bdde0c983e" kindref="member">SYN_AtRespType</ref><sp/>resp<sp/>=<sp/><ref refid="syn__at__parser_8c_1a8cf0af73eaf5d0b22b925c45ea893a61" kindref="member">syn_at_parser_feed_stream</ref>(&amp;parser,<sp/>&amp;uart_rx_stream);</highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(resp<sp/>==<sp/><ref refid="syn__at__parser_8h_1a3f3d6c6522a9b10b8a6293bdde0c983ea9ef7c2f1319052958e4857cc561ade85" kindref="member">SYN_AT_RESP_OK</ref>)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Command<sp/>succeeded</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal">}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(resp<sp/>==<sp/><ref refid="syn__at__parser_8h_1a3f3d6c6522a9b10b8a6293bdde0c983ea8d43639dbf47f1201f8fbb150f622d12" kindref="member">SYN_AT_RESP_PROMPT</ref>)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Modem<sp/>sent<sp/>&apos;&gt;&apos;<sp/>prompt,<sp/>ready<sp/>for<sp/>data</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal">}</highlight></codeline>
+</programlisting> </para>
+</simplesect>
+</para>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_AT_PARSER_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_AT_PARSER_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../common/syn_defs.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../pt/syn_pt.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../util/syn_stream.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stddef.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight></codeline>
+<codeline lineno="44" refid="syn__at__parser_8h_1a3f3d6c6522a9b10b8a6293bdde0c983e" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="45" refid="syn__at__parser_8h_1a3f3d6c6522a9b10b8a6293bdde0c983eaa78ebf4dc72b9f20335a2ed4d3e111c7" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__at__parser_8h_1a3f3d6c6522a9b10b8a6293bdde0c983eaa78ebf4dc72b9f20335a2ed4d3e111c7" kindref="member">SYN_AT_RESP_NONE</ref><sp/>=<sp/>0,<sp/><sp/></highlight></codeline>
+<codeline lineno="46" refid="syn__at__parser_8h_1a3f3d6c6522a9b10b8a6293bdde0c983ea9ef7c2f1319052958e4857cc561ade85" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__at__parser_8h_1a3f3d6c6522a9b10b8a6293bdde0c983ea9ef7c2f1319052958e4857cc561ade85" kindref="member">SYN_AT_RESP_OK</ref>,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="47" refid="syn__at__parser_8h_1a3f3d6c6522a9b10b8a6293bdde0c983ea9ef741abb8e75c4156b3c7a983a1926c" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__at__parser_8h_1a3f3d6c6522a9b10b8a6293bdde0c983ea9ef741abb8e75c4156b3c7a983a1926c" kindref="member">SYN_AT_RESP_ERROR</ref>,<sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="48" refid="syn__at__parser_8h_1a3f3d6c6522a9b10b8a6293bdde0c983eae4e9865a28a197842f77e3bad130a39f" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__at__parser_8h_1a3f3d6c6522a9b10b8a6293bdde0c983eae4e9865a28a197842f77e3bad130a39f" kindref="member">SYN_AT_RESP_CME_ERROR</ref>,<sp/></highlight></codeline>
+<codeline lineno="49" refid="syn__at__parser_8h_1a3f3d6c6522a9b10b8a6293bdde0c983ea8d43639dbf47f1201f8fbb150f622d12" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__at__parser_8h_1a3f3d6c6522a9b10b8a6293bdde0c983ea8d43639dbf47f1201f8fbb150f622d12" kindref="member">SYN_AT_RESP_PROMPT</ref>,<sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="50" refid="syn__at__parser_8h_1a3f3d6c6522a9b10b8a6293bdde0c983eacc6690b87bc9a1619da7d34fb90a25e8" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__at__parser_8h_1a3f3d6c6522a9b10b8a6293bdde0c983eacc6690b87bc9a1619da7d34fb90a25e8" kindref="member">SYN_AT_RESP_LINE</ref>,<sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="51" refid="syn__at__parser_8h_1a3f3d6c6522a9b10b8a6293bdde0c983eaa4496217e4cbca1007f16425ac8e1cbd" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__at__parser_8h_1a3f3d6c6522a9b10b8a6293bdde0c983eaa4496217e4cbca1007f16425ac8e1cbd" kindref="member">SYN_AT_RESP_URC</ref>,<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="52"><highlight class="normal">}<sp/><ref refid="syn__at__parser_8h_1a3f3d6c6522a9b10b8a6293bdde0c983e" kindref="member">SYN_AtRespType</ref>;</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"></highlight></codeline>
+<codeline lineno="57" refid="structSYN__AtParser" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="58" refid="structSYN__AtParser_1a241fa661ed3b3a0451371601aacd6494" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*<ref refid="structSYN__AtParser_1a241fa661ed3b3a0451371601aacd6494" kindref="member">line_buf</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="59" refid="structSYN__AtParser_1abb979558886725daf6049c8369bd608e" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="structSYN__AtParser_1abb979558886725daf6049c8369bd608e" kindref="member">line_buf_size</ref>;<sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="60" refid="structSYN__AtParser_1add655be758e1ad8bc3bd1b2c4b4cc60b" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="structSYN__AtParser_1add655be758e1ad8bc3bd1b2c4b4cc60b" kindref="member">line_len</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="61" refid="structSYN__AtParser_1a46826ae3178f9cfcbbda5478783d4344" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__at__parser_8h_1a3f3d6c6522a9b10b8a6293bdde0c983e" kindref="member">SYN_AtRespType</ref><sp/><ref refid="structSYN__AtParser_1a46826ae3178f9cfcbbda5478783d4344" kindref="member">last_resp</ref>;<sp/></highlight></codeline>
+<codeline lineno="62" refid="structSYN__AtParser_1a1eb4b8b7b04e5780f074106575d86955" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="structSYN__AtParser_1a1eb4b8b7b04e5780f074106575d86955" kindref="member">cme_error_code</ref>;<sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="63" refid="structSYN__AtParser_1a976c3f715974f9f045eae47a056c960b" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="structSYN__AtParser_1a976c3f715974f9f045eae47a056c960b" kindref="member">prompt_detected</ref>;<sp/></highlight></codeline>
+<codeline lineno="64"><highlight class="normal">}<sp/><ref refid="structSYN__AtParser" kindref="compound">SYN_AtParser</ref>;</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"></highlight></codeline>
+<codeline lineno="74"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__at__parser_8h_1abca55828a716837e94444820c401de18" kindref="member">syn_at_parser_init</ref>(<ref refid="structSYN__AtParser" kindref="compound">SYN_AtParser</ref><sp/>*parser,<sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*buf,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>buf_size);</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"></highlight></codeline>
+<codeline lineno="83"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__at__parser_8h_1a882204717752ad8538b5232be321e8bd" kindref="member">syn_at_parser_reset</ref>(<ref refid="structSYN__AtParser" kindref="compound">SYN_AtParser</ref><sp/>*parser);</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"></highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><ref refid="syn__at__parser_8h_1a3f3d6c6522a9b10b8a6293bdde0c983e" kindref="member">SYN_AtRespType</ref><sp/><ref refid="syn__at__parser_8h_1ad75b790ea8b0ec23b671a5693c4f28d1" kindref="member">syn_at_parser_feed_char</ref>(<ref refid="structSYN__AtParser" kindref="compound">SYN_AtParser</ref><sp/>*parser,<sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>c);</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"></highlight></codeline>
+<codeline lineno="107"><highlight class="normal"><ref refid="syn__at__parser_8h_1a3f3d6c6522a9b10b8a6293bdde0c983e" kindref="member">SYN_AtRespType</ref><sp/><ref refid="syn__at__parser_8h_1a8cf0af73eaf5d0b22b925c45ea893a61" kindref="member">syn_at_parser_feed_stream</ref>(<ref refid="structSYN__AtParser" kindref="compound">SYN_AtParser</ref><sp/>*parser,<sp/><ref refid="structSYN__Stream" kindref="compound">SYN_Stream</ref><sp/>*stream);</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"></highlight></codeline>
+<codeline lineno="115"><highlight class="normal"></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*<ref refid="syn__at__parser_8h_1aefde7f75ecfe5ef8f333c74e6399963a" kindref="member">syn_at_parser_get_line</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__AtParser" kindref="compound">SYN_AtParser</ref><sp/>*parser);</highlight></codeline>
+<codeline lineno="116"><highlight class="normal"></highlight></codeline>
+<codeline lineno="123"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/><ref refid="syn__at__parser_8h_1a35444468ae689126d4a7d50da6459645" kindref="member">syn_at_parser_get_cme_error</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__AtParser" kindref="compound">SYN_AtParser</ref><sp/>*parser);</highlight></codeline>
+<codeline lineno="124"><highlight class="normal"></highlight></codeline>
+<codeline lineno="135"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__at__parser_8h_1ad7ecfd97ab7a98f0cd070cb1899d17a6" kindref="member">syn_at_parser_get_param_int</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*line,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>param_idx,<sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>*out_val);</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"></highlight></codeline>
+<codeline lineno="148"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__at__parser_8h_1a6f0e68e3cd2d53ee42df9e4db23ad87a" kindref="member">syn_at_parser_get_param_str</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*line,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>param_idx,<sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*out_buf,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>max_len);</highlight></codeline>
+<codeline lineno="149"><highlight class="normal"></highlight></codeline>
+<codeline lineno="150"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="151"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="152"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="153"><highlight class="normal"></highlight></codeline>
+<codeline lineno="154"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_AT_PARSER_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/proto/syn_at_parser.h"/>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,396 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__audio_8h" kind="file" language="C++">
+    <compoundname>syn_audio.h</compoundname>
+    <includes refid="syn__defs_8h" local="yes">../common/syn_defs.h</includes>
+    <includes local="no">stdbool.h</includes>
+    <includes local="no">stddef.h</includes>
+    <includes local="no">stdint.h</includes>
+    <includedby refid="syn__audio_8c" local="yes">src/syntropic/audio/syn_audio.c</includedby>
+    <includedby refid="syntropic_8h" local="yes">src/syntropic/syntropic.h</includedby>
+    <incdepgraph>
+      <node id="1">
+        <label>src/syntropic/audio/syn_audio.h</label>
+        <link refid="syn__audio_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>stdbool.h</label>
+      </node>
+      <node id="3">
+        <label>stddef.h</label>
+      </node>
+      <node id="4">
+        <label>stdint.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="2">
+        <label>src/syntropic/audio/syn_audio.c</label>
+        <link refid="syn__audio_8c"/>
+      </node>
+      <node id="1">
+        <label>src/syntropic/audio/syn_audio.h</label>
+        <link refid="syn__audio_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>src/syntropic/proto/syn_doip.c</label>
+        <link refid="syn__doip_8c"/>
+      </node>
+      <node id="4">
+        <label>src/syntropic/proto/syn_doip.h</label>
+        <link refid="syn__doip_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>src/syntropic/syntropic.h</label>
+        <link refid="syntropic_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="structSYN__Audio__Config" prot="public">SYN_Audio_Config</innerclass>
+    <innerclass refid="structSYN__Audio" prot="public">SYN_Audio</innerclass>
+    <sectiondef kind="typedef">
+      <memberdef kind="typedef" id="syn__audio_8h_1ae6c9f59c8c2ad1d3e52a133799942309" prot="public" static="no">
+        <type>void(*</type>
+        <definition>typedef void(* SYN_Audio_OutputFn) (const int16_t *samples, size_t count, void *ctx)</definition>
+        <argsstring>)(const int16_t *samples, size_t count, void *ctx)</argsstring>
+        <name>SYN_Audio_OutputFn</name>
+        <briefdescription>
+<para>Hardware output callback function signature. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Called when a buffer half is ready to be submitted to DMA or DAC hardware.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>samples</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to PCM sample array (16-bit linear PCM). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>count</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of samples in the array. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>ctx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>User context pointer. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/audio/syn_audio.h" line="35" column="9" bodyfile="src/syntropic/audio/syn_audio.h" bodystart="35" bodyend="-1"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__audio_8h_1aae49a3eaa6303168c1d20e14ec4b3c32" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_audio_init</definition>
+        <argsstring>(SYN_Audio *audio, const SYN_Audio_Config *cfg)</argsstring>
+        <name>syn_audio_init</name>
+        <param>
+          <type><ref refid="structSYN__Audio" kindref="compound">SYN_Audio</ref> *</type>
+          <declname>audio</declname>
+        </param>
+        <param>
+          <type>const <ref refid="structSYN__Audio__Config" kindref="compound">SYN_Audio_Config</ref> *</type>
+          <declname>cfg</declname>
+        </param>
+        <briefdescription>
+<para>Initialize an Audio Streaming Engine instance. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>audio</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to Audio instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>cfg</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Configuration structure pointer. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, or SYN_INVALID_PARAM. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/audio/syn_audio.h" line="69" column="12" bodyfile="src/syntropic/audio/syn_audio.c" bodystart="17" bodyend="37" declfile="src/syntropic/audio/syn_audio.h" declline="69" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__audio_8h_1aae91c1a97058e46b27a449f3fc2c5aeb" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_audio_start</definition>
+        <argsstring>(SYN_Audio *audio)</argsstring>
+        <name>syn_audio_start</name>
+        <param>
+          <type><ref refid="structSYN__Audio" kindref="compound">SYN_Audio</ref> *</type>
+          <declname>audio</declname>
+        </param>
+        <briefdescription>
+<para>Start audio playback streaming. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>audio</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to Audio instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, or SYN_INVALID_PARAM. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/audio/syn_audio.h" line="76" column="12" bodyfile="src/syntropic/audio/syn_audio.c" bodystart="39" bodyend="54" declfile="src/syntropic/audio/syn_audio.h" declline="76" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__audio_8h_1afec960c9542cb9c0fe21faab45017e04" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_audio_stop</definition>
+        <argsstring>(SYN_Audio *audio)</argsstring>
+        <name>syn_audio_stop</name>
+        <param>
+          <type><ref refid="structSYN__Audio" kindref="compound">SYN_Audio</ref> *</type>
+          <declname>audio</declname>
+        </param>
+        <briefdescription>
+<para>Stop audio playback streaming. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>audio</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to Audio instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, or SYN_INVALID_PARAM. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/audio/syn_audio.h" line="83" column="12" bodyfile="src/syntropic/audio/syn_audio.c" bodystart="56" bodyend="64" declfile="src/syntropic/audio/syn_audio.h" declline="83" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__audio_8h_1ae7091660f03342dc25e3603ff038172c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>size_t</type>
+        <definition>size_t syn_audio_feed</definition>
+        <argsstring>(SYN_Audio *audio, const int16_t *samples, size_t count)</argsstring>
+        <name>syn_audio_feed</name>
+        <param>
+          <type><ref refid="structSYN__Audio" kindref="compound">SYN_Audio</ref> *</type>
+          <declname>audio</declname>
+        </param>
+        <param>
+          <type>const int16_t *</type>
+          <declname>samples</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>count</declname>
+        </param>
+        <briefdescription>
+<para>Feed decoded PCM audio samples into the stream buffer. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>audio</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to Audio instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>samples</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Input 16-bit PCM sample array. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>count</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of samples to push. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Number of samples actually written to the buffer. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/audio/syn_audio.h" line="93" column="8" bodyfile="src/syntropic/audio/syn_audio.c" bodystart="66" bodyend="92" declfile="src/syntropic/audio/syn_audio.h" declline="93" declcolumn="8"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__audio_8h_1a31725f70325879ad4b339cd868e10fdf" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_audio_isr_half</definition>
+        <argsstring>(SYN_Audio *audio)</argsstring>
+        <name>syn_audio_isr_half</name>
+        <param>
+          <type><ref refid="structSYN__Audio" kindref="compound">SYN_Audio</ref> *</type>
+          <declname>audio</declname>
+        </param>
+        <briefdescription>
+<para>Hardware ISR Handler for DMA Half-Transfer Interrupt. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Call this function from your hardware DMA interrupt when half of the circular buffer transfer completes (<computeroutput>SYN_DMA_EVENT_HALF_COMPLETE</computeroutput>).</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>audio</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to Audio instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/audio/syn_audio.h" line="103" column="6" bodyfile="src/syntropic/audio/syn_audio.c" bodystart="94" bodyend="104" declfile="src/syntropic/audio/syn_audio.h" declline="103" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__audio_8h_1a73b51e7499bbe258c09e44d15e68599a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_audio_isr_complete</definition>
+        <argsstring>(SYN_Audio *audio)</argsstring>
+        <name>syn_audio_isr_complete</name>
+        <param>
+          <type><ref refid="structSYN__Audio" kindref="compound">SYN_Audio</ref> *</type>
+          <declname>audio</declname>
+        </param>
+        <briefdescription>
+<para>Hardware ISR Handler for DMA Transfer-Complete Interrupt. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Call this function from your hardware DMA interrupt when the entire circular buffer transfer completes (<computeroutput>SYN_DMA_EVENT_COMPLETE</computeroutput>).</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>audio</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to Audio instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/audio/syn_audio.h" line="113" column="6" bodyfile="src/syntropic/audio/syn_audio.c" bodystart="106" bodyend="117" declfile="src/syntropic/audio/syn_audio.h" declline="113" declcolumn="6"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Codec-Agnostic PCM Double-Buffered Audio Playback Engine. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Provides a zero-malloc, hardware-decoupled PCM streaming engine designed to feed audio samples to microcontroller DMA, I2S, SAI, or DAC peripherals.</para>
+<para>Uses double-buffering (ping-pong halves) to allow uninterrupted audio decoding while the hardware transfers the alternate half-buffer to the DAC via DMA. </para>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_AUDIO_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_AUDIO_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../common/syn_defs.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stddef.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight></codeline>
+<codeline lineno="35" refid="syn__audio_8h_1ae6c9f59c8c2ad1d3e52a133799942309" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>void<sp/>(*<ref refid="syn__audio_8h_1ae6c9f59c8c2ad1d3e52a133799942309" kindref="member">SYN_Audio_OutputFn</ref>)(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>int16_t<sp/>*samples,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>count,<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*ctx);</highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight></codeline>
+<codeline lineno="40" refid="structSYN__Audio__Config" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="41" refid="structSYN__Audio__Config_1a1b9c8589d08691c1d73d3f59bef555c3" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>int16_t<sp/>*<ref refid="structSYN__Audio__Config_1a1b9c8589d08691c1d73d3f59bef555c3" kindref="member">buf</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="42" refid="structSYN__Audio__Config_1afed7fa70e81c3bf9155f54d3b55ad3cd" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="structSYN__Audio__Config_1afed7fa70e81c3bf9155f54d3b55ad3cd" kindref="member">buf_capacity</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="43" refid="structSYN__Audio__Config_1a75e62a07e01549da34c63f98264e500e" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="structSYN__Audio__Config_1a75e62a07e01549da34c63f98264e500e" kindref="member">half_size</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="44" refid="structSYN__Audio__Config_1a0bb844f2858bd0603cd2c38f05177c7d" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structSYN__Audio__Config_1a0bb844f2858bd0603cd2c38f05177c7d" kindref="member">sample_rate_hz</ref>;<sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="45" refid="structSYN__Audio__Config_1a00b15e21b5e76ad5827c00c6864bee04" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><ref refid="structSYN__Audio__Config_1a00b15e21b5e76ad5827c00c6864bee04" kindref="member">channels</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="46" refid="structSYN__Audio__Config_1adc1b7da224244b77aab278eb7896bece" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__audio_8h_1ae6c9f59c8c2ad1d3e52a133799942309" kindref="member">SYN_Audio_OutputFn</ref><sp/><ref refid="structSYN__Audio__Config_1adc1b7da224244b77aab278eb7896bece" kindref="member">out_fn</ref>;<sp/></highlight></codeline>
+<codeline lineno="47" refid="structSYN__Audio__Config_1a901e40a47130f3808f5b938c6b04574c" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*<ref refid="structSYN__Audio__Config_1a901e40a47130f3808f5b938c6b04574c" kindref="member">ctx</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="48"><highlight class="normal">}<sp/><ref refid="structSYN__Audio__Config" kindref="compound">SYN_Audio_Config</ref>;</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"></highlight></codeline>
+<codeline lineno="53" refid="structSYN__Audio" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="54" refid="structSYN__Audio_1ab7c9b73731759eab9e2ed070f5071acd" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structSYN__Audio__Config" kindref="compound">SYN_Audio_Config</ref><sp/><ref refid="structSYN__Audio_1ab7c9b73731759eab9e2ed070f5071acd" kindref="member">cfg</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="55" refid="structSYN__Audio_1aee6d13d12981128b47b3d8f3c1a4c73c" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">volatile</highlight><highlight class="normal"><sp/>uint8_t<sp/><ref refid="structSYN__Audio_1aee6d13d12981128b47b3d8f3c1a4c73c" kindref="member">active_half</ref>;<sp/></highlight></codeline>
+<codeline lineno="56" refid="structSYN__Audio_1ab62e1d1199dc11266a215c7b2615aa05" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">volatile</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="structSYN__Audio_1ab62e1d1199dc11266a215c7b2615aa05" kindref="member">fill_pos</ref>;<sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="57" refid="structSYN__Audio_1aea849f278be600ad4993e25b79fb2d63" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">volatile</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="structSYN__Audio_1aea849f278be600ad4993e25b79fb2d63" kindref="member">running</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="58" refid="structSYN__Audio_1adb54a849bee194bd95440ec6650ff88c" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structSYN__Audio_1adb54a849bee194bd95440ec6650ff88c" kindref="member">underrun_cnt</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="59" refid="structSYN__Audio_1a2613d39c31169ce2ba764b9e5b7f8191" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structSYN__Audio_1a2613d39c31169ce2ba764b9e5b7f8191" kindref="member">frames_played</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="60"><highlight class="normal">}<sp/><ref refid="structSYN__Audio" kindref="compound">SYN_Audio</ref>;</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"></highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__audio_8h_1aae49a3eaa6303168c1d20e14ec4b3c32" kindref="member">syn_audio_init</ref>(<ref refid="structSYN__Audio" kindref="compound">SYN_Audio</ref><sp/>*audio,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__Audio__Config" kindref="compound">SYN_Audio_Config</ref><sp/>*cfg);</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"></highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__audio_8h_1aae91c1a97058e46b27a449f3fc2c5aeb" kindref="member">syn_audio_start</ref>(<ref refid="structSYN__Audio" kindref="compound">SYN_Audio</ref><sp/>*audio);</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"></highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__audio_8h_1afec960c9542cb9c0fe21faab45017e04" kindref="member">syn_audio_stop</ref>(<ref refid="structSYN__Audio" kindref="compound">SYN_Audio</ref><sp/>*audio);</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"></highlight></codeline>
+<codeline lineno="93"><highlight class="normal"></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="syn__audio_8h_1ae7091660f03342dc25e3603ff038172c" kindref="member">syn_audio_feed</ref>(<ref refid="structSYN__Audio" kindref="compound">SYN_Audio</ref><sp/>*audio,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>int16_t<sp/>*samples,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>count);</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"></highlight></codeline>
+<codeline lineno="103"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__audio_8h_1a31725f70325879ad4b339cd868e10fdf" kindref="member">syn_audio_isr_half</ref>(<ref refid="structSYN__Audio" kindref="compound">SYN_Audio</ref><sp/>*audio);</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"></highlight></codeline>
+<codeline lineno="113"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__audio_8h_1a73b51e7499bbe258c09e44d15e68599a" kindref="member">syn_audio_isr_complete</ref>(<ref refid="structSYN__Audio" kindref="compound">SYN_Audio</ref><sp/>*audio);</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"></highlight></codeline>
+<codeline lineno="115"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="116"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="117"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="118"><highlight class="normal"></highlight></codeline>
+<codeline lineno="119"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_AUDIO_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/audio/syn_audio.h"/>
+  </compounddef>
+</doxygen>

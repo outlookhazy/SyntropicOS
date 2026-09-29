@@ -1,0 +1,3563 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Modular cooperative OS & application framework for microcontrollers">
+      
+      
+      
+        <link rel="canonical" href="https://outlookhazy.github.io/SyntropicOS/syntropic/syn__ethercat_8h/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/logo.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>File syn_ethercat.h - SyntropicOS</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="cyan">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#file-syn_ethercath" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="SyntropicOS" class="md-header__button md-logo" aria-label="SyntropicOS" data-md-component="logo">
+      
+  <img src="../../assets/logo.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SyntropicOS
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              File syn_ethercat.h
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="cyan"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="cyan"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/outlookhazy/SyntropicOS" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    outlookhazy/SyntropicOS
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="SyntropicOS" class="md-nav__button md-logo" aria-label="SyntropicOS" data-md-component="logo">
+      
+  <img src="../../assets/logo.png" alt="logo">
+
+    </a>
+    SyntropicOS
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/outlookhazy/SyntropicOS" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    outlookhazy/SyntropicOS
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ide-guides/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    IDE Setup Guides
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../arduino/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Arduino Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Modules
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Modules
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../modules/core/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Core & Utilities
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../modules/drivers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Drivers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../modules/multitasking/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Multitasking
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../modules/services/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../modules/io/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Input / Output
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../modules/display/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Display & UI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../modules/control/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Control & Motor
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../modules/dsp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DSP & Filters
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../modules/communication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Communication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../modules/ble/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Bluetooth Low Energy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../modules/audio/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Audio & Codecs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../modules/crypto/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Crypto & VPN
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../modules/storage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Storage
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../modules/system/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    System
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../modules/wasm/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    WebAssembly VM
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../modules/debug/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Debug
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../modules/integration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Cross-Module Integration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../group__syn__core/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Core & Utilities
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../group__syn__sched/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scheduling
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../group__syn__drivers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Drivers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../group__syn__io/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Input / Output
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../group__syn__motor/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Motor & Control
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../group__syn__display/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Display & UI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../group__syn__net/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Networking
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../group__syn__protocol/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Protocols
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../group__syn__storage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Storage
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../group__syn__system/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    System
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../group__syn__dsp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DSP & Filters
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../group__syn__debug/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Debug & Diagnostics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../files/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    All Files
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../annotated/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    All Structs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../porting-guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Porting Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../testing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../directory-structure/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Directory Structure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#classes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Classes
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#public-types" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Public Types
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#public-functions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Public Functions
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#macros" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Macros
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#detailed-description" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Detailed Description
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#public-types-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Public Types Documentation
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Public Types Documentation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#enum-syn_ecatcmd" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        enum SYN_EcatCmd
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#enum-syn_ecatcoetype" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        enum SYN_EcatCoEType
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#enum-syn_ecatstate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        enum SYN_EcatState
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#public-functions-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Public Functions Documentation
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Public Functions Documentation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_ecat_build_datagram_frame" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_ecat_build_datagram_frame
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_ecat_coe_encode_sdo_download" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_ecat_coe_encode_sdo_download
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_ecat_coe_encode_sdo_upload" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_ecat_coe_encode_sdo_upload
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_ecat_decode_coe_sdo_response" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_ecat_decode_coe_sdo_response
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_ecat_decode_cyclic" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_ecat_decode_cyclic
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_ecat_decode_read_al_status" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_ecat_decode_read_al_status
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_ecat_decode_read_reg" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_ecat_decode_read_reg
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_ecat_decode_read_sii" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_ecat_decode_read_sii
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_ecat_decode_scan_bus" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_ecat_decode_scan_bus
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_ecat_encode_assign_addr" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_ecat_encode_assign_addr
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_ecat_encode_coe_sdo_read" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_ecat_encode_coe_sdo_read
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_ecat_encode_coe_sdo_write" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_ecat_encode_coe_sdo_write
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_ecat_encode_cyclic" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_ecat_encode_cyclic
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_ecat_encode_dc_configure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_ecat_encode_dc_configure
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_ecat_encode_dc_read_system_time" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_ecat_encode_dc_read_system_time
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_ecat_encode_read_al_status" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_ecat_encode_read_al_status
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_ecat_encode_read_reg" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_ecat_encode_read_reg
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_ecat_encode_read_sii" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_ecat_encode_read_sii
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_ecat_encode_scan_bus" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_ecat_encode_scan_bus
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_ecat_encode_set_al_control" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_ecat_encode_set_al_control
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_ecat_encode_write_fmmu" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_ecat_encode_write_fmmu
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_ecat_encode_write_reg" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_ecat_encode_write_reg
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_ecat_encode_write_sm" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_ecat_encode_write_sm
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_ecat_frame_add_datagram" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_ecat_frame_add_datagram
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_ecat_frame_begin" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_ecat_frame_begin
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_ecat_frame_finalize" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_ecat_frame_finalize
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_ecat_frame_parse_next" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_ecat_frame_parse_next
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_ecat_init" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_ecat_init
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_ecat_master_cyclic_task" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_ecat_master_cyclic_task
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_ecat_master_discover_pdo_mapping_task" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_ecat_master_discover_pdo_mapping_task
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_ecat_master_init" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_ecat_master_init
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_ecat_master_pop_tx_frame" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_ecat_master_pop_tx_frame
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_ecat_master_read_sii_task" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_ecat_master_read_sii_task
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_ecat_master_scan_task" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_ecat_master_scan_task
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_ecat_master_sdo_read_task" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_ecat_master_sdo_read_task
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_ecat_master_set_rx_frame" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_ecat_master_set_rx_frame
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_ecat_master_transition_task" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_ecat_master_transition_task
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_ecat_parse_frame" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_ecat_parse_frame
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_ecat_set_state" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_ecat_set_state
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-syn_ecat_update" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        function syn_ecat_update
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#macro-definition-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Macro Definition Documentation
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Macro Definition Documentation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#define-syn_ecat_max_slaves" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        define SYN_ECAT_MAX_SLAVES
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#define-syn_esc_reg_al_control" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        define SYN_ESC_REG_AL_CONTROL
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#define-syn_esc_reg_al_status" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        define SYN_ESC_REG_AL_STATUS
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#define-syn_esc_reg_al_status_code" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        define SYN_ESC_REG_AL_STATUS_CODE
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#define-syn_esc_reg_dc_sync0_cycle" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        define SYN_ESC_REG_DC_SYNC0_CYCLE
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#define-syn_esc_reg_dc_system_offset" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        define SYN_ESC_REG_DC_SYSTEM_OFFSET
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#define-syn_esc_reg_dc_system_time" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        define SYN_ESC_REG_DC_SYSTEM_TIME
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#define-syn_esc_reg_fmmu0" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        define SYN_ESC_REG_FMMU0
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#define-syn_esc_reg_pdi_control" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        define SYN_ESC_REG_PDI_CONTROL
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#define-syn_esc_reg_sii_eeprom_ctrl" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        define SYN_ESC_REG_SII_EEPROM_CTRL
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#define-syn_esc_reg_sm0" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        define SYN_ESC_REG_SM0
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#define-syn_esc_reg_station_addr" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        define SYN_ESC_REG_STATION_ADDR
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#define-syn_esc_reg_station_alias" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        define SYN_ESC_REG_STATION_ALIAS
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#define-syn_esc_reg_type" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        define SYN_ESC_REG_TYPE
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#define-syn_ethercat_ethertype" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        define SYN_ETHERCAT_ETHERTYPE
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#define-syn_ethercat_type_datagram" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        define SYN_ETHERCAT_TYPE_DATAGRAM
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="file-syn_ethercath">File syn_ethercat.h<a class="headerlink" href="#file-syn_ethercath" title="Permanent link">&para;</a></h1>
+<p><a href="../files/"><strong>FileList</strong></a> <strong>&gt;</strong> <a href="../dir_0a7333506e1b11c22e7531106607b850/"><strong>proto</strong></a> <strong>&gt;</strong> <a href="./"><strong>syn_ethercat.h</strong></a></p>
+<p><a href="../syn__ethercat_8h_source/">Go to the source code of this file</a></p>
+<p><em>EtherCAT (IEEE 802.3 EtherType 0x88A4) Bare-Metal Protocol Stack.</em> <a href="#detailed-description">More...</a></p>
+<ul>
+<li><code>#include "../common/syn_defs.h"</code></li>
+<li><code>#include "../pt/syn_pt.h"</code></li>
+<li><code>#include "syn_canopen.h"</code></li>
+<li><code>#include &lt;stdbool.h&gt;</code></li>
+<li><code>#include &lt;stddef.h&gt;</code></li>
+<li><code>#include &lt;stdint.h&gt;</code></li>
+<li><code>#include "../sched/syn_task.h"</code></li>
+</ul>
+<h2 id="classes">Classes<a class="headerlink" href="#classes" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: right;">Type</th>
+<th style="text-align: left;">Name</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">struct</td>
+<td style="text-align: left;"><a href="../structSYN__EcatCoEHeader/"><strong>SYN_EcatCoEHeader</strong></a> <br><em>CoE (CANoverEtherCAT) Mailbox Header.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;">struct</td>
+<td style="text-align: left;"><a href="../structSYN__EcatDatagram/"><strong>SYN_EcatDatagram</strong></a> <br><em>EtherCAT Datagram Header (10 bytes header + 2 bytes WKC = 12 bytes overhead)</em></td>
+</tr>
+<tr>
+<td style="text-align: right;">struct</td>
+<td style="text-align: left;"><a href="../structSYN__EcatDatagramResult/"><strong>SYN_EcatDatagramResult</strong></a> <br><em>Parsed datagram item from frame iteration.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;">struct</td>
+<td style="text-align: left;"><a href="../structSYN__EcatFMMUConfig/"><strong>SYN_EcatFMMUConfig</strong></a> <br><em>EtherCAT FMMU Configuration.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;">struct</td>
+<td style="text-align: left;"><a href="../structSYN__EcatHeader/"><strong>SYN_EcatHeader</strong></a> <br><em>Raw EtherCAT Header (2 bytes)</em></td>
+</tr>
+<tr>
+<td style="text-align: right;">struct</td>
+<td style="text-align: left;"><a href="../structSYN__EcatMaster/"><strong>SYN_EcatMaster</strong></a> <br><em>EtherCAT Master Instance Context (Zero-Heap).</em></td>
+</tr>
+<tr>
+<td style="text-align: right;">struct</td>
+<td style="text-align: left;"><a href="../structSYN__EcatNode/"><strong>SYN_EcatNode</strong></a> <br><em>EtherCAT Node Descriptor.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;">struct</td>
+<td style="text-align: left;"><a href="../structSYN__EcatSMConfig/"><strong>SYN_EcatSMConfig</strong></a> <br><em>EtherCAT SyncManager Configuration.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;">struct</td>
+<td style="text-align: left;"><a href="../structSYN__EcatSlaveInfo/"><strong>SYN_EcatSlaveInfo</strong></a> <br><em>EtherCAT Slave Information Entry.</em></td>
+</tr>
+</tbody>
+</table>
+<h2 id="public-types">Public Types<a class="headerlink" href="#public-types" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: right;">Type</th>
+<th style="text-align: left;">Name</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">enum</td>
+<td style="text-align: left;"><a href="#enum-syn_ecatcmd"><strong>SYN_EcatCmd</strong></a>  <br></td>
+</tr>
+<tr>
+<td style="text-align: right;">enum</td>
+<td style="text-align: left;"><a href="#enum-syn_ecatcoetype"><strong>SYN_EcatCoEType</strong></a>  <br></td>
+</tr>
+<tr>
+<td style="text-align: right;">enum</td>
+<td style="text-align: left;"><a href="#enum-syn_ecatstate"><strong>SYN_EcatState</strong></a>  <br></td>
+</tr>
+</tbody>
+</table>
+<h2 id="public-functions">Public Functions<a class="headerlink" href="#public-functions" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: right;">Type</th>
+<th style="text-align: left;">Name</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">size_t</td>
+<td style="text-align: left;"><a href="#function-syn_ecat_build_datagram_frame"><strong>syn_ecat_build_datagram_frame</strong></a> (uint8_t * buf, size_t buf_len, const <a href="../structSYN__EcatDatagram/"><strong>SYN_EcatDatagram</strong></a> * datagram, const uint8_t * data, uint16_t data_len) <br><em>Build an EtherCAT Frame containing one or more datagrams.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;">size_t</td>
+<td style="text-align: left;"><a href="#function-syn_ecat_coe_encode_sdo_download"><strong>syn_ecat_coe_encode_sdo_download</strong></a> (uint8_t * buf, size_t buf_len, uint16_t index, uint8_t subindex, const void * data, size_t data_len) <br><em>Encode a CoE SDO Download (Write) request into a mailbox buffer.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;">size_t</td>
+<td style="text-align: left;"><a href="#function-syn_ecat_coe_encode_sdo_upload"><strong>syn_ecat_coe_encode_sdo_upload</strong></a> (uint8_t * buf, size_t buf_len, uint16_t index, uint8_t subindex) <br><em>Encode a CoE SDO Upload (Read) request into a mailbox buffer.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;"><a href="../syn__defs_8h/#enum-syn_status"><strong>SYN_Status</strong></a></td>
+<td style="text-align: left;"><a href="#function-syn_ecat_decode_coe_sdo_response"><strong>syn_ecat_decode_coe_sdo_response</strong></a> (<a href="../structSYN__EcatMaster/"><strong>SYN_EcatMaster</strong></a> * m, size_t rx_len, void * out_data, size_t max_len, size_t * out_len) <br><em>Decode SDO Upload response payload from rx_buf.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;"><a href="../syn__defs_8h/#enum-syn_status"><strong>SYN_Status</strong></a></td>
+<td style="text-align: left;"><a href="#function-syn_ecat_decode_cyclic"><strong>syn_ecat_decode_cyclic</strong></a> (<a href="../structSYN__EcatMaster/"><strong>SYN_EcatMaster</strong></a> * m, size_t rx_len) <br><em>Parse LRW cyclic process exchange response from rx_buf and copy inputs to input_image.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;"><a href="../syn__defs_8h/#enum-syn_status"><strong>SYN_Status</strong></a></td>
+<td style="text-align: left;"><a href="#function-syn_ecat_decode_read_al_status"><strong>syn_ecat_decode_read_al_status</strong></a> (<a href="../structSYN__EcatMaster/"><strong>SYN_EcatMaster</strong></a> * m, size_t rx_len, <a href="./#enum-syn_ecatstate"><strong>SYN_EcatState</strong></a> * state, uint16_t * status_code) <br><em>Decode Application Layer (AL) Status and Status Code from response.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;"><a href="../syn__defs_8h/#enum-syn_status"><strong>SYN_Status</strong></a></td>
+<td style="text-align: left;"><a href="#function-syn_ecat_decode_read_reg"><strong>syn_ecat_decode_read_reg</strong></a> (<a href="../structSYN__EcatMaster/"><strong>SYN_EcatMaster</strong></a> * m, size_t rx_len, void * out_data, uint16_t len) <br><em>Decode FPRD response datagram for register read.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;"><a href="../syn__defs_8h/#enum-syn_status"><strong>SYN_Status</strong></a></td>
+<td style="text-align: left;"><a href="#function-syn_ecat_decode_read_sii"><strong>syn_ecat_decode_read_sii</strong></a> (<a href="../structSYN__EcatMaster/"><strong>SYN_EcatMaster</strong></a> * m, size_t rx_len, uint32_t * out_val) <br><em>Decode 32-bit word from SII EEPROM read response.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;">uint8_t</td>
+<td style="text-align: left;"><a href="#function-syn_ecat_decode_scan_bus"><strong>syn_ecat_decode_scan_bus</strong></a> (<a href="../structSYN__EcatMaster/"><strong>SYN_EcatMaster</strong></a> * m, size_t rx_len) <br><em>Decode slave count from scan_bus response frame in rx_buf.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;">size_t</td>
+<td style="text-align: left;"><a href="#function-syn_ecat_encode_assign_addr"><strong>syn_ecat_encode_assign_addr</strong></a> (<a href="../structSYN__EcatMaster/"><strong>SYN_EcatMaster</strong></a> * m, uint16_t position, uint16_t station_addr) <br><em>Encode Auto-Increment Write (APWR) to assign station address.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;">size_t</td>
+<td style="text-align: left;"><a href="#function-syn_ecat_encode_coe_sdo_read"><strong>syn_ecat_encode_coe_sdo_read</strong></a> (<a href="../structSYN__EcatMaster/"><strong>SYN_EcatMaster</strong></a> * m, uint16_t station_addr, uint16_t index, uint8_t subindex) <br><em>Encode a complete Mailbox-wrapped CoE SDO Upload request frame into tx_buf.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;">size_t</td>
+<td style="text-align: left;"><a href="#function-syn_ecat_encode_coe_sdo_write"><strong>syn_ecat_encode_coe_sdo_write</strong></a> (<a href="../structSYN__EcatMaster/"><strong>SYN_EcatMaster</strong></a> * m, uint16_t station_addr, uint16_t index, uint8_t subindex, const void * data, size_t data_len) <br><em>Encode a complete Mailbox-wrapped CoE SDO Download request frame into tx_buf.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;">size_t</td>
+<td style="text-align: left;"><a href="#function-syn_ecat_encode_cyclic"><strong>syn_ecat_encode_cyclic</strong></a> (<a href="../structSYN__EcatMaster/"><strong>SYN_EcatMaster</strong></a> * m) <br><em>Encode LRW (Logical Read Write) cyclic process exchange frame into tx_buf.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;">size_t</td>
+<td style="text-align: left;"><a href="#function-syn_ecat_encode_dc_configure"><strong>syn_ecat_encode_dc_configure</strong></a> (<a href="../structSYN__EcatMaster/"><strong>SYN_EcatMaster</strong></a> * m, uint16_t station_addr, uint32_t sync0_cycle_ns, int32_t sync0_shift_ns) <br><em>Encode FPWR to configure DC SYNC0 cycle time and shift for a slave.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;">size_t</td>
+<td style="text-align: left;"><a href="#function-syn_ecat_encode_dc_read_system_time"><strong>syn_ecat_encode_dc_read_system_time</strong></a> (<a href="../structSYN__EcatMaster/"><strong>SYN_EcatMaster</strong></a> * m) <br><em>Encode Auto-Increment Read Multiple Write (ARMW) for DC System Time propagation.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;">size_t</td>
+<td style="text-align: left;"><a href="#function-syn_ecat_encode_read_al_status"><strong>syn_ecat_encode_read_al_status</strong></a> (<a href="../structSYN__EcatMaster/"><strong>SYN_EcatMaster</strong></a> * m, uint16_t station_addr) <br><em>Encode Configured Read (FPRD) to read slave Application Layer (AL) Status.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;">size_t</td>
+<td style="text-align: left;"><a href="#function-syn_ecat_encode_read_reg"><strong>syn_ecat_encode_read_reg</strong></a> (<a href="../structSYN__EcatMaster/"><strong>SYN_EcatMaster</strong></a> * m, uint16_t station_addr, uint16_t reg_addr, uint16_t len) <br><em>Encode FPRD to read register</em> <code>reg_addr</code> <em>from slave</em><code>station_addr</code> <em>.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;">size_t</td>
+<td style="text-align: left;"><a href="#function-syn_ecat_encode_read_sii"><strong>syn_ecat_encode_read_sii</strong></a> (<a href="../structSYN__EcatMaster/"><strong>SYN_EcatMaster</strong></a> * m, uint16_t station_addr, uint16_t word_offset) <br><em>Encode Configured Read (FPRD) to read SII EEPROM word.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;">size_t</td>
+<td style="text-align: left;"><a href="#function-syn_ecat_encode_scan_bus"><strong>syn_ecat_encode_scan_bus</strong></a> (<a href="../structSYN__EcatMaster/"><strong>SYN_EcatMaster</strong></a> * m) <br><em>Encode Broadcast Read (BRD) to scan bus slave count into master tx_buf.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;">size_t</td>
+<td style="text-align: left;"><a href="#function-syn_ecat_encode_set_al_control"><strong>syn_ecat_encode_set_al_control</strong></a> (<a href="../structSYN__EcatMaster/"><strong>SYN_EcatMaster</strong></a> * m, uint16_t station_addr, <a href="./#enum-syn_ecatstate"><strong>SYN_EcatState</strong></a> state) <br><em>Encode Configured Write (FPWR) to set slave Application Layer (AL) Control register.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;">size_t</td>
+<td style="text-align: left;"><a href="#function-syn_ecat_encode_write_fmmu"><strong>syn_ecat_encode_write_fmmu</strong></a> (<a href="../structSYN__EcatMaster/"><strong>SYN_EcatMaster</strong></a> * m, uint16_t station_addr, uint8_t fmmu_index, const <a href="../structSYN__EcatFMMUConfig/"><strong>SYN_EcatFMMUConfig</strong></a> * cfg) <br><em>Encode Configured Write (FPWR) to configure an FMMU register block.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;">size_t</td>
+<td style="text-align: left;"><a href="#function-syn_ecat_encode_write_reg"><strong>syn_ecat_encode_write_reg</strong></a> (<a href="../structSYN__EcatMaster/"><strong>SYN_EcatMaster</strong></a> * m, uint16_t station_addr, uint16_t reg_addr, const void * data, uint16_t len) <br><em>Encode FPWR to write register</em> <code>reg_addr</code> <em>to slave</em><code>station_addr</code> <em>.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;">size_t</td>
+<td style="text-align: left;"><a href="#function-syn_ecat_encode_write_sm"><strong>syn_ecat_encode_write_sm</strong></a> (<a href="../structSYN__EcatMaster/"><strong>SYN_EcatMaster</strong></a> * m, uint16_t station_addr, uint8_t sm_index, const <a href="../structSYN__EcatSMConfig/"><strong>SYN_EcatSMConfig</strong></a> * cfg) <br><em>Encode Configured Write (FPWR) to configure a SyncManager register block.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;">size_t</td>
+<td style="text-align: left;"><a href="#function-syn_ecat_frame_add_datagram"><strong>syn_ecat_frame_add_datagram</strong></a> (uint8_t * buf, size_t buf_size, <a href="./#enum-syn_ecatcmd"><strong>SYN_EcatCmd</strong></a> cmd, uint8_t idx, uint32_t addr, const uint8_t * data, uint16_t data_len, <a href="../syn__defs_8h/#enum-bool"><strong>bool</strong></a> circ) <br><em>Add a datagram payload to an in-progress EtherCAT frame.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;">void</td>
+<td style="text-align: left;"><a href="#function-syn_ecat_frame_begin"><strong>syn_ecat_frame_begin</strong></a> (uint8_t * buf, size_t buf_size) <br><em>Initialize an EtherCAT frame buffer header.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;">size_t</td>
+<td style="text-align: left;"><a href="#function-syn_ecat_frame_finalize"><strong>syn_ecat_frame_finalize</strong></a> (uint8_t * buf) <br><em>Finalize EtherCAT frame header length field.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;"><a href="../syn__defs_8h/#enum-bool"><strong>bool</strong></a></td>
+<td style="text-align: left;"><a href="#function-syn_ecat_frame_parse_next"><strong>syn_ecat_frame_parse_next</strong></a> (const uint8_t * frame, size_t frame_len, size_t * offset, <a href="../structSYN__EcatDatagramResult/"><strong>SYN_EcatDatagramResult</strong></a> * out) <br><em>Parse the next datagram from an EtherCAT frame buffer.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;">void</td>
+<td style="text-align: left;"><a href="#function-syn_ecat_init"><strong>syn_ecat_init</strong></a> (<a href="../structSYN__EcatNode/"><strong>SYN_EcatNode</strong></a> * node, uint16_t station_addr, <a href="../structSYN__CANOpenNode/"><strong>SYN_CANOpenNode</strong></a> * od) <br><em>Initialize an EtherCAT Node instance.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;"><a href="../syn__pt_8h/#enum-syn_pt_status"><strong>SYN_PT_Status</strong></a></td>
+<td style="text-align: left;"><a href="#function-syn_ecat_master_cyclic_task"><strong>syn_ecat_master_cyclic_task</strong></a> (<a href="../structSYN__PT/"><strong>SYN_PT</strong></a> * pt, <a href="../structSYN__EcatMaster/"><strong>SYN_EcatMaster</strong></a> * m) <br><em>Protothread Task: Execute single cyclic process exchange cycle.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;"><a href="../syn__pt_8h/#enum-syn_pt_status"><strong>SYN_PT_Status</strong></a></td>
+<td style="text-align: left;"><a href="#function-syn_ecat_master_discover_pdo_mapping_task"><strong>syn_ecat_master_discover_pdo_mapping_task</strong></a> (<a href="../structSYN__PT/"><strong>SYN_PT</strong></a> * pt, <a href="../structSYN__EcatMaster/"><strong>SYN_EcatMaster</strong></a> * m, uint16_t station_addr, uint16_t * out_rx_bytes, uint16_t * out_tx_bytes) <br><em>Protothread Task: Read CoE Object Dictionary 0x1C12/0x1C13 to calculate slave Rx/Tx PDO byte lengths.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;"><a href="../syn__defs_8h/#enum-syn_status"><strong>SYN_Status</strong></a></td>
+<td style="text-align: left;"><a href="#function-syn_ecat_master_init"><strong>syn_ecat_master_init</strong></a> (<a href="../structSYN__EcatMaster/"><strong>SYN_EcatMaster</strong></a> * m, uint8_t * tx_buf, uint16_t tx_buf_size, uint8_t * rx_buf, uint16_t rx_buf_size, uint8_t * output_image, uint16_t output_size, uint8_t * input_image, uint16_t input_size) <br><em>Initialize EtherCAT Master instance context.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;"><a href="../syn__defs_8h/#enum-bool"><strong>bool</strong></a></td>
+<td style="text-align: left;"><a href="#function-syn_ecat_master_pop_tx_frame"><strong>syn_ecat_master_pop_tx_frame</strong></a> (<a href="../structSYN__EcatMaster/"><strong>SYN_EcatMaster</strong></a> * m, const uint8_t ** out_frame, size_t * out_len) <br><em>Pop pending transmit frame for Ethernet PHY driver.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;"><a href="../syn__pt_8h/#enum-syn_pt_status"><strong>SYN_PT_Status</strong></a></td>
+<td style="text-align: left;"><a href="#function-syn_ecat_master_read_sii_task"><strong>syn_ecat_master_read_sii_task</strong></a> (<a href="../structSYN__PT/"><strong>SYN_PT</strong></a> * pt, <a href="../structSYN__EcatMaster/"><strong>SYN_EcatMaster</strong></a> * m, uint16_t station_addr, uint16_t word_offset, uint32_t * out_data) <br><em>Protothread Task: Read 32-bit word from slave SII EEPROM via hardware status polling.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;"><a href="../syn__pt_8h/#enum-syn_pt_status"><strong>SYN_PT_Status</strong></a></td>
+<td style="text-align: left;"><a href="#function-syn_ecat_master_scan_task"><strong>syn_ecat_master_scan_task</strong></a> (<a href="../structSYN__PT/"><strong>SYN_PT</strong></a> * pt, <a href="../structSYN__EcatMaster/"><strong>SYN_EcatMaster</strong></a> * m) <br><em>Protothread Task: Scan EtherCAT bus and assign station addresses.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;"><a href="../syn__pt_8h/#enum-syn_pt_status"><strong>SYN_PT_Status</strong></a></td>
+<td style="text-align: left;"><a href="#function-syn_ecat_master_sdo_read_task"><strong>syn_ecat_master_sdo_read_task</strong></a> (<a href="../structSYN__PT/"><strong>SYN_PT</strong></a> * pt, <a href="../structSYN__EcatMaster/"><strong>SYN_EcatMaster</strong></a> * m, uint16_t station_addr, uint16_t index, uint8_t subindex, void * out_data, size_t max_len, size_t * out_len) <br><em>Protothread Task: CoE SDO read from slave Object Dictionary with SM1 polling.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;"><a href="../syn__defs_8h/#enum-syn_status"><strong>SYN_Status</strong></a></td>
+<td style="text-align: left;"><a href="#function-syn_ecat_master_set_rx_frame"><strong>syn_ecat_master_set_rx_frame</strong></a> (<a href="../structSYN__EcatMaster/"><strong>SYN_EcatMaster</strong></a> * m, const uint8_t * frame, size_t len) <br><em>Feed received Ethernet frame into Master context.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;"><a href="../syn__pt_8h/#enum-syn_pt_status"><strong>SYN_PT_Status</strong></a></td>
+<td style="text-align: left;"><a href="#function-syn_ecat_master_transition_task"><strong>syn_ecat_master_transition_task</strong></a> (<a href="../structSYN__PT/"><strong>SYN_PT</strong></a> * pt, <a href="../structSYN__EcatMaster/"><strong>SYN_EcatMaster</strong></a> * m, <a href="./#enum-syn_ecatstate"><strong>SYN_EcatState</strong></a> target_state) <br><em>Protothread Task: Drive EtherCAT slaves through state transition.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;"><a href="../syn__defs_8h/#enum-syn_status"><strong>SYN_Status</strong></a></td>
+<td style="text-align: left;"><a href="#function-syn_ecat_parse_frame"><strong>syn_ecat_parse_frame</strong></a> (<a href="../structSYN__EcatNode/"><strong>SYN_EcatNode</strong></a> * node, const uint8_t * frame, size_t len, uint16_t * wkc) <br><em>Parse and process a received raw EtherCAT frame.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;"><a href="../syn__defs_8h/#enum-syn_status"><strong>SYN_Status</strong></a></td>
+<td style="text-align: left;"><a href="#function-syn_ecat_set_state"><strong>syn_ecat_set_state</strong></a> (<a href="../structSYN__EcatNode/"><strong>SYN_EcatNode</strong></a> * node, <a href="./#enum-syn_ecatstate"><strong>SYN_EcatState</strong></a> new_state) <br><em>Request an EtherCAT State Machine (ESM) state transition.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;">void</td>
+<td style="text-align: left;"><a href="#function-syn_ecat_update"><strong>syn_ecat_update</strong></a> (<a href="../structSYN__EcatNode/"><strong>SYN_EcatNode</strong></a> * node) <br><em>Run ESM state machine step.</em></td>
+</tr>
+</tbody>
+</table>
+<h2 id="macros">Macros<a class="headerlink" href="#macros" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: right;">Type</th>
+<th style="text-align: left;">Name</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">define</td>
+<td style="text-align: left;"><a href="./#define-syn_ecat_max_slaves"><strong>SYN_ECAT_MAX_SLAVES</strong></a>  <code>16U</code><br></td>
+</tr>
+<tr>
+<td style="text-align: right;">define</td>
+<td style="text-align: left;"><a href="./#define-syn_esc_reg_al_control"><strong>SYN_ESC_REG_AL_CONTROL</strong></a>  <code>0x0120U</code><br></td>
+</tr>
+<tr>
+<td style="text-align: right;">define</td>
+<td style="text-align: left;"><a href="./#define-syn_esc_reg_al_status"><strong>SYN_ESC_REG_AL_STATUS</strong></a>  <code>0x0130U</code><br></td>
+</tr>
+<tr>
+<td style="text-align: right;">define</td>
+<td style="text-align: left;"><a href="./#define-syn_esc_reg_al_status_code"><strong>SYN_ESC_REG_AL_STATUS_CODE</strong></a>  <code>0x0134U</code><br></td>
+</tr>
+<tr>
+<td style="text-align: right;">define</td>
+<td style="text-align: left;"><a href="./#define-syn_esc_reg_dc_sync0_cycle"><strong>SYN_ESC_REG_DC_SYNC0_CYCLE</strong></a>  <code>0x09A0U</code><br></td>
+</tr>
+<tr>
+<td style="text-align: right;">define</td>
+<td style="text-align: left;"><a href="./#define-syn_esc_reg_dc_system_offset"><strong>SYN_ESC_REG_DC_SYSTEM_OFFSET</strong></a>  <code>0x0920U</code><br></td>
+</tr>
+<tr>
+<td style="text-align: right;">define</td>
+<td style="text-align: left;"><a href="./#define-syn_esc_reg_dc_system_time"><strong>SYN_ESC_REG_DC_SYSTEM_TIME</strong></a>  <code>0x0900U</code><br></td>
+</tr>
+<tr>
+<td style="text-align: right;">define</td>
+<td style="text-align: left;"><a href="./#define-syn_esc_reg_fmmu0"><strong>SYN_ESC_REG_FMMU0</strong></a>  <code>0x0600U</code><br></td>
+</tr>
+<tr>
+<td style="text-align: right;">define</td>
+<td style="text-align: left;"><a href="./#define-syn_esc_reg_pdi_control"><strong>SYN_ESC_REG_PDI_CONTROL</strong></a>  <code>0x0140U</code><br></td>
+</tr>
+<tr>
+<td style="text-align: right;">define</td>
+<td style="text-align: left;"><a href="./#define-syn_esc_reg_sii_eeprom_ctrl"><strong>SYN_ESC_REG_SII_EEPROM_CTRL</strong></a>  <code>0x0502U</code><br></td>
+</tr>
+<tr>
+<td style="text-align: right;">define</td>
+<td style="text-align: left;"><a href="./#define-syn_esc_reg_sm0"><strong>SYN_ESC_REG_SM0</strong></a>  <code>0x0800U</code><br></td>
+</tr>
+<tr>
+<td style="text-align: right;">define</td>
+<td style="text-align: left;"><a href="./#define-syn_esc_reg_station_addr"><strong>SYN_ESC_REG_STATION_ADDR</strong></a>  <code>0x0010U</code><br></td>
+</tr>
+<tr>
+<td style="text-align: right;">define</td>
+<td style="text-align: left;"><a href="./#define-syn_esc_reg_station_alias"><strong>SYN_ESC_REG_STATION_ALIAS</strong></a>  <code>0x0012U</code><br></td>
+</tr>
+<tr>
+<td style="text-align: right;">define</td>
+<td style="text-align: left;"><a href="./#define-syn_esc_reg_type"><strong>SYN_ESC_REG_TYPE</strong></a>  <code>0x0000U</code><br></td>
+</tr>
+<tr>
+<td style="text-align: right;">define</td>
+<td style="text-align: left;"><a href="./#define-syn_ethercat_ethertype"><strong>SYN_ETHERCAT_ETHERTYPE</strong></a>  <code>0x88A4</code><br><em>EtherCAT IEEE 802.3 Ethernet Frame Type.</em></td>
+</tr>
+<tr>
+<td style="text-align: right;">define</td>
+<td style="text-align: left;"><a href="./#define-syn_ethercat_type_datagram"><strong>SYN_ETHERCAT_TYPE_DATAGRAM</strong></a>  <code>1</code><br><em>EtherCAT Header Type (1 = EtherCAT Datagrams)</em></td>
+</tr>
+</tbody>
+</table>
+<h2 id="detailed-description">Detailed Description<a class="headerlink" href="#detailed-description" title="Permanent link">&para;</a></h2>
+<p>Implements EtherCAT Frame packing, Datagram commands (APRD, APWR, APRW, FPRD, FPWR, FPRW, BRD, BWR, LRD, LWR, LRW), Working Counter (WKC) accounting, EtherCAT State Machine (ESM: INIT, PREOP, BOOT, SAFEOP, OP), and CoE (CAN application protocol over EtherCAT) Mailbox SDO &amp; PDO handling.</p>
+<p>Designed for zero heap allocation and direct L2 raw Ethernet frame processing. </p>
+<h2 id="public-types-documentation">Public Types Documentation<a class="headerlink" href="#public-types-documentation" title="Permanent link">&para;</a></h2>
+<h3 id="enum-syn_ecatcmd">enum SYN_EcatCmd<a class="headerlink" href="#enum-syn_ecatcmd" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">enum</span><span class="w"> </span><span class="nc">SYN_EcatCmd</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">    </span><span class="n">SYN_ECAT_CMD_NOP</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">    </span><span class="n">SYN_ECAT_CMD_APRD</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">    </span><span class="n">SYN_ECAT_CMD_APWR</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">    </span><span class="n">SYN_ECAT_CMD_APRW</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">    </span><span class="n">SYN_ECAT_CMD_FPRD</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">    </span><span class="n">SYN_ECAT_CMD_FPWR</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">    </span><span class="n">SYN_ECAT_CMD_FPRW</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">6</span><span class="p">,</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="w">    </span><span class="n">SYN_ECAT_CMD_BRD</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">7</span><span class="p">,</span>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="w">    </span><span class="n">SYN_ECAT_CMD_BWR</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">8</span><span class="p">,</span>
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="w">    </span><span class="n">SYN_ECAT_CMD_BRW</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">9</span><span class="p">,</span>
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="w">    </span><span class="n">SYN_ECAT_CMD_LRD</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span>
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="w">    </span><span class="n">SYN_ECAT_CMD_LWR</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">11</span><span class="p">,</span>
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="w">    </span><span class="n">SYN_ECAT_CMD_LRW</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">12</span><span class="p">,</span>
+<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="w">    </span><span class="n">SYN_ECAT_CMD_ARMW</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">13</span><span class="p">,</span>
+<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a><span class="w">    </span><span class="n">SYN_ECAT_CMD_FRMW</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">14</span>
+<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a><span class="p">};</span>
+</code></pre></div>
+<p>EtherCAT Datagram Commands Enum. </p>
+<hr>
+
+<h3 id="enum-syn_ecatcoetype">enum SYN_EcatCoEType<a class="headerlink" href="#enum-syn_ecatcoetype" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">enum</span><span class="w"> </span><span class="nc">SYN_EcatCoEType</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">    </span><span class="n">SYN_ECAT_COE_TYPE_EMERGENCY</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">    </span><span class="n">SYN_ECAT_COE_TYPE_SDO_REQ</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">    </span><span class="n">SYN_ECAT_COE_TYPE_SDO_RESP</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">    </span><span class="n">SYN_ECAT_COE_TYPE_RXPDO</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">    </span><span class="n">SYN_ECAT_COE_TYPE_TXPDO</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="w">    </span><span class="n">SYN_ECAT_COE_TYPE_SDO_INFO</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">6</span>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="p">};</span>
+</code></pre></div>
+<p>CAN Application Protocol over EtherCAT (CoE) Service Types. </p>
+<hr>
+
+<h3 id="enum-syn_ecatstate">enum SYN_EcatState<a class="headerlink" href="#enum-syn_ecatstate" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">enum</span><span class="w"> </span><span class="nc">SYN_EcatState</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">    </span><span class="n">SYN_ECAT_STATE_NONE</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mh">0x00</span><span class="p">,</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">    </span><span class="n">SYN_ECAT_STATE_INIT</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mh">0x01</span><span class="p">,</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">    </span><span class="n">SYN_ECAT_STATE_PREOP</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mh">0x02</span><span class="p">,</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">    </span><span class="n">SYN_ECAT_STATE_BOOT</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mh">0x03</span><span class="p">,</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">    </span><span class="n">SYN_ECAT_STATE_SAFEOP</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mh">0x04</span><span class="p">,</span>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">    </span><span class="n">SYN_ECAT_STATE_OP</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mh">0x08</span>
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="p">};</span>
+</code></pre></div>
+<p>EtherCAT State Machine (ESM) States. </p>
+<hr>
+<h2 id="public-functions-documentation">Public Functions Documentation<a class="headerlink" href="#public-functions-documentation" title="Permanent link">&para;</a></h2>
+<h3 id="function-syn_ecat_build_datagram_frame">function syn_ecat_build_datagram_frame<a class="headerlink" href="#function-syn_ecat_build_datagram_frame" title="Permanent link">&para;</a></h3>
+<p><em>Build an EtherCAT Frame containing one or more datagrams.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kt">size_t</span><span class="w"> </span><span class="n">syn_ecat_build_datagram_frame</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">    </span><span class="kt">uint8_t</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">buf</span><span class="p">,</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="n">buf_len</span><span class="p">,</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">SYN_EcatDatagram</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">datagram</span><span class="p">,</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">data</span><span class="p">,</span>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="w">    </span><span class="kt">uint16_t</span><span class="w"> </span><span class="n">data_len</span>
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>buf</code> Output frame buffer (must include Ethernet header space if needed). </li>
+<li><code>buf_len</code> Capacity of output buffer. </li>
+<li><code>datagram</code> Datagram header descriptor. </li>
+<li><code>data</code> Payload bytes to write into datagram. </li>
+<li><code>data_len</code> Payload length. </li>
+</ul>
+<p><strong>Returns:</strong></p>
+<p>Total EtherCAT frame length in bytes, or 0 on error. </p>
+<hr>
+
+<h3 id="function-syn_ecat_coe_encode_sdo_download">function syn_ecat_coe_encode_sdo_download<a class="headerlink" href="#function-syn_ecat_coe_encode_sdo_download" title="Permanent link">&para;</a></h3>
+<p><em>Encode a CoE SDO Download (Write) request into a mailbox buffer.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kt">size_t</span><span class="w"> </span><span class="n">syn_ecat_coe_encode_sdo_download</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">    </span><span class="kt">uint8_t</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">buf</span><span class="p">,</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="n">buf_len</span><span class="p">,</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">    </span><span class="kt">uint16_t</span><span class="w"> </span><span class="n">index</span><span class="p">,</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">    </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">subindex</span><span class="p">,</span>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">data</span><span class="p">,</span>
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="n">data_len</span>
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>buf</code> Output buffer. </li>
+<li><code>buf_len</code> Capacity of output buffer. </li>
+<li><code>index</code> Object Dictionary Index (0x0000 - 0xFFFF). </li>
+<li><code>subindex</code> Subindex (0x00 - 0xFF). </li>
+<li><code>data</code> Data bytes to write. </li>
+<li><code>data_len</code> Data length (1-4 bytes for expedited SDO). </li>
+</ul>
+<p><strong>Returns:</strong></p>
+<p>Encoded CoE Mailbox packet length in bytes, or 0 on error. </p>
+<hr>
+
+<h3 id="function-syn_ecat_coe_encode_sdo_upload">function syn_ecat_coe_encode_sdo_upload<a class="headerlink" href="#function-syn_ecat_coe_encode_sdo_upload" title="Permanent link">&para;</a></h3>
+<p><em>Encode a CoE SDO Upload (Read) request into a mailbox buffer.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="kt">size_t</span><span class="w"> </span><span class="n">syn_ecat_coe_encode_sdo_upload</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">    </span><span class="kt">uint8_t</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">buf</span><span class="p">,</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="n">buf_len</span><span class="p">,</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">    </span><span class="kt">uint16_t</span><span class="w"> </span><span class="n">index</span><span class="p">,</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">    </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">subindex</span>
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>buf</code> Output buffer. </li>
+<li><code>buf_len</code> Capacity of output buffer. </li>
+<li><code>index</code> Object Dictionary Index (0x0000 - 0xFFFF). </li>
+<li><code>subindex</code> Subindex (0x00 - 0xFF). </li>
+</ul>
+<p><strong>Returns:</strong></p>
+<p>Encoded CoE Mailbox packet length in bytes, or 0 on error. </p>
+<hr>
+
+<h3 id="function-syn_ecat_decode_coe_sdo_response">function syn_ecat_decode_coe_sdo_response<a class="headerlink" href="#function-syn_ecat_decode_coe_sdo_response" title="Permanent link">&para;</a></h3>
+<p><em>Decode SDO Upload response payload from rx_buf.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="n">SYN_Status</span><span class="w"> </span><span class="n">syn_ecat_decode_coe_sdo_response</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">    </span><span class="n">SYN_EcatMaster</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">m</span><span class="p">,</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="n">rx_len</span><span class="p">,</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">out_data</span><span class="p">,</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="n">max_len</span><span class="p">,</span>
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">out_len</span>
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>m</code> Pointer to master handle. </li>
+<li><code>rx_len</code> Received frame length. </li>
+<li><code>out_data</code> Output destination buffer. </li>
+<li><code>max_len</code> Maximum output buffer capacity. </li>
+<li><code>out_len</code> Pointer to receive read byte count. </li>
+</ul>
+<p><strong>Returns:</strong></p>
+<p>SYN_OK on success. </p>
+<hr>
+
+<h3 id="function-syn_ecat_decode_cyclic">function syn_ecat_decode_cyclic<a class="headerlink" href="#function-syn_ecat_decode_cyclic" title="Permanent link">&para;</a></h3>
+<p><em>Parse LRW cyclic process exchange response from rx_buf and copy inputs to input_image.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="n">SYN_Status</span><span class="w"> </span><span class="n">syn_ecat_decode_cyclic</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">    </span><span class="n">SYN_EcatMaster</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">m</span><span class="p">,</span>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="n">rx_len</span>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>m</code> Pointer to master handle. </li>
+<li><code>rx_len</code> Received frame byte length. </li>
+</ul>
+<p><strong>Returns:</strong></p>
+<p>SYN_OK if WKC &gt;= wkc_expected, SYN_ERROR on WKC mismatch or parsing error. </p>
+<hr>
+
+<h3 id="function-syn_ecat_decode_read_al_status">function syn_ecat_decode_read_al_status<a class="headerlink" href="#function-syn_ecat_decode_read_al_status" title="Permanent link">&para;</a></h3>
+<p><em>Decode Application Layer (AL) Status and Status Code from response.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="n">SYN_Status</span><span class="w"> </span><span class="n">syn_ecat_decode_read_al_status</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="w">    </span><span class="n">SYN_EcatMaster</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">m</span><span class="p">,</span>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="n">rx_len</span><span class="p">,</span>
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="w">    </span><span class="n">SYN_EcatState</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">state</span><span class="p">,</span>
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="w">    </span><span class="kt">uint16_t</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">status_code</span>
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>m</code> Pointer to master handle. </li>
+<li><code>rx_len</code> Received frame length. </li>
+<li><code>state</code> [out] Output location for current ESM state. </li>
+<li><code>status_code</code> [out] Output location for AL status error code. </li>
+</ul>
+<p><strong>Returns:</strong></p>
+<p>SYN_OK on success. </p>
+<hr>
+
+<h3 id="function-syn_ecat_decode_read_reg">function syn_ecat_decode_read_reg<a class="headerlink" href="#function-syn_ecat_decode_read_reg" title="Permanent link">&para;</a></h3>
+<p><em>Decode FPRD response datagram for register read.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="n">SYN_Status</span><span class="w"> </span><span class="n">syn_ecat_decode_read_reg</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="w">    </span><span class="n">SYN_EcatMaster</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">m</span><span class="p">,</span>
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="n">rx_len</span><span class="p">,</span>
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">out_data</span><span class="p">,</span>
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="w">    </span><span class="kt">uint16_t</span><span class="w"> </span><span class="n">len</span>
+<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>m</code> Pointer to master handle. </li>
+<li><code>rx_len</code> Received Ethernet frame length. </li>
+<li><code>out_data</code> Destination buffer for register data. </li>
+<li><code>len</code> Expected byte length. </li>
+</ul>
+<p><strong>Returns:</strong></p>
+<p>SYN_OK on success, error code otherwise. </p>
+<hr>
+
+<h3 id="function-syn_ecat_decode_read_sii">function syn_ecat_decode_read_sii<a class="headerlink" href="#function-syn_ecat_decode_read_sii" title="Permanent link">&para;</a></h3>
+<p><em>Decode 32-bit word from SII EEPROM read response.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="n">SYN_Status</span><span class="w"> </span><span class="n">syn_ecat_decode_read_sii</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="w">    </span><span class="n">SYN_EcatMaster</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">m</span><span class="p">,</span>
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="n">rx_len</span><span class="p">,</span>
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="w">    </span><span class="kt">uint32_t</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">out_val</span>
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>m</code> Pointer to master handle. </li>
+<li><code>rx_len</code> Received frame length. </li>
+<li><code>out_val</code> Pointer to receive parsed 32-bit SII value. </li>
+</ul>
+<p><strong>Returns:</strong></p>
+<p>SYN_OK on success. </p>
+<hr>
+
+<h3 id="function-syn_ecat_decode_scan_bus">function syn_ecat_decode_scan_bus<a class="headerlink" href="#function-syn_ecat_decode_scan_bus" title="Permanent link">&para;</a></h3>
+<p><em>Decode slave count from scan_bus response frame in rx_buf.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="kt">uint8_t</span><span class="w"> </span><span class="n">syn_ecat_decode_scan_bus</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="w">    </span><span class="n">SYN_EcatMaster</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">m</span><span class="p">,</span>
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="n">rx_len</span>
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>m</code> Pointer to master handle. </li>
+<li><code>rx_len</code> Received frame byte length. </li>
+</ul>
+<p><strong>Returns:</strong></p>
+<p>Discovered slave count. </p>
+<hr>
+
+<h3 id="function-syn_ecat_encode_assign_addr">function syn_ecat_encode_assign_addr<a class="headerlink" href="#function-syn_ecat_encode_assign_addr" title="Permanent link">&para;</a></h3>
+<p><em>Encode Auto-Increment Write (APWR) to assign station address.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="kt">size_t</span><span class="w"> </span><span class="n">syn_ecat_encode_assign_addr</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="w">    </span><span class="n">SYN_EcatMaster</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">m</span><span class="p">,</span>
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="w">    </span><span class="kt">uint16_t</span><span class="w"> </span><span class="n">position</span><span class="p">,</span>
+<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a><span class="w">    </span><span class="kt">uint16_t</span><span class="w"> </span><span class="n">station_addr</span>
+<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>m</code> Pointer to master handle. </li>
+<li><code>position</code> Ring position index (0..slave_count-1). </li>
+<li><code>station_addr</code> Configured station address to set (e.g. 0x1001). </li>
+</ul>
+<p><strong>Returns:</strong></p>
+<p>Transmit frame length in bytes, or 0 on error. </p>
+<hr>
+
+<h3 id="function-syn_ecat_encode_coe_sdo_read">function syn_ecat_encode_coe_sdo_read<a class="headerlink" href="#function-syn_ecat_encode_coe_sdo_read" title="Permanent link">&para;</a></h3>
+<p><em>Encode a complete Mailbox-wrapped CoE SDO Upload request frame into tx_buf.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="kt">size_t</span><span class="w"> </span><span class="n">syn_ecat_encode_coe_sdo_read</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="w">    </span><span class="n">SYN_EcatMaster</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">m</span><span class="p">,</span>
+<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a><span class="w">    </span><span class="kt">uint16_t</span><span class="w"> </span><span class="n">station_addr</span><span class="p">,</span>
+<a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a><span class="w">    </span><span class="kt">uint16_t</span><span class="w"> </span><span class="n">index</span><span class="p">,</span>
+<a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a><span class="w">    </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">subindex</span>
+<a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>m</code> Pointer to master handle. </li>
+<li><code>station_addr</code> Target slave station address. </li>
+<li><code>index</code> Object Dictionary Index. </li>
+<li><code>subindex</code> Subindex. </li>
+</ul>
+<p><strong>Returns:</strong></p>
+<p>Transmit frame byte length, or 0 on error. </p>
+<hr>
+
+<h3 id="function-syn_ecat_encode_coe_sdo_write">function syn_ecat_encode_coe_sdo_write<a class="headerlink" href="#function-syn_ecat_encode_coe_sdo_write" title="Permanent link">&para;</a></h3>
+<p><em>Encode a complete Mailbox-wrapped CoE SDO Download request frame into tx_buf.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="kt">size_t</span><span class="w"> </span><span class="n">syn_ecat_encode_coe_sdo_write</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="w">    </span><span class="n">SYN_EcatMaster</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">m</span><span class="p">,</span>
+<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a><span class="w">    </span><span class="kt">uint16_t</span><span class="w"> </span><span class="n">station_addr</span><span class="p">,</span>
+<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a><span class="w">    </span><span class="kt">uint16_t</span><span class="w"> </span><span class="n">index</span><span class="p">,</span>
+<a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a><span class="w">    </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">subindex</span><span class="p">,</span>
+<a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">data</span><span class="p">,</span>
+<a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a><span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="n">data_len</span>
+<a id="__codelineno-14-8" name="__codelineno-14-8" href="#__codelineno-14-8"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>m</code> Pointer to master handle. </li>
+<li><code>station_addr</code> Target slave station address. </li>
+<li><code>index</code> Object Dictionary Index. </li>
+<li><code>subindex</code> Subindex. </li>
+<li><code>data</code> Pointer to payload bytes (&lt;=4 bytes for expedited SDO). </li>
+<li><code>data_len</code> Payload byte length. </li>
+</ul>
+<p><strong>Returns:</strong></p>
+<p>Transmit frame byte length, or 0 on error. </p>
+<hr>
+
+<h3 id="function-syn_ecat_encode_cyclic">function syn_ecat_encode_cyclic<a class="headerlink" href="#function-syn_ecat_encode_cyclic" title="Permanent link">&para;</a></h3>
+<p><em>Encode LRW (Logical Read Write) cyclic process exchange frame into tx_buf.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="kt">size_t</span><span class="w"> </span><span class="n">syn_ecat_encode_cyclic</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a><span class="w">    </span><span class="n">SYN_EcatMaster</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">m</span>
+<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>m</code> Pointer to master handle. </li>
+</ul>
+<p><strong>Returns:</strong></p>
+<p>Transmit frame length in bytes, or 0 on error. </p>
+<hr>
+
+<h3 id="function-syn_ecat_encode_dc_configure">function syn_ecat_encode_dc_configure<a class="headerlink" href="#function-syn_ecat_encode_dc_configure" title="Permanent link">&para;</a></h3>
+<p><em>Encode FPWR to configure DC SYNC0 cycle time and shift for a slave.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="kt">size_t</span><span class="w"> </span><span class="n">syn_ecat_encode_dc_configure</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a><span class="w">    </span><span class="n">SYN_EcatMaster</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">m</span><span class="p">,</span>
+<a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a><span class="w">    </span><span class="kt">uint16_t</span><span class="w"> </span><span class="n">station_addr</span><span class="p">,</span>
+<a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a><span class="w">    </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">sync0_cycle_ns</span><span class="p">,</span>
+<a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a><span class="w">    </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">sync0_shift_ns</span>
+<a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>m</code> Pointer to master handle. </li>
+<li><code>station_addr</code> Target slave station address. </li>
+<li><code>sync0_cycle_ns</code> SYNC0 cycle time in nanoseconds. </li>
+<li><code>sync0_shift_ns</code> SYNC0 shift time in nanoseconds. </li>
+</ul>
+<p><strong>Returns:</strong></p>
+<p>Transmit frame length in bytes, or 0 on error. </p>
+<hr>
+
+<h3 id="function-syn_ecat_encode_dc_read_system_time">function syn_ecat_encode_dc_read_system_time<a class="headerlink" href="#function-syn_ecat_encode_dc_read_system_time" title="Permanent link">&para;</a></h3>
+<p><em>Encode Auto-Increment Read Multiple Write (ARMW) for DC System Time propagation.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="kt">size_t</span><span class="w"> </span><span class="n">syn_ecat_encode_dc_read_system_time</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a><span class="w">    </span><span class="n">SYN_EcatMaster</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">m</span>
+<a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>m</code> Pointer to master handle. </li>
+</ul>
+<p><strong>Returns:</strong></p>
+<p>Transmit frame length in bytes, or 0 on error. </p>
+<hr>
+
+<h3 id="function-syn_ecat_encode_read_al_status">function syn_ecat_encode_read_al_status<a class="headerlink" href="#function-syn_ecat_encode_read_al_status" title="Permanent link">&para;</a></h3>
+<p><em>Encode Configured Read (FPRD) to read slave Application Layer (AL) Status.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="kt">size_t</span><span class="w"> </span><span class="n">syn_ecat_encode_read_al_status</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a><span class="w">    </span><span class="n">SYN_EcatMaster</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">m</span><span class="p">,</span>
+<a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a><span class="w">    </span><span class="kt">uint16_t</span><span class="w"> </span><span class="n">station_addr</span>
+<a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>m</code> Pointer to master handle. </li>
+<li><code>station_addr</code> Target slave station address. </li>
+</ul>
+<p><strong>Returns:</strong></p>
+<p>Transmit frame length in bytes, or 0 on error. </p>
+<hr>
+
+<h3 id="function-syn_ecat_encode_read_reg">function syn_ecat_encode_read_reg<a class="headerlink" href="#function-syn_ecat_encode_read_reg" title="Permanent link">&para;</a></h3>
+<p><em>Encode FPRD to read register</em> <code>reg_addr</code> <em>from slave</em><code>station_addr</code> <em>.</em>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="kt">size_t</span><span class="w"> </span><span class="n">syn_ecat_encode_read_reg</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a><span class="w">    </span><span class="n">SYN_EcatMaster</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">m</span><span class="p">,</span>
+<a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a><span class="w">    </span><span class="kt">uint16_t</span><span class="w"> </span><span class="n">station_addr</span><span class="p">,</span>
+<a id="__codelineno-19-4" name="__codelineno-19-4" href="#__codelineno-19-4"></a><span class="w">    </span><span class="kt">uint16_t</span><span class="w"> </span><span class="n">reg_addr</span><span class="p">,</span>
+<a id="__codelineno-19-5" name="__codelineno-19-5" href="#__codelineno-19-5"></a><span class="w">    </span><span class="kt">uint16_t</span><span class="w"> </span><span class="n">len</span>
+<a id="__codelineno-19-6" name="__codelineno-19-6" href="#__codelineno-19-6"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>m</code> Pointer to master handle. </li>
+<li><code>station_addr</code> Configured station address of slave. </li>
+<li><code>reg_addr</code> Register address to read. </li>
+<li><code>len</code> Number of bytes to read. </li>
+</ul>
+<p><strong>Returns:</strong></p>
+<p>Encoded Ethernet frame length. </p>
+<hr>
+
+<h3 id="function-syn_ecat_encode_read_sii">function syn_ecat_encode_read_sii<a class="headerlink" href="#function-syn_ecat_encode_read_sii" title="Permanent link">&para;</a></h3>
+<p><em>Encode Configured Read (FPRD) to read SII EEPROM word.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="kt">size_t</span><span class="w"> </span><span class="n">syn_ecat_encode_read_sii</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a><span class="w">    </span><span class="n">SYN_EcatMaster</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">m</span><span class="p">,</span>
+<a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a><span class="w">    </span><span class="kt">uint16_t</span><span class="w"> </span><span class="n">station_addr</span><span class="p">,</span>
+<a id="__codelineno-20-4" name="__codelineno-20-4" href="#__codelineno-20-4"></a><span class="w">    </span><span class="kt">uint16_t</span><span class="w"> </span><span class="n">word_offset</span>
+<a id="__codelineno-20-5" name="__codelineno-20-5" href="#__codelineno-20-5"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>m</code> Pointer to master handle. </li>
+<li><code>station_addr</code> Target slave station address. </li>
+<li><code>word_offset</code> SII EEPROM word offset. </li>
+</ul>
+<p><strong>Returns:</strong></p>
+<p>Transmit frame length in bytes, or 0 on error. </p>
+<hr>
+
+<h3 id="function-syn_ecat_encode_scan_bus">function syn_ecat_encode_scan_bus<a class="headerlink" href="#function-syn_ecat_encode_scan_bus" title="Permanent link">&para;</a></h3>
+<p><em>Encode Broadcast Read (BRD) to scan bus slave count into master tx_buf.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="kt">size_t</span><span class="w"> </span><span class="n">syn_ecat_encode_scan_bus</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a><span class="w">    </span><span class="n">SYN_EcatMaster</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">m</span>
+<a id="__codelineno-21-3" name="__codelineno-21-3" href="#__codelineno-21-3"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>m</code> Pointer to master handle. </li>
+</ul>
+<p><strong>Returns:</strong></p>
+<p>Transmit frame length in bytes, or 0 on error. </p>
+<hr>
+
+<h3 id="function-syn_ecat_encode_set_al_control">function syn_ecat_encode_set_al_control<a class="headerlink" href="#function-syn_ecat_encode_set_al_control" title="Permanent link">&para;</a></h3>
+<p><em>Encode Configured Write (FPWR) to set slave Application Layer (AL) Control register.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a><span class="kt">size_t</span><span class="w"> </span><span class="n">syn_ecat_encode_set_al_control</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a><span class="w">    </span><span class="n">SYN_EcatMaster</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">m</span><span class="p">,</span>
+<a id="__codelineno-22-3" name="__codelineno-22-3" href="#__codelineno-22-3"></a><span class="w">    </span><span class="kt">uint16_t</span><span class="w"> </span><span class="n">station_addr</span><span class="p">,</span>
+<a id="__codelineno-22-4" name="__codelineno-22-4" href="#__codelineno-22-4"></a><span class="w">    </span><span class="n">SYN_EcatState</span><span class="w"> </span><span class="n">state</span>
+<a id="__codelineno-22-5" name="__codelineno-22-5" href="#__codelineno-22-5"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>m</code> Pointer to master handle. </li>
+<li><code>station_addr</code> Target slave station address. </li>
+<li><code>state</code> Requested ESM State (INIT, PREOP, SAFEOP, OP). </li>
+</ul>
+<p><strong>Returns:</strong></p>
+<p>Transmit frame length in bytes, or 0 on error. </p>
+<hr>
+
+<h3 id="function-syn_ecat_encode_write_fmmu">function syn_ecat_encode_write_fmmu<a class="headerlink" href="#function-syn_ecat_encode_write_fmmu" title="Permanent link">&para;</a></h3>
+<p><em>Encode Configured Write (FPWR) to configure an FMMU register block.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a><span class="kt">size_t</span><span class="w"> </span><span class="n">syn_ecat_encode_write_fmmu</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-23-2" name="__codelineno-23-2" href="#__codelineno-23-2"></a><span class="w">    </span><span class="n">SYN_EcatMaster</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">m</span><span class="p">,</span>
+<a id="__codelineno-23-3" name="__codelineno-23-3" href="#__codelineno-23-3"></a><span class="w">    </span><span class="kt">uint16_t</span><span class="w"> </span><span class="n">station_addr</span><span class="p">,</span>
+<a id="__codelineno-23-4" name="__codelineno-23-4" href="#__codelineno-23-4"></a><span class="w">    </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">fmmu_index</span><span class="p">,</span>
+<a id="__codelineno-23-5" name="__codelineno-23-5" href="#__codelineno-23-5"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">SYN_EcatFMMUConfig</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">cfg</span>
+<a id="__codelineno-23-6" name="__codelineno-23-6" href="#__codelineno-23-6"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>m</code> Pointer to master handle. </li>
+<li><code>station_addr</code> Target slave station address. </li>
+<li><code>fmmu_index</code> FMMU index (0..3). </li>
+<li><code>cfg</code> Pointer to FMMU configuration settings. </li>
+</ul>
+<p><strong>Returns:</strong></p>
+<p>Transmit frame length in bytes, or 0 on error. </p>
+<hr>
+
+<h3 id="function-syn_ecat_encode_write_reg">function syn_ecat_encode_write_reg<a class="headerlink" href="#function-syn_ecat_encode_write_reg" title="Permanent link">&para;</a></h3>
+<p><em>Encode FPWR to write register</em> <code>reg_addr</code> <em>to slave</em><code>station_addr</code> <em>.</em>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a><span class="kt">size_t</span><span class="w"> </span><span class="n">syn_ecat_encode_write_reg</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-24-2" name="__codelineno-24-2" href="#__codelineno-24-2"></a><span class="w">    </span><span class="n">SYN_EcatMaster</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">m</span><span class="p">,</span>
+<a id="__codelineno-24-3" name="__codelineno-24-3" href="#__codelineno-24-3"></a><span class="w">    </span><span class="kt">uint16_t</span><span class="w"> </span><span class="n">station_addr</span><span class="p">,</span>
+<a id="__codelineno-24-4" name="__codelineno-24-4" href="#__codelineno-24-4"></a><span class="w">    </span><span class="kt">uint16_t</span><span class="w"> </span><span class="n">reg_addr</span><span class="p">,</span>
+<a id="__codelineno-24-5" name="__codelineno-24-5" href="#__codelineno-24-5"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">data</span><span class="p">,</span>
+<a id="__codelineno-24-6" name="__codelineno-24-6" href="#__codelineno-24-6"></a><span class="w">    </span><span class="kt">uint16_t</span><span class="w"> </span><span class="n">len</span>
+<a id="__codelineno-24-7" name="__codelineno-24-7" href="#__codelineno-24-7"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>m</code> Pointer to master handle. </li>
+<li><code>station_addr</code> Configured station address of slave. </li>
+<li><code>reg_addr</code> Register address to write. </li>
+<li><code>data</code> Pointer to data bytes to write. </li>
+<li><code>len</code> Number of bytes to write. </li>
+</ul>
+<p><strong>Returns:</strong></p>
+<p>Encoded Ethernet frame length. </p>
+<hr>
+
+<h3 id="function-syn_ecat_encode_write_sm">function syn_ecat_encode_write_sm<a class="headerlink" href="#function-syn_ecat_encode_write_sm" title="Permanent link">&para;</a></h3>
+<p><em>Encode Configured Write (FPWR) to configure a SyncManager register block.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a><span class="kt">size_t</span><span class="w"> </span><span class="n">syn_ecat_encode_write_sm</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-25-2" name="__codelineno-25-2" href="#__codelineno-25-2"></a><span class="w">    </span><span class="n">SYN_EcatMaster</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">m</span><span class="p">,</span>
+<a id="__codelineno-25-3" name="__codelineno-25-3" href="#__codelineno-25-3"></a><span class="w">    </span><span class="kt">uint16_t</span><span class="w"> </span><span class="n">station_addr</span><span class="p">,</span>
+<a id="__codelineno-25-4" name="__codelineno-25-4" href="#__codelineno-25-4"></a><span class="w">    </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">sm_index</span><span class="p">,</span>
+<a id="__codelineno-25-5" name="__codelineno-25-5" href="#__codelineno-25-5"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">SYN_EcatSMConfig</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">cfg</span>
+<a id="__codelineno-25-6" name="__codelineno-25-6" href="#__codelineno-25-6"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>m</code> Pointer to master handle. </li>
+<li><code>station_addr</code> Target slave station address. </li>
+<li><code>sm_index</code> SyncManager index (0..3). </li>
+<li><code>cfg</code> Pointer to SyncManager configuration settings. </li>
+</ul>
+<p><strong>Returns:</strong></p>
+<p>Transmit frame length in bytes, or 0 on error. </p>
+<hr>
+
+<h3 id="function-syn_ecat_frame_add_datagram">function syn_ecat_frame_add_datagram<a class="headerlink" href="#function-syn_ecat_frame_add_datagram" title="Permanent link">&para;</a></h3>
+<p><em>Add a datagram payload to an in-progress EtherCAT frame.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a><span class="kt">size_t</span><span class="w"> </span><span class="n">syn_ecat_frame_add_datagram</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-26-2" name="__codelineno-26-2" href="#__codelineno-26-2"></a><span class="w">    </span><span class="kt">uint8_t</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">buf</span><span class="p">,</span>
+<a id="__codelineno-26-3" name="__codelineno-26-3" href="#__codelineno-26-3"></a><span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="n">buf_size</span><span class="p">,</span>
+<a id="__codelineno-26-4" name="__codelineno-26-4" href="#__codelineno-26-4"></a><span class="w">    </span><span class="n">SYN_EcatCmd</span><span class="w"> </span><span class="n">cmd</span><span class="p">,</span>
+<a id="__codelineno-26-5" name="__codelineno-26-5" href="#__codelineno-26-5"></a><span class="w">    </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">idx</span><span class="p">,</span>
+<a id="__codelineno-26-6" name="__codelineno-26-6" href="#__codelineno-26-6"></a><span class="w">    </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">addr</span><span class="p">,</span>
+<a id="__codelineno-26-7" name="__codelineno-26-7" href="#__codelineno-26-7"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">data</span><span class="p">,</span>
+<a id="__codelineno-26-8" name="__codelineno-26-8" href="#__codelineno-26-8"></a><span class="w">    </span><span class="kt">uint16_t</span><span class="w"> </span><span class="n">data_len</span><span class="p">,</span>
+<a id="__codelineno-26-9" name="__codelineno-26-9" href="#__codelineno-26-9"></a><span class="w">    </span><span class="kt">bool</span><span class="w"> </span><span class="n">circ</span>
+<a id="__codelineno-26-10" name="__codelineno-26-10" href="#__codelineno-26-10"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>buf</code> Target output buffer. </li>
+<li><code>buf_size</code> Total capacity of output buffer. </li>
+<li><code>cmd</code> Datagram command type. </li>
+<li><code>idx</code> Datagram index. </li>
+<li><code>addr</code> 32-bit address field. </li>
+<li><code>data</code> Payload data bytes (or NULL if data_len is 0). </li>
+<li><code>data_len</code> Payload data length in bytes. </li>
+<li><code>circ</code> True if circulating datagram flag set. </li>
+</ul>
+<p><strong>Returns:</strong></p>
+<p>Output byte offset after added datagram, or 0 on error / insufficient space. </p>
+<hr>
+
+<h3 id="function-syn_ecat_frame_begin">function syn_ecat_frame_begin<a class="headerlink" href="#function-syn_ecat_frame_begin" title="Permanent link">&para;</a></h3>
+<p><em>Initialize an EtherCAT frame buffer header.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a><span class="kt">void</span><span class="w"> </span><span class="n">syn_ecat_frame_begin</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-27-2" name="__codelineno-27-2" href="#__codelineno-27-2"></a><span class="w">    </span><span class="kt">uint8_t</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">buf</span><span class="p">,</span>
+<a id="__codelineno-27-3" name="__codelineno-27-3" href="#__codelineno-27-3"></a><span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="n">buf_size</span>
+<a id="__codelineno-27-4" name="__codelineno-27-4" href="#__codelineno-27-4"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>buf</code> Target output buffer. </li>
+<li><code>buf_size</code> Total capacity of output buffer. </li>
+</ul>
+<hr>
+
+<h3 id="function-syn_ecat_frame_finalize">function syn_ecat_frame_finalize<a class="headerlink" href="#function-syn_ecat_frame_finalize" title="Permanent link">&para;</a></h3>
+<p><em>Finalize EtherCAT frame header length field.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a><span class="kt">size_t</span><span class="w"> </span><span class="n">syn_ecat_frame_finalize</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-28-2" name="__codelineno-28-2" href="#__codelineno-28-2"></a><span class="w">    </span><span class="kt">uint8_t</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">buf</span>
+<a id="__codelineno-28-3" name="__codelineno-28-3" href="#__codelineno-28-3"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>buf</code> Target output buffer. </li>
+</ul>
+<p><strong>Returns:</strong></p>
+<p>Total frame size in bytes (including 2-byte EtherCAT header). </p>
+<hr>
+
+<h3 id="function-syn_ecat_frame_parse_next">function syn_ecat_frame_parse_next<a class="headerlink" href="#function-syn_ecat_frame_parse_next" title="Permanent link">&para;</a></h3>
+<p><em>Parse the next datagram from an EtherCAT frame buffer.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-29-1" name="__codelineno-29-1" href="#__codelineno-29-1"></a><span class="kt">bool</span><span class="w"> </span><span class="n">syn_ecat_frame_parse_next</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-29-2" name="__codelineno-29-2" href="#__codelineno-29-2"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">frame</span><span class="p">,</span>
+<a id="__codelineno-29-3" name="__codelineno-29-3" href="#__codelineno-29-3"></a><span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="n">frame_len</span><span class="p">,</span>
+<a id="__codelineno-29-4" name="__codelineno-29-4" href="#__codelineno-29-4"></a><span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">offset</span><span class="p">,</span>
+<a id="__codelineno-29-5" name="__codelineno-29-5" href="#__codelineno-29-5"></a><span class="w">    </span><span class="n">SYN_EcatDatagramResult</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">out</span>
+<a id="__codelineno-29-6" name="__codelineno-29-6" href="#__codelineno-29-6"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>frame</code> Pointer to raw EtherCAT frame bytes (starts with 2-byte EtherCAT header). </li>
+<li><code>frame_len</code> Total byte length of frame buffer. </li>
+<li><code>offset</code> In/out byte offset into frame buffer. Set *offset = 2 to start. </li>
+<li><code>out</code> [out] Result struct to receive parsed datagram details. </li>
+</ul>
+<p><strong>Returns:</strong></p>
+<p>true if datagram parsed successfully, false if no more datagrams or malformed. </p>
+<hr>
+
+<h3 id="function-syn_ecat_init">function syn_ecat_init<a class="headerlink" href="#function-syn_ecat_init" title="Permanent link">&para;</a></h3>
+<p><em>Initialize an EtherCAT Node instance.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-30-1" name="__codelineno-30-1" href="#__codelineno-30-1"></a><span class="kt">void</span><span class="w"> </span><span class="n">syn_ecat_init</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-30-2" name="__codelineno-30-2" href="#__codelineno-30-2"></a><span class="w">    </span><span class="n">SYN_EcatNode</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">node</span><span class="p">,</span>
+<a id="__codelineno-30-3" name="__codelineno-30-3" href="#__codelineno-30-3"></a><span class="w">    </span><span class="kt">uint16_t</span><span class="w"> </span><span class="n">station_addr</span><span class="p">,</span>
+<a id="__codelineno-30-4" name="__codelineno-30-4" href="#__codelineno-30-4"></a><span class="w">    </span><span class="n">SYN_CANOpenNode</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">od</span>
+<a id="__codelineno-30-5" name="__codelineno-30-5" href="#__codelineno-30-5"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>node</code> EtherCAT node instance. </li>
+<li><code>station_addr</code> Configured station address. </li>
+<li><code>od</code> Optional CANopen Object Dictionary binding for CoE. </li>
+</ul>
+<hr>
+
+<h3 id="function-syn_ecat_master_cyclic_task">function syn_ecat_master_cyclic_task<a class="headerlink" href="#function-syn_ecat_master_cyclic_task" title="Permanent link">&para;</a></h3>
+<p><em>Protothread Task: Execute single cyclic process exchange cycle.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-31-1" name="__codelineno-31-1" href="#__codelineno-31-1"></a><span class="n">SYN_PT_Status</span><span class="w"> </span><span class="n">syn_ecat_master_cyclic_task</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-31-2" name="__codelineno-31-2" href="#__codelineno-31-2"></a><span class="w">    </span><span class="n">SYN_PT</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">pt</span><span class="p">,</span>
+<a id="__codelineno-31-3" name="__codelineno-31-3" href="#__codelineno-31-3"></a><span class="w">    </span><span class="n">SYN_EcatMaster</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">m</span>
+<a id="__codelineno-31-4" name="__codelineno-31-4" href="#__codelineno-31-4"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>pt</code> Protothread state handle. </li>
+<li><code>m</code> Pointer to master handle. </li>
+</ul>
+<p><strong>Returns:</strong></p>
+<p>PT_WAITING if waiting for frames, PT_ENDED when cycle complete. </p>
+<hr>
+
+<h3 id="function-syn_ecat_master_discover_pdo_mapping_task">function syn_ecat_master_discover_pdo_mapping_task<a class="headerlink" href="#function-syn_ecat_master_discover_pdo_mapping_task" title="Permanent link">&para;</a></h3>
+<p><em>Protothread Task: Read CoE Object Dictionary 0x1C12/0x1C13 to calculate slave Rx/Tx PDO byte lengths.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-32-1" name="__codelineno-32-1" href="#__codelineno-32-1"></a><span class="n">SYN_PT_Status</span><span class="w"> </span><span class="n">syn_ecat_master_discover_pdo_mapping_task</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-32-2" name="__codelineno-32-2" href="#__codelineno-32-2"></a><span class="w">    </span><span class="n">SYN_PT</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">pt</span><span class="p">,</span>
+<a id="__codelineno-32-3" name="__codelineno-32-3" href="#__codelineno-32-3"></a><span class="w">    </span><span class="n">SYN_EcatMaster</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">m</span><span class="p">,</span>
+<a id="__codelineno-32-4" name="__codelineno-32-4" href="#__codelineno-32-4"></a><span class="w">    </span><span class="kt">uint16_t</span><span class="w"> </span><span class="n">station_addr</span><span class="p">,</span>
+<a id="__codelineno-32-5" name="__codelineno-32-5" href="#__codelineno-32-5"></a><span class="w">    </span><span class="kt">uint16_t</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">out_rx_bytes</span><span class="p">,</span>
+<a id="__codelineno-32-6" name="__codelineno-32-6" href="#__codelineno-32-6"></a><span class="w">    </span><span class="kt">uint16_t</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">out_tx_bytes</span>
+<a id="__codelineno-32-7" name="__codelineno-32-7" href="#__codelineno-32-7"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>pt</code> Protothread context pointer. </li>
+<li><code>m</code> Pointer to master handle. </li>
+<li><code>station_addr</code> Configured station address of slave. </li>
+<li><code>out_rx_bytes</code> Destination pointer for Rx PDO byte size. </li>
+<li><code>out_tx_bytes</code> Destination pointer for Tx PDO byte size. </li>
+</ul>
+<p><strong>Returns:</strong></p>
+<p>PT_WAITING if waiting, PT_ENDED when complete. </p>
+<hr>
+
+<h3 id="function-syn_ecat_master_init">function syn_ecat_master_init<a class="headerlink" href="#function-syn_ecat_master_init" title="Permanent link">&para;</a></h3>
+<p><em>Initialize EtherCAT Master instance context.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-33-1" name="__codelineno-33-1" href="#__codelineno-33-1"></a><span class="n">SYN_Status</span><span class="w"> </span><span class="n">syn_ecat_master_init</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-33-2" name="__codelineno-33-2" href="#__codelineno-33-2"></a><span class="w">    </span><span class="n">SYN_EcatMaster</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">m</span><span class="p">,</span>
+<a id="__codelineno-33-3" name="__codelineno-33-3" href="#__codelineno-33-3"></a><span class="w">    </span><span class="kt">uint8_t</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">tx_buf</span><span class="p">,</span>
+<a id="__codelineno-33-4" name="__codelineno-33-4" href="#__codelineno-33-4"></a><span class="w">    </span><span class="kt">uint16_t</span><span class="w"> </span><span class="n">tx_buf_size</span><span class="p">,</span>
+<a id="__codelineno-33-5" name="__codelineno-33-5" href="#__codelineno-33-5"></a><span class="w">    </span><span class="kt">uint8_t</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">rx_buf</span><span class="p">,</span>
+<a id="__codelineno-33-6" name="__codelineno-33-6" href="#__codelineno-33-6"></a><span class="w">    </span><span class="kt">uint16_t</span><span class="w"> </span><span class="n">rx_buf_size</span><span class="p">,</span>
+<a id="__codelineno-33-7" name="__codelineno-33-7" href="#__codelineno-33-7"></a><span class="w">    </span><span class="kt">uint8_t</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">output_image</span><span class="p">,</span>
+<a id="__codelineno-33-8" name="__codelineno-33-8" href="#__codelineno-33-8"></a><span class="w">    </span><span class="kt">uint16_t</span><span class="w"> </span><span class="n">output_size</span><span class="p">,</span>
+<a id="__codelineno-33-9" name="__codelineno-33-9" href="#__codelineno-33-9"></a><span class="w">    </span><span class="kt">uint8_t</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">input_image</span><span class="p">,</span>
+<a id="__codelineno-33-10" name="__codelineno-33-10" href="#__codelineno-33-10"></a><span class="w">    </span><span class="kt">uint16_t</span><span class="w"> </span><span class="n">input_size</span>
+<a id="__codelineno-33-11" name="__codelineno-33-11" href="#__codelineno-33-11"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>m</code> Pointer to master handle. </li>
+<li><code>tx_buf</code> Pointer to static transmit frame buffer. </li>
+<li><code>tx_buf_size</code> Capacity of transmit frame buffer. </li>
+<li><code>rx_buf</code> Pointer to static receive frame buffer. </li>
+<li><code>rx_buf_size</code> Capacity of receive frame buffer. </li>
+<li><code>output_image</code> Output process image buffer pointer. </li>
+<li><code>output_size</code> Output process image byte size. </li>
+<li><code>input_image</code> Input process image buffer pointer. </li>
+<li><code>input_size</code> Input process image byte size. </li>
+</ul>
+<p><strong>Returns:</strong></p>
+<p>SYN_OK on success, SYN_INVALID_PARAM if parameters null/invalid. </p>
+<hr>
+
+<h3 id="function-syn_ecat_master_pop_tx_frame">function syn_ecat_master_pop_tx_frame<a class="headerlink" href="#function-syn_ecat_master_pop_tx_frame" title="Permanent link">&para;</a></h3>
+<p><em>Pop pending transmit frame for Ethernet PHY driver.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-34-1" name="__codelineno-34-1" href="#__codelineno-34-1"></a><span class="kt">bool</span><span class="w"> </span><span class="n">syn_ecat_master_pop_tx_frame</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-34-2" name="__codelineno-34-2" href="#__codelineno-34-2"></a><span class="w">    </span><span class="n">SYN_EcatMaster</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">m</span><span class="p">,</span>
+<a id="__codelineno-34-3" name="__codelineno-34-3" href="#__codelineno-34-3"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="o">**</span><span class="w"> </span><span class="n">out_frame</span><span class="p">,</span>
+<a id="__codelineno-34-4" name="__codelineno-34-4" href="#__codelineno-34-4"></a><span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">out_len</span>
+<a id="__codelineno-34-5" name="__codelineno-34-5" href="#__codelineno-34-5"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>m</code> Pointer to master handle. </li>
+<li><code>out_frame</code> [out] Pointer to receive frame location. </li>
+<li><code>out_len</code> [out] Pointer to receive frame length. </li>
+</ul>
+<p><strong>Returns:</strong></p>
+<p>true if frame was popped, false if no frame pending. </p>
+<hr>
+
+<h3 id="function-syn_ecat_master_read_sii_task">function syn_ecat_master_read_sii_task<a class="headerlink" href="#function-syn_ecat_master_read_sii_task" title="Permanent link">&para;</a></h3>
+<p><em>Protothread Task: Read 32-bit word from slave SII EEPROM via hardware status polling.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-35-1" name="__codelineno-35-1" href="#__codelineno-35-1"></a><span class="n">SYN_PT_Status</span><span class="w"> </span><span class="n">syn_ecat_master_read_sii_task</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-35-2" name="__codelineno-35-2" href="#__codelineno-35-2"></a><span class="w">    </span><span class="n">SYN_PT</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">pt</span><span class="p">,</span>
+<a id="__codelineno-35-3" name="__codelineno-35-3" href="#__codelineno-35-3"></a><span class="w">    </span><span class="n">SYN_EcatMaster</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">m</span><span class="p">,</span>
+<a id="__codelineno-35-4" name="__codelineno-35-4" href="#__codelineno-35-4"></a><span class="w">    </span><span class="kt">uint16_t</span><span class="w"> </span><span class="n">station_addr</span><span class="p">,</span>
+<a id="__codelineno-35-5" name="__codelineno-35-5" href="#__codelineno-35-5"></a><span class="w">    </span><span class="kt">uint16_t</span><span class="w"> </span><span class="n">word_offset</span><span class="p">,</span>
+<a id="__codelineno-35-6" name="__codelineno-35-6" href="#__codelineno-35-6"></a><span class="w">    </span><span class="kt">uint32_t</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">out_data</span>
+<a id="__codelineno-35-7" name="__codelineno-35-7" href="#__codelineno-35-7"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>pt</code> Protothread context pointer. </li>
+<li><code>m</code> Pointer to master handle. </li>
+<li><code>station_addr</code> Configured station address of slave. </li>
+<li><code>word_offset</code> 16-bit word offset in SII EEPROM. </li>
+<li><code>out_data</code> Destination pointer for 32-bit word. </li>
+</ul>
+<p><strong>Returns:</strong></p>
+<p>PT_WAITING if waiting, PT_ENDED when complete. </p>
+<hr>
+
+<h3 id="function-syn_ecat_master_scan_task">function syn_ecat_master_scan_task<a class="headerlink" href="#function-syn_ecat_master_scan_task" title="Permanent link">&para;</a></h3>
+<p><em>Protothread Task: Scan EtherCAT bus and assign station addresses.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-36-1" name="__codelineno-36-1" href="#__codelineno-36-1"></a><span class="n">SYN_PT_Status</span><span class="w"> </span><span class="n">syn_ecat_master_scan_task</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-36-2" name="__codelineno-36-2" href="#__codelineno-36-2"></a><span class="w">    </span><span class="n">SYN_PT</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">pt</span><span class="p">,</span>
+<a id="__codelineno-36-3" name="__codelineno-36-3" href="#__codelineno-36-3"></a><span class="w">    </span><span class="n">SYN_EcatMaster</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">m</span>
+<a id="__codelineno-36-4" name="__codelineno-36-4" href="#__codelineno-36-4"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>pt</code> Protothread state handle. </li>
+<li><code>m</code> Pointer to master handle. </li>
+</ul>
+<p><strong>Returns:</strong></p>
+<p>PT_WAITING if waiting for frames, PT_ENDED when scan complete. </p>
+<hr>
+
+<h3 id="function-syn_ecat_master_sdo_read_task">function syn_ecat_master_sdo_read_task<a class="headerlink" href="#function-syn_ecat_master_sdo_read_task" title="Permanent link">&para;</a></h3>
+<p><em>Protothread Task: CoE SDO read from slave Object Dictionary with SM1 polling.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-37-1" name="__codelineno-37-1" href="#__codelineno-37-1"></a><span class="n">SYN_PT_Status</span><span class="w"> </span><span class="n">syn_ecat_master_sdo_read_task</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-37-2" name="__codelineno-37-2" href="#__codelineno-37-2"></a><span class="w">    </span><span class="n">SYN_PT</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">pt</span><span class="p">,</span>
+<a id="__codelineno-37-3" name="__codelineno-37-3" href="#__codelineno-37-3"></a><span class="w">    </span><span class="n">SYN_EcatMaster</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">m</span><span class="p">,</span>
+<a id="__codelineno-37-4" name="__codelineno-37-4" href="#__codelineno-37-4"></a><span class="w">    </span><span class="kt">uint16_t</span><span class="w"> </span><span class="n">station_addr</span><span class="p">,</span>
+<a id="__codelineno-37-5" name="__codelineno-37-5" href="#__codelineno-37-5"></a><span class="w">    </span><span class="kt">uint16_t</span><span class="w"> </span><span class="n">index</span><span class="p">,</span>
+<a id="__codelineno-37-6" name="__codelineno-37-6" href="#__codelineno-37-6"></a><span class="w">    </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">subindex</span><span class="p">,</span>
+<a id="__codelineno-37-7" name="__codelineno-37-7" href="#__codelineno-37-7"></a><span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">out_data</span><span class="p">,</span>
+<a id="__codelineno-37-8" name="__codelineno-37-8" href="#__codelineno-37-8"></a><span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="n">max_len</span><span class="p">,</span>
+<a id="__codelineno-37-9" name="__codelineno-37-9" href="#__codelineno-37-9"></a><span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">out_len</span>
+<a id="__codelineno-37-10" name="__codelineno-37-10" href="#__codelineno-37-10"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>pt</code> Protothread context pointer. </li>
+<li><code>m</code> Pointer to master handle. </li>
+<li><code>station_addr</code> Configured station address of slave. </li>
+<li><code>index</code> 16-bit Object Dictionary index. </li>
+<li><code>subindex</code> 8-bit sub-index. </li>
+<li><code>out_data</code> Destination buffer for SDO payload. </li>
+<li><code>max_len</code> Capacity of destination buffer. </li>
+<li><code>out_len</code> Destination pointer for actual payload length. </li>
+</ul>
+<p><strong>Returns:</strong></p>
+<p>PT_WAITING if waiting, PT_ENDED when complete. </p>
+<hr>
+
+<h3 id="function-syn_ecat_master_set_rx_frame">function syn_ecat_master_set_rx_frame<a class="headerlink" href="#function-syn_ecat_master_set_rx_frame" title="Permanent link">&para;</a></h3>
+<p><em>Feed received Ethernet frame into Master context.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-38-1" name="__codelineno-38-1" href="#__codelineno-38-1"></a><span class="n">SYN_Status</span><span class="w"> </span><span class="n">syn_ecat_master_set_rx_frame</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-38-2" name="__codelineno-38-2" href="#__codelineno-38-2"></a><span class="w">    </span><span class="n">SYN_EcatMaster</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">m</span><span class="p">,</span>
+<a id="__codelineno-38-3" name="__codelineno-38-3" href="#__codelineno-38-3"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">frame</span><span class="p">,</span>
+<a id="__codelineno-38-4" name="__codelineno-38-4" href="#__codelineno-38-4"></a><span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="n">len</span>
+<a id="__codelineno-38-5" name="__codelineno-38-5" href="#__codelineno-38-5"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>m</code> Pointer to master handle. </li>
+<li><code>frame</code> Pointer to raw frame payload bytes. </li>
+<li><code>len</code> Frame length in bytes. </li>
+</ul>
+<p><strong>Returns:</strong></p>
+<p>SYN_OK on success. </p>
+<hr>
+
+<h3 id="function-syn_ecat_master_transition_task">function syn_ecat_master_transition_task<a class="headerlink" href="#function-syn_ecat_master_transition_task" title="Permanent link">&para;</a></h3>
+<p><em>Protothread Task: Drive EtherCAT slaves through state transition.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-39-1" name="__codelineno-39-1" href="#__codelineno-39-1"></a><span class="n">SYN_PT_Status</span><span class="w"> </span><span class="n">syn_ecat_master_transition_task</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-39-2" name="__codelineno-39-2" href="#__codelineno-39-2"></a><span class="w">    </span><span class="n">SYN_PT</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">pt</span><span class="p">,</span>
+<a id="__codelineno-39-3" name="__codelineno-39-3" href="#__codelineno-39-3"></a><span class="w">    </span><span class="n">SYN_EcatMaster</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">m</span><span class="p">,</span>
+<a id="__codelineno-39-4" name="__codelineno-39-4" href="#__codelineno-39-4"></a><span class="w">    </span><span class="n">SYN_EcatState</span><span class="w"> </span><span class="n">target_state</span>
+<a id="__codelineno-39-5" name="__codelineno-39-5" href="#__codelineno-39-5"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>pt</code> Protothread state handle. </li>
+<li><code>m</code> Pointer to master handle. </li>
+<li><code>target_state</code> Target ESM state (INIT, PREOP, SAFEOP, OP). </li>
+</ul>
+<p><strong>Returns:</strong></p>
+<p>PT_WAITING if waiting for frames, PT_ENDED when transition complete. </p>
+<hr>
+
+<h3 id="function-syn_ecat_parse_frame">function syn_ecat_parse_frame<a class="headerlink" href="#function-syn_ecat_parse_frame" title="Permanent link">&para;</a></h3>
+<p><em>Parse and process a received raw EtherCAT frame.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-40-1" name="__codelineno-40-1" href="#__codelineno-40-1"></a><span class="n">SYN_Status</span><span class="w"> </span><span class="n">syn_ecat_parse_frame</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-40-2" name="__codelineno-40-2" href="#__codelineno-40-2"></a><span class="w">    </span><span class="n">SYN_EcatNode</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">node</span><span class="p">,</span>
+<a id="__codelineno-40-3" name="__codelineno-40-3" href="#__codelineno-40-3"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">frame</span><span class="p">,</span>
+<a id="__codelineno-40-4" name="__codelineno-40-4" href="#__codelineno-40-4"></a><span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="n">len</span><span class="p">,</span>
+<a id="__codelineno-40-5" name="__codelineno-40-5" href="#__codelineno-40-5"></a><span class="w">    </span><span class="kt">uint16_t</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">wkc</span>
+<a id="__codelineno-40-6" name="__codelineno-40-6" href="#__codelineno-40-6"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>node</code> EtherCAT node instance. </li>
+<li><code>frame</code> Raw received frame bytes (after Ethernet header). </li>
+<li><code>len</code> Frame length in bytes. </li>
+<li><code>wkc</code> [out] Extracted Working Counter sum. </li>
+</ul>
+<p><strong>Returns:</strong></p>
+<p>SYN_OK on successful parsing and WKC validation. </p>
+<hr>
+
+<h3 id="function-syn_ecat_set_state">function syn_ecat_set_state<a class="headerlink" href="#function-syn_ecat_set_state" title="Permanent link">&para;</a></h3>
+<p><em>Request an EtherCAT State Machine (ESM) state transition.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-41-1" name="__codelineno-41-1" href="#__codelineno-41-1"></a><span class="n">SYN_Status</span><span class="w"> </span><span class="n">syn_ecat_set_state</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-41-2" name="__codelineno-41-2" href="#__codelineno-41-2"></a><span class="w">    </span><span class="n">SYN_EcatNode</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">node</span><span class="p">,</span>
+<a id="__codelineno-41-3" name="__codelineno-41-3" href="#__codelineno-41-3"></a><span class="w">    </span><span class="n">SYN_EcatState</span><span class="w"> </span><span class="n">new_state</span>
+<a id="__codelineno-41-4" name="__codelineno-41-4" href="#__codelineno-41-4"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>node</code> EtherCAT node instance. </li>
+<li><code>new_state</code> Requested state (INIT, PREOP, BOOT, SAFEOP, OP). </li>
+</ul>
+<p><strong>Returns:</strong></p>
+<p>SYN_OK if state transition request is valid. </p>
+<hr>
+
+<h3 id="function-syn_ecat_update">function syn_ecat_update<a class="headerlink" href="#function-syn_ecat_update" title="Permanent link">&para;</a></h3>
+<p><em>Run ESM state machine step.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-42-1" name="__codelineno-42-1" href="#__codelineno-42-1"></a><span class="kt">void</span><span class="w"> </span><span class="n">syn_ecat_update</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-42-2" name="__codelineno-42-2" href="#__codelineno-42-2"></a><span class="w">    </span><span class="n">SYN_EcatNode</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">node</span>
+<a id="__codelineno-42-3" name="__codelineno-42-3" href="#__codelineno-42-3"></a><span class="p">)</span><span class="w"> </span>
+</code></pre></div></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><code>node</code> EtherCAT node instance. </li>
+</ul>
+<hr>
+<h2 id="macro-definition-documentation">Macro Definition Documentation<a class="headerlink" href="#macro-definition-documentation" title="Permanent link">&para;</a></h2>
+<h3 id="define-syn_ecat_max_slaves">define SYN_ECAT_MAX_SLAVES<a class="headerlink" href="#define-syn_ecat_max_slaves" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-43-1" name="__codelineno-43-1" href="#__codelineno-43-1"></a><span class="cp">#define SYN_ECAT_MAX_SLAVES `16U`</span>
+</code></pre></div>
+<p>Maximum connected EtherCAT slaves supported </p>
+<hr>
+
+<h3 id="define-syn_esc_reg_al_control">define SYN_ESC_REG_AL_CONTROL<a class="headerlink" href="#define-syn_esc_reg_al_control" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-44-1" name="__codelineno-44-1" href="#__codelineno-44-1"></a><span class="cp">#define SYN_ESC_REG_AL_CONTROL `0x0120U`</span>
+</code></pre></div>
+<p>Application Layer Control </p>
+<hr>
+
+<h3 id="define-syn_esc_reg_al_status">define SYN_ESC_REG_AL_STATUS<a class="headerlink" href="#define-syn_esc_reg_al_status" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-45-1" name="__codelineno-45-1" href="#__codelineno-45-1"></a><span class="cp">#define SYN_ESC_REG_AL_STATUS `0x0130U`</span>
+</code></pre></div>
+<p>Application Layer Status </p>
+<hr>
+
+<h3 id="define-syn_esc_reg_al_status_code">define SYN_ESC_REG_AL_STATUS_CODE<a class="headerlink" href="#define-syn_esc_reg_al_status_code" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-46-1" name="__codelineno-46-1" href="#__codelineno-46-1"></a><span class="cp">#define SYN_ESC_REG_AL_STATUS_CODE `0x0134U`</span>
+</code></pre></div>
+<p>Application Layer Status Code </p>
+<hr>
+
+<h3 id="define-syn_esc_reg_dc_sync0_cycle">define SYN_ESC_REG_DC_SYNC0_CYCLE<a class="headerlink" href="#define-syn_esc_reg_dc_sync0_cycle" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-47-1" name="__codelineno-47-1" href="#__codelineno-47-1"></a><span class="cp">#define SYN_ESC_REG_DC_SYNC0_CYCLE `0x09A0U`</span>
+</code></pre></div>
+<p>DC SYNC0 Cycle Time </p>
+<hr>
+
+<h3 id="define-syn_esc_reg_dc_system_offset">define SYN_ESC_REG_DC_SYSTEM_OFFSET<a class="headerlink" href="#define-syn_esc_reg_dc_system_offset" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-48-1" name="__codelineno-48-1" href="#__codelineno-48-1"></a><span class="cp">#define SYN_ESC_REG_DC_SYSTEM_OFFSET `0x0920U`</span>
+</code></pre></div>
+<p>DC System Time Offset </p>
+<hr>
+
+<h3 id="define-syn_esc_reg_dc_system_time">define SYN_ESC_REG_DC_SYSTEM_TIME<a class="headerlink" href="#define-syn_esc_reg_dc_system_time" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-49-1" name="__codelineno-49-1" href="#__codelineno-49-1"></a><span class="cp">#define SYN_ESC_REG_DC_SYSTEM_TIME `0x0900U`</span>
+</code></pre></div>
+<p>DC System Time (64-bit) </p>
+<hr>
+
+<h3 id="define-syn_esc_reg_fmmu0">define SYN_ESC_REG_FMMU0<a class="headerlink" href="#define-syn_esc_reg_fmmu0" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-50-1" name="__codelineno-50-1" href="#__codelineno-50-1"></a><span class="cp">#define SYN_ESC_REG_FMMU0 `0x0600U`</span>
+</code></pre></div>
+<p>FMMU 0 Base (16 bytes per FMMU) </p>
+<hr>
+
+<h3 id="define-syn_esc_reg_pdi_control">define SYN_ESC_REG_PDI_CONTROL<a class="headerlink" href="#define-syn_esc_reg_pdi_control" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-51-1" name="__codelineno-51-1" href="#__codelineno-51-1"></a><span class="cp">#define SYN_ESC_REG_PDI_CONTROL `0x0140U`</span>
+</code></pre></div>
+<p>Process Data Interface Control </p>
+<hr>
+
+<h3 id="define-syn_esc_reg_sii_eeprom_ctrl">define SYN_ESC_REG_SII_EEPROM_CTRL<a class="headerlink" href="#define-syn_esc_reg_sii_eeprom_ctrl" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-52-1" name="__codelineno-52-1" href="#__codelineno-52-1"></a><span class="cp">#define SYN_ESC_REG_SII_EEPROM_CTRL `0x0502U`</span>
+</code></pre></div>
+<p>SII EEPROM Control/Status </p>
+<hr>
+
+<h3 id="define-syn_esc_reg_sm0">define SYN_ESC_REG_SM0<a class="headerlink" href="#define-syn_esc_reg_sm0" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-53-1" name="__codelineno-53-1" href="#__codelineno-53-1"></a><span class="cp">#define SYN_ESC_REG_SM0 `0x0800U`</span>
+</code></pre></div>
+<p>SyncManager 0 Base (8 bytes per SM) </p>
+<hr>
+
+<h3 id="define-syn_esc_reg_station_addr">define SYN_ESC_REG_STATION_ADDR<a class="headerlink" href="#define-syn_esc_reg_station_addr" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-54-1" name="__codelineno-54-1" href="#__codelineno-54-1"></a><span class="cp">#define SYN_ESC_REG_STATION_ADDR `0x0010U`</span>
+</code></pre></div>
+<p>Configured Station Address </p>
+<hr>
+
+<h3 id="define-syn_esc_reg_station_alias">define SYN_ESC_REG_STATION_ALIAS<a class="headerlink" href="#define-syn_esc_reg_station_alias" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-55-1" name="__codelineno-55-1" href="#__codelineno-55-1"></a><span class="cp">#define SYN_ESC_REG_STATION_ALIAS `0x0012U`</span>
+</code></pre></div>
+<p>Configured Station Alias </p>
+<hr>
+
+<h3 id="define-syn_esc_reg_type">define SYN_ESC_REG_TYPE<a class="headerlink" href="#define-syn_esc_reg_type" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-56-1" name="__codelineno-56-1" href="#__codelineno-56-1"></a><span class="cp">#define SYN_ESC_REG_TYPE `0x0000U`</span>
+</code></pre></div>
+<p>ESC Type/Build </p>
+<hr>
+
+<h3 id="define-syn_ethercat_ethertype">define SYN_ETHERCAT_ETHERTYPE<a class="headerlink" href="#define-syn_ethercat_ethertype" title="Permanent link">&para;</a></h3>
+<p><em>EtherCAT IEEE 802.3 Ethernet Frame Type.</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-57-1" name="__codelineno-57-1" href="#__codelineno-57-1"></a><span class="cp">#define SYN_ETHERCAT_ETHERTYPE `0x88A4`</span>
+</code></pre></div></p>
+<hr>
+
+<h3 id="define-syn_ethercat_type_datagram">define SYN_ETHERCAT_TYPE_DATAGRAM<a class="headerlink" href="#define-syn_ethercat_type_datagram" title="Permanent link">&para;</a></h3>
+<p><em>EtherCAT Header Type (1 = EtherCAT Datagrams)</em> 
+<div class="highlight"><pre><span></span><code><a id="__codelineno-58-1" name="__codelineno-58-1" href="#__codelineno-58-1"></a><span class="cp">#define SYN_ETHERCAT_TYPE_DATAGRAM `1`</span>
+</code></pre></div></p>
+<hr>
+
+<hr />
+<p>The documentation for this class was generated from the following file <code>src/syntropic/proto/syn_ethercat.h</code></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.expand", "navigation.top", "search.highlight", "content.code.copy", "content.code.annotate"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>

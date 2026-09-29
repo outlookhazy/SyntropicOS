@@ -1,0 +1,384 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__biometric_8c" kind="file" language="C++">
+    <compoundname>syn_biometric.c</compoundname>
+    <includes refid="syn__biometric_8h" local="yes">syn_biometric.h</includes>
+    <includes refid="syn__assert_8h" local="yes">../util/syn_assert.h</includes>
+    <includes local="no">math.h</includes>
+    <includes local="no">string.h</includes>
+    <incdepgraph>
+      <node id="9">
+        <label>../common/syn_compiler.h</label>
+        <link refid="syn__compiler_8h"/>
+      </node>
+      <node id="3">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>../drivers/syn_soft_i2c.h</label>
+        <link refid="syn__soft__i2c_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/sensor/syn_biometric.c</label>
+        <link refid="syn__biometric_8c"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>syn_biometric.h</label>
+        <link refid="syn__biometric_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>../util/syn_assert.h</label>
+        <link refid="syn__assert_8h"/>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="10">
+        <label>math.h</label>
+      </node>
+      <node id="7">
+        <label>stdbool.h</label>
+      </node>
+      <node id="4">
+        <label>stddef.h</label>
+      </node>
+      <node id="5">
+        <label>stdint.h</label>
+      </node>
+      <node id="11">
+        <label>string.h</label>
+      </node>
+    </incdepgraph>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__biometric_8c_1ac3b9ee38aaeed59c9b88f6089377c924" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_biometric_init</definition>
+        <argsstring>(SYN_Biometric *bio, SYN_GPIO_Pin scl, SYN_GPIO_Pin sda, uint8_t i2c_addr, SYN_BiometricType type)</argsstring>
+        <name>syn_biometric_init</name>
+        <param>
+          <type><ref refid="structSYN__Biometric" kindref="compound">SYN_Biometric</ref> *</type>
+          <declname>bio</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref></type>
+          <declname>scl</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref></type>
+          <declname>sda</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>i2c_addr</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__biometric_8h_1a9d0bad43fa2271d33416097b84241446" kindref="member">SYN_BiometricType</ref></type>
+          <declname>type</declname>
+        </param>
+        <briefdescription>
+<para>Initialize Biometric Sensor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>bio</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Biometric sensor context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>scl</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>I2C SCL GPIO pin. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>sda</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>I2C SDA GPIO pin. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>i2c_addr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>I2C slave address (e.g. 0x57). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>type</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Sensor type (MAX30102 or MAX30100). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/sensor/syn_biometric.c" line="13" column="12" bodyfile="src/syntropic/sensor/syn_biometric.c" bodystart="13" bodyend="29"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__biometric_8c_1ab911eda4c53ac50e84e908694de69449" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_biometric_feed_samples</definition>
+        <argsstring>(SYN_Biometric *bio, uint32_t red_raw, uint32_t ir_raw)</argsstring>
+        <name>syn_biometric_feed_samples</name>
+        <param>
+          <type><ref refid="structSYN__Biometric" kindref="compound">SYN_Biometric</ref> *</type>
+          <declname>bio</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>red_raw</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>ir_raw</declname>
+        </param>
+        <briefdescription>
+<para>Feed raw Red &amp; IR photodiode samples. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>bio</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Biometric sensor context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>red_raw</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Raw 18-bit Red LED sample. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>ir_raw</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Raw 18-bit IR LED sample. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/sensor/syn_biometric.c" line="31" column="6" bodyfile="src/syntropic/sensor/syn_biometric.c" bodystart="31" bodyend="56"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__biometric_8c_1a9e8592b7e3981bb3aa2aaa9529c34216" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint16_t</type>
+        <definition>uint16_t syn_biometric_get_bpm</definition>
+        <argsstring>(const SYN_Biometric *bio)</argsstring>
+        <name>syn_biometric_get_bpm</name>
+        <param>
+          <type>const <ref refid="structSYN__Biometric" kindref="compound">SYN_Biometric</ref> *</type>
+          <declname>bio</declname>
+        </param>
+        <briefdescription>
+<para>Get measured Heart Rate in BPM. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>bio</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Biometric sensor context. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Heart rate in Beats Per Minute. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/sensor/syn_biometric.c" line="58" column="10" bodyfile="src/syntropic/sensor/syn_biometric.c" bodystart="58" bodyend="63"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__biometric_8c_1afb6ff3f35c24e0af7499dea0af32f960" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>float</type>
+        <definition>float syn_biometric_get_spo2</definition>
+        <argsstring>(const SYN_Biometric *bio)</argsstring>
+        <name>syn_biometric_get_spo2</name>
+        <param>
+          <type>const <ref refid="structSYN__Biometric" kindref="compound">SYN_Biometric</ref> *</type>
+          <declname>bio</declname>
+        </param>
+        <briefdescription>
+<para>Get measured Blood Oxygen Saturation %. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>bio</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Biometric sensor context. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SpO2 percentage. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/sensor/syn_biometric.c" line="65" column="7" bodyfile="src/syntropic/sensor/syn_biometric.c" bodystart="65" bodyend="70"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__biometric_8c_1a2a2ab3634ffbbb4d9952fdbb42656c60" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_biometric_is_finger_detected</definition>
+        <argsstring>(const SYN_Biometric *bio)</argsstring>
+        <name>syn_biometric_is_finger_detected</name>
+        <param>
+          <type>const <ref refid="structSYN__Biometric" kindref="compound">SYN_Biometric</ref> *</type>
+          <declname>bio</declname>
+        </param>
+        <briefdescription>
+<para>Check if finger is detected. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>bio</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Biometric sensor context. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>True if finger present. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/sensor/syn_biometric.c" line="72" column="6" bodyfile="src/syntropic/sensor/syn_biometric.c" bodystart="72" bodyend="77"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Generic Pulse Oximeter &amp; Heart Rate Sensor Driver (MAX30102, MAX30100). </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__biometric_8h" kindref="compound">syn_biometric.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../util/syn_assert.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;math.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;string.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__biometric_8c_1ac3b9ee38aaeed59c9b88f6089377c924" kindref="member">syn_biometric_init</ref>(<ref refid="structSYN__Biometric" kindref="compound">SYN_Biometric</ref><sp/>*bio,<sp/><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref><sp/>scl,<sp/><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref><sp/>sda,</highlight></codeline>
+<codeline lineno="14"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>i2c_addr,<sp/><ref refid="syn__biometric_8h_1a9d0bad43fa2271d33416097b84241446" kindref="member">SYN_BiometricType</ref><sp/>type)</highlight></codeline>
+<codeline lineno="15"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="16"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(bio<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="17"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(bio<sp/>==<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="18"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;<sp/></highlight><highlight class="comment">/*<sp/>LCOV_EXCL_LINE:<sp/>Defensive<sp/>NULL<sp/>check<sp/>after<sp/>SYN_ASSERT<sp/>macro<sp/>in</highlight></codeline>
+<codeline lineno="19"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>release<sp/>mode<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"><sp/><sp/><sp/><sp/>memset(bio,<sp/>0,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(*bio));</highlight></codeline>
+<codeline lineno="23"><highlight class="normal"><sp/><sp/><sp/><sp/>bio-&gt;<ref refid="structSYN__Biometric_1a2c6a569a3c98faea24024adefc4bdc75" kindref="member">type</ref><sp/>=<sp/>type;</highlight></codeline>
+<codeline lineno="24"><highlight class="normal"><sp/><sp/><sp/><sp/>bio-&gt;<ref refid="structSYN__Biometric_1af1ad241c0c7a9f1ce9f046ea3b52a94a" kindref="member">i2c_addr</ref><sp/>=<sp/>i2c_addr;</highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"><sp/><sp/><sp/><sp/>syn_soft_i2c_init(&amp;bio-&gt;<ref refid="structSYN__Biometric_1a98eebfb14835bc2ec0dc60f6aec4b355" kindref="member">i2c</ref>,<sp/>scl,<sp/>sda,<sp/>10);</highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="29"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__biometric_8c_1ab911eda4c53ac50e84e908694de69449" kindref="member">syn_biometric_feed_samples</ref>(<ref refid="structSYN__Biometric" kindref="compound">SYN_Biometric</ref><sp/>*bio,<sp/>uint32_t<sp/>red_raw,<sp/>uint32_t<sp/>ir_raw)</highlight></codeline>
+<codeline lineno="32"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="33"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(bio<sp/>==<sp/>NULL)</highlight></codeline>
+<codeline lineno="34"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Finger<sp/>detection<sp/>threshold<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(ir_raw<sp/>&lt;<sp/>50000)<sp/>{</highlight></codeline>
+<codeline lineno="38"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>bio-&gt;<ref refid="structSYN__Biometric_1af8c6c86aad54e373505785805f0d55b0" kindref="member">finger_detected</ref><sp/>=<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>bio-&gt;<ref refid="structSYN__Biometric_1a15e0e61199165660bb5fb48bda671a61" kindref="member">heart_rate_bpm</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>bio-&gt;<ref refid="structSYN__Biometric_1a275ca5b72fbe42754b94f84875bea47a" kindref="member">spo2_pct</ref><sp/>=<sp/>0.0f;</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal"><sp/><sp/><sp/><sp/>bio-&gt;<ref refid="structSYN__Biometric_1af8c6c86aad54e373505785805f0d55b0" kindref="member">finger_detected</ref><sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Estimate<sp/>SpO2<sp/>ratio<sp/>R<sp/>=<sp/>(AC_red/DC_red)<sp/>/<sp/>(AC_ir/DC_ir)<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>r_ratio<sp/>=<sp/>((float)red_raw<sp/>/<sp/>(</highlight><highlight class="keywordtype">float</highlight><highlight class="normal">)ir_raw);</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>spo2<sp/>=<sp/>104.0f<sp/>-<sp/>(17.0f<sp/>*<sp/>r_ratio);</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(spo2<sp/>&gt;<sp/>100.0f)</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>spo2<sp/>=<sp/>100.0f;</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(spo2<sp/>&lt;<sp/>70.0f)</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>spo2<sp/>=<sp/>70.0f;</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"></highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/><sp/><sp/>bio-&gt;<ref refid="structSYN__Biometric_1a275ca5b72fbe42754b94f84875bea47a" kindref="member">spo2_pct</ref><sp/>=<sp/>spo2;</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/><sp/><sp/>bio-&gt;<ref refid="structSYN__Biometric_1a15e0e61199165660bb5fb48bda671a61" kindref="member">heart_rate_bpm</ref><sp/>=<sp/>72;<sp/></highlight><highlight class="comment">/*<sp/>Nominal<sp/>default<sp/>pulse<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="56"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"></highlight></codeline>
+<codeline lineno="58"><highlight class="normal">uint16_t<sp/><ref refid="syn__biometric_8c_1a9e8592b7e3981bb3aa2aaa9529c34216" kindref="member">syn_biometric_get_bpm</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__Biometric" kindref="compound">SYN_Biometric</ref><sp/>*bio)</highlight></codeline>
+<codeline lineno="59"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(bio<sp/>==<sp/>NULL<sp/>||<sp/>!bio-&gt;<ref refid="structSYN__Biometric_1af8c6c86aad54e373505785805f0d55b0" kindref="member">finger_detected</ref>)</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0;</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>bio-&gt;<ref refid="structSYN__Biometric_1a15e0e61199165660bb5fb48bda671a61" kindref="member">heart_rate_bpm</ref>;</highlight></codeline>
+<codeline lineno="63"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"></highlight></codeline>
+<codeline lineno="65"><highlight class="normal"></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/><ref refid="syn__biometric_8c_1afb6ff3f35c24e0af7499dea0af32f960" kindref="member">syn_biometric_get_spo2</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__Biometric" kindref="compound">SYN_Biometric</ref><sp/>*bio)</highlight></codeline>
+<codeline lineno="66"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(bio<sp/>==<sp/>NULL<sp/>||<sp/>!bio-&gt;<ref refid="structSYN__Biometric_1af8c6c86aad54e373505785805f0d55b0" kindref="member">finger_detected</ref>)</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0.0f;</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>bio-&gt;<ref refid="structSYN__Biometric_1a275ca5b72fbe42754b94f84875bea47a" kindref="member">spo2_pct</ref>;</highlight></codeline>
+<codeline lineno="70"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"></highlight></codeline>
+<codeline lineno="72"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__biometric_8c_1a2a2ab3634ffbbb4d9952fdbb42656c60" kindref="member">syn_biometric_is_finger_detected</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__Biometric" kindref="compound">SYN_Biometric</ref><sp/>*bio)</highlight></codeline>
+<codeline lineno="73"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(bio<sp/>==<sp/>NULL)</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>bio-&gt;<ref refid="structSYN__Biometric_1af8c6c86aad54e373505785805f0d55b0" kindref="member">finger_detected</ref>;</highlight></codeline>
+<codeline lineno="77"><highlight class="normal">}</highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/sensor/syn_biometric.c"/>
+  </compounddef>
+</doxygen>

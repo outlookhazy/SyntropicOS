@@ -1,0 +1,364 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__pwm_8c" kind="file" language="C++">
+    <compoundname>syn_pwm.c</compoundname>
+    <includes refid="syn__assert_8h" local="yes">../util/syn_assert.h</includes>
+    <includes refid="syn__pwm_8h" local="yes">syn_pwm.h</includes>
+    <incdepgraph>
+      <node id="3">
+        <label>../common/syn_compiler.h</label>
+        <link refid="syn__compiler_8h"/>
+      </node>
+      <node id="5">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/drivers/syn_pwm.c</label>
+        <link refid="syn__pwm_8c"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>syn_pwm.h</label>
+        <link refid="syn__pwm_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>../port/syn_port_pwm.h</label>
+        <link refid="syn__port__pwm_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>../util/syn_assert.h</label>
+        <link refid="syn__assert_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="9">
+        <label>stdbool.h</label>
+      </node>
+      <node id="6">
+        <label>stddef.h</label>
+      </node>
+      <node id="7">
+        <label>stdint.h</label>
+      </node>
+    </incdepgraph>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__pwm_8c_1ab8f1a7879ee1fe32d03b91a230735e84" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_pwm_init</definition>
+        <argsstring>(SYN_PWM *pwm, uint8_t channel, uint32_t freq_hz)</argsstring>
+        <name>syn_pwm_init</name>
+        <param>
+          <type><ref refid="structSYN__PWM" kindref="compound">SYN_PWM</ref> *</type>
+          <declname>pwm</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>channel</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>freq_hz</declname>
+        </param>
+        <briefdescription>
+<para>Initialize a hardware PWM channel. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>pwm</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Handle to initialize. Must not be NULL. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>channel</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Platform PWM channel index. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>freq_hz</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Desired PWM frequency in Hz (must be &gt; 0). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_INVALID_PARAM or SYN_ERROR on failure. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_pwm.c" line="15" column="12" bodyfile="src/syntropic/drivers/syn_pwm.c" bodystart="15" bodyend="25"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__pwm_8c_1a8212cef2f041feb5cbe18d64ca035010" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_pwm_set_duty</definition>
+        <argsstring>(const SYN_PWM *pwm, uint8_t duty_pct)</argsstring>
+        <name>syn_pwm_set_duty</name>
+        <param>
+          <type>const <ref refid="structSYN__PWM" kindref="compound">SYN_PWM</ref> *</type>
+          <declname>pwm</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>duty_pct</declname>
+        </param>
+        <briefdescription>
+<para>Set the PWM duty cycle as a percentage (0–100%). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>pwm</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Initialized PWM handle. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>duty_pct</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Duty cycle percentage (0 = 0%, 100 = 100%). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_INVALID_PARAM if handle is invalid. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_pwm.c" line="27" column="12" bodyfile="src/syntropic/drivers/syn_pwm.c" bodystart="27" bodyend="39"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__pwm_8c_1aa577bf208bc435e415e3faf131b7929a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_pwm_set_duty_raw</definition>
+        <argsstring>(const SYN_PWM *pwm, uint16_t duty_u16)</argsstring>
+        <name>syn_pwm_set_duty_raw</name>
+        <param>
+          <type>const <ref refid="structSYN__PWM" kindref="compound">SYN_PWM</ref> *</type>
+          <declname>pwm</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>duty_u16</declname>
+        </param>
+        <briefdescription>
+<para>Set the PWM duty cycle with 16-bit raw resolution (0–65535). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>pwm</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Initialized PWM handle. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>duty_u16</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>16-bit duty value (0 = off, 65535 = 100%). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_INVALID_PARAM if handle is invalid. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_pwm.c" line="41" column="12" bodyfile="src/syntropic/drivers/syn_pwm.c" bodystart="41" bodyend="49"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__pwm_8c_1a3cb085d206f4fa74bf84cc55b7892e78" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_pwm_set_freq</definition>
+        <argsstring>(SYN_PWM *pwm, uint32_t freq_hz)</argsstring>
+        <name>syn_pwm_set_freq</name>
+        <param>
+          <type><ref refid="structSYN__PWM" kindref="compound">SYN_PWM</ref> *</type>
+          <declname>pwm</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>freq_hz</declname>
+        </param>
+        <briefdescription>
+<para>Change the PWM frequency at runtime. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>pwm</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Initialized PWM handle. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>freq_hz</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>New frequency in Hz (must be &gt; 0). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_INVALID_PARAM if handle is invalid. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_pwm.c" line="51" column="12" bodyfile="src/syntropic/drivers/syn_pwm.c" bodystart="51" bodyend="60"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__pwm_8c_1a023a5b5f3fccc77b645e5eb1018c3fd5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_pwm_enable</definition>
+        <argsstring>(const SYN_PWM *pwm, bool enable)</argsstring>
+        <name>syn_pwm_enable</name>
+        <param>
+          <type>const <ref refid="structSYN__PWM" kindref="compound">SYN_PWM</ref> *</type>
+          <declname>pwm</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+          <declname>enable</declname>
+        </param>
+        <briefdescription>
+<para>Enable or disable the PWM output. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>pwm</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Initialized PWM handle. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>enable</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>true to enable, false to disable. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_INVALID_PARAM if handle is invalid. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_pwm.c" line="62" column="12" bodyfile="src/syntropic/drivers/syn_pwm.c" bodystart="62" bodyend="70"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Hardware PWM driver implementation. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#if<sp/>__has_include(&quot;syn_config.h&quot;)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;syn_config.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="4"><highlight class="normal"></highlight></codeline>
+<codeline lineno="5"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>!defined(SYN_USE_PWM)<sp/>||<sp/>SYN_USE_PWM</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../util/syn_assert.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__pwm_8h" kindref="compound">syn_pwm.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__pwm_8c_1ab8f1a7879ee1fe32d03b91a230735e84" kindref="member">syn_pwm_init</ref>(<ref refid="structSYN__PWM" kindref="compound">SYN_PWM</ref><sp/>*pwm,<sp/>uint8_t<sp/>channel,<sp/>uint32_t<sp/>freq_hz)</highlight></codeline>
+<codeline lineno="16"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="17"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(pwm<sp/>==<sp/>NULL<sp/>||<sp/>freq_hz<sp/>==<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="18"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="19"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"><sp/><sp/><sp/><sp/>pwm-&gt;<ref refid="structSYN__PWM_1a5919d58ec5bd1e790ca6f02b5e280a2c" kindref="member">channel</ref><sp/>=<sp/>channel;</highlight></codeline>
+<codeline lineno="22"><highlight class="normal"><sp/><sp/><sp/><sp/>pwm-&gt;<ref refid="structSYN__PWM_1a8de639598c8daf53837d048715cb9753" kindref="member">freq_hz</ref><sp/>=<sp/>freq_hz;</highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__port__pwm_8h_1a65515940f576e2e1865b8096e7d9853f" kindref="member">syn_port_pwm_init</ref>(channel,<sp/>freq_hz);</highlight></codeline>
+<codeline lineno="25"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__pwm_8c_1a8212cef2f041feb5cbe18d64ca035010" kindref="member">syn_pwm_set_duty</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__PWM" kindref="compound">SYN_PWM</ref><sp/>*pwm,<sp/>uint8_t<sp/>duty_pct)</highlight></codeline>
+<codeline lineno="28"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="29"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(pwm<sp/>==<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="30"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="31"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(duty_pct<sp/>&gt;<sp/>100)<sp/>{</highlight></codeline>
+<codeline lineno="34"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>duty_pct<sp/>=<sp/>100;</highlight></codeline>
+<codeline lineno="35"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__port__pwm_8h_1add90b2a188037799ee54cc40e162de00" kindref="member">syn_port_pwm_set_duty</ref>(pwm-&gt;<ref refid="structSYN__PWM_1a5919d58ec5bd1e790ca6f02b5e280a2c" kindref="member">channel</ref>,<sp/>duty_pct);</highlight></codeline>
+<codeline lineno="38"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="39"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__pwm_8c_1aa577bf208bc435e415e3faf131b7929a" kindref="member">syn_pwm_set_duty_raw</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__PWM" kindref="compound">SYN_PWM</ref><sp/>*pwm,<sp/>uint16_t<sp/>duty_u16)</highlight></codeline>
+<codeline lineno="42"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(pwm<sp/>==<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"></highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__port__pwm_8h_1aa340c4013d57cd5e0aa796ec5f2a5751" kindref="member">syn_port_pwm_set_duty_raw</ref>(pwm-&gt;<ref refid="structSYN__PWM_1a5919d58ec5bd1e790ca6f02b5e280a2c" kindref="member">channel</ref>,<sp/>duty_u16);</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="49"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"></highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__pwm_8c_1a3cb085d206f4fa74bf84cc55b7892e78" kindref="member">syn_pwm_set_freq</ref>(<ref refid="structSYN__PWM" kindref="compound">SYN_PWM</ref><sp/>*pwm,<sp/>uint32_t<sp/>freq_hz)</highlight></codeline>
+<codeline lineno="52"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(pwm<sp/>==<sp/>NULL<sp/>||<sp/>freq_hz<sp/>==<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"></highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/><sp/><sp/>pwm-&gt;<ref refid="structSYN__PWM_1a8de639598c8daf53837d048715cb9753" kindref="member">freq_hz</ref><sp/>=<sp/>freq_hz;</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__port__pwm_8h_1aa250ae42448cd7e3a07129a0703aef0f" kindref="member">syn_port_pwm_set_freq</ref>(pwm-&gt;<ref refid="structSYN__PWM_1a5919d58ec5bd1e790ca6f02b5e280a2c" kindref="member">channel</ref>,<sp/>freq_hz);</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="60"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"></highlight></codeline>
+<codeline lineno="62"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__pwm_8c_1a023a5b5f3fccc77b645e5eb1018c3fd5" kindref="member">syn_pwm_enable</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__PWM" kindref="compound">SYN_PWM</ref><sp/>*pwm,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>enable)</highlight></codeline>
+<codeline lineno="63"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(pwm<sp/>==<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"></highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__port__pwm_8h_1a8e56dad3b2964996f6f0552d146376bc" kindref="member">syn_port_pwm_enable</ref>(pwm-&gt;<ref refid="structSYN__PWM_1a5919d58ec5bd1e790ca6f02b5e280a2c" kindref="member">channel</ref>,<sp/>enable);</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="70"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"></highlight></codeline>
+<codeline lineno="72"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_USE_PWM<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/drivers/syn_pwm.c"/>
+  </compounddef>
+</doxygen>

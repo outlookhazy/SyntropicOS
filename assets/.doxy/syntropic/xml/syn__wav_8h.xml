@@ -1,0 +1,200 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__wav_8h" kind="file" language="C++">
+    <compoundname>syn_wav.h</compoundname>
+    <includes refid="syn__defs_8h" local="yes">../common/syn_defs.h</includes>
+    <includes local="no">stdbool.h</includes>
+    <includes local="no">stddef.h</includes>
+    <includes local="no">stdint.h</includes>
+    <includedby refid="syn__wav_8c" local="yes">src/syntropic/audio/syn_wav.c</includedby>
+    <includedby refid="syntropic_8h" local="yes">src/syntropic/syntropic.h</includedby>
+    <incdepgraph>
+      <node id="1">
+        <label>src/syntropic/audio/syn_wav.h</label>
+        <link refid="syn__wav_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>stdbool.h</label>
+      </node>
+      <node id="3">
+        <label>stddef.h</label>
+      </node>
+      <node id="4">
+        <label>stdint.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="2">
+        <label>src/syntropic/audio/syn_wav.c</label>
+        <link refid="syn__wav_8c"/>
+      </node>
+      <node id="1">
+        <label>src/syntropic/audio/syn_wav.h</label>
+        <link refid="syn__wav_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>src/syntropic/proto/syn_doip.c</label>
+        <link refid="syn__doip_8c"/>
+      </node>
+      <node id="4">
+        <label>src/syntropic/proto/syn_doip.h</label>
+        <link refid="syn__doip_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>src/syntropic/syntropic.h</label>
+        <link refid="syntropic_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="structSYN__WAV__Info" prot="public">SYN_WAV_Info</innerclass>
+    <sectiondef kind="define">
+      <memberdef kind="define" id="syn__wav_8h_1a65051aba1b875a43fe16e844d4b181db" prot="public" static="no">
+        <name>SYN_WAV_FORMAT_PCM</name>
+        <initializer>0x0001U</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>WAVE format tags Uncompressed PCM audio format </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/audio/syn_wav.h" line="24" column="9" bodyfile="src/syntropic/audio/syn_wav.h" bodystart="24" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__wav_8h_1a6bd1a029a7c68b84cf708a0e127f507a" prot="public" static="no">
+        <name>SYN_WAV_FORMAT_IMA_ADPCM</name>
+        <initializer>0x0011U</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>IMA ADPCM compressed audio format </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/audio/syn_wav.h" line="25" column="9" bodyfile="src/syntropic/audio/syn_wav.h" bodystart="25" bodyend="-1"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__wav_8h_1aee73828221fa7297fe9460e22b63fdd8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_wav_parse_header</definition>
+        <argsstring>(const uint8_t *buffer, size_t buffer_size, SYN_WAV_Info *info)</argsstring>
+        <name>syn_wav_parse_header</name>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>buffer</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>buffer_size</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__WAV__Info" kindref="compound">SYN_WAV_Info</ref> *</type>
+          <declname>info</declname>
+        </param>
+        <briefdescription>
+<para>Parse a RIFF/WAVE header from a memory buffer. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>buffer</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to input byte array (at least 44 bytes). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>buffer_size</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Size of available buffer bytes. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>info</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to <ref refid="structSYN__WAV__Info" kindref="compound">SYN_WAV_Info</ref> output struct. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_INVALID_PARAM, or SYN_ERROR on parse fail. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/audio/syn_wav.h" line="50" column="12" bodyfile="src/syntropic/audio/syn_wav.c" bodystart="31" bodyend="104" declfile="src/syntropic/audio/syn_wav.h" declline="50" declcolumn="12"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Zero-Heap RIFF/WAVE Header Parser. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Provides a pure C99 zero-malloc streaming header parser for standard <computeroutput>.wav</computeroutput> audio container files. Supports PCM (Linear) and IMA-ADPCM compressed formats. </para>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_WAV_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_WAV_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../common/syn_defs.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stddef.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight></codeline>
+<codeline lineno="24" refid="syn__wav_8h_1a65051aba1b875a43fe16e844d4b181db" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_WAV_FORMAT_PCM<sp/>0x0001U<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="25" refid="syn__wav_8h_1a6bd1a029a7c68b84cf708a0e127f507a" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_WAV_FORMAT_IMA_ADPCM<sp/>0x0011U<sp/></highlight></codeline>
+<codeline lineno="30" refid="structSYN__WAV__Info" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="31" refid="structSYN__WAV__Info_1ac870979fd4aeb26f8601f0fce1f3c98a" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/><ref refid="structSYN__WAV__Info_1ac870979fd4aeb26f8601f0fce1f3c98a" kindref="member">audio_format</ref>;<sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="32" refid="structSYN__WAV__Info_1a8e3ac69aa8dd83413bb4c09c93b55e55" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/><ref refid="structSYN__WAV__Info_1a8e3ac69aa8dd83413bb4c09c93b55e55" kindref="member">num_channels</ref>;<sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="33" refid="structSYN__WAV__Info_1a8c376bd475231ff638145e8c04ba9231" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structSYN__WAV__Info_1a8c376bd475231ff638145e8c04ba9231" kindref="member">sample_rate</ref>;<sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="34" refid="structSYN__WAV__Info_1ab970c6a4a19c1fc462e00021e554bff1" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structSYN__WAV__Info_1ab970c6a4a19c1fc462e00021e554bff1" kindref="member">byte_rate</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="35" refid="structSYN__WAV__Info_1a79fb3fe65fd6025d4bcd39dc57dc8ea4" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/><ref refid="structSYN__WAV__Info_1a79fb3fe65fd6025d4bcd39dc57dc8ea4" kindref="member">block_align</ref>;<sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="36" refid="structSYN__WAV__Info_1a4b4e1a59da7160346d8a962c43618425" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/><ref refid="structSYN__WAV__Info_1a4b4e1a59da7160346d8a962c43618425" kindref="member">bits_per_sample</ref>;<sp/></highlight></codeline>
+<codeline lineno="37" refid="structSYN__WAV__Info_1ab731705c089920ff45cd197fbc7d13bf" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="structSYN__WAV__Info_1ab731705c089920ff45cd197fbc7d13bf" kindref="member">data_offset</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="38" refid="structSYN__WAV__Info_1a6c72a1f1edbf26d9c0bcf4ad34855fc3" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structSYN__WAV__Info_1a6c72a1f1edbf26d9c0bcf4ad34855fc3" kindref="member">data_size</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="39" refid="structSYN__WAV__Info_1af077f1a59f4c5e9e7e1d0b1ed3bdf6a5" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structSYN__WAV__Info_1af077f1a59f4c5e9e7e1d0b1ed3bdf6a5" kindref="member">total_samples</ref>;<sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="40"><highlight class="normal">}<sp/><ref refid="structSYN__WAV__Info" kindref="compound">SYN_WAV_Info</ref>;</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__wav_8h_1aee73828221fa7297fe9460e22b63fdd8" kindref="member">syn_wav_parse_header</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*buffer,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>buffer_size,<sp/><ref refid="structSYN__WAV__Info" kindref="compound">SYN_WAV_Info</ref><sp/>*info);</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"></highlight></codeline>
+<codeline lineno="52"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="53"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="55"><highlight class="normal"></highlight></codeline>
+<codeline lineno="56"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_WAV_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/audio/syn_wav.h"/>
+  </compounddef>
+</doxygen>

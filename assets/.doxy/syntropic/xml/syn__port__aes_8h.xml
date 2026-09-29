@@ -1,0 +1,288 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__port__aes_8h" kind="file" language="C++">
+    <compoundname>syn_port_aes.h</compoundname>
+    <includes refid="syn__defs_8h" local="yes">../common/syn_defs.h</includes>
+    <includes local="no">stddef.h</includes>
+    <includes local="no">stdint.h</includes>
+    <incdepgraph>
+      <node id="2">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/port/syn_port_aes.h</label>
+        <link refid="syn__port__aes_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>stddef.h</label>
+      </node>
+      <node id="4">
+        <label>stdint.h</label>
+      </node>
+    </incdepgraph>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__port__aes_8h_1aa2d57e7477ce7d2d0846d0be89b81d62" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_port_aes_init</definition>
+        <argsstring>(void)</argsstring>
+        <name>syn_port_aes_init</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Initialize the hardware AES/crypto accelerator. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="return"><para>SYN_OK on success, SYN_NOT_IMPLEMENTED if hardware crypto is not available. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/port/syn_port_aes.h" line="30" column="12" bodyfile="src/syntropic/port_stubs/syn_port_stubs.c" bodystart="753" bodyend="756" declfile="src/syntropic/port/syn_port_aes.h" declline="30" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__port__aes_8h_1a67db4d5aa07876185cb1edd3fb3852de" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_port_aes_encrypt_block</definition>
+        <argsstring>(const uint8_t *round_keys, uint8_t nr, const uint8_t in[16], uint8_t out[16])</argsstring>
+        <name>syn_port_aes_encrypt_block</name>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>round_keys</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>nr</declname>
+        </param>
+        <param>
+          <type>const uint8_t</type>
+          <declname>in</declname>
+          <array>[16]</array>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>out</declname>
+          <array>[16]</array>
+        </param>
+        <briefdescription>
+<para>Offload a single 16-byte block encryption to hardware. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>round_keys</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to expanded round keys. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>nr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of rounds (10, 12, or 14). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>in</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Input 16-byte plaintext block. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output 16-byte ciphertext block. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_NOT_IMPLEMENTED to use software AES. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/port/syn_port_aes.h" line="40" column="12" bodyfile="src/syntropic/port_stubs/syn_port_stubs.c" bodystart="758" bodyend="766" declfile="src/syntropic/port/syn_port_aes.h" declline="40" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__port__aes_8h_1a0810753aa40958bf481ab1143e9d45d5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_port_aes_decrypt_block</definition>
+        <argsstring>(const uint8_t *round_keys, uint8_t nr, const uint8_t in[16], uint8_t out[16])</argsstring>
+        <name>syn_port_aes_decrypt_block</name>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>round_keys</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>nr</declname>
+        </param>
+        <param>
+          <type>const uint8_t</type>
+          <declname>in</declname>
+          <array>[16]</array>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>out</declname>
+          <array>[16]</array>
+        </param>
+        <briefdescription>
+<para>Offload a single 16-byte block decryption to hardware. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>round_keys</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to expanded round keys. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>nr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of rounds (10, 12, or 14). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>in</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Input 16-byte ciphertext block. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output 16-byte plaintext block. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_NOT_IMPLEMENTED to use software AES. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/port/syn_port_aes.h" line="51" column="12" bodyfile="src/syntropic/port_stubs/syn_port_stubs.c" bodystart="768" bodyend="776" declfile="src/syntropic/port/syn_port_aes.h" declline="51" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__port__aes_8h_1af604ca47cc53899e2a5426dfe4ae3b62" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_port_ghash_mult</definition>
+        <argsstring>(const uint8_t x[16], const uint8_t h[16], uint8_t out[16])</argsstring>
+        <name>syn_port_ghash_mult</name>
+        <param>
+          <type>const uint8_t</type>
+          <declname>x</declname>
+          <array>[16]</array>
+        </param>
+        <param>
+          <type>const uint8_t</type>
+          <declname>h</declname>
+          <array>[16]</array>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>out</declname>
+          <array>[16]</array>
+        </param>
+        <briefdescription>
+<para>Offload GHASH Galois field GF(2^128) multiplication to hardware. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>x</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Input 16-byte block. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>h</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Input 16-byte subkey block. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output 16-byte product block. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_NOT_IMPLEMENTED to use software GHASH. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/port/syn_port_aes.h" line="61" column="12" bodyfile="src/syntropic/port_stubs/syn_port_stubs.c" bodystart="778" bodyend="784" declfile="src/syntropic/port/syn_port_aes.h" declline="61" declcolumn="12"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>AES / GCM hardware acceleration port interface. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Implement these functions to offload AES block cipher and GHASH field multiplication to microcontroller hardware security / cryptographic accelerators (e.g. STM32 CRYP, ESP32 hardware AES).</para>
+<para>Enable via SYN_USE_PORT_AES in syn_config.h. When disabled or returning SYN_NOT_IMPLEMENTED, SyntropicOS automatically falls back to software calculation. </para>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_PORT_AES_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_PORT_AES_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../common/syn_defs.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stddef.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__port__aes_8h_1aa2d57e7477ce7d2d0846d0be89b81d62" kindref="member">syn_port_aes_init</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__port__aes_8h_1a67db4d5aa07876185cb1edd3fb3852de" kindref="member">syn_port_aes_encrypt_block</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*round_keys,<sp/>uint8_t<sp/>nr,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>in[16],</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>out[16]);</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__port__aes_8h_1a0810753aa40958bf481ab1143e9d45d5" kindref="member">syn_port_aes_decrypt_block</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*round_keys,<sp/>uint8_t<sp/>nr,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>in[16],</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>out[16]);</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"></highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__port__aes_8h_1af604ca47cc53899e2a5426dfe4ae3b62" kindref="member">syn_port_ghash_mult</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>x[16],<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>h[16],<sp/>uint8_t<sp/>out[16]);</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"></highlight></codeline>
+<codeline lineno="63"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="64"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="66"><highlight class="normal"></highlight></codeline>
+<codeline lineno="67"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_PORT_AES_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/port/syn_port_aes.h"/>
+  </compounddef>
+</doxygen>

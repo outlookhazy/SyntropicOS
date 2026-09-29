@@ -1,0 +1,98 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="structSYN__TCP" kind="struct" language="C++" prot="public">
+    <compoundname>SYN_TCP</compoundname>
+    <includes refid="syn__tcp_8h" local="no">syn_tcp.h</includes>
+    <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structSYN__TCP_1a495d0090ca544ee902f8813113a60ce4" prot="public" static="no" mutable="no">
+        <type><ref refid="structSYN__ETH" kindref="compound">SYN_ETH</ref> *</type>
+        <definition>SYN_ETH* SYN_TCP::eth</definition>
+        <argsstring></argsstring>
+        <name>eth</name>
+        <qualifiedname>SYN_TCP::eth</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Associated Ethernet interface instance. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/net/syn_tcp.h" line="94" column="13" bodyfile="src/syntropic/net/syn_tcp.h" bodystart="94" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structSYN__TCP_1ac158542529feb520427265eb5693bb8e" prot="public" static="no" mutable="no">
+        <type><ref refid="structSYN__TcpConn" kindref="compound">SYN_TcpConn</ref></type>
+        <definition>SYN_TcpConn SYN_TCP::conns[SYN_TCP_MAX_CONNS]</definition>
+        <argsstring>[SYN_TCP_MAX_CONNS]</argsstring>
+        <name>conns</name>
+        <qualifiedname>SYN_TCP::conns</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Array of managed TCP connections. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/net/syn_tcp.h" line="95" column="17" bodyfile="src/syntropic/net/syn_tcp.h" bodystart="95" bodyend="-1"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Top-level TCP stack instance container. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <collaborationgraph>
+      <node id="2">
+        <label>SYN_ETH</label>
+        <link refid="structSYN__ETH"/>
+        <childnode refid="3" relation="usage">
+          <edgelabel>arp_cache</edgelabel>
+        </childnode>
+      </node>
+      <node id="3">
+        <label>SYN_ETH_ArpEntry</label>
+        <link refid="structSYN__ETH__ArpEntry"/>
+      </node>
+      <node id="7">
+        <label>SYN_EventFlags</label>
+        <link refid="structSYN__EventFlags"/>
+      </node>
+      <node id="6">
+        <label>SYN_PT</label>
+        <link refid="structSYN__PT"/>
+      </node>
+      <node id="1">
+        <label>SYN_TCP</label>
+        <link refid="structSYN__TCP"/>
+        <childnode refid="2" relation="usage">
+          <edgelabel>eth</edgelabel>
+        </childnode>
+        <childnode refid="4" relation="usage">
+          <edgelabel>conns</edgelabel>
+        </childnode>
+      </node>
+      <node id="5">
+        <label>SYN_Task</label>
+        <link refid="structSYN__Task"/>
+        <childnode refid="6" relation="usage">
+          <edgelabel>func</edgelabel>
+          <edgelabel>pt</edgelabel>
+        </childnode>
+        <childnode refid="7" relation="usage">
+          <edgelabel>wait_event</edgelabel>
+        </childnode>
+      </node>
+      <node id="4">
+        <label>SYN_TcpConn</label>
+        <link refid="structSYN__TcpConn"/>
+        <childnode refid="5" relation="usage">
+          <edgelabel>blocked_task</edgelabel>
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="src/syntropic/net/syn_tcp.h" line="93" column="1" bodyfile="src/syntropic/net/syn_tcp.h" bodystart="93" bodyend="96"/>
+    <listofallmembers>
+      <member refid="structSYN__TCP_1ac158542529feb520427265eb5693bb8e" prot="public" virt="non-virtual"><scope>SYN_TCP</scope><name>conns</name></member>
+      <member refid="structSYN__TCP_1a495d0090ca544ee902f8813113a60ce4" prot="public" virt="non-virtual"><scope>SYN_TCP</scope><name>eth</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

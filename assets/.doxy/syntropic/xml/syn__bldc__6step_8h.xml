@@ -1,0 +1,658 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__bldc__6step_8h" kind="file" language="C++">
+    <compoundname>syn_bldc_6step.h</compoundname>
+    <includes refid="syn__defs_8h" local="yes">syntropic/common/syn_defs.h</includes>
+    <includes refid="syn__pid_8h" local="yes">syntropic/control/syn_pid.h</includes>
+    <includes refid="syn__qmath_8h" local="yes">syntropic/util/syn_qmath.h</includes>
+    <includes local="no">stdbool.h</includes>
+    <includes local="no">stddef.h</includes>
+    <includes local="no">stdint.h</includes>
+    <includedby refid="syn__bldc__6step_8c" local="yes">src/syntropic/motor/syn_bldc_6step.c</includedby>
+    <includedby refid="syntropic_8h" local="yes">src/syntropic/syntropic.h</includedby>
+    <incdepgraph>
+      <node id="2">
+        <label>syntropic/common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>syntropic/control/syn_pid.h</label>
+        <link refid="syn__pid_8h"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/motor/syn_bldc_6step.h</label>
+        <link refid="syn__bldc__6step_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>syntropic/util/syn_qmath.h</label>
+        <link refid="syn__qmath_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>stdbool.h</label>
+      </node>
+      <node id="3">
+        <label>stddef.h</label>
+      </node>
+      <node id="4">
+        <label>stdint.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="2">
+        <label>src/syntropic/motor/syn_bldc_6step.c</label>
+        <link refid="syn__bldc__6step_8c"/>
+      </node>
+      <node id="1">
+        <label>src/syntropic/motor/syn_bldc_6step.h</label>
+        <link refid="syn__bldc__6step_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>src/syntropic/proto/syn_doip.c</label>
+        <link refid="syn__doip_8c"/>
+      </node>
+      <node id="4">
+        <label>src/syntropic/proto/syn_doip.h</label>
+        <link refid="syn__doip_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>src/syntropic/syntropic.h</label>
+        <link refid="syntropic_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="structSYN__BLDC__PhaseOutputs" prot="public">SYN_BLDC_PhaseOutputs</innerclass>
+    <innerclass refid="structSYN__BLDC__Config" prot="public">SYN_BLDC_Config</innerclass>
+    <innerclass refid="structSYN__BLDC__6Step" prot="public">SYN_BLDC_6Step</innerclass>
+    <sectiondef kind="enum">
+      <memberdef kind="enum" id="syn__bldc__6step_8h_1af822dc2b03825578e8d9ace2ec127e79" prot="public" static="no" strong="no">
+        <type></type>
+        <name>SYN_BLDC_GateState</name>
+        <enumvalue id="syn__bldc__6step_8h_1af822dc2b03825578e8d9ace2ec127e79ace19f9a139b574882bb7d23b0cbb88c4" prot="public">
+          <name>SYN_BLDC_GATE_OFF</name>
+          <initializer>= 0</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Both High-Side and Low-Side gates OFF (Hi-Z). </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__bldc__6step_8h_1af822dc2b03825578e8d9ace2ec127e79afb955989aeedf87480b41260c859d687" prot="public">
+          <name>SYN_BLDC_GATE_PWM</name>
+          <initializer>= 1</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>High-Side PWM modulated, Low-Side OFF. </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__bldc__6step_8h_1af822dc2b03825578e8d9ace2ec127e79a4bcd475d12eedbe073b2ab0a5191c7cb" prot="public">
+          <name>SYN_BLDC_GATE_LOW</name>
+          <initializer>= 2</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>High-Side OFF, Low-Side ON (GND return). </para>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Phase Output State (High-Side / Low-Side Gate Switches). </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/motor/syn_bldc_6step.h" line="30" column="1" bodyfile="src/syntropic/motor/syn_bldc_6step.h" bodystart="30" bodyend="34"/>
+      </memberdef>
+      <memberdef kind="enum" id="syn__bldc__6step_8h_1a79efd51450f482904025cf482923c955" prot="public" static="no" strong="no">
+        <type></type>
+        <name>SYN_BLDC_Direction</name>
+        <enumvalue id="syn__bldc__6step_8h_1a79efd51450f482904025cf482923c955a9a4b72d1c44c92b87eb716d9d5a2ad10" prot="public">
+          <name>SYN_BLDC_DIR_CW</name>
+          <initializer>= 1</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Clockwise rotation. </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__bldc__6step_8h_1a79efd51450f482904025cf482923c955aee20af391087931173d3656dd6f47216" prot="public">
+          <name>SYN_BLDC_DIR_CCW</name>
+          <initializer>= 2</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Counter-clockwise rotation. </para>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Motor Rotation Direction. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/motor/syn_bldc_6step.h" line="45" column="1" bodyfile="src/syntropic/motor/syn_bldc_6step.h" bodystart="45" bodyend="48"/>
+      </memberdef>
+      <memberdef kind="enum" id="syn__bldc__6step_8h_1a21e9016f1ca9e5ebfd39ff930801fa31" prot="public" static="no" strong="no">
+        <type></type>
+        <name>SYN_BLDC_State</name>
+        <enumvalue id="syn__bldc__6step_8h_1a21e9016f1ca9e5ebfd39ff930801fa31ae227b8c727795c196aee2330f60a94a3" prot="public">
+          <name>SYN_BLDC_STATE_STOPPED</name>
+          <initializer>= 0</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Motor stopped (all gates OFF). </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__bldc__6step_8h_1a21e9016f1ca9e5ebfd39ff930801fa31a418400320c54d7443ebcd54880f0662f" prot="public">
+          <name>SYN_BLDC_STATE_RUNNING</name>
+          <initializer>= 1</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Normal 6-step commutation running. </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__bldc__6step_8h_1a21e9016f1ca9e5ebfd39ff930801fa31aee19f803eed70accfadd34bde43e90ce" prot="public">
+          <name>SYN_BLDC_STATE_FAULT</name>
+          <initializer>= 2</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Fault state (e.g. invalid Hall sensor input). </para>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Driver State. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/motor/syn_bldc_6step.h" line="51" column="1" bodyfile="src/syntropic/motor/syn_bldc_6step.h" bodystart="51" bodyend="55"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__bldc__6step_8h_1a9a6330b24c4a8458b26c152d66051fea" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_bldc_6step_init</definition>
+        <argsstring>(SYN_BLDC_6Step *bldc, const SYN_BLDC_Config *cfg)</argsstring>
+        <name>syn_bldc_6step_init</name>
+        <param>
+          <type><ref refid="structSYN__BLDC__6Step" kindref="compound">SYN_BLDC_6Step</ref> *</type>
+          <declname>bldc</declname>
+        </param>
+        <param>
+          <type>const <ref refid="structSYN__BLDC__Config" kindref="compound">SYN_BLDC_Config</ref> *</type>
+          <declname>cfg</declname>
+        </param>
+        <briefdescription>
+<para>Initialize 6-Step BLDC driver instance. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>bldc</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to driver struct. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>cfg</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Configuration parameters (or NULL for defaults: 4 pole pairs). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_ERR_INVALID_PARAM if bldc is NULL. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/motor/syn_bldc_6step.h" line="85" column="12" bodyfile="src/syntropic/motor/syn_bldc_6step.c" bodystart="51" bodyend="79" declfile="src/syntropic/motor/syn_bldc_6step.h" declline="85" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__bldc__6step_8h_1a1ad6f08a6773865be22d02653eeb083d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_bldc_6step_set_hall</definition>
+        <argsstring>(SYN_BLDC_6Step *bldc, uint8_t hall_state, SYN_BLDC_PhaseOutputs *out)</argsstring>
+        <name>syn_bldc_6step_set_hall</name>
+        <param>
+          <type><ref refid="structSYN__BLDC__6Step" kindref="compound">SYN_BLDC_6Step</ref> *</type>
+          <declname>bldc</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>hall_state</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__BLDC__PhaseOutputs" kindref="compound">SYN_BLDC_PhaseOutputs</ref> *</type>
+          <declname>out</declname>
+        </param>
+        <briefdescription>
+<para>Process 3-bit Hall sensor reading and update 6-step phase commutation gates. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Call this from Hall sensor EXTI GPIO interrupts or input sampling loops.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>bldc</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to driver struct. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>hall_state</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>3-bit Hall sensor state (bits [2:0] = H3, H2, H1). Valid: 1..6. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to output struct to receive new 3-phase gate states. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on valid commutation step, SYN_ERR_FAULT if hall_state is 0b000 or 0b111. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/motor/syn_bldc_6step.h" line="97" column="12" bodyfile="src/syntropic/motor/syn_bldc_6step.c" bodystart="81" bodyend="126" declfile="src/syntropic/motor/syn_bldc_6step.h" declline="97" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__bldc__6step_8h_1a476a65aa53313d855ce068bcbac8ecf3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_bldc_6step_set_duty</definition>
+        <argsstring>(SYN_BLDC_6Step *bldc, uint16_t duty_0_to_1000)</argsstring>
+        <name>syn_bldc_6step_set_duty</name>
+        <param>
+          <type><ref refid="structSYN__BLDC__6Step" kindref="compound">SYN_BLDC_6Step</ref> *</type>
+          <declname>bldc</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>duty_0_to_1000</declname>
+        </param>
+        <briefdescription>
+<para>Set PWM duty cycle for motor speed control. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>bldc</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to driver struct. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>duty_0_to_1000</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>PWM duty cycle clamped to range 0..1000. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/motor/syn_bldc_6step.h" line="107" column="12" bodyfile="src/syntropic/motor/syn_bldc_6step.c" bodystart="128" bodyend="140" declfile="src/syntropic/motor/syn_bldc_6step.h" declline="107" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__bldc__6step_8h_1a8df6b58c38ba0dc28bcf48a9ac1d544f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_bldc_6step_set_direction</definition>
+        <argsstring>(SYN_BLDC_6Step *bldc, SYN_BLDC_Direction dir)</argsstring>
+        <name>syn_bldc_6step_set_direction</name>
+        <param>
+          <type><ref refid="structSYN__BLDC__6Step" kindref="compound">SYN_BLDC_6Step</ref> *</type>
+          <declname>bldc</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__bldc__6step_8h_1a79efd51450f482904025cf482923c955" kindref="member">SYN_BLDC_Direction</ref></type>
+          <declname>dir</declname>
+        </param>
+        <briefdescription>
+<para>Set motor rotation direction. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>bldc</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to driver struct. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dir</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>SYN_BLDC_DIR_CW or SYN_BLDC_DIR_CCW. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/motor/syn_bldc_6step.h" line="116" column="12" bodyfile="src/syntropic/motor/syn_bldc_6step.c" bodystart="142" bodyend="150" declfile="src/syntropic/motor/syn_bldc_6step.h" declline="116" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__bldc__6step_8h_1a1689e2d4845c62bd79ce0263290f0721" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_bldc_6step_start</definition>
+        <argsstring>(SYN_BLDC_6Step *bldc)</argsstring>
+        <name>syn_bldc_6step_start</name>
+        <param>
+          <type><ref refid="structSYN__BLDC__6Step" kindref="compound">SYN_BLDC_6Step</ref> *</type>
+          <declname>bldc</declname>
+        </param>
+        <briefdescription>
+<para>Start motor driver (enable gate commutation). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>bldc</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to driver struct. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/motor/syn_bldc_6step.h" line="124" column="12" bodyfile="src/syntropic/motor/syn_bldc_6step.c" bodystart="152" bodyend="160" declfile="src/syntropic/motor/syn_bldc_6step.h" declline="124" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__bldc__6step_8h_1a2ca39716d32aa89ec5ce85f1826ad4db" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_bldc_6step_stop</definition>
+        <argsstring>(SYN_BLDC_6Step *bldc, SYN_BLDC_PhaseOutputs *out)</argsstring>
+        <name>syn_bldc_6step_stop</name>
+        <param>
+          <type><ref refid="structSYN__BLDC__6Step" kindref="compound">SYN_BLDC_6Step</ref> *</type>
+          <declname>bldc</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__BLDC__PhaseOutputs" kindref="compound">SYN_BLDC_PhaseOutputs</ref> *</type>
+          <declname>out</declname>
+        </param>
+        <briefdescription>
+<para>Stop motor driver (turn OFF all 6 gates). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>bldc</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to driver struct. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Optional pointer to receive updated OFF gate states. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/motor/syn_bldc_6step.h" line="133" column="12" bodyfile="src/syntropic/motor/syn_bldc_6step.c" bodystart="162" bodyend="179" declfile="src/syntropic/motor/syn_bldc_6step.h" declline="133" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__bldc__6step_8h_1a9f18d45c6c3739c1a85cd2da2b834192" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>uint32_t syn_bldc_6step_update_speed</definition>
+        <argsstring>(SYN_BLDC_6Step *bldc, uint32_t now_ms, uint32_t target_rpm)</argsstring>
+        <name>syn_bldc_6step_update_speed</name>
+        <param>
+          <type><ref refid="structSYN__BLDC__6Step" kindref="compound">SYN_BLDC_6Step</ref> *</type>
+          <declname>bldc</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>now_ms</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>target_rpm</declname>
+        </param>
+        <briefdescription>
+<para>Update Hall-based speed calculation (RPM) and speed PID loop. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Call periodically (e.g. every 10ms or 100ms).</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>bldc</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to driver struct. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>now_ms</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Current system tick in milliseconds. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>target_rpm</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Target motor speed in RPM (used if speed PID is active). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Calculated current RPM. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/motor/syn_bldc_6step.h" line="145" column="10" bodyfile="src/syntropic/motor/syn_bldc_6step.c" bodystart="181" bodyend="222" declfile="src/syntropic/motor/syn_bldc_6step.h" declline="145" declcolumn="10"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__bldc__6step_8h_1a6c2fcebf93d693486e173715457b5806" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_bldc_6step_get_phase_outputs</definition>
+        <argsstring>(const SYN_BLDC_6Step *bldc, SYN_BLDC_PhaseOutputs *out)</argsstring>
+        <name>syn_bldc_6step_get_phase_outputs</name>
+        <param>
+          <type>const <ref refid="structSYN__BLDC__6Step" kindref="compound">SYN_BLDC_6Step</ref> *</type>
+          <declname>bldc</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__BLDC__PhaseOutputs" kindref="compound">SYN_BLDC_PhaseOutputs</ref> *</type>
+          <declname>out</declname>
+        </param>
+        <briefdescription>
+<para>Retrieve current 3-phase gate output states. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>bldc</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to driver struct. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to destination output struct. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/motor/syn_bldc_6step.h" line="154" column="12" bodyfile="src/syntropic/motor/syn_bldc_6step.c" bodystart="224" bodyend="248" declfile="src/syntropic/motor/syn_bldc_6step.h" declline="154" declcolumn="12"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Zero-Heap 6-Step (Trapezoidal) BLDC Motor Commutation Driver. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Provides 6-step trapezoidal block commutation for 3-phase Brushless DC (BLDC) motors:<itemizedlist>
+<listitem><para>3-channel Hall sensor state decoding (Hall states 1..6)</para>
+</listitem><listitem><para>6-step phase commutation lookup table for 3-phase half-bridge outputs (U, V, W)</para>
+</listitem><listitem><para>Clockwise (CW) &amp; Counter-Clockwise (CCW) rotation support</para>
+</listitem><listitem><para>Fault detection for invalid Hall states (0b000 &amp; 0b111)</para>
+</listitem><listitem><para>PWM duty cycle scaling (0..1000)</para>
+</listitem><listitem><para>Hall transition edge timestamping for RPM speed calculation </para>
+</listitem></itemizedlist>
+</para>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_BLDC_6STEP_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_BLDC_6STEP_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__defs_8h" kindref="compound">syntropic/common/syn_defs.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__pid_8h" kindref="compound">syntropic/control/syn_pid.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__qmath_8h" kindref="compound">syntropic/util/syn_qmath.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stddef.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight></codeline>
+<codeline lineno="30" refid="syn__bldc__6step_8h_1af822dc2b03825578e8d9ace2ec127e79" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="31" refid="syn__bldc__6step_8h_1af822dc2b03825578e8d9ace2ec127e79ace19f9a139b574882bb7d23b0cbb88c4" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__bldc__6step_8h_1af822dc2b03825578e8d9ace2ec127e79ace19f9a139b574882bb7d23b0cbb88c4" kindref="member">SYN_BLDC_GATE_OFF</ref><sp/>=<sp/>0,<sp/></highlight></codeline>
+<codeline lineno="32" refid="syn__bldc__6step_8h_1af822dc2b03825578e8d9ace2ec127e79afb955989aeedf87480b41260c859d687" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__bldc__6step_8h_1af822dc2b03825578e8d9ace2ec127e79afb955989aeedf87480b41260c859d687" kindref="member">SYN_BLDC_GATE_PWM</ref><sp/>=<sp/>1,<sp/></highlight></codeline>
+<codeline lineno="33" refid="syn__bldc__6step_8h_1af822dc2b03825578e8d9ace2ec127e79a4bcd475d12eedbe073b2ab0a5191c7cb" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__bldc__6step_8h_1af822dc2b03825578e8d9ace2ec127e79a4bcd475d12eedbe073b2ab0a5191c7cb" kindref="member">SYN_BLDC_GATE_LOW</ref><sp/>=<sp/>2,<sp/></highlight></codeline>
+<codeline lineno="34"><highlight class="normal">}<sp/><ref refid="syn__bldc__6step_8h_1af822dc2b03825578e8d9ace2ec127e79" kindref="member">SYN_BLDC_GateState</ref>;</highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight></codeline>
+<codeline lineno="37" refid="structSYN__BLDC__PhaseOutputs" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="38" refid="structSYN__BLDC__PhaseOutputs_1a583f72ea52aaa21dbcf714da31d60fe2" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__bldc__6step_8h_1af822dc2b03825578e8d9ace2ec127e79" kindref="member">SYN_BLDC_GateState</ref><sp/><ref refid="structSYN__BLDC__PhaseOutputs_1a583f72ea52aaa21dbcf714da31d60fe2" kindref="member">u</ref>;<sp/></highlight></codeline>
+<codeline lineno="39" refid="structSYN__BLDC__PhaseOutputs_1a572e6f8352f10b5bc401545d315c29c4" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__bldc__6step_8h_1af822dc2b03825578e8d9ace2ec127e79" kindref="member">SYN_BLDC_GateState</ref><sp/><ref refid="structSYN__BLDC__PhaseOutputs_1a572e6f8352f10b5bc401545d315c29c4" kindref="member">v</ref>;<sp/></highlight></codeline>
+<codeline lineno="40" refid="structSYN__BLDC__PhaseOutputs_1a27e6932666e02ba2705da1cbfa0830e6" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__bldc__6step_8h_1af822dc2b03825578e8d9ace2ec127e79" kindref="member">SYN_BLDC_GateState</ref><sp/><ref refid="structSYN__BLDC__PhaseOutputs_1a27e6932666e02ba2705da1cbfa0830e6" kindref="member">w</ref>;<sp/></highlight></codeline>
+<codeline lineno="41" refid="structSYN__BLDC__PhaseOutputs_1a5019ae12a00debaffb56b81f5dfddf17" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/><ref refid="structSYN__BLDC__PhaseOutputs_1a5019ae12a00debaffb56b81f5dfddf17" kindref="member">duty</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="42"><highlight class="normal">}<sp/><ref refid="structSYN__BLDC__PhaseOutputs" kindref="compound">SYN_BLDC_PhaseOutputs</ref>;</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight></codeline>
+<codeline lineno="45" refid="syn__bldc__6step_8h_1a79efd51450f482904025cf482923c955" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="46" refid="syn__bldc__6step_8h_1a79efd51450f482904025cf482923c955a9a4b72d1c44c92b87eb716d9d5a2ad10" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__bldc__6step_8h_1a79efd51450f482904025cf482923c955a9a4b72d1c44c92b87eb716d9d5a2ad10" kindref="member">SYN_BLDC_DIR_CW</ref><sp/>=<sp/>1,<sp/></highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__bldc__6step_8h_1a79efd51450f482904025cf482923c955aee20af391087931173d3656dd6f47216" kindref="member">SYN_BLDC_DIR_CCW</ref><sp/>=<sp/>2<sp/></highlight></codeline>
+<codeline lineno="48" refid="syn__bldc__6step_8h_1a79efd51450f482904025cf482923c955aee20af391087931173d3656dd6f47216" refkind="member"><highlight class="normal">}<sp/><ref refid="syn__bldc__6step_8h_1a79efd51450f482904025cf482923c955" kindref="member">SYN_BLDC_Direction</ref>;</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"></highlight></codeline>
+<codeline lineno="51" refid="syn__bldc__6step_8h_1a21e9016f1ca9e5ebfd39ff930801fa31" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="52" refid="syn__bldc__6step_8h_1a21e9016f1ca9e5ebfd39ff930801fa31ae227b8c727795c196aee2330f60a94a3" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__bldc__6step_8h_1a21e9016f1ca9e5ebfd39ff930801fa31ae227b8c727795c196aee2330f60a94a3" kindref="member">SYN_BLDC_STATE_STOPPED</ref><sp/>=<sp/>0,<sp/></highlight></codeline>
+<codeline lineno="53" refid="syn__bldc__6step_8h_1a21e9016f1ca9e5ebfd39ff930801fa31a418400320c54d7443ebcd54880f0662f" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__bldc__6step_8h_1a21e9016f1ca9e5ebfd39ff930801fa31a418400320c54d7443ebcd54880f0662f" kindref="member">SYN_BLDC_STATE_RUNNING</ref><sp/>=<sp/>1,<sp/></highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__bldc__6step_8h_1a21e9016f1ca9e5ebfd39ff930801fa31aee19f803eed70accfadd34bde43e90ce" kindref="member">SYN_BLDC_STATE_FAULT</ref><sp/>=<sp/>2<sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="55" refid="syn__bldc__6step_8h_1a21e9016f1ca9e5ebfd39ff930801fa31aee19f803eed70accfadd34bde43e90ce" refkind="member"><highlight class="normal">}<sp/><ref refid="syn__bldc__6step_8h_1a21e9016f1ca9e5ebfd39ff930801fa31" kindref="member">SYN_BLDC_State</ref>;</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"></highlight></codeline>
+<codeline lineno="58" refid="structSYN__BLDC__Config" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="59" refid="structSYN__BLDC__Config_1ac4046a5e379a04cd8b480749a3a07004" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><ref refid="structSYN__BLDC__Config_1ac4046a5e379a04cd8b480749a3a07004" kindref="member">pole_pairs</ref>;<sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="60" refid="structSYN__BLDC__Config_1a631f3007cfb4fa388c48762092356619" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/><ref refid="structSYN__BLDC__Config_1a631f3007cfb4fa388c48762092356619" kindref="member">pwm_frequency</ref>;<sp/></highlight></codeline>
+<codeline lineno="61"><highlight class="normal">}<sp/><ref refid="structSYN__BLDC__Config" kindref="compound">SYN_BLDC_Config</ref>;</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"></highlight></codeline>
+<codeline lineno="64" refid="structSYN__BLDC__6Step" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="65" refid="structSYN__BLDC__6Step_1a2ff5a480c9fb477da967dd546fd2b616" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structSYN__BLDC__Config" kindref="compound">SYN_BLDC_Config</ref><sp/><ref refid="structSYN__BLDC__6Step_1a2ff5a480c9fb477da967dd546fd2b616" kindref="member">config</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="66" refid="structSYN__BLDC__6Step_1af9c30aa96c180a835bb888ca179cd614" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__bldc__6step_8h_1a21e9016f1ca9e5ebfd39ff930801fa31" kindref="member">SYN_BLDC_State</ref><sp/><ref refid="structSYN__BLDC__6Step_1af9c30aa96c180a835bb888ca179cd614" kindref="member">state</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="67" refid="structSYN__BLDC__6Step_1aeab13ac49a0756ef03f23fab450fa6d0" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__bldc__6step_8h_1a79efd51450f482904025cf482923c955" kindref="member">SYN_BLDC_Direction</ref><sp/><ref refid="structSYN__BLDC__6Step_1aeab13ac49a0756ef03f23fab450fa6d0" kindref="member">direction</ref>;<sp/></highlight></codeline>
+<codeline lineno="68" refid="structSYN__BLDC__6Step_1ab4c854adacb9e0b7cca9c07cfddc52d0" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><ref refid="structSYN__BLDC__6Step_1ab4c854adacb9e0b7cca9c07cfddc52d0" kindref="member">current_step</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="69" refid="structSYN__BLDC__6Step_1a95949a130c0d43284409075253a305b9" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><ref refid="structSYN__BLDC__6Step_1a95949a130c0d43284409075253a305b9" kindref="member">hall_state</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="70" refid="structSYN__BLDC__6Step_1afc535d366c12a30189d86a0c444e9b4a" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/><ref refid="structSYN__BLDC__6Step_1afc535d366c12a30189d86a0c444e9b4a" kindref="member">duty</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="71" refid="structSYN__BLDC__6Step_1a11ff4fce4624d79ed40e4f6b9a4154ce" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structSYN__BLDC__6Step_1a11ff4fce4624d79ed40e4f6b9a4154ce" kindref="member">hall_transitions</ref>;<sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="72" refid="structSYN__BLDC__6Step_1a011481e2762d537e59c49d0a1e8a54f9" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structSYN__BLDC__6Step_1a011481e2762d537e59c49d0a1e8a54f9" kindref="member">last_hall_tick_ms</ref>;<sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="73" refid="structSYN__BLDC__6Step_1af9b104f530aa5aee30cd5927d48353ec" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structSYN__BLDC__6Step_1af9b104f530aa5aee30cd5927d48353ec" kindref="member">rpm</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="74" refid="structSYN__BLDC__6Step_1a9809815f36eda258acf934a1d8353bae" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structSYN__PID" kindref="compound">SYN_PID</ref><sp/><ref refid="structSYN__BLDC__6Step_1a9809815f36eda258acf934a1d8353bae" kindref="member">speed_pid</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="75" refid="structSYN__BLDC__6Step_1a18f20ff8039965420f516d2e49401f7f" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="structSYN__BLDC__6Step_1a18f20ff8039965420f516d2e49401f7f" kindref="member">speed_pid_active</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="76"><highlight class="normal">}<sp/><ref refid="structSYN__BLDC__6Step" kindref="compound">SYN_BLDC_6Step</ref>;</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"></highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__bldc__6step_8h_1a9a6330b24c4a8458b26c152d66051fea" kindref="member">syn_bldc_6step_init</ref>(<ref refid="structSYN__BLDC__6Step" kindref="compound">SYN_BLDC_6Step</ref><sp/>*bldc,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__BLDC__Config" kindref="compound">SYN_BLDC_Config</ref><sp/>*cfg);</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"></highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__bldc__6step_8h_1a1ad6f08a6773865be22d02653eeb083d" kindref="member">syn_bldc_6step_set_hall</ref>(<ref refid="structSYN__BLDC__6Step" kindref="compound">SYN_BLDC_6Step</ref><sp/>*bldc,<sp/>uint8_t<sp/>hall_state,</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__BLDC__PhaseOutputs" kindref="compound">SYN_BLDC_PhaseOutputs</ref><sp/>*out);</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"></highlight></codeline>
+<codeline lineno="107"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__bldc__6step_8h_1a476a65aa53313d855ce068bcbac8ecf3" kindref="member">syn_bldc_6step_set_duty</ref>(<ref refid="structSYN__BLDC__6Step" kindref="compound">SYN_BLDC_6Step</ref><sp/>*bldc,<sp/>uint16_t<sp/>duty_0_to_1000);</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"></highlight></codeline>
+<codeline lineno="116"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__bldc__6step_8h_1a8df6b58c38ba0dc28bcf48a9ac1d544f" kindref="member">syn_bldc_6step_set_direction</ref>(<ref refid="structSYN__BLDC__6Step" kindref="compound">SYN_BLDC_6Step</ref><sp/>*bldc,<sp/><ref refid="syn__bldc__6step_8h_1a79efd51450f482904025cf482923c955" kindref="member">SYN_BLDC_Direction</ref><sp/>dir);</highlight></codeline>
+<codeline lineno="117"><highlight class="normal"></highlight></codeline>
+<codeline lineno="124"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__bldc__6step_8h_1a1689e2d4845c62bd79ce0263290f0721" kindref="member">syn_bldc_6step_start</ref>(<ref refid="structSYN__BLDC__6Step" kindref="compound">SYN_BLDC_6Step</ref><sp/>*bldc);</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"></highlight></codeline>
+<codeline lineno="133"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__bldc__6step_8h_1a2ca39716d32aa89ec5ce85f1826ad4db" kindref="member">syn_bldc_6step_stop</ref>(<ref refid="structSYN__BLDC__6Step" kindref="compound">SYN_BLDC_6Step</ref><sp/>*bldc,<sp/><ref refid="structSYN__BLDC__PhaseOutputs" kindref="compound">SYN_BLDC_PhaseOutputs</ref><sp/>*out);</highlight></codeline>
+<codeline lineno="134"><highlight class="normal"></highlight></codeline>
+<codeline lineno="145"><highlight class="normal">uint32_t<sp/><ref refid="syn__bldc__6step_8h_1a9f18d45c6c3739c1a85cd2da2b834192" kindref="member">syn_bldc_6step_update_speed</ref>(<ref refid="structSYN__BLDC__6Step" kindref="compound">SYN_BLDC_6Step</ref><sp/>*bldc,<sp/>uint32_t<sp/>now_ms,<sp/>uint32_t<sp/>target_rpm);</highlight></codeline>
+<codeline lineno="146"><highlight class="normal"></highlight></codeline>
+<codeline lineno="154"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__bldc__6step_8h_1a6c2fcebf93d693486e173715457b5806" kindref="member">syn_bldc_6step_get_phase_outputs</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__BLDC__6Step" kindref="compound">SYN_BLDC_6Step</ref><sp/>*bldc,<sp/><ref refid="structSYN__BLDC__PhaseOutputs" kindref="compound">SYN_BLDC_PhaseOutputs</ref><sp/>*out);</highlight></codeline>
+<codeline lineno="155"><highlight class="normal"></highlight></codeline>
+<codeline lineno="156"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="157"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="158"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="159"><highlight class="normal"></highlight></codeline>
+<codeline lineno="160"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_BLDC_6STEP_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/motor/syn_bldc_6step.h"/>
+  </compounddef>
+</doxygen>
