@@ -447,7 +447,41 @@ SYN_WEAK int syn_port_serial_read(uint8_t *buf, size_t max_len)
 
 #include "syntropic/port/syn_port_flash.h"
 
-SYN_Status syn_port_flash_read(uint32_t addr, void *buf, size_t len)
+#if defined(FLASH_TYPEERASE_SECTORS)
+static uint32_t syn_stm32_addr_to_sector(uint32_t addr)
+{
+    if (addr < 0x08004000U) return FLASH_SECTOR_0;
+    if (addr < 0x08008000U) return FLASH_SECTOR_1;
+    if (addr < 0x0800C000U) return FLASH_SECTOR_2;
+    if (addr < 0x08010000U) return FLASH_SECTOR_3;
+    if (addr < 0x08020000U) return FLASH_SECTOR_4;
+    if (addr < 0x08040000U) return FLASH_SECTOR_5;
+    if (addr < 0x08060000U) return FLASH_SECTOR_6;
+    if (addr < 0x08080000U) return FLASH_SECTOR_7;
+    if (addr < 0x080A0000U) return FLASH_SECTOR_8;
+    if (addr < 0x080C0000U) return FLASH_SECTOR_9;
+    if (addr < 0x080E0000U) return FLASH_SECTOR_10;
+    if (addr < 0x08100000U) return FLASH_SECTOR_11;
+#if defined(FLASH_SECTOR_12)
+    if (addr < 0x08104000U) return FLASH_SECTOR_12;
+    if (addr < 0x08108000U) return FLASH_SECTOR_13;
+    if (addr < 0x0810C000U) return FLASH_SECTOR_14;
+    if (addr < 0x08110000U) return FLASH_SECTOR_15;
+    if (addr < 0x08120000U) return FLASH_SECTOR_16;
+    if (addr < 0x08140000U) return FLASH_SECTOR_17;
+    if (addr < 0x08160000U) return FLASH_SECTOR_18;
+    if (addr < 0x08180000U) return FLASH_SECTOR_19;
+    if (addr < 0x081A0000U) return FLASH_SECTOR_20;
+    if (addr < 0x081C0000U) return FLASH_SECTOR_21;
+    if (addr < 0x081E0000U) return FLASH_SECTOR_22;
+    return FLASH_SECTOR_23;
+#else
+    return FLASH_SECTOR_11;
+#endif
+}
+#endif
+
+SYN_WEAK SYN_Status syn_port_flash_read(uint32_t addr, void *buf, size_t len)
 {
     if (buf == NULL)
         return SYN_INVALID_PARAM;
@@ -455,13 +489,13 @@ SYN_Status syn_port_flash_read(uint32_t addr, void *buf, size_t len)
     return SYN_OK;
 }
 
-SYN_Status syn_port_flash_erase(uint32_t addr)
+SYN_WEAK SYN_Status syn_port_flash_erase(uint32_t addr)
 {
     HAL_FLASH_Unlock();
 #if defined(FLASH_TYPEERASE_SECTORS)
     FLASH_EraseInitTypeDef erase;
     erase.TypeErase = FLASH_TYPEERASE_SECTORS;
-    erase.Sector = 0; /* User sector index can be customized via port override */
+    erase.Sector = syn_stm32_addr_to_sector(addr);
     erase.NbSectors = 1;
     erase.VoltageRange = FLASH_VOLTAGE_RANGE_3;
     uint32_t error = 0;
@@ -481,7 +515,7 @@ SYN_Status syn_port_flash_erase(uint32_t addr)
     return (status == HAL_OK) ? SYN_OK : SYN_ERROR;
 }
 
-SYN_Status syn_port_flash_write(uint32_t addr, const void *buf, size_t len)
+SYN_WEAK SYN_Status syn_port_flash_write(uint32_t addr, const void *buf, size_t len)
 {
     if (buf == NULL)
         return SYN_INVALID_PARAM;
@@ -514,9 +548,18 @@ SYN_Status syn_port_flash_write(uint32_t addr, const void *buf, size_t len)
     return (status == HAL_OK) ? SYN_OK : SYN_ERROR;
 }
 
-uint32_t syn_port_flash_sector_size(uint32_t addr)
+SYN_WEAK uint32_t syn_port_flash_sector_size(uint32_t addr)
 {
-    (void)addr;
+    if (addr < 0x08010000U)
+        return 16u * 1024u;
+    if (addr < 0x08020000U)
+        return 64u * 1024u;
+#if defined(FLASH_SECTOR_12)
+    if (addr >= 0x08100000U && addr < 0x08110000U)
+        return 16u * 1024u;
+    if (addr >= 0x08110000U && addr < 0x08120000U)
+        return 64u * 1024u;
+#endif
     return 128u * 1024u;
 }
 
