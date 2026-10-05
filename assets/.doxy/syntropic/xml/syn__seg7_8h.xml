@@ -1,0 +1,551 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__seg7_8h" kind="file" language="C++">
+    <compoundname>syn_seg7.h</compoundname>
+    <includes refid="syn__defs_8h" local="yes">../common/syn_defs.h</includes>
+    <includes refid="syn__port__gpio_8h" local="yes">../port/syn_port_gpio.h</includes>
+    <includes local="no">stdbool.h</includes>
+    <includes local="no">stddef.h</includes>
+    <includes local="no">stdint.h</includes>
+    <includedby refid="syn__seg7_8c" local="yes">src/syntropic/display/syn_seg7.c</includedby>
+    <includedby refid="syntropic_8h" local="yes">src/syntropic/syntropic.h</includedby>
+    <incdepgraph>
+      <node id="2">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/display/syn_seg7.h</label>
+        <link refid="syn__seg7_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>../port/syn_port_gpio.h</label>
+        <link refid="syn__port__gpio_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>stdbool.h</label>
+      </node>
+      <node id="3">
+        <label>stddef.h</label>
+      </node>
+      <node id="4">
+        <label>stdint.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="2">
+        <label>src/syntropic/display/syn_seg7.c</label>
+        <link refid="syn__seg7_8c"/>
+      </node>
+      <node id="1">
+        <label>src/syntropic/display/syn_seg7.h</label>
+        <link refid="syn__seg7_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>src/syntropic/proto/syn_doip.c</label>
+        <link refid="syn__doip_8c"/>
+      </node>
+      <node id="4">
+        <label>src/syntropic/proto/syn_doip.h</label>
+        <link refid="syn__doip_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>src/syntropic/syntropic.h</label>
+        <link refid="syntropic_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="structSYN__Seg7" prot="public">SYN_Seg7</innerclass>
+    <sectiondef kind="define">
+      <memberdef kind="define" id="syn__seg7_8h_1aab86914c5e386309425e835328796a39" prot="public" static="no">
+        <name>SYN_SEG7_MAX_DIGITS</name>
+        <initializer>8</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Maximum supported display digits (8) </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/display/syn_seg7.h" line="21" column="9" bodyfile="src/syntropic/display/syn_seg7.h" bodystart="21" bodyend="-1"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="enum">
+      <memberdef kind="enum" id="syn__seg7_8h_1add23a7570542cfdd3664443764a34c64" prot="public" static="no" strong="no">
+        <type></type>
+        <name>SYN_Seg7Type</name>
+        <enumvalue id="syn__seg7_8h_1add23a7570542cfdd3664443764a34c64ac62867c952099ef9655313efafa45b52" prot="public">
+          <name>SYN_SEG7_COMMON_CATHODE</name>
+          <initializer>= 0</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Active HIGH segments, active LOW digit selects </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__seg7_8h_1add23a7570542cfdd3664443764a34c64ab248e168419962d6f4800f5c0706288a" prot="public">
+          <name>SYN_SEG7_COMMON_ANODE</name>
+          <initializer>= 1</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Active LOW segments, active HIGH digit selects </para>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>7-segment display wiring polarity. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/display/syn_seg7.h" line="26" column="1" bodyfile="src/syntropic/display/syn_seg7.h" bodystart="26" bodyend="29"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__seg7_8h_1ae1f2514a99c2fc446c4ac6cb70a65747" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_seg7_init</definition>
+        <argsstring>(SYN_Seg7 *seg, const SYN_GPIO_Pin segments[8], const SYN_GPIO_Pin *digits, uint8_t num_digits, SYN_Seg7Type type)</argsstring>
+        <name>syn_seg7_init</name>
+        <param>
+          <type><ref refid="structSYN__Seg7" kindref="compound">SYN_Seg7</ref> *</type>
+          <declname>seg</declname>
+        </param>
+        <param>
+          <type>const <ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref></type>
+          <declname>segments</declname>
+          <array>[8]</array>
+        </param>
+        <param>
+          <type>const <ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref> *</type>
+          <declname>digits</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>num_digits</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__seg7_8h_1add23a7570542cfdd3664443764a34c64" kindref="member">SYN_Seg7Type</ref></type>
+          <declname>type</declname>
+        </param>
+        <briefdescription>
+<para>Initialize a 7-Segment Display instance. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>seg</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>7-segment context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>segments</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Array of 8 segment GPIO pins (A, B, C, D, E, F, G, DP). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>digits</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Array of digit selector GPIO pins (up to 8). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>num_digits</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of digits in the array (1 to 8). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>type</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Wiring type (Common Cathode / Common Anode). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/display/syn_seg7.h" line="54" column="12" bodyfile="src/syntropic/display/syn_seg7.c" bodystart="81" bodyend="115" declfile="src/syntropic/display/syn_seg7.h" declline="54" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__seg7_8h_1aba7c3ed73aefe18c7a39758b5c650bdd" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_seg7_scan</definition>
+        <argsstring>(SYN_Seg7 *seg)</argsstring>
+        <name>syn_seg7_scan</name>
+        <param>
+          <type><ref refid="structSYN__Seg7" kindref="compound">SYN_Seg7</ref> *</type>
+          <declname>seg</declname>
+        </param>
+        <briefdescription>
+<para>Non-blocking multiplex scan tick. Call periodically in main/scheduler loop. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>seg</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>7-segment context. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/display/syn_seg7.h" line="62" column="6" bodyfile="src/syntropic/display/syn_seg7.c" bodystart="117" bodyend="144" declfile="src/syntropic/display/syn_seg7.h" declline="62" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__seg7_8h_1ae4e2953b477d6014a5e8b87264f16ad6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_seg7_clear</definition>
+        <argsstring>(SYN_Seg7 *seg)</argsstring>
+        <name>syn_seg7_clear</name>
+        <param>
+          <type><ref refid="structSYN__Seg7" kindref="compound">SYN_Seg7</ref> *</type>
+          <declname>seg</declname>
+        </param>
+        <briefdescription>
+<para>Clear display (turn off all segments). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>seg</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>7-segment context. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/display/syn_seg7.h" line="69" column="6" bodyfile="src/syntropic/display/syn_seg7.c" bodystart="146" bodyend="151" declfile="src/syntropic/display/syn_seg7.h" declline="69" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__seg7_8h_1aab5976faf6f6cabfde579e673e19255a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_seg7_print_int</definition>
+        <argsstring>(SYN_Seg7 *seg, int32_t val)</argsstring>
+        <name>syn_seg7_print_int</name>
+        <param>
+          <type><ref refid="structSYN__Seg7" kindref="compound">SYN_Seg7</ref> *</type>
+          <declname>seg</declname>
+        </param>
+        <param>
+          <type>int32_t</type>
+          <declname>val</declname>
+        </param>
+        <briefdescription>
+<para>Display an integer number. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>seg</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>7-segment context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>val</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Signed integer value to display. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/display/syn_seg7.h" line="77" column="6" bodyfile="src/syntropic/display/syn_seg7.c" bodystart="160" bodyend="184" declfile="src/syntropic/display/syn_seg7.h" declline="77" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__seg7_8h_1a81095f469f0b03bead10591715d0475c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_seg7_print_float</definition>
+        <argsstring>(SYN_Seg7 *seg, float val, uint8_t decimals)</argsstring>
+        <name>syn_seg7_print_float</name>
+        <param>
+          <type><ref refid="structSYN__Seg7" kindref="compound">SYN_Seg7</ref> *</type>
+          <declname>seg</declname>
+        </param>
+        <param>
+          <type>float</type>
+          <declname>val</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>decimals</declname>
+        </param>
+        <briefdescription>
+<para>Display a floating-point number with specified decimal precision. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>seg</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>7-segment context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>val</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Float value to display. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>decimals</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of fractional digits after decimal point. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/display/syn_seg7.h" line="86" column="6" bodyfile="src/syntropic/display/syn_seg7.c" bodystart="186" bodyend="210" declfile="src/syntropic/display/syn_seg7.h" declline="86" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__seg7_8h_1abe86bc274229c31a4b6333dac00a248e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_seg7_print_hex</definition>
+        <argsstring>(SYN_Seg7 *seg, uint32_t val)</argsstring>
+        <name>syn_seg7_print_hex</name>
+        <param>
+          <type><ref refid="structSYN__Seg7" kindref="compound">SYN_Seg7</ref> *</type>
+          <declname>seg</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>val</declname>
+        </param>
+        <briefdescription>
+<para>Display an integer in hexadecimal format. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>seg</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>7-segment context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>val</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Unsigned integer to display in hex. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/display/syn_seg7.h" line="94" column="6" bodyfile="src/syntropic/display/syn_seg7.c" bodystart="212" bodyend="231" declfile="src/syntropic/display/syn_seg7.h" declline="94" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__seg7_8h_1aa70dd6cdac73ea40f3d18f228f1ddb7c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_seg7_print_str</definition>
+        <argsstring>(SYN_Seg7 *seg, const char *str)</argsstring>
+        <name>syn_seg7_print_str</name>
+        <param>
+          <type><ref refid="structSYN__Seg7" kindref="compound">SYN_Seg7</ref> *</type>
+          <declname>seg</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>str</declname>
+        </param>
+        <briefdescription>
+<para>Display a text string (best-effort 7-segment ASCII mapping). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>seg</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>7-segment context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>str</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>ASCII string. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/display/syn_seg7.h" line="102" column="6" bodyfile="src/syntropic/display/syn_seg7.c" bodystart="233" bodyend="250" declfile="src/syntropic/display/syn_seg7.h" declline="102" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__seg7_8h_1aef55b38ca71762a0fb1fb2e2fb855d0c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_seg7_set_digit_raw</definition>
+        <argsstring>(SYN_Seg7 *seg, uint8_t digit_idx, uint8_t seg_mask)</argsstring>
+        <name>syn_seg7_set_digit_raw</name>
+        <param>
+          <type><ref refid="structSYN__Seg7" kindref="compound">SYN_Seg7</ref> *</type>
+          <declname>seg</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>digit_idx</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>seg_mask</declname>
+        </param>
+        <briefdescription>
+<para>Set raw segment bitmask for a specific digit. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>seg</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>7-segment context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>digit_idx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Digit index (0 to num_digits-1). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>seg_mask</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Raw segment bitmask (Bit 0=A, Bit 1=B, ..., Bit 7=DP). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/display/syn_seg7.h" line="111" column="6" bodyfile="src/syntropic/display/syn_seg7.c" bodystart="153" bodyend="158" declfile="src/syntropic/display/syn_seg7.h" declline="111" declcolumn="6"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>7-Segment LED Display &amp; Multi-Digit Array Driver. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_SEG7_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_SEG7_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../common/syn_defs.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../port/syn_port_gpio.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stddef.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight></codeline>
+<codeline lineno="21" refid="syn__seg7_8h_1aab86914c5e386309425e835328796a39" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_SEG7_MAX_DIGITS<sp/>8<sp/></highlight></codeline>
+<codeline lineno="26" refid="syn__seg7_8h_1add23a7570542cfdd3664443764a34c64" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="27" refid="syn__seg7_8h_1add23a7570542cfdd3664443764a34c64ac62867c952099ef9655313efafa45b52" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__seg7_8h_1add23a7570542cfdd3664443764a34c64ac62867c952099ef9655313efafa45b52" kindref="member">SYN_SEG7_COMMON_CATHODE</ref><sp/>=<sp/>0,<sp/></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__seg7_8h_1add23a7570542cfdd3664443764a34c64ab248e168419962d6f4800f5c0706288a" kindref="member">SYN_SEG7_COMMON_ANODE</ref><sp/>=<sp/>1<sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="29" refid="syn__seg7_8h_1add23a7570542cfdd3664443764a34c64ab248e168419962d6f4800f5c0706288a" refkind="member"><highlight class="normal">}<sp/><ref refid="syn__seg7_8h_1add23a7570542cfdd3664443764a34c64" kindref="member">SYN_Seg7Type</ref>;</highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight></codeline>
+<codeline lineno="34" refid="structSYN__Seg7" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="35" refid="structSYN__Seg7_1ac9d02c77eb621d1e2260e2bfa41a7c13" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref><sp/>segment_pins[8];<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="36" refid="structSYN__Seg7_1a7b5ea39f15f4fc4d15f49e7ba387f619" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref><sp/>digit_pins[<ref refid="syn__seg7_8h_1aab86914c5e386309425e835328796a39" kindref="member">SYN_SEG7_MAX_DIGITS</ref>];<sp/></highlight></codeline>
+<codeline lineno="37" refid="structSYN__Seg7_1a1a366aee7acc5258493f800fe7da7993" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><ref refid="structSYN__Seg7_1a1a366aee7acc5258493f800fe7da7993" kindref="member">num_digits</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="38" refid="structSYN__Seg7_1a8f72a2c0f5a0d46caa6bc559d84e1119" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__seg7_8h_1add23a7570542cfdd3664443764a34c64" kindref="member">SYN_Seg7Type</ref><sp/><ref refid="structSYN__Seg7_1a8f72a2c0f5a0d46caa6bc559d84e1119" kindref="member">type</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="39" refid="structSYN__Seg7_1a6d46363f84e21c80bf484e7e5117d170" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>digit_buffers[<ref refid="syn__seg7_8h_1aab86914c5e386309425e835328796a39" kindref="member">SYN_SEG7_MAX_DIGITS</ref>];<sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="40" refid="structSYN__Seg7_1a300ade34327653304fdba33632520594" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><ref refid="structSYN__Seg7_1a300ade34327653304fdba33632520594" kindref="member">active_digit</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="41" refid="structSYN__Seg7_1a13aba1e968834a40b8b001230a8cfe67" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="structSYN__Seg7_1a13aba1e968834a40b8b001230a8cfe67" kindref="member">leading_zeros</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="42"><highlight class="normal">}<sp/><ref refid="structSYN__Seg7" kindref="compound">SYN_Seg7</ref>;</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__seg7_8h_1ae1f2514a99c2fc446c4ac6cb70a65747" kindref="member">syn_seg7_init</ref>(<ref refid="structSYN__Seg7" kindref="compound">SYN_Seg7</ref><sp/>*seg,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref><sp/>segments[8],<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref><sp/>*digits,</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>num_digits,<sp/><ref refid="syn__seg7_8h_1add23a7570542cfdd3664443764a34c64" kindref="member">SYN_Seg7Type</ref><sp/>type);</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"></highlight></codeline>
+<codeline lineno="62"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__seg7_8h_1aba7c3ed73aefe18c7a39758b5c650bdd" kindref="member">syn_seg7_scan</ref>(<ref refid="structSYN__Seg7" kindref="compound">SYN_Seg7</ref><sp/>*seg);</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"></highlight></codeline>
+<codeline lineno="69"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__seg7_8h_1ae4e2953b477d6014a5e8b87264f16ad6" kindref="member">syn_seg7_clear</ref>(<ref refid="structSYN__Seg7" kindref="compound">SYN_Seg7</ref><sp/>*seg);</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"></highlight></codeline>
+<codeline lineno="77"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__seg7_8h_1aab5976faf6f6cabfde579e673e19255a" kindref="member">syn_seg7_print_int</ref>(<ref refid="structSYN__Seg7" kindref="compound">SYN_Seg7</ref><sp/>*seg,<sp/>int32_t<sp/>val);</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"></highlight></codeline>
+<codeline lineno="86"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__seg7_8h_1a81095f469f0b03bead10591715d0475c" kindref="member">syn_seg7_print_float</ref>(<ref refid="structSYN__Seg7" kindref="compound">SYN_Seg7</ref><sp/>*seg,<sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>val,<sp/>uint8_t<sp/>decimals);</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"></highlight></codeline>
+<codeline lineno="94"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__seg7_8h_1abe86bc274229c31a4b6333dac00a248e" kindref="member">syn_seg7_print_hex</ref>(<ref refid="structSYN__Seg7" kindref="compound">SYN_Seg7</ref><sp/>*seg,<sp/>uint32_t<sp/>val);</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"></highlight></codeline>
+<codeline lineno="102"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__seg7_8h_1aa70dd6cdac73ea40f3d18f228f1ddb7c" kindref="member">syn_seg7_print_str</ref>(<ref refid="structSYN__Seg7" kindref="compound">SYN_Seg7</ref><sp/>*seg,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*str);</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"></highlight></codeline>
+<codeline lineno="111"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__seg7_8h_1aef55b38ca71762a0fb1fb2e2fb855d0c" kindref="member">syn_seg7_set_digit_raw</ref>(<ref refid="structSYN__Seg7" kindref="compound">SYN_Seg7</ref><sp/>*seg,<sp/>uint8_t<sp/>digit_idx,<sp/>uint8_t<sp/>seg_mask);</highlight></codeline>
+<codeline lineno="112"><highlight class="normal"></highlight></codeline>
+<codeline lineno="113"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="114"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="115"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="116"><highlight class="normal"></highlight></codeline>
+<codeline lineno="117"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_SEG7_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/display/syn_seg7.h"/>
+  </compounddef>
+</doxygen>

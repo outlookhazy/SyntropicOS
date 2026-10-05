@@ -1,0 +1,301 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__dipswitch_8h" kind="file" language="C++">
+    <compoundname>syn_dipswitch.h</compoundname>
+    <includes refid="syn__defs_8h" local="yes">../common/syn_defs.h</includes>
+    <includes refid="syn__port__gpio_8h" local="yes">../port/syn_port_gpio.h</includes>
+    <includes local="no">stdbool.h</includes>
+    <includes local="no">stddef.h</includes>
+    <includes local="no">stdint.h</includes>
+    <includedby refid="syn__dipswitch_8c" local="yes">src/syntropic/input/syn_dipswitch.c</includedby>
+    <includedby refid="syntropic_8h" local="yes">src/syntropic/syntropic.h</includedby>
+    <incdepgraph>
+      <node id="2">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/input/syn_dipswitch.h</label>
+        <link refid="syn__dipswitch_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>../port/syn_port_gpio.h</label>
+        <link refid="syn__port__gpio_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>stdbool.h</label>
+      </node>
+      <node id="3">
+        <label>stddef.h</label>
+      </node>
+      <node id="4">
+        <label>stdint.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="2">
+        <label>src/syntropic/input/syn_dipswitch.c</label>
+        <link refid="syn__dipswitch_8c"/>
+      </node>
+      <node id="1">
+        <label>src/syntropic/input/syn_dipswitch.h</label>
+        <link refid="syn__dipswitch_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>src/syntropic/proto/syn_doip.c</label>
+        <link refid="syn__doip_8c"/>
+      </node>
+      <node id="4">
+        <label>src/syntropic/proto/syn_doip.h</label>
+        <link refid="syn__doip_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>src/syntropic/syntropic.h</label>
+        <link refid="syntropic_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="structSYN__DipSwitch" prot="public">SYN_DipSwitch</innerclass>
+    <sectiondef kind="define">
+      <memberdef kind="define" id="syn__dipswitch_8h_1acd0f29cf05daab667eb8403058b9ea86" prot="public" static="no">
+        <name>SYN_DIPSWITCH_MAX_PINS</name>
+        <initializer>16</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Maximum supported GPIO pins in DIP switch array (16) </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/input/syn_dipswitch.h" line="21" column="9" bodyfile="src/syntropic/input/syn_dipswitch.h" bodystart="21" bodyend="-1"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__dipswitch_8h_1a7d27da44d2d1a973296e84ce00a1c913" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_dipswitch_init</definition>
+        <argsstring>(SYN_DipSwitch *ds, const SYN_GPIO_Pin *pins, uint8_t count, bool active_low)</argsstring>
+        <name>syn_dipswitch_init</name>
+        <param>
+          <type><ref refid="structSYN__DipSwitch" kindref="compound">SYN_DipSwitch</ref> *</type>
+          <declname>ds</declname>
+        </param>
+        <param>
+          <type>const <ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref> *</type>
+          <declname>pins</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>count</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+          <declname>active_low</declname>
+        </param>
+        <briefdescription>
+<para>Initialize a DIP Switch instance. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Configures input GPIO pins with internal pull-ups or pull-downs.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ds</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>DIP switch context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>pins</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Array of GPIO pin identifiers. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>count</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of switch pins (1 to 16). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>active_low</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>True if switch ON connects pin to GND (uses Pull-UP). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/input/syn_dipswitch.h" line="46" column="12" bodyfile="src/syntropic/input/syn_dipswitch.c" bodystart="12" bodyend="34" declfile="src/syntropic/input/syn_dipswitch.h" declline="46" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__dipswitch_8h_1a79101a41f424c652dc8f004df5ef39fa" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_dipswitch_read</definition>
+        <argsstring>(SYN_DipSwitch *ds)</argsstring>
+        <name>syn_dipswitch_read</name>
+        <param>
+          <type><ref refid="structSYN__DipSwitch" kindref="compound">SYN_DipSwitch</ref> *</type>
+          <declname>ds</declname>
+        </param>
+        <briefdescription>
+<para>Read all DIP switch pins and update binary value. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ds</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>DIP switch context. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/input/syn_dipswitch.h" line="54" column="6" bodyfile="src/syntropic/input/syn_dipswitch.c" bodystart="36" bodyend="58" declfile="src/syntropic/input/syn_dipswitch.h" declline="54" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__dipswitch_8h_1a7c3db9ca34a61dfba281979ef63722ac" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>uint32_t syn_dipswitch_get_value</definition>
+        <argsstring>(const SYN_DipSwitch *ds)</argsstring>
+        <name>syn_dipswitch_get_value</name>
+        <param>
+          <type>const <ref refid="structSYN__DipSwitch" kindref="compound">SYN_DipSwitch</ref> *</type>
+          <declname>ds</declname>
+        </param>
+        <briefdescription>
+<para>Get the current combined integer bitmask value of switches. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ds</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>DIP switch context. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Bitmask where bit N corresponds to pin N. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/input/syn_dipswitch.h" line="62" column="10" bodyfile="src/syntropic/input/syn_dipswitch.c" bodystart="60" bodyend="63" declfile="src/syntropic/input/syn_dipswitch.h" declline="62" declcolumn="10"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__dipswitch_8h_1a3a336a87dee63d601546876a88a5f5f4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_dipswitch_has_changed</definition>
+        <argsstring>(SYN_DipSwitch *ds)</argsstring>
+        <name>syn_dipswitch_has_changed</name>
+        <param>
+          <type><ref refid="structSYN__DipSwitch" kindref="compound">SYN_DipSwitch</ref> *</type>
+          <declname>ds</declname>
+        </param>
+        <briefdescription>
+<para>Check if DIP switch values changed since last read. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ds</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>DIP switch context. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>True if state changed. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/input/syn_dipswitch.h" line="70" column="6" bodyfile="src/syntropic/input/syn_dipswitch.c" bodystart="65" bodyend="68" declfile="src/syntropic/input/syn_dipswitch.h" declline="70" declcolumn="6"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>DIP Switch &amp; Multi-Bit Rotary Selector Driver. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_DIPSWITCH_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_DIPSWITCH_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../common/syn_defs.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../port/syn_port_gpio.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stddef.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight></codeline>
+<codeline lineno="21" refid="syn__dipswitch_8h_1acd0f29cf05daab667eb8403058b9ea86" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_DIPSWITCH_MAX_PINS<sp/>16<sp/></highlight></codeline>
+<codeline lineno="26" refid="structSYN__DipSwitch" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="27" refid="structSYN__DipSwitch_1a63686c5cecaf9a3a2749780a7c5adf30" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref><sp/>pins[<ref refid="syn__dipswitch_8h_1acd0f29cf05daab667eb8403058b9ea86" kindref="member">SYN_DIPSWITCH_MAX_PINS</ref>];<sp/></highlight></codeline>
+<codeline lineno="28" refid="structSYN__DipSwitch_1a37dde838a041a7275ce16b261a790ee9" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><ref refid="structSYN__DipSwitch_1a37dde838a041a7275ce16b261a790ee9" kindref="member">count</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="29" refid="structSYN__DipSwitch_1a91a945e65e3750452ae59b2d2cfac611" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="structSYN__DipSwitch_1a91a945e65e3750452ae59b2d2cfac611" kindref="member">active_low</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="30" refid="structSYN__DipSwitch_1a7535abf2c18837cf0e077bb3552feb62" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structSYN__DipSwitch_1a7535abf2c18837cf0e077bb3552feb62" kindref="member">current_value</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="31" refid="structSYN__DipSwitch_1ace90b37db68920adcad65c76450b4327" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structSYN__DipSwitch_1ace90b37db68920adcad65c76450b4327" kindref="member">previous_value</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="32" refid="structSYN__DipSwitch_1a25e104717139acf495eb5d1eb14c9c3b" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="structSYN__DipSwitch_1a25e104717139acf495eb5d1eb14c9c3b" kindref="member">changed</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="33"><highlight class="normal">}<sp/><ref refid="structSYN__DipSwitch" kindref="compound">SYN_DipSwitch</ref>;</highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__dipswitch_8h_1a7d27da44d2d1a973296e84ce00a1c913" kindref="member">syn_dipswitch_init</ref>(<ref refid="structSYN__DipSwitch" kindref="compound">SYN_DipSwitch</ref><sp/>*ds,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref><sp/>*pins,<sp/>uint8_t<sp/>count,</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>active_low);</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"></highlight></codeline>
+<codeline lineno="54"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__dipswitch_8h_1a79101a41f424c652dc8f004df5ef39fa" kindref="member">syn_dipswitch_read</ref>(<ref refid="structSYN__DipSwitch" kindref="compound">SYN_DipSwitch</ref><sp/>*ds);</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"></highlight></codeline>
+<codeline lineno="62"><highlight class="normal">uint32_t<sp/><ref refid="syn__dipswitch_8h_1a7c3db9ca34a61dfba281979ef63722ac" kindref="member">syn_dipswitch_get_value</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__DipSwitch" kindref="compound">SYN_DipSwitch</ref><sp/>*ds);</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"></highlight></codeline>
+<codeline lineno="70"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__dipswitch_8h_1a3a336a87dee63d601546876a88a5f5f4" kindref="member">syn_dipswitch_has_changed</ref>(<ref refid="structSYN__DipSwitch" kindref="compound">SYN_DipSwitch</ref><sp/>*ds);</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"></highlight></codeline>
+<codeline lineno="72"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="73"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="75"><highlight class="normal"></highlight></codeline>
+<codeline lineno="76"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_DIPSWITCH_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/input/syn_dipswitch.h"/>
+  </compounddef>
+</doxygen>

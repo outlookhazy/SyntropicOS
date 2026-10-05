@@ -1,0 +1,834 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__wasm_8h" kind="file" language="C++">
+    <compoundname>syn_wasm.h</compoundname>
+    <includes refid="syn__defs_8h" local="yes">../common/syn_defs.h</includes>
+    <includes refid="syn__qmath_8h" local="yes">../util/syn_qmath.h</includes>
+    <includes local="no">stdbool.h</includes>
+    <includes local="no">stddef.h</includes>
+    <includes local="no">stdint.h</includes>
+    <includedby refid="syntropic_8h" local="yes">src/syntropic/syntropic.h</includedby>
+    <includedby refid="syn__wasm_8c" local="yes">src/syntropic/vm/syn_wasm.c</includedby>
+    <incdepgraph>
+      <node id="2">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>../util/syn_qmath.h</label>
+        <link refid="syn__qmath_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/vm/syn_wasm.h</label>
+        <link refid="syn__wasm_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>stdbool.h</label>
+      </node>
+      <node id="3">
+        <label>stddef.h</label>
+      </node>
+      <node id="4">
+        <label>stdint.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="4">
+        <label>src/syntropic/proto/syn_doip.c</label>
+        <link refid="syn__doip_8c"/>
+      </node>
+      <node id="3">
+        <label>src/syntropic/proto/syn_doip.h</label>
+        <link refid="syn__doip_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>src/syntropic/syntropic.h</label>
+        <link refid="syntropic_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>src/syntropic/vm/syn_wasm.c</label>
+        <link refid="syn__wasm_8c"/>
+      </node>
+      <node id="1">
+        <label>src/syntropic/vm/syn_wasm.h</label>
+        <link refid="syn__wasm_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="structSYN__WASM__FuncDef" prot="public">SYN_WASM_FuncDef</innerclass>
+    <innerclass refid="structSYN__WASM__Module" prot="public">SYN_WASM_Module</innerclass>
+    <innerclass refid="structSYN__WASM__CallFrame" prot="public">SYN_WASM_CallFrame</innerclass>
+    <innerclass refid="structSYN__WASM__Label" prot="public">SYN_WASM_Label</innerclass>
+    <innerclass refid="structSYN__WASM__Context__s" prot="public">SYN_WASM_Context_s</innerclass>
+    <sectiondef kind="user-defined">
+      <header>WebAssembly VM Execution Limit Constants</header>
+      <memberdef kind="define" id="syn__wasm_8h_1a5091aac353abec684c34dbfec7bbd356" prot="public" static="no">
+        <name>SYN_WASM_MAX_STACK</name>
+        <initializer>64</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Maximum operand stack depth </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/vm/syn_wasm.h" line="36" column="9" bodyfile="src/syntropic/vm/syn_wasm.h" bodystart="36" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__wasm_8h_1a53a2da41af54eed337be9ec29939478d" prot="public" static="no">
+        <name>SYN_WASM_MAX_LOCALS</name>
+        <initializer>256</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Maximum local variable count per frame </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/vm/syn_wasm.h" line="40" column="9" bodyfile="src/syntropic/vm/syn_wasm.h" bodystart="40" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__wasm_8h_1a8d0314ef1c9a036bc26d9c79952ebe56" prot="public" static="no">
+        <name>SYN_WASM_MAX_CALL_DEPTH</name>
+        <initializer>32</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Maximum call frame stack depth </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/vm/syn_wasm.h" line="44" column="9" bodyfile="src/syntropic/vm/syn_wasm.h" bodystart="44" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__wasm_8h_1a53cace540eebae36591fc6c1ae07eca5" prot="public" static="no">
+        <name>SYN_WASM_MAX_FUNCTIONS</name>
+        <initializer>32</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Maximum internal function defs </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/vm/syn_wasm.h" line="48" column="9" bodyfile="src/syntropic/vm/syn_wasm.h" bodystart="48" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__wasm_8h_1a5af54dd8e7ddf9c366fdc97735caa44f" prot="public" static="no">
+        <name>SYN_WASM_MAX_HOST_FUNCS</name>
+        <initializer>16</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Maximum registered host functions </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/vm/syn_wasm.h" line="52" column="9" bodyfile="src/syntropic/vm/syn_wasm.h" bodystart="52" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__wasm_8h_1a4c2ac48f201d5fc1b5600257e96a0d5f" prot="public" static="no">
+        <name>SYN_WASM_MAX_GLOBALS</name>
+        <initializer>16</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Maximum global variables </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/vm/syn_wasm.h" line="56" column="9" bodyfile="src/syntropic/vm/syn_wasm.h" bodystart="56" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__wasm_8h_1ad9c273b9ced0cfdc1f6856c4f1b767ce" prot="public" static="no">
+        <name>SYN_WASM_MAX_LABELS</name>
+        <initializer>16</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Maximum block/loop control labels </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/vm/syn_wasm.h" line="60" column="9" bodyfile="src/syntropic/vm/syn_wasm.h" bodystart="60" bodyend="-1"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="enum">
+      <memberdef kind="enum" id="syn__wasm_8h_1a3effc954ceb49307ad14e8665dba6712" prot="public" static="no" strong="no">
+        <type></type>
+        <name>SYN_WASM_Status</name>
+        <enumvalue id="syn__wasm_8h_1a3effc954ceb49307ad14e8665dba6712adcf4b2d9b781b0a5c6874a82ebd72799" prot="public">
+          <name>SYN_WASM_OK</name>
+          <initializer>= 0</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Execution completed normally </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__wasm_8h_1a3effc954ceb49307ad14e8665dba6712a9b2fe947669a69daa519ad5e937e8179" prot="public">
+          <name>SYN_WASM_YIELDED</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Execution yielded after instruction quota </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__wasm_8h_1a3effc954ceb49307ad14e8665dba6712a72fd507e426c8b9b7bb4b1ece9702827" prot="public">
+          <name>SYN_WASM_HALTED</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>VM halted </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__wasm_8h_1a3effc954ceb49307ad14e8665dba6712a59ce271335a5ce335d5412afe0dbd9d4" prot="public">
+          <name>SYN_WASM_TRAP_STACK_OVERFLOW</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Operand stack overflow trap </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__wasm_8h_1a3effc954ceb49307ad14e8665dba6712a7dfb168b890ace7f7e8ce2d4c5558070" prot="public">
+          <name>SYN_WASM_TRAP_STACK_UNDERFLOW</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Operand stack underflow trap </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__wasm_8h_1a3effc954ceb49307ad14e8665dba6712ad9af6079f16713f578725c670e3e17e0" prot="public">
+          <name>SYN_WASM_TRAP_OUT_OF_BOUNDS</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Memory access out of bounds trap </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__wasm_8h_1a3effc954ceb49307ad14e8665dba6712adcdb99414f0e067001e5bca045e4139a" prot="public">
+          <name>SYN_WASM_TRAP_BAD_OPCODE</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Invalid or unsupported opcode trap </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__wasm_8h_1a3effc954ceb49307ad14e8665dba6712a68f6af6308d224868d1565c47abd1dd9" prot="public">
+          <name>SYN_WASM_TRAP_DIV_ZERO</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Division by zero trap </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__wasm_8h_1a3effc954ceb49307ad14e8665dba6712a56e9cede5cec33a58059c57b20dbc3f1" prot="public">
+          <name>SYN_WASM_TRAP_UNREACHABLE</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Unreachable instruction trap </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__wasm_8h_1a3effc954ceb49307ad14e8665dba6712a6d7c3130aaa0aba1da8ec60274482b85" prot="public">
+          <name>SYN_WASM_TRAP_CALL_STACK_OVERFLOW</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Call stack overflow trap </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__wasm_8h_1a3effc954ceb49307ad14e8665dba6712af5502c723ee30b21befaf90e26e91938" prot="public">
+          <name>SYN_WASM_TRAP_TYPE_MISMATCH</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Type mismatch trap </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__wasm_8h_1a3effc954ceb49307ad14e8665dba6712a6ec030d049819ecdd3fc5ca40aed819a" prot="public">
+          <name>SYN_WASM_TRAP_INVALID_MODULE</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Invalid Wasm module header/binary </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__wasm_8h_1a3effc954ceb49307ad14e8665dba6712aedaaacb66c4f899e04ab262fefe8f6c5" prot="public">
+          <name>SYN_WASM_TRAP_UNREGISTERED_HOST</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Unregistered host function trap </para>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>WebAssembly VM execution status codes and traps. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/vm/syn_wasm.h" line="67" column="1" bodyfile="src/syntropic/vm/syn_wasm.h" bodystart="67" bodyend="81"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="typedef">
+      <memberdef kind="typedef" id="syn__wasm_8h_1aaefb4273e183b68b99e4ec1cda53884e" prot="public" static="no">
+        <type>uint64_t(*</type>
+        <definition>typedef uint64_t(* SYN_WASM_HostFunc) (SYN_WASM_Context *ctx, const uint64_t *args, uint8_t argc)</definition>
+        <argsstring>)(SYN_WASM_Context *ctx, const uint64_t *args, uint8_t argc)</argsstring>
+        <name>SYN_WASM_HostFunc</name>
+        <briefdescription>
+<para>Host function signature callable from Wasm bytecode. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ctx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to Wasm execution context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>args</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Array of 32-bit arguments passed from Wasm stack. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>argc</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of arguments. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>32-bit return value (pushed onto Wasm stack). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/vm/syn_wasm.h" line="93" column="9" bodyfile="src/syntropic/vm/syn_wasm.h" bodystart="93" bodyend="-1"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__wasm_8h_1a237fbe9e4e177d0c60506c56d5a12b33" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_wasm_module_load</definition>
+        <argsstring>(SYN_WASM_Module *mod, const uint8_t *bytes, uint32_t size)</argsstring>
+        <name>syn_wasm_module_load</name>
+        <param>
+          <type><ref refid="structSYN__WASM__Module" kindref="compound">SYN_WASM_Module</ref> *</type>
+          <declname>mod</declname>
+        </param>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>bytes</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>size</declname>
+        </param>
+        <briefdescription>
+<para>Parse Wasm binary module from flash buffer (zero memory allocation). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>mod</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to module descriptor to populate. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>bytes</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to flash buffer containing .wasm binary. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>size</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Length of wasm binary buffer. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if valid Wasm MVP binary module parsed successfully. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/vm/syn_wasm.h" line="185" column="6" declfile="src/syntropic/vm/syn_wasm.h" declline="185" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__wasm_8h_1ab39ab14981a2707059b1cd2cb227a934" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_wasm_init</definition>
+        <argsstring>(SYN_WASM_Context *ctx, const SYN_WASM_Module *mod, uint8_t *linear_mem, uint32_t mem_size)</argsstring>
+        <name>syn_wasm_init</name>
+        <param>
+          <type>SYN_WASM_Context *</type>
+          <declname>ctx</declname>
+        </param>
+        <param>
+          <type>const <ref refid="structSYN__WASM__Module" kindref="compound">SYN_WASM_Module</ref> *</type>
+          <declname>mod</declname>
+        </param>
+        <param>
+          <type>uint8_t *</type>
+          <declname>linear_mem</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>mem_size</declname>
+        </param>
+        <briefdescription>
+<para>Initialize execution context for loaded module. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ctx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to context structure. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>mod</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to loaded module descriptor. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>linear_mem</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to statically-allocated linear memory byte array. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>mem_size</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Size of linear memory buffer in bytes. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if initialized successfully. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/vm/syn_wasm.h" line="195" column="6" declfile="src/syntropic/vm/syn_wasm.h" declline="195" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__wasm_8h_1aefc49a3a02381760aad42b84cc68b7d2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_wasm_register_host</definition>
+        <argsstring>(SYN_WASM_Context *ctx, uint16_t import_index, SYN_WASM_HostFunc func)</argsstring>
+        <name>syn_wasm_register_host</name>
+        <param>
+          <type>SYN_WASM_Context *</type>
+          <declname>ctx</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>import_index</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__wasm_8h_1aaefb4273e183b68b99e4ec1cda53884e" kindref="member">SYN_WASM_HostFunc</ref></type>
+          <declname>func</declname>
+        </param>
+        <briefdescription>
+<para>Register C host function for imported Wasm functions. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ctx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>import_index</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Index of import function slot (0 .. import_func_count - 1). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>func</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function pointer to host C handler. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if registered successfully. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/vm/syn_wasm.h" line="205" column="6" declfile="src/syntropic/vm/syn_wasm.h" declline="205" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__wasm_8h_1ae31f7d33ada29d0477c66faf4c9feda0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int32_t</type>
+        <definition>int32_t syn_wasm_find_export</definition>
+        <argsstring>(const SYN_WASM_Module *mod, const char *name)</argsstring>
+        <name>syn_wasm_find_export</name>
+        <param>
+          <type>const <ref refid="structSYN__WASM__Module" kindref="compound">SYN_WASM_Module</ref> *</type>
+          <declname>mod</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>name</declname>
+        </param>
+        <briefdescription>
+<para>Find exported function index by name. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>mod</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to loaded module. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>name</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Exported function name string. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Function index if found, or -1 if not found. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/vm/syn_wasm.h" line="213" column="9" declfile="src/syntropic/vm/syn_wasm.h" declline="213" declcolumn="9"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__wasm_8h_1a5dec7aa4a59efa233221daf0077f7bdb" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_wasm_call</definition>
+        <argsstring>(SYN_WASM_Context *ctx, uint16_t func_index)</argsstring>
+        <name>syn_wasm_call</name>
+        <param>
+          <type>SYN_WASM_Context *</type>
+          <declname>ctx</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>func_index</declname>
+        </param>
+        <briefdescription>
+<para>Prepare context to call a function index. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ctx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>func_index</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Function index to invoke. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if call frame initialized successfully. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/vm/syn_wasm.h" line="221" column="6" declfile="src/syntropic/vm/syn_wasm.h" declline="221" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__wasm_8h_1a97d607aea9d7cd56d9797a8b048bc166" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__wasm_8h_1a3effc954ceb49307ad14e8665dba6712" kindref="member">SYN_WASM_Status</ref></type>
+        <definition>SYN_WASM_Status syn_wasm_step</definition>
+        <argsstring>(SYN_WASM_Context *ctx, uint16_t max_instructions)</argsstring>
+        <name>syn_wasm_step</name>
+        <param>
+          <type>SYN_WASM_Context *</type>
+          <declname>ctx</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>max_instructions</declname>
+        </param>
+        <briefdescription>
+<para>Execute instruction slice non-blockingly. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ctx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>max_instructions</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Maximum opcodes to process before yielding. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_WASM_OK (completed), SYN_WASM_YIELDED (time slice expired), SYN_WASM_HALTED (finished), or TRAP. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/vm/syn_wasm.h" line="230" column="17" declfile="src/syntropic/vm/syn_wasm.h" declline="230" declcolumn="17"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__wasm_8h_1a899ac03c466cdbb1a619c9421cc01be2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint64_t</type>
+        <definition>uint64_t syn_wasm_result</definition>
+        <argsstring>(const SYN_WASM_Context *ctx)</argsstring>
+        <name>syn_wasm_result</name>
+        <param>
+          <type>const SYN_WASM_Context *</type>
+          <declname>ctx</declname>
+        </param>
+        <briefdescription>
+<para>Read top of evaluation stack result after HALTED. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ctx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to context. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>32-bit return value. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/vm/syn_wasm.h" line="237" column="10" declfile="src/syntropic/vm/syn_wasm.h" declline="237" declcolumn="10"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>[EXPERIMENTAL] Zero-heap, 32-bit WebAssembly (Wasm MVP) cooperative interpreter. </para>
+    </briefdescription>
+    <detaileddescription>
+<para><simplesect kind="warning"><para>EXPERIMENTAL MODULE - API and bytecode execution semantics subject to change.</para>
+</simplesect>
+Implements a 100% zero-malloc, non-blocking 32-bit WebAssembly MVP interpreter designed for embedded microcontrollers. Supports static linear memory arrays, zero-copy parsing from flash, host function registration, and instruction-sliced cooperative execution with protothread (<computeroutput>syn_pt</computeroutput>) integration.</para>
+<para>Recommended C-to-WASM compilation command for user applications: clang <ndash/>target=wasm32-unknown-unknown -O2 -nostdlib \ -mbulk-memory -msign-ext -mmultivalue -mnontrapping-fptoint \ -Wl,<ndash/>no-entry -Wl,<ndash/>export-all -Wl,<ndash/>allow-undefined \ -Wl,-z,stack-size=1024 app.c -o app.wasm </para>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_WASM_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_WASM_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../common/syn_defs.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../util/syn_qmath.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stddef.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_WASM_MAX_STACK</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="36" refid="syn__wasm_8h_1a5091aac353abec684c34dbfec7bbd356" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_WASM_MAX_STACK<sp/>64<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_WASM_MAX_LOCALS</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="40" refid="syn__wasm_8h_1a53a2da41af54eed337be9ec29939478d" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_WASM_MAX_LOCALS<sp/>256<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_WASM_MAX_CALL_DEPTH</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="44" refid="syn__wasm_8h_1a8d0314ef1c9a036bc26d9c79952ebe56" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_WASM_MAX_CALL_DEPTH<sp/>32<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="46"><highlight class="normal"></highlight></codeline>
+<codeline lineno="47"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_WASM_MAX_FUNCTIONS</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="48" refid="syn__wasm_8h_1a53cace540eebae36591fc6c1ae07eca5" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_WASM_MAX_FUNCTIONS<sp/>32<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="49"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="50"><highlight class="normal"></highlight></codeline>
+<codeline lineno="51"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_WASM_MAX_HOST_FUNCS</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="52" refid="syn__wasm_8h_1a5af54dd8e7ddf9c366fdc97735caa44f" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_WASM_MAX_HOST_FUNCS<sp/>16<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="53"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="54"><highlight class="normal"></highlight></codeline>
+<codeline lineno="55"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_WASM_MAX_GLOBALS</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="56" refid="syn__wasm_8h_1a4c2ac48f201d5fc1b5600257e96a0d5f" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_WASM_MAX_GLOBALS<sp/>16<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="57"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="58"><highlight class="normal"></highlight></codeline>
+<codeline lineno="59"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_WASM_MAX_LABELS</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="60" refid="syn__wasm_8h_1ad9c273b9ced0cfdc1f6856c4f1b767ce" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_WASM_MAX_LABELS<sp/>16<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="61"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Status<sp/>Codes<sp/>&amp;<sp/>Traps<sp/>─────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="65"><highlight class="normal"></highlight></codeline>
+<codeline lineno="67" refid="syn__wasm_8h_1a3effc954ceb49307ad14e8665dba6712" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="68" refid="syn__wasm_8h_1a3effc954ceb49307ad14e8665dba6712adcf4b2d9b781b0a5c6874a82ebd72799" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__wasm_8h_1a3effc954ceb49307ad14e8665dba6712adcf4b2d9b781b0a5c6874a82ebd72799" kindref="member">SYN_WASM_OK</ref><sp/>=<sp/>0,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="69" refid="syn__wasm_8h_1a3effc954ceb49307ad14e8665dba6712a9b2fe947669a69daa519ad5e937e8179" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__wasm_8h_1a3effc954ceb49307ad14e8665dba6712a9b2fe947669a69daa519ad5e937e8179" kindref="member">SYN_WASM_YIELDED</ref>,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="70" refid="syn__wasm_8h_1a3effc954ceb49307ad14e8665dba6712a72fd507e426c8b9b7bb4b1ece9702827" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__wasm_8h_1a3effc954ceb49307ad14e8665dba6712a72fd507e426c8b9b7bb4b1ece9702827" kindref="member">SYN_WASM_HALTED</ref>,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="71" refid="syn__wasm_8h_1a3effc954ceb49307ad14e8665dba6712a59ce271335a5ce335d5412afe0dbd9d4" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__wasm_8h_1a3effc954ceb49307ad14e8665dba6712a59ce271335a5ce335d5412afe0dbd9d4" kindref="member">SYN_WASM_TRAP_STACK_OVERFLOW</ref>,<sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="72" refid="syn__wasm_8h_1a3effc954ceb49307ad14e8665dba6712a7dfb168b890ace7f7e8ce2d4c5558070" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__wasm_8h_1a3effc954ceb49307ad14e8665dba6712a7dfb168b890ace7f7e8ce2d4c5558070" kindref="member">SYN_WASM_TRAP_STACK_UNDERFLOW</ref>,<sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="73" refid="syn__wasm_8h_1a3effc954ceb49307ad14e8665dba6712ad9af6079f16713f578725c670e3e17e0" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__wasm_8h_1a3effc954ceb49307ad14e8665dba6712ad9af6079f16713f578725c670e3e17e0" kindref="member">SYN_WASM_TRAP_OUT_OF_BOUNDS</ref>,<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="74" refid="syn__wasm_8h_1a3effc954ceb49307ad14e8665dba6712adcdb99414f0e067001e5bca045e4139a" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__wasm_8h_1a3effc954ceb49307ad14e8665dba6712adcdb99414f0e067001e5bca045e4139a" kindref="member">SYN_WASM_TRAP_BAD_OPCODE</ref>,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="75" refid="syn__wasm_8h_1a3effc954ceb49307ad14e8665dba6712a68f6af6308d224868d1565c47abd1dd9" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__wasm_8h_1a3effc954ceb49307ad14e8665dba6712a68f6af6308d224868d1565c47abd1dd9" kindref="member">SYN_WASM_TRAP_DIV_ZERO</ref>,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="76" refid="syn__wasm_8h_1a3effc954ceb49307ad14e8665dba6712a56e9cede5cec33a58059c57b20dbc3f1" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__wasm_8h_1a3effc954ceb49307ad14e8665dba6712a56e9cede5cec33a58059c57b20dbc3f1" kindref="member">SYN_WASM_TRAP_UNREACHABLE</ref>,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="77" refid="syn__wasm_8h_1a3effc954ceb49307ad14e8665dba6712a6d7c3130aaa0aba1da8ec60274482b85" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__wasm_8h_1a3effc954ceb49307ad14e8665dba6712a6d7c3130aaa0aba1da8ec60274482b85" kindref="member">SYN_WASM_TRAP_CALL_STACK_OVERFLOW</ref>,<sp/></highlight></codeline>
+<codeline lineno="78" refid="syn__wasm_8h_1a3effc954ceb49307ad14e8665dba6712af5502c723ee30b21befaf90e26e91938" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__wasm_8h_1a3effc954ceb49307ad14e8665dba6712af5502c723ee30b21befaf90e26e91938" kindref="member">SYN_WASM_TRAP_TYPE_MISMATCH</ref>,<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="79" refid="syn__wasm_8h_1a3effc954ceb49307ad14e8665dba6712a6ec030d049819ecdd3fc5ca40aed819a" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__wasm_8h_1a3effc954ceb49307ad14e8665dba6712a6ec030d049819ecdd3fc5ca40aed819a" kindref="member">SYN_WASM_TRAP_INVALID_MODULE</ref>,<sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__wasm_8h_1a3effc954ceb49307ad14e8665dba6712aedaaacb66c4f899e04ab262fefe8f6c5" kindref="member">SYN_WASM_TRAP_UNREGISTERED_HOST</ref><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="81" refid="syn__wasm_8h_1a3effc954ceb49307ad14e8665dba6712aedaaacb66c4f899e04ab262fefe8f6c5" refkind="member"><highlight class="normal">}<sp/><ref refid="syn__wasm_8h_1a3effc954ceb49307ad14e8665dba6712" kindref="member">SYN_WASM_Status</ref>;</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"></highlight></codeline>
+<codeline lineno="83"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>Forward<sp/>declarations<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="84"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structSYN__WASM__Context__s" kindref="compound">SYN_WASM_Context_s</ref><sp/>SYN_WASM_Context;</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"></highlight></codeline>
+<codeline lineno="93" refid="syn__wasm_8h_1aaefb4273e183b68b99e4ec1cda53884e" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/>uint64_t<sp/>(*<ref refid="syn__wasm_8h_1aaefb4273e183b68b99e4ec1cda53884e" kindref="member">SYN_WASM_HostFunc</ref>)(SYN_WASM_Context<sp/>*ctx,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint64_t<sp/>*args,<sp/>uint8_t<sp/>argc);</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"></highlight></codeline>
+<codeline lineno="96" refid="structSYN__WASM__FuncDef" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="97" refid="structSYN__WASM__FuncDef_1aec4c438a045f0ae3393191a40a746de1" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structSYN__WASM__FuncDef_1aec4c438a045f0ae3393191a40a746de1" kindref="member">type_idx</ref>;<sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="98" refid="structSYN__WASM__FuncDef_1a73859ed7e969a1cedeb0286dca08898d" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structSYN__WASM__FuncDef_1a73859ed7e969a1cedeb0286dca08898d" kindref="member">code_offset</ref>;<sp/></highlight></codeline>
+<codeline lineno="99" refid="structSYN__WASM__FuncDef_1a7f9ba59c016a340d83cd385a2ebfb5b5" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structSYN__WASM__FuncDef_1a7f9ba59c016a340d83cd385a2ebfb5b5" kindref="member">code_size</ref>;<sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="100" refid="structSYN__WASM__FuncDef_1ae641df3bd5ad4c7fa6a99816517ccce8" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><ref refid="structSYN__WASM__FuncDef_1ae641df3bd5ad4c7fa6a99816517ccce8" kindref="member">param_count</ref>;<sp/><sp/></highlight></codeline>
+<codeline lineno="101" refid="structSYN__WASM__FuncDef_1a92a875b9560e4451417b33ab71b339ee" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><ref refid="structSYN__WASM__FuncDef_1a92a875b9560e4451417b33ab71b339ee" kindref="member">result_count</ref>;<sp/></highlight></codeline>
+<codeline lineno="102"><highlight class="normal">}<sp/><ref refid="structSYN__WASM__FuncDef" kindref="compound">SYN_WASM_FuncDef</ref>;</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"></highlight></codeline>
+<codeline lineno="105" refid="structSYN__WASM__Module" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="106" refid="structSYN__WASM__Module_1ae0579aab3250185da5e3b2181e136be0" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*<ref refid="structSYN__WASM__Module_1ae0579aab3250185da5e3b2181e136be0" kindref="member">bytes</ref>;<sp/></highlight></codeline>
+<codeline lineno="107" refid="structSYN__WASM__Module_1a68c9a88baa948f1de92aa9b22075da60" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structSYN__WASM__Module_1a68c9a88baa948f1de92aa9b22075da60" kindref="member">size</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="109" refid="structSYN__WASM__Module_1ad412c67a02cb6e5046b5d1d9dceaab3a" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structSYN__WASM__FuncDef" kindref="compound">SYN_WASM_FuncDef</ref><sp/>funcs[<ref refid="syn__wasm_8h_1a53cace540eebae36591fc6c1ae07eca5" kindref="member">SYN_WASM_MAX_FUNCTIONS</ref>];<sp/></highlight></codeline>
+<codeline lineno="110" refid="structSYN__WASM__Module_1af28f417664a7e9434d3c3d9baa402e50" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/><ref refid="structSYN__WASM__Module_1af28f417664a7e9434d3c3d9baa402e50" kindref="member">func_count</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="111" refid="structSYN__WASM__Module_1ace2ce555162ffa776126f97581095536" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/><ref refid="structSYN__WASM__Module_1ace2ce555162ffa776126f97581095536" kindref="member">import_func_count</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="113"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="114" refid="structSYN__WASM__Module_1a217261dc68c5277f26a1782f7af94600" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structSYN__WASM__Module_1a217261dc68c5277f26a1782f7af94600" kindref="member">name_offset</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="115" refid="structSYN__WASM__Module_1ad67996c6e367dee27e18080bd5aa772c" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint16_t<sp/><ref refid="structSYN__WASM__Module_1ad67996c6e367dee27e18080bd5aa772c" kindref="member">name_len</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="116" refid="structSYN__WASM__Module_1a05e04b5a78fb485f7fe46bd5977727a7" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint16_t<sp/><ref refid="structSYN__WASM__Module_1a05e04b5a78fb485f7fe46bd5977727a7" kindref="member">func_idx</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="117" refid="structSYN__WASM__Module_1ae1aa7b3e4c0d00b2ae6f43eb46a877d1" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>}<sp/>exports[<ref refid="syn__wasm_8h_1a53cace540eebae36591fc6c1ae07eca5" kindref="member">SYN_WASM_MAX_FUNCTIONS</ref>];<sp/></highlight></codeline>
+<codeline lineno="118" refid="structSYN__WASM__Module_1a8e7c4064446bff5cd16ec3f3c0b388a6" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/><ref refid="structSYN__WASM__Module_1a8e7c4064446bff5cd16ec3f3c0b388a6" kindref="member">export_count</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="120" refid="structSYN__WASM__Module_1ad77114dee8063923bb4b74c1d2c98d6d" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/>table_elements[64];<sp/><sp/></highlight></codeline>
+<codeline lineno="121" refid="structSYN__WASM__Module_1a7a8b0f99a6b46b9b168dd2071ec7d68f" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/><ref refid="structSYN__WASM__Module_1a7a8b0f99a6b46b9b168dd2071ec7d68f" kindref="member">table_element_count</ref>;<sp/></highlight></codeline>
+<codeline lineno="123" refid="structSYN__WASM__Module_1a870a5f6f45f33ef7ac7b2952d5c5c471" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structSYN__WASM__Module_1a870a5f6f45f33ef7ac7b2952d5c5c471" kindref="member">start_func_idx</ref>;<sp/></highlight></codeline>
+<codeline lineno="124" refid="structSYN__WASM__Module_1a0d3fc8e4d4316aa4b66238f22a26ad77" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="structSYN__WASM__Module_1a0d3fc8e4d4316aa4b66238f22a26ad77" kindref="member">has_start_func</ref>;<sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="125"><highlight class="normal">}<sp/><ref refid="structSYN__WASM__Module" kindref="compound">SYN_WASM_Module</ref>;</highlight></codeline>
+<codeline lineno="126"><highlight class="normal"></highlight></codeline>
+<codeline lineno="127"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Runtime<sp/>Call<sp/>Frame<sp/>&amp;<sp/>Label<sp/>Stacks<sp/>─────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="128"><highlight class="normal"></highlight></codeline>
+<codeline lineno="130" refid="structSYN__WASM__CallFrame" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="131" refid="structSYN__WASM__CallFrame_1ad3da252c166f1817626b4d663beaf01d" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/><ref refid="structSYN__WASM__CallFrame_1ad3da252c166f1817626b4d663beaf01d" kindref="member">func_idx</ref>;<sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="132" refid="structSYN__WASM__CallFrame_1ab6170a693f8cb2ad687f7e13ad89d8ac" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structSYN__WASM__CallFrame_1ab6170a693f8cb2ad687f7e13ad89d8ac" kindref="member">return_pc</ref>;<sp/><sp/></highlight></codeline>
+<codeline lineno="133" refid="structSYN__WASM__CallFrame_1aaec4dd2d066bfb96ef016bf75bd839f6" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structSYN__WASM__CallFrame_1aaec4dd2d066bfb96ef016bf75bd839f6" kindref="member">frame_sp</ref>;<sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="134" refid="structSYN__WASM__CallFrame_1abb131a2eb82125984a4871f5ee2512bc" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/><ref refid="structSYN__WASM__CallFrame_1abb131a2eb82125984a4871f5ee2512bc" kindref="member">local_base</ref>;<sp/></highlight></codeline>
+<codeline lineno="135"><highlight class="normal">}<sp/><ref refid="structSYN__WASM__CallFrame" kindref="compound">SYN_WASM_CallFrame</ref>;</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"></highlight></codeline>
+<codeline lineno="138" refid="structSYN__WASM__Label" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="139" refid="structSYN__WASM__Label_1afac6d93224f166aee32803423e8dbf48" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><ref refid="structSYN__WASM__Label_1afac6d93224f166aee32803423e8dbf48" kindref="member">opcode</ref>;<sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="140" refid="structSYN__WASM__Label_1af460f631586efd6e74824e7b03afb04b" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structSYN__WASM__Label_1af460f631586efd6e74824e7b03afb04b" kindref="member">target_pc</ref>;<sp/></highlight></codeline>
+<codeline lineno="141" refid="structSYN__WASM__Label_1a92a97cbbf0b0d0fe87dd972330b412ec" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structSYN__WASM__Label_1a92a97cbbf0b0d0fe87dd972330b412ec" kindref="member">stack_sp</ref>;<sp/><sp/></highlight></codeline>
+<codeline lineno="142"><highlight class="normal">}<sp/><ref refid="structSYN__WASM__Label" kindref="compound">SYN_WASM_Label</ref>;</highlight></codeline>
+<codeline lineno="143"><highlight class="normal"></highlight></codeline>
+<codeline lineno="144"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Runtime<sp/>Execution<sp/>Context<sp/>──────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="145"><highlight class="normal"></highlight></codeline>
+<codeline lineno="147" refid="structSYN__WASM__Context__s" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal"><ref refid="structSYN__WASM__Context__s" kindref="compound">SYN_WASM_Context_s</ref><sp/>{</highlight></codeline>
+<codeline lineno="148"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__WASM__Module" kindref="compound">SYN_WASM_Module</ref><sp/>*</highlight><highlight class="keyword">module</highlight><highlight class="normal">;<sp/></highlight></codeline>
+<codeline lineno="150" refid="structSYN__WASM__Context__s_1a23087d5916393324be8942028ce2bec2" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structSYN__WASM__Context__s_1a23087d5916393324be8942028ce2bec2" kindref="member">pc</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="151" refid="structSYN__WASM__Context__s_1a28c1dae8553b70d8e9373d44bc497fed" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structSYN__WASM__Context__s_1a28c1dae8553b70d8e9373d44bc497fed" kindref="member">sp</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="152" refid="structSYN__WASM__Context__s_1a6c54b9a2eb40d9a50f680521fc4f5c3c" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint64_t<sp/><ref refid="structSYN__WASM__Context__s_1a6c54b9a2eb40d9a50f680521fc4f5c3c" kindref="member">stack</ref>[<ref refid="syn__wasm_8h_1a5091aac353abec684c34dbfec7bbd356" kindref="member">SYN_WASM_MAX_STACK</ref>];<sp/></highlight></codeline>
+<codeline lineno="154" refid="structSYN__WASM__Context__s_1a6859edd294256c8571fbfd97106cfe7f" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint64_t<sp/><ref refid="structSYN__WASM__Context__s_1a6859edd294256c8571fbfd97106cfe7f" kindref="member">locals</ref>[<ref refid="syn__wasm_8h_1a53a2da41af54eed337be9ec29939478d" kindref="member">SYN_WASM_MAX_LOCALS</ref>];<sp/></highlight></codeline>
+<codeline lineno="155" refid="structSYN__WASM__Context__s_1a44f8fc074ddadb99bb7f1641d8a106fa" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/><ref refid="structSYN__WASM__Context__s_1a44f8fc074ddadb99bb7f1641d8a106fa" kindref="member">local_count</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="157" refid="structSYN__WASM__Context__s_1a34c64a946fb10c345cc879b749f0ae19" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structSYN__WASM__CallFrame" kindref="compound">SYN_WASM_CallFrame</ref><sp/><ref refid="structSYN__WASM__Context__s_1a34c64a946fb10c345cc879b749f0ae19" kindref="member">call_stack</ref>[<ref refid="syn__wasm_8h_1a8d0314ef1c9a036bc26d9c79952ebe56" kindref="member">SYN_WASM_MAX_CALL_DEPTH</ref>];<sp/></highlight></codeline>
+<codeline lineno="158" refid="structSYN__WASM__Context__s_1a7b49c721023efe80b8176a21ba361e49" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><ref refid="structSYN__WASM__Context__s_1a7b49c721023efe80b8176a21ba361e49" kindref="member">call_depth</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="160" refid="structSYN__WASM__Context__s_1ac4055897595e095c5c33e3e6f6ed085c" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structSYN__WASM__Label" kindref="compound">SYN_WASM_Label</ref><sp/><ref refid="structSYN__WASM__Context__s_1ac4055897595e095c5c33e3e6f6ed085c" kindref="member">label_stack</ref>[<ref refid="syn__wasm_8h_1ad9c273b9ced0cfdc1f6856c4f1b767ce" kindref="member">SYN_WASM_MAX_LABELS</ref>];<sp/></highlight></codeline>
+<codeline lineno="161" refid="structSYN__WASM__Context__s_1ad96fb6df427d0cf603039b59d469c513" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><ref refid="structSYN__WASM__Context__s_1ad96fb6df427d0cf603039b59d469c513" kindref="member">label_depth</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="163" refid="structSYN__WASM__Context__s_1a5e274a15aac2fd61f337febd18edccf3" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint64_t<sp/><ref refid="structSYN__WASM__Context__s_1a5e274a15aac2fd61f337febd18edccf3" kindref="member">globals</ref>[<ref refid="syn__wasm_8h_1a4c2ac48f201d5fc1b5600257e96a0d5f" kindref="member">SYN_WASM_MAX_GLOBALS</ref>];<sp/></highlight></codeline>
+<codeline lineno="164" refid="structSYN__WASM__Context__s_1ac8b54e1c6bd114cf2fdf06a1fe0f6908" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/><ref refid="structSYN__WASM__Context__s_1ac8b54e1c6bd114cf2fdf06a1fe0f6908" kindref="member">global_count</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="166" refid="structSYN__WASM__Context__s_1ad2ee43d5aea5ce566a6929456d3fefbe" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>*<ref refid="structSYN__WASM__Context__s_1ad2ee43d5aea5ce566a6929456d3fefbe" kindref="member">linear_mem</ref>;<sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="167" refid="structSYN__WASM__Context__s_1a5a68ec0b4bbbc6b504abdda57db1364f" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structSYN__WASM__Context__s_1a5a68ec0b4bbbc6b504abdda57db1364f" kindref="member">linear_mem_size</ref>;<sp/></highlight></codeline>
+<codeline lineno="169" refid="structSYN__WASM__Context__s_1a2e062776160d14c37d72852c0cc1c520" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__wasm_8h_1aaefb4273e183b68b99e4ec1cda53884e" kindref="member">SYN_WASM_HostFunc</ref><sp/><ref refid="structSYN__WASM__Context__s_1a2e062776160d14c37d72852c0cc1c520" kindref="member">host_funcs</ref>[<ref refid="syn__wasm_8h_1a5af54dd8e7ddf9c366fdc97735caa44f" kindref="member">SYN_WASM_MAX_HOST_FUNCS</ref>];<sp/></highlight></codeline>
+<codeline lineno="170" refid="structSYN__WASM__Context__s_1a740f084cbeb15c8c5914aff6a21decc2" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/><ref refid="structSYN__WASM__Context__s_1a740f084cbeb15c8c5914aff6a21decc2" kindref="member">host_func_count</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="172" refid="structSYN__WASM__Context__s_1a489c4fce413bed99093ad74691c6a5c5" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*<ref refid="structSYN__WASM__Context__s_1a489c4fce413bed99093ad74691c6a5c5" kindref="member">user_ctx</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="173" refid="structSYN__WASM__Context__s_1a7089ea6f2283859cd044ad0362f08b95" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__wasm_8h_1a3effc954ceb49307ad14e8665dba6712" kindref="member">SYN_WASM_Status</ref><sp/><ref refid="structSYN__WASM__Context__s_1a7089ea6f2283859cd044ad0362f08b95" kindref="member">status</ref>;<sp/></highlight></codeline>
+<codeline lineno="174"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="175"><highlight class="normal"></highlight></codeline>
+<codeline lineno="176"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Public<sp/>API<sp/>───────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="177"><highlight class="normal"></highlight></codeline>
+<codeline lineno="185" refid="syn__wasm_8h_1a237fbe9e4e177d0c60506c56d5a12b33" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__wasm_8h_1a237fbe9e4e177d0c60506c56d5a12b33" kindref="member">syn_wasm_module_load</ref>(<ref refid="structSYN__WASM__Module" kindref="compound">SYN_WASM_Module</ref><sp/>*mod,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*bytes,<sp/>uint32_t<sp/>size);</highlight></codeline>
+<codeline lineno="186"><highlight class="normal"></highlight></codeline>
+<codeline lineno="195" refid="syn__wasm_8h_1ab39ab14981a2707059b1cd2cb227a934" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__wasm_8h_1ab39ab14981a2707059b1cd2cb227a934" kindref="member">syn_wasm_init</ref>(SYN_WASM_Context<sp/>*ctx,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__WASM__Module" kindref="compound">SYN_WASM_Module</ref><sp/>*mod,<sp/>uint8_t<sp/>*linear_mem,</highlight></codeline>
+<codeline lineno="196"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>mem_size);</highlight></codeline>
+<codeline lineno="197"><highlight class="normal"></highlight></codeline>
+<codeline lineno="205" refid="syn__wasm_8h_1aefc49a3a02381760aad42b84cc68b7d2" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__wasm_8h_1aefc49a3a02381760aad42b84cc68b7d2" kindref="member">syn_wasm_register_host</ref>(SYN_WASM_Context<sp/>*ctx,<sp/>uint16_t<sp/>import_index,<sp/><ref refid="syn__wasm_8h_1aaefb4273e183b68b99e4ec1cda53884e" kindref="member">SYN_WASM_HostFunc</ref><sp/>func);</highlight></codeline>
+<codeline lineno="206"><highlight class="normal"></highlight></codeline>
+<codeline lineno="213" refid="syn__wasm_8h_1ae31f7d33ada29d0477c66faf4c9feda0" refkind="member"><highlight class="normal">int32_t<sp/><ref refid="syn__wasm_8h_1ae31f7d33ada29d0477c66faf4c9feda0" kindref="member">syn_wasm_find_export</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__WASM__Module" kindref="compound">SYN_WASM_Module</ref><sp/>*mod,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*name);</highlight></codeline>
+<codeline lineno="214"><highlight class="normal"></highlight></codeline>
+<codeline lineno="221" refid="syn__wasm_8h_1a5dec7aa4a59efa233221daf0077f7bdb" refkind="member"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__wasm_8h_1a5dec7aa4a59efa233221daf0077f7bdb" kindref="member">syn_wasm_call</ref>(SYN_WASM_Context<sp/>*ctx,<sp/>uint16_t<sp/>func_index);</highlight></codeline>
+<codeline lineno="222"><highlight class="normal"></highlight></codeline>
+<codeline lineno="230" refid="syn__wasm_8h_1a97d607aea9d7cd56d9797a8b048bc166" refkind="member"><highlight class="normal"><ref refid="syn__wasm_8h_1a3effc954ceb49307ad14e8665dba6712" kindref="member">SYN_WASM_Status</ref><sp/><ref refid="syn__wasm_8h_1a97d607aea9d7cd56d9797a8b048bc166" kindref="member">syn_wasm_step</ref>(SYN_WASM_Context<sp/>*ctx,<sp/>uint16_t<sp/>max_instructions);</highlight></codeline>
+<codeline lineno="231"><highlight class="normal"></highlight></codeline>
+<codeline lineno="237" refid="syn__wasm_8h_1a899ac03c466cdbb1a619c9421cc01be2" refkind="member"><highlight class="normal">uint64_t<sp/><ref refid="syn__wasm_8h_1a899ac03c466cdbb1a619c9421cc01be2" kindref="member">syn_wasm_result</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>SYN_WASM_Context<sp/>*ctx);</highlight></codeline>
+<codeline lineno="238"><highlight class="normal"></highlight></codeline>
+<codeline lineno="239"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="240"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="241"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="242"><highlight class="normal"></highlight></codeline>
+<codeline lineno="243"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_WASM_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/vm/syn_wasm.h"/>
+  </compounddef>
+</doxygen>

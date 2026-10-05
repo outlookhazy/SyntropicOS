@@ -1,0 +1,444 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__crsf_8c" kind="file" language="C++">
+    <compoundname>syn_crsf.c</compoundname>
+    <includes refid="syn__crsf_8h" local="yes">syntropic/proto/syn_crsf.h</includes>
+    <includes local="no">string.h</includes>
+    <incdepgraph>
+      <node id="3">
+        <label>syntropic/common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/proto/syn_crsf.c</label>
+        <link refid="syn__crsf_8c"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>syntropic/proto/syn_crsf.h</label>
+        <link refid="syn__crsf_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>stdbool.h</label>
+      </node>
+      <node id="4">
+        <label>stddef.h</label>
+      </node>
+      <node id="5">
+        <label>stdint.h</label>
+      </node>
+      <node id="7">
+        <label>string.h</label>
+      </node>
+    </incdepgraph>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__crsf_8c_1abe85cebfb66a06d0760388ca5423d0b3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint8_t</type>
+        <definition>uint8_t syn_crsf_calc_crc</definition>
+        <argsstring>(const uint8_t *buf, size_t len)</argsstring>
+        <name>syn_crsf_calc_crc</name>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>len</declname>
+        </param>
+        <briefdescription>
+<para>Calculate CRC8 DVB-S2 (poly 0xD5) for CRSF buffer. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to data. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Length in bytes. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>8-bit CRC value. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_crsf.c" line="10" column="9" bodyfile="src/syntropic/proto/syn_crsf.c" bodystart="10" bodyend="28"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__crsf_8c_1a08e7d2543cf927db7f10cd5f85ed6258" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_crsf_init</definition>
+        <argsstring>(SYN_CRSF_Parser *parser)</argsstring>
+        <name>syn_crsf_init</name>
+        <param>
+          <type><ref refid="structSYN__CRSF__Parser" kindref="compound">SYN_CRSF_Parser</ref> *</type>
+          <declname>parser</declname>
+        </param>
+        <briefdescription>
+<para>Initialize CRSF parser. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>parser</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to parser struct. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_crsf.c" line="30" column="12" bodyfile="src/syntropic/proto/syn_crsf.c" bodystart="30" bodyend="37"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__crsf_8c_1afe2d384b09fae374f562e68ac53a5099" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void parse_channels</definition>
+        <argsstring>(const uint8_t *payload, SYN_CRSF_ChannelsFrame *channels)</argsstring>
+        <name>parse_channels</name>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>payload</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__CRSF__ChannelsFrame" kindref="compound">SYN_CRSF_ChannelsFrame</ref> *</type>
+          <declname>channels</declname>
+        </param>
+        <briefdescription>
+<para>Unpack 11-bit CRSF RC channels from packed byte stream. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>payload</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to raw payload buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>channels</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to channels frame structure. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_crsf.c" line="44" column="13" bodyfile="src/syntropic/proto/syn_crsf.c" bodystart="44" bodyend="66"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__crsf_8c_1a74274553197e48e2f43652c39724b59b" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void parse_link_stats</definition>
+        <argsstring>(const uint8_t *payload, SYN_CRSF_LinkStats *stats)</argsstring>
+        <name>parse_link_stats</name>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>payload</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__CRSF__LinkStats" kindref="compound">SYN_CRSF_LinkStats</ref> *</type>
+          <declname>stats</declname>
+        </param>
+        <briefdescription>
+<para>Unpack CRSF link statistics from payload stream. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>payload</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to raw payload buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>stats</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to link stats structure. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_crsf.c" line="73" column="13" bodyfile="src/syntropic/proto/syn_crsf.c" bodystart="73" bodyend="85"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__crsf_8c_1a22f5dcee312fc3a475d1206e2d828ca1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_crsf_parse_byte</definition>
+        <argsstring>(SYN_CRSF_Parser *parser, uint8_t byte, SYN_CRSF_FrameType *type_out)</argsstring>
+        <name>syn_crsf_parse_byte</name>
+        <param>
+          <type><ref refid="structSYN__CRSF__Parser" kindref="compound">SYN_CRSF_Parser</ref> *</type>
+          <declname>parser</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>byte</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__crsf_8h_1af4f642044c449787e0302ab6428fb0b7" kindref="member">SYN_CRSF_FrameType</ref> *</type>
+          <declname>type_out</declname>
+        </param>
+        <briefdescription>
+<para>Process single byte from serial RX stream. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>parser</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to parser struct. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>byte</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Incoming byte. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>type_out</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Optional pointer to receive frame type when a complete valid packet is parsed. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on complete packet, SYN_BUSY if incomplete, SYN_ERROR on CRC failure. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_crsf.c" line="87" column="12" bodyfile="src/syntropic/proto/syn_crsf.c" bodystart="87" bodyend="136"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__crsf_8c_1ad17a61835395c34a1e317819cd861cf8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint16_t</type>
+        <definition>uint16_t syn_crsf_raw_to_us</definition>
+        <argsstring>(uint16_t raw_val)</argsstring>
+        <name>syn_crsf_raw_to_us</name>
+        <param>
+          <type>uint16_t</type>
+          <declname>raw_val</declname>
+        </param>
+        <briefdescription>
+<para>Convert raw 11-bit CRSF channel value to pulse width in microseconds (us). </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Standard scaling:<itemizedlist>
+<listitem><para>170 raw -&gt; 988 us</para>
+</listitem><listitem><para>992 raw -&gt; 1500 us</para>
+</listitem><listitem><para>1908 raw -&gt; 2012 us</para>
+</listitem></itemizedlist>
+</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>raw_val</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>11-bit raw value (170..1908). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Pulse width in microseconds (clamped 988..2012 us). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_crsf.c" line="138" column="10" bodyfile="src/syntropic/proto/syn_crsf.c" bodystart="138" bodyend="156"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Zero-Heap CRSF (TBS Crossfire / ExpressLRS) Protocol Parser Implementation. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__crsf_8h" kindref="compound">syntropic/proto/syn_crsf.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;string.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal">uint8_t<sp/><ref refid="syn__crsf_8c_1abe85cebfb66a06d0760388ca5423d0b3" kindref="member">syn_crsf_calc_crc</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*buf,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>len)</highlight></codeline>
+<codeline lineno="11"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="12"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!buf)<sp/>{</highlight></codeline>
+<codeline lineno="13"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0;</highlight></codeline>
+<codeline lineno="14"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>crc<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="17"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>len;<sp/>i++)<sp/>{</highlight></codeline>
+<codeline lineno="18"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>crc<sp/>^=<sp/>buf[i];</highlight></codeline>
+<codeline lineno="19"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>j<sp/>=<sp/>0;<sp/>j<sp/>&lt;<sp/>8;<sp/>j++)<sp/>{</highlight></codeline>
+<codeline lineno="20"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(crc<sp/>&amp;<sp/>0x80U)<sp/>{</highlight></codeline>
+<codeline lineno="21"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>crc<sp/>=<sp/>(uint8_t)((crc<sp/>&lt;&lt;<sp/>1U)<sp/>^<sp/>0xD5U);</highlight></codeline>
+<codeline lineno="22"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="23"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>crc<sp/>&lt;&lt;=<sp/>1U;</highlight></codeline>
+<codeline lineno="24"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="25"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="26"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="27"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>crc;</highlight></codeline>
+<codeline lineno="28"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__crsf_8c_1a08e7d2543cf927db7f10cd5f85ed6258" kindref="member">syn_crsf_init</ref>(<ref refid="structSYN__CRSF__Parser" kindref="compound">SYN_CRSF_Parser</ref><sp/>*parser)</highlight></codeline>
+<codeline lineno="31"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="32"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!parser)<sp/>{</highlight></codeline>
+<codeline lineno="33"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="34"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="35"><highlight class="normal"><sp/><sp/><sp/><sp/>memset(parser,<sp/>0,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(*parser));</highlight></codeline>
+<codeline lineno="36"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="37"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__crsf_8c_1afe2d384b09fae374f562e68ac53a5099" kindref="member">parse_channels</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*payload,<sp/><ref refid="structSYN__CRSF__ChannelsFrame" kindref="compound">SYN_CRSF_ChannelsFrame</ref><sp/>*channels)</highlight></codeline>
+<codeline lineno="45"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/><sp/><sp/>channels-&gt;<ref refid="structSYN__CRSF__ChannelsFrame_1ae4276cb8c34aebd98baa900babe83000" kindref="member">channels</ref>[0]<sp/>=<sp/>(uint16_t)(((payload[0])<sp/>|<sp/>(payload[1]<sp/>&lt;&lt;<sp/>8))<sp/>&amp;<sp/>0x07FFU);</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/><sp/><sp/>channels-&gt;<ref refid="structSYN__CRSF__ChannelsFrame_1ae4276cb8c34aebd98baa900babe83000" kindref="member">channels</ref>[1]<sp/>=<sp/>(uint16_t)(((payload[1]<sp/>&gt;&gt;<sp/>3)<sp/>|<sp/>(payload[2]<sp/>&lt;&lt;<sp/>5))<sp/>&amp;<sp/>0x07FFU);</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/><sp/><sp/>channels-&gt;<ref refid="structSYN__CRSF__ChannelsFrame_1ae4276cb8c34aebd98baa900babe83000" kindref="member">channels</ref>[2]<sp/>=</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(uint16_t)(((payload[2]<sp/>&gt;&gt;<sp/>6)<sp/>|<sp/>(payload[3]<sp/>&lt;&lt;<sp/>2)<sp/>|<sp/>(payload[4]<sp/>&lt;&lt;<sp/>10))<sp/>&amp;<sp/>0x07FFU);</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/><sp/><sp/>channels-&gt;<ref refid="structSYN__CRSF__ChannelsFrame_1ae4276cb8c34aebd98baa900babe83000" kindref="member">channels</ref>[3]<sp/>=<sp/>(uint16_t)(((payload[4]<sp/>&gt;&gt;<sp/>1)<sp/>|<sp/>(payload[5]<sp/>&lt;&lt;<sp/>7))<sp/>&amp;<sp/>0x07FFU);</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><sp/><sp/><sp/><sp/>channels-&gt;<ref refid="structSYN__CRSF__ChannelsFrame_1ae4276cb8c34aebd98baa900babe83000" kindref="member">channels</ref>[4]<sp/>=<sp/>(uint16_t)(((payload[5]<sp/>&gt;&gt;<sp/>4)<sp/>|<sp/>(payload[6]<sp/>&lt;&lt;<sp/>4))<sp/>&amp;<sp/>0x07FFU);</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/><sp/><sp/>channels-&gt;<ref refid="structSYN__CRSF__ChannelsFrame_1ae4276cb8c34aebd98baa900babe83000" kindref="member">channels</ref>[5]<sp/>=</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(uint16_t)(((payload[6]<sp/>&gt;&gt;<sp/>7)<sp/>|<sp/>(payload[7]<sp/>&lt;&lt;<sp/>1)<sp/>|<sp/>(payload[8]<sp/>&lt;&lt;<sp/>9))<sp/>&amp;<sp/>0x07FFU);</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/><sp/><sp/>channels-&gt;<ref refid="structSYN__CRSF__ChannelsFrame_1ae4276cb8c34aebd98baa900babe83000" kindref="member">channels</ref>[6]<sp/>=<sp/>(uint16_t)(((payload[8]<sp/>&gt;&gt;<sp/>2)<sp/>|<sp/>(payload[9]<sp/>&lt;&lt;<sp/>6))<sp/>&amp;<sp/>0x07FFU);</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/><sp/><sp/>channels-&gt;<ref refid="structSYN__CRSF__ChannelsFrame_1ae4276cb8c34aebd98baa900babe83000" kindref="member">channels</ref>[7]<sp/>=<sp/>(uint16_t)(((payload[9]<sp/>&gt;&gt;<sp/>5)<sp/>|<sp/>(payload[10]<sp/>&lt;&lt;<sp/>3))<sp/>&amp;<sp/>0x07FFU);</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/><sp/><sp/>channels-&gt;<ref refid="structSYN__CRSF__ChannelsFrame_1ae4276cb8c34aebd98baa900babe83000" kindref="member">channels</ref>[8]<sp/>=<sp/>(uint16_t)(((payload[11])<sp/>|<sp/>(payload[12]<sp/>&lt;&lt;<sp/>8))<sp/>&amp;<sp/>0x07FFU);</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/><sp/><sp/>channels-&gt;<ref refid="structSYN__CRSF__ChannelsFrame_1ae4276cb8c34aebd98baa900babe83000" kindref="member">channels</ref>[9]<sp/>=<sp/>(uint16_t)(((payload[12]<sp/>&gt;&gt;<sp/>3)<sp/>|<sp/>(payload[13]<sp/>&lt;&lt;<sp/>5))<sp/>&amp;<sp/>0x07FFU);</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/>channels-&gt;<ref refid="structSYN__CRSF__ChannelsFrame_1ae4276cb8c34aebd98baa900babe83000" kindref="member">channels</ref>[10]<sp/>=</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(uint16_t)(((payload[13]<sp/>&gt;&gt;<sp/>6)<sp/>|<sp/>(payload[14]<sp/>&lt;&lt;<sp/>2)<sp/>|<sp/>(payload[15]<sp/>&lt;&lt;<sp/>10))<sp/>&amp;<sp/>0x07FFU);</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"><sp/><sp/><sp/><sp/>channels-&gt;<ref refid="structSYN__CRSF__ChannelsFrame_1ae4276cb8c34aebd98baa900babe83000" kindref="member">channels</ref>[11]<sp/>=<sp/>(uint16_t)(((payload[15]<sp/>&gt;&gt;<sp/>1)<sp/>|<sp/>(payload[16]<sp/>&lt;&lt;<sp/>7))<sp/>&amp;<sp/>0x07FFU);</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/><sp/><sp/>channels-&gt;<ref refid="structSYN__CRSF__ChannelsFrame_1ae4276cb8c34aebd98baa900babe83000" kindref="member">channels</ref>[12]<sp/>=<sp/>(uint16_t)(((payload[16]<sp/>&gt;&gt;<sp/>4)<sp/>|<sp/>(payload[17]<sp/>&lt;&lt;<sp/>4))<sp/>&amp;<sp/>0x07FFU);</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"><sp/><sp/><sp/><sp/>channels-&gt;<ref refid="structSYN__CRSF__ChannelsFrame_1ae4276cb8c34aebd98baa900babe83000" kindref="member">channels</ref>[13]<sp/>=</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(uint16_t)(((payload[17]<sp/>&gt;&gt;<sp/>7)<sp/>|<sp/>(payload[18]<sp/>&lt;&lt;<sp/>1)<sp/>|<sp/>(payload[19]<sp/>&lt;&lt;<sp/>9))<sp/>&amp;<sp/>0x07FFU);</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/><sp/><sp/>channels-&gt;<ref refid="structSYN__CRSF__ChannelsFrame_1ae4276cb8c34aebd98baa900babe83000" kindref="member">channels</ref>[14]<sp/>=<sp/>(uint16_t)(((payload[19]<sp/>&gt;&gt;<sp/>2)<sp/>|<sp/>(payload[20]<sp/>&lt;&lt;<sp/>6))<sp/>&amp;<sp/>0x07FFU);</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/><sp/><sp/>channels-&gt;<ref refid="structSYN__CRSF__ChannelsFrame_1ae4276cb8c34aebd98baa900babe83000" kindref="member">channels</ref>[15]<sp/>=<sp/>(uint16_t)(((payload[20]<sp/>&gt;&gt;<sp/>5)<sp/>|<sp/>(payload[21]<sp/>&lt;&lt;<sp/>3))<sp/>&amp;<sp/>0x07FFU);</highlight></codeline>
+<codeline lineno="66"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"></highlight></codeline>
+<codeline lineno="73"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__crsf_8c_1a74274553197e48e2f43652c39724b59b" kindref="member">parse_link_stats</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*payload,<sp/><ref refid="structSYN__CRSF__LinkStats" kindref="compound">SYN_CRSF_LinkStats</ref><sp/>*stats)</highlight></codeline>
+<codeline lineno="74"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/><sp/><sp/>stats-&gt;<ref refid="structSYN__CRSF__LinkStats_1ad187b43416f3eeca7edb29193ed0dfbf" kindref="member">uplink_rssi1</ref><sp/>=<sp/>payload[0];</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/><sp/><sp/>stats-&gt;<ref refid="structSYN__CRSF__LinkStats_1ade7386f72f642cb4026f0b5d3ce239c9" kindref="member">uplink_rssi2</ref><sp/>=<sp/>payload[1];</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/><sp/><sp/>stats-&gt;<ref refid="structSYN__CRSF__LinkStats_1a35a7c9a0b48cdd2b5f36045ac672339c" kindref="member">uplink_quality</ref><sp/>=<sp/>payload[2];</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/><sp/><sp/>stats-&gt;<ref refid="structSYN__CRSF__LinkStats_1a2bd2a7ef71f39873a87d715b8bfe158c" kindref="member">uplink_snr</ref><sp/>=<sp/>(int8_t)payload[3];</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/><sp/><sp/>stats-&gt;<ref refid="structSYN__CRSF__LinkStats_1a9fe4c7365f496119d778aa46a071f52f" kindref="member">active_antenna</ref><sp/>=<sp/>payload[4];</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/><sp/><sp/>stats-&gt;<ref refid="structSYN__CRSF__LinkStats_1a8a3011d6e377bf23b71d9a8651fae798" kindref="member">rf_mode</ref><sp/>=<sp/>payload[5];</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/><sp/><sp/>stats-&gt;<ref refid="structSYN__CRSF__LinkStats_1aebeebd1b5b72273b8efbba67fc7604d1" kindref="member">tx_power</ref><sp/>=<sp/>payload[6];</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/>stats-&gt;<ref refid="structSYN__CRSF__LinkStats_1a214bbfddee1c1b00492669052751d70c" kindref="member">downlink_rssi</ref><sp/>=<sp/>payload[7];</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/>stats-&gt;<ref refid="structSYN__CRSF__LinkStats_1a7ddacaad37155eff6c660856dd74d1e1" kindref="member">downlink_quality</ref><sp/>=<sp/>payload[8];</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/><sp/><sp/>stats-&gt;<ref refid="structSYN__CRSF__LinkStats_1a3d1998aa199f4abb6a6a68365656f71d" kindref="member">downlink_snr</ref><sp/>=<sp/>(int8_t)payload[9];</highlight></codeline>
+<codeline lineno="85"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"></highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__crsf_8c_1a22f5dcee312fc3a475d1206e2d828ca1" kindref="member">syn_crsf_parse_byte</ref>(<ref refid="structSYN__CRSF__Parser" kindref="compound">SYN_CRSF_Parser</ref><sp/>*parser,<sp/>uint8_t<sp/></highlight><highlight class="keywordtype">byte</highlight><highlight class="normal">,<sp/><ref refid="syn__crsf_8h_1af4f642044c449787e0302ab6428fb0b7" kindref="member">SYN_CRSF_FrameType</ref><sp/>*type_out)</highlight></codeline>
+<codeline lineno="88"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!parser)<sp/>{</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"></highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(parser-&gt;<ref refid="structSYN__CRSF__Parser_1a10bc9ff2bec61a08afb5c185a7e74b6f" kindref="member">idx</ref><sp/>==<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">byte</highlight><highlight class="normal"><sp/>!=<sp/><ref refid="syn__crsf_8h_1a46907f5ddba8b18bd0971c4dbe7b64dc" kindref="member">SYN_CRSF_ADDR_FC</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00acd5d2701b7cfa9fb446640ecbeb19fc9" kindref="member">SYN_ERROR</ref>;</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(parser-&gt;<ref refid="structSYN__CRSF__Parser_1a10bc9ff2bec61a08afb5c185a7e74b6f" kindref="member">idx</ref><sp/>==<sp/>1)<sp/>{</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>parser-&gt;<ref refid="structSYN__CRSF__Parser_1a3cf5f323db201cdbb0b133ad592a8bf6" kindref="member">payload_len</ref><sp/>=<sp/>byte;</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(byte<sp/>&lt;<sp/>2U<sp/>||<sp/>byte<sp/>&gt;<sp/>(<ref refid="syn__crsf_8h_1af11ec44fb7a6a285e811c51a209856bf" kindref="member">SYN_CRSF_MAX_PACKET_LEN</ref><sp/>-<sp/>2U))<sp/>{</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>parser-&gt;<ref refid="structSYN__CRSF__Parser_1a10bc9ff2bec61a08afb5c185a7e74b6f" kindref="member">idx</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00acd5d2701b7cfa9fb446640ecbeb19fc9" kindref="member">SYN_ERROR</ref>;</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"></highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><sp/><sp/><sp/><sp/>parser-&gt;<ref refid="structSYN__CRSF__Parser_1abdfb5dc80f895a44911d6835e3240f8f" kindref="member">buf</ref>[parser-&gt;<ref refid="structSYN__CRSF__Parser_1a10bc9ff2bec61a08afb5c185a7e74b6f" kindref="member">idx</ref>++]<sp/>=<sp/>byte;</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"></highlight></codeline>
+<codeline lineno="107"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(parser-&gt;<ref refid="structSYN__CRSF__Parser_1a10bc9ff2bec61a08afb5c185a7e74b6f" kindref="member">idx</ref><sp/>&gt;=<sp/>2U<sp/>&amp;&amp;<sp/>parser-&gt;<ref refid="structSYN__CRSF__Parser_1a10bc9ff2bec61a08afb5c185a7e74b6f" kindref="member">idx</ref><sp/>==<sp/>(</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal">)(2U<sp/>+<sp/>parser-&gt;<ref refid="structSYN__CRSF__Parser_1a3cf5f323db201cdbb0b133ad592a8bf6" kindref="member">payload_len</ref>))<sp/>{</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>parser-&gt;<ref refid="structSYN__CRSF__Parser_1a10bc9ff2bec61a08afb5c185a7e74b6f" kindref="member">idx</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="109"><highlight class="normal"></highlight></codeline>
+<codeline lineno="110"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Verify<sp/>CRC8<sp/>DVB-S2<sp/>over<sp/>Type<sp/>+<sp/>Payload<sp/>(bytes<sp/>2<sp/>..<sp/>2+payload_len-2)<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="111"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>expected_crc<sp/>=<sp/><ref refid="syn__crsf_8c_1abe85cebfb66a06d0760388ca5423d0b3" kindref="member">syn_crsf_calc_crc</ref>(&amp;parser-&gt;<ref refid="structSYN__CRSF__Parser_1abdfb5dc80f895a44911d6835e3240f8f" kindref="member">buf</ref>[2],<sp/>parser-&gt;<ref refid="structSYN__CRSF__Parser_1a3cf5f323db201cdbb0b133ad592a8bf6" kindref="member">payload_len</ref><sp/>-<sp/>1U);</highlight></codeline>
+<codeline lineno="112"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>rx_crc<sp/>=<sp/>parser-&gt;<ref refid="structSYN__CRSF__Parser_1abdfb5dc80f895a44911d6835e3240f8f" kindref="member">buf</ref>[1U<sp/>+<sp/>parser-&gt;<ref refid="structSYN__CRSF__Parser_1a3cf5f323db201cdbb0b133ad592a8bf6" kindref="member">payload_len</ref>];</highlight></codeline>
+<codeline lineno="113"><highlight class="normal"></highlight></codeline>
+<codeline lineno="114"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(expected_crc<sp/>!=<sp/>rx_crc)<sp/>{</highlight></codeline>
+<codeline lineno="115"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>parser-&gt;<ref refid="structSYN__CRSF__Parser_1a268c12f8a0d5073ec0afafc55f6a7bfe" kindref="member">crc_errors</ref>++;</highlight></codeline>
+<codeline lineno="116"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00acd5d2701b7cfa9fb446640ecbeb19fc9" kindref="member">SYN_ERROR</ref>;</highlight></codeline>
+<codeline lineno="117"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"></highlight></codeline>
+<codeline lineno="119"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>parser-&gt;<ref refid="structSYN__CRSF__Parser_1afcc7f2a19f1c791362bb1994fb1b7fae" kindref="member">packets_received</ref>++;</highlight></codeline>
+<codeline lineno="120"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>type<sp/>=<sp/>parser-&gt;<ref refid="structSYN__CRSF__Parser_1abdfb5dc80f895a44911d6835e3240f8f" kindref="member">buf</ref>[2];</highlight></codeline>
+<codeline lineno="121"><highlight class="normal"></highlight></codeline>
+<codeline lineno="122"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(type<sp/>==<sp/>SYN_CRSF_TYPE_RC_CHANNELS)<sp/>{</highlight></codeline>
+<codeline lineno="123"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__crsf_8c_1afe2d384b09fae374f562e68ac53a5099" kindref="member">parse_channels</ref>(&amp;parser-&gt;<ref refid="structSYN__CRSF__Parser_1abdfb5dc80f895a44911d6835e3240f8f" kindref="member">buf</ref>[3],<sp/>&amp;parser-&gt;<ref refid="structSYN__CRSF__Parser_1ad80dc2cd184fad3917b37dec351e7ca6" kindref="member">last_channels</ref>);</highlight></codeline>
+<codeline lineno="124"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(type<sp/>==<sp/>SYN_CRSF_TYPE_LINK_STATISTICS)<sp/>{</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__crsf_8c_1a74274553197e48e2f43652c39724b59b" kindref="member">parse_link_stats</ref>(&amp;parser-&gt;<ref refid="structSYN__CRSF__Parser_1abdfb5dc80f895a44911d6835e3240f8f" kindref="member">buf</ref>[3],<sp/>&amp;parser-&gt;<ref refid="structSYN__CRSF__Parser_1a74ec6cddab8a863434f61ce53f2cc4c1" kindref="member">last_link_stats</ref>);</highlight></codeline>
+<codeline lineno="126"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="127"><highlight class="normal"></highlight></codeline>
+<codeline lineno="128"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(type_out)<sp/>{</highlight></codeline>
+<codeline lineno="129"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*type_out<sp/>=<sp/>(<ref refid="syn__crsf_8h_1af4f642044c449787e0302ab6428fb0b7" kindref="member">SYN_CRSF_FrameType</ref>)type;</highlight></codeline>
+<codeline lineno="130"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="131"><highlight class="normal"></highlight></codeline>
+<codeline lineno="132"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="133"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="134"><highlight class="normal"></highlight></codeline>
+<codeline lineno="135"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a3be376d242928cd8de46b32c69647539" kindref="member">SYN_BUSY</ref>;</highlight></codeline>
+<codeline lineno="136"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="137"><highlight class="normal"></highlight></codeline>
+<codeline lineno="138"><highlight class="normal">uint16_t<sp/><ref refid="syn__crsf_8c_1ad17a61835395c34a1e317819cd861cf8" kindref="member">syn_crsf_raw_to_us</ref>(uint16_t<sp/>raw_val)</highlight></codeline>
+<codeline lineno="139"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="140"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(raw_val<sp/>&lt;<sp/>170U)<sp/>{</highlight></codeline>
+<codeline lineno="141"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>988U;</highlight></codeline>
+<codeline lineno="142"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="143"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(raw_val<sp/>&gt;<sp/>1908U)<sp/>{</highlight></codeline>
+<codeline lineno="144"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>2012U;</highlight></codeline>
+<codeline lineno="145"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="146"><highlight class="normal"></highlight></codeline>
+<codeline lineno="147"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="148"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/>*<sp/>Linear<sp/>scaling:</highlight></codeline>
+<codeline lineno="149"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/>*<sp/>raw<sp/>range:<sp/>[170,<sp/>1908]<sp/>-&gt;<sp/>span<sp/>=<sp/>1738</highlight></codeline>
+<codeline lineno="150"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/>*<sp/>us<sp/>range:<sp/><sp/>[988,<sp/>2012]<sp/>-&gt;<sp/>span<sp/>=<sp/>1024</highlight></codeline>
+<codeline lineno="151"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/>*<sp/>us<sp/>=<sp/>988<sp/>+<sp/>((raw_val<sp/>-<sp/>170)<sp/>*<sp/>1024)<sp/>/<sp/>1738</highlight></codeline>
+<codeline lineno="152"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="153"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/>val<sp/>=<sp/>(uint32_t)(raw_val<sp/>-<sp/>170U);</highlight></codeline>
+<codeline lineno="154"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/>us<sp/>=<sp/>988U<sp/>+<sp/>((val<sp/>*<sp/>1024U)<sp/>/<sp/>1738U);</highlight></codeline>
+<codeline lineno="155"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(uint16_t)us;</highlight></codeline>
+<codeline lineno="156"><highlight class="normal">}</highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/proto/syn_crsf.c"/>
+  </compounddef>
+</doxygen>

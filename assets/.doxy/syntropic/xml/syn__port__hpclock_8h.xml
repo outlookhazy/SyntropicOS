@@ -1,0 +1,210 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__port__hpclock_8h" kind="file" language="C++">
+    <compoundname>syn_port_hpclock.h</compoundname>
+    <includes local="no">stdint.h</includes>
+    <includedby refid="syn__hpclock_8h" local="yes">src/syntropic/drivers/syn_hpclock.h</includedby>
+    <incdepgraph>
+      <node id="1">
+        <label>src/syntropic/port/syn_port_hpclock.h</label>
+        <link refid="syn__port__hpclock_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>stdint.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="3">
+        <label>src/syntropic/drivers/syn_hpclock.c</label>
+        <link refid="syn__hpclock_8c"/>
+      </node>
+      <node id="2">
+        <label>src/syntropic/drivers/syn_hpclock.h</label>
+        <link refid="syn__hpclock_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>src/syntropic/drivers/syn_timesync.c</label>
+        <link refid="syn__timesync_8c"/>
+      </node>
+      <node id="4">
+        <label>src/syntropic/drivers/syn_timesync.h</label>
+        <link refid="syn__timesync_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/port/syn_port_hpclock.h</label>
+        <link refid="syn__port__hpclock_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>src/syntropic/proto/syn_doip.c</label>
+        <link refid="syn__doip_8c"/>
+      </node>
+      <node id="7">
+        <label>src/syntropic/proto/syn_doip.h</label>
+        <link refid="syn__doip_8h"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>src/syntropic/syntropic.h</label>
+        <link refid="syntropic_8h"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <sectiondef kind="define">
+      <memberdef kind="define" id="syn__port__hpclock_8h_1a99495c4f764c75749f0c4fd82080db85" prot="public" static="no">
+        <name>SYN_HPCLOCK_OVERFLOW_TICK</name>
+        <param></param>
+        <initializer>(<ref refid="syn__hpclock_8c_1acc080e324f559e5f3269b6d421ccc9b2" kindref="member">syn_hpclock_msb</ref>++)</initializer>
+        <briefdescription>
+<para>Macro for the platform overflow ISR — one line, nothing else. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Call this from your timer update/overflow interrupt handler. Do not add any other logic before this macro in the ISR. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/port/syn_port_hpclock.h" line="76" column="9" bodyfile="src/syntropic/port/syn_port_hpclock.h" bodystart="76" bodyend="-1"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="var">
+      <memberdef kind="variable" id="syn__port__hpclock_8h_1acc080e324f559e5f3269b6d421ccc9b2" prot="public" static="no" extern="yes" mutable="no">
+        <type>volatile uint32_t</type>
+        <definition>volatile uint32_t syn_hpclock_msb</definition>
+        <argsstring></argsstring>
+        <name>syn_hpclock_msb</name>
+        <briefdescription>
+<para>Global overflow counter — incremented by the platform ISR. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Declared here so both the port ISR and the driver can access it. Defined in <ref refid="syn__hpclock_8c" kindref="compound">syn_hpclock.c</ref>. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/port/syn_port_hpclock.h" line="68" column="26" bodyfile="src/syntropic/drivers/syn_hpclock.c" bodystart="17" bodyend="-1" declfile="src/syntropic/port/syn_port_hpclock.h" declline="68" declcolumn="26"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__port__hpclock_8h_1a963768431af98199d8dc26e587d33722" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>volatile uint32_t *</type>
+        <definition>volatile uint32_t * syn_port_hpclock_lsb_ptr</definition>
+        <argsstring>(void)</argsstring>
+        <name>syn_port_hpclock_lsb_ptr</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return a pointer to the hardware timer count register. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>The returned pointer must be volatile and point to a memory-mapped register that increments at the rate returned by <ref refid="syn__port__hpclock_8h_1a82fc473fd84d3ba05fe524d8b0cbba96" kindref="member">syn_port_hpclock_freq_hz()</ref>.</para>
+<para><simplesect kind="return"><para>Pointer to the timer counter register. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/port/syn_port_hpclock.h" line="89" column="19" bodyfile="src/syntropic/port_stubs/syn_port_stubs.c" bodystart="723" bodyend="727" declfile="src/syntropic/port/syn_port_hpclock.h" declline="89" declcolumn="19"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__port__hpclock_8h_1a82fc473fd84d3ba05fe524d8b0cbba96" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>uint32_t syn_port_hpclock_freq_hz</definition>
+        <argsstring>(void)</argsstring>
+        <name>syn_port_hpclock_freq_hz</name>
+        <param>
+          <type>void</type>
+        </param>
+        <briefdescription>
+<para>Return the timer clock frequency in Hz. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Used for tick-to-nanosecond conversion. Must be a compile-time constant or a value that does not change after initialization.</para>
+<para><simplesect kind="return"><para>Timer frequency in Hz (e.g. 16000000 for 16 MHz). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/port/syn_port_hpclock.h" line="99" column="10" bodyfile="src/syntropic/port_stubs/syn_port_stubs.c" bodystart="729" bodyend="733" declfile="src/syntropic/port/syn_port_hpclock.h" declline="99" declcolumn="10"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>High-precision clock port interface — implement for your platform. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Provides the hardware timer counter register and overflow counter that the syn_hpclock driver uses to construct 64-bit system-clock- precision timestamps.</para>
+<sect2 id="syn__port__hpclock_8h_1autotoc_md5">
+<title>Platform implementation checklist</title>
+<para><orderedlist>
+<listitem><para>Configure a free-running hardware timer at the system clock rate (or as fast as practical). For example, STM32 TIM2 in free-run mode, or AVR Timer1 with no prescaler.</para>
+</listitem><listitem><para>Define <computeroutput><ref refid="syn__port__hpclock_8h_1a963768431af98199d8dc26e587d33722" kindref="member">syn_port_hpclock_lsb_ptr()</ref></computeroutput> to return a pointer to the timer&apos;s count register.</para>
+</listitem><listitem><para>Enable the timer overflow interrupt and call <computeroutput><ref refid="syn__port__hpclock_8h_1a99495c4f764c75749f0c4fd82080db85" kindref="member">SYN_HPCLOCK_OVERFLOW_TICK()</ref></computeroutput> from the ISR.</para>
+</listitem><listitem><para>Define <computeroutput><ref refid="syn__port__hpclock_8h_1a82fc473fd84d3ba05fe524d8b0cbba96" kindref="member">syn_port_hpclock_freq_hz()</ref></computeroutput> to return the timer&apos;s clock frequency.</para>
+</listitem><listitem><para><bold>The overflow ISR MUST have the highest interrupt priority in the system.</bold> The resolve algorithm assumes the overflow ISR can preempt any context that calls <ref refid="syn__hpclock_8h_1acf80e4ae2cc5f2988fc3d26caa543698" kindref="member">SYN_HPCLOCK_CAPTURE()</ref>. If a higher-priority ISR captures a timestamp while the overflow ISR is pended, the resolved tick will be silently wrong by one full counter period. There is no runtime detection of this error.</para>
+</listitem></orderedlist>
+</para>
+<para><simplesect kind="par"><title>Example — STM32 TIM2 at 84 MHz</title><para><programlisting><codeline><highlight class="comment">//<sp/>In<sp/>your<sp/>platform<sp/>port<sp/>file:</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="keyword">volatile</highlight><highlight class="normal"><sp/>uint32_t<sp/>*<ref refid="syn__port__hpclock_8h_1a963768431af98199d8dc26e587d33722" kindref="member">syn_port_hpclock_lsb_ptr</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>&amp;TIM2-&gt;CNT;</highlight></codeline>
+<codeline><highlight class="normal">}</highlight></codeline>
+<codeline><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal">uint32_t<sp/><ref refid="syn__port__hpclock_8h_1a82fc473fd84d3ba05fe524d8b0cbba96" kindref="member">syn_port_hpclock_freq_hz</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>84000000UL;</highlight></codeline>
+<codeline><highlight class="normal">}</highlight></codeline>
+<codeline><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="comment">//<sp/>Priority<sp/>0<sp/>=<sp/>highest<sp/>on<sp/>Cortex-M<sp/>NVIC</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>TIM2_IRQHandler(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">)<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__port__hpclock_8h_1a99495c4f764c75749f0c4fd82080db85" kindref="member">SYN_HPCLOCK_OVERFLOW_TICK</ref>();</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/>LL_TIM_ClearFlag_UPDATE(TIM2);</highlight></codeline>
+<codeline><highlight class="normal">}</highlight></codeline>
+</programlisting> </para>
+</simplesect>
+</para>
+</sect2>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="51"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_PORT_HPCLOCK_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="52"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_PORT_HPCLOCK_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="53"><highlight class="normal"></highlight></codeline>
+<codeline lineno="54"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="55"><highlight class="normal"></highlight></codeline>
+<codeline lineno="56"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="57"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="59"><highlight class="normal"></highlight></codeline>
+<codeline lineno="60"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Overflow<sp/>counter<sp/>────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="61"><highlight class="normal"></highlight></codeline>
+<codeline lineno="68"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">volatile</highlight><highlight class="normal"><sp/>uint32_t<sp/><ref refid="syn__port__hpclock_8h_1acc080e324f559e5f3269b6d421ccc9b2" kindref="member">syn_hpclock_msb</ref>;</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"></highlight></codeline>
+<codeline lineno="76" refid="syn__port__hpclock_8h_1a99495c4f764c75749f0c4fd82080db85" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_HPCLOCK_OVERFLOW_TICK()<sp/>(syn_hpclock_msb++)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="77"><highlight class="normal"></highlight></codeline>
+<codeline lineno="78"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Port<sp/>functions<sp/>──────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="79"><highlight class="normal"></highlight></codeline>
+<codeline lineno="89"><highlight class="normal"></highlight><highlight class="keyword">volatile</highlight><highlight class="normal"><sp/>uint32_t<sp/>*<ref refid="syn__port__hpclock_8h_1a963768431af98199d8dc26e587d33722" kindref="member">syn_port_hpclock_lsb_ptr</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"></highlight></codeline>
+<codeline lineno="99"><highlight class="normal">uint32_t<sp/><ref refid="syn__port__hpclock_8h_1a82fc473fd84d3ba05fe524d8b0cbba96" kindref="member">syn_port_hpclock_freq_hz</ref>(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"></highlight></codeline>
+<codeline lineno="101"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="102"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="104"><highlight class="normal"></highlight></codeline>
+<codeline lineno="105"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_PORT_HPCLOCK_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/port/syn_port_hpclock.h"/>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,184 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__dsp_8h" kind="file" language="C++">
+    <compoundname>syn_dsp.h</compoundname>
+    <includes refid="syn__qmath_8h" local="yes">../util/syn_qmath.h</includes>
+    <includes refid="syn__defs_8h" local="yes">syntropic/common/syn_defs.h</includes>
+    <includedby refid="syn__dsp_8c" local="yes">src/syntropic/dsp/syn_dsp.c</includedby>
+    <includedby refid="syn__mfcc_8h" local="yes">src/syntropic/dsp/syn_mfcc.h</includedby>
+    <includedby refid="syntropic_8h" local="yes">src/syntropic/syntropic.h</includedby>
+    <incdepgraph>
+      <node id="5">
+        <label>syntropic/common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/dsp/syn_dsp.h</label>
+        <link refid="syn__dsp_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>../util/syn_qmath.h</label>
+        <link refid="syn__qmath_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>stddef.h</label>
+      </node>
+      <node id="4">
+        <label>stdint.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="2">
+        <label>src/syntropic/dsp/syn_dsp.c</label>
+        <link refid="syn__dsp_8c"/>
+      </node>
+      <node id="1">
+        <label>src/syntropic/dsp/syn_dsp.h</label>
+        <link refid="syn__dsp_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>src/syntropic/dsp/syn_mfcc.c</label>
+        <link refid="syn__mfcc_8c"/>
+      </node>
+      <node id="3">
+        <label>src/syntropic/dsp/syn_mfcc.h</label>
+        <link refid="syn__mfcc_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>src/syntropic/proto/syn_doip.c</label>
+        <link refid="syn__doip_8c"/>
+      </node>
+      <node id="6">
+        <label>src/syntropic/proto/syn_doip.h</label>
+        <link refid="syn__doip_8h"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>src/syntropic/syntropic.h</label>
+        <link refid="syntropic_8h"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__dsp_8h_1a2c3228c0c04cae1325f7af250898929b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_dsp_dct2_q7</definition>
+        <argsstring>(const q7_t *time_series, size_t num_samples, q7_t *dct_coeffs, size_t num_coeffs)</argsstring>
+        <name>syn_dsp_dct2_q7</name>
+        <param>
+          <type>const <ref refid="syn__qmath_8h_1ae541b6f232c305361e9b416fc9eed263" kindref="member">q7_t</ref> *</type>
+          <declname>time_series</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>num_samples</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1ae541b6f232c305361e9b416fc9eed263" kindref="member">q7_t</ref> *</type>
+          <declname>dct_coeffs</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>num_coeffs</declname>
+        </param>
+        <briefdescription>
+<para>Compute Type-II Discrete Cosine Transform (DCT-II) on Q7 data. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Transforms time-domain sensor samples into frequency-domain coefficients. Formula: X_k = Sum_{n=0}^{N-1} x_n * cos(pi/N * (n + 0.5) * k)</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>time_series</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to input time-domain sample vector (length = num_samples). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>num_samples</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of time-domain input samples. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dct_coeffs</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Destination vector for frequency coefficients (length = num_coeffs). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>num_coeffs</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of output frequency coefficients to retain (num_coeffs &lt;= num_samples). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_INVALID_PARAM on failure. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/dsp/syn_dsp.h" line="32" column="12" bodyfile="src/syntropic/dsp/syn_dsp.c" bodystart="16" bodyend="47" declfile="src/syntropic/dsp/syn_dsp.h" declline="32" declcolumn="12"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Zero-heap Fixed-Point DSP &amp; Spectral Processing Primitives. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Provides fixed-point Discrete Cosine Transform (DCT-II) and signal processing helpers tailored for resource-constrained microcontrollers. </para>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_DSP_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_DSP_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../util/syn_qmath.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__defs_8h" kindref="compound">syntropic/common/syn_defs.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight></codeline>
+<codeline lineno="32"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__dsp_8h_1a2c3228c0c04cae1325f7af250898929b" kindref="member">syn_dsp_dct2_q7</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="syn__qmath_8h_1ae541b6f232c305361e9b416fc9eed263" kindref="member">q7_t</ref><sp/>*time_series,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>num_samples,<sp/><ref refid="syn__qmath_8h_1ae541b6f232c305361e9b416fc9eed263" kindref="member">q7_t</ref><sp/>*dct_coeffs,</highlight></codeline>
+<codeline lineno="33"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>num_coeffs);</highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_DSP_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/dsp/syn_dsp.h"/>
+  </compounddef>
+</doxygen>

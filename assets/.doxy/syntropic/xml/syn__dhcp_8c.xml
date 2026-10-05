@@ -1,0 +1,630 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__dhcp_8c" kind="file" language="C++">
+    <compoundname>syn_dhcp.c</compoundname>
+    <includes refid="syn__dhcp_8h" local="yes">syntropic/net/syn_dhcp.h</includes>
+    <includes local="no">string.h</includes>
+    <incdepgraph>
+      <node id="8">
+        <label>port/syn_port_eth.h</label>
+        <link refid="syn__port__eth_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="10">
+        <label>../common/syn_compiler.h</label>
+        <link refid="syn__compiler_8h"/>
+      </node>
+      <node id="3">
+        <label>syntropic/common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/net/syn_dhcp.c</label>
+        <link refid="syn__dhcp_8c"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>syntropic/net/syn_dhcp.h</label>
+        <link refid="syn__dhcp_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>syntropic/net/syn_eth.h</label>
+        <link refid="syn__eth_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="9">
+        <label>syntropic/pt/syn_pt.h</label>
+        <link refid="syn__pt_8h"/>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>stdbool.h</label>
+      </node>
+      <node id="4">
+        <label>stddef.h</label>
+      </node>
+      <node id="5">
+        <label>stdint.h</label>
+      </node>
+      <node id="11">
+        <label>string.h</label>
+      </node>
+    </incdepgraph>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__dhcp_8c_1a5c325625f1abc963e03ccd2c731c4516" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_dhcp_init</definition>
+        <argsstring>(SYN_DHCP *dhcp, uint32_t xid)</argsstring>
+        <name>syn_dhcp_init</name>
+        <param>
+          <type><ref refid="structSYN__DHCP" kindref="compound">SYN_DHCP</ref> *</type>
+          <declname>dhcp</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>xid</declname>
+        </param>
+        <briefdescription>
+<para>Initialize DHCP Client Context. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>dhcp</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to DHCP context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>xid</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>32-bit transaction ID (e.g. random value or tick count). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/net/syn_dhcp.c" line="10" column="12" bodyfile="src/syntropic/net/syn_dhcp.c" bodystart="10" bodyend="19"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__dhcp_8c_1aab45b6bbec26045d2a685c6fe9bd865b" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void pack_uint32</definition>
+        <argsstring>(uint8_t *buf, uint32_t val)</argsstring>
+        <name>pack_uint32</name>
+        <param>
+          <type>uint8_t *</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>val</declname>
+        </param>
+        <briefdescription>
+<para>Pack 32-bit integer in big-endian byte order. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output byte buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>val</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>32-bit value to pack. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/net/syn_dhcp.c" line="26" column="13" bodyfile="src/syntropic/net/syn_dhcp.c" bodystart="26" bodyend="32"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__dhcp_8c_1a42d49011a1161952c05e52e97840c706" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>static uint32_t unpack_uint32</definition>
+        <argsstring>(const uint8_t *buf)</argsstring>
+        <name>unpack_uint32</name>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>buf</declname>
+        </param>
+        <briefdescription>
+<para>Unpack 32-bit integer from big-endian byte order. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Input byte buffer. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Unpacked 32-bit integer. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/net/syn_dhcp.c" line="39" column="17" bodyfile="src/syntropic/net/syn_dhcp.c" bodystart="39" bodyend="43"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__dhcp_8c_1a7dcfb3a182bb47ecae6233f5feb78e40" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_dhcp_build_discover</definition>
+        <argsstring>(SYN_DHCP *dhcp, const uint8_t mac_addr[6], uint8_t *buf_out, size_t buf_size, size_t *len_out)</argsstring>
+        <name>syn_dhcp_build_discover</name>
+        <param>
+          <type><ref refid="structSYN__DHCP" kindref="compound">SYN_DHCP</ref> *</type>
+          <declname>dhcp</declname>
+        </param>
+        <param>
+          <type>const uint8_t</type>
+          <declname>mac_addr</declname>
+          <array>[6]</array>
+        </param>
+        <param>
+          <type>uint8_t *</type>
+          <declname>buf_out</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>buf_size</declname>
+        </param>
+        <param>
+          <type>size_t *</type>
+          <declname>len_out</declname>
+        </param>
+        <briefdescription>
+<para>Build a DHCPDISCOVER UDP packet payload. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>dhcp</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to DHCP context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>mac_addr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>6-byte client MAC address. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>buf_out</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output buffer (must hold at least 250 bytes). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>buf_size</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output buffer capacity. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>len_out</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to receive byte length of generated payload. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/net/syn_dhcp.c" line="45" column="12" bodyfile="src/syntropic/net/syn_dhcp.c" bodystart="45" bodyend="76"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__dhcp_8c_1abca30ee08af6ba0dcd438aa175c18d8f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_dhcp_build_request</definition>
+        <argsstring>(SYN_DHCP *dhcp, const uint8_t mac_addr[6], uint8_t *buf_out, size_t buf_size, size_t *len_out)</argsstring>
+        <name>syn_dhcp_build_request</name>
+        <param>
+          <type><ref refid="structSYN__DHCP" kindref="compound">SYN_DHCP</ref> *</type>
+          <declname>dhcp</declname>
+        </param>
+        <param>
+          <type>const uint8_t</type>
+          <declname>mac_addr</declname>
+          <array>[6]</array>
+        </param>
+        <param>
+          <type>uint8_t *</type>
+          <declname>buf_out</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>buf_size</declname>
+        </param>
+        <param>
+          <type>size_t *</type>
+          <declname>len_out</declname>
+        </param>
+        <briefdescription>
+<para>Build a DHCPREQUEST UDP packet payload. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>dhcp</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to DHCP context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>mac_addr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>6-byte client MAC address. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>buf_out</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output buffer (must hold at least 260 bytes). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>buf_size</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output buffer capacity. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>len_out</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to receive byte length of generated payload. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/net/syn_dhcp.c" line="78" column="12" bodyfile="src/syntropic/net/syn_dhcp.c" bodystart="78" bodyend="124"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__dhcp_8c_1a1add7005dc2cc3b43a53fcb0b17269bb" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_dhcp_process_packet</definition>
+        <argsstring>(SYN_DHCP *dhcp, SYN_ETH *eth, const uint8_t *dhcp_pkt, size_t len)</argsstring>
+        <name>syn_dhcp_process_packet</name>
+        <param>
+          <type><ref refid="structSYN__DHCP" kindref="compound">SYN_DHCP</ref> *</type>
+          <declname>dhcp</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__ETH" kindref="compound">SYN_ETH</ref> *</type>
+          <declname>eth</declname>
+        </param>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>dhcp_pkt</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>len</declname>
+        </param>
+        <briefdescription>
+<para>Process incoming DHCP response packet payload (DHCPOFFER or DHCPACK). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>dhcp</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to DHCP context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>eth</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to Ethernet context (updated automatically when BOUND). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dhcp_pkt</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to incoming DHCP UDP payload. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Payload byte length. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_BUSY if still waiting/in-progress. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/net/syn_dhcp.c" line="126" column="12" bodyfile="src/syntropic/net/syn_dhcp.c" bodystart="126" bodyend="204"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Zero-Heap Native DHCP Client Protocol Engine Implementation. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__dhcp_8h" kindref="compound">syntropic/net/syn_dhcp.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;string.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__dhcp_8c_1a5c325625f1abc963e03ccd2c731c4516" kindref="member">syn_dhcp_init</ref>(<ref refid="structSYN__DHCP" kindref="compound">SYN_DHCP</ref><sp/>*dhcp,<sp/>uint32_t<sp/>xid)</highlight></codeline>
+<codeline lineno="11"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="12"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!dhcp)<sp/>{</highlight></codeline>
+<codeline lineno="13"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="14"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="15"><highlight class="normal"><sp/><sp/><sp/><sp/>memset(dhcp,<sp/>0,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(*dhcp));</highlight></codeline>
+<codeline lineno="16"><highlight class="normal"><sp/><sp/><sp/><sp/>dhcp-&gt;<ref refid="structSYN__DHCP_1ab2322400988820f1460021c5078b34d6" kindref="member">state</ref><sp/>=<sp/>SYN_DHCP_STATE_INIT;</highlight></codeline>
+<codeline lineno="17"><highlight class="normal"><sp/><sp/><sp/><sp/>dhcp-&gt;<ref refid="structSYN__DHCP_1a3095b017d0a73bb67076fe99a5bc5c65" kindref="member">xid</ref><sp/>=<sp/>(xid<sp/>!=<sp/>0)<sp/>?<sp/>xid<sp/>:<sp/>0x12345678UL;</highlight></codeline>
+<codeline lineno="18"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="19"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__dhcp_8c_1aab45b6bbec26045d2a685c6fe9bd865b" kindref="member">pack_uint32</ref>(uint8_t<sp/>*buf,<sp/>uint32_t<sp/>val)</highlight></codeline>
+<codeline lineno="27"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="28"><highlight class="normal"><sp/><sp/><sp/><sp/>buf[0]<sp/>=<sp/>(uint8_t)(val<sp/>&gt;&gt;<sp/>24);</highlight></codeline>
+<codeline lineno="29"><highlight class="normal"><sp/><sp/><sp/><sp/>buf[1]<sp/>=<sp/>(uint8_t)(val<sp/>&gt;&gt;<sp/>16);</highlight></codeline>
+<codeline lineno="30"><highlight class="normal"><sp/><sp/><sp/><sp/>buf[2]<sp/>=<sp/>(uint8_t)(val<sp/>&gt;&gt;<sp/>8);</highlight></codeline>
+<codeline lineno="31"><highlight class="normal"><sp/><sp/><sp/><sp/>buf[3]<sp/>=<sp/>(uint8_t)(val);</highlight></codeline>
+<codeline lineno="32"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/>uint32_t<sp/><ref refid="syn__dhcp_8c_1a42d49011a1161952c05e52e97840c706" kindref="member">unpack_uint32</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*buf)</highlight></codeline>
+<codeline lineno="40"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>((uint32_t)buf[0]<sp/>&lt;&lt;<sp/>24)<sp/>|<sp/>((uint32_t)buf[1]<sp/>&lt;&lt;<sp/>16)<sp/>|<sp/>((uint32_t)buf[2]<sp/>&lt;&lt;<sp/>8)<sp/>|</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(uint32_t)buf[3];</highlight></codeline>
+<codeline lineno="43"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__dhcp_8c_1a7dcfb3a182bb47ecae6233f5feb78e40" kindref="member">syn_dhcp_build_discover</ref>(<ref refid="structSYN__DHCP" kindref="compound">SYN_DHCP</ref><sp/>*dhcp,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>mac_addr[6],<sp/>uint8_t<sp/>*buf_out,</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>buf_size,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>*len_out)</highlight></codeline>
+<codeline lineno="47"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!dhcp<sp/>||<sp/>!mac_addr<sp/>||<sp/>!buf_out<sp/>||<sp/>buf_size<sp/>&lt;<sp/>250U<sp/>||<sp/>!len_out)<sp/>{</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"></highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/><sp/><sp/>memset(buf_out,<sp/>0,<sp/>250);</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/><sp/><sp/>buf_out[0]<sp/>=<sp/>1;<sp/></highlight><highlight class="comment">/*<sp/>op<sp/>=<sp/>Boot<sp/>Request<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/><sp/><sp/>buf_out[1]<sp/>=<sp/>1;<sp/></highlight><highlight class="comment">/*<sp/>htype<sp/>=<sp/>Ethernet<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/><sp/><sp/>buf_out[2]<sp/>=<sp/>6;<sp/></highlight><highlight class="comment">/*<sp/>hlen<sp/>=<sp/>6<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/><sp/><sp/>buf_out[3]<sp/>=<sp/>0;<sp/></highlight><highlight class="comment">/*<sp/>hops<sp/>=<sp/>0<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="57"><highlight class="normal"></highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__dhcp_8c_1aab45b6bbec26045d2a685c6fe9bd865b" kindref="member">pack_uint32</ref>(&amp;buf_out[4],<sp/>dhcp-&gt;<ref refid="structSYN__DHCP_1a3095b017d0a73bb67076fe99a5bc5c65" kindref="member">xid</ref>);</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><sp/><sp/><sp/><sp/>memcpy(&amp;buf_out[28],<sp/>mac_addr,<sp/>6);<sp/></highlight><highlight class="comment">/*<sp/>chaddr<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="60"><highlight class="normal"></highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Magic<sp/>Cookie:<sp/>0x63,<sp/>0x82,<sp/>0x53,<sp/>0x63<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="62"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__dhcp_8c_1aab45b6bbec26045d2a685c6fe9bd865b" kindref="member">pack_uint32</ref>(&amp;buf_out[236],<sp/><ref refid="syn__dhcp_8h_1abb5dfe3a9ffda2425c005631d8f92c2d" kindref="member">SYN_DHCP_MAGIC_COOKIE</ref>);</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"></highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Options:<sp/>Option<sp/>53<sp/>=<sp/>DHCPDISCOVER<sp/>(1),<sp/>Option<sp/>255<sp/>=<sp/>END<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>opt_idx<sp/>=<sp/>240;</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/><sp/><sp/>buf_out[opt_idx++]<sp/>=<sp/><ref refid="syn__dhcp_8h_1ac52bcf36d06cae095b1e11edad042472" kindref="member">SYN_DHCP_OPT_MSG_TYPE</ref>;</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/><sp/><sp/>buf_out[opt_idx++]<sp/>=<sp/>1;</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/><sp/><sp/>buf_out[opt_idx++]<sp/>=<sp/><ref refid="syn__dhcp_8h_1a7c77a0d98c2ef38cba87f3d388415e17" kindref="member">SYN_DHCP_DISCOVER</ref>;</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/>buf_out[opt_idx++]<sp/>=<sp/><ref refid="syn__dhcp_8h_1abff3e5357c1e41ffb244056a292e4511" kindref="member">SYN_DHCP_OPT_END</ref>;</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"></highlight></codeline>
+<codeline lineno="71"><highlight class="normal"><sp/><sp/><sp/><sp/>dhcp-&gt;<ref refid="structSYN__DHCP_1ab2322400988820f1460021c5078b34d6" kindref="member">state</ref><sp/>=<sp/>SYN_DHCP_STATE_DISCOVER;</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"><sp/><sp/><sp/><sp/>dhcp-&gt;<ref refid="structSYN__DHCP_1aab0dd7d79772e59d13f8aeda21548028" kindref="member">discovers_sent</ref>++;</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><sp/><sp/><sp/><sp/>*len_out<sp/>=<sp/>opt_idx;</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"></highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="76"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"></highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__dhcp_8c_1abca30ee08af6ba0dcd438aa175c18d8f" kindref="member">syn_dhcp_build_request</ref>(<ref refid="structSYN__DHCP" kindref="compound">SYN_DHCP</ref><sp/>*dhcp,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>mac_addr[6],<sp/>uint8_t<sp/>*buf_out,</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>buf_size,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>*len_out)</highlight></codeline>
+<codeline lineno="80"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!dhcp<sp/>||<sp/>!mac_addr<sp/>||<sp/>!buf_out<sp/>||<sp/>buf_size<sp/>&lt;<sp/>260U<sp/>||<sp/>!len_out)<sp/>{</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"></highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/>memset(buf_out,<sp/>0,<sp/>260);</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/><sp/><sp/>buf_out[0]<sp/>=<sp/>1;<sp/></highlight><highlight class="comment">/*<sp/>op<sp/>=<sp/>Boot<sp/>Request<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/><sp/><sp/>buf_out[1]<sp/>=<sp/>1;<sp/></highlight><highlight class="comment">/*<sp/>htype<sp/>=<sp/>Ethernet<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/><sp/><sp/>buf_out[2]<sp/>=<sp/>6;<sp/></highlight><highlight class="comment">/*<sp/>hlen<sp/>=<sp/>6<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="89"><highlight class="normal"><sp/><sp/><sp/><sp/>buf_out[3]<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"></highlight></codeline>
+<codeline lineno="91"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__dhcp_8c_1aab45b6bbec26045d2a685c6fe9bd865b" kindref="member">pack_uint32</ref>(&amp;buf_out[4],<sp/>dhcp-&gt;<ref refid="structSYN__DHCP_1a3095b017d0a73bb67076fe99a5bc5c65" kindref="member">xid</ref>);</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/><sp/><sp/>memcpy(&amp;buf_out[28],<sp/>mac_addr,<sp/>6);</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"></highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Magic<sp/>Cookie<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__dhcp_8c_1aab45b6bbec26045d2a685c6fe9bd865b" kindref="member">pack_uint32</ref>(&amp;buf_out[236],<sp/><ref refid="syn__dhcp_8h_1abb5dfe3a9ffda2425c005631d8f92c2d" kindref="member">SYN_DHCP_MAGIC_COOKIE</ref>);</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"></highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>opt_idx<sp/>=<sp/>240;</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Option<sp/>53<sp/>=<sp/>DHCPREQUEST<sp/>(3)<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="99"><highlight class="normal"><sp/><sp/><sp/><sp/>buf_out[opt_idx++]<sp/>=<sp/><ref refid="syn__dhcp_8h_1ac52bcf36d06cae095b1e11edad042472" kindref="member">SYN_DHCP_OPT_MSG_TYPE</ref>;</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><sp/><sp/><sp/><sp/>buf_out[opt_idx++]<sp/>=<sp/>1;</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"><sp/><sp/><sp/><sp/>buf_out[opt_idx++]<sp/>=<sp/><ref refid="syn__dhcp_8h_1a59838dd91be770b9b74454038701fe4a" kindref="member">SYN_DHCP_REQUEST</ref>;</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"></highlight></codeline>
+<codeline lineno="103"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Option<sp/>50<sp/>=<sp/>Requested<sp/>IP<sp/>Address<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/><sp/><sp/><sp/>buf_out[opt_idx++]<sp/>=<sp/>50;</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><sp/><sp/><sp/><sp/>buf_out[opt_idx++]<sp/>=<sp/>4;</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__dhcp_8c_1aab45b6bbec26045d2a685c6fe9bd865b" kindref="member">pack_uint32</ref>(&amp;buf_out[opt_idx],<sp/>dhcp-&gt;<ref refid="structSYN__DHCP_1a2914866a0f38b433fba1030c258b9b62" kindref="member">offered_ip</ref>);</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"><sp/><sp/><sp/><sp/>opt_idx<sp/>+=<sp/>4;</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"></highlight></codeline>
+<codeline lineno="109"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Option<sp/>54<sp/>=<sp/>Server<sp/>Identifier<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="110"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(dhcp-&gt;<ref refid="structSYN__DHCP_1adb05800bd0b7a2fe43d5cb0d226b5c03" kindref="member">server_ip</ref><sp/>!=<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>buf_out[opt_idx++]<sp/>=<sp/>54;</highlight></codeline>
+<codeline lineno="112"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>buf_out[opt_idx++]<sp/>=<sp/>4;</highlight></codeline>
+<codeline lineno="113"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__dhcp_8c_1aab45b6bbec26045d2a685c6fe9bd865b" kindref="member">pack_uint32</ref>(&amp;buf_out[opt_idx],<sp/>dhcp-&gt;<ref refid="structSYN__DHCP_1adb05800bd0b7a2fe43d5cb0d226b5c03" kindref="member">server_ip</ref>);</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>opt_idx<sp/>+=<sp/>4;</highlight></codeline>
+<codeline lineno="115"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="116"><highlight class="normal"></highlight></codeline>
+<codeline lineno="117"><highlight class="normal"><sp/><sp/><sp/><sp/>buf_out[opt_idx++]<sp/>=<sp/><ref refid="syn__dhcp_8h_1abff3e5357c1e41ffb244056a292e4511" kindref="member">SYN_DHCP_OPT_END</ref>;</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"></highlight></codeline>
+<codeline lineno="119"><highlight class="normal"><sp/><sp/><sp/><sp/>dhcp-&gt;<ref refid="structSYN__DHCP_1ab2322400988820f1460021c5078b34d6" kindref="member">state</ref><sp/>=<sp/>SYN_DHCP_STATE_REQUEST;</highlight></codeline>
+<codeline lineno="120"><highlight class="normal"><sp/><sp/><sp/><sp/>dhcp-&gt;<ref refid="structSYN__DHCP_1ae974fdd9bfad40107212284fa49ca2fa" kindref="member">requests_sent</ref>++;</highlight></codeline>
+<codeline lineno="121"><highlight class="normal"><sp/><sp/><sp/><sp/>*len_out<sp/>=<sp/>opt_idx;</highlight></codeline>
+<codeline lineno="122"><highlight class="normal"></highlight></codeline>
+<codeline lineno="123"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="124"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"></highlight></codeline>
+<codeline lineno="126"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__dhcp_8c_1a1add7005dc2cc3b43a53fcb0b17269bb" kindref="member">syn_dhcp_process_packet</ref>(<ref refid="structSYN__DHCP" kindref="compound">SYN_DHCP</ref><sp/>*dhcp,<sp/><ref refid="structSYN__ETH" kindref="compound">SYN_ETH</ref><sp/>*eth,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*dhcp_pkt,</highlight></codeline>
+<codeline lineno="127"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>len)</highlight></codeline>
+<codeline lineno="128"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="129"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!dhcp<sp/>||<sp/>!dhcp_pkt<sp/>||<sp/>len<sp/>&lt;<sp/>244)<sp/>{</highlight></codeline>
+<codeline lineno="130"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="131"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="132"><highlight class="normal"></highlight></codeline>
+<codeline lineno="133"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Verify<sp/>Magic<sp/>Cookie<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="134"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="syn__dhcp_8c_1a42d49011a1161952c05e52e97840c706" kindref="member">unpack_uint32</ref>(&amp;dhcp_pkt[236])<sp/>!=<sp/><ref refid="syn__dhcp_8h_1abb5dfe3a9ffda2425c005631d8f92c2d" kindref="member">SYN_DHCP_MAGIC_COOKIE</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="135"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="137"><highlight class="normal"></highlight></codeline>
+<codeline lineno="138"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Verify<sp/>Transaction<sp/>ID<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="139"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="syn__dhcp_8c_1a42d49011a1161952c05e52e97840c706" kindref="member">unpack_uint32</ref>(&amp;dhcp_pkt[4])<sp/>!=<sp/>dhcp-&gt;<ref refid="structSYN__DHCP_1a3095b017d0a73bb67076fe99a5bc5c65" kindref="member">xid</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="140"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="141"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="142"><highlight class="normal"></highlight></codeline>
+<codeline lineno="143"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/>yiaddr<sp/>=<sp/><ref refid="syn__dhcp_8c_1a42d49011a1161952c05e52e97840c706" kindref="member">unpack_uint32</ref>(&amp;dhcp_pkt[16]);</highlight></codeline>
+<codeline lineno="144"><highlight class="normal"></highlight></codeline>
+<codeline lineno="145"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Parse<sp/>Options<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="146"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>msg_type<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="147"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/>subnet<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="148"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/>router<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="149"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/>lease<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="150"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/>server<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="151"><highlight class="normal"></highlight></codeline>
+<codeline lineno="152"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>i<sp/>=<sp/>240;</highlight></codeline>
+<codeline lineno="153"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">while</highlight><highlight class="normal"><sp/>(i<sp/>&lt;<sp/>len<sp/>&amp;&amp;<sp/>dhcp_pkt[i]<sp/>!=<sp/><ref refid="syn__dhcp_8h_1abff3e5357c1e41ffb244056a292e4511" kindref="member">SYN_DHCP_OPT_END</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="154"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>opt<sp/>=<sp/>dhcp_pkt[i++];</highlight></codeline>
+<codeline lineno="155"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(opt<sp/>==<sp/>0)</highlight></codeline>
+<codeline lineno="156"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">continue</highlight><highlight class="normal">;<sp/></highlight><highlight class="comment">/*<sp/>Pad<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="157"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(i<sp/>&gt;=<sp/>len)</highlight></codeline>
+<codeline lineno="158"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="159"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>opt_len<sp/>=<sp/>dhcp_pkt[i++];</highlight></codeline>
+<codeline lineno="160"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(i<sp/>+<sp/>opt_len<sp/>&gt;<sp/>len)</highlight></codeline>
+<codeline lineno="161"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="162"><highlight class="normal"></highlight></codeline>
+<codeline lineno="163"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(opt<sp/>==<sp/><ref refid="syn__dhcp_8h_1ac52bcf36d06cae095b1e11edad042472" kindref="member">SYN_DHCP_OPT_MSG_TYPE</ref><sp/>&amp;&amp;<sp/>opt_len<sp/>&gt;=<sp/>1)<sp/>{</highlight></codeline>
+<codeline lineno="164"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>msg_type<sp/>=<sp/>dhcp_pkt[i];</highlight></codeline>
+<codeline lineno="165"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(opt<sp/>==<sp/><ref refid="syn__dhcp_8h_1a3bd9d2639007d2974c348aab5a738fa0" kindref="member">SYN_DHCP_OPT_SUBNET_MASK</ref><sp/>&amp;&amp;<sp/>opt_len<sp/>&gt;=<sp/>4)<sp/>{</highlight></codeline>
+<codeline lineno="166"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>subnet<sp/>=<sp/><ref refid="syn__dhcp_8c_1a42d49011a1161952c05e52e97840c706" kindref="member">unpack_uint32</ref>(&amp;dhcp_pkt[i]);</highlight></codeline>
+<codeline lineno="167"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(opt<sp/>==<sp/><ref refid="syn__dhcp_8h_1a8defc8f5af79bc317b0af36dfe81ae82" kindref="member">SYN_DHCP_OPT_ROUTER</ref><sp/>&amp;&amp;<sp/>opt_len<sp/>&gt;=<sp/>4)<sp/>{</highlight></codeline>
+<codeline lineno="168"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>router<sp/>=<sp/><ref refid="syn__dhcp_8c_1a42d49011a1161952c05e52e97840c706" kindref="member">unpack_uint32</ref>(&amp;dhcp_pkt[i]);</highlight></codeline>
+<codeline lineno="169"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(opt<sp/>==<sp/><ref refid="syn__dhcp_8h_1a0d41d6ed3a9bafcb44fc0ca4ba8d3ec8" kindref="member">SYN_DHCP_OPT_LEASE_TIME</ref><sp/>&amp;&amp;<sp/>opt_len<sp/>&gt;=<sp/>4)<sp/>{</highlight></codeline>
+<codeline lineno="170"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>lease<sp/>=<sp/><ref refid="syn__dhcp_8c_1a42d49011a1161952c05e52e97840c706" kindref="member">unpack_uint32</ref>(&amp;dhcp_pkt[i]);</highlight></codeline>
+<codeline lineno="171"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(opt<sp/>==<sp/>54<sp/>&amp;&amp;<sp/>opt_len<sp/>&gt;=<sp/>4)<sp/>{</highlight></codeline>
+<codeline lineno="172"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>server<sp/>=<sp/><ref refid="syn__dhcp_8c_1a42d49011a1161952c05e52e97840c706" kindref="member">unpack_uint32</ref>(&amp;dhcp_pkt[i]);</highlight></codeline>
+<codeline lineno="173"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="174"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>i<sp/>+=<sp/>opt_len;</highlight></codeline>
+<codeline lineno="175"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="176"><highlight class="normal"></highlight></codeline>
+<codeline lineno="177"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(msg_type<sp/>==<sp/><ref refid="syn__dhcp_8h_1a0bf7a5df33bc9966e6a44d00b27c31ad" kindref="member">SYN_DHCP_OFFER</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="178"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>dhcp-&gt;<ref refid="structSYN__DHCP_1a2914866a0f38b433fba1030c258b9b62" kindref="member">offered_ip</ref><sp/>=<sp/>yiaddr;</highlight></codeline>
+<codeline lineno="179"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>dhcp-&gt;<ref refid="structSYN__DHCP_1ac8fd7442dcfd3d6460a5c29a4ddd2f03" kindref="member">subnet_mask</ref><sp/>=<sp/>subnet;</highlight></codeline>
+<codeline lineno="180"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>dhcp-&gt;<ref refid="structSYN__DHCP_1a02a1c9a53303f6e947c18d6b5dda0253" kindref="member">gateway</ref><sp/>=<sp/>router;</highlight></codeline>
+<codeline lineno="181"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>dhcp-&gt;<ref refid="structSYN__DHCP_1a13bb293c88335512ec3b3377b288177d" kindref="member">lease_time_sec</ref><sp/>=<sp/>lease;</highlight></codeline>
+<codeline lineno="182"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>dhcp-&gt;<ref refid="structSYN__DHCP_1adb05800bd0b7a2fe43d5cb0d226b5c03" kindref="member">server_ip</ref><sp/>=<sp/>server;</highlight></codeline>
+<codeline lineno="183"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>dhcp-&gt;<ref refid="structSYN__DHCP_1ab2322400988820f1460021c5078b34d6" kindref="member">state</ref><sp/>=<sp/>SYN_DHCP_STATE_OFFER;</highlight></codeline>
+<codeline lineno="184"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a3be376d242928cd8de46b32c69647539" kindref="member">SYN_BUSY</ref>;</highlight></codeline>
+<codeline lineno="185"><highlight class="normal"><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(msg_type<sp/>==<sp/><ref refid="syn__dhcp_8h_1aafa0e3d4a03664ee1d947830c446969a" kindref="member">SYN_DHCP_ACK</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="186"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>dhcp-&gt;<ref refid="structSYN__DHCP_1a2914866a0f38b433fba1030c258b9b62" kindref="member">offered_ip</ref><sp/>=<sp/>yiaddr;</highlight></codeline>
+<codeline lineno="187"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>dhcp-&gt;<ref refid="structSYN__DHCP_1ac8fd7442dcfd3d6460a5c29a4ddd2f03" kindref="member">subnet_mask</ref><sp/>=<sp/>subnet;</highlight></codeline>
+<codeline lineno="188"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>dhcp-&gt;<ref refid="structSYN__DHCP_1a02a1c9a53303f6e947c18d6b5dda0253" kindref="member">gateway</ref><sp/>=<sp/>router;</highlight></codeline>
+<codeline lineno="189"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>dhcp-&gt;<ref refid="structSYN__DHCP_1a13bb293c88335512ec3b3377b288177d" kindref="member">lease_time_sec</ref><sp/>=<sp/>lease;</highlight></codeline>
+<codeline lineno="190"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>dhcp-&gt;<ref refid="structSYN__DHCP_1ab2322400988820f1460021c5078b34d6" kindref="member">state</ref><sp/>=<sp/>SYN_DHCP_STATE_BOUND;</highlight></codeline>
+<codeline lineno="191"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>dhcp-&gt;<ref refid="structSYN__DHCP_1a75963a91226a6daf681c46fc3aceab5a" kindref="member">acks_received</ref>++;</highlight></codeline>
+<codeline lineno="192"><highlight class="normal"></highlight></codeline>
+<codeline lineno="193"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Update<sp/>Ethernet<sp/>Interface<sp/>settings<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="194"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(eth)<sp/>{</highlight></codeline>
+<codeline lineno="195"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>eth-&gt;<ref refid="structSYN__ETH_1aecc63b98856296fa6826cc8a87d5b7ee" kindref="member">ip_addr</ref><sp/>=<sp/>yiaddr;</highlight></codeline>
+<codeline lineno="196"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>eth-&gt;<ref refid="structSYN__ETH_1a39280057a42782949218c5d9cbb6f022" kindref="member">netmask</ref><sp/>=<sp/>subnet;</highlight></codeline>
+<codeline lineno="197"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>eth-&gt;<ref refid="structSYN__ETH_1a6a66d99362d0b6d031342f55f71696cd" kindref="member">gateway</ref><sp/>=<sp/>router;</highlight></codeline>
+<codeline lineno="198"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="199"><highlight class="normal"></highlight></codeline>
+<codeline lineno="200"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="201"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="202"><highlight class="normal"></highlight></codeline>
+<codeline lineno="203"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a3be376d242928cd8de46b32c69647539" kindref="member">SYN_BUSY</ref>;</highlight></codeline>
+<codeline lineno="204"><highlight class="normal">}</highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/net/syn_dhcp.c"/>
+  </compounddef>
+</doxygen>

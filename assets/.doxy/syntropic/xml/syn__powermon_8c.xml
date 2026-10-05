@@ -1,0 +1,389 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__powermon_8c" kind="file" language="C++">
+    <compoundname>syn_powermon.c</compoundname>
+    <includes refid="syn__powermon_8h" local="yes">syn_powermon.h</includes>
+    <includes refid="syn__assert_8h" local="yes">../util/syn_assert.h</includes>
+    <includes local="no">string.h</includes>
+    <incdepgraph>
+      <node id="9">
+        <label>../common/syn_compiler.h</label>
+        <link refid="syn__compiler_8h"/>
+      </node>
+      <node id="3">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>../drivers/syn_soft_i2c.h</label>
+        <link refid="syn__soft__i2c_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/sensor/syn_powermon.c</label>
+        <link refid="syn__powermon_8c"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>syn_powermon.h</label>
+        <link refid="syn__powermon_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>../util/syn_assert.h</label>
+        <link refid="syn__assert_8h"/>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>stdbool.h</label>
+      </node>
+      <node id="4">
+        <label>stddef.h</label>
+      </node>
+      <node id="5">
+        <label>stdint.h</label>
+      </node>
+      <node id="10">
+        <label>string.h</label>
+      </node>
+    </incdepgraph>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__powermon_8c_1a763c99441e51d86ae8f7ecf7b4c22102" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_powermon_init</definition>
+        <argsstring>(SYN_PowerMon *pm, SYN_GPIO_Pin scl, SYN_GPIO_Pin sda, uint8_t i2c_addr, float shunt_resistor_ohms, SYN_PowerMonType type)</argsstring>
+        <name>syn_powermon_init</name>
+        <param>
+          <type><ref refid="structSYN__PowerMon" kindref="compound">SYN_PowerMon</ref> *</type>
+          <declname>pm</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref></type>
+          <declname>scl</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref></type>
+          <declname>sda</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>i2c_addr</declname>
+        </param>
+        <param>
+          <type>float</type>
+          <declname>shunt_resistor_ohms</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__powermon_8h_1ae44058d26a6970e7a9f0dcae12dcbbe0" kindref="member">SYN_PowerMonType</ref></type>
+          <declname>type</declname>
+        </param>
+        <briefdescription>
+<para>Initialize Power Monitor IC. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>pm</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Power monitor context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>scl</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>I2C SCL GPIO pin. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>sda</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>I2C SDA GPIO pin. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>i2c_addr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>I2C slave address (e.g. 0x40 or 0x41). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>shunt_resistor_ohms</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Shunt resistor value in Ohms (e.g. 0.1f). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>type</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>IC type (INA219 or INA226). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/sensor/syn_powermon.c" line="12" column="12" bodyfile="src/syntropic/sensor/syn_powermon.c" bodystart="12" bodyend="31"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__powermon_8c_1af7015a2eb0282d1b85ae0722a1a86b5c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_powermon_feed_raw</definition>
+        <argsstring>(SYN_PowerMon *pm, uint16_t raw_bus_v, float raw_shunt_mv)</argsstring>
+        <name>syn_powermon_feed_raw</name>
+        <param>
+          <type><ref refid="structSYN__PowerMon" kindref="compound">SYN_PowerMon</ref> *</type>
+          <declname>pm</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>raw_bus_v</declname>
+        </param>
+        <param>
+          <type>float</type>
+          <declname>raw_shunt_mv</declname>
+        </param>
+        <briefdescription>
+<para>Feed raw I2C register samples (bus voltage &amp; shunt voltage). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>pm</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Power monitor context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>raw_bus_v</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Raw bus voltage register value. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>raw_shunt_mv</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Raw shunt voltage in millivolts. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/sensor/syn_powermon.c" line="33" column="6" bodyfile="src/syntropic/sensor/syn_powermon.c" bodystart="33" bodyend="55"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__powermon_8c_1a45e83c4aa1086def699a4acdee761806" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>float</type>
+        <definition>float syn_powermon_get_bus_voltage</definition>
+        <argsstring>(const SYN_PowerMon *pm)</argsstring>
+        <name>syn_powermon_get_bus_voltage</name>
+        <param>
+          <type>const <ref refid="structSYN__PowerMon" kindref="compound">SYN_PowerMon</ref> *</type>
+          <declname>pm</declname>
+        </param>
+        <briefdescription>
+<para>Get measured bus voltage in Volts. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>pm</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Power monitor context. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Voltage in Volts. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/sensor/syn_powermon.c" line="57" column="7" bodyfile="src/syntropic/sensor/syn_powermon.c" bodystart="57" bodyend="62"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__powermon_8c_1af3ddb75924d3678205b13870f642f9b6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>float</type>
+        <definition>float syn_powermon_get_current_ma</definition>
+        <argsstring>(const SYN_PowerMon *pm)</argsstring>
+        <name>syn_powermon_get_current_ma</name>
+        <param>
+          <type>const <ref refid="structSYN__PowerMon" kindref="compound">SYN_PowerMon</ref> *</type>
+          <declname>pm</declname>
+        </param>
+        <briefdescription>
+<para>Get measured current in Milliamps. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>pm</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Power monitor context. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Current in mA. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/sensor/syn_powermon.c" line="64" column="7" bodyfile="src/syntropic/sensor/syn_powermon.c" bodystart="64" bodyend="69"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__powermon_8c_1aa04d4f422c5b14a180609a0ce80ff9d3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>float</type>
+        <definition>float syn_powermon_get_power_mw</definition>
+        <argsstring>(const SYN_PowerMon *pm)</argsstring>
+        <name>syn_powermon_get_power_mw</name>
+        <param>
+          <type>const <ref refid="structSYN__PowerMon" kindref="compound">SYN_PowerMon</ref> *</type>
+          <declname>pm</declname>
+        </param>
+        <briefdescription>
+<para>Get calculated power in Milliwatts. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>pm</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Power monitor context. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Power in mW. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/sensor/syn_powermon.c" line="71" column="7" bodyfile="src/syntropic/sensor/syn_powermon.c" bodystart="71" bodyend="76"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Generic Power &amp; Current Monitor Driver (INA219, INA226, INA3221). </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__powermon_8h" kindref="compound">syn_powermon.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../util/syn_assert.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;string.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__powermon_8c_1a763c99441e51d86ae8f7ecf7b4c22102" kindref="member">syn_powermon_init</ref>(<ref refid="structSYN__PowerMon" kindref="compound">SYN_PowerMon</ref><sp/>*pm,<sp/><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref><sp/>scl,<sp/><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref><sp/>sda,<sp/>uint8_t<sp/>i2c_addr,</highlight></codeline>
+<codeline lineno="13"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>shunt_resistor_ohms,<sp/><ref refid="syn__powermon_8h_1ae44058d26a6970e7a9f0dcae12dcbbe0" kindref="member">SYN_PowerMonType</ref><sp/>type)</highlight></codeline>
+<codeline lineno="14"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="15"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(pm<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="16"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(shunt_resistor_ohms<sp/>&gt;<sp/>0.0001f);</highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(pm<sp/>==<sp/>NULL<sp/>||<sp/>shunt_resistor_ohms<sp/>&lt;=<sp/>0.0001f)<sp/>{</highlight></codeline>
+<codeline lineno="19"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;<sp/></highlight><highlight class="comment">/*<sp/>LCOV_EXCL_LINE:<sp/>Defensive<sp/>NULL<sp/>and<sp/>boundary<sp/>check<sp/>after</highlight></codeline>
+<codeline lineno="20"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>SYN_ASSERT<sp/>macro<sp/>in<sp/>release<sp/>mode<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"><sp/><sp/><sp/><sp/>memset(pm,<sp/>0,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(*pm));</highlight></codeline>
+<codeline lineno="24"><highlight class="normal"><sp/><sp/><sp/><sp/>pm-&gt;<ref refid="structSYN__PowerMon_1a4f41ec109fc470817595f860ea2e651b" kindref="member">type</ref><sp/>=<sp/>type;</highlight></codeline>
+<codeline lineno="25"><highlight class="normal"><sp/><sp/><sp/><sp/>pm-&gt;<ref refid="structSYN__PowerMon_1a4c29cd9ef56eb1116d710d868ef52de1" kindref="member">i2c_addr</ref><sp/>=<sp/>i2c_addr;</highlight></codeline>
+<codeline lineno="26"><highlight class="normal"><sp/><sp/><sp/><sp/>pm-&gt;<ref refid="structSYN__PowerMon_1a1b1c5b85fef7ea05f6d774c7771d5ad5" kindref="member">shunt_resistor_ohms</ref><sp/>=<sp/>shunt_resistor_ohms;</highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"><sp/><sp/><sp/><sp/>syn_soft_i2c_init(&amp;pm-&gt;<ref refid="structSYN__PowerMon_1abc14ca19a6a976b766164ac69efa931e" kindref="member">i2c</ref>,<sp/>scl,<sp/>sda,<sp/>10);</highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="31"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__powermon_8c_1af7015a2eb0282d1b85ae0722a1a86b5c" kindref="member">syn_powermon_feed_raw</ref>(<ref refid="structSYN__PowerMon" kindref="compound">SYN_PowerMon</ref><sp/>*pm,<sp/>uint16_t<sp/>raw_bus_v,<sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>raw_shunt_mv)</highlight></codeline>
+<codeline lineno="34"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="35"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(pm<sp/>==<sp/>NULL)</highlight></codeline>
+<codeline lineno="36"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(pm-&gt;<ref refid="structSYN__PowerMon_1a4f41ec109fc470817595f860ea2e651b" kindref="member">type</ref><sp/>==<sp/><ref refid="syn__powermon_8h_1ae44058d26a6970e7a9f0dcae12dcbbe0a4705708d6c1030ed465ad25c26009b71" kindref="member">SYN_POWERMON_INA219</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>INA219<sp/>Bus<sp/>Voltage<sp/>LSB<sp/>=<sp/>4mV<sp/>(Shifted<sp/>right<sp/>by<sp/>3<sp/>bits)<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>pm-&gt;<ref refid="structSYN__PowerMon_1a71a5047e49273ca5c42f18bfe22023dd" kindref="member">bus_voltage_v</ref><sp/>=<sp/>(float)((raw_bus_v<sp/>&gt;&gt;<sp/>3)<sp/>*<sp/>4)<sp/>/<sp/>1000.0f;</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>INA226<sp/>Bus<sp/>Voltage<sp/>LSB<sp/>=<sp/>1.25mV<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="43"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>pm-&gt;<ref refid="structSYN__PowerMon_1a71a5047e49273ca5c42f18bfe22023dd" kindref="member">bus_voltage_v</ref><sp/>=<sp/>(float)(raw_bus_v<sp/>*<sp/>1.25f)<sp/>/<sp/>1000.0f;</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Current<sp/>I<sp/>=<sp/>V_shunt<sp/>/<sp/>R_shunt<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(pm-&gt;<ref refid="structSYN__PowerMon_1a1b1c5b85fef7ea05f6d774c7771d5ad5" kindref="member">shunt_resistor_ohms</ref><sp/>&gt;<sp/>0.0f)<sp/>{</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>pm-&gt;<ref refid="structSYN__PowerMon_1a42b34457f66f1a0f29269758a0ba2544" kindref="member">shunt_current_ma</ref><sp/>=<sp/>(raw_shunt_mv<sp/>/<sp/>pm-&gt;<ref refid="structSYN__PowerMon_1a1b1c5b85fef7ea05f6d774c7771d5ad5" kindref="member">shunt_resistor_ohms</ref>);</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>pm-&gt;<ref refid="structSYN__PowerMon_1a42b34457f66f1a0f29269758a0ba2544" kindref="member">shunt_current_ma</ref><sp/>=<sp/>0.0f;</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"></highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Power<sp/>P<sp/>=<sp/>V<sp/>*<sp/>I<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/><sp/><sp/>pm-&gt;<ref refid="structSYN__PowerMon_1aabc4cdc1d719d6c79b08d7e429904bda" kindref="member">power_mw</ref><sp/>=<sp/>pm-&gt;<ref refid="structSYN__PowerMon_1a71a5047e49273ca5c42f18bfe22023dd" kindref="member">bus_voltage_v</ref><sp/>*<sp/>pm-&gt;<ref refid="structSYN__PowerMon_1a42b34457f66f1a0f29269758a0ba2544" kindref="member">shunt_current_ma</ref>;</highlight></codeline>
+<codeline lineno="55"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"></highlight></codeline>
+<codeline lineno="57"><highlight class="normal"></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/><ref refid="syn__powermon_8c_1a45e83c4aa1086def699a4acdee761806" kindref="member">syn_powermon_get_bus_voltage</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__PowerMon" kindref="compound">SYN_PowerMon</ref><sp/>*pm)</highlight></codeline>
+<codeline lineno="58"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(pm<sp/>==<sp/>NULL)</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0.0f;</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>pm-&gt;<ref refid="structSYN__PowerMon_1a71a5047e49273ca5c42f18bfe22023dd" kindref="member">bus_voltage_v</ref>;</highlight></codeline>
+<codeline lineno="62"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"></highlight></codeline>
+<codeline lineno="64"><highlight class="normal"></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/><ref refid="syn__powermon_8c_1af3ddb75924d3678205b13870f642f9b6" kindref="member">syn_powermon_get_current_ma</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__PowerMon" kindref="compound">SYN_PowerMon</ref><sp/>*pm)</highlight></codeline>
+<codeline lineno="65"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(pm<sp/>==<sp/>NULL)</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0.0f;</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>pm-&gt;<ref refid="structSYN__PowerMon_1a42b34457f66f1a0f29269758a0ba2544" kindref="member">shunt_current_ma</ref>;</highlight></codeline>
+<codeline lineno="69"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"></highlight></codeline>
+<codeline lineno="71"><highlight class="normal"></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/><ref refid="syn__powermon_8c_1aa04d4f422c5b14a180609a0ce80ff9d3" kindref="member">syn_powermon_get_power_mw</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__PowerMon" kindref="compound">SYN_PowerMon</ref><sp/>*pm)</highlight></codeline>
+<codeline lineno="72"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(pm<sp/>==<sp/>NULL)</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0.0f;</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>pm-&gt;<ref refid="structSYN__PowerMon_1aabc4cdc1d719d6c79b08d7e429904bda" kindref="member">power_mw</ref>;</highlight></codeline>
+<codeline lineno="76"><highlight class="normal">}</highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/sensor/syn_powermon.c"/>
+  </compounddef>
+</doxygen>

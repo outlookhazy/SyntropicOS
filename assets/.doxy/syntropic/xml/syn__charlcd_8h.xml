@@ -1,0 +1,626 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__charlcd_8h" kind="file" language="C++">
+    <compoundname>syn_charlcd.h</compoundname>
+    <includes refid="syn__defs_8h" local="yes">../common/syn_defs.h</includes>
+    <includes refid="syn__soft__i2c_8h" local="yes">../drivers/syn_soft_i2c.h</includes>
+    <includes refid="syn__port__gpio_8h" local="yes">../port/syn_port_gpio.h</includes>
+    <includes local="no">stdbool.h</includes>
+    <includes local="no">stddef.h</includes>
+    <includes local="no">stdint.h</includes>
+    <includedby refid="syn__charlcd_8c" local="yes">src/syntropic/display/syn_charlcd.c</includedby>
+    <includedby refid="syntropic_8h" local="yes">src/syntropic/syntropic.h</includedby>
+    <incdepgraph>
+      <node id="2">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/display/syn_charlcd.h</label>
+        <link refid="syn__charlcd_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>../drivers/syn_soft_i2c.h</label>
+        <link refid="syn__soft__i2c_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>../port/syn_port_gpio.h</label>
+        <link refid="syn__port__gpio_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>stdbool.h</label>
+      </node>
+      <node id="3">
+        <label>stddef.h</label>
+      </node>
+      <node id="4">
+        <label>stdint.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="2">
+        <label>src/syntropic/display/syn_charlcd.c</label>
+        <link refid="syn__charlcd_8c"/>
+      </node>
+      <node id="1">
+        <label>src/syntropic/display/syn_charlcd.h</label>
+        <link refid="syn__charlcd_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>src/syntropic/proto/syn_doip.c</label>
+        <link refid="syn__doip_8c"/>
+      </node>
+      <node id="4">
+        <label>src/syntropic/proto/syn_doip.h</label>
+        <link refid="syn__doip_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>src/syntropic/syntropic.h</label>
+        <link refid="syntropic_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="structSYN__CharLCD" prot="public">SYN_CharLCD</innerclass>
+    <sectiondef kind="enum">
+      <memberdef kind="enum" id="syn__charlcd_8h_1af8e2407955679ea180fa7d439f8a7d51" prot="public" static="no" strong="no">
+        <type></type>
+        <name>SYN_CharLCDMode</name>
+        <enumvalue id="syn__charlcd_8h_1af8e2407955679ea180fa7d439f8a7d51ae149dfa43f07e8fae75af4606e41131e" prot="public">
+          <name>SYN_CHARLCD_MODE_I2C</name>
+          <initializer>= 0</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>I2C PCF8574 backpack adapter </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__charlcd_8h_1af8e2407955679ea180fa7d439f8a7d51ab6ca7ee97949dca83f65b5e40235df9b" prot="public">
+          <name>SYN_CHARLCD_MODE_GPIO_4BIT</name>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Direct 4-bit parallel GPIO bus (RS, EN, D4-D7) </para>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>Character LCD Interface Mode. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/display/syn_charlcd.h" line="26" column="1" bodyfile="src/syntropic/display/syn_charlcd.h" bodystart="26" bodyend="29"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__charlcd_8h_1a5486e89ffde4b4e140b4e41d7909cbe6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_charlcd_init_i2c</definition>
+        <argsstring>(SYN_CharLCD *lcd, SYN_GPIO_Pin scl, SYN_GPIO_Pin sda, uint8_t i2c_addr, uint8_t cols, uint8_t rows)</argsstring>
+        <name>syn_charlcd_init_i2c</name>
+        <param>
+          <type><ref refid="structSYN__CharLCD" kindref="compound">SYN_CharLCD</ref> *</type>
+          <declname>lcd</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref></type>
+          <declname>scl</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref></type>
+          <declname>sda</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>i2c_addr</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>cols</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>rows</declname>
+        </param>
+        <briefdescription>
+<para>Initialize Character LCD in I2C PCF8574 Backpack mode. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>lcd</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>LCD context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>scl</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>I2C SCL GPIO pin. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>sda</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>I2C SDA GPIO pin. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>i2c_addr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>PCF8574 I2C address (e.g. 0x27 or 0x3F). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>cols</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Columns (e.g. 16 or 20). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>rows</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Rows (e.g. 2 or 4). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/display/syn_charlcd.h" line="64" column="12" bodyfile="src/syntropic/display/syn_charlcd.c" bodystart="116" bodyend="144" declfile="src/syntropic/display/syn_charlcd.h" declline="64" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__charlcd_8h_1a556d0b9f2bbeb2352f0b9d47e6f29b0e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_charlcd_init_gpio</definition>
+        <argsstring>(SYN_CharLCD *lcd, SYN_GPIO_Pin rs, SYN_GPIO_Pin en, SYN_GPIO_Pin d4, SYN_GPIO_Pin d5, SYN_GPIO_Pin d6, SYN_GPIO_Pin d7, uint8_t cols, uint8_t rows)</argsstring>
+        <name>syn_charlcd_init_gpio</name>
+        <param>
+          <type><ref refid="structSYN__CharLCD" kindref="compound">SYN_CharLCD</ref> *</type>
+          <declname>lcd</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref></type>
+          <declname>rs</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref></type>
+          <declname>en</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref></type>
+          <declname>d4</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref></type>
+          <declname>d5</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref></type>
+          <declname>d6</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref></type>
+          <declname>d7</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>cols</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>rows</declname>
+        </param>
+        <briefdescription>
+<para>Initialize Character LCD in Direct 4-Bit Parallel GPIO mode. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>lcd</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>LCD context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>rs</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Register Select GPIO pin. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>en</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Enable GPIO pin. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>d4</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Data Bit 4 GPIO pin. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>d5</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Data Bit 5 GPIO pin. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>d6</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Data Bit 6 GPIO pin. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>d7</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Data Bit 7 GPIO pin. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>cols</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Columns (e.g. 16 or 20). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>rows</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Rows (e.g. 2 or 4). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/display/syn_charlcd.h" line="81" column="12" bodyfile="src/syntropic/display/syn_charlcd.c" bodystart="146" bodyend="187" declfile="src/syntropic/display/syn_charlcd.h" declline="81" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__charlcd_8h_1a33b366d47d0e22fd5e4b9e092c16b945" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_charlcd_clear</definition>
+        <argsstring>(SYN_CharLCD *lcd)</argsstring>
+        <name>syn_charlcd_clear</name>
+        <param>
+          <type><ref refid="structSYN__CharLCD" kindref="compound">SYN_CharLCD</ref> *</type>
+          <declname>lcd</declname>
+        </param>
+        <briefdescription>
+<para>Clear LCD screen and reset cursor to home (0,0). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>lcd</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>LCD context. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/display/syn_charlcd.h" line="90" column="6" bodyfile="src/syntropic/display/syn_charlcd.c" bodystart="189" bodyend="194" declfile="src/syntropic/display/syn_charlcd.h" declline="90" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__charlcd_8h_1a1d6acfa14496bbff14876f7fbcf4f507" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_charlcd_set_cursor</definition>
+        <argsstring>(SYN_CharLCD *lcd, uint8_t col, uint8_t row)</argsstring>
+        <name>syn_charlcd_set_cursor</name>
+        <param>
+          <type><ref refid="structSYN__CharLCD" kindref="compound">SYN_CharLCD</ref> *</type>
+          <declname>lcd</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>col</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>row</declname>
+        </param>
+        <briefdescription>
+<para>Set cursor position. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>lcd</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>LCD context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>col</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Column (0 to cols-1). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>row</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Row (0 to rows-1). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/display/syn_charlcd.h" line="99" column="6" bodyfile="src/syntropic/display/syn_charlcd.c" bodystart="196" bodyend="209" declfile="src/syntropic/display/syn_charlcd.h" declline="99" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__charlcd_8h_1a89826bb8020daee657cc351e6c63335c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_charlcd_print</definition>
+        <argsstring>(SYN_CharLCD *lcd, const char *str)</argsstring>
+        <name>syn_charlcd_print</name>
+        <param>
+          <type><ref refid="structSYN__CharLCD" kindref="compound">SYN_CharLCD</ref> *</type>
+          <declname>lcd</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>str</declname>
+        </param>
+        <briefdescription>
+<para>Print an ASCII string at current cursor position. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>lcd</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>LCD context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>str</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Null-terminated string. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/display/syn_charlcd.h" line="107" column="6" bodyfile="src/syntropic/display/syn_charlcd.c" bodystart="211" bodyend="219" declfile="src/syntropic/display/syn_charlcd.h" declline="107" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__charlcd_8h_1a1972f5ae56eab9b55d0996bc4a49a814" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_charlcd_set_backlight</definition>
+        <argsstring>(SYN_CharLCD *lcd, bool enable)</argsstring>
+        <name>syn_charlcd_set_backlight</name>
+        <param>
+          <type><ref refid="structSYN__CharLCD" kindref="compound">SYN_CharLCD</ref> *</type>
+          <declname>lcd</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+          <declname>enable</declname>
+        </param>
+        <briefdescription>
+<para>Turn display backlight ON or OFF (I2C backpack mode). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>lcd</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>LCD context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>enable</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>True for backlight ON. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/display/syn_charlcd.h" line="115" column="6" bodyfile="src/syntropic/display/syn_charlcd.c" bodystart="221" bodyend="228" declfile="src/syntropic/display/syn_charlcd.h" declline="115" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__charlcd_8h_1aebcfc145ba4a474a95096397aa36a234" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_charlcd_create_char</definition>
+        <argsstring>(SYN_CharLCD *lcd, uint8_t slot, const uint8_t charmap[8])</argsstring>
+        <name>syn_charlcd_create_char</name>
+        <param>
+          <type><ref refid="structSYN__CharLCD" kindref="compound">SYN_CharLCD</ref> *</type>
+          <declname>lcd</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>slot</declname>
+        </param>
+        <param>
+          <type>const uint8_t</type>
+          <declname>charmap</declname>
+          <array>[8]</array>
+        </param>
+        <briefdescription>
+<para>Load a custom 5x8 pixel character into CGRAM. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>lcd</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>LCD context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>slot</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>CGRAM slot (0 to 7). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>charmap</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Array of 8 bytes (each byte represents a 5-bit pixel row). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/display/syn_charlcd.h" line="124" column="6" bodyfile="src/syntropic/display/syn_charlcd.c" bodystart="230" bodyend="239" declfile="src/syntropic/display/syn_charlcd.h" declline="124" declcolumn="6"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Generic Character LCD Driver (HD44780, ST7066, KS0066 over I2C PCF8574 or 4-Bit Parallel GPIO). </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_CHARLCD_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_CHARLCD_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../common/syn_defs.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../drivers/syn_soft_i2c.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../port/syn_port_gpio.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stddef.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight></codeline>
+<codeline lineno="26" refid="syn__charlcd_8h_1af8e2407955679ea180fa7d439f8a7d51" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="27" refid="syn__charlcd_8h_1af8e2407955679ea180fa7d439f8a7d51ae149dfa43f07e8fae75af4606e41131e" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__charlcd_8h_1af8e2407955679ea180fa7d439f8a7d51ae149dfa43f07e8fae75af4606e41131e" kindref="member">SYN_CHARLCD_MODE_I2C</ref><sp/>=<sp/>0,<sp/><sp/></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__charlcd_8h_1af8e2407955679ea180fa7d439f8a7d51ab6ca7ee97949dca83f65b5e40235df9b" kindref="member">SYN_CHARLCD_MODE_GPIO_4BIT</ref><sp/></highlight></codeline>
+<codeline lineno="29" refid="syn__charlcd_8h_1af8e2407955679ea180fa7d439f8a7d51ab6ca7ee97949dca83f65b5e40235df9b" refkind="member"><highlight class="normal">}<sp/><ref refid="syn__charlcd_8h_1af8e2407955679ea180fa7d439f8a7d51" kindref="member">SYN_CharLCDMode</ref>;</highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight></codeline>
+<codeline lineno="34" refid="structSYN__CharLCD" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="35" refid="structSYN__CharLCD_1aa8e15f1e95193d2784b78d1234e57062" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__charlcd_8h_1af8e2407955679ea180fa7d439f8a7d51" kindref="member">SYN_CharLCDMode</ref><sp/><ref refid="structSYN__CharLCD_1aa8e15f1e95193d2784b78d1234e57062" kindref="member">mode</ref>;<sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="36" refid="structSYN__CharLCD_1a4e9a7fb1475a3e35d55b6bc492a78153" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><ref refid="structSYN__CharLCD_1a4e9a7fb1475a3e35d55b6bc492a78153" kindref="member">cols</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="37" refid="structSYN__CharLCD_1a7eebfb6ca209e409dfcadda1612ac91b" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><ref refid="structSYN__CharLCD_1a7eebfb6ca209e409dfcadda1612ac91b" kindref="member">rows</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="38" refid="structSYN__CharLCD_1a19d38f55a632cec59ac086ed8fccfef3" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><ref refid="structSYN__CharLCD_1a19d38f55a632cec59ac086ed8fccfef3" kindref="member">display_control</ref>;<sp/></highlight></codeline>
+<codeline lineno="39" refid="structSYN__CharLCD_1a1ef4f4c7608e9b539752fa565d4cf52d" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><ref refid="structSYN__CharLCD_1a1ef4f4c7608e9b539752fa565d4cf52d" kindref="member">display_mode</ref>;<sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="40" refid="structSYN__CharLCD_1a38f182c96e6e924cfbb5aa9492f78e61" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="structSYN__CharLCD_1a38f182c96e6e924cfbb5aa9492f78e61" kindref="member">backlight</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>I2C<sp/>Mode<sp/>Context<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="43" refid="structSYN__CharLCD_1a52675828ef9946cb4762daf0f318287d" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structSYN__SoftI2C" kindref="compound">SYN_SoftI2C</ref><sp/><ref refid="structSYN__CharLCD_1a52675828ef9946cb4762daf0f318287d" kindref="member">i2c</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="44" refid="structSYN__CharLCD_1aa948a9652d76ff81c220efcced269773" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><ref refid="structSYN__CharLCD_1aa948a9652d76ff81c220efcced269773" kindref="member">i2c_addr</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="45" refid="structSYN__CharLCD_1a5fcc92c38f5b24ee42f79a8f06ba92d9" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><ref refid="structSYN__CharLCD_1a5fcc92c38f5b24ee42f79a8f06ba92d9" kindref="member">backlight_mask</ref>;<sp/></highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>4-Bit<sp/>GPIO<sp/>Mode<sp/>Context<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="48" refid="structSYN__CharLCD_1a5d32b3e6a5d928d467d576ad8ecf78c3" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref><sp/><ref refid="structSYN__CharLCD_1a5d32b3e6a5d928d467d576ad8ecf78c3" kindref="member">rs_pin</ref>;<sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="49" refid="structSYN__CharLCD_1a110e7026fc9ad70a82e9d52d05336c7b" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref><sp/><ref refid="structSYN__CharLCD_1a110e7026fc9ad70a82e9d52d05336c7b" kindref="member">en_pin</ref>;<sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="50" refid="structSYN__CharLCD_1a9713a5499978a6d2e5b5759e7ace7918" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref><sp/>d_pins[4];<sp/></highlight></codeline>
+<codeline lineno="51"><highlight class="normal">}<sp/><ref refid="structSYN__CharLCD" kindref="compound">SYN_CharLCD</ref>;</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"></highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__charlcd_8h_1a5486e89ffde4b4e140b4e41d7909cbe6" kindref="member">syn_charlcd_init_i2c</ref>(<ref refid="structSYN__CharLCD" kindref="compound">SYN_CharLCD</ref><sp/>*lcd,<sp/><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref><sp/>scl,<sp/><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref><sp/>sda,</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>i2c_addr,<sp/>uint8_t<sp/>cols,<sp/>uint8_t<sp/>rows);</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"></highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__charlcd_8h_1a556d0b9f2bbeb2352f0b9d47e6f29b0e" kindref="member">syn_charlcd_init_gpio</ref>(<ref refid="structSYN__CharLCD" kindref="compound">SYN_CharLCD</ref><sp/>*lcd,<sp/><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref><sp/>rs,<sp/><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref><sp/>en,</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref><sp/>d4,<sp/><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref><sp/>d5,<sp/><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref><sp/>d6,<sp/><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref><sp/>d7,</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>cols,<sp/>uint8_t<sp/>rows);</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"></highlight></codeline>
+<codeline lineno="90"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__charlcd_8h_1a33b366d47d0e22fd5e4b9e092c16b945" kindref="member">syn_charlcd_clear</ref>(<ref refid="structSYN__CharLCD" kindref="compound">SYN_CharLCD</ref><sp/>*lcd);</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"></highlight></codeline>
+<codeline lineno="99"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__charlcd_8h_1a1d6acfa14496bbff14876f7fbcf4f507" kindref="member">syn_charlcd_set_cursor</ref>(<ref refid="structSYN__CharLCD" kindref="compound">SYN_CharLCD</ref><sp/>*lcd,<sp/>uint8_t<sp/>col,<sp/>uint8_t<sp/>row);</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"></highlight></codeline>
+<codeline lineno="107"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__charlcd_8h_1a89826bb8020daee657cc351e6c63335c" kindref="member">syn_charlcd_print</ref>(<ref refid="structSYN__CharLCD" kindref="compound">SYN_CharLCD</ref><sp/>*lcd,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*str);</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"></highlight></codeline>
+<codeline lineno="115"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__charlcd_8h_1a1972f5ae56eab9b55d0996bc4a49a814" kindref="member">syn_charlcd_set_backlight</ref>(<ref refid="structSYN__CharLCD" kindref="compound">SYN_CharLCD</ref><sp/>*lcd,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>enable);</highlight></codeline>
+<codeline lineno="116"><highlight class="normal"></highlight></codeline>
+<codeline lineno="124"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__charlcd_8h_1aebcfc145ba4a474a95096397aa36a234" kindref="member">syn_charlcd_create_char</ref>(<ref refid="structSYN__CharLCD" kindref="compound">SYN_CharLCD</ref><sp/>*lcd,<sp/>uint8_t<sp/>slot,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>charmap[8]);</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"></highlight></codeline>
+<codeline lineno="126"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="127"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="128"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="129"><highlight class="normal"></highlight></codeline>
+<codeline lineno="130"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_CHARLCD_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/display/syn_charlcd.h"/>
+  </compounddef>
+</doxygen>

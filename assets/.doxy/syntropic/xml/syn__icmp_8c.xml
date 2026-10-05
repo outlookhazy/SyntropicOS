@@ -1,0 +1,553 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__icmp_8c" kind="file" language="C++">
+    <compoundname>syn_icmp.c</compoundname>
+    <includes refid="syn__icmp_8h" local="yes">syntropic/net/syn_icmp.h</includes>
+    <includes local="no">string.h</includes>
+    <incdepgraph>
+      <node id="8">
+        <label>port/syn_port_eth.h</label>
+        <link refid="syn__port__eth_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="10">
+        <label>../common/syn_compiler.h</label>
+        <link refid="syn__compiler_8h"/>
+      </node>
+      <node id="3">
+        <label>syntropic/common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>syntropic/net/syn_eth.h</label>
+        <link refid="syn__eth_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/net/syn_icmp.c</label>
+        <link refid="syn__icmp_8c"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>syntropic/net/syn_icmp.h</label>
+        <link refid="syn__icmp_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="9">
+        <label>syntropic/pt/syn_pt.h</label>
+        <link refid="syn__pt_8h"/>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>stdbool.h</label>
+      </node>
+      <node id="4">
+        <label>stddef.h</label>
+      </node>
+      <node id="5">
+        <label>stdint.h</label>
+      </node>
+      <node id="11">
+        <label>string.h</label>
+      </node>
+    </incdepgraph>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__icmp_8c_1af3b8ce6e8f84aa2f9982d046190306af" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_icmp_init</definition>
+        <argsstring>(SYN_ICMP *icmp)</argsstring>
+        <name>syn_icmp_init</name>
+        <param>
+          <type><ref refid="structSYN__ICMP" kindref="compound">SYN_ICMP</ref> *</type>
+          <declname>icmp</declname>
+        </param>
+        <briefdescription>
+<para>Initialize ICMP Engine Context. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>icmp</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to ICMP context. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/net/syn_icmp.c" line="10" column="12" bodyfile="src/syntropic/net/syn_icmp.c" bodystart="10" bodyend="17"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__icmp_8c_1a500d3abb30e924d94653a016cb408b23" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint16_t</type>
+        <definition>uint16_t syn_icmp_checksum</definition>
+        <argsstring>(const void *buf, size_t len)</argsstring>
+        <name>syn_icmp_checksum</name>
+        <param>
+          <type>const void *</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>len</declname>
+        </param>
+        <briefdescription>
+<para>Compute RFC 1071 Ones-Complement Internet Checksum. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to buffer bytes. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Length in bytes. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>16-bit Ones-Complement checksum. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/net/syn_icmp.c" line="19" column="10" bodyfile="src/syntropic/net/syn_icmp.c" bodystart="19" bodyend="22"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__icmp_8c_1ae33414dc13103dc0103a41cf7ca447d4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_icmp_process_packet</definition>
+        <argsstring>(SYN_ICMP *icmp, const uint8_t *ip_pkt, size_t len, uint8_t *frame_tx, size_t *tx_len)</argsstring>
+        <name>syn_icmp_process_packet</name>
+        <param>
+          <type><ref refid="structSYN__ICMP" kindref="compound">SYN_ICMP</ref> *</type>
+          <declname>icmp</declname>
+        </param>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>ip_pkt</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>len</declname>
+        </param>
+        <param>
+          <type>uint8_t *</type>
+          <declname>frame_tx</declname>
+        </param>
+        <param>
+          <type>size_t *</type>
+          <declname>tx_len</declname>
+        </param>
+        <briefdescription>
+<para>Process incoming ICMP packet inside IPv4 payload. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Automatically generates a matching Type 0 Echo Reply if a Type 8 Echo Request is received.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>icmp</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to ICMP context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>ip_pkt</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to incoming IPv4 packet (starting at IP header). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>IP packet byte length. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>frame_tx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output buffer to receive constructed Ethernet II reply frame (min 60 bytes). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>tx_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to receive byte length of constructed reply frame (0 if none generated). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/net/syn_icmp.c" line="24" column="12" bodyfile="src/syntropic/net/syn_icmp.c" bodystart="24" bodyend="106"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__icmp_8c_1aa898bc1d260cce214d7f895efd5abeca" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_icmp_build_echo_request</definition>
+        <argsstring>(SYN_ICMP *icmp, SYN_ETH *eth, uint32_t dst_ip, const uint8_t dst_mac[6], uint16_t id, uint16_t seq, const uint8_t *payload, size_t payload_len, uint8_t *frame_out, size_t *frame_len)</argsstring>
+        <name>syn_icmp_build_echo_request</name>
+        <param>
+          <type><ref refid="structSYN__ICMP" kindref="compound">SYN_ICMP</ref> *</type>
+          <declname>icmp</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__ETH" kindref="compound">SYN_ETH</ref> *</type>
+          <declname>eth</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>dst_ip</declname>
+        </param>
+        <param>
+          <type>const uint8_t</type>
+          <declname>dst_mac</declname>
+          <array>[6]</array>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>id</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>seq</declname>
+        </param>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>payload</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>payload_len</declname>
+        </param>
+        <param>
+          <type>uint8_t *</type>
+          <declname>frame_out</declname>
+        </param>
+        <param>
+          <type>size_t *</type>
+          <declname>frame_len</declname>
+        </param>
+        <briefdescription>
+<para>Construct an outbound ICMP Echo Request frame. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>icmp</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to ICMP context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>eth</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to Ethernet context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dst_ip</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>32-bit IPv4 address of destination. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dst_mac</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>6-byte MAC address of destination. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>id</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Identifier. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>seq</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Sequence number. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>payload</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to payload data. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>payload_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Payload length in bytes. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>frame_out</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output frame buffer (must hold at least 60 bytes). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>frame_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to receive final Ethernet II frame length. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/net/syn_icmp.c" line="108" column="12" bodyfile="src/syntropic/net/syn_icmp.c" bodystart="108" bodyend="165"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Zero-Heap Native ICMP Protocol Engine Implementation. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__icmp_8h" kindref="compound">syntropic/net/syn_icmp.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;string.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__icmp_8c_1af3b8ce6e8f84aa2f9982d046190306af" kindref="member">syn_icmp_init</ref>(<ref refid="structSYN__ICMP" kindref="compound">SYN_ICMP</ref><sp/>*icmp)</highlight></codeline>
+<codeline lineno="11"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="12"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!icmp)<sp/>{</highlight></codeline>
+<codeline lineno="13"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="14"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="15"><highlight class="normal"><sp/><sp/><sp/><sp/>memset(icmp,<sp/>0,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(*icmp));</highlight></codeline>
+<codeline lineno="16"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="17"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal">uint16_t<sp/><ref refid="syn__icmp_8c_1a500d3abb30e924d94653a016cb408b23" kindref="member">syn_icmp_checksum</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*buf,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>len)</highlight></codeline>
+<codeline lineno="20"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="21"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__eth_8c_1a1a5e5447aafee23aaeae8fc924d26b9e" kindref="member">syn_ip_checksum</ref>(buf,<sp/>len);</highlight></codeline>
+<codeline lineno="22"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__icmp_8c_1ae33414dc13103dc0103a41cf7ca447d4" kindref="member">syn_icmp_process_packet</ref>(<ref refid="structSYN__ICMP" kindref="compound">SYN_ICMP</ref><sp/>*icmp,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*ip_pkt,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>len,</highlight></codeline>
+<codeline lineno="25"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>*frame_tx,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>*tx_len)</highlight></codeline>
+<codeline lineno="26"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="27"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!icmp<sp/>||<sp/>!ip_pkt<sp/>||<sp/>len<sp/>&lt;<sp/>34)<sp/>{</highlight></codeline>
+<codeline lineno="28"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="29"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight></codeline>
+<codeline lineno="31"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(tx_len)<sp/>{</highlight></codeline>
+<codeline lineno="32"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*tx_len<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="33"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Verify<sp/>Ethernet<sp/>EtherType<sp/>==<sp/>IPv4<sp/>(0x0800)<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/>ethertype<sp/>=<sp/>((uint16_t)ip_pkt[12]<sp/>&lt;&lt;<sp/>8)<sp/>|<sp/>ip_pkt[13];</highlight></codeline>
+<codeline lineno="37"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(ethertype<sp/>!=<sp/><ref refid="syn__eth_8h_1a64125da8a542235c9a7c1379f6d7ce80" kindref="member">SYN_ETHTYPE_IPV4</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="38"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>IP<sp/>Header<sp/>begins<sp/>at<sp/>offset<sp/>14<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*ip_hdr<sp/>=<sp/>&amp;ip_pkt[14];</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>ip_hl<sp/>=<sp/>(ip_hdr[0]<sp/>&amp;<sp/>0x0F)<sp/>*<sp/>4;</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(ip_hl<sp/>&lt;<sp/>20<sp/>||<sp/>(</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal">)(14<sp/>+<sp/>ip_hl)<sp/>&gt;<sp/>len)<sp/>{</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"></highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>proto<sp/>=<sp/>ip_hdr[9];</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(proto<sp/>!=<sp/>1)<sp/>{<sp/></highlight><highlight class="comment">/*<sp/>Protocol<sp/>1<sp/>=<sp/>ICMP<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"></highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>ICMP<sp/>Header<sp/>begins<sp/>after<sp/>IP<sp/>Header<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>icmp_offset<sp/>=<sp/>14<sp/>+<sp/>ip_hl;</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(icmp_offset<sp/>+<sp/><ref refid="syn__icmp_8h_1a99c3516521b1b90e2011cb71b174131e" kindref="member">SYN_ICMP_HEADER_LEN</ref><sp/>&gt;<sp/>len)<sp/>{</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"></highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*icmp_hdr<sp/>=<sp/>&amp;ip_pkt[icmp_offset];</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>type<sp/>=<sp/>icmp_hdr[0];</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"></highlight></codeline>
+<codeline lineno="62"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(type<sp/>==<sp/><ref refid="syn__icmp_8h_1a4b82e240ba43dc5de418623e54755d82" kindref="member">SYN_ICMP_TYPE_ECHO_REQUEST</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>icmp-&gt;<ref refid="structSYN__ICMP_1a102a019f283542c41ffaf71b942dbf8d" kindref="member">echo_requests_rx</ref>++;</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"></highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(frame_tx<sp/>&amp;&amp;<sp/>tx_len)<sp/>{</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>pkt_len<sp/>=<sp/>len;</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(pkt_len<sp/>&gt;<sp/>1514)<sp/>{</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>pkt_len<sp/>=<sp/>1514;</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"></highlight></codeline>
+<codeline lineno="71"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>memcpy(frame_tx,<sp/>ip_pkt,<sp/>pkt_len);</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"></highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Swap<sp/>MAC<sp/>addresses<sp/>(offset<sp/>0<sp/>and<sp/>6)<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="74"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>memcpy(&amp;frame_tx[0],<sp/>&amp;ip_pkt[6],<sp/>6);</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>memcpy(&amp;frame_tx[6],<sp/>&amp;ip_pkt[0],<sp/>6);</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"></highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Swap<sp/>IP<sp/>addresses<sp/>(offset<sp/>26<sp/>and<sp/>30)<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>memcpy(&amp;frame_tx[26],<sp/>&amp;ip_pkt[30],<sp/>4);</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>memcpy(&amp;frame_tx[30],<sp/>&amp;ip_pkt[26],<sp/>4);</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"></highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Modify<sp/>ICMP<sp/>Type:<sp/>8<sp/>(Request)<sp/>-&gt;<sp/>0<sp/>(Reply)<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>tx_icmp_off<sp/>=<sp/>icmp_offset;</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>frame_tx[tx_icmp_off]<sp/>=<sp/><ref refid="syn__icmp_8h_1ab102f9b1f8d6916f29426fc469c9093f" kindref="member">SYN_ICMP_TYPE_ECHO_REPLY</ref>;</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>frame_tx[tx_icmp_off<sp/>+<sp/>2]<sp/>=<sp/>0;<sp/></highlight><highlight class="comment">/*<sp/>Reset<sp/>checksum<sp/>bytes<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>frame_tx[tx_icmp_off<sp/>+<sp/>3]<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"></highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>icmp_payload_len<sp/>=<sp/>pkt_len<sp/>-<sp/>tx_icmp_off;</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint16_t<sp/>csum<sp/>=<sp/><ref refid="syn__icmp_8c_1a500d3abb30e924d94653a016cb408b23" kindref="member">syn_icmp_checksum</ref>(&amp;frame_tx[tx_icmp_off],<sp/>icmp_payload_len);</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>frame_tx[tx_icmp_off<sp/>+<sp/>2]<sp/>=<sp/>(uint8_t)(csum<sp/>&gt;&gt;<sp/>8);</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>frame_tx[tx_icmp_off<sp/>+<sp/>3]<sp/>=<sp/>(uint8_t)(csum<sp/>&amp;<sp/>0xFF);</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"></highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Zero<sp/>pad<sp/>frame<sp/>to<sp/>minimum<sp/>Ethernet<sp/>length<sp/>(60<sp/>bytes)<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(pkt_len<sp/>&lt;<sp/><ref refid="syn__eth_8h_1ae7e3765f036b770fcce704317fd66796" kindref="member">SYN_ETH_MIN_FRAME_LEN</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>memset(&amp;frame_tx[pkt_len],<sp/>0,<sp/><ref refid="syn__eth_8h_1ae7e3765f036b770fcce704317fd66796" kindref="member">SYN_ETH_MIN_FRAME_LEN</ref><sp/>-<sp/>pkt_len);</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>pkt_len<sp/>=<sp/><ref refid="syn__eth_8h_1ae7e3765f036b770fcce704317fd66796" kindref="member">SYN_ETH_MIN_FRAME_LEN</ref>;</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"></highlight></codeline>
+<codeline lineno="98"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>icmp-&gt;<ref refid="structSYN__ICMP_1a974d3dc339bc990e53d37a227f884823" kindref="member">echo_replies_tx</ref>++;</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*tx_len<sp/>=<sp/>pkt_len;</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(type<sp/>==<sp/><ref refid="syn__icmp_8h_1ab102f9b1f8d6916f29426fc469c9093f" kindref="member">SYN_ICMP_TYPE_ECHO_REPLY</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>icmp-&gt;<ref refid="structSYN__ICMP_1a9ca4381b682983d4925e90be5e3b6baf" kindref="member">echo_replies_rx</ref>++;</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"></highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="106"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"></highlight></codeline>
+<codeline lineno="108"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__icmp_8c_1aa898bc1d260cce214d7f895efd5abeca" kindref="member">syn_icmp_build_echo_request</ref>(<ref refid="structSYN__ICMP" kindref="compound">SYN_ICMP</ref><sp/>*icmp,<sp/><ref refid="structSYN__ETH" kindref="compound">SYN_ETH</ref><sp/>*eth,<sp/>uint32_t<sp/>dst_ip,</highlight></codeline>
+<codeline lineno="109"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>dst_mac[6],<sp/>uint16_t<sp/></highlight><highlight class="keywordtype">id</highlight><highlight class="normal">,<sp/>uint16_t<sp/>seq,</highlight></codeline>
+<codeline lineno="110"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*payload,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>payload_len,</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>*frame_out,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>*frame_len)</highlight></codeline>
+<codeline lineno="112"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="113"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!icmp<sp/>||<sp/>!eth<sp/>||<sp/>!dst_mac<sp/>||<sp/>!frame_out<sp/>||<sp/>!frame_len)<sp/>{</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="115"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="116"><highlight class="normal"></highlight></codeline>
+<codeline lineno="117"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/>icmp_len<sp/>=<sp/>(uint16_t)(<ref refid="syn__icmp_8h_1a99c3516521b1b90e2011cb71b174131e" kindref="member">SYN_ICMP_HEADER_LEN</ref><sp/>+<sp/>payload_len);</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>total_len<sp/>=<sp/>14<sp/>+<sp/>20<sp/>+<sp/>icmp_len;</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(total_len<sp/>&lt;<sp/><ref refid="syn__eth_8h_1ae7e3765f036b770fcce704317fd66796" kindref="member">SYN_ETH_MIN_FRAME_LEN</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="120"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>total_len<sp/>=<sp/><ref refid="syn__eth_8h_1ae7e3765f036b770fcce704317fd66796" kindref="member">SYN_ETH_MIN_FRAME_LEN</ref>;</highlight></codeline>
+<codeline lineno="121"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="122"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(total_len<sp/>&gt;<sp/><ref refid="syn__eth_8h_1a30fd59c18d954703cd0eb01da591a7d1" kindref="member">SYN_ETH_MAX_FRAME_LEN</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="123"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="124"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"></highlight></codeline>
+<codeline lineno="126"><highlight class="normal"><sp/><sp/><sp/><sp/>memset(frame_out,<sp/>0,<sp/>total_len);</highlight></codeline>
+<codeline lineno="127"><highlight class="normal"></highlight></codeline>
+<codeline lineno="128"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Ethernet<sp/>II<sp/>Header<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="129"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>LCOV_EXCL_START:<sp/>Unreachable<sp/>parameter<sp/>bounds<sp/>check<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="130"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="syn__eth_8c_1af5f07d700c6145ddb16ee842cb6917a7" kindref="member">syn_eth_pack_header</ref>(frame_out,<sp/>total_len,<sp/>dst_mac,<sp/>eth-&gt;<ref refid="structSYN__ETH_1a7cbdb3a8af772295953dc3599f9632b9" kindref="member">mac_addr</ref>,<sp/><ref refid="syn__eth_8h_1a64125da8a542235c9a7c1379f6d7ce80" kindref="member">SYN_ETHTYPE_IPV4</ref>)<sp/>==<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="131"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="132"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="133"><highlight class="normal"></highlight></codeline>
+<codeline lineno="134"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>IPv4<sp/>Header<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="135"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>ip_bytes<sp/>=</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__eth_8c_1ae485135611089ef78dc2eb6eb92fa022" kindref="member">syn_ip_pack_header</ref>(&amp;frame_out[14],<sp/>total_len<sp/>-<sp/>14,<sp/>eth-&gt;<ref refid="structSYN__ETH_1aecc63b98856296fa6826cc8a87d5b7ee" kindref="member">ip_addr</ref>,<sp/>dst_ip,<sp/>1,<sp/>icmp_len,<sp/></highlight><highlight class="keywordtype">id</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="137"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(ip_bytes<sp/>==<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="138"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="139"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="140"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>LCOV_EXCL_STOP<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="141"><highlight class="normal"></highlight></codeline>
+<codeline lineno="142"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>ICMP<sp/>Header<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="143"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>icmp_off<sp/>=<sp/>34;</highlight></codeline>
+<codeline lineno="144"><highlight class="normal"><sp/><sp/><sp/><sp/>frame_out[icmp_off]<sp/>=<sp/><ref refid="syn__icmp_8h_1a4b82e240ba43dc5de418623e54755d82" kindref="member">SYN_ICMP_TYPE_ECHO_REQUEST</ref>;</highlight></codeline>
+<codeline lineno="145"><highlight class="normal"><sp/><sp/><sp/><sp/>frame_out[icmp_off<sp/>+<sp/>1]<sp/>=<sp/>0;<sp/></highlight><highlight class="comment">/*<sp/>Code<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="146"><highlight class="normal"><sp/><sp/><sp/><sp/>frame_out[icmp_off<sp/>+<sp/>2]<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="147"><highlight class="normal"><sp/><sp/><sp/><sp/>frame_out[icmp_off<sp/>+<sp/>3]<sp/>=<sp/>0;<sp/></highlight><highlight class="comment">/*<sp/>Checksum<sp/>placeholder<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="148"><highlight class="normal"><sp/><sp/><sp/><sp/>frame_out[icmp_off<sp/>+<sp/>4]<sp/>=<sp/>(uint8_t)(</highlight><highlight class="keywordtype">id</highlight><highlight class="normal"><sp/>&gt;&gt;<sp/>8);</highlight></codeline>
+<codeline lineno="149"><highlight class="normal"><sp/><sp/><sp/><sp/>frame_out[icmp_off<sp/>+<sp/>5]<sp/>=<sp/>(uint8_t)(</highlight><highlight class="keywordtype">id</highlight><highlight class="normal"><sp/>&amp;<sp/>0xFF);</highlight></codeline>
+<codeline lineno="150"><highlight class="normal"><sp/><sp/><sp/><sp/>frame_out[icmp_off<sp/>+<sp/>6]<sp/>=<sp/>(uint8_t)(seq<sp/>&gt;&gt;<sp/>8);</highlight></codeline>
+<codeline lineno="151"><highlight class="normal"><sp/><sp/><sp/><sp/>frame_out[icmp_off<sp/>+<sp/>7]<sp/>=<sp/>(uint8_t)(seq<sp/>&amp;<sp/>0xFF);</highlight></codeline>
+<codeline lineno="152"><highlight class="normal"></highlight></codeline>
+<codeline lineno="153"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(payload<sp/>&amp;&amp;<sp/>payload_len<sp/>&gt;<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="154"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>memcpy(&amp;frame_out[icmp_off<sp/>+<sp/>8],<sp/>payload,<sp/>payload_len);</highlight></codeline>
+<codeline lineno="155"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="156"><highlight class="normal"></highlight></codeline>
+<codeline lineno="157"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/>icmp_csum<sp/>=<sp/><ref refid="syn__icmp_8c_1a500d3abb30e924d94653a016cb408b23" kindref="member">syn_icmp_checksum</ref>(&amp;frame_out[icmp_off],<sp/>icmp_len);</highlight></codeline>
+<codeline lineno="158"><highlight class="normal"><sp/><sp/><sp/><sp/>frame_out[icmp_off<sp/>+<sp/>2]<sp/>=<sp/>(uint8_t)(icmp_csum<sp/>&gt;&gt;<sp/>8);</highlight></codeline>
+<codeline lineno="159"><highlight class="normal"><sp/><sp/><sp/><sp/>frame_out[icmp_off<sp/>+<sp/>3]<sp/>=<sp/>(uint8_t)(icmp_csum<sp/>&amp;<sp/>0xFF);</highlight></codeline>
+<codeline lineno="160"><highlight class="normal"></highlight></codeline>
+<codeline lineno="161"><highlight class="normal"><sp/><sp/><sp/><sp/>icmp-&gt;<ref refid="structSYN__ICMP_1a4aa623cdf09ea1a6f9cd7a6b9d7008dd" kindref="member">echo_requests_tx</ref>++;</highlight></codeline>
+<codeline lineno="162"><highlight class="normal"><sp/><sp/><sp/><sp/>*frame_len<sp/>=<sp/>total_len;</highlight></codeline>
+<codeline lineno="163"><highlight class="normal"></highlight></codeline>
+<codeline lineno="164"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="165"><highlight class="normal">}</highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/net/syn_icmp.c"/>
+  </compounddef>
+</doxygen>

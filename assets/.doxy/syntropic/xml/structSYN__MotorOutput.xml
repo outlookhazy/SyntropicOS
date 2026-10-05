@@ -1,0 +1,123 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="structSYN__MotorOutput" kind="struct" language="C++" prot="public">
+    <compoundname>SYN_MotorOutput</compoundname>
+    <includes refid="syn__motor__output_8h" local="no">syn_motor_output.h</includes>
+    <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="structSYN__MotorOutput_1aa4093e161107629b490bef6d083ebe99" prot="public" static="no" mutable="no">
+        <type>void(*</type>
+        <definition>void(* SYN_MotorOutput::set_output) (void *ctx, int32_t output)</definition>
+        <argsstring>)(void *ctx, int32_t output)</argsstring>
+        <name>set_output</name>
+        <qualifiedname>SYN_MotorOutput::set_output</qualifiedname>
+        <briefdescription>
+<para>Drive the motor at the given signed output level. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>The output range matches the controller&apos;s [output_min, output_max]. Positive = forward, negative = reverse, 0 = stop. The implementation must map this to the appropriate hardware command (PWM duty, step rate, etc.).</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ctx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>User context (motor instance pointer). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>output</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Signed output level. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/motor/syn_motor_output.h" line="56" column="5" bodyfile="src/syntropic/motor/syn_motor_output.h" bodystart="56" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structSYN__MotorOutput_1a96f4596b9ff97e3ffed9f6e73fe72fd5" prot="public" static="no" mutable="no">
+        <type>void(*</type>
+        <definition>void(* SYN_MotorOutput::coast) (void *ctx)</definition>
+        <argsstring>)(void *ctx)</argsstring>
+        <name>coast</name>
+        <qualifiedname>SYN_MotorOutput::coast</qualifiedname>
+        <briefdescription>
+<para>Coast — free-spin, both outputs off. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Motor decelerates due to friction only. Called when the controller enters idle or stops normally.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ctx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>User context. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/motor/syn_motor_output.h" line="66" column="5" bodyfile="src/syntropic/motor/syn_motor_output.h" bodystart="66" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structSYN__MotorOutput_1ae502063f2072c7a3b780dd05bf59a77e" prot="public" static="no" mutable="no">
+        <type>void(*</type>
+        <definition>void(* SYN_MotorOutput::brake) (void *ctx)</definition>
+        <argsstring>)(void *ctx)</argsstring>
+        <name>brake</name>
+        <qualifiedname>SYN_MotorOutput::brake</qualifiedname>
+        <briefdescription>
+<para>Active brake — short motor windings or active stop. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Motor decelerates as quickly as possible. Called during emergency stop (e-stop).</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ctx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>User context. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/motor/syn_motor_output.h" line="76" column="5" bodyfile="src/syntropic/motor/syn_motor_output.h" bodystart="76" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="structSYN__MotorOutput_1a84ebd27eecd27795277c985db3f87ecd" prot="public" static="no" mutable="no">
+        <type>void *</type>
+        <definition>void* SYN_MotorOutput::ctx</definition>
+        <argsstring></argsstring>
+        <name>ctx</name>
+        <qualifiedname>SYN_MotorOutput::ctx</qualifiedname>
+        <briefdescription>
+<para>User context passed to all callbacks. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/motor/syn_motor_output.h" line="79" column="10" bodyfile="src/syntropic/motor/syn_motor_output.h" bodystart="79" bodyend="-1"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Abstract motor output interface (vtable). </para>
+    </briefdescription>
+    <detaileddescription>
+<para>The motor controller calls these functions to drive the motor without knowing the underlying hardware. This allows any motor driver to be used with syn_motor_ctrl, syn_autotune, etc. </para>
+    </detaileddescription>
+    <location file="src/syntropic/motor/syn_motor_output.h" line="44" column="1" bodyfile="src/syntropic/motor/syn_motor_output.h" bodystart="44" bodyend="80"/>
+    <listofallmembers>
+      <member refid="structSYN__MotorOutput_1ae502063f2072c7a3b780dd05bf59a77e" prot="public" virt="non-virtual"><scope>SYN_MotorOutput</scope><name>brake</name></member>
+      <member refid="structSYN__MotorOutput_1a96f4596b9ff97e3ffed9f6e73fe72fd5" prot="public" virt="non-virtual"><scope>SYN_MotorOutput</scope><name>coast</name></member>
+      <member refid="structSYN__MotorOutput_1a84ebd27eecd27795277c985db3f87ecd" prot="public" virt="non-virtual"><scope>SYN_MotorOutput</scope><name>ctx</name></member>
+      <member refid="structSYN__MotorOutput_1aa4093e161107629b490bef6d083ebe99" prot="public" virt="non-virtual"><scope>SYN_MotorOutput</scope><name>set_output</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

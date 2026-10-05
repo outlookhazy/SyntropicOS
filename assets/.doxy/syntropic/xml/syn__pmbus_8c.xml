@@ -1,0 +1,386 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__pmbus_8c" kind="file" language="C++">
+    <compoundname>syn_pmbus.c</compoundname>
+    <includes refid="syn__pmbus_8h" local="yes">syn_pmbus.h</includes>
+    <includes local="no">math.h</includes>
+    <incdepgraph>
+      <node id="3">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/proto/syn_pmbus.c</label>
+        <link refid="syn__pmbus_8c"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>syn_pmbus.h</label>
+        <link refid="syn__pmbus_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>syn_smbus.h</label>
+        <link refid="syn__smbus_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>math.h</label>
+      </node>
+      <node id="7">
+        <label>stdbool.h</label>
+      </node>
+      <node id="4">
+        <label>stddef.h</label>
+      </node>
+      <node id="5">
+        <label>stdint.h</label>
+      </node>
+    </incdepgraph>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__pmbus_8c_1adb3c6ba6952b9817ec2627e8a254953f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>float</type>
+        <definition>float syn_pmbus_linear11_to_float</definition>
+        <argsstring>(uint16_t raw)</argsstring>
+        <name>syn_pmbus_linear11_to_float</name>
+        <param>
+          <type>uint16_t</type>
+          <declname>raw</declname>
+        </param>
+        <briefdescription>
+<para>Convert PMBus 16-bit Linear11 format (5-bit exponent + 11-bit mantissa) to float. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>raw</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>16-bit raw Linear11 word. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Decoded floating-point value. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_pmbus.c" line="17" column="7" bodyfile="src/syntropic/proto/syn_pmbus.c" bodystart="17" bodyend="33"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__pmbus_8c_1ac01a0df51b47463fa6a4619ebb9afb24" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint16_t</type>
+        <definition>uint16_t syn_pmbus_float_to_linear11</definition>
+        <argsstring>(float val)</argsstring>
+        <name>syn_pmbus_float_to_linear11</name>
+        <param>
+          <type>float</type>
+          <declname>val</declname>
+        </param>
+        <briefdescription>
+<para>Convert floating-point value to PMBus 16-bit Linear11 format. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>val</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Floating-point value. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Encoded 16-bit Linear11 word. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_pmbus.c" line="35" column="10" bodyfile="src/syntropic/proto/syn_pmbus.c" bodystart="35" bodyend="65"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__pmbus_8c_1ab9bd3e95ff7b06e993530bc9b45fc11b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>float</type>
+        <definition>float syn_pmbus_linear16_to_float</definition>
+        <argsstring>(uint16_t raw, uint8_t vout_mode)</argsstring>
+        <name>syn_pmbus_linear16_to_float</name>
+        <param>
+          <type>uint16_t</type>
+          <declname>raw</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>vout_mode</declname>
+        </param>
+        <briefdescription>
+<para>Convert PMBus 16-bit Linear16 format (unsigned 16-bit mantissa + VOUT_MODE exponent) to float. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>raw</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>16-bit raw mantissa word. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>vout_mode</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>VOUT_MODE byte (or raw 5-bit signed exponent N). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Decoded floating-point output voltage. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_pmbus.c" line="67" column="7" bodyfile="src/syntropic/proto/syn_pmbus.c" bodystart="67" bodyend="79"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__pmbus_8c_1aa91ae945960dbed99c2a70a2dbd9ca37" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint16_t</type>
+        <definition>uint16_t syn_pmbus_float_to_linear16</definition>
+        <argsstring>(float val, uint8_t vout_mode)</argsstring>
+        <name>syn_pmbus_float_to_linear16</name>
+        <param>
+          <type>float</type>
+          <declname>val</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>vout_mode</declname>
+        </param>
+        <briefdescription>
+<para>Convert floating-point output voltage to PMBus 16-bit Linear16 format. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>val</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Floating-point voltage value. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>vout_mode</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>VOUT_MODE byte (or raw 5-bit signed exponent N). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Encoded 16-bit Linear16 raw mantissa word. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_pmbus.c" line="81" column="10" bodyfile="src/syntropic/proto/syn_pmbus.c" bodystart="81" bodyend="98"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__pmbus_8c_1a753e0551f691b54b612656d377ced815" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_pmbus_encode_read_cmd</definition>
+        <argsstring>(SYN_SMBUS_Packet *pkt, uint8_t slave_addr, uint8_t cmd, bool use_pec)</argsstring>
+        <name>syn_pmbus_encode_read_cmd</name>
+        <param>
+          <type><ref refid="structSYN__SMBUS__Packet" kindref="compound">SYN_SMBUS_Packet</ref> *</type>
+          <declname>pkt</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>slave_addr</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>cmd</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+          <declname>use_pec</declname>
+        </param>
+        <briefdescription>
+<para>Encode a PMBus telemetry read request into an SMBus packet. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>pkt</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output SMBus packet. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>slave_addr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>7-bit PMBus slave address. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>cmd</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>PMBus command code (e.g., SYN_PMBUS_CMD_READ_VIN). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>use_pec</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Enable Packet Error Checking (PEC). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_pmbus.c" line="100" column="6" bodyfile="src/syntropic/proto/syn_pmbus.c" bodystart="100" bodyend="109"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>PMBus Protocol Engine implementation. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>__has_include(&quot;syn_config.h&quot;)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;syn_config.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__pmbus_8h" kindref="compound">syn_pmbus.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;math.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>!defined(SYN_USE_PMBUS)<sp/>||<sp/>SYN_USE_PMBUS</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/><ref refid="syn__pmbus_8c_1adb3c6ba6952b9817ec2627e8a254953f" kindref="member">syn_pmbus_linear11_to_float</ref>(uint16_t<sp/>raw)</highlight></codeline>
+<codeline lineno="18"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="19"><highlight class="normal"><sp/><sp/><sp/><sp/>int8_t<sp/>exponent<sp/>=<sp/>(int8_t)((raw<sp/>&gt;&gt;<sp/>11)<sp/>&amp;<sp/>0x1F);</highlight></codeline>
+<codeline lineno="20"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(exponent<sp/>&amp;<sp/>0x10)<sp/>{</highlight></codeline>
+<codeline lineno="21"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>exponent<sp/>|=<sp/>(int8_t)0xF0;</highlight></codeline>
+<codeline lineno="22"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="23"><highlight class="normal"><sp/><sp/><sp/><sp/>int16_t<sp/>mantissa<sp/>=<sp/>(int16_t)(raw<sp/>&amp;<sp/>0x07FF);</highlight></codeline>
+<codeline lineno="24"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(mantissa<sp/>&amp;<sp/>0x0400)<sp/>{</highlight></codeline>
+<codeline lineno="25"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>mantissa<sp/>|=<sp/>(int16_t)0xF800;</highlight></codeline>
+<codeline lineno="26"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="27"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>f_mantissa<sp/>=<sp/>(float)mantissa;</highlight></codeline>
+<codeline lineno="28"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(exponent<sp/>&gt;=<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="29"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>f_mantissa<sp/>*<sp/>(float)(1<sp/>&lt;&lt;<sp/>exponent);</highlight></codeline>
+<codeline lineno="30"><highlight class="normal"><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="31"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>f_mantissa<sp/>/<sp/>(float)(1<sp/>&lt;&lt;<sp/>(-exponent));</highlight></codeline>
+<codeline lineno="32"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="33"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal">uint16_t<sp/><ref refid="syn__pmbus_8c_1ac01a0df51b47463fa6a4619ebb9afb24" kindref="member">syn_pmbus_float_to_linear11</ref>(</highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>val)</highlight></codeline>
+<codeline lineno="36"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="37"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(val<sp/>==<sp/>0.0f)<sp/>{</highlight></codeline>
+<codeline lineno="38"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0;</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"><sp/><sp/><sp/><sp/>int8_t<sp/>exponent<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>temp<sp/>=<sp/>val;</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight></codeline>
+<codeline lineno="43"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">while</highlight><highlight class="normal"><sp/>(temp<sp/>&gt;=<sp/>1023.0f<sp/>&amp;&amp;<sp/>exponent<sp/>&lt;<sp/>15)<sp/>{</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>temp<sp/>/=<sp/>2.0f;</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>exponent++;</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">while</highlight><highlight class="normal"><sp/>(temp<sp/>&lt;=<sp/>-1024.0f<sp/>&amp;&amp;<sp/>exponent<sp/>&lt;<sp/>15)<sp/>{</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>temp<sp/>/=<sp/>2.0f;</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>exponent++;</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">while</highlight><highlight class="normal"><sp/>(temp<sp/>&gt;<sp/>-512.0f<sp/>&amp;&amp;<sp/>temp<sp/>&lt;<sp/>512.0f<sp/>&amp;&amp;<sp/>temp<sp/>!=<sp/>0.0f<sp/>&amp;&amp;<sp/>exponent<sp/>&gt;<sp/>-16)<sp/>{</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>temp<sp/>*=<sp/>2.0f;</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>exponent--;</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"></highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/><sp/><sp/>int16_t<sp/>mantissa<sp/>=<sp/>(int16_t)temp;</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(mantissa<sp/>&gt;<sp/>1023)</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>mantissa<sp/>=<sp/>1023;</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(mantissa<sp/>&lt;<sp/>-1024)</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>mantissa<sp/>=<sp/>-1024;</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"></highlight></codeline>
+<codeline lineno="62"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/>u_exp<sp/>=<sp/>(uint16_t)(((uint8_t)exponent)<sp/>&amp;<sp/>0x1F);</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/>u_mant<sp/>=<sp/>(uint16_t)(((uint16_t)mantissa)<sp/>&amp;<sp/>0x07FF);</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(uint16_t)((u_exp<sp/>&lt;&lt;<sp/>11)<sp/>|<sp/>u_mant);</highlight></codeline>
+<codeline lineno="65"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"></highlight></codeline>
+<codeline lineno="67"><highlight class="normal"></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/><ref refid="syn__pmbus_8c_1ab9bd3e95ff7b06e993530bc9b45fc11b" kindref="member">syn_pmbus_linear16_to_float</ref>(uint16_t<sp/>raw,<sp/>uint8_t<sp/>vout_mode)</highlight></codeline>
+<codeline lineno="68"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/>int8_t<sp/>exponent<sp/>=<sp/>(int8_t)(vout_mode<sp/>&amp;<sp/>0x1F);</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(exponent<sp/>&amp;<sp/>0x10)<sp/>{</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>exponent<sp/>|=<sp/>(int8_t)0xF0;</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>f_mantissa<sp/>=<sp/>(float)raw;</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(exponent<sp/>&gt;=<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>f_mantissa<sp/>*<sp/>(float)(1<sp/>&lt;&lt;<sp/>exponent);</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>f_mantissa<sp/>/<sp/>(float)(1<sp/>&lt;&lt;<sp/>(-exponent));</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="79"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"></highlight></codeline>
+<codeline lineno="81"><highlight class="normal">uint16_t<sp/><ref refid="syn__pmbus_8c_1aa91ae945960dbed99c2a70a2dbd9ca37" kindref="member">syn_pmbus_float_to_linear16</ref>(</highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>val,<sp/>uint8_t<sp/>vout_mode)</highlight></codeline>
+<codeline lineno="82"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/>int8_t<sp/>exponent<sp/>=<sp/>(int8_t)(vout_mode<sp/>&amp;<sp/>0x1F);</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(exponent<sp/>&amp;<sp/>0x10)<sp/>{</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>exponent<sp/>|=<sp/>(int8_t)0xF0;</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>scaled<sp/>=<sp/>val;</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(exponent<sp/>&gt;=<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>scaled<sp/>/=<sp/>(float)(1<sp/>&lt;&lt;<sp/>exponent);</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>scaled<sp/>*=<sp/>(float)(1<sp/>&lt;&lt;<sp/>(-exponent));</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(scaled<sp/>&lt;<sp/>0.0f)</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>scaled<sp/>=<sp/>0.0f;</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(scaled<sp/>&gt;<sp/>65535.0f)</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>scaled<sp/>=<sp/>65535.0f;</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(uint16_t)(scaled<sp/>+<sp/>0.5f);</highlight></codeline>
+<codeline lineno="98"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"></highlight></codeline>
+<codeline lineno="100"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__pmbus_8c_1a753e0551f691b54b612656d377ced815" kindref="member">syn_pmbus_encode_read_cmd</ref>(<ref refid="structSYN__SMBUS__Packet" kindref="compound">SYN_SMBUS_Packet</ref><sp/>*pkt,<sp/>uint8_t<sp/>slave_addr,<sp/>uint8_t<sp/>cmd,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>use_pec)</highlight></codeline>
+<codeline lineno="101"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(pkt<sp/>==<sp/>NULL)</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/><sp/><sp/><sp/>pkt-&gt;<ref refid="structSYN__SMBUS__Packet_1ac82c6dff320c9b73b03a88c096215dc8" kindref="member">slave_addr</ref><sp/>=<sp/>slave_addr;</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><sp/><sp/><sp/><sp/>pkt-&gt;<ref refid="structSYN__SMBUS__Packet_1aeb994bd7265016e2de69ae106fa6a2c4" kindref="member">command</ref><sp/>=<sp/>cmd;</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"><sp/><sp/><sp/><sp/>pkt-&gt;<ref refid="structSYN__SMBUS__Packet_1aa33ab86fab268e431928dcf1bda072e4" kindref="member">proto</ref><sp/>=<sp/><ref refid="syn__smbus_8h_1a3914cb8d47706e68097f5d172c8b7aeda03da98ddad10016d3720188107bfeb35" kindref="member">SYN_SMBUS_PROTO_READ_WORD</ref>;</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"><sp/><sp/><sp/><sp/>pkt-&gt;<ref refid="structSYN__SMBUS__Packet_1ab4b3aa440b5c0c15c92466af7e0e26ca" kindref="member">pec_enabled</ref><sp/>=<sp/>use_pec;</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"><sp/><sp/><sp/><sp/>pkt-&gt;<ref refid="structSYN__SMBUS__Packet_1add9142be808fcc898444dcbd998987eb" kindref="member">length</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="109"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="110"><highlight class="normal"></highlight></codeline>
+<codeline lineno="111"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_USE_PMBUS<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/proto/syn_pmbus.c"/>
+  </compounddef>
+</doxygen>

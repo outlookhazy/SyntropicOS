@@ -1,0 +1,400 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__scale_8c" kind="file" language="C++">
+    <compoundname>syn_scale.c</compoundname>
+    <includes refid="syn__scale_8h" local="yes">syn_scale.h</includes>
+    <includes refid="syn__assert_8h" local="yes">../util/syn_assert.h</includes>
+    <includes local="no">math.h</includes>
+    <includes local="no">string.h</includes>
+    <incdepgraph>
+      <node id="9">
+        <label>../common/syn_compiler.h</label>
+        <link refid="syn__compiler_8h"/>
+      </node>
+      <node id="3">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>../port/syn_port_gpio.h</label>
+        <link refid="syn__port__gpio_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/sensor/syn_scale.c</label>
+        <link refid="syn__scale_8c"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>syn_scale.h</label>
+        <link refid="syn__scale_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>../util/syn_assert.h</label>
+        <link refid="syn__assert_8h"/>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="10">
+        <label>math.h</label>
+      </node>
+      <node id="7">
+        <label>stdbool.h</label>
+      </node>
+      <node id="4">
+        <label>stddef.h</label>
+      </node>
+      <node id="5">
+        <label>stdint.h</label>
+      </node>
+      <node id="11">
+        <label>string.h</label>
+      </node>
+    </incdepgraph>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__scale_8c_1ad36a9e0821fe706eaaa0bc602b87b564" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_scale_init</definition>
+        <argsstring>(SYN_Scale *scale, SYN_GPIO_Pin dout_pin, SYN_GPIO_Pin sck_pin, SYN_ScaleType type)</argsstring>
+        <name>syn_scale_init</name>
+        <param>
+          <type><ref refid="structSYN__Scale" kindref="compound">SYN_Scale</ref> *</type>
+          <declname>scale</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref></type>
+          <declname>dout_pin</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref></type>
+          <declname>sck_pin</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__scale_8h_1a201fa15db33ee50a1c8cb81e7f25879c" kindref="member">SYN_ScaleType</ref></type>
+          <declname>type</declname>
+        </param>
+        <briefdescription>
+<para>Initialize Weight Scale context. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>scale</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Scale context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dout_pin</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Data GPIO pin (or SDA for I2C). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>sck_pin</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Clock GPIO pin (or SCL for I2C). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>type</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Scale ADC type (HX711 or NAU7802). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/sensor/syn_scale.c" line="13" column="12" bodyfile="src/syntropic/sensor/syn_scale.c" bodystart="13" bodyend="30"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__scale_8c_1a4728dec0b08d83012a08c18621ed619f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_scale_feed_adc</definition>
+        <argsstring>(SYN_Scale *scale, int32_t raw_adc24)</argsstring>
+        <name>syn_scale_feed_adc</name>
+        <param>
+          <type><ref refid="structSYN__Scale" kindref="compound">SYN_Scale</ref> *</type>
+          <declname>scale</declname>
+        </param>
+        <param>
+          <type>int32_t</type>
+          <declname>raw_adc24</declname>
+        </param>
+        <briefdescription>
+<para>Feed raw 24-bit ADC reading from load cell chip. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>scale</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Scale context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>raw_adc24</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Signed 24-bit raw ADC reading. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/sensor/syn_scale.c" line="32" column="6" bodyfile="src/syntropic/sensor/syn_scale.c" bodystart="32" bodyend="43"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__scale_8c_1af96313068f45c27826bb0c4d56185b73" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_scale_tare</definition>
+        <argsstring>(SYN_Scale *scale, int32_t tare_offset)</argsstring>
+        <name>syn_scale_tare</name>
+        <param>
+          <type><ref refid="structSYN__Scale" kindref="compound">SYN_Scale</ref> *</type>
+          <declname>scale</declname>
+        </param>
+        <param>
+          <type>int32_t</type>
+          <declname>tare_offset</declname>
+        </param>
+        <briefdescription>
+<para>Set zero-point Tare offset. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>scale</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Scale context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>tare_offset</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Zero reading value. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/sensor/syn_scale.c" line="45" column="6" bodyfile="src/syntropic/sensor/syn_scale.c" bodystart="45" bodyend="50"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__scale_8c_1a310c04fb35ce8f0d2d1835d62cca4e02" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_scale_set_calibration_factor</definition>
+        <argsstring>(SYN_Scale *scale, float factor)</argsstring>
+        <name>syn_scale_set_calibration_factor</name>
+        <param>
+          <type><ref refid="structSYN__Scale" kindref="compound">SYN_Scale</ref> *</type>
+          <declname>scale</declname>
+        </param>
+        <param>
+          <type>float</type>
+          <declname>factor</declname>
+        </param>
+        <briefdescription>
+<para>Set calibration scale factor (counts per gram). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>scale</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Scale context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>factor</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Calibration factor (e.g. 420.0f counts/gram). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/sensor/syn_scale.c" line="52" column="6" bodyfile="src/syntropic/sensor/syn_scale.c" bodystart="52" bodyend="57"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__scale_8c_1a7d5243d48e2e00e9b29d43699eaea97d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>float</type>
+        <definition>float syn_scale_get_grams</definition>
+        <argsstring>(const SYN_Scale *scale)</argsstring>
+        <name>syn_scale_get_grams</name>
+        <param>
+          <type>const <ref refid="structSYN__Scale" kindref="compound">SYN_Scale</ref> *</type>
+          <declname>scale</declname>
+        </param>
+        <briefdescription>
+<para>Get calculated weight in grams. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>scale</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Scale context. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Weight in grams. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/sensor/syn_scale.c" line="59" column="7" bodyfile="src/syntropic/sensor/syn_scale.c" bodystart="59" bodyend="64"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__scale_8c_1aed432167207a1cb74ce18b4cfa4f265a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>float</type>
+        <definition>float syn_scale_get_kg</definition>
+        <argsstring>(const SYN_Scale *scale)</argsstring>
+        <name>syn_scale_get_kg</name>
+        <param>
+          <type>const <ref refid="structSYN__Scale" kindref="compound">SYN_Scale</ref> *</type>
+          <declname>scale</declname>
+        </param>
+        <briefdescription>
+<para>Get calculated weight in kilograms. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>scale</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Scale context. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Weight in kg. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/sensor/syn_scale.c" line="66" column="7" bodyfile="src/syntropic/sensor/syn_scale.c" bodystart="66" bodyend="71"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Generic Weight Scale &amp; Load Cell Driver (HX711 24-bit ADC, NAU7802). </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__scale_8h" kindref="compound">syn_scale.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../util/syn_assert.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;math.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;string.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__scale_8c_1ad36a9e0821fe706eaaa0bc602b87b564" kindref="member">syn_scale_init</ref>(<ref refid="structSYN__Scale" kindref="compound">SYN_Scale</ref><sp/>*scale,<sp/><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref><sp/>dout_pin,<sp/><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref><sp/>sck_pin,</highlight></codeline>
+<codeline lineno="14"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__scale_8h_1a201fa15db33ee50a1c8cb81e7f25879c" kindref="member">SYN_ScaleType</ref><sp/>type)</highlight></codeline>
+<codeline lineno="15"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="16"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(scale<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="17"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(scale<sp/>==<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="18"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;<sp/></highlight><highlight class="comment">/*<sp/>LCOV_EXCL_LINE:<sp/>Defensive<sp/>NULL<sp/>check<sp/>after<sp/>SYN_ASSERT<sp/>macro<sp/>in</highlight></codeline>
+<codeline lineno="19"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>release<sp/>mode<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"><sp/><sp/><sp/><sp/>memset(scale,<sp/>0,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(*scale));</highlight></codeline>
+<codeline lineno="23"><highlight class="normal"><sp/><sp/><sp/><sp/>scale-&gt;<ref refid="structSYN__Scale_1ad5f1e6a78a836821b6d43b7c1211d2a6" kindref="member">type</ref><sp/>=<sp/>type;</highlight></codeline>
+<codeline lineno="24"><highlight class="normal"><sp/><sp/><sp/><sp/>scale-&gt;<ref refid="structSYN__Scale_1a257d76b894d0adb5d5607538a153711b" kindref="member">dout_pin</ref><sp/>=<sp/>dout_pin;</highlight></codeline>
+<codeline lineno="25"><highlight class="normal"><sp/><sp/><sp/><sp/>scale-&gt;<ref refid="structSYN__Scale_1a319180be5e1e2e25530528020504e267" kindref="member">sck_pin</ref><sp/>=<sp/>sck_pin;</highlight></codeline>
+<codeline lineno="26"><highlight class="normal"><sp/><sp/><sp/><sp/>scale-&gt;<ref refid="structSYN__Scale_1af5d5c835cf11666543b2428134055a93" kindref="member">scale_factor</ref><sp/>=<sp/>1.0f;<sp/></highlight><highlight class="comment">/*<sp/>1.0<sp/>default<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"><sp/><sp/><sp/><sp/>scale-&gt;<ref refid="structSYN__Scale_1ade1bdca5076e28ac98c87729c7ca13da" kindref="member">is_stable</ref><sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="30"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__scale_8c_1a4728dec0b08d83012a08c18621ed619f" kindref="member">syn_scale_feed_adc</ref>(<ref refid="structSYN__Scale" kindref="compound">SYN_Scale</ref><sp/>*scale,<sp/>int32_t<sp/>raw_adc24)</highlight></codeline>
+<codeline lineno="33"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="34"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(scale<sp/>==<sp/>NULL)</highlight></codeline>
+<codeline lineno="35"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"><sp/><sp/><sp/><sp/>int32_t<sp/>delta<sp/>=<sp/>raw_adc24<sp/>-<sp/>scale-&gt;<ref refid="structSYN__Scale_1a2df89c2d6cc3e1562194eb4fdf257101" kindref="member">tare_offset</ref>;</highlight></codeline>
+<codeline lineno="38"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(scale-&gt;<ref refid="structSYN__Scale_1af5d5c835cf11666543b2428134055a93" kindref="member">scale_factor</ref><sp/>!=<sp/>0.0f)<sp/>{</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>scale-&gt;<ref refid="structSYN__Scale_1ac0780dd850ed8645722c9397da81f855" kindref="member">last_weight_grams</ref><sp/>=<sp/>(float)delta<sp/>/<sp/>scale-&gt;<ref refid="structSYN__Scale_1af5d5c835cf11666543b2428134055a93" kindref="member">scale_factor</ref>;</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>scale-&gt;<ref refid="structSYN__Scale_1ac0780dd850ed8645722c9397da81f855" kindref="member">last_weight_grams</ref><sp/>=<sp/>0.0f;</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="43"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__scale_8c_1af96313068f45c27826bb0c4d56185b73" kindref="member">syn_scale_tare</ref>(<ref refid="structSYN__Scale" kindref="compound">SYN_Scale</ref><sp/>*scale,<sp/>int32_t<sp/>tare_offset)</highlight></codeline>
+<codeline lineno="46"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(scale<sp/>==<sp/>NULL)</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/><sp/><sp/>scale-&gt;<ref refid="structSYN__Scale_1a2df89c2d6cc3e1562194eb4fdf257101" kindref="member">tare_offset</ref><sp/>=<sp/>tare_offset;</highlight></codeline>
+<codeline lineno="50"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"></highlight></codeline>
+<codeline lineno="52"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__scale_8c_1a310c04fb35ce8f0d2d1835d62cca4e02" kindref="member">syn_scale_set_calibration_factor</ref>(<ref refid="structSYN__Scale" kindref="compound">SYN_Scale</ref><sp/>*scale,<sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>factor)</highlight></codeline>
+<codeline lineno="53"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(scale<sp/>==<sp/>NULL<sp/>||<sp/>factor<sp/>==<sp/>0.0f)</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/><sp/><sp/>scale-&gt;<ref refid="structSYN__Scale_1af5d5c835cf11666543b2428134055a93" kindref="member">scale_factor</ref><sp/>=<sp/>factor;</highlight></codeline>
+<codeline lineno="57"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"></highlight></codeline>
+<codeline lineno="59"><highlight class="normal"></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/><ref refid="syn__scale_8c_1a7d5243d48e2e00e9b29d43699eaea97d" kindref="member">syn_scale_get_grams</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__Scale" kindref="compound">SYN_Scale</ref><sp/>*scale)</highlight></codeline>
+<codeline lineno="60"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(scale<sp/>==<sp/>NULL)</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0.0f;</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>scale-&gt;<ref refid="structSYN__Scale_1ac0780dd850ed8645722c9397da81f855" kindref="member">last_weight_grams</ref>;</highlight></codeline>
+<codeline lineno="64"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"></highlight></codeline>
+<codeline lineno="66"><highlight class="normal"></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/><ref refid="syn__scale_8c_1aed432167207a1cb74ce18b4cfa4f265a" kindref="member">syn_scale_get_kg</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__Scale" kindref="compound">SYN_Scale</ref><sp/>*scale)</highlight></codeline>
+<codeline lineno="67"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(scale<sp/>==<sp/>NULL)</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0.0f;</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>scale-&gt;<ref refid="structSYN__Scale_1ac0780dd850ed8645722c9397da81f855" kindref="member">last_weight_grams</ref><sp/>/<sp/>1000.0f;</highlight></codeline>
+<codeline lineno="71"><highlight class="normal">}</highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/sensor/syn_scale.c"/>
+  </compounddef>
+</doxygen>
