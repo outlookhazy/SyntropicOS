@@ -1,0 +1,220 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__dshot_8c" kind="file" language="C++">
+    <compoundname>syn_dshot.c</compoundname>
+    <includes refid="syn__dshot_8h" local="yes">syntropic/output/syn_dshot.h</includes>
+    <incdepgraph>
+      <node id="3">
+        <label>syntropic/common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/output/syn_dshot.c</label>
+        <link refid="syn__dshot_8c"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>syntropic/output/syn_dshot.h</label>
+        <link refid="syn__dshot_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>stdbool.h</label>
+      </node>
+      <node id="4">
+        <label>stddef.h</label>
+      </node>
+      <node id="5">
+        <label>stdint.h</label>
+      </node>
+    </incdepgraph>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__dshot_8c_1a787b2e940bc4bc5a48c5be9d5f9e162c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint8_t</type>
+        <definition>uint8_t syn_dshot_calc_crc</definition>
+        <argsstring>(uint16_t payload_12bit)</argsstring>
+        <name>syn_dshot_calc_crc</name>
+        <param>
+          <type>uint16_t</type>
+          <declname>payload_12bit</declname>
+        </param>
+        <briefdescription>
+<para>Calculate 4-bit DShot CRC for an 12-bit payload (<computeroutput>throttle[11:1]</computeroutput> + <computeroutput>telemetry[0]</computeroutput>). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>payload_12bit</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>12-bit value <computeroutput>(throttle &lt;&lt; 1) | (telemetry ? 1 : 0)</computeroutput>. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>4-bit CRC value. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/output/syn_dshot.c" line="8" column="9" bodyfile="src/syntropic/output/syn_dshot.c" bodystart="8" bodyend="14"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__dshot_8c_1a05545bc90e3e67410af9e90846d6c7f0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_dshot_encode</definition>
+        <argsstring>(uint16_t throttle, bool telemetry, SYN_DShot_Packet *packet)</argsstring>
+        <name>syn_dshot_encode</name>
+        <param>
+          <type>uint16_t</type>
+          <declname>throttle</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+          <declname>telemetry</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__DShot__Packet" kindref="compound">SYN_DShot_Packet</ref> *</type>
+          <declname>packet</declname>
+        </param>
+        <briefdescription>
+<para>Encode throttle value and telemetry flag into a 16-bit DShot frame. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>throttle</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>11-bit throttle value (clamped 0..2047). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>telemetry</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Telemetry request flag. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>packet</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to output packet struct. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_INVALID_PARAM if packet is NULL. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/output/syn_dshot.c" line="16" column="12" bodyfile="src/syntropic/output/syn_dshot.c" bodystart="16" bodyend="36"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__dshot_8c_1abb84362174a938a62f3ce57bebe900de" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint16_t</type>
+        <definition>uint16_t syn_dshot_us_to_throttle</definition>
+        <argsstring>(uint16_t us)</argsstring>
+        <name>syn_dshot_us_to_throttle</name>
+        <param>
+          <type>uint16_t</type>
+          <declname>us</declname>
+        </param>
+        <briefdescription>
+<para>Convert standard 1000..2000 us RC pulse width to DShot 48..2047 throttle value. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>us</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pulse width in microseconds (1000..2000 us). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>DShot throttle value (0 if us &lt; 1048, 48..2047). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/output/syn_dshot.c" line="38" column="10" bodyfile="src/syntropic/output/syn_dshot.c" bodystart="38" bodyend="56"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Zero-Heap DShot (DShot150/300/600) Digital ESC Driver Implementation. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__dshot_8h" kindref="compound">syntropic/output/syn_dshot.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal">uint8_t<sp/><ref refid="syn__dshot_8c_1a787b2e940bc4bc5a48c5be9d5f9e162c" kindref="member">syn_dshot_calc_crc</ref>(uint16_t<sp/>payload_12bit)</highlight></codeline>
+<codeline lineno="9"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="10"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>DShot<sp/>CRC<sp/>=<sp/>(payload<sp/>^<sp/>(payload<sp/>&gt;&gt;<sp/>4)<sp/>^<sp/>(payload<sp/>&gt;&gt;<sp/>8))<sp/>&amp;<sp/>0x0F<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/>val<sp/>=<sp/>(uint32_t)payload_12bit;</highlight></codeline>
+<codeline lineno="12"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/>crc<sp/>=<sp/>(val<sp/>^<sp/>(val<sp/>&gt;&gt;<sp/>4U)<sp/>^<sp/>(val<sp/>&gt;&gt;<sp/>8U))<sp/>&amp;<sp/>0x0FU;</highlight></codeline>
+<codeline lineno="13"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(uint8_t)crc;</highlight></codeline>
+<codeline lineno="14"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__dshot_8c_1a05545bc90e3e67410af9e90846d6c7f0" kindref="member">syn_dshot_encode</ref>(uint16_t<sp/>throttle,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>telemetry,<sp/><ref refid="structSYN__DShot__Packet" kindref="compound">SYN_DShot_Packet</ref><sp/>*packet)</highlight></codeline>
+<codeline lineno="17"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="18"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!packet)<sp/>{</highlight></codeline>
+<codeline lineno="19"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="20"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(throttle<sp/>&gt;<sp/>2047U)<sp/>{</highlight></codeline>
+<codeline lineno="23"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>throttle<sp/>=<sp/>2047U;</highlight></codeline>
+<codeline lineno="24"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/>payload_12bit<sp/>=<sp/>(uint16_t)((throttle<sp/>&lt;&lt;<sp/>1U)<sp/>|<sp/>(telemetry<sp/>?<sp/>1U<sp/>:<sp/>0U));</highlight></codeline>
+<codeline lineno="27"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>crc<sp/>=<sp/><ref refid="syn__dshot_8c_1a787b2e940bc4bc5a48c5be9d5f9e162c" kindref="member">syn_dshot_calc_crc</ref>(payload_12bit);</highlight></codeline>
+<codeline lineno="28"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/>raw_frame<sp/>=<sp/>(uint16_t)((payload_12bit<sp/>&lt;&lt;<sp/>4U)<sp/>|<sp/>crc);</highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"><sp/><sp/><sp/><sp/>packet-&gt;<ref refid="structSYN__DShot__Packet_1a8382a0e2b5231ab46b540ddf7e8dbea7" kindref="member">throttle</ref><sp/>=<sp/>throttle;</highlight></codeline>
+<codeline lineno="31"><highlight class="normal"><sp/><sp/><sp/><sp/>packet-&gt;<ref refid="structSYN__DShot__Packet_1ace34a59a9208c51cdea1d73d9f96c729" kindref="member">telemetry</ref><sp/>=<sp/>telemetry;</highlight></codeline>
+<codeline lineno="32"><highlight class="normal"><sp/><sp/><sp/><sp/>packet-&gt;<ref refid="structSYN__DShot__Packet_1aac8c7304d6b4cb7d5aacc77fe740887d" kindref="member">crc</ref><sp/>=<sp/>crc;</highlight></codeline>
+<codeline lineno="33"><highlight class="normal"><sp/><sp/><sp/><sp/>packet-&gt;<ref refid="structSYN__DShot__Packet_1a4e55e1b0b6fb6425807c2dc821b4fffc" kindref="member">raw_frame</ref><sp/>=<sp/>raw_frame;</highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="36"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal">uint16_t<sp/><ref refid="syn__dshot_8c_1abb84362174a938a62f3ce57bebe900de" kindref="member">syn_dshot_us_to_throttle</ref>(uint16_t<sp/>us)</highlight></codeline>
+<codeline lineno="39"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(us<sp/>&lt;=<sp/>1048U)<sp/>{</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0U;<sp/></highlight><highlight class="comment">/*<sp/>Disarmed<sp/>/<sp/>Stop<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(us<sp/>&gt;=<sp/>2000U)<sp/>{</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>2047U;<sp/></highlight><highlight class="comment">/*<sp/>Full<sp/>Throttle<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"></highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="48"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/>*<sp/>Linear<sp/>mapping:</highlight></codeline>
+<codeline lineno="49"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/>*<sp/>us<sp/>range:<sp/>[1048,<sp/>2000]<sp/>-&gt;<sp/>span<sp/>=<sp/>952</highlight></codeline>
+<codeline lineno="50"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/>*<sp/>throttle<sp/>range:<sp/>[48,<sp/>2047]<sp/>-&gt;<sp/>span<sp/>=<sp/>1999</highlight></codeline>
+<codeline lineno="51"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/>*<sp/>throttle<sp/>=<sp/>48<sp/>+<sp/>((us<sp/>-<sp/>1048)<sp/>*<sp/>1999)<sp/>/<sp/>952</highlight></codeline>
+<codeline lineno="52"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/>val<sp/>=<sp/>(uint32_t)(us<sp/>-<sp/>1048U);</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/>throttle<sp/>=<sp/>48U<sp/>+<sp/>((val<sp/>*<sp/>1999U)<sp/>/<sp/>952U);</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(uint16_t)throttle;</highlight></codeline>
+<codeline lineno="56"><highlight class="normal">}</highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/output/syn_dshot.c"/>
+  </compounddef>
+</doxygen>

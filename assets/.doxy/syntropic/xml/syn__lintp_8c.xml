@@ -1,0 +1,769 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__lintp_8c" kind="file" language="C++">
+    <compoundname>syn_lintp.c</compoundname>
+    <includes refid="syn__lintp_8h" local="yes">syn_lintp.h</includes>
+    <includes local="no">string.h</includes>
+    <incdepgraph>
+      <node id="3">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/proto/syn_lintp.c</label>
+        <link refid="syn__lintp_8c"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>syn_lintp.h</label>
+        <link refid="syn__lintp_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>stddef.h</label>
+      </node>
+      <node id="5">
+        <label>stdint.h</label>
+      </node>
+      <node id="6">
+        <label>string.h</label>
+      </node>
+    </incdepgraph>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__lintp_8c_1ab05b6593fc32994b7d45bb947d184566" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_lintp_init</definition>
+        <argsstring>(SYN_LINTP_Link *link, uint8_t nad, uint8_t *rx_buf, size_t rx_size, uint8_t *tx_buf, size_t tx_size)</argsstring>
+        <name>syn_lintp_init</name>
+        <param>
+          <type><ref refid="structSYN__LINTP__Link" kindref="compound">SYN_LINTP_Link</ref> *</type>
+          <declname>link</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>nad</declname>
+        </param>
+        <param>
+          <type>uint8_t *</type>
+          <declname>rx_buf</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>rx_size</declname>
+        </param>
+        <param>
+          <type>uint8_t *</type>
+          <declname>tx_buf</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>tx_size</declname>
+        </param>
+        <briefdescription>
+<para>Initialize LIN TP Link context. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>link</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to LIN TP link structure. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>nad</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Node Address (NAD) for this device (0x01..0x7D). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>rx_buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to buffer for storing received payloads. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>rx_size</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Size of RX buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>tx_buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to buffer reserved for TX (optional context pointer). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>tx_size</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Size of TX buffer. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_lintp.c" line="15" column="6" bodyfile="src/syntropic/proto/syn_lintp.c" bodystart="15" bodyend="34"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__lintp_8c_1a6c5ac7a40a58b5934d9003dc5fecdeea" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_lintp_set_timeouts</definition>
+        <argsstring>(SYN_LINTP_Link *link, uint32_t n_as_ms, uint32_t n_cr_ms)</argsstring>
+        <name>syn_lintp_set_timeouts</name>
+        <param>
+          <type><ref refid="structSYN__LINTP__Link" kindref="compound">SYN_LINTP_Link</ref> *</type>
+          <declname>link</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>n_as_ms</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>n_cr_ms</declname>
+        </param>
+        <briefdescription>
+<para>Configure LIN TP timeouts in milliseconds. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>link</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to LIN TP link context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>n_as_ms</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Max frame TX time (default 1000ms). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>n_cr_ms</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Max time between consecutive RX frames (default 1000ms). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_lintp.c" line="36" column="6" bodyfile="src/syntropic/proto/syn_lintp.c" bodystart="36" bodyend="42"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__lintp_8c_1a7fbebbdd0c613ecdaafdbecd99a0b51f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_lintp_set_padding</definition>
+        <argsstring>(SYN_LINTP_Link *link, uint8_t pad_byte)</argsstring>
+        <name>syn_lintp_set_padding</name>
+        <param>
+          <type><ref refid="structSYN__LINTP__Link" kindref="compound">SYN_LINTP_Link</ref> *</type>
+          <declname>link</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>pad_byte</declname>
+        </param>
+        <briefdescription>
+<para>Configure padding byte value for unused frame bytes. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>link</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to LIN TP link context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>pad_byte</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Fill byte value (default 0xFF). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_lintp.c" line="44" column="6" bodyfile="src/syntropic/proto/syn_lintp.c" bodystart="44" bodyend="49"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__lintp_8c_1a6f72da80b0b6b9b7557ec1cf1a15b7e1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_lintp_send</definition>
+        <argsstring>(SYN_LINTP_Link *link, uint8_t nad, const uint8_t *payload, size_t len)</argsstring>
+        <name>syn_lintp_send</name>
+        <param>
+          <type><ref refid="structSYN__LINTP__Link" kindref="compound">SYN_LINTP_Link</ref> *</type>
+          <declname>link</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>nad</declname>
+        </param>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>payload</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>len</declname>
+        </param>
+        <briefdescription>
+<para>Queue a message for multi-frame or single-frame LIN TP transmission. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>link</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to LIN TP link context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>nad</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Destination NAD. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>payload</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to payload bytes to send. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Payload length in bytes (1..4095). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, or error status code. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_lintp.c" line="51" column="12" bodyfile="src/syntropic/proto/syn_lintp.c" bodystart="51" bodyend="89"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__lintp_8c_1a41237db0070806b3ab37af27b0902c0e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_lintp_get_tx_frame</definition>
+        <argsstring>(SYN_LINTP_Link *link, uint8_t out_frame[8])</argsstring>
+        <name>syn_lintp_get_tx_frame</name>
+        <param>
+          <type><ref refid="structSYN__LINTP__Link" kindref="compound">SYN_LINTP_Link</ref> *</type>
+          <declname>link</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>out_frame</declname>
+          <array>[8]</array>
+        </param>
+        <briefdescription>
+<para>Retrieve next queued 8-byte LIN diagnostic payload to transmit on bus (0x3C / 0x3D). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>link</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to LIN TP link context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out_frame</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Array of 8 bytes to receive frame data. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if a frame was ready and copied, false otherwise. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_lintp.c" line="91" column="6" bodyfile="src/syntropic/proto/syn_lintp.c" bodystart="91" bodyend="126"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__lintp_8c_1a6b09e3562b3f4530caba7cacb38e87f3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_lintp_process_rx_frame</definition>
+        <argsstring>(SYN_LINTP_Link *link, const uint8_t frame[8])</argsstring>
+        <name>syn_lintp_process_rx_frame</name>
+        <param>
+          <type><ref refid="structSYN__LINTP__Link" kindref="compound">SYN_LINTP_Link</ref> *</type>
+          <declname>link</declname>
+        </param>
+        <param>
+          <type>const uint8_t</type>
+          <declname>frame</declname>
+          <array>[8]</array>
+        </param>
+        <briefdescription>
+<para>Process an incoming 8-byte LIN diagnostic frame received from bus (0x3C / 0x3D). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>link</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to LIN TP link context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>frame</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to 8-byte received LIN frame payload. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_lintp.c" line="128" column="6" bodyfile="src/syntropic/proto/syn_lintp.c" bodystart="128" bodyend="211"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__lintp_8c_1a416d5a2ba7fa807dfd6584f56cec0610" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>ssize_t</type>
+        <definition>ssize_t syn_lintp_receive</definition>
+        <argsstring>(SYN_LINTP_Link *link, uint8_t *out_buf, size_t max_len)</argsstring>
+        <name>syn_lintp_receive</name>
+        <param>
+          <type><ref refid="structSYN__LINTP__Link" kindref="compound">SYN_LINTP_Link</ref> *</type>
+          <declname>link</declname>
+        </param>
+        <param>
+          <type>uint8_t *</type>
+          <declname>out_buf</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>max_len</declname>
+        </param>
+        <briefdescription>
+<para>Read a fully reassembled message payload from the LIN TP receiver. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>link</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to LIN TP link context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out_buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Buffer to receive assembled payload. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>max_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Maximum bytes to copy. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Number of payload bytes read, 0 if no complete message ready, or negative error code. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_lintp.c" line="213" column="9" bodyfile="src/syntropic/proto/syn_lintp.c" bodystart="213" bodyend="231"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__lintp_8c_1a2bd5ee07515f7e4c0e819438dfad7fa2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_lintp_step</definition>
+        <argsstring>(SYN_LINTP_Link *link, uint32_t dt_ms)</argsstring>
+        <name>syn_lintp_step</name>
+        <param>
+          <type><ref refid="structSYN__LINTP__Link" kindref="compound">SYN_LINTP_Link</ref> *</type>
+          <declname>link</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>dt_ms</declname>
+        </param>
+        <briefdescription>
+<para>Step LIN TP timers by dt_ms. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>link</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to LIN TP link context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dt_ms</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Milliseconds elapsed since last step call. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_lintp.c" line="233" column="6" bodyfile="src/syntropic/proto/syn_lintp.c" bodystart="233" bodyend="258"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__lintp_8c_1afc427a87540fb0b77262772ef909f540" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_lintp_is_tx_idle</definition>
+        <argsstring>(const SYN_LINTP_Link *link)</argsstring>
+        <name>syn_lintp_is_tx_idle</name>
+        <param>
+          <type>const <ref refid="structSYN__LINTP__Link" kindref="compound">SYN_LINTP_Link</ref> *</type>
+          <declname>link</declname>
+        </param>
+        <briefdescription>
+<para>Check if LIN TP TX engine is idle and ready for new message. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>link</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to LIN TP link context. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if idle, false if actively transmitting a message. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_lintp.c" line="260" column="6" bodyfile="src/syntropic/proto/syn_lintp.c" bodystart="260" bodyend="266"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>ISO 17987-2 (LIN Transport Layer &amp; Network Layer Services / UDSonLIN). </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Implements non-blocking, zero-allocation ISO 17987-2 LIN TP segmentation and reassembly state machine. </para>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__lintp_8h" kindref="compound">syn_lintp.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>!defined(SYN_USE_LINTP)<sp/>||<sp/>SYN_USE_LINTP</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;string.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__lintp_8c_1ab05b6593fc32994b7d45bb947d184566" kindref="member">syn_lintp_init</ref>(<ref refid="structSYN__LINTP__Link" kindref="compound">SYN_LINTP_Link</ref><sp/>*link,<sp/>uint8_t<sp/>nad,<sp/>uint8_t<sp/>*rx_buf,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>rx_size,</highlight></codeline>
+<codeline lineno="16"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>*tx_buf,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>tx_size)</highlight></codeline>
+<codeline lineno="17"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="18"><highlight class="normal"><sp/><sp/><sp/><sp/>(void)tx_buf;</highlight></codeline>
+<codeline lineno="19"><highlight class="normal"><sp/><sp/><sp/><sp/>(void)tx_size;</highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(link<sp/>==<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="22"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="23"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"><sp/><sp/><sp/><sp/>memset(link,<sp/>0,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(*link));</highlight></codeline>
+<codeline lineno="26"><highlight class="normal"><sp/><sp/><sp/><sp/>link-&gt;<ref refid="structSYN__LINTP__Link_1a78649c1ed9a14b320ffc62db733fadcf" kindref="member">nad</ref><sp/>=<sp/>nad;</highlight></codeline>
+<codeline lineno="27"><highlight class="normal"><sp/><sp/><sp/><sp/>link-&gt;<ref refid="structSYN__LINTP__Link_1a0e613e469914d2a4c10e72a9d69e3239" kindref="member">padding_byte</ref><sp/>=<sp/>0xFF;</highlight></codeline>
+<codeline lineno="28"><highlight class="normal"><sp/><sp/><sp/><sp/>link-&gt;<ref refid="structSYN__LINTP__Link_1a7d61d3345218076369d2a552f46e88df" kindref="member">rx_buf</ref><sp/>=<sp/>rx_buf;</highlight></codeline>
+<codeline lineno="29"><highlight class="normal"><sp/><sp/><sp/><sp/>link-&gt;<ref refid="structSYN__LINTP__Link_1a1a53e33a9664d02a2570473bbc9a4b5d" kindref="member">rx_buf_size</ref><sp/>=<sp/>rx_size;</highlight></codeline>
+<codeline lineno="30"><highlight class="normal"><sp/><sp/><sp/><sp/>link-&gt;<ref refid="structSYN__LINTP__Link_1a2f97fc250284f52bb079a52a15423acb" kindref="member">timer_n_as_ms</ref><sp/>=<sp/>1000;</highlight></codeline>
+<codeline lineno="31"><highlight class="normal"><sp/><sp/><sp/><sp/>link-&gt;<ref refid="structSYN__LINTP__Link_1a5c109581e1c2ff5c9ab32201673bad25" kindref="member">timer_n_cr_ms</ref><sp/>=<sp/>1000;</highlight></codeline>
+<codeline lineno="32"><highlight class="normal"><sp/><sp/><sp/><sp/>link-&gt;<ref refid="structSYN__LINTP__Link_1a670c719424d4171960d8cb2e21eb0782" kindref="member">rx_state</ref><sp/>=<sp/>SYN_LINTP_STATE_IDLE;</highlight></codeline>
+<codeline lineno="33"><highlight class="normal"><sp/><sp/><sp/><sp/>link-&gt;<ref refid="structSYN__LINTP__Link_1ab260fd72f90595d7c7d9d8aa64ae7bc7" kindref="member">tx_state</ref><sp/>=<sp/>SYN_LINTP_STATE_IDLE;</highlight></codeline>
+<codeline lineno="34"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__lintp_8c_1a6c5ac7a40a58b5934d9003dc5fecdeea" kindref="member">syn_lintp_set_timeouts</ref>(<ref refid="structSYN__LINTP__Link" kindref="compound">SYN_LINTP_Link</ref><sp/>*link,<sp/>uint32_t<sp/>n_as_ms,<sp/>uint32_t<sp/>n_cr_ms)</highlight></codeline>
+<codeline lineno="37"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="38"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(link<sp/>!=<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>link-&gt;<ref refid="structSYN__LINTP__Link_1a2f97fc250284f52bb079a52a15423acb" kindref="member">timer_n_as_ms</ref><sp/>=<sp/>(n_as_ms<sp/>&gt;<sp/>0)<sp/>?<sp/>n_as_ms<sp/>:<sp/>1000;</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>link-&gt;<ref refid="structSYN__LINTP__Link_1a5c109581e1c2ff5c9ab32201673bad25" kindref="member">timer_n_cr_ms</ref><sp/>=<sp/>(n_cr_ms<sp/>&gt;<sp/>0)<sp/>?<sp/>n_cr_ms<sp/>:<sp/>1000;</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="42"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__lintp_8c_1a7fbebbdd0c613ecdaafdbecd99a0b51f" kindref="member">syn_lintp_set_padding</ref>(<ref refid="structSYN__LINTP__Link" kindref="compound">SYN_LINTP_Link</ref><sp/>*link,<sp/>uint8_t<sp/>pad_byte)</highlight></codeline>
+<codeline lineno="45"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(link<sp/>!=<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>link-&gt;<ref refid="structSYN__LINTP__Link_1a0e613e469914d2a4c10e72a9d69e3239" kindref="member">padding_byte</ref><sp/>=<sp/>pad_byte;</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="49"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"></highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__lintp_8c_1a6f72da80b0b6b9b7557ec1cf1a15b7e1" kindref="member">syn_lintp_send</ref>(<ref refid="structSYN__LINTP__Link" kindref="compound">SYN_LINTP_Link</ref><sp/>*link,<sp/>uint8_t<sp/>nad,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*payload,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>len)</highlight></codeline>
+<codeline lineno="52"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(link<sp/>==<sp/>NULL<sp/>||<sp/>payload<sp/>==<sp/>NULL<sp/>||<sp/>len<sp/>==<sp/>0<sp/>||<sp/>len<sp/>&gt;<sp/>4095)<sp/>{</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"></highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(link-&gt;<ref refid="structSYN__LINTP__Link_1ab260fd72f90595d7c7d9d8aa64ae7bc7" kindref="member">tx_state</ref><sp/>!=<sp/>SYN_LINTP_STATE_IDLE)<sp/>{</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a3be376d242928cd8de46b32c69647539" kindref="member">SYN_BUSY</ref>;</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"></highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/><sp/><sp/>link-&gt;<ref refid="structSYN__LINTP__Link_1a5d8d13b014fb521531c0332e50ef3355" kindref="member">tx_nad</ref><sp/>=<sp/>nad;</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"><sp/><sp/><sp/><sp/>link-&gt;<ref refid="structSYN__LINTP__Link_1a94f8d5ca5ef7fc9217d47b53322c1be4" kindref="member">tx_buf</ref><sp/>=<sp/>payload;</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"><sp/><sp/><sp/><sp/>link-&gt;<ref refid="structSYN__LINTP__Link_1ab0e2eb5e111bb16b66bd53bc7f8df4db" kindref="member">tx_total_len</ref><sp/>=<sp/>len;</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/><sp/><sp/>link-&gt;<ref refid="structSYN__LINTP__Link_1adaef6074b000548a959ce074d90f696a" kindref="member">tx_offset</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/><sp/><sp/>link-&gt;<ref refid="structSYN__LINTP__Link_1a654021a302ffbf6487d4a61faae2634a" kindref="member">tx_sn</ref><sp/>=<sp/>1;</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/><sp/><sp/>link-&gt;<ref refid="structSYN__LINTP__Link_1aa8b6b7cd149fb9608911c1136f187f37" kindref="member">tx_timer_ms</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"></highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Build<sp/>first<sp/>frame<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/>memset(link-&gt;<ref refid="structSYN__LINTP__Link_1a4de093783e0e70f651ee17b8e5990fa1" kindref="member">tx_frame</ref>,<sp/>link-&gt;<ref refid="structSYN__LINTP__Link_1a0e613e469914d2a4c10e72a9d69e3239" kindref="member">padding_byte</ref>,<sp/>8);</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/><sp/><sp/>link-&gt;<ref refid="structSYN__LINTP__Link_1a4de093783e0e70f651ee17b8e5990fa1" kindref="member">tx_frame</ref>[0]<sp/>=<sp/>nad;</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"></highlight></codeline>
+<codeline lineno="72"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(len<sp/>&lt;=<sp/>6)<sp/>{</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Single<sp/>Frame<sp/>(SF):<sp/>Byte<sp/>0<sp/>=<sp/>NAD,<sp/>Byte<sp/>1<sp/>=<sp/>0x00<sp/>|<sp/>len,<sp/>Bytes<sp/>2..7<sp/>=<sp/>payload<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="74"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>link-&gt;<ref refid="structSYN__LINTP__Link_1a4de093783e0e70f651ee17b8e5990fa1" kindref="member">tx_frame</ref>[1]<sp/>=<sp/>(uint8_t)(<ref refid="syn__lintp_8h_1ae391641781cdbf9c8d7c006dbf9e0751" kindref="member">SYN_LINTP_PCI_SF</ref><sp/>|<sp/>(len<sp/>&amp;<sp/>0x0F));</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>memcpy(&amp;link-&gt;<ref refid="structSYN__LINTP__Link_1a4de093783e0e70f651ee17b8e5990fa1" kindref="member">tx_frame</ref>[2],<sp/>payload,<sp/>len);</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>link-&gt;<ref refid="structSYN__LINTP__Link_1adaef6074b000548a959ce074d90f696a" kindref="member">tx_offset</ref><sp/>=<sp/>len;</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>link-&gt;<ref refid="structSYN__LINTP__Link_1ab260fd72f90595d7c7d9d8aa64ae7bc7" kindref="member">tx_state</ref><sp/>=<sp/>SYN_LINTP_STATE_IDLE;<sp/></highlight><highlight class="comment">/*<sp/>SF<sp/>is<sp/>queued<sp/>in<sp/>one<sp/>shot<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>First<sp/>Frame<sp/>(FF):<sp/>Byte<sp/>0<sp/>=<sp/>NAD,<sp/>Byte<sp/>1<sp/>=<sp/>0x10<sp/>|<sp/>(len<sp/>&gt;&gt;<sp/>8),<sp/>Byte<sp/>2<sp/>=<sp/>len<sp/>&amp;<sp/>0xFF<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>link-&gt;<ref refid="structSYN__LINTP__Link_1a4de093783e0e70f651ee17b8e5990fa1" kindref="member">tx_frame</ref>[1]<sp/>=<sp/>(uint8_t)(0x10<sp/>|<sp/>((len<sp/>&gt;&gt;<sp/>8)<sp/>&amp;<sp/>0x0F));</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>link-&gt;<ref refid="structSYN__LINTP__Link_1a4de093783e0e70f651ee17b8e5990fa1" kindref="member">tx_frame</ref>[2]<sp/>=<sp/>(uint8_t)(len<sp/>&amp;<sp/>0xFF);</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>memcpy(&amp;link-&gt;<ref refid="structSYN__LINTP__Link_1a4de093783e0e70f651ee17b8e5990fa1" kindref="member">tx_frame</ref>[3],<sp/>payload,<sp/>5);</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>link-&gt;<ref refid="structSYN__LINTP__Link_1adaef6074b000548a959ce074d90f696a" kindref="member">tx_offset</ref><sp/>=<sp/>5;</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>link-&gt;<ref refid="structSYN__LINTP__Link_1ab260fd72f90595d7c7d9d8aa64ae7bc7" kindref="member">tx_state</ref><sp/>=<sp/>SYN_LINTP_STATE_TRANSMITTING_CF;</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"></highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/><sp/><sp/>link-&gt;<ref refid="structSYN__LINTP__Link_1ae15f517a7ff65c474f809fe48af3fe6a" kindref="member">tx_frame_pending</ref><sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="89"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"></highlight></codeline>
+<codeline lineno="91"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__lintp_8c_1a41237db0070806b3ab37af27b0902c0e" kindref="member">syn_lintp_get_tx_frame</ref>(<ref refid="structSYN__LINTP__Link" kindref="compound">SYN_LINTP_Link</ref><sp/>*link,<sp/>uint8_t<sp/>out_frame[8])</highlight></codeline>
+<codeline lineno="92"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(link<sp/>==<sp/>NULL<sp/>||<sp/>out_frame<sp/>==<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"></highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(link-&gt;<ref refid="structSYN__LINTP__Link_1ae15f517a7ff65c474f809fe48af3fe6a" kindref="member">tx_frame_pending</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>memcpy(out_frame,<sp/>link-&gt;<ref refid="structSYN__LINTP__Link_1a4de093783e0e70f651ee17b8e5990fa1" kindref="member">tx_frame</ref>,<sp/>8);</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>link-&gt;<ref refid="structSYN__LINTP__Link_1ae15f517a7ff65c474f809fe48af3fe6a" kindref="member">tx_frame_pending</ref><sp/>=<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>link-&gt;<ref refid="structSYN__LINTP__Link_1aa8b6b7cd149fb9608911c1136f187f37" kindref="member">tx_timer_ms</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"></highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>If<sp/>more<sp/>CF<sp/>frames<sp/>remain,<sp/>format<sp/>the<sp/>next<sp/>CF<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="103"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(link-&gt;<ref refid="structSYN__LINTP__Link_1ab260fd72f90595d7c7d9d8aa64ae7bc7" kindref="member">tx_state</ref><sp/>==<sp/>SYN_LINTP_STATE_TRANSMITTING_CF)<sp/>{</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(link-&gt;<ref refid="structSYN__LINTP__Link_1adaef6074b000548a959ce074d90f696a" kindref="member">tx_offset</ref><sp/>&lt;<sp/>link-&gt;<ref refid="structSYN__LINTP__Link_1ab0e2eb5e111bb16b66bd53bc7f8df4db" kindref="member">tx_total_len</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>memset(link-&gt;<ref refid="structSYN__LINTP__Link_1a4de093783e0e70f651ee17b8e5990fa1" kindref="member">tx_frame</ref>,<sp/>link-&gt;<ref refid="structSYN__LINTP__Link_1a0e613e469914d2a4c10e72a9d69e3239" kindref="member">padding_byte</ref>,<sp/>8);</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>link-&gt;<ref refid="structSYN__LINTP__Link_1a4de093783e0e70f651ee17b8e5990fa1" kindref="member">tx_frame</ref>[0]<sp/>=<sp/>link-&gt;<ref refid="structSYN__LINTP__Link_1a5d8d13b014fb521531c0332e50ef3355" kindref="member">tx_nad</ref>;</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>link-&gt;<ref refid="structSYN__LINTP__Link_1a4de093783e0e70f651ee17b8e5990fa1" kindref="member">tx_frame</ref>[1]<sp/>=<sp/>(uint8_t)(0x20<sp/>|<sp/>(link-&gt;<ref refid="structSYN__LINTP__Link_1a654021a302ffbf6487d4a61faae2634a" kindref="member">tx_sn</ref><sp/>&amp;<sp/>0x0F));</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"></highlight></codeline>
+<codeline lineno="109"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>bytes_to_copy<sp/>=<sp/>link-&gt;<ref refid="structSYN__LINTP__Link_1ab0e2eb5e111bb16b66bd53bc7f8df4db" kindref="member">tx_total_len</ref><sp/>-<sp/>link-&gt;<ref refid="structSYN__LINTP__Link_1adaef6074b000548a959ce074d90f696a" kindref="member">tx_offset</ref>;</highlight></codeline>
+<codeline lineno="110"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(bytes_to_copy<sp/>&gt;<sp/>6)<sp/>{</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>bytes_to_copy<sp/>=<sp/>6;</highlight></codeline>
+<codeline lineno="112"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="113"><highlight class="normal"></highlight></codeline>
+<codeline lineno="114"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>memcpy(&amp;link-&gt;<ref refid="structSYN__LINTP__Link_1a4de093783e0e70f651ee17b8e5990fa1" kindref="member">tx_frame</ref>[2],<sp/>&amp;link-&gt;<ref refid="structSYN__LINTP__Link_1a94f8d5ca5ef7fc9217d47b53322c1be4" kindref="member">tx_buf</ref>[link-&gt;<ref refid="structSYN__LINTP__Link_1adaef6074b000548a959ce074d90f696a" kindref="member">tx_offset</ref>],<sp/>bytes_to_copy);</highlight></codeline>
+<codeline lineno="115"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>link-&gt;<ref refid="structSYN__LINTP__Link_1adaef6074b000548a959ce074d90f696a" kindref="member">tx_offset</ref><sp/>+=<sp/>bytes_to_copy;</highlight></codeline>
+<codeline lineno="116"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>link-&gt;<ref refid="structSYN__LINTP__Link_1a654021a302ffbf6487d4a61faae2634a" kindref="member">tx_sn</ref><sp/>=<sp/>(uint8_t)((link-&gt;<ref refid="structSYN__LINTP__Link_1a654021a302ffbf6487d4a61faae2634a" kindref="member">tx_sn</ref><sp/>+<sp/>1)<sp/>&amp;<sp/>0x0F);</highlight></codeline>
+<codeline lineno="117"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>link-&gt;<ref refid="structSYN__LINTP__Link_1ae15f517a7ff65c474f809fe48af3fe6a" kindref="member">tx_frame_pending</ref><sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>link-&gt;<ref refid="structSYN__LINTP__Link_1ab260fd72f90595d7c7d9d8aa64ae7bc7" kindref="member">tx_state</ref><sp/>=<sp/>SYN_LINTP_STATE_IDLE;</highlight></codeline>
+<codeline lineno="120"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="121"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="122"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="123"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="124"><highlight class="normal"></highlight></codeline>
+<codeline lineno="125"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="126"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="127"><highlight class="normal"></highlight></codeline>
+<codeline lineno="128"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__lintp_8c_1a6b09e3562b3f4530caba7cacb38e87f3" kindref="member">syn_lintp_process_rx_frame</ref>(<ref refid="structSYN__LINTP__Link" kindref="compound">SYN_LINTP_Link</ref><sp/>*link,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>frame[8])</highlight></codeline>
+<codeline lineno="129"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="130"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(link<sp/>==<sp/>NULL<sp/>||<sp/>frame<sp/>==<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="131"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="132"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="133"><highlight class="normal"></highlight></codeline>
+<codeline lineno="134"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>frame_nad<sp/>=<sp/>frame[0];</highlight></codeline>
+<codeline lineno="135"><highlight class="normal"></highlight></codeline>
+<codeline lineno="136"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>NAD<sp/>Filtering:<sp/>Ignore<sp/>frames<sp/>not<sp/>destined<sp/>for<sp/>this<sp/>node<sp/>or<sp/>functional/broadcast<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="137"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(frame_nad<sp/>!=<sp/>link-&gt;<ref refid="structSYN__LINTP__Link_1a78649c1ed9a14b320ffc62db733fadcf" kindref="member">nad</ref><sp/>&amp;&amp;<sp/>frame_nad<sp/>!=<sp/><ref refid="syn__lintp_8h_1a7ad70c79aeb7c60f444ecf0311d84f91" kindref="member">SYN_LINTP_NAD_FUNCTIONAL</ref><sp/>&amp;&amp;</highlight></codeline>
+<codeline lineno="138"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>frame_nad<sp/>!=<sp/><ref refid="syn__lintp_8h_1ad72f2bfd3d88592ae22404ceb455a966" kindref="member">SYN_LINTP_NAD_BROADCAST</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="139"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="140"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="141"><highlight class="normal"></highlight></codeline>
+<codeline lineno="142"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>pci_type<sp/>=<sp/>(frame[1]<sp/>&gt;&gt;<sp/>4)<sp/>&amp;<sp/>0x0F;</highlight></codeline>
+<codeline lineno="143"><highlight class="normal"></highlight></codeline>
+<codeline lineno="144"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">switch</highlight><highlight class="normal"><sp/>(pci_type)<sp/>{</highlight></codeline>
+<codeline lineno="145"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__lintp_8h_1ae391641781cdbf9c8d7c006dbf9e0751" kindref="member">SYN_LINTP_PCI_SF</ref>:<sp/>{<sp/></highlight><highlight class="comment">/*<sp/>Single<sp/>Frame<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="146"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>sf_len<sp/>=<sp/>frame[1]<sp/>&amp;<sp/>0x0F;</highlight></codeline>
+<codeline lineno="147"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(sf_len<sp/>==<sp/>0<sp/>||<sp/>sf_len<sp/>&gt;<sp/>6<sp/>||<sp/>link-&gt;<ref refid="structSYN__LINTP__Link_1a7d61d3345218076369d2a552f46e88df" kindref="member">rx_buf</ref><sp/>==<sp/>NULL<sp/>||<sp/>sf_len<sp/>&gt;<sp/>link-&gt;<ref refid="structSYN__LINTP__Link_1a1a53e33a9664d02a2570473bbc9a4b5d" kindref="member">rx_buf_size</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="148"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="149"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="150"><highlight class="normal"></highlight></codeline>
+<codeline lineno="151"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>memcpy(link-&gt;<ref refid="structSYN__LINTP__Link_1a7d61d3345218076369d2a552f46e88df" kindref="member">rx_buf</ref>,<sp/>&amp;frame[2],<sp/>sf_len);</highlight></codeline>
+<codeline lineno="152"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>link-&gt;<ref refid="structSYN__LINTP__Link_1aaa80a691271219c61097accaf78234c3" kindref="member">rx_total_len</ref><sp/>=<sp/>sf_len;</highlight></codeline>
+<codeline lineno="153"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>link-&gt;<ref refid="structSYN__LINTP__Link_1aa3ceee1ffce7c9dece9c18d88c98d789" kindref="member">rx_offset</ref><sp/>=<sp/>sf_len;</highlight></codeline>
+<codeline lineno="154"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>link-&gt;<ref refid="structSYN__LINTP__Link_1a85ba74ef5a5c58b1ada6009321acaf33" kindref="member">rx_nad</ref><sp/>=<sp/>frame_nad;</highlight></codeline>
+<codeline lineno="155"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>link-&gt;<ref refid="structSYN__LINTP__Link_1a1cafaff95aaf5edd820b5bc776932d21" kindref="member">rx_completed</ref><sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="156"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>link-&gt;<ref refid="structSYN__LINTP__Link_1a670c719424d4171960d8cb2e21eb0782" kindref="member">rx_state</ref><sp/>=<sp/>SYN_LINTP_STATE_IDLE;</highlight></codeline>
+<codeline lineno="157"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="158"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="159"><highlight class="normal"></highlight></codeline>
+<codeline lineno="160"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__lintp_8h_1a1753cf407c023953a12a30dc45d6a374" kindref="member">SYN_LINTP_PCI_FF</ref>:<sp/>{<sp/></highlight><highlight class="comment">/*<sp/>First<sp/>Frame<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="161"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>ff_len<sp/>=<sp/>(size_t)(((frame[1]<sp/>&amp;<sp/>0x0F)<sp/>&lt;&lt;<sp/>8)<sp/>|<sp/>frame[2]);</highlight></codeline>
+<codeline lineno="162"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(ff_len<sp/>&lt;=<sp/>6<sp/>||<sp/>link-&gt;rx_buf<sp/>==<sp/>NULL<sp/>||<sp/>ff_len<sp/>&gt;<sp/>link-&gt;<ref refid="structSYN__LINTP__Link_1a1a53e33a9664d02a2570473bbc9a4b5d" kindref="member">rx_buf_size</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="163"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>link-&gt;<ref refid="structSYN__LINTP__Link_1a670c719424d4171960d8cb2e21eb0782" kindref="member">rx_state</ref><sp/>=<sp/>SYN_LINTP_STATE_IDLE;</highlight></codeline>
+<codeline lineno="164"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="165"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="166"><highlight class="normal"></highlight></codeline>
+<codeline lineno="167"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>memcpy(link-&gt;<ref refid="structSYN__LINTP__Link_1a7d61d3345218076369d2a552f46e88df" kindref="member">rx_buf</ref>,<sp/>&amp;frame[3],<sp/>5);</highlight></codeline>
+<codeline lineno="168"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>link-&gt;<ref refid="structSYN__LINTP__Link_1aaa80a691271219c61097accaf78234c3" kindref="member">rx_total_len</ref><sp/>=<sp/>ff_len;</highlight></codeline>
+<codeline lineno="169"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>link-&gt;<ref refid="structSYN__LINTP__Link_1aa3ceee1ffce7c9dece9c18d88c98d789" kindref="member">rx_offset</ref><sp/>=<sp/>5;</highlight></codeline>
+<codeline lineno="170"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>link-&gt;<ref refid="structSYN__LINTP__Link_1a13daa6284460abdab3c60485d89bfe8a" kindref="member">rx_sn</ref><sp/>=<sp/>1;</highlight></codeline>
+<codeline lineno="171"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>link-&gt;<ref refid="structSYN__LINTP__Link_1a85ba74ef5a5c58b1ada6009321acaf33" kindref="member">rx_nad</ref><sp/>=<sp/>frame_nad;</highlight></codeline>
+<codeline lineno="172"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>link-&gt;<ref refid="structSYN__LINTP__Link_1a1cafaff95aaf5edd820b5bc776932d21" kindref="member">rx_completed</ref><sp/>=<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="173"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>link-&gt;<ref refid="structSYN__LINTP__Link_1acce76c4376deb6aa8782c9b1fadab444" kindref="member">rx_timer_ms</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="174"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>link-&gt;<ref refid="structSYN__LINTP__Link_1a670c719424d4171960d8cb2e21eb0782" kindref="member">rx_state</ref><sp/>=<sp/>SYN_LINTP_STATE_RECEIVING_CF;</highlight></codeline>
+<codeline lineno="175"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="176"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="177"><highlight class="normal"></highlight></codeline>
+<codeline lineno="178"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__lintp_8h_1a2173c232ac0b3d0936a05d364828f3b5" kindref="member">SYN_LINTP_PCI_CF</ref>:<sp/>{<sp/></highlight><highlight class="comment">/*<sp/>Consecutive<sp/>Frame<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="179"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(link-&gt;<ref refid="structSYN__LINTP__Link_1a670c719424d4171960d8cb2e21eb0782" kindref="member">rx_state</ref><sp/>!=<sp/>SYN_LINTP_STATE_RECEIVING_CF)<sp/>{</highlight></codeline>
+<codeline lineno="180"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="181"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="182"><highlight class="normal"></highlight></codeline>
+<codeline lineno="183"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>sn<sp/>=<sp/>frame[1]<sp/>&amp;<sp/>0x0F;</highlight></codeline>
+<codeline lineno="184"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(sn<sp/>!=<sp/>link-&gt;<ref refid="structSYN__LINTP__Link_1a13daa6284460abdab3c60485d89bfe8a" kindref="member">rx_sn</ref>)<sp/>{<sp/></highlight><highlight class="comment">/*<sp/>Sequence<sp/>Number<sp/>Mismatch<sp/>Error<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="185"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>link-&gt;<ref refid="structSYN__LINTP__Link_1a670c719424d4171960d8cb2e21eb0782" kindref="member">rx_state</ref><sp/>=<sp/>SYN_LINTP_STATE_IDLE;</highlight></codeline>
+<codeline lineno="186"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>link-&gt;<ref refid="structSYN__LINTP__Link_1aa3ceee1ffce7c9dece9c18d88c98d789" kindref="member">rx_offset</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="187"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="188"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="189"><highlight class="normal"></highlight></codeline>
+<codeline lineno="190"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>remaining<sp/>=<sp/>link-&gt;<ref refid="structSYN__LINTP__Link_1aaa80a691271219c61097accaf78234c3" kindref="member">rx_total_len</ref><sp/>-<sp/>link-&gt;<ref refid="structSYN__LINTP__Link_1aa3ceee1ffce7c9dece9c18d88c98d789" kindref="member">rx_offset</ref>;</highlight></codeline>
+<codeline lineno="191"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>copy_bytes<sp/>=<sp/>(remaining<sp/>&gt;<sp/>6)<sp/>?<sp/>6<sp/>:<sp/>remaining;</highlight></codeline>
+<codeline lineno="192"><highlight class="normal"></highlight></codeline>
+<codeline lineno="193"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>((link-&gt;<ref refid="structSYN__LINTP__Link_1aa3ceee1ffce7c9dece9c18d88c98d789" kindref="member">rx_offset</ref><sp/>+<sp/>copy_bytes)<sp/>&lt;=<sp/>link-&gt;<ref refid="structSYN__LINTP__Link_1a1a53e33a9664d02a2570473bbc9a4b5d" kindref="member">rx_buf_size</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="194"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>memcpy(&amp;link-&gt;<ref refid="structSYN__LINTP__Link_1a7d61d3345218076369d2a552f46e88df" kindref="member">rx_buf</ref>[link-&gt;<ref refid="structSYN__LINTP__Link_1aa3ceee1ffce7c9dece9c18d88c98d789" kindref="member">rx_offset</ref>],<sp/>&amp;frame[2],<sp/>copy_bytes);</highlight></codeline>
+<codeline lineno="195"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>link-&gt;<ref refid="structSYN__LINTP__Link_1aa3ceee1ffce7c9dece9c18d88c98d789" kindref="member">rx_offset</ref><sp/>+=<sp/>copy_bytes;</highlight></codeline>
+<codeline lineno="196"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="197"><highlight class="normal"></highlight></codeline>
+<codeline lineno="198"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>link-&gt;<ref refid="structSYN__LINTP__Link_1a13daa6284460abdab3c60485d89bfe8a" kindref="member">rx_sn</ref><sp/>=<sp/>(uint8_t)((link-&gt;<ref refid="structSYN__LINTP__Link_1a13daa6284460abdab3c60485d89bfe8a" kindref="member">rx_sn</ref><sp/>+<sp/>1)<sp/>&amp;<sp/>0x0F);</highlight></codeline>
+<codeline lineno="199"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>link-&gt;<ref refid="structSYN__LINTP__Link_1acce76c4376deb6aa8782c9b1fadab444" kindref="member">rx_timer_ms</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="200"><highlight class="normal"></highlight></codeline>
+<codeline lineno="201"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(link-&gt;<ref refid="structSYN__LINTP__Link_1aa3ceee1ffce7c9dece9c18d88c98d789" kindref="member">rx_offset</ref><sp/>&gt;=<sp/>link-&gt;<ref refid="structSYN__LINTP__Link_1aaa80a691271219c61097accaf78234c3" kindref="member">rx_total_len</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="202"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>link-&gt;<ref refid="structSYN__LINTP__Link_1a1cafaff95aaf5edd820b5bc776932d21" kindref="member">rx_completed</ref><sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="203"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>link-&gt;<ref refid="structSYN__LINTP__Link_1a670c719424d4171960d8cb2e21eb0782" kindref="member">rx_state</ref><sp/>=<sp/>SYN_LINTP_STATE_IDLE;</highlight></codeline>
+<codeline lineno="204"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="205"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="206"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="207"><highlight class="normal"></highlight></codeline>
+<codeline lineno="208"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">default</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="209"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="210"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="211"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="212"><highlight class="normal"></highlight></codeline>
+<codeline lineno="213"><highlight class="normal">ssize_t<sp/><ref refid="syn__lintp_8c_1a416d5a2ba7fa807dfd6584f56cec0610" kindref="member">syn_lintp_receive</ref>(<ref refid="structSYN__LINTP__Link" kindref="compound">SYN_LINTP_Link</ref><sp/>*link,<sp/>uint8_t<sp/>*out_buf,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>max_len)</highlight></codeline>
+<codeline lineno="214"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="215"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(link<sp/>==<sp/>NULL<sp/>||<sp/>out_buf<sp/>==<sp/>NULL<sp/>||<sp/>max_len<sp/>==<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="216"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="217"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="218"><highlight class="normal"></highlight></codeline>
+<codeline lineno="219"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!link-&gt;<ref refid="structSYN__LINTP__Link_1a1cafaff95aaf5edd820b5bc776932d21" kindref="member">rx_completed</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="220"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0;</highlight></codeline>
+<codeline lineno="221"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="222"><highlight class="normal"></highlight></codeline>
+<codeline lineno="223"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>copy_len<sp/>=<sp/>(link-&gt;<ref refid="structSYN__LINTP__Link_1aaa80a691271219c61097accaf78234c3" kindref="member">rx_total_len</ref><sp/>&lt;<sp/>max_len)<sp/>?<sp/>link-&gt;<ref refid="structSYN__LINTP__Link_1aaa80a691271219c61097accaf78234c3" kindref="member">rx_total_len</ref><sp/>:<sp/>max_len;</highlight></codeline>
+<codeline lineno="224"><highlight class="normal"><sp/><sp/><sp/><sp/>memcpy(out_buf,<sp/>link-&gt;<ref refid="structSYN__LINTP__Link_1a7d61d3345218076369d2a552f46e88df" kindref="member">rx_buf</ref>,<sp/>copy_len);</highlight></codeline>
+<codeline lineno="225"><highlight class="normal"></highlight></codeline>
+<codeline lineno="226"><highlight class="normal"><sp/><sp/><sp/><sp/>link-&gt;<ref refid="structSYN__LINTP__Link_1a1cafaff95aaf5edd820b5bc776932d21" kindref="member">rx_completed</ref><sp/>=<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="227"><highlight class="normal"><sp/><sp/><sp/><sp/>link-&gt;<ref refid="structSYN__LINTP__Link_1aa3ceee1ffce7c9dece9c18d88c98d789" kindref="member">rx_offset</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="228"><highlight class="normal"><sp/><sp/><sp/><sp/>link-&gt;<ref refid="structSYN__LINTP__Link_1aaa80a691271219c61097accaf78234c3" kindref="member">rx_total_len</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="229"><highlight class="normal"></highlight></codeline>
+<codeline lineno="230"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(ssize_t)copy_len;</highlight></codeline>
+<codeline lineno="231"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="232"><highlight class="normal"></highlight></codeline>
+<codeline lineno="233"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__lintp_8c_1a2bd5ee07515f7e4c0e819438dfad7fa2" kindref="member">syn_lintp_step</ref>(<ref refid="structSYN__LINTP__Link" kindref="compound">SYN_LINTP_Link</ref><sp/>*link,<sp/>uint32_t<sp/>dt_ms)</highlight></codeline>
+<codeline lineno="234"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="235"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(link<sp/>==<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="236"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="237"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="238"><highlight class="normal"></highlight></codeline>
+<codeline lineno="239"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>RX<sp/>Inter-frame<sp/>timeout<sp/>(N_Cr)<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="240"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(link-&gt;<ref refid="structSYN__LINTP__Link_1a670c719424d4171960d8cb2e21eb0782" kindref="member">rx_state</ref><sp/>==<sp/>SYN_LINTP_STATE_RECEIVING_CF)<sp/>{</highlight></codeline>
+<codeline lineno="241"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>link-&gt;<ref refid="structSYN__LINTP__Link_1acce76c4376deb6aa8782c9b1fadab444" kindref="member">rx_timer_ms</ref><sp/>+=<sp/>dt_ms;</highlight></codeline>
+<codeline lineno="242"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(link-&gt;<ref refid="structSYN__LINTP__Link_1acce76c4376deb6aa8782c9b1fadab444" kindref="member">rx_timer_ms</ref><sp/>&gt;=<sp/>link-&gt;<ref refid="structSYN__LINTP__Link_1a5c109581e1c2ff5c9ab32201673bad25" kindref="member">timer_n_cr_ms</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="243"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>link-&gt;<ref refid="structSYN__LINTP__Link_1a670c719424d4171960d8cb2e21eb0782" kindref="member">rx_state</ref><sp/>=<sp/>SYN_LINTP_STATE_IDLE;</highlight></codeline>
+<codeline lineno="244"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>link-&gt;<ref refid="structSYN__LINTP__Link_1aa3ceee1ffce7c9dece9c18d88c98d789" kindref="member">rx_offset</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="245"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>link-&gt;<ref refid="structSYN__LINTP__Link_1a1cafaff95aaf5edd820b5bc776932d21" kindref="member">rx_completed</ref><sp/>=<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="246"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="247"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="248"><highlight class="normal"></highlight></codeline>
+<codeline lineno="249"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>TX<sp/>Confirmation<sp/>timeout<sp/>(N_As)<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="250"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(link-&gt;<ref refid="structSYN__LINTP__Link_1ab260fd72f90595d7c7d9d8aa64ae7bc7" kindref="member">tx_state</ref><sp/>!=<sp/>SYN_LINTP_STATE_IDLE<sp/>||<sp/>link-&gt;<ref refid="structSYN__LINTP__Link_1ae15f517a7ff65c474f809fe48af3fe6a" kindref="member">tx_frame_pending</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="251"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>link-&gt;<ref refid="structSYN__LINTP__Link_1aa8b6b7cd149fb9608911c1136f187f37" kindref="member">tx_timer_ms</ref><sp/>+=<sp/>dt_ms;</highlight></codeline>
+<codeline lineno="252"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(link-&gt;<ref refid="structSYN__LINTP__Link_1aa8b6b7cd149fb9608911c1136f187f37" kindref="member">tx_timer_ms</ref><sp/>&gt;=<sp/>link-&gt;<ref refid="structSYN__LINTP__Link_1a2f97fc250284f52bb079a52a15423acb" kindref="member">timer_n_as_ms</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="253"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>link-&gt;<ref refid="structSYN__LINTP__Link_1ab260fd72f90595d7c7d9d8aa64ae7bc7" kindref="member">tx_state</ref><sp/>=<sp/>SYN_LINTP_STATE_IDLE;</highlight></codeline>
+<codeline lineno="254"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>link-&gt;<ref refid="structSYN__LINTP__Link_1ae15f517a7ff65c474f809fe48af3fe6a" kindref="member">tx_frame_pending</ref><sp/>=<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="255"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>link-&gt;<ref refid="structSYN__LINTP__Link_1adaef6074b000548a959ce074d90f696a" kindref="member">tx_offset</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="256"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="257"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="258"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="259"><highlight class="normal"></highlight></codeline>
+<codeline lineno="260"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__lintp_8c_1afc427a87540fb0b77262772ef909f540" kindref="member">syn_lintp_is_tx_idle</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__LINTP__Link" kindref="compound">SYN_LINTP_Link</ref><sp/>*link)</highlight></codeline>
+<codeline lineno="261"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="262"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(link<sp/>==<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="263"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="264"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="265"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(link-&gt;<ref refid="structSYN__LINTP__Link_1ab260fd72f90595d7c7d9d8aa64ae7bc7" kindref="member">tx_state</ref><sp/>==<sp/>SYN_LINTP_STATE_IDLE<sp/>&amp;&amp;<sp/>!link-&gt;<ref refid="structSYN__LINTP__Link_1ae15f517a7ff65c474f809fe48af3fe6a" kindref="member">tx_frame_pending</ref>);</highlight></codeline>
+<codeline lineno="266"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="267"><highlight class="normal"></highlight></codeline>
+<codeline lineno="268"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_USE_LINTP<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/proto/syn_lintp.c"/>
+  </compounddef>
+</doxygen>

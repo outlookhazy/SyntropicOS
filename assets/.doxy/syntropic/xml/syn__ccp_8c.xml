@@ -1,0 +1,694 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__ccp_8c" kind="file" language="C++">
+    <compoundname>syn_ccp.c</compoundname>
+    <includes refid="syn__ccp_8h" local="yes">syn_ccp.h</includes>
+    <includes refid="syn__assert_8h" local="yes">../util/syn_assert.h</includes>
+    <includes refid="syn__pack_8h" local="yes">../util/syn_pack.h</includes>
+    <includes local="no">string.h</includes>
+    <incdepgraph>
+      <node id="7">
+        <label>../common/syn_compiler.h</label>
+        <link refid="syn__compiler_8h"/>
+      </node>
+      <node id="1">
+        <label>src/syntropic/proto/syn_ccp.c</label>
+        <link refid="syn__ccp_8c"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>syn_ccp.h</label>
+        <link refid="syn__ccp_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>../util/syn_assert.h</label>
+        <link refid="syn__assert_8h"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>../util/syn_pack.h</label>
+        <link refid="syn__pack_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>stdbool.h</label>
+      </node>
+      <node id="4">
+        <label>stddef.h</label>
+      </node>
+      <node id="5">
+        <label>stdint.h</label>
+      </node>
+      <node id="9">
+        <label>string.h</label>
+      </node>
+    </incdepgraph>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__ccp_8c_1aa85849c4da6518dc0aa105720d702085" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_ccp_init</definition>
+        <argsstring>(SYN_CCP_Slave *slave, uint16_t station_addr)</argsstring>
+        <name>syn_ccp_init</name>
+        <param>
+          <type><ref refid="structSYN__CCP__Slave" kindref="compound">SYN_CCP_Slave</ref> *</type>
+          <declname>slave</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>station_addr</declname>
+        </param>
+        <briefdescription>
+<para>Initialize CCP slave instance. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>slave</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to CCP slave handle. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>station_addr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>16-bit CCP station address. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_ccp.c" line="13" column="6" bodyfile="src/syntropic/proto/syn_ccp.c" bodystart="13" bodyend="21"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__ccp_8c_1afa9c06511013fa7e098374081e95a86f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_ccp_set_mta</definition>
+        <argsstring>(SYN_CCP_Slave *slave, uint8_t mta_num, uint8_t ext, uintptr_t addr)</argsstring>
+        <name>syn_ccp_set_mta</name>
+        <param>
+          <type><ref refid="structSYN__CCP__Slave" kindref="compound">SYN_CCP_Slave</ref> *</type>
+          <declname>slave</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>mta_num</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>ext</declname>
+        </param>
+        <param>
+          <type>uintptr_t</type>
+          <declname>addr</declname>
+        </param>
+        <briefdescription>
+<para>Set Memory Transfer Address (MTA0 or MTA1). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>slave</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to CCP slave handle. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>mta_num</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>0 for MTA0, 1 for MTA1. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>ext</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Address extension. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>addr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Target memory address. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_ccp.c" line="23" column="6" bodyfile="src/syntropic/proto/syn_ccp.c" bodystart="23" bodyend="35"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__ccp_8c_1a4e5ee60549c7211efa7467c60e8b56b7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_ccp_process_cro</definition>
+        <argsstring>(SYN_CCP_Slave *slave, const uint8_t cro[8], uint8_t dto_out[8])</argsstring>
+        <name>syn_ccp_process_cro</name>
+        <param>
+          <type><ref refid="structSYN__CCP__Slave" kindref="compound">SYN_CCP_Slave</ref> *</type>
+          <declname>slave</declname>
+        </param>
+        <param>
+          <type>const uint8_t</type>
+          <declname>cro</declname>
+          <array>[8]</array>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>dto_out</declname>
+          <array>[8]</array>
+        </param>
+        <briefdescription>
+<para>Process incoming Command Receive Object (CRO) frame. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>slave</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to CCP slave handle. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>cro</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>8-byte CRO input CAN payload. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dto_out</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>8-byte buffer to receive Command Return Message (DTO/CRM). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>True if DTO response frame is ready to transmit. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_ccp.c" line="37" column="6" bodyfile="src/syntropic/proto/syn_ccp.c" bodystart="37" bodyend="320"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__ccp_8c_1afe3a4139f0f436d450863494b6fdbd23" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_ccp_service_daq</definition>
+        <argsstring>(SYN_CCP_Slave *slave, uint8_t event_channel, uint8_t dto_out[8], uint8_t *list_idx, uint8_t *odt_idx)</argsstring>
+        <name>syn_ccp_service_daq</name>
+        <param>
+          <type><ref refid="structSYN__CCP__Slave" kindref="compound">SYN_CCP_Slave</ref> *</type>
+          <declname>slave</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>event_channel</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>dto_out</declname>
+          <array>[8]</array>
+        </param>
+        <param>
+          <type>uint8_t *</type>
+          <declname>list_idx</declname>
+        </param>
+        <param>
+          <type>uint8_t *</type>
+          <declname>odt_idx</declname>
+        </param>
+        <briefdescription>
+<para>Service periodic DAQ sampling tick. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>slave</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to CCP slave handle. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>event_channel</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Trigger event channel index. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dto_out</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output buffer for DAQ DTO packet. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>list_idx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output index of transmitting DAQ list. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>odt_idx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output index of transmitting ODT. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>True if a DAQ packet is ready to send. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_ccp.c" line="322" column="6" bodyfile="src/syntropic/proto/syn_ccp.c" bodystart="322" bodyend="383"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>ASAM CAN Calibration Protocol v2.1 (CCP) Slave Implementation. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__ccp_8h" kindref="compound">syn_ccp.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../util/syn_assert.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../util/syn_pack.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;string.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__ccp_8c_1aa85849c4da6518dc0aa105720d702085" kindref="member">syn_ccp_init</ref>(<ref refid="structSYN__CCP__Slave" kindref="compound">SYN_CCP_Slave</ref><sp/>*slave,<sp/>uint16_t<sp/>station_addr)</highlight></codeline>
+<codeline lineno="14"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="15"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(slave<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"><sp/><sp/><sp/><sp/>memset(slave,<sp/>0,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(*slave));</highlight></codeline>
+<codeline lineno="18"><highlight class="normal"><sp/><sp/><sp/><sp/>slave-&gt;<ref refid="structSYN__CCP__Slave_1a0e41c0f8615c2882a064425e5f333b0d" kindref="member">station_addr</ref><sp/>=<sp/>station_addr;</highlight></codeline>
+<codeline lineno="19"><highlight class="normal"><sp/><sp/><sp/><sp/>slave-&gt;<ref refid="structSYN__CCP__Slave_1a613873ef16f7d04c198f69b56f787544" kindref="member">connected</ref><sp/>=<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="20"><highlight class="normal"><sp/><sp/><sp/><sp/>slave-&gt;<ref refid="structSYN__CCP__Slave_1a64d7eceadf518bd573687cca6227a2da" kindref="member">unlocked_resources</ref><sp/>=<sp/><ref refid="syn__ccp_8h_1ab0664cd8db098ab01814e45ff1915b96" kindref="member">SYN_CCP_RESOURCE_CAL</ref><sp/>|<sp/><ref refid="syn__ccp_8h_1a02a170cf24f15e4537187e16e2562302" kindref="member">SYN_CCP_RESOURCE_DAQ</ref><sp/>|<sp/><ref refid="syn__ccp_8h_1a161ff0c2f39be305dab2fd1fc0987217" kindref="member">SYN_CCP_RESOURCE_PGM</ref>;</highlight></codeline>
+<codeline lineno="21"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__ccp_8c_1afa9c06511013fa7e098374081e95a86f" kindref="member">syn_ccp_set_mta</ref>(<ref refid="structSYN__CCP__Slave" kindref="compound">SYN_CCP_Slave</ref><sp/>*slave,<sp/>uint8_t<sp/>mta_num,<sp/>uint8_t<sp/>ext,<sp/>uintptr_t<sp/>addr)</highlight></codeline>
+<codeline lineno="24"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="25"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(slave<sp/>==<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="26"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="27"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="28"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(mta_num<sp/>==<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="29"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>slave-&gt;<ref refid="structSYN__CCP__Slave_1a6755ce17d470132713b89aa2f86f4245" kindref="member">mta0_ext</ref><sp/>=<sp/>ext;</highlight></codeline>
+<codeline lineno="30"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>slave-&gt;<ref refid="structSYN__CCP__Slave_1a6e44e294af63439892e0da69d9704a25" kindref="member">mta0_addr</ref><sp/>=<sp/>addr;</highlight></codeline>
+<codeline lineno="31"><highlight class="normal"><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(mta_num<sp/>==<sp/>1)<sp/>{</highlight></codeline>
+<codeline lineno="32"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>slave-&gt;<ref refid="structSYN__CCP__Slave_1ab5fbb4bb3cfcad2fd3201f65bd2a82fb" kindref="member">mta1_ext</ref><sp/>=<sp/>ext;</highlight></codeline>
+<codeline lineno="33"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>slave-&gt;<ref refid="structSYN__CCP__Slave_1a3ec56ea6b254b782de5723a40546e688" kindref="member">mta1_addr</ref><sp/>=<sp/>addr;</highlight></codeline>
+<codeline lineno="34"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="35"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__ccp_8c_1a4e5ee60549c7211efa7467c60e8b56b7" kindref="member">syn_ccp_process_cro</ref>(<ref refid="structSYN__CCP__Slave" kindref="compound">SYN_CCP_Slave</ref><sp/>*slave,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>cro[8],<sp/>uint8_t<sp/>dto_out[8])</highlight></codeline>
+<codeline lineno="38"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(slave<sp/>==<sp/>NULL<sp/>||<sp/>cro<sp/>==<sp/>NULL<sp/>||<sp/>dto_out<sp/>==<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight></codeline>
+<codeline lineno="43"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>cmd<sp/>=<sp/>cro[0];</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>ctr<sp/>=<sp/>cro[1];</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Prepare<sp/>base<sp/>CRM<sp/>payload<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/><sp/><sp/>memset(dto_out,<sp/>0,<sp/>8);</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/><sp/><sp/>dto_out[0]<sp/>=<sp/><ref refid="syn__ccp_8h_1a8f4e9b7f89486051ba8a7f367890c900" kindref="member">SYN_CCP_PID_CRM</ref>;</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/><sp/><sp/>dto_out[1]<sp/>=<sp/><ref refid="syn__ccp_8h_1af8049792386ff41a6702bb6b1628ca79" kindref="member">SYN_CCP_ERR_SUCCESS</ref>;</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/><sp/><sp/>dto_out[2]<sp/>=<sp/>ctr;</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"></highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Handle<sp/>CONNECT<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(cmd<sp/>==<sp/><ref refid="syn__ccp_8h_1a5693919a53f8d2836423c4a71c4b6dd0" kindref="member">SYN_CCP_CMD_CONNECT</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint16_t<sp/>target_addr<sp/>=<sp/><ref refid="syn__pack_8h_1aec801a90c27fcfae9e98a45d8b76fae5" kindref="member">syn_peek_u16_le</ref>(cro,<sp/>2);</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(target_addr<sp/>==<sp/>slave-&gt;<ref refid="structSYN__CCP__Slave_1a0e41c0f8615c2882a064425e5f333b0d" kindref="member">station_addr</ref><sp/>||<sp/>target_addr<sp/>==<sp/>0x0000U)<sp/>{</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>slave-&gt;<ref refid="structSYN__CCP__Slave_1a613873ef16f7d04c198f69b56f787544" kindref="member">connected</ref><sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>dto_out[1]<sp/>=<sp/><ref refid="syn__ccp_8h_1af8049792386ff41a6702bb6b1628ca79" kindref="member">SYN_CCP_ERR_SUCCESS</ref>;</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Station<sp/>address<sp/>mismatch<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="60"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"></highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>All<sp/>commands<sp/>after<sp/>CONNECT<sp/>require<sp/>connected<sp/>status<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!slave-&gt;<ref refid="structSYN__CCP__Slave_1a613873ef16f7d04c198f69b56f787544" kindref="member">connected</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>dto_out[1]<sp/>=<sp/><ref refid="syn__ccp_8h_1aa6d507f8f45e2716bdfa7075f88b1076" kindref="member">SYN_CCP_ERR_NOT_CONNECTED</ref>;</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"></highlight></codeline>
+<codeline lineno="71"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">switch</highlight><highlight class="normal"><sp/>(cmd)<sp/>{</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__ccp_8h_1a0e8b67f493c954d5faeb0756edf58697" kindref="member">SYN_CCP_CMD_DISCONNECT</ref>:<sp/>{</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>mode<sp/>=<sp/>cro[2];</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint16_t<sp/>target_addr<sp/>=<sp/><ref refid="syn__pack_8h_1aec801a90c27fcfae9e98a45d8b76fae5" kindref="member">syn_peek_u16_le</ref>(cro,<sp/>3);</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(target_addr<sp/>==<sp/>slave-&gt;<ref refid="structSYN__CCP__Slave_1a0e41c0f8615c2882a064425e5f333b0d" kindref="member">station_addr</ref><sp/>||<sp/>target_addr<sp/>==<sp/>0x0000U)<sp/>{</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(mode<sp/>==<sp/>0x00U<sp/>||<sp/>mode<sp/>==<sp/>0x01U)<sp/>{</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>slave-&gt;<ref refid="structSYN__CCP__Slave_1a613873ef16f7d04c198f69b56f787544" kindref="member">connected</ref><sp/>=<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>dto_out[1]<sp/>=<sp/><ref refid="syn__ccp_8h_1af8049792386ff41a6702bb6b1628ca79" kindref="member">SYN_CCP_ERR_SUCCESS</ref>;</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"></highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__ccp_8h_1a26bb3643db49028156489b40e646a322" kindref="member">SYN_CCP_CMD_GET_CCP_VERSION</ref>:<sp/>{</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>dto_out[3]<sp/>=<sp/>0x02U;<sp/></highlight><highlight class="comment">/*<sp/>Main<sp/>version<sp/>2<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>dto_out[4]<sp/>=<sp/>0x01U;<sp/></highlight><highlight class="comment">/*<sp/>Release<sp/>version<sp/>1<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"></highlight></codeline>
+<codeline lineno="90"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__ccp_8h_1a3d01ff46395f3cfc902c9e811aea8ad5" kindref="member">SYN_CCP_CMD_EXCHANGE_ID</ref>:<sp/>{</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>dto_out[3]<sp/>=<sp/>0x08U;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Slave<sp/>device<sp/>ID<sp/>length<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>dto_out[4]<sp/>=<sp/>0x00U;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>DataType<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>dto_out[5]<sp/>=<sp/>slave-&gt;<ref refid="structSYN__CCP__Slave_1a64d7eceadf518bd573687cca6227a2da" kindref="member">unlocked_resources</ref>;<sp/></highlight><highlight class="comment">/*<sp/>Resource<sp/>availability<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>dto_out[6]<sp/>=<sp/>slave-&gt;<ref refid="structSYN__CCP__Slave_1a64d7eceadf518bd573687cca6227a2da" kindref="member">unlocked_resources</ref>;<sp/></highlight><highlight class="comment">/*<sp/>Protection<sp/>status<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"></highlight></codeline>
+<codeline lineno="98"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__ccp_8h_1ad6ff4c941410e45f67298babccb05f52" kindref="member">SYN_CCP_CMD_GET_SEED</ref>:<sp/>{</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>req_resource<sp/>=<sp/>cro[2];</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>is_unlocked<sp/>=<sp/>(slave-&gt;<ref refid="structSYN__CCP__Slave_1a64d7eceadf518bd573687cca6227a2da" kindref="member">unlocked_resources</ref><sp/>&amp;<sp/>req_resource)<sp/>!=<sp/>0U;</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>dto_out[3]<sp/>=<sp/>is_unlocked<sp/>?<sp/>0x00U<sp/>:<sp/>0x01U;<sp/></highlight><highlight class="comment">/*<sp/>0:<sp/>Unlocked,<sp/>1:<sp/>Seed<sp/>needed<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>seed<sp/>=<sp/>0U;</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(slave-&gt;<ref refid="structSYN__CCP__Slave_1a7b40f5eea28036edfcf40d1ecb38a5bc" kindref="member">seed_cb</ref><sp/>!=<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>seed<sp/>=<sp/>slave-&gt;<ref refid="structSYN__CCP__Slave_1a7b40f5eea28036edfcf40d1ecb38a5bc" kindref="member">seed_cb</ref>(req_resource,<sp/>slave-&gt;<ref refid="structSYN__CCP__Slave_1a30c136bf5c0a824ccc0d24e0f026a2a5" kindref="member">seed_ctx</ref>);</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>seed<sp/>=<sp/>0x5A5A5A5AU;</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__pack_8h_1a36f45f656f6864d24fd8763fbd2dbbdd" kindref="member">syn_poke_u32_le</ref>(seed,<sp/>dto_out,<sp/>4);</highlight></codeline>
+<codeline lineno="109"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="110"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"></highlight></codeline>
+<codeline lineno="112"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__ccp_8h_1a0021a7e538629b06660c11622e364a6d" kindref="member">SYN_CCP_CMD_UNLOCK</ref>:<sp/>{</highlight></codeline>
+<codeline lineno="113"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>resource<sp/>=<sp/>cro[2];</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>key<sp/>=<sp/><ref refid="syn__pack_8h_1ae3e5dda2e3ffb06c57cbcb328f0d31f0" kindref="member">syn_peek_u32_le</ref>(cro,<sp/>4);</highlight></codeline>
+<codeline lineno="115"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>valid<sp/>=<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="116"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(slave-&gt;<ref refid="structSYN__CCP__Slave_1a83f2b3631fa41ec607f738ef45cb5e3d" kindref="member">unlock_cb</ref><sp/>!=<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="117"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>valid<sp/>=<sp/>slave-&gt;<ref refid="structSYN__CCP__Slave_1a83f2b3631fa41ec607f738ef45cb5e3d" kindref="member">unlock_cb</ref>(resource,<sp/>key,<sp/>slave-&gt;<ref refid="structSYN__CCP__Slave_1a8213f9a3327e10c499a7ba617001e5eb" kindref="member">unlock_ctx</ref>);</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>valid<sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="120"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="121"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(valid)<sp/>{</highlight></codeline>
+<codeline lineno="122"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>slave-&gt;<ref refid="structSYN__CCP__Slave_1a64d7eceadf518bd573687cca6227a2da" kindref="member">unlocked_resources</ref><sp/>|=<sp/>resource;</highlight></codeline>
+<codeline lineno="123"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="124"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>dto_out[1]<sp/>=<sp/><ref refid="syn__ccp_8h_1ac84f1b805ab5e4e9930fe01b0c6fdffe" kindref="member">SYN_CCP_ERR_ACCESS_DENIED</ref>;</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="126"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>dto_out[3]<sp/>=<sp/>slave-&gt;<ref refid="structSYN__CCP__Slave_1a64d7eceadf518bd573687cca6227a2da" kindref="member">unlocked_resources</ref>;</highlight></codeline>
+<codeline lineno="127"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="128"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="129"><highlight class="normal"></highlight></codeline>
+<codeline lineno="130"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__ccp_8h_1afe87601fcf25e15dfe59f08ea72137f7" kindref="member">SYN_CCP_CMD_SET_MTA</ref>:<sp/>{</highlight></codeline>
+<codeline lineno="131"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>mta_num<sp/>=<sp/>cro[2];</highlight></codeline>
+<codeline lineno="132"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>ext<sp/>=<sp/>cro[3];</highlight></codeline>
+<codeline lineno="133"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>addr<sp/>=<sp/><ref refid="syn__pack_8h_1ae3e5dda2e3ffb06c57cbcb328f0d31f0" kindref="member">syn_peek_u32_le</ref>(cro,<sp/>4);</highlight></codeline>
+<codeline lineno="134"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(addr<sp/>!=<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="135"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__ccp_8c_1afa9c06511013fa7e098374081e95a86f" kindref="member">syn_ccp_set_mta</ref>(slave,<sp/>mta_num,<sp/>ext,<sp/>(uintptr_t)addr);</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(mta_num<sp/>==<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="137"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>slave-&gt;<ref refid="structSYN__CCP__Slave_1a6755ce17d470132713b89aa2f86f4245" kindref="member">mta0_ext</ref><sp/>=<sp/>ext;</highlight></codeline>
+<codeline lineno="138"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="139"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>slave-&gt;<ref refid="structSYN__CCP__Slave_1ab5fbb4bb3cfcad2fd3201f65bd2a82fb" kindref="member">mta1_ext</ref><sp/>=<sp/>ext;</highlight></codeline>
+<codeline lineno="140"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="141"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="142"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="143"><highlight class="normal"></highlight></codeline>
+<codeline lineno="144"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__ccp_8h_1a5b15e9d21a099aba2b54d6671ab127b8" kindref="member">SYN_CCP_CMD_DNLOAD</ref>:<sp/>{</highlight></codeline>
+<codeline lineno="145"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>size<sp/>=<sp/>cro[2];</highlight></codeline>
+<codeline lineno="146"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(size<sp/>&gt;<sp/>5)<sp/>{</highlight></codeline>
+<codeline lineno="147"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>dto_out[1]<sp/>=<sp/><ref refid="syn__ccp_8h_1a11be44ac2e84aa9b62eaf594eb496b7f" kindref="member">SYN_CCP_ERR_PARAM_OUT_OF_RANGE</ref>;</highlight></codeline>
+<codeline lineno="148"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="149"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="150"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(slave-&gt;<ref refid="structSYN__CCP__Slave_1a6e44e294af63439892e0da69d9704a25" kindref="member">mta0_addr</ref><sp/>!=<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="151"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>*ptr<sp/>=<sp/>(uint8_t<sp/>*)(uintptr_t)slave-&gt;<ref refid="structSYN__CCP__Slave_1a6e44e294af63439892e0da69d9704a25" kindref="member">mta0_addr</ref>;</highlight></codeline>
+<codeline lineno="152"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>memcpy(ptr,<sp/>&amp;cro[3],<sp/>size);</highlight></codeline>
+<codeline lineno="153"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>slave-&gt;<ref refid="structSYN__CCP__Slave_1a6e44e294af63439892e0da69d9704a25" kindref="member">mta0_addr</ref><sp/>+=<sp/>size;</highlight></codeline>
+<codeline lineno="154"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="155"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>dto_out[3]<sp/>=<sp/>slave-&gt;<ref refid="structSYN__CCP__Slave_1a6755ce17d470132713b89aa2f86f4245" kindref="member">mta0_ext</ref>;</highlight></codeline>
+<codeline lineno="156"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__pack_8h_1a36f45f656f6864d24fd8763fbd2dbbdd" kindref="member">syn_poke_u32_le</ref>((uint32_t)slave-&gt;<ref refid="structSYN__CCP__Slave_1a6e44e294af63439892e0da69d9704a25" kindref="member">mta0_addr</ref>,<sp/>dto_out,<sp/>4);</highlight></codeline>
+<codeline lineno="157"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="158"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="159"><highlight class="normal"></highlight></codeline>
+<codeline lineno="160"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__ccp_8h_1a73608093183526854aecce0dc6999717" kindref="member">SYN_CCP_CMD_DNLOAD_6</ref>:<sp/>{</highlight></codeline>
+<codeline lineno="161"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(slave-&gt;<ref refid="structSYN__CCP__Slave_1a6e44e294af63439892e0da69d9704a25" kindref="member">mta0_addr</ref><sp/>!=<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="162"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>*ptr<sp/>=<sp/>(uint8_t<sp/>*)(uintptr_t)slave-&gt;<ref refid="structSYN__CCP__Slave_1a6e44e294af63439892e0da69d9704a25" kindref="member">mta0_addr</ref>;</highlight></codeline>
+<codeline lineno="163"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>memcpy(ptr,<sp/>&amp;cro[2],<sp/>6);</highlight></codeline>
+<codeline lineno="164"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>slave-&gt;<ref refid="structSYN__CCP__Slave_1a6e44e294af63439892e0da69d9704a25" kindref="member">mta0_addr</ref><sp/>+=<sp/>6;</highlight></codeline>
+<codeline lineno="165"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="166"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>dto_out[3]<sp/>=<sp/>slave-&gt;<ref refid="structSYN__CCP__Slave_1a6755ce17d470132713b89aa2f86f4245" kindref="member">mta0_ext</ref>;</highlight></codeline>
+<codeline lineno="167"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__pack_8h_1a36f45f656f6864d24fd8763fbd2dbbdd" kindref="member">syn_poke_u32_le</ref>((uint32_t)slave-&gt;<ref refid="structSYN__CCP__Slave_1a6e44e294af63439892e0da69d9704a25" kindref="member">mta0_addr</ref>,<sp/>dto_out,<sp/>4);</highlight></codeline>
+<codeline lineno="168"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="169"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="170"><highlight class="normal"></highlight></codeline>
+<codeline lineno="171"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__ccp_8h_1a84a38d26d222da363b56971281ca2299" kindref="member">SYN_CCP_CMD_UPLOAD</ref>:<sp/>{</highlight></codeline>
+<codeline lineno="172"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>size<sp/>=<sp/>cro[2];</highlight></codeline>
+<codeline lineno="173"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(size<sp/>&gt;<sp/>5)<sp/>{</highlight></codeline>
+<codeline lineno="174"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>dto_out[1]<sp/>=<sp/><ref refid="syn__ccp_8h_1a11be44ac2e84aa9b62eaf594eb496b7f" kindref="member">SYN_CCP_ERR_PARAM_OUT_OF_RANGE</ref>;</highlight></codeline>
+<codeline lineno="175"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="176"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="177"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(slave-&gt;<ref refid="structSYN__CCP__Slave_1a6e44e294af63439892e0da69d9704a25" kindref="member">mta0_addr</ref><sp/>!=<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="178"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*ptr<sp/>=<sp/>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*)(uintptr_t)slave-&gt;<ref refid="structSYN__CCP__Slave_1a6e44e294af63439892e0da69d9704a25" kindref="member">mta0_addr</ref>;</highlight></codeline>
+<codeline lineno="179"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>memcpy(&amp;dto_out[3],<sp/>ptr,<sp/>size);</highlight></codeline>
+<codeline lineno="180"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>slave-&gt;<ref refid="structSYN__CCP__Slave_1a6e44e294af63439892e0da69d9704a25" kindref="member">mta0_addr</ref><sp/>+=<sp/>size;</highlight></codeline>
+<codeline lineno="181"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="182"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="183"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="184"><highlight class="normal"></highlight></codeline>
+<codeline lineno="185"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__ccp_8h_1af72341580f0b15d2e4070fe7b7699e7f" kindref="member">SYN_CCP_CMD_SHORT_UP</ref>:<sp/>{</highlight></codeline>
+<codeline lineno="186"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>size<sp/>=<sp/>cro[2];</highlight></codeline>
+<codeline lineno="187"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>ext<sp/>=<sp/>cro[3];</highlight></codeline>
+<codeline lineno="188"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>addr<sp/>=<sp/><ref refid="syn__pack_8h_1ae3e5dda2e3ffb06c57cbcb328f0d31f0" kindref="member">syn_peek_u32_le</ref>(cro,<sp/>4);</highlight></codeline>
+<codeline lineno="189"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(size<sp/>&gt;<sp/>5)<sp/>{</highlight></codeline>
+<codeline lineno="190"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>dto_out[1]<sp/>=<sp/><ref refid="syn__ccp_8h_1a11be44ac2e84aa9b62eaf594eb496b7f" kindref="member">SYN_CCP_ERR_PARAM_OUT_OF_RANGE</ref>;</highlight></codeline>
+<codeline lineno="191"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="192"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="193"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>slave-&gt;<ref refid="structSYN__CCP__Slave_1a6755ce17d470132713b89aa2f86f4245" kindref="member">mta0_ext</ref><sp/>=<sp/>ext;</highlight></codeline>
+<codeline lineno="194"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(addr<sp/>!=<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="195"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>slave-&gt;<ref refid="structSYN__CCP__Slave_1a6e44e294af63439892e0da69d9704a25" kindref="member">mta0_addr</ref><sp/>=<sp/>(uintptr_t)addr;</highlight></codeline>
+<codeline lineno="196"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="197"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(slave-&gt;<ref refid="structSYN__CCP__Slave_1a6e44e294af63439892e0da69d9704a25" kindref="member">mta0_addr</ref><sp/>!=<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="198"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*ptr<sp/>=<sp/>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*)(uintptr_t)slave-&gt;<ref refid="structSYN__CCP__Slave_1a6e44e294af63439892e0da69d9704a25" kindref="member">mta0_addr</ref>;</highlight></codeline>
+<codeline lineno="199"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>memcpy(&amp;dto_out[3],<sp/>ptr,<sp/>size);</highlight></codeline>
+<codeline lineno="200"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>slave-&gt;<ref refid="structSYN__CCP__Slave_1a6e44e294af63439892e0da69d9704a25" kindref="member">mta0_addr</ref><sp/>+=<sp/>size;</highlight></codeline>
+<codeline lineno="201"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="202"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="203"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="204"><highlight class="normal"></highlight></codeline>
+<codeline lineno="205"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__ccp_8h_1a785ea613648342eff7b7600f24419c77" kindref="member">SYN_CCP_CMD_SET_CAL_PAGE</ref>:<sp/>{</highlight></codeline>
+<codeline lineno="206"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>page_addr<sp/>=<sp/><ref refid="syn__pack_8h_1ae3e5dda2e3ffb06c57cbcb328f0d31f0" kindref="member">syn_peek_u32_le</ref>(cro,<sp/>2);</highlight></codeline>
+<codeline lineno="207"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>slave-&gt;<ref refid="structSYN__CCP__Slave_1a2309ea1392e4bf706987e96c218beb1b" kindref="member">active_cal_page</ref><sp/>=<sp/>(uint8_t)(page_addr<sp/>&amp;<sp/>0xFFU);</highlight></codeline>
+<codeline lineno="208"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="209"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="210"><highlight class="normal"></highlight></codeline>
+<codeline lineno="211"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__ccp_8h_1a730be33582911585957dfad7b6303ed0" kindref="member">SYN_CCP_CMD_GET_ACTIVE_CAL_PAGE</ref>:<sp/>{</highlight></codeline>
+<codeline lineno="212"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>dto_out[3]<sp/>=<sp/>0x00U;</highlight></codeline>
+<codeline lineno="213"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__pack_8h_1a36f45f656f6864d24fd8763fbd2dbbdd" kindref="member">syn_poke_u32_le</ref>((uint32_t)slave-&gt;<ref refid="structSYN__CCP__Slave_1a2309ea1392e4bf706987e96c218beb1b" kindref="member">active_cal_page</ref>,<sp/>dto_out,<sp/>4);</highlight></codeline>
+<codeline lineno="214"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="215"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="216"><highlight class="normal"></highlight></codeline>
+<codeline lineno="217"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__ccp_8h_1a13aa38b023d26aeded4ebfa847ab3c4c" kindref="member">SYN_CCP_CMD_CLEAR_MEMORY</ref>:<sp/>{</highlight></codeline>
+<codeline lineno="218"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>size<sp/>=<sp/><ref refid="syn__pack_8h_1ae3e5dda2e3ffb06c57cbcb328f0d31f0" kindref="member">syn_peek_u32_le</ref>(cro,<sp/>2);</highlight></codeline>
+<codeline lineno="219"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(slave-&gt;<ref refid="structSYN__CCP__Slave_1af789cb91af2473627440905f585bb8ef" kindref="member">erase_cb</ref><sp/>!=<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="220"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!slave-&gt;<ref refid="structSYN__CCP__Slave_1af789cb91af2473627440905f585bb8ef" kindref="member">erase_cb</ref>((uint32_t)slave-&gt;<ref refid="structSYN__CCP__Slave_1a6e44e294af63439892e0da69d9704a25" kindref="member">mta0_addr</ref>,<sp/>size,<sp/>slave-&gt;<ref refid="structSYN__CCP__Slave_1a3de1f492e5729aabf8479f2cba2b8243" kindref="member">erase_ctx</ref>))<sp/>{</highlight></codeline>
+<codeline lineno="221"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>dto_out[1]<sp/>=<sp/><ref refid="syn__ccp_8h_1ac84f1b805ab5e4e9930fe01b0c6fdffe" kindref="member">SYN_CCP_ERR_ACCESS_DENIED</ref>;</highlight></codeline>
+<codeline lineno="222"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="223"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="224"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="225"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="226"><highlight class="normal"></highlight></codeline>
+<codeline lineno="227"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__ccp_8h_1a0645d9d1507a5318656e284aac1e0de6" kindref="member">SYN_CCP_CMD_PROGRAM</ref>:<sp/>{</highlight></codeline>
+<codeline lineno="228"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>size<sp/>=<sp/>cro[2];</highlight></codeline>
+<codeline lineno="229"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(size<sp/>&gt;<sp/>5)<sp/>{</highlight></codeline>
+<codeline lineno="230"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>dto_out[1]<sp/>=<sp/><ref refid="syn__ccp_8h_1a11be44ac2e84aa9b62eaf594eb496b7f" kindref="member">SYN_CCP_ERR_PARAM_OUT_OF_RANGE</ref>;</highlight></codeline>
+<codeline lineno="231"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="232"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="233"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(slave-&gt;<ref refid="structSYN__CCP__Slave_1a6e44e294af63439892e0da69d9704a25" kindref="member">mta0_addr</ref><sp/>!=<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="234"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>*ptr<sp/>=<sp/>(uint8_t<sp/>*)(uintptr_t)slave-&gt;<ref refid="structSYN__CCP__Slave_1a6e44e294af63439892e0da69d9704a25" kindref="member">mta0_addr</ref>;</highlight></codeline>
+<codeline lineno="235"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>memcpy(ptr,<sp/>&amp;cro[3],<sp/>size);</highlight></codeline>
+<codeline lineno="236"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>slave-&gt;<ref refid="structSYN__CCP__Slave_1a6e44e294af63439892e0da69d9704a25" kindref="member">mta0_addr</ref><sp/>+=<sp/>size;</highlight></codeline>
+<codeline lineno="237"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="238"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>dto_out[3]<sp/>=<sp/>slave-&gt;<ref refid="structSYN__CCP__Slave_1a6755ce17d470132713b89aa2f86f4245" kindref="member">mta0_ext</ref>;</highlight></codeline>
+<codeline lineno="239"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__pack_8h_1a36f45f656f6864d24fd8763fbd2dbbdd" kindref="member">syn_poke_u32_le</ref>(slave-&gt;<ref refid="structSYN__CCP__Slave_1a6e44e294af63439892e0da69d9704a25" kindref="member">mta0_addr</ref>,<sp/>dto_out,<sp/>4);</highlight></codeline>
+<codeline lineno="240"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="241"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="242"><highlight class="normal"></highlight></codeline>
+<codeline lineno="243"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__ccp_8h_1ae8bde629e9d3c45ab8398b5362b15ed4" kindref="member">SYN_CCP_CMD_GET_DAQ_SIZE</ref>:<sp/>{</highlight></codeline>
+<codeline lineno="244"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>daq_num<sp/>=<sp/>cro[2];</highlight></codeline>
+<codeline lineno="245"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(daq_num<sp/>&gt;=<sp/><ref refid="syn__ccp_8h_1a0249779fff72790edcb1fca40f282f40" kindref="member">SYN_CCP_MAX_DAQ_LISTS</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="246"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>dto_out[1]<sp/>=<sp/><ref refid="syn__ccp_8h_1a11be44ac2e84aa9b62eaf594eb496b7f" kindref="member">SYN_CCP_ERR_PARAM_OUT_OF_RANGE</ref>;</highlight></codeline>
+<codeline lineno="247"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="248"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="249"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>slave-&gt;<ref refid="structSYN__CCP__Slave_1aac82fbdf178f3bb09088794e62b4fb54" kindref="member">selected_daq</ref><sp/>=<sp/>daq_num;</highlight></codeline>
+<codeline lineno="250"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>dto_out[3]<sp/>=<sp/><ref refid="syn__ccp_8h_1af0b16641ac4df75d668c7f820e2fc348" kindref="member">SYN_CCP_MAX_ODT_PER_DAQ</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Number<sp/>of<sp/>ODTs<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="251"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>dto_out[4]<sp/>=<sp/>daq_num<sp/>*<sp/><ref refid="syn__ccp_8h_1af0b16641ac4df75d668c7f820e2fc348" kindref="member">SYN_CCP_MAX_ODT_PER_DAQ</ref>;<sp/></highlight><highlight class="comment">/*<sp/>First<sp/>PID<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="252"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="253"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="254"><highlight class="normal"></highlight></codeline>
+<codeline lineno="255"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__ccp_8h_1af3505e08ccf0027ca63a8f41a05b9f4b" kindref="member">SYN_CCP_CMD_SET_DAQ_SIZE</ref>:<sp/>{</highlight></codeline>
+<codeline lineno="256"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>daq_num<sp/>=<sp/>cro[2];</highlight></codeline>
+<codeline lineno="257"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>count<sp/>=<sp/>cro[4];</highlight></codeline>
+<codeline lineno="258"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(daq_num<sp/>&gt;=<sp/><ref refid="syn__ccp_8h_1a0249779fff72790edcb1fca40f282f40" kindref="member">SYN_CCP_MAX_DAQ_LISTS</ref><sp/>||<sp/>count<sp/>&gt;<sp/><ref refid="syn__ccp_8h_1af0b16641ac4df75d668c7f820e2fc348" kindref="member">SYN_CCP_MAX_ODT_PER_DAQ</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="259"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>dto_out[1]<sp/>=<sp/><ref refid="syn__ccp_8h_1a11be44ac2e84aa9b62eaf594eb496b7f" kindref="member">SYN_CCP_ERR_PARAM_OUT_OF_RANGE</ref>;</highlight></codeline>
+<codeline lineno="260"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="261"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="262"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>slave-&gt;<ref refid="structSYN__CCP__Slave_1a1939cae82b3f1bd936365b0a793d4c52" kindref="member">daq_lists</ref>[daq_num].<ref refid="structSYN__CCP__DAQList_1a082425049ad2848185f3b07355a0aa4c" kindref="member">odt_count</ref><sp/>=<sp/>count;</highlight></codeline>
+<codeline lineno="263"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>slave-&gt;<ref refid="structSYN__CCP__Slave_1a1939cae82b3f1bd936365b0a793d4c52" kindref="member">daq_lists</ref>[daq_num].<ref refid="structSYN__CCP__DAQList_1a6b351f16277e089bd617cb198299139c" kindref="member">running</ref><sp/>=<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="264"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>dto_out[3]<sp/>=<sp/>count;</highlight></codeline>
+<codeline lineno="265"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>dto_out[4]<sp/>=<sp/>daq_num<sp/>*<sp/><ref refid="syn__ccp_8h_1af0b16641ac4df75d668c7f820e2fc348" kindref="member">SYN_CCP_MAX_ODT_PER_DAQ</ref>;</highlight></codeline>
+<codeline lineno="266"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="267"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="268"><highlight class="normal"></highlight></codeline>
+<codeline lineno="269"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__ccp_8h_1a4798f42ff520ddf5185e2d6d9097a1fc" kindref="member">SYN_CCP_CMD_BUILD_PKT</ref>:<sp/>{</highlight></codeline>
+<codeline lineno="270"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>daq_num<sp/>=<sp/>cro[2];</highlight></codeline>
+<codeline lineno="271"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>odt_num<sp/>=<sp/>cro[3];</highlight></codeline>
+<codeline lineno="272"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>elem_idx<sp/>=<sp/>cro[4];</highlight></codeline>
+<codeline lineno="273"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>elem_size<sp/>=<sp/>cro[5];</highlight></codeline>
+<codeline lineno="274"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(daq_num<sp/>&gt;=<sp/><ref refid="syn__ccp_8h_1a0249779fff72790edcb1fca40f282f40" kindref="member">SYN_CCP_MAX_DAQ_LISTS</ref><sp/>||<sp/>odt_num<sp/>&gt;=<sp/><ref refid="syn__ccp_8h_1af0b16641ac4df75d668c7f820e2fc348" kindref="member">SYN_CCP_MAX_ODT_PER_DAQ</ref><sp/>||</highlight></codeline>
+<codeline lineno="275"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>elem_idx<sp/>&gt;=<sp/><ref refid="syn__ccp_8h_1a00ff4ff2767aca6946802d08aa0f2d42" kindref="member">SYN_CCP_MAX_ENTRIES_PER_ODT</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="276"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>dto_out[1]<sp/>=<sp/><ref refid="syn__ccp_8h_1a11be44ac2e84aa9b62eaf594eb496b7f" kindref="member">SYN_CCP_ERR_PARAM_OUT_OF_RANGE</ref>;</highlight></codeline>
+<codeline lineno="277"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="278"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="279"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__CCP__ODT" kindref="compound">SYN_CCP_ODT</ref><sp/>*odt<sp/>=<sp/>&amp;slave-&gt;<ref refid="structSYN__CCP__Slave_1a1939cae82b3f1bd936365b0a793d4c52" kindref="member">daq_lists</ref>[daq_num].<ref refid="structSYN__CCP__DAQList_1a712fc78392118bf582f27836337860f5" kindref="member">odts</ref>[odt_num];</highlight></codeline>
+<codeline lineno="280"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>odt-&gt;<ref refid="structSYN__CCP__ODT_1ad6928bbad80a566a5047dfa0ef72f28c" kindref="member">entries</ref>[elem_idx].<ref refid="structSYN__CCP__ODTEntry_1a4890b34b4ddc3983bf7486155b0e3709" kindref="member">address</ref><sp/>=<sp/>slave-&gt;<ref refid="structSYN__CCP__Slave_1a6e44e294af63439892e0da69d9704a25" kindref="member">mta0_addr</ref>;</highlight></codeline>
+<codeline lineno="281"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>odt-&gt;<ref refid="structSYN__CCP__ODT_1ad6928bbad80a566a5047dfa0ef72f28c" kindref="member">entries</ref>[elem_idx].<ref refid="structSYN__CCP__ODTEntry_1a85434d0640f8921c4cac695de67e342e" kindref="member">size</ref><sp/>=<sp/>elem_size;</highlight></codeline>
+<codeline lineno="282"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(elem_idx<sp/>+<sp/>1<sp/>&gt;<sp/>odt-&gt;<ref refid="structSYN__CCP__ODT_1ae3940dde1a71bfbe708441d51061dfa2" kindref="member">entry_count</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="283"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>odt-&gt;<ref refid="structSYN__CCP__ODT_1ae3940dde1a71bfbe708441d51061dfa2" kindref="member">entry_count</ref><sp/>=<sp/>elem_idx<sp/>+<sp/>1;</highlight></codeline>
+<codeline lineno="284"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="285"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="286"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="287"><highlight class="normal"></highlight></codeline>
+<codeline lineno="288"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__ccp_8h_1abb7f30d4fc1f38dd245469246505dfff" kindref="member">SYN_CCP_CMD_START_STOP</ref>:<sp/>{</highlight></codeline>
+<codeline lineno="289"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>mode<sp/>=<sp/>cro[2];</highlight></codeline>
+<codeline lineno="290"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>daq_num<sp/>=<sp/>cro[3];</highlight></codeline>
+<codeline lineno="291"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>event_ch<sp/>=<sp/>cro[5];</highlight></codeline>
+<codeline lineno="292"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint16_t<sp/>prescaler<sp/>=<sp/><ref refid="syn__pack_8h_1aec801a90c27fcfae9e98a45d8b76fae5" kindref="member">syn_peek_u16_le</ref>(cro,<sp/>6);</highlight></codeline>
+<codeline lineno="293"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(daq_num<sp/>&gt;=<sp/><ref refid="syn__ccp_8h_1a0249779fff72790edcb1fca40f282f40" kindref="member">SYN_CCP_MAX_DAQ_LISTS</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="294"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>dto_out[1]<sp/>=<sp/><ref refid="syn__ccp_8h_1a11be44ac2e84aa9b62eaf594eb496b7f" kindref="member">SYN_CCP_ERR_PARAM_OUT_OF_RANGE</ref>;</highlight></codeline>
+<codeline lineno="295"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="296"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="297"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__CCP__DAQList" kindref="compound">SYN_CCP_DAQList</ref><sp/>*daq<sp/>=<sp/>&amp;slave-&gt;<ref refid="structSYN__CCP__Slave_1a1939cae82b3f1bd936365b0a793d4c52" kindref="member">daq_lists</ref>[daq_num];</highlight></codeline>
+<codeline lineno="298"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>daq-&gt;<ref refid="structSYN__CCP__DAQList_1a848ebbfc1f777cc4b2e7630d8f71a06e" kindref="member">event_channel</ref><sp/>=<sp/>event_ch;</highlight></codeline>
+<codeline lineno="299"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>daq-&gt;<ref refid="structSYN__CCP__DAQList_1ad28eca7ef98fb6cc2b24de6eae229f6c" kindref="member">prescaler</ref><sp/>=<sp/>(prescaler<sp/>==<sp/>0)<sp/>?<sp/>1<sp/>:<sp/>prescaler;</highlight></codeline>
+<codeline lineno="300"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>daq-&gt;<ref refid="structSYN__CCP__DAQList_1a64d44039bd5eed01ac21c9d82b7185c1" kindref="member">cycle_counter</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="301"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>daq-&gt;<ref refid="structSYN__CCP__DAQList_1ac1ef9a63653375cefac2a7969ebce3c5" kindref="member">current_odt_idx</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="302"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>daq-&gt;<ref refid="structSYN__CCP__DAQList_1a6b351f16277e089bd617cb198299139c" kindref="member">running</ref><sp/>=<sp/>(mode<sp/>==<sp/>0x01U);</highlight></codeline>
+<codeline lineno="303"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="304"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="305"><highlight class="normal"></highlight></codeline>
+<codeline lineno="306"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__ccp_8h_1a4e1c90e104e87d2583328c8e380b6378" kindref="member">SYN_CCP_CMD_START_STOP_ALL</ref>:<sp/>{</highlight></codeline>
+<codeline lineno="307"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>mode<sp/>=<sp/>cro[2];</highlight></codeline>
+<codeline lineno="308"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(uint8_t<sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/><ref refid="syn__ccp_8h_1a0249779fff72790edcb1fca40f282f40" kindref="member">SYN_CCP_MAX_DAQ_LISTS</ref>;<sp/>i++)<sp/>{</highlight></codeline>
+<codeline lineno="309"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>slave-&gt;<ref refid="structSYN__CCP__Slave_1a1939cae82b3f1bd936365b0a793d4c52" kindref="member">daq_lists</ref>[i].<ref refid="structSYN__CCP__DAQList_1a6b351f16277e089bd617cb198299139c" kindref="member">running</ref><sp/>=<sp/>(mode<sp/>==<sp/>0x01U);</highlight></codeline>
+<codeline lineno="310"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="311"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="312"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="313"><highlight class="normal"></highlight></codeline>
+<codeline lineno="314"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">default</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="315"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>dto_out[1]<sp/>=<sp/><ref refid="syn__ccp_8h_1a32a548c54f028d23cc15a3fecbbc1811" kindref="member">SYN_CCP_ERR_CMD_UNKNOWN</ref>;</highlight></codeline>
+<codeline lineno="316"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="317"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="318"><highlight class="normal"></highlight></codeline>
+<codeline lineno="319"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="320"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="321"><highlight class="normal"></highlight></codeline>
+<codeline lineno="322"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__ccp_8c_1afe3a4139f0f436d450863494b6fdbd23" kindref="member">syn_ccp_service_daq</ref>(<ref refid="structSYN__CCP__Slave" kindref="compound">SYN_CCP_Slave</ref><sp/>*slave,<sp/>uint8_t<sp/>event_channel,<sp/>uint8_t<sp/>dto_out[8],</highlight></codeline>
+<codeline lineno="323"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>*list_idx,<sp/>uint8_t<sp/>*odt_idx)</highlight></codeline>
+<codeline lineno="324"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="325"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(slave<sp/>==<sp/>NULL<sp/>||<sp/>dto_out<sp/>==<sp/>NULL<sp/>||<sp/>list_idx<sp/>==<sp/>NULL<sp/>||<sp/>odt_idx<sp/>==<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="326"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="327"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="328"><highlight class="normal"></highlight></codeline>
+<codeline lineno="329"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!slave-&gt;<ref refid="structSYN__CCP__Slave_1a613873ef16f7d04c198f69b56f787544" kindref="member">connected</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="330"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="331"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="332"><highlight class="normal"></highlight></codeline>
+<codeline lineno="333"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(uint8_t<sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/><ref refid="syn__ccp_8h_1a0249779fff72790edcb1fca40f282f40" kindref="member">SYN_CCP_MAX_DAQ_LISTS</ref>;<sp/>i++)<sp/>{</highlight></codeline>
+<codeline lineno="334"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__CCP__DAQList" kindref="compound">SYN_CCP_DAQList</ref><sp/>*daq<sp/>=<sp/>&amp;slave-&gt;<ref refid="structSYN__CCP__Slave_1a1939cae82b3f1bd936365b0a793d4c52" kindref="member">daq_lists</ref>[i];</highlight></codeline>
+<codeline lineno="335"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!daq-&gt;<ref refid="structSYN__CCP__DAQList_1a6b351f16277e089bd617cb198299139c" kindref="member">running</ref><sp/>||<sp/>daq-&gt;<ref refid="structSYN__CCP__DAQList_1a848ebbfc1f777cc4b2e7630d8f71a06e" kindref="member">event_channel</ref><sp/>!=<sp/>event_channel)<sp/>{</highlight></codeline>
+<codeline lineno="336"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">continue</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="337"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="338"><highlight class="normal"></highlight></codeline>
+<codeline lineno="339"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>daq-&gt;<ref refid="structSYN__CCP__DAQList_1a64d44039bd5eed01ac21c9d82b7185c1" kindref="member">cycle_counter</ref>++;</highlight></codeline>
+<codeline lineno="340"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(daq-&gt;<ref refid="structSYN__CCP__DAQList_1a64d44039bd5eed01ac21c9d82b7185c1" kindref="member">cycle_counter</ref><sp/>&lt;<sp/>daq-&gt;<ref refid="structSYN__CCP__DAQList_1ad28eca7ef98fb6cc2b24de6eae229f6c" kindref="member">prescaler</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="341"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">continue</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="342"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="343"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>daq-&gt;<ref refid="structSYN__CCP__DAQList_1a64d44039bd5eed01ac21c9d82b7185c1" kindref="member">cycle_counter</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="344"><highlight class="normal"></highlight></codeline>
+<codeline lineno="345"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>current_odt<sp/>=<sp/>daq-&gt;<ref refid="structSYN__CCP__DAQList_1ac1ef9a63653375cefac2a7969ebce3c5" kindref="member">current_odt_idx</ref>;</highlight></codeline>
+<codeline lineno="346"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(current_odt<sp/>&gt;=<sp/>daq-&gt;<ref refid="structSYN__CCP__DAQList_1a082425049ad2848185f3b07355a0aa4c" kindref="member">odt_count</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="347"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>daq-&gt;<ref refid="structSYN__CCP__DAQList_1ac1ef9a63653375cefac2a7969ebce3c5" kindref="member">current_odt_idx</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="348"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>current_odt<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="349"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="350"><highlight class="normal"></highlight></codeline>
+<codeline lineno="351"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(daq-&gt;<ref refid="structSYN__CCP__DAQList_1a082425049ad2848185f3b07355a0aa4c" kindref="member">odt_count</ref><sp/>==<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="352"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">continue</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="353"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="354"><highlight class="normal"></highlight></codeline>
+<codeline lineno="355"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__CCP__ODT" kindref="compound">SYN_CCP_ODT</ref><sp/>*odt<sp/>=<sp/>&amp;daq-&gt;<ref refid="structSYN__CCP__DAQList_1a712fc78392118bf582f27836337860f5" kindref="member">odts</ref>[current_odt];</highlight></codeline>
+<codeline lineno="356"><highlight class="normal"></highlight></codeline>
+<codeline lineno="357"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>memset(dto_out,<sp/>0,<sp/>8);</highlight></codeline>
+<codeline lineno="358"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>dto_out[0]<sp/>=<sp/>i<sp/>*<sp/><ref refid="syn__ccp_8h_1af0b16641ac4df75d668c7f820e2fc348" kindref="member">SYN_CCP_MAX_ODT_PER_DAQ</ref><sp/>+<sp/>current_odt;<sp/></highlight><highlight class="comment">/*<sp/>Packet<sp/>ID<sp/>=<sp/>ODT<sp/>index<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="359"><highlight class="normal"></highlight></codeline>
+<codeline lineno="360"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>payload_pos<sp/>=<sp/>1;</highlight></codeline>
+<codeline lineno="361"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(uint8_t<sp/>e<sp/>=<sp/>0;<sp/>e<sp/>&lt;<sp/>odt-&gt;<ref refid="structSYN__CCP__ODT_1ae3940dde1a71bfbe708441d51061dfa2" kindref="member">entry_count</ref>;<sp/>e++)<sp/>{</highlight></codeline>
+<codeline lineno="362"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__CCP__ODTEntry" kindref="compound">SYN_CCP_ODTEntry</ref><sp/>*entry<sp/>=<sp/>&amp;odt-&gt;<ref refid="structSYN__CCP__ODT_1ad6928bbad80a566a5047dfa0ef72f28c" kindref="member">entries</ref>[e];</highlight></codeline>
+<codeline lineno="363"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(entry-&gt;<ref refid="structSYN__CCP__ODTEntry_1a4890b34b4ddc3983bf7486155b0e3709" kindref="member">address</ref><sp/>!=<sp/>0<sp/>&amp;&amp;<sp/>entry-&gt;<ref refid="structSYN__CCP__ODTEntry_1a85434d0640f8921c4cac695de67e342e" kindref="member">size</ref><sp/>&gt;<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="364"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*src<sp/>=<sp/>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*)(uintptr_t)entry-&gt;<ref refid="structSYN__CCP__ODTEntry_1a4890b34b4ddc3983bf7486155b0e3709" kindref="member">address</ref>;</highlight></codeline>
+<codeline lineno="365"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(uint8_t<sp/>b<sp/>=<sp/>0;<sp/>b<sp/>&lt;<sp/>entry-&gt;<ref refid="structSYN__CCP__ODTEntry_1a85434d0640f8921c4cac695de67e342e" kindref="member">size</ref><sp/>&amp;&amp;<sp/>payload_pos<sp/>&lt;<sp/>8;<sp/>b++)<sp/>{</highlight></codeline>
+<codeline lineno="366"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>dto_out[payload_pos++]<sp/>=<sp/>src[b];</highlight></codeline>
+<codeline lineno="367"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="368"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="369"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="370"><highlight class="normal"></highlight></codeline>
+<codeline lineno="371"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*list_idx<sp/>=<sp/>i;</highlight></codeline>
+<codeline lineno="372"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*odt_idx<sp/>=<sp/>current_odt;</highlight></codeline>
+<codeline lineno="373"><highlight class="normal"></highlight></codeline>
+<codeline lineno="374"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>daq-&gt;<ref refid="structSYN__CCP__DAQList_1ac1ef9a63653375cefac2a7969ebce3c5" kindref="member">current_odt_idx</ref>++;</highlight></codeline>
+<codeline lineno="375"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(daq-&gt;<ref refid="structSYN__CCP__DAQList_1ac1ef9a63653375cefac2a7969ebce3c5" kindref="member">current_odt_idx</ref><sp/>&gt;=<sp/>daq-&gt;<ref refid="structSYN__CCP__DAQList_1a082425049ad2848185f3b07355a0aa4c" kindref="member">odt_count</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="376"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>daq-&gt;<ref refid="structSYN__CCP__DAQList_1ac1ef9a63653375cefac2a7969ebce3c5" kindref="member">current_odt_idx</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="377"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="378"><highlight class="normal"></highlight></codeline>
+<codeline lineno="379"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="380"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="381"><highlight class="normal"></highlight></codeline>
+<codeline lineno="382"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="383"><highlight class="normal">}</highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/proto/syn_ccp.c"/>
+  </compounddef>
+</doxygen>

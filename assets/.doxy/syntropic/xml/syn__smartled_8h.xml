@@ -1,0 +1,551 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__smartled_8h" kind="file" language="C++">
+    <compoundname>syn_smartled.h</compoundname>
+    <includes refid="syn__defs_8h" local="yes">../common/syn_defs.h</includes>
+    <includes refid="syn__port__gpio_8h" local="yes">../port/syn_port_gpio.h</includes>
+    <includes local="no">stdbool.h</includes>
+    <includes local="no">stddef.h</includes>
+    <includes local="no">stdint.h</includes>
+    <includedby refid="syn__smartled_8c" local="yes">src/syntropic/output/syn_smartled.c</includedby>
+    <includedby refid="syntropic_8h" local="yes">src/syntropic/syntropic.h</includedby>
+    <incdepgraph>
+      <node id="2">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/output/syn_smartled.h</label>
+        <link refid="syn__smartled_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>../port/syn_port_gpio.h</label>
+        <link refid="syn__port__gpio_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>stdbool.h</label>
+      </node>
+      <node id="3">
+        <label>stddef.h</label>
+      </node>
+      <node id="4">
+        <label>stdint.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="2">
+        <label>src/syntropic/output/syn_smartled.c</label>
+        <link refid="syn__smartled_8c"/>
+      </node>
+      <node id="1">
+        <label>src/syntropic/output/syn_smartled.h</label>
+        <link refid="syn__smartled_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>src/syntropic/proto/syn_doip.c</label>
+        <link refid="syn__doip_8c"/>
+      </node>
+      <node id="4">
+        <label>src/syntropic/proto/syn_doip.h</label>
+        <link refid="syn__doip_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>src/syntropic/syntropic.h</label>
+        <link refid="syntropic_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="structSYN__SmartLEDColor" prot="public">SYN_SmartLEDColor</innerclass>
+    <innerclass refid="structSYN__SmartLED" prot="public">SYN_SmartLED</innerclass>
+    <sectiondef kind="enum">
+      <memberdef kind="enum" id="syn__smartled_8h_1a4b89ba5c96593294ce6460cba07dbad2" prot="public" static="no" strong="no">
+        <type></type>
+        <name>SYN_SmartLEDOrder</name>
+        <enumvalue id="syn__smartled_8h_1a4b89ba5c96593294ce6460cba07dbad2a01b3db06d0fbfc1d77e3f51d8fbdef4a" prot="public">
+          <name>SYN_SMARTLED_ORDER_GRB</name>
+          <initializer>= 0</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Standard WS2812B (Green, Red, Blue) </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__smartled_8h_1a4b89ba5c96593294ce6460cba07dbad2a20c60fd1806b114cfc33bdad0f42909b" prot="public">
+          <name>SYN_SMARTLED_ORDER_RGB</name>
+          <initializer>= 1</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Standard RGB </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__smartled_8h_1a4b89ba5c96593294ce6460cba07dbad2a50671d7800e55d57ca70fe6c92dfd62f" prot="public">
+          <name>SYN_SMARTLED_ORDER_RGBW</name>
+          <initializer>= 2</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>SK6812 RGBW (4 channels) </para>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>Smart LED Color Channel Order. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/output/syn_smartled.h" line="24" column="1" bodyfile="src/syntropic/output/syn_smartled.h" bodystart="24" bodyend="28"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__smartled_8h_1ad5c2a1ead9f658b024aba54f5ed722a4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_smartled_init</definition>
+        <argsstring>(SYN_SmartLED *led, SYN_GPIO_Pin data_pin, uint16_t num_leds, SYN_SmartLEDColor *pixel_buf, SYN_SmartLEDOrder order)</argsstring>
+        <name>syn_smartled_init</name>
+        <param>
+          <type><ref refid="structSYN__SmartLED" kindref="compound">SYN_SmartLED</ref> *</type>
+          <declname>led</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref></type>
+          <declname>data_pin</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>num_leds</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__SmartLEDColor" kindref="compound">SYN_SmartLEDColor</ref> *</type>
+          <declname>pixel_buf</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__smartled_8h_1a4b89ba5c96593294ce6460cba07dbad2" kindref="member">SYN_SmartLEDOrder</ref></type>
+          <declname>order</declname>
+        </param>
+        <briefdescription>
+<para>Initialize a Smart LED Strip context. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>led</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Smart LED context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>data_pin</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>GPIO data pin. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>num_leds</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Total LED count in strip. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>pixel_buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Array of <ref refid="structSYN__SmartLEDColor" kindref="compound">SYN_SmartLEDColor</ref> structs (length = num_leds). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>order</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Color channel order (GRB, RGB, RGBW). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/output/syn_smartled.h" line="61" column="12" bodyfile="src/syntropic/output/syn_smartled.c" bodystart="12" bodyend="30" declfile="src/syntropic/output/syn_smartled.h" declline="61" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__smartled_8h_1a7b6ee0fc29957e289f8351d25d34e774" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_smartled_set_brightness</definition>
+        <argsstring>(SYN_SmartLED *led, uint8_t brightness)</argsstring>
+        <name>syn_smartled_set_brightness</name>
+        <param>
+          <type><ref refid="structSYN__SmartLED" kindref="compound">SYN_SmartLED</ref> *</type>
+          <declname>led</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>brightness</declname>
+        </param>
+        <briefdescription>
+<para>Set global brightness scale (0 = off, 255 = 100% full brightness). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>led</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Smart LED context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>brightness</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Brightness scale (0 to 255). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/output/syn_smartled.h" line="70" column="6" bodyfile="src/syntropic/output/syn_smartled.c" bodystart="32" bodyend="37" declfile="src/syntropic/output/syn_smartled.h" declline="70" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__smartled_8h_1a9347b107f979d91b466b2aa4d61e0461" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_smartled_set_pixel_rgb</definition>
+        <argsstring>(SYN_SmartLED *led, uint16_t index, uint8_t r, uint8_t g, uint8_t b)</argsstring>
+        <name>syn_smartled_set_pixel_rgb</name>
+        <param>
+          <type><ref refid="structSYN__SmartLED" kindref="compound">SYN_SmartLED</ref> *</type>
+          <declname>led</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>index</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>r</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>g</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>b</declname>
+        </param>
+        <briefdescription>
+<para>Set RGB color of a specific LED pixel. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>led</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Smart LED context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>index</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pixel index (0 to num_leds-1). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>r</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Red channel (0 to 255). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>g</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Green channel (0 to 255). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>b</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Blue channel (0 to 255). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/output/syn_smartled.h" line="81" column="6" bodyfile="src/syntropic/output/syn_smartled.c" bodystart="39" bodyend="50" declfile="src/syntropic/output/syn_smartled.h" declline="81" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__smartled_8h_1a0e92067e8f65bd26f65d7ae33a274e56" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_smartled_set_pixel_hsv</definition>
+        <argsstring>(SYN_SmartLED *led, uint16_t index, uint8_t h, uint8_t s, uint8_t v)</argsstring>
+        <name>syn_smartled_set_pixel_hsv</name>
+        <param>
+          <type><ref refid="structSYN__SmartLED" kindref="compound">SYN_SmartLED</ref> *</type>
+          <declname>led</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>index</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>h</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>s</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>v</declname>
+        </param>
+        <briefdescription>
+<para>Set HSV color of a specific LED pixel (0-255 hue, sat, val). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>led</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Smart LED context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>index</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pixel index (0 to num_leds-1). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>h</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Hue (0 to 255). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>s</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Saturation (0 to 255). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>v</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Value / Intensity (0 to 255). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/output/syn_smartled.h" line="92" column="6" bodyfile="src/syntropic/output/syn_smartled.c" bodystart="52" bodyend="103" declfile="src/syntropic/output/syn_smartled.h" declline="92" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__smartled_8h_1a67a8e96631be899eb602fc40ce6b96bb" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_smartled_fill_rgb</definition>
+        <argsstring>(SYN_SmartLED *led, uint8_t r, uint8_t g, uint8_t b)</argsstring>
+        <name>syn_smartled_fill_rgb</name>
+        <param>
+          <type><ref refid="structSYN__SmartLED" kindref="compound">SYN_SmartLED</ref> *</type>
+          <declname>led</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>r</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>g</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>b</declname>
+        </param>
+        <briefdescription>
+<para>Fill entire strip with a single RGB color. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>led</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Smart LED context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>r</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Red channel. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>g</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Green channel. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>b</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Blue channel. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/output/syn_smartled.h" line="102" column="6" bodyfile="src/syntropic/output/syn_smartled.c" bodystart="105" bodyend="113" declfile="src/syntropic/output/syn_smartled.h" declline="102" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__smartled_8h_1a2476af1dfe8f6da72942f632ca597cf2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_smartled_clear</definition>
+        <argsstring>(SYN_SmartLED *led)</argsstring>
+        <name>syn_smartled_clear</name>
+        <param>
+          <type><ref refid="structSYN__SmartLED" kindref="compound">SYN_SmartLED</ref> *</type>
+          <declname>led</declname>
+        </param>
+        <briefdescription>
+<para>Clear all pixels in strip (turn off all LEDs). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>led</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Smart LED context. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/output/syn_smartled.h" line="109" column="6" bodyfile="src/syntropic/output/syn_smartled.c" bodystart="115" bodyend="120" declfile="src/syntropic/output/syn_smartled.h" declline="109" declcolumn="6"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Generic Addressable RGB/RGBW Smart LED Strip Driver (WS2812B, SK6812, APA102, SK9822). </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_SMARTLED_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_SMARTLED_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../common/syn_defs.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../port/syn_port_gpio.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stddef.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight></codeline>
+<codeline lineno="24" refid="syn__smartled_8h_1a4b89ba5c96593294ce6460cba07dbad2" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="25" refid="syn__smartled_8h_1a4b89ba5c96593294ce6460cba07dbad2a01b3db06d0fbfc1d77e3f51d8fbdef4a" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__smartled_8h_1a4b89ba5c96593294ce6460cba07dbad2a01b3db06d0fbfc1d77e3f51d8fbdef4a" kindref="member">SYN_SMARTLED_ORDER_GRB</ref><sp/>=<sp/>0,<sp/></highlight></codeline>
+<codeline lineno="26" refid="syn__smartled_8h_1a4b89ba5c96593294ce6460cba07dbad2a20c60fd1806b114cfc33bdad0f42909b" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__smartled_8h_1a4b89ba5c96593294ce6460cba07dbad2a20c60fd1806b114cfc33bdad0f42909b" kindref="member">SYN_SMARTLED_ORDER_RGB</ref><sp/>=<sp/>1,<sp/></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__smartled_8h_1a4b89ba5c96593294ce6460cba07dbad2a50671d7800e55d57ca70fe6c92dfd62f" kindref="member">SYN_SMARTLED_ORDER_RGBW</ref><sp/>=<sp/>2<sp/></highlight></codeline>
+<codeline lineno="28" refid="syn__smartled_8h_1a4b89ba5c96593294ce6460cba07dbad2a50671d7800e55d57ca70fe6c92dfd62f" refkind="member"><highlight class="normal">}<sp/><ref refid="syn__smartled_8h_1a4b89ba5c96593294ce6460cba07dbad2" kindref="member">SYN_SmartLEDOrder</ref>;</highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight></codeline>
+<codeline lineno="33" refid="structSYN__SmartLEDColor" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="34" refid="structSYN__SmartLEDColor_1aa31152be8c0c17cf45afeb0c92d5255a" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><ref refid="structSYN__SmartLEDColor_1aa31152be8c0c17cf45afeb0c92d5255a" kindref="member">r</ref>;<sp/></highlight></codeline>
+<codeline lineno="35" refid="structSYN__SmartLEDColor_1a64d816ab94b25ac3bc927bdca3b837ac" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><ref refid="structSYN__SmartLEDColor_1a64d816ab94b25ac3bc927bdca3b837ac" kindref="member">g</ref>;<sp/></highlight></codeline>
+<codeline lineno="36" refid="structSYN__SmartLEDColor_1ac421dc02fec7a63e2a5e997f3dda5ed3" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><ref refid="structSYN__SmartLEDColor_1ac421dc02fec7a63e2a5e997f3dda5ed3" kindref="member">b</ref>;<sp/></highlight></codeline>
+<codeline lineno="37" refid="structSYN__SmartLEDColor_1a220ba65586b9ed49566e05f8aaaf1be1" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><ref refid="structSYN__SmartLEDColor_1a220ba65586b9ed49566e05f8aaaf1be1" kindref="member">w</ref>;<sp/></highlight></codeline>
+<codeline lineno="38"><highlight class="normal">}<sp/><ref refid="structSYN__SmartLEDColor" kindref="compound">SYN_SmartLEDColor</ref>;</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight></codeline>
+<codeline lineno="43" refid="structSYN__SmartLED" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="44" refid="structSYN__SmartLED_1a0f807ead69a7cce7b4c3853d0395e18d" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref><sp/><ref refid="structSYN__SmartLED_1a0f807ead69a7cce7b4c3853d0395e18d" kindref="member">data_pin</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="45" refid="structSYN__SmartLED_1aa20978fdc286ff0d7c29840041cadb7b" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__smartled_8h_1a4b89ba5c96593294ce6460cba07dbad2" kindref="member">SYN_SmartLEDOrder</ref><sp/><ref refid="structSYN__SmartLED_1aa20978fdc286ff0d7c29840041cadb7b" kindref="member">order</ref>;<sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="46" refid="structSYN__SmartLED_1af0cd9ec133c73bfb039f8c7eea10b86c" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/><ref refid="structSYN__SmartLED_1af0cd9ec133c73bfb039f8c7eea10b86c" kindref="member">num_leds</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="47" refid="structSYN__SmartLED_1a4cbb46d838bf1a4bcbafba1bcded5d1f" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><ref refid="structSYN__SmartLED_1a4cbb46d838bf1a4bcbafba1bcded5d1f" kindref="member">brightness</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="48" refid="structSYN__SmartLED_1a0b133ce0718f5e1d654b4ecfeb3c7de2" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structSYN__SmartLEDColor" kindref="compound">SYN_SmartLEDColor</ref><sp/>*<ref refid="structSYN__SmartLED_1a0b133ce0718f5e1d654b4ecfeb3c7de2" kindref="member">pixel_buf</ref>;<sp/></highlight></codeline>
+<codeline lineno="49"><highlight class="normal">}<sp/><ref refid="structSYN__SmartLED" kindref="compound">SYN_SmartLED</ref>;</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"></highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__smartled_8h_1ad5c2a1ead9f658b024aba54f5ed722a4" kindref="member">syn_smartled_init</ref>(<ref refid="structSYN__SmartLED" kindref="compound">SYN_SmartLED</ref><sp/>*led,<sp/><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref><sp/>data_pin,<sp/>uint16_t<sp/>num_leds,</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__SmartLEDColor" kindref="compound">SYN_SmartLEDColor</ref><sp/>*pixel_buf,<sp/><ref refid="syn__smartled_8h_1a4b89ba5c96593294ce6460cba07dbad2" kindref="member">SYN_SmartLEDOrder</ref><sp/>order);</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"></highlight></codeline>
+<codeline lineno="70"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__smartled_8h_1a7b6ee0fc29957e289f8351d25d34e774" kindref="member">syn_smartled_set_brightness</ref>(<ref refid="structSYN__SmartLED" kindref="compound">SYN_SmartLED</ref><sp/>*led,<sp/>uint8_t<sp/>brightness);</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"></highlight></codeline>
+<codeline lineno="81"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__smartled_8h_1a9347b107f979d91b466b2aa4d61e0461" kindref="member">syn_smartled_set_pixel_rgb</ref>(<ref refid="structSYN__SmartLED" kindref="compound">SYN_SmartLED</ref><sp/>*led,<sp/>uint16_t<sp/>index,<sp/>uint8_t<sp/>r,<sp/>uint8_t<sp/>g,<sp/>uint8_t<sp/>b);</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"></highlight></codeline>
+<codeline lineno="92"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__smartled_8h_1a0e92067e8f65bd26f65d7ae33a274e56" kindref="member">syn_smartled_set_pixel_hsv</ref>(<ref refid="structSYN__SmartLED" kindref="compound">SYN_SmartLED</ref><sp/>*led,<sp/>uint16_t<sp/>index,<sp/>uint8_t<sp/>h,<sp/>uint8_t<sp/>s,<sp/>uint8_t<sp/>v);</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"></highlight></codeline>
+<codeline lineno="102"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__smartled_8h_1a67a8e96631be899eb602fc40ce6b96bb" kindref="member">syn_smartled_fill_rgb</ref>(<ref refid="structSYN__SmartLED" kindref="compound">SYN_SmartLED</ref><sp/>*led,<sp/>uint8_t<sp/>r,<sp/>uint8_t<sp/>g,<sp/>uint8_t<sp/>b);</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"></highlight></codeline>
+<codeline lineno="109"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__smartled_8h_1a2476af1dfe8f6da72942f632ca597cf2" kindref="member">syn_smartled_clear</ref>(<ref refid="structSYN__SmartLED" kindref="compound">SYN_SmartLED</ref><sp/>*led);</highlight></codeline>
+<codeline lineno="110"><highlight class="normal"></highlight></codeline>
+<codeline lineno="111"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="112"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="113"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="114"><highlight class="normal"></highlight></codeline>
+<codeline lineno="115"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_SMARTLED_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/output/syn_smartled.h"/>
+  </compounddef>
+</doxygen>

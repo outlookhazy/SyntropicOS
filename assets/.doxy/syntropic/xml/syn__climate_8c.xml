@@ -1,0 +1,431 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__climate_8c" kind="file" language="C++">
+    <compoundname>syn_climate.c</compoundname>
+    <includes refid="syn__climate_8h" local="yes">syn_climate.h</includes>
+    <includes refid="syn__assert_8h" local="yes">../util/syn_assert.h</includes>
+    <includes local="no">math.h</includes>
+    <includes local="no">string.h</includes>
+    <incdepgraph>
+      <node id="9">
+        <label>../common/syn_compiler.h</label>
+        <link refid="syn__compiler_8h"/>
+      </node>
+      <node id="3">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>../drivers/syn_soft_i2c.h</label>
+        <link refid="syn__soft__i2c_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/sensor/syn_climate.c</label>
+        <link refid="syn__climate_8c"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>syn_climate.h</label>
+        <link refid="syn__climate_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>../util/syn_assert.h</label>
+        <link refid="syn__assert_8h"/>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="10">
+        <label>math.h</label>
+      </node>
+      <node id="7">
+        <label>stdbool.h</label>
+      </node>
+      <node id="4">
+        <label>stddef.h</label>
+      </node>
+      <node id="5">
+        <label>stdint.h</label>
+      </node>
+      <node id="11">
+        <label>string.h</label>
+      </node>
+    </incdepgraph>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__climate_8c_1ae8eb8d1590c41b13c6df8fae513c2f6c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_climate_init</definition>
+        <argsstring>(SYN_Climate *sensor, SYN_GPIO_Pin scl, SYN_GPIO_Pin sda, uint8_t i2c_addr, SYN_ClimateType type)</argsstring>
+        <name>syn_climate_init</name>
+        <param>
+          <type><ref refid="structSYN__Climate" kindref="compound">SYN_Climate</ref> *</type>
+          <declname>sensor</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref></type>
+          <declname>scl</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref></type>
+          <declname>sda</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>i2c_addr</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__climate_8h_1ad07e234d4a79b25ad92536b89dde0b39" kindref="member">SYN_ClimateType</ref></type>
+          <declname>type</declname>
+        </param>
+        <briefdescription>
+<para>Initialize Climate Sensor. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>sensor</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Climate sensor context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>scl</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>I2C SCL GPIO pin. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>sda</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>I2C SDA GPIO pin. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>i2c_addr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>I2C slave address (e.g. 0x44 or 0x76). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>type</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Sensor type (SHT3X, BME280, HTU21D). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/sensor/syn_climate.c" line="13" column="12" bodyfile="src/syntropic/sensor/syn_climate.c" bodystart="13" bodyend="29"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__climate_8c_1a68de8e0919942a69032d9db5623289e4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_climate_feed_sample</definition>
+        <argsstring>(SYN_Climate *sensor, float temp_c, float humidity_rh, float press_hpa)</argsstring>
+        <name>syn_climate_feed_sample</name>
+        <param>
+          <type><ref refid="structSYN__Climate" kindref="compound">SYN_Climate</ref> *</type>
+          <declname>sensor</declname>
+        </param>
+        <param>
+          <type>float</type>
+          <declname>temp_c</declname>
+        </param>
+        <param>
+          <type>float</type>
+          <declname>humidity_rh</declname>
+        </param>
+        <param>
+          <type>float</type>
+          <declname>press_hpa</declname>
+        </param>
+        <briefdescription>
+<para>Feed raw sensor readings (temperature, humidity, pressure). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>sensor</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Climate sensor context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>temp_c</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Temperature in Celsius. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>humidity_rh</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Relative humidity percentage (0 to 100%). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>press_hpa</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Barometric pressure in hPa (e.g. 1013.25f). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/sensor/syn_climate.c" line="31" column="6" bodyfile="src/syntropic/sensor/syn_climate.c" bodystart="31" bodyend="54"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__climate_8c_1afec98d38dd187342a7931d90ef58bd4d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>float</type>
+        <definition>float syn_climate_get_temp_c</definition>
+        <argsstring>(const SYN_Climate *sensor)</argsstring>
+        <name>syn_climate_get_temp_c</name>
+        <param>
+          <type>const <ref refid="structSYN__Climate" kindref="compound">SYN_Climate</ref> *</type>
+          <declname>sensor</declname>
+        </param>
+        <briefdescription>
+<para>Get temperature in Celsius. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>sensor</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Climate sensor context. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Temperature in °C. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/sensor/syn_climate.c" line="56" column="7" bodyfile="src/syntropic/sensor/syn_climate.c" bodystart="56" bodyend="61"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__climate_8c_1a39db146cacd63fa101e5f86ff905d01b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>float</type>
+        <definition>float syn_climate_get_temp_f</definition>
+        <argsstring>(const SYN_Climate *sensor)</argsstring>
+        <name>syn_climate_get_temp_f</name>
+        <param>
+          <type>const <ref refid="structSYN__Climate" kindref="compound">SYN_Climate</ref> *</type>
+          <declname>sensor</declname>
+        </param>
+        <briefdescription>
+<para>Get temperature in Fahrenheit. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>sensor</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Climate sensor context. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Temperature in °F. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/sensor/syn_climate.c" line="63" column="7" bodyfile="src/syntropic/sensor/syn_climate.c" bodystart="63" bodyend="68"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__climate_8c_1a6973b3b1375a8d10c6f005d26d00d298" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>float</type>
+        <definition>float syn_climate_get_humidity</definition>
+        <argsstring>(const SYN_Climate *sensor)</argsstring>
+        <name>syn_climate_get_humidity</name>
+        <param>
+          <type>const <ref refid="structSYN__Climate" kindref="compound">SYN_Climate</ref> *</type>
+          <declname>sensor</declname>
+        </param>
+        <briefdescription>
+<para>Get relative humidity %. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>sensor</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Climate sensor context. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Humidity RH. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/sensor/syn_climate.c" line="70" column="7" bodyfile="src/syntropic/sensor/syn_climate.c" bodystart="70" bodyend="75"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__climate_8c_1aba20d6827d3a2c92e00644b81bda5394" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>float</type>
+        <definition>float syn_climate_get_dew_point</definition>
+        <argsstring>(const SYN_Climate *sensor)</argsstring>
+        <name>syn_climate_get_dew_point</name>
+        <param>
+          <type>const <ref refid="structSYN__Climate" kindref="compound">SYN_Climate</ref> *</type>
+          <declname>sensor</declname>
+        </param>
+        <briefdescription>
+<para>Get calculated dew point in Celsius. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>sensor</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Climate sensor context. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Dew point in °C. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/sensor/syn_climate.c" line="77" column="7" bodyfile="src/syntropic/sensor/syn_climate.c" bodystart="77" bodyend="82"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Generic Climate &amp; Environmental Sensor Driver (SHT3x, BME280, HTU21D, DHT22). </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__climate_8h" kindref="compound">syn_climate.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../util/syn_assert.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;math.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;string.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__climate_8c_1ae8eb8d1590c41b13c6df8fae513c2f6c" kindref="member">syn_climate_init</ref>(<ref refid="structSYN__Climate" kindref="compound">SYN_Climate</ref><sp/>*sensor,<sp/><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref><sp/>scl,<sp/><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref><sp/>sda,</highlight></codeline>
+<codeline lineno="14"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>i2c_addr,<sp/><ref refid="syn__climate_8h_1ad07e234d4a79b25ad92536b89dde0b39" kindref="member">SYN_ClimateType</ref><sp/>type)</highlight></codeline>
+<codeline lineno="15"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="16"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(sensor<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="17"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(sensor<sp/>==<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="18"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;<sp/></highlight><highlight class="comment">/*<sp/>LCOV_EXCL_LINE:<sp/>Defensive<sp/>NULL<sp/>check<sp/>after<sp/>SYN_ASSERT<sp/>macro<sp/>in</highlight></codeline>
+<codeline lineno="19"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>release<sp/>mode<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"><sp/><sp/><sp/><sp/>memset(sensor,<sp/>0,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(*sensor));</highlight></codeline>
+<codeline lineno="23"><highlight class="normal"><sp/><sp/><sp/><sp/>sensor-&gt;<ref refid="structSYN__Climate_1a5dcc7609258b13b8bbb0e56939c2f18e" kindref="member">type</ref><sp/>=<sp/>type;</highlight></codeline>
+<codeline lineno="24"><highlight class="normal"><sp/><sp/><sp/><sp/>sensor-&gt;<ref refid="structSYN__Climate_1a2bd9009d809e39587fae4c487e2c0b3a" kindref="member">i2c_addr</ref><sp/>=<sp/>i2c_addr;</highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"><sp/><sp/><sp/><sp/>syn_soft_i2c_init(&amp;sensor-&gt;<ref refid="structSYN__Climate_1a35d856f2d6778ac0c316aecf2a75ac01" kindref="member">i2c</ref>,<sp/>scl,<sp/>sda,<sp/>10);</highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="29"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__climate_8c_1a68de8e0919942a69032d9db5623289e4" kindref="member">syn_climate_feed_sample</ref>(<ref refid="structSYN__Climate" kindref="compound">SYN_Climate</ref><sp/>*sensor,<sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>temp_c,<sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>humidity_rh,<sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>press_hpa)</highlight></codeline>
+<codeline lineno="32"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="33"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(sensor<sp/>==<sp/>NULL)</highlight></codeline>
+<codeline lineno="34"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"><sp/><sp/><sp/><sp/>sensor-&gt;<ref refid="structSYN__Climate_1a22720fa27c36426b9677cda69e473076" kindref="member">temperature_c</ref><sp/>=<sp/>temp_c;</highlight></codeline>
+<codeline lineno="37"><highlight class="normal"><sp/><sp/><sp/><sp/>sensor-&gt;<ref refid="structSYN__Climate_1a36f6ac1201bc04694198de2d09775bfd" kindref="member">humidity_rh</ref><sp/>=<sp/>humidity_rh;</highlight></codeline>
+<codeline lineno="38"><highlight class="normal"><sp/><sp/><sp/><sp/>sensor-&gt;<ref refid="structSYN__Climate_1a8abd4e6ff0f44c5a0264821a881559a8" kindref="member">pressure_hpa</ref><sp/>=<sp/>press_hpa;</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Calculate<sp/>Dew<sp/>Point<sp/>using<sp/>Magnus-Tetens<sp/>Formula<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>a<sp/>=<sp/>17.27f;</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>b<sp/>=<sp/>237.7f;</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(humidity_rh<sp/>&gt;<sp/>0.0f<sp/>&amp;&amp;<sp/>(b<sp/>+<sp/>temp_c)<sp/>!=<sp/>0.0f)<sp/>{</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>alpha<sp/>=<sp/>((a<sp/>*<sp/>temp_c)<sp/>/<sp/>(b<sp/>+<sp/>temp_c))<sp/>+<sp/>logf(humidity_rh<sp/>/<sp/>100.0f);</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(a<sp/>!=<sp/>alpha)<sp/>{</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>sensor-&gt;<ref refid="structSYN__Climate_1a5840c299cda263670c2808d3433fc644" kindref="member">dew_point_c</ref><sp/>=<sp/>(b<sp/>*<sp/>alpha)<sp/>/<sp/>(a<sp/>-<sp/>alpha);</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>sensor-&gt;<ref refid="structSYN__Climate_1a5840c299cda263670c2808d3433fc644" kindref="member">dew_point_c</ref><sp/>=<sp/>temp_c;<sp/></highlight><highlight class="comment">/*<sp/>LCOV_EXCL_LINE:<sp/>Singularity<sp/>division-by-zero<sp/>guard<sp/>for</highlight></codeline>
+<codeline lineno="49"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>Magnus-Tetens<sp/>formula<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>sensor-&gt;<ref refid="structSYN__Climate_1a5840c299cda263670c2808d3433fc644" kindref="member">dew_point_c</ref><sp/>=<sp/>temp_c;</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="54"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"></highlight></codeline>
+<codeline lineno="56"><highlight class="normal"></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/><ref refid="syn__climate_8c_1afec98d38dd187342a7931d90ef58bd4d" kindref="member">syn_climate_get_temp_c</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__Climate" kindref="compound">SYN_Climate</ref><sp/>*sensor)</highlight></codeline>
+<codeline lineno="57"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(sensor<sp/>==<sp/>NULL)</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0.0f;</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>sensor-&gt;<ref refid="structSYN__Climate_1a22720fa27c36426b9677cda69e473076" kindref="member">temperature_c</ref>;</highlight></codeline>
+<codeline lineno="61"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"></highlight></codeline>
+<codeline lineno="63"><highlight class="normal"></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/><ref refid="syn__climate_8c_1a39db146cacd63fa101e5f86ff905d01b" kindref="member">syn_climate_get_temp_f</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__Climate" kindref="compound">SYN_Climate</ref><sp/>*sensor)</highlight></codeline>
+<codeline lineno="64"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(sensor<sp/>==<sp/>NULL)</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>32.0f;</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(sensor-&gt;<ref refid="structSYN__Climate_1a22720fa27c36426b9677cda69e473076" kindref="member">temperature_c</ref><sp/>*<sp/>1.8f)<sp/>+<sp/>32.0f;</highlight></codeline>
+<codeline lineno="68"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"></highlight></codeline>
+<codeline lineno="70"><highlight class="normal"></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/><ref refid="syn__climate_8c_1a6973b3b1375a8d10c6f005d26d00d298" kindref="member">syn_climate_get_humidity</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__Climate" kindref="compound">SYN_Climate</ref><sp/>*sensor)</highlight></codeline>
+<codeline lineno="71"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(sensor<sp/>==<sp/>NULL)</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0.0f;</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>sensor-&gt;<ref refid="structSYN__Climate_1a36f6ac1201bc04694198de2d09775bfd" kindref="member">humidity_rh</ref>;</highlight></codeline>
+<codeline lineno="75"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"></highlight></codeline>
+<codeline lineno="77"><highlight class="normal"></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/><ref refid="syn__climate_8c_1aba20d6827d3a2c92e00644b81bda5394" kindref="member">syn_climate_get_dew_point</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__Climate" kindref="compound">SYN_Climate</ref><sp/>*sensor)</highlight></codeline>
+<codeline lineno="78"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(sensor<sp/>==<sp/>NULL)</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0.0f;</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>sensor-&gt;<ref refid="structSYN__Climate_1a5840c299cda263670c2808d3433fc644" kindref="member">dew_point_c</ref>;</highlight></codeline>
+<codeline lineno="82"><highlight class="normal">}</highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/sensor/syn_climate.c"/>
+  </compounddef>
+</doxygen>

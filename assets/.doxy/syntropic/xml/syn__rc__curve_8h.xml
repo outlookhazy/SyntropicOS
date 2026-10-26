@@ -1,0 +1,173 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__rc__curve_8h" kind="file" language="C++">
+    <compoundname>syn_rc_curve.h</compoundname>
+    <includes refid="syn__defs_8h" local="yes">syntropic/common/syn_defs.h</includes>
+    <includes refid="syn__qmath_8h" local="yes">syntropic/util/syn_qmath.h</includes>
+    <includes local="no">stdbool.h</includes>
+    <includes local="no">stddef.h</includes>
+    <includes local="no">stdint.h</includes>
+    <includedby refid="syn__rc__curve_8c" local="yes">src/syntropic/control/syn_rc_curve.c</includedby>
+    <includedby refid="syntropic_8h" local="yes">src/syntropic/syntropic.h</includedby>
+    <incdepgraph>
+      <node id="2">
+        <label>syntropic/common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/control/syn_rc_curve.h</label>
+        <link refid="syn__rc__curve_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>syntropic/util/syn_qmath.h</label>
+        <link refid="syn__qmath_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>stdbool.h</label>
+      </node>
+      <node id="3">
+        <label>stddef.h</label>
+      </node>
+      <node id="4">
+        <label>stdint.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="2">
+        <label>src/syntropic/control/syn_rc_curve.c</label>
+        <link refid="syn__rc__curve_8c"/>
+      </node>
+      <node id="1">
+        <label>src/syntropic/control/syn_rc_curve.h</label>
+        <link refid="syn__rc__curve_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>src/syntropic/proto/syn_doip.c</label>
+        <link refid="syn__doip_8c"/>
+      </node>
+      <node id="4">
+        <label>src/syntropic/proto/syn_doip.h</label>
+        <link refid="syn__doip_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>src/syntropic/syntropic.h</label>
+        <link refid="syntropic_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="structSYN__RCCurve__Config" prot="public">SYN_RCCurve_Config</innerclass>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__rc__curve_8h_1af5f473d0acebedd27f277b856921a9af" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint16_t</type>
+        <definition>uint16_t syn_rc_curve_apply</definition>
+        <argsstring>(uint16_t input_us, const SYN_RCCurve_Config *config)</argsstring>
+        <name>syn_rc_curve_apply</name>
+        <param>
+          <type>uint16_t</type>
+          <declname>input_us</declname>
+        </param>
+        <param>
+          <type>const <ref refid="structSYN__RCCurve__Config" kindref="compound">SYN_RCCurve_Config</ref> *</type>
+          <declname>config</declname>
+        </param>
+        <briefdescription>
+<para>Apply deadband, exponential response, and dual-rate scaling to raw RC channel (1000..2000 us). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>input_us</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Raw input pulse width in microseconds (1000..2000 us). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>config</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to RC curve configuration. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Scaled &amp; shaped output in microseconds (clamped 1000..2000 us). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/control/syn_rc_curve.h" line="44" column="10" bodyfile="src/syntropic/control/syn_rc_curve.c" bodystart="8" bodyend="72" declfile="src/syntropic/control/syn_rc_curve.h" declline="44" declcolumn="10"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Zero-Heap RC Stick Exponential (Expo) &amp; Deadband Curve Mapper. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Provides stick input response shaping for drones/RC models:<itemizedlist>
+<listitem><para>Deadband filtering: Ignores micro-stick jitter around neutral center (1500 us +/- deadband).</para>
+</listitem><listitem><para>Exponential curve: y = (1 - expo) * x + expo * x^3 (softens center stick precision).</para>
+</listitem><listitem><para>Dual Rate: Scales output range (0..100%).</para>
+</listitem></itemizedlist>
+</para>
+<para>All operations use Q16.16 fixed-point arithmetic. Zero float / zero heap. </para>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_RC_CURVE_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_RC_CURVE_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__defs_8h" kindref="compound">syntropic/common/syn_defs.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__qmath_8h" kindref="compound">syntropic/util/syn_qmath.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stddef.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight></codeline>
+<codeline lineno="29" refid="structSYN__RCCurve__Config" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="30"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t</highlight></codeline>
+<codeline lineno="31" refid="structSYN__RCCurve__Config_1a19ea0843052a8a1cd54a5792e6af020a" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__RCCurve__Config_1a19ea0843052a8a1cd54a5792e6af020a" kindref="member">deadband_us</ref>;<sp/></highlight></codeline>
+<codeline lineno="32" refid="structSYN__RCCurve__Config_1aabb0ab879e727ebc330006278941f3d1" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/><ref refid="structSYN__RCCurve__Config_1aabb0ab879e727ebc330006278941f3d1" kindref="member">expo</ref>;<sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="33" refid="structSYN__RCCurve__Config_1aab6462b05665336128ecdc380d9465b7" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/><ref refid="structSYN__RCCurve__Config_1aab6462b05665336128ecdc380d9465b7" kindref="member">dual_rate</ref>;<sp/></highlight></codeline>
+<codeline lineno="34"><highlight class="normal">}<sp/><ref refid="structSYN__RCCurve__Config" kindref="compound">SYN_RCCurve_Config</ref>;</highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal">uint16_t<sp/><ref refid="syn__rc__curve_8h_1af5f473d0acebedd27f277b856921a9af" kindref="member">syn_rc_curve_apply</ref>(uint16_t<sp/>input_us,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__RCCurve__Config" kindref="compound">SYN_RCCurve_Config</ref><sp/>*config);</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight></codeline>
+<codeline lineno="46"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="47"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="49"><highlight class="normal"></highlight></codeline>
+<codeline lineno="50"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_RC_CURVE_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/control/syn_rc_curve.h"/>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,317 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__port__i2c_8h" kind="file" language="C++">
+    <compoundname>syn_port_i2c.h</compoundname>
+    <includes refid="syn__defs_8h" local="yes">../common/syn_defs.h</includes>
+    <includedby refid="syn__i2c_8h" local="yes">src/syntropic/drivers/syn_i2c.h</includedby>
+    <includedby refid="syn__i2c__dev_8h" local="yes">src/syntropic/drivers/syn_i2c_dev.h</includedby>
+    <includedby refid="syn__i2c__queue_8c" local="yes">src/syntropic/drivers/syn_i2c_queue.c</includedby>
+    <includedby refid="syn__i2c__queue_8h" local="yes">src/syntropic/drivers/syn_i2c_queue.h</includedby>
+    <includedby refid="syn__port__stubs_8c" local="yes">src/syntropic/port_stubs/syn_port_stubs.c</includedby>
+    <incdepgraph>
+      <node id="2">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/port/syn_port_i2c.h</label>
+        <link refid="syn__port__i2c_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>stddef.h</label>
+      </node>
+      <node id="4">
+        <label>stdint.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="3">
+        <label>src/syntropic/drivers/syn_i2c.c</label>
+        <link refid="syn__i2c_8c"/>
+      </node>
+      <node id="2">
+        <label>src/syntropic/drivers/syn_i2c.h</label>
+        <link refid="syn__i2c_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>src/syntropic/drivers/syn_i2c_dev.h</label>
+        <link refid="syn__i2c__dev_8h"/>
+      </node>
+      <node id="8">
+        <label>src/syntropic/drivers/syn_i2c_queue.c</label>
+        <link refid="syn__i2c__queue_8c"/>
+      </node>
+      <node id="9">
+        <label>src/syntropic/drivers/syn_i2c_queue.h</label>
+        <link refid="syn__i2c__queue_8h"/>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/port/syn_port_i2c.h</label>
+        <link refid="syn__port__i2c_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+      </node>
+      <node id="10">
+        <label>src/syntropic/port_stubs/syn_port_stubs.c</label>
+        <link refid="syn__port__stubs_8c"/>
+      </node>
+      <node id="6">
+        <label>src/syntropic/proto/syn_doip.c</label>
+        <link refid="syn__doip_8c"/>
+      </node>
+      <node id="5">
+        <label>src/syntropic/proto/syn_doip.h</label>
+        <link refid="syn__doip_8h"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>src/syntropic/syntropic.h</label>
+        <link refid="syntropic_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__port__i2c_8h_1ab4bd475b57fb5576baa7cb8466686848" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_port_i2c_init</definition>
+        <argsstring>(uint8_t i2c_id, uint32_t clock_speed_hz, uint8_t role, uint16_t own_addr)</argsstring>
+        <name>syn_port_i2c_init</name>
+        <param>
+          <type>uint8_t</type>
+          <declname>i2c_id</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>clock_speed_hz</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>role</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>own_addr</declname>
+        </param>
+        <briefdescription>
+<para>Initialize an I2C hardware instance. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>i2c_id</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Instance index (0 = I2C1, 1 = I2C2). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>clock_speed_hz</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Bus clock frequency in Hz (e.g. 100000, 400000). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>role</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>0 = Master, 1 = Slave. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>own_addr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>7-bit own slave address (used in Slave mode). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/port/syn_port_i2c.h" line="25" column="12" bodyfile="src/syntropic/port_stubs/syn_port_stubs.c" bodystart="170" bodyend="179" declfile="src/syntropic/port/syn_port_i2c.h" declline="25" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__port__i2c_8h_1a60e334801c7b9ac4ed1067f766523671" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_port_i2c_deinit</definition>
+        <argsstring>(uint8_t i2c_id)</argsstring>
+        <name>syn_port_i2c_deinit</name>
+        <param>
+          <type>uint8_t</type>
+          <declname>i2c_id</declname>
+        </param>
+        <briefdescription>
+<para>De-initialize an I2C hardware instance. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>i2c_id</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Instance index. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/port/syn_port_i2c.h" line="34" column="12" bodyfile="src/syntropic/port_stubs/syn_port_stubs.c" bodystart="181" bodyend="186" declfile="src/syntropic/port/syn_port_i2c.h" declline="34" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__port__i2c_8h_1a5c35e53c19f0bea16071f627580529e4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_port_i2c_transfer</definition>
+        <argsstring>(uint8_t i2c_id, uint16_t addr, const uint8_t *tx, size_t tx_len, uint8_t *rx, size_t rx_len)</argsstring>
+        <name>syn_port_i2c_transfer</name>
+        <param>
+          <type>uint8_t</type>
+          <declname>i2c_id</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>addr</declname>
+        </param>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>tx</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>tx_len</declname>
+        </param>
+        <param>
+          <type>uint8_t *</type>
+          <declname>rx</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>rx_len</declname>
+        </param>
+        <briefdescription>
+<para>Perform an I2C transaction (Write, Read, or Write-Then-Read restart). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>i2c_id</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Instance index. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>addr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Target 7-bit slave address. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>tx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>TX data buffer (can be NULL if rx_len &gt; 0). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>tx_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Bytes to transmit. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>rx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>RX destination buffer (can be NULL if tx_len &gt; 0). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>rx_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Bytes to receive. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/port/syn_port_i2c.h" line="47" column="12" bodyfile="src/syntropic/port_stubs/syn_port_stubs.c" bodystart="188" bodyend="199" declfile="src/syntropic/port/syn_port_i2c.h" declline="47" declcolumn="12"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Port contract for Inter-Integrated Circuit (I2C) hardware. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_PORT_I2C_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_PORT_I2C_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../common/syn_defs.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__port__i2c_8h_1ab4bd475b57fb5576baa7cb8466686848" kindref="member">syn_port_i2c_init</ref>(uint8_t<sp/>i2c_id,<sp/>uint32_t<sp/>clock_speed_hz,<sp/>uint8_t<sp/>role,</highlight></codeline>
+<codeline lineno="26"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint16_t<sp/>own_addr);</highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__port__i2c_8h_1a60e334801c7b9ac4ed1067f766523671" kindref="member">syn_port_i2c_deinit</ref>(uint8_t<sp/>i2c_id);</highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__port__i2c_8h_1a5c35e53c19f0bea16071f627580529e4" kindref="member">syn_port_i2c_transfer</ref>(uint8_t<sp/>i2c_id,<sp/>uint16_t<sp/>addr,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*tx,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>tx_len,</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>*rx,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>rx_len);</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"></highlight></codeline>
+<codeline lineno="50"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="51"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="53"><highlight class="normal"></highlight></codeline>
+<codeline lineno="54"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_PORT_I2C_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/port/syn_port_i2c.h"/>
+  </compounddef>
+</doxygen>

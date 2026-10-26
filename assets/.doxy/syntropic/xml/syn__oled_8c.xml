@@ -1,0 +1,715 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__oled_8c" kind="file" language="C++">
+    <compoundname>syn_oled.c</compoundname>
+    <includes refid="syn__oled_8h" local="yes">syn_oled.h</includes>
+    <includes refid="syn__assert_8h" local="yes">../util/syn_assert.h</includes>
+    <includes local="no">string.h</includes>
+    <incdepgraph>
+      <node id="10">
+        <label>../common/syn_compiler.h</label>
+        <link refid="syn__compiler_8h"/>
+      </node>
+      <node id="3">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>../display/syn_canvas.h</label>
+        <link refid="syn__canvas_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/display/syn_oled.c</label>
+        <link refid="syn__oled_8c"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>syn_oled.h</label>
+        <link refid="syn__oled_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>../drivers/syn_soft_i2c.h</label>
+        <link refid="syn__soft__i2c_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="9">
+        <label>../util/syn_assert.h</label>
+        <link refid="syn__assert_8h"/>
+        <childnode refid="10" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>stdbool.h</label>
+      </node>
+      <node id="4">
+        <label>stddef.h</label>
+      </node>
+      <node id="5">
+        <label>stdint.h</label>
+      </node>
+      <node id="11">
+        <label>string.h</label>
+      </node>
+    </incdepgraph>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__oled_8c_1a1e9bd1de1c885d629692ad79f90506de" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void write_i2c_reg</definition>
+        <argsstring>(SYN_SoftI2C *i2c, uint8_t dev_addr, uint8_t reg, uint8_t val)</argsstring>
+        <name>write_i2c_reg</name>
+        <param>
+          <type><ref refid="structSYN__SoftI2C" kindref="compound">SYN_SoftI2C</ref> *</type>
+          <declname>i2c</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>dev_addr</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>reg</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>val</declname>
+        </param>
+        <briefdescription>
+<para>Write register byte over software I2C. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>i2c</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to I2C interface. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dev_addr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>7-bit device I2C address. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>reg</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Register address. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>val</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Register value. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/display/syn_oled.c" line="19" column="13" bodyfile="src/syntropic/display/syn_oled.c" bodystart="19" bodyend="26"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__oled_8c_1ab88367ff26bf50a5f8f39348a44e7e1f" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void send_command</definition>
+        <argsstring>(SYN_OLED *oled, uint8_t cmd)</argsstring>
+        <name>send_command</name>
+        <param>
+          <type><ref refid="structSYN__OLED" kindref="compound">SYN_OLED</ref> *</type>
+          <declname>oled</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>cmd</declname>
+        </param>
+        <briefdescription>
+<para>Send command byte to OLED controller. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>oled</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to OLED instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>cmd</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Command byte. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/display/syn_oled.c" line="33" column="13" bodyfile="src/syntropic/display/syn_oled.c" bodystart="33" bodyend="36"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__oled_8c_1ae9becbcc94924764752b5a0d6f397f51" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_oled_init</definition>
+        <argsstring>(SYN_OLED *oled, SYN_GPIO_Pin scl, SYN_GPIO_Pin sda, uint8_t i2c_addr, uint16_t w, uint16_t h, SYN_OLEDType type)</argsstring>
+        <name>syn_oled_init</name>
+        <param>
+          <type><ref refid="structSYN__OLED" kindref="compound">SYN_OLED</ref> *</type>
+          <declname>oled</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref></type>
+          <declname>scl</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref></type>
+          <declname>sda</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>i2c_addr</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>w</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>h</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__oled_8h_1af3b4860c2a0999915451b57f0c101135" kindref="member">SYN_OLEDType</ref></type>
+          <declname>type</declname>
+        </param>
+        <briefdescription>
+<para>Initialize Monochrome OLED display context. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>oled</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>OLED context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>scl</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>I2C SCL GPIO pin. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>sda</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>I2C SDA GPIO pin. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>i2c_addr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>I2C slave address (e.g. 0x3C or 0x3D). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>w</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Width in pixels (e.g. 128). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>h</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Height in pixels (e.g. 64 or 32). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>type</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>OLED IC Controller type (SSD1306, SH1106, SSD1309). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/display/syn_oled.c" line="38" column="12" bodyfile="src/syntropic/display/syn_oled.c" bodystart="38" bodyend="91"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__oled_8c_1a6fe470accded39bc118aaae5b434ee8c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_oled_set_contrast</definition>
+        <argsstring>(SYN_OLED *oled, uint8_t contrast)</argsstring>
+        <name>syn_oled_set_contrast</name>
+        <param>
+          <type><ref refid="structSYN__OLED" kindref="compound">SYN_OLED</ref> *</type>
+          <declname>oled</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>contrast</declname>
+        </param>
+        <briefdescription>
+<para>Set display contrast level. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>oled</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>OLED context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>contrast</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Contrast level (0 to 255). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/display/syn_oled.c" line="93" column="6" bodyfile="src/syntropic/display/syn_oled.c" bodystart="93" bodyend="100"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__oled_8c_1a49a96b69d228b315492d76273867bcfa" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_oled_set_invert</definition>
+        <argsstring>(SYN_OLED *oled, bool invert)</argsstring>
+        <name>syn_oled_set_invert</name>
+        <param>
+          <type><ref refid="structSYN__OLED" kindref="compound">SYN_OLED</ref> *</type>
+          <declname>oled</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+          <declname>invert</declname>
+        </param>
+        <briefdescription>
+<para>Set display color inversion. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>oled</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>OLED context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>invert</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>True for inverted display (black on white). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/display/syn_oled.c" line="102" column="6" bodyfile="src/syntropic/display/syn_oled.c" bodystart="102" bodyend="108"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__oled_8c_1ae3074377d88c0ff47496dfc3dc7e0bef" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_oled_set_display_on</definition>
+        <argsstring>(SYN_OLED *oled, bool on)</argsstring>
+        <name>syn_oled_set_display_on</name>
+        <param>
+          <type><ref refid="structSYN__OLED" kindref="compound">SYN_OLED</ref> *</type>
+          <declname>oled</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+          <declname>on</declname>
+        </param>
+        <briefdescription>
+<para>Turn display ON or OFF (power save mode). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>oled</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>OLED context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>on</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>True for display ON. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/display/syn_oled.c" line="110" column="6" bodyfile="src/syntropic/display/syn_oled.c" bodystart="110" bodyend="116"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__oled_8c_1a21b0be4a7016dfd1c3701e76fedbbcb3" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>static bool get_canvas_pixel</definition>
+        <argsstring>(const SYN_Canvas *c, uint16_t x, uint16_t y)</argsstring>
+        <name>get_canvas_pixel</name>
+        <param>
+          <type>const <ref refid="structSYN__Canvas" kindref="compound">SYN_Canvas</ref> *</type>
+          <declname>c</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>x</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>y</declname>
+        </param>
+        <briefdescription>
+<para>Get pixel state from monochrome canvas. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>c</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to canvas. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>x</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>X coordinate. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>y</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Y coordinate. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>True if pixel set, false if clear. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/display/syn_oled.c" line="125" column="13" bodyfile="src/syntropic/display/syn_oled.c" bodystart="125" bodyend="133"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__oled_8c_1a7b47c2945134771409804ccf32641135" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_oled_flush_canvas</definition>
+        <argsstring>(SYN_OLED *oled, const SYN_Canvas *c)</argsstring>
+        <name>syn_oled_flush_canvas</name>
+        <param>
+          <type><ref refid="structSYN__OLED" kindref="compound">SYN_OLED</ref> *</type>
+          <declname>oled</declname>
+        </param>
+        <param>
+          <type>const <ref refid="structSYN__Canvas" kindref="compound">SYN_Canvas</ref> *</type>
+          <declname>c</declname>
+        </param>
+        <briefdescription>
+<para>Flush canvas pixel buffer to physical OLED display screen. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>oled</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>OLED context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>c</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Source Canvas context. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/display/syn_oled.c" line="135" column="6" bodyfile="src/syntropic/display/syn_oled.c" bodystart="135" bodyend="160"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__oled_8c_1a673e7ccfab7867c2cfbe5aa5874369b5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_oled_canvas_flush_cb</definition>
+        <argsstring>(const uint8_t *buf, size_t len, void *ctx)</argsstring>
+        <name>syn_oled_canvas_flush_cb</name>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>len</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>ctx</declname>
+        </param>
+        <briefdescription>
+<para>Canvas flush callback matching SYN_Canvas_FlushFn signature. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Framebuffer byte array. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Byte array length. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>ctx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Context pointer (<ref refid="structSYN__OLED" kindref="compound">SYN_OLED</ref> instance). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/display/syn_oled.c" line="162" column="6" bodyfile="src/syntropic/display/syn_oled.c" bodystart="162" bodyend="167"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Generic Monochrome OLED Display Driver (SSD1306, SH1106, SSD1309 over I2C). </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__oled_8h" kindref="compound">syn_oled.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../util/syn_assert.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;string.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__oled_8c_1a1e9bd1de1c885d629692ad79f90506de" kindref="member">write_i2c_reg</ref>(<ref refid="structSYN__SoftI2C" kindref="compound">SYN_SoftI2C</ref><sp/>*i2c,<sp/>uint8_t<sp/>dev_addr,<sp/>uint8_t<sp/>reg,<sp/>uint8_t<sp/>val)</highlight></codeline>
+<codeline lineno="20"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="21"><highlight class="normal"><sp/><sp/><sp/><sp/>syn_soft_i2c_start(i2c);</highlight></codeline>
+<codeline lineno="22"><highlight class="normal"><sp/><sp/><sp/><sp/>syn_soft_i2c_write(i2c,<sp/>(uint8_t)(dev_addr<sp/>&lt;&lt;<sp/>1));</highlight></codeline>
+<codeline lineno="23"><highlight class="normal"><sp/><sp/><sp/><sp/>syn_soft_i2c_write(i2c,<sp/>reg);</highlight></codeline>
+<codeline lineno="24"><highlight class="normal"><sp/><sp/><sp/><sp/>syn_soft_i2c_write(i2c,<sp/>val);</highlight></codeline>
+<codeline lineno="25"><highlight class="normal"><sp/><sp/><sp/><sp/>syn_soft_i2c_stop(i2c);</highlight></codeline>
+<codeline lineno="26"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__oled_8c_1ab88367ff26bf50a5f8f39348a44e7e1f" kindref="member">send_command</ref>(<ref refid="structSYN__OLED" kindref="compound">SYN_OLED</ref><sp/>*oled,<sp/>uint8_t<sp/>cmd)</highlight></codeline>
+<codeline lineno="34"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="35"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__oled_8c_1a1e9bd1de1c885d629692ad79f90506de" kindref="member">write_i2c_reg</ref>(&amp;oled-&gt;<ref refid="structSYN__OLED_1aa61a482ac44967f62e076fe7ab2ed0b3" kindref="member">i2c</ref>,<sp/>oled-&gt;<ref refid="structSYN__OLED_1ac78e3273c37469781b8ab9f7792686c7" kindref="member">i2c_addr</ref>,<sp/>0x00,<sp/>cmd);</highlight></codeline>
+<codeline lineno="36"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__oled_8c_1ae9becbcc94924764752b5a0d6f397f51" kindref="member">syn_oled_init</ref>(<ref refid="structSYN__OLED" kindref="compound">SYN_OLED</ref><sp/>*oled,<sp/><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref><sp/>scl,<sp/><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref><sp/>sda,<sp/>uint8_t<sp/>i2c_addr,</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint16_t<sp/>w,<sp/>uint16_t<sp/>h,<sp/><ref refid="syn__oled_8h_1af3b4860c2a0999915451b57f0c101135" kindref="member">SYN_OLEDType</ref><sp/>type)</highlight></codeline>
+<codeline lineno="40"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(oled<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(w<sp/>&gt;<sp/>0<sp/>&amp;&amp;<sp/>h<sp/>&gt;<sp/>0);</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal"><sp/><sp/><sp/><sp/>memset(oled,<sp/>0,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(*oled));</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"><sp/><sp/><sp/><sp/>oled-&gt;<ref refid="structSYN__OLED_1afce3bba6c3d180d1249e742d9eeec058" kindref="member">type</ref><sp/>=<sp/>type;</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/><sp/><sp/>oled-&gt;<ref refid="structSYN__OLED_1aa86ded533aa051d9f2b91ac2a6bfecb4" kindref="member">width</ref><sp/>=<sp/>w;</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/><sp/><sp/>oled-&gt;<ref refid="structSYN__OLED_1a5fef0ad89ee6e5d8c7a7f9c6806b8079" kindref="member">height</ref><sp/>=<sp/>h;</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/><sp/><sp/>oled-&gt;<ref refid="structSYN__OLED_1ac78e3273c37469781b8ab9f7792686c7" kindref="member">i2c_addr</ref><sp/>=<sp/>i2c_addr;</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/><sp/><sp/>oled-&gt;<ref refid="structSYN__OLED_1a4b51db47a62f141a677313521ac81230" kindref="member">col_offset</ref><sp/>=<sp/>(type<sp/>==<sp/><ref refid="syn__oled_8h_1af3b4860c2a0999915451b57f0c101135a5caeea0fd5ca05d667f61bac47b4d770" kindref="member">SYN_OLED_SH1106</ref>)<sp/>?<sp/>2<sp/>:<sp/>0;</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/><sp/><sp/>oled-&gt;<ref refid="structSYN__OLED_1ac7bb556fd5510d8a18ba238f43ffe7ae" kindref="member">display_on</ref><sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><sp/><sp/><sp/><sp/>oled-&gt;<ref refid="structSYN__OLED_1a78c785a8af7f96c90eb12a2abcbd54d0" kindref="member">contrast</ref><sp/>=<sp/>0xCF;</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"></highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/><sp/><sp/>syn_soft_i2c_init(&amp;oled-&gt;<ref refid="structSYN__OLED_1aa61a482ac44967f62e076fe7ab2ed0b3" kindref="member">i2c</ref>,<sp/>scl,<sp/>sda,<sp/>10);</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"></highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Initialization<sp/>sequence<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__oled_8c_1ab88367ff26bf50a5f8f39348a44e7e1f" kindref="member">send_command</ref>(oled,<sp/>0xAE);<sp/></highlight><highlight class="comment">/*<sp/>Display<sp/>OFF<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__oled_8c_1ab88367ff26bf50a5f8f39348a44e7e1f" kindref="member">send_command</ref>(oled,<sp/>0xD5);<sp/></highlight><highlight class="comment">/*<sp/>Set<sp/>Display<sp/>Clock<sp/>Divide<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__oled_8c_1ab88367ff26bf50a5f8f39348a44e7e1f" kindref="member">send_command</ref>(oled,<sp/>0x80);</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__oled_8c_1ab88367ff26bf50a5f8f39348a44e7e1f" kindref="member">send_command</ref>(oled,<sp/>0xA8);<sp/></highlight><highlight class="comment">/*<sp/>Set<sp/>Multiplex<sp/>Ratio<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="60"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__oled_8c_1ab88367ff26bf50a5f8f39348a44e7e1f" kindref="member">send_command</ref>(oled,<sp/>(uint8_t)(h<sp/>-<sp/>1));</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__oled_8c_1ab88367ff26bf50a5f8f39348a44e7e1f" kindref="member">send_command</ref>(oled,<sp/>0xD3);<sp/></highlight><highlight class="comment">/*<sp/>Set<sp/>Display<sp/>Offset<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="62"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__oled_8c_1ab88367ff26bf50a5f8f39348a44e7e1f" kindref="member">send_command</ref>(oled,<sp/>0x00);</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__oled_8c_1ab88367ff26bf50a5f8f39348a44e7e1f" kindref="member">send_command</ref>(oled,<sp/>0x40);<sp/></highlight><highlight class="comment">/*<sp/>Set<sp/>Start<sp/>Line<sp/>0<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="64"><highlight class="normal"></highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__oled_8c_1ab88367ff26bf50a5f8f39348a44e7e1f" kindref="member">send_command</ref>(oled,<sp/>0x8D);<sp/></highlight><highlight class="comment">/*<sp/>Charge<sp/>Pump<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__oled_8c_1ab88367ff26bf50a5f8f39348a44e7e1f" kindref="member">send_command</ref>(oled,<sp/>0x14);</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"></highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__oled_8c_1ab88367ff26bf50a5f8f39348a44e7e1f" kindref="member">send_command</ref>(oled,<sp/>0x20);<sp/></highlight><highlight class="comment">/*<sp/>Memory<sp/>Addressing<sp/>Mode:<sp/>Page<sp/>Addressing<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__oled_8c_1ab88367ff26bf50a5f8f39348a44e7e1f" kindref="member">send_command</ref>(oled,<sp/>0x02);</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"></highlight></codeline>
+<codeline lineno="71"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__oled_8c_1ab88367ff26bf50a5f8f39348a44e7e1f" kindref="member">send_command</ref>(oled,<sp/>0xA1);<sp/></highlight><highlight class="comment">/*<sp/>Segment<sp/>Re-map<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="72"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__oled_8c_1ab88367ff26bf50a5f8f39348a44e7e1f" kindref="member">send_command</ref>(oled,<sp/>0xC8);<sp/></highlight><highlight class="comment">/*<sp/>COM<sp/>Output<sp/>Scan<sp/>Direction<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="73"><highlight class="normal"></highlight></codeline>
+<codeline lineno="74"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__oled_8c_1ab88367ff26bf50a5f8f39348a44e7e1f" kindref="member">send_command</ref>(oled,<sp/>0xDA);<sp/></highlight><highlight class="comment">/*<sp/>Set<sp/>COM<sp/>Pins<sp/>Hardware<sp/>Configuration<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__oled_8c_1ab88367ff26bf50a5f8f39348a44e7e1f" kindref="member">send_command</ref>(oled,<sp/>(h<sp/>==<sp/>64)<sp/>?<sp/>0x12<sp/>:<sp/>0x02);</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"></highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__oled_8c_1ab88367ff26bf50a5f8f39348a44e7e1f" kindref="member">send_command</ref>(oled,<sp/>0x81);<sp/></highlight><highlight class="comment">/*<sp/>Set<sp/>Contrast<sp/>Control<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__oled_8c_1ab88367ff26bf50a5f8f39348a44e7e1f" kindref="member">send_command</ref>(oled,<sp/>0xCF);</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"></highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__oled_8c_1ab88367ff26bf50a5f8f39348a44e7e1f" kindref="member">send_command</ref>(oled,<sp/>0xD9);<sp/></highlight><highlight class="comment">/*<sp/>Set<sp/>Pre-charge<sp/>Period<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__oled_8c_1ab88367ff26bf50a5f8f39348a44e7e1f" kindref="member">send_command</ref>(oled,<sp/>0xF1);</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"></highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__oled_8c_1ab88367ff26bf50a5f8f39348a44e7e1f" kindref="member">send_command</ref>(oled,<sp/>0xDB);<sp/></highlight><highlight class="comment">/*<sp/>Set<sp/>VCOMH<sp/>Deselect<sp/>Level<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__oled_8c_1ab88367ff26bf50a5f8f39348a44e7e1f" kindref="member">send_command</ref>(oled,<sp/>0x40);</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"></highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__oled_8c_1ab88367ff26bf50a5f8f39348a44e7e1f" kindref="member">send_command</ref>(oled,<sp/>0xA4);<sp/></highlight><highlight class="comment">/*<sp/>Entire<sp/>Display<sp/>ON<sp/>resume<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__oled_8c_1ab88367ff26bf50a5f8f39348a44e7e1f" kindref="member">send_command</ref>(oled,<sp/>0xA6);<sp/></highlight><highlight class="comment">/*<sp/>Normal<sp/>Display<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__oled_8c_1ab88367ff26bf50a5f8f39348a44e7e1f" kindref="member">send_command</ref>(oled,<sp/>0xAF);<sp/></highlight><highlight class="comment">/*<sp/>Display<sp/>ON<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="89"><highlight class="normal"></highlight></codeline>
+<codeline lineno="90"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="91"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"></highlight></codeline>
+<codeline lineno="93"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__oled_8c_1a6fe470accded39bc118aaae5b434ee8c" kindref="member">syn_oled_set_contrast</ref>(<ref refid="structSYN__OLED" kindref="compound">SYN_OLED</ref><sp/>*oled,<sp/>uint8_t<sp/>contrast)</highlight></codeline>
+<codeline lineno="94"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(oled<sp/>==<sp/>NULL)</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><sp/><sp/><sp/><sp/>oled-&gt;<ref refid="structSYN__OLED_1a78c785a8af7f96c90eb12a2abcbd54d0" kindref="member">contrast</ref><sp/>=<sp/>contrast;</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__oled_8c_1ab88367ff26bf50a5f8f39348a44e7e1f" kindref="member">send_command</ref>(oled,<sp/>0x81);</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__oled_8c_1ab88367ff26bf50a5f8f39348a44e7e1f" kindref="member">send_command</ref>(oled,<sp/>contrast);</highlight></codeline>
+<codeline lineno="100"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"></highlight></codeline>
+<codeline lineno="102"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__oled_8c_1a49a96b69d228b315492d76273867bcfa" kindref="member">syn_oled_set_invert</ref>(<ref refid="structSYN__OLED" kindref="compound">SYN_OLED</ref><sp/>*oled,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>invert)</highlight></codeline>
+<codeline lineno="103"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(oled<sp/>==<sp/>NULL)</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"><sp/><sp/><sp/><sp/>oled-&gt;<ref refid="structSYN__OLED_1a790fac4439187e0261937f8c639881bd" kindref="member">inverted</ref><sp/>=<sp/>invert;</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__oled_8c_1ab88367ff26bf50a5f8f39348a44e7e1f" kindref="member">send_command</ref>(oled,<sp/>invert<sp/>?<sp/>0xA7<sp/>:<sp/>0xA6);</highlight></codeline>
+<codeline lineno="108"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="109"><highlight class="normal"></highlight></codeline>
+<codeline lineno="110"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__oled_8c_1ae3074377d88c0ff47496dfc3dc7e0bef" kindref="member">syn_oled_set_display_on</ref>(<ref refid="structSYN__OLED" kindref="compound">SYN_OLED</ref><sp/>*oled,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>on)</highlight></codeline>
+<codeline lineno="111"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="112"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(oled<sp/>==<sp/>NULL)</highlight></codeline>
+<codeline lineno="113"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"><sp/><sp/><sp/><sp/>oled-&gt;<ref refid="structSYN__OLED_1ac7bb556fd5510d8a18ba238f43ffe7ae" kindref="member">display_on</ref><sp/>=<sp/>on;</highlight></codeline>
+<codeline lineno="115"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__oled_8c_1ab88367ff26bf50a5f8f39348a44e7e1f" kindref="member">send_command</ref>(oled,<sp/>on<sp/>?<sp/>0xAF<sp/>:<sp/>0xAE);</highlight></codeline>
+<codeline lineno="116"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="117"><highlight class="normal"></highlight></codeline>
+<codeline lineno="125"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__oled_8c_1a21b0be4a7016dfd1c3701e76fedbbcb3" kindref="member">get_canvas_pixel</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__Canvas" kindref="compound">SYN_Canvas</ref><sp/>*c,<sp/>uint16_t<sp/>x,<sp/>uint16_t<sp/>y)</highlight></codeline>
+<codeline lineno="126"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="127"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(c<sp/>==<sp/>NULL<sp/>||<sp/>c-&gt;<ref refid="structSYN__Canvas_1a38c58129495bce049963483f4b12b09c" kindref="member">framebuf</ref><sp/>==<sp/>NULL<sp/>||<sp/>x<sp/>&gt;=<sp/>c-&gt;<ref refid="structSYN__Canvas_1a2b6cfe4a06a63a3d920364e54f03730f" kindref="member">width</ref><sp/>||<sp/>y<sp/>&gt;=<sp/>c-&gt;<ref refid="structSYN__Canvas_1a6a53b7db4caa1ae388511871ee759e3f" kindref="member">height</ref>)</highlight></codeline>
+<codeline lineno="128"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;<sp/></highlight><highlight class="comment">/*<sp/>LCOV_EXCL_LINE:<sp/>Defensive<sp/>NULL<sp/>check<sp/>or<sp/>invalid<sp/>parameter<sp/>fallback<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="129"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>pixel_idx<sp/>=<sp/>(size_t)y<sp/>*<sp/>c-&gt;<ref refid="structSYN__Canvas_1a2b6cfe4a06a63a3d920364e54f03730f" kindref="member">width</ref><sp/>+<sp/>x;</highlight></codeline>
+<codeline lineno="130"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>byte_idx<sp/>=<sp/>pixel_idx<sp/>/<sp/>8;</highlight></codeline>
+<codeline lineno="131"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>bit_idx<sp/>=<sp/>(uint8_t)(7<sp/>-<sp/>(pixel_idx<sp/>%<sp/>8));</highlight></codeline>
+<codeline lineno="132"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(c-&gt;<ref refid="structSYN__Canvas_1a38c58129495bce049963483f4b12b09c" kindref="member">framebuf</ref>[byte_idx]<sp/>&amp;<sp/>(1u<sp/>&lt;&lt;<sp/>bit_idx))<sp/>!=<sp/>0;</highlight></codeline>
+<codeline lineno="133"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="134"><highlight class="normal"></highlight></codeline>
+<codeline lineno="135"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__oled_8c_1a7b47c2945134771409804ccf32641135" kindref="member">syn_oled_flush_canvas</ref>(<ref refid="structSYN__OLED" kindref="compound">SYN_OLED</ref><sp/>*oled,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__Canvas" kindref="compound">SYN_Canvas</ref><sp/>*c)</highlight></codeline>
+<codeline lineno="136"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="137"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(oled<sp/>==<sp/>NULL<sp/>||<sp/>c<sp/>==<sp/>NULL<sp/>||<sp/>c-&gt;<ref refid="structSYN__Canvas_1a38c58129495bce049963483f4b12b09c" kindref="member">framebuf</ref><sp/>==<sp/>NULL)</highlight></codeline>
+<codeline lineno="138"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="139"><highlight class="normal"></highlight></codeline>
+<codeline lineno="140"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>pages<sp/>=<sp/>(uint8_t)(oled-&gt;<ref refid="structSYN__OLED_1a5fef0ad89ee6e5d8c7a7f9c6806b8079" kindref="member">height</ref><sp/>/<sp/>8);</highlight></codeline>
+<codeline lineno="141"><highlight class="normal"></highlight></codeline>
+<codeline lineno="142"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(uint8_t<sp/>p<sp/>=<sp/>0;<sp/>p<sp/>&lt;<sp/>pages;<sp/>p++)<sp/>{</highlight></codeline>
+<codeline lineno="143"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__oled_8c_1ab88367ff26bf50a5f8f39348a44e7e1f" kindref="member">send_command</ref>(oled,<sp/>(uint8_t)(0xB0<sp/>+<sp/>p));<sp/></highlight><highlight class="comment">/*<sp/>Page<sp/>address<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="144"><highlight class="normal"></highlight></codeline>
+<codeline lineno="145"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>col<sp/>=<sp/>(uint8_t)(0x00<sp/>+<sp/>oled-&gt;<ref refid="structSYN__OLED_1a4b51db47a62f141a677313521ac81230" kindref="member">col_offset</ref>);</highlight></codeline>
+<codeline lineno="146"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__oled_8c_1ab88367ff26bf50a5f8f39348a44e7e1f" kindref="member">send_command</ref>(oled,<sp/>(uint8_t)(col<sp/>&amp;<sp/>0x0F));<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Column<sp/>Low<sp/>Nibble<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="147"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__oled_8c_1ab88367ff26bf50a5f8f39348a44e7e1f" kindref="member">send_command</ref>(oled,<sp/>(uint8_t)(0x10<sp/>|<sp/>(col<sp/>&gt;&gt;<sp/>4)));<sp/></highlight><highlight class="comment">/*<sp/>Column<sp/>High<sp/>Nibble<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="148"><highlight class="normal"></highlight></codeline>
+<codeline lineno="149"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(uint16_t<sp/>x<sp/>=<sp/>0;<sp/>x<sp/>&lt;<sp/>oled-&gt;<ref refid="structSYN__OLED_1aa86ded533aa051d9f2b91ac2a6bfecb4" kindref="member">width</ref>;<sp/>x++)<sp/>{</highlight></codeline>
+<codeline lineno="150"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/></highlight><highlight class="keywordtype">byte</highlight><highlight class="normal"><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="151"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(uint8_t<sp/>bit<sp/>=<sp/>0;<sp/>bit<sp/>&lt;<sp/>8;<sp/>bit++)<sp/>{</highlight></codeline>
+<codeline lineno="152"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint16_t<sp/>y<sp/>=<sp/>(uint16_t)(p<sp/>*<sp/>8<sp/>+<sp/>bit);</highlight></codeline>
+<codeline lineno="153"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="syn__oled_8c_1a21b0be4a7016dfd1c3701e76fedbbcb3" kindref="member">get_canvas_pixel</ref>(c,<sp/>x,<sp/>y))<sp/>{</highlight></codeline>
+<codeline lineno="154"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">byte</highlight><highlight class="normal"><sp/>|=<sp/>(uint8_t)(1u<sp/>&lt;&lt;<sp/>bit);</highlight></codeline>
+<codeline lineno="155"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="156"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="157"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__oled_8c_1a1e9bd1de1c885d629692ad79f90506de" kindref="member">write_i2c_reg</ref>(&amp;oled-&gt;<ref refid="structSYN__OLED_1aa61a482ac44967f62e076fe7ab2ed0b3" kindref="member">i2c</ref>,<sp/>oled-&gt;<ref refid="structSYN__OLED_1ac78e3273c37469781b8ab9f7792686c7" kindref="member">i2c_addr</ref>,<sp/>0x40,<sp/></highlight><highlight class="keywordtype">byte</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="158"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="159"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="160"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="161"><highlight class="normal"></highlight></codeline>
+<codeline lineno="162"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__oled_8c_1a673e7ccfab7867c2cfbe5aa5874369b5" kindref="member">syn_oled_canvas_flush_cb</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*buf,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>len,<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*ctx)</highlight></codeline>
+<codeline lineno="163"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="164"><highlight class="normal"><sp/><sp/><sp/><sp/>(void)buf;</highlight></codeline>
+<codeline lineno="165"><highlight class="normal"><sp/><sp/><sp/><sp/>(void)len;</highlight></codeline>
+<codeline lineno="166"><highlight class="normal"><sp/><sp/><sp/><sp/>(void)ctx;</highlight></codeline>
+<codeline lineno="167"><highlight class="normal">}</highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/display/syn_oled.c"/>
+  </compounddef>
+</doxygen>

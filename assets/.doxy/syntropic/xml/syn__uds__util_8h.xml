@@ -1,0 +1,199 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__uds__util_8h" kind="file" language="C++">
+    <compoundname>syn_uds_util.h</compoundname>
+    <includes refid="syn__defs_8h" local="yes">syntropic/common/syn_defs.h</includes>
+    <includes local="no">stdbool.h</includes>
+    <includes local="no">stddef.h</includes>
+    <includes local="no">stdint.h</includes>
+    <includedby refid="syn__uds__util_8c" local="yes">src/syntropic/proto/syn_uds_util.c</includedby>
+    <incdepgraph>
+      <node id="2">
+        <label>syntropic/common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/proto/syn_uds_util.h</label>
+        <link refid="syn__uds__util_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>stdbool.h</label>
+      </node>
+      <node id="3">
+        <label>stddef.h</label>
+      </node>
+      <node id="4">
+        <label>stdint.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="2">
+        <label>src/syntropic/proto/syn_uds_util.c</label>
+        <link refid="syn__uds__util_8c"/>
+      </node>
+      <node id="1">
+        <label>src/syntropic/proto/syn_uds_util.h</label>
+        <link refid="syn__uds__util_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__uds__util_8h_1a8f34b518a88e19efcf65ac226c828116" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_uds_dtc_from_str</definition>
+        <argsstring>(const char *str, uint32_t *dtc_out)</argsstring>
+        <name>syn_uds_dtc_from_str</name>
+        <param>
+          <type>const char *</type>
+          <declname>str</declname>
+        </param>
+        <param>
+          <type>uint32_t *</type>
+          <declname>dtc_out</declname>
+        </param>
+        <briefdescription>
+<para>Parse a 5, 6, or 7-character SAE J2012 DTC string into a 24-bit UDS integer. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Accepts strings like:<itemizedlist>
+<listitem><para>&quot;P0105&quot; or &quot;P010500&quot; -&gt; 0x010500</para>
+</listitem><listitem><para>&quot;B111717&quot; -&gt; 0x911717</para>
+</listitem><listitem><para>&quot;U013100&quot; -&gt; 0xC13100</para>
+</listitem><listitem><para>&quot;C101000&quot; -&gt; 0x501000</para>
+</listitem></itemizedlist>
+</para>
+<para>Case-insensitive for prefix (p/c/b/u or P/C/B/U) and hex digits.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>str</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Null-terminated SAE J2012 DTC string. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dtc_out</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>[out] Destination for parsed 24-bit DTC value. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if successfully parsed, false on invalid format. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_uds_util.h" line="40" column="6" bodyfile="src/syntropic/proto/syn_uds_util.c" bodystart="32" bodyend="90" declfile="src/syntropic/proto/syn_uds_util.h" declline="40" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__uds__util_8h_1acbf93f6ebf5b9b6a2ede782d6c7a61bf" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_uds_dtc_to_str</definition>
+        <argsstring>(uint32_t dtc, char *out_buf, size_t buf_size)</argsstring>
+        <name>syn_uds_dtc_to_str</name>
+        <param>
+          <type>uint32_t</type>
+          <declname>dtc</declname>
+        </param>
+        <param>
+          <type>char *</type>
+          <declname>out_buf</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>buf_size</declname>
+        </param>
+        <briefdescription>
+<para>Format a 24-bit UDS integer into a standard SAE J2012 DTC display string. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Formats values like:<itemizedlist>
+<listitem><para>0x010500 -&gt; &quot;P010500&quot;</para>
+</listitem><listitem><para>0x911717 -&gt; &quot;B111717&quot;</para>
+</listitem><listitem><para>0xC13100 -&gt; &quot;U013100&quot;</para>
+</listitem></itemizedlist>
+</para>
+<para>Buffer must have a capacity of at least 8 bytes (7 chars + null terminator).</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>dtc</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>24-bit UDS DTC integer value. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out_buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Destination string buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>buf_size</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Capacity of output buffer (minimum 8 bytes). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if formatted successfully, false if buffer too small or NULL. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_uds_util.h" line="57" column="6" bodyfile="src/syntropic/proto/syn_uds_util.c" bodystart="92" bodyend="120" declfile="src/syntropic/proto/syn_uds_util.h" declline="57" declcolumn="6"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>SAE J2012 / ISO 15031-6 UDS Diagnostic Trouble Code (DTC) Utilities. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Provides standalone, zero-heap conversion functions between human-readable SAE J2012 DTC strings (e.g., &quot;P010500&quot;, &quot;B111717&quot;, &quot;U013100&quot;) and 24-bit UDS wire integers (e.g., 0x010500, 0x911717, 0xC13100). </para>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_UDS_UTIL_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_UDS_UTIL_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__defs_8h" kindref="compound">syntropic/common/syn_defs.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stddef.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__uds__util_8h_1a8f34b518a88e19efcf65ac226c828116" kindref="member">syn_uds_dtc_from_str</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*str,<sp/>uint32_t<sp/>*dtc_out);</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight></codeline>
+<codeline lineno="57"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__uds__util_8h_1acbf93f6ebf5b9b6a2ede782d6c7a61bf" kindref="member">syn_uds_dtc_to_str</ref>(uint32_t<sp/>dtc,<sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*out_buf,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>buf_size);</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"></highlight></codeline>
+<codeline lineno="59"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="60"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="62"><highlight class="normal"></highlight></codeline>
+<codeline lineno="63"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_UDS_UTIL_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/proto/syn_uds_util.h"/>
+  </compounddef>
+</doxygen>

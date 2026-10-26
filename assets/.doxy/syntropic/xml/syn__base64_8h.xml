@@ -1,0 +1,538 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__base64_8h" kind="file" language="C++">
+    <compoundname>syn_base64.h</compoundname>
+    <includes local="no">stdbool.h</includes>
+    <includes local="no">stddef.h</includes>
+    <includes local="no">stdint.h</includes>
+    <includes local="no">string.h</includes>
+    <includedby refid="syn__websocket_8c" local="yes">src/syntropic/net/syn_websocket.c</includedby>
+    <includedby refid="syntropic_8h" local="yes">src/syntropic/syntropic.h</includedby>
+    <includedby refid="syn__base64_8c" local="yes">src/syntropic/util/syn_base64.c</includedby>
+    <incdepgraph>
+      <node id="1">
+        <label>src/syntropic/util/syn_base64.h</label>
+        <link refid="syn__base64_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>stdbool.h</label>
+      </node>
+      <node id="3">
+        <label>stddef.h</label>
+      </node>
+      <node id="4">
+        <label>stdint.h</label>
+      </node>
+      <node id="5">
+        <label>string.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="2">
+        <label>src/syntropic/net/syn_websocket.c</label>
+        <link refid="syn__websocket_8c"/>
+      </node>
+      <node id="5">
+        <label>src/syntropic/proto/syn_doip.c</label>
+        <link refid="syn__doip_8c"/>
+      </node>
+      <node id="4">
+        <label>src/syntropic/proto/syn_doip.h</label>
+        <link refid="syn__doip_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>src/syntropic/syntropic.h</label>
+        <link refid="syntropic_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>src/syntropic/util/syn_base64.c</label>
+        <link refid="syn__base64_8c"/>
+      </node>
+      <node id="1">
+        <label>src/syntropic/util/syn_base64.h</label>
+        <link refid="syn__base64_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__base64_8h_1aeee27946f6cafe7a8e318fe6dee44030" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>size_t</type>
+        <definition>static size_t syn_base64_calc_encoded_size</definition>
+        <argsstring>(size_t raw_len)</argsstring>
+        <name>syn_base64_calc_encoded_size</name>
+        <param>
+          <type>size_t</type>
+          <declname>raw_len</declname>
+        </param>
+        <briefdescription>
+<para>Calculate the buffer size needed for standard Base64 encoding. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Includes padding (<computeroutput>=</computeroutput>) and space for the null terminator.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>raw_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of raw binary bytes. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Total character buffer capacity needed (including null terminator). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_base64.h" line="56" column="22" bodyfile="src/syntropic/util/syn_base64.h" bodystart="56" bodyend="59"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__base64_8h_1a6b9b7419be92cb821cf2a77e35f74308" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>size_t</type>
+        <definition>static size_t syn_base64_calc_max_decoded_size</definition>
+        <argsstring>(size_t b64_len)</argsstring>
+        <name>syn_base64_calc_max_decoded_size</name>
+        <param>
+          <type>size_t</type>
+          <declname>b64_len</declname>
+        </param>
+        <briefdescription>
+<para>Calculate the maximum binary buffer size needed to decode a Base64 string. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>b64_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of characters in Base64 string. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Maximum number of binary bytes after decoding. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_base64.h" line="67" column="22" bodyfile="src/syntropic/util/syn_base64.h" bodystart="67" bodyend="70"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__base64_8h_1a7801014b6916d13ce38c82541159839e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_base64_encode</definition>
+        <argsstring>(const uint8_t *src, size_t src_len, char *dst, size_t dst_size, size_t *out_len)</argsstring>
+        <name>syn_base64_encode</name>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>src</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>src_len</declname>
+        </param>
+        <param>
+          <type>char *</type>
+          <declname>dst</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>dst_size</declname>
+        </param>
+        <param>
+          <type>size_t *</type>
+          <declname>out_len</declname>
+        </param>
+        <briefdescription>
+<para>Encode binary data to standard RFC 4648 Base64 string. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Uses alphabet <computeroutput>[A-Za-z0-9+/]</computeroutput> and adds <computeroutput>=</computeroutput> padding when needed. Always null-terminates the output if <computeroutput>dst_size &gt; 0</computeroutput>.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>src</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Input binary data. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>src_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Length of input binary data in bytes. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dst</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>[out] Output string buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dst_size</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Capacity of output buffer in bytes (must be &gt;= <computeroutput>syn_base64_calc_encoded_size(src_len)</computeroutput>). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>[out] Optional pointer to receive character length written (excluding null). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true on success, false if parameters are invalid or buffer is too small. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_base64.h" line="86" column="6" bodyfile="src/syntropic/util/syn_base64.c" bodystart="71" bodyend="118" declfile="src/syntropic/util/syn_base64.h" declline="86" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__base64_8h_1a6f8039a4ba0886500b72908a787d0136" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_base64_decode</definition>
+        <argsstring>(const char *src, size_t src_len, uint8_t *dst, size_t dst_size, size_t *out_len)</argsstring>
+        <name>syn_base64_decode</name>
+        <param>
+          <type>const char *</type>
+          <declname>src</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>src_len</declname>
+        </param>
+        <param>
+          <type>uint8_t *</type>
+          <declname>dst</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>dst_size</declname>
+        </param>
+        <param>
+          <type>size_t *</type>
+          <declname>out_len</declname>
+        </param>
+        <briefdescription>
+<para>Decode an RFC 4648 standard Base64 string into binary data. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Automatically skips whitespace characters (spaces, tabs, CR, LF). Rejects invalid non-base64 characters and malformed padding.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>src</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Input Base64 string (null-terminated or bounded by <computeroutput>src_len</computeroutput>). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>src_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Length of input string (or <computeroutput>0</computeroutput> to determine via <computeroutput>strlen</computeroutput>). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dst</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>[out] Output binary buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dst_size</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Capacity of output buffer in bytes. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>[out] Optional pointer to receive actual binary bytes written. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true on success, false if input contains invalid characters or destination is too small. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_base64.h" line="102" column="6" bodyfile="src/syntropic/util/syn_base64.c" bodystart="240" bodyend="244" declfile="src/syntropic/util/syn_base64.h" declline="102" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__base64_8h_1a32a05a30985c48730f950f721168c2a2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_base64url_encode</definition>
+        <argsstring>(const uint8_t *src, size_t src_len, char *dst, size_t dst_size, bool with_padding, size_t *out_len)</argsstring>
+        <name>syn_base64url_encode</name>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>src</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>src_len</declname>
+        </param>
+        <param>
+          <type>char *</type>
+          <declname>dst</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>dst_size</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+          <declname>with_padding</declname>
+        </param>
+        <param>
+          <type>size_t *</type>
+          <declname>out_len</declname>
+        </param>
+        <briefdescription>
+<para>Encode binary data to RFC 4648 Base64URL string. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Uses URL-safe alphabet <computeroutput>[A-Za-z0-9-_]</computeroutput>.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>src</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Input binary data. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>src_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Length of input binary data in bytes. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dst</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>[out] Output string buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dst_size</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Capacity of output buffer in bytes. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>with_padding</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>If true, appends <computeroutput>=</computeroutput> padding; if false, omits padding (standard JWT format). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>[out] Optional pointer to receive character length written (excluding null). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true on success, false if buffer is too small or parameters invalid. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_base64.h" line="118" column="6" bodyfile="src/syntropic/util/syn_base64.c" bodystart="120" bodyend="172" declfile="src/syntropic/util/syn_base64.h" declline="118" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__base64_8h_1a561339e8289904324b2cd292fed1b289" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_base64url_decode</definition>
+        <argsstring>(const char *src, size_t src_len, uint8_t *dst, size_t dst_size, size_t *out_len)</argsstring>
+        <name>syn_base64url_decode</name>
+        <param>
+          <type>const char *</type>
+          <declname>src</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>src_len</declname>
+        </param>
+        <param>
+          <type>uint8_t *</type>
+          <declname>dst</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>dst_size</declname>
+        </param>
+        <param>
+          <type>size_t *</type>
+          <declname>out_len</declname>
+        </param>
+        <briefdescription>
+<para>Decode an RFC 4648 Base64URL string into binary data. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Supports both padded (<computeroutput>=</computeroutput>) and unpadded URL-safe strings.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>src</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Input Base64URL string. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>src_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Length of input string (or <computeroutput>0</computeroutput> to determine via <computeroutput>strlen</computeroutput>). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dst</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>[out] Output binary buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dst_size</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Capacity of output buffer in bytes. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>[out] Optional pointer to receive actual binary bytes written. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true on success, false on invalid input or insufficient buffer capacity. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_base64.h" line="133" column="6" bodyfile="src/syntropic/util/syn_base64.c" bodystart="246" bodyend="250" declfile="src/syntropic/util/syn_base64.h" declline="133" declcolumn="6"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>RFC 4648 Base64 and Base64URL encoding and decoding. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Implements pure C99 zero-allocation streaming Base64 (standard and URL-safe). Supports both padded and unpadded Base64URL formats, whitespace-tolerant decoding, and precise buffer length calculation.</para>
+<para><simplesect kind="par"><title>Standard Base64 Encoding</title><para><programlisting><codeline><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>data[]<sp/>=<sp/></highlight><highlight class="stringliteral">&quot;Hello<sp/>World&quot;</highlight><highlight class="normal">;</highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>b64[32];</highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>out_len<sp/>=<sp/>0;</highlight></codeline>
+<codeline><highlight class="normal"><ref refid="syn__base64_8c_1a7801014b6916d13ce38c82541159839e" kindref="member">syn_base64_encode</ref>(data,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(data)<sp/>-<sp/>1,<sp/>b64,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(b64),<sp/>&amp;out_len);</highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="comment">//<sp/>b64<sp/>is<sp/>&quot;SGVsbG8gV29ybGQ=&quot;</highlight></codeline>
+</programlisting></para>
+</simplesect>
+<simplesect kind="par"><title>Base64 Decoding</title><para><programlisting><codeline><highlight class="normal">uint8_t<sp/>bin[32];</highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>bin_len<sp/>=<sp/>0;</highlight></codeline>
+<codeline><highlight class="normal"></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="syn__base64_8c_1a6f8039a4ba0886500b72908a787d0136" kindref="member">syn_base64_decode</ref>(b64,<sp/>out_len,<sp/>bin,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(bin),<sp/>&amp;bin_len))<sp/>{</highlight></codeline>
+<codeline><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Decoded<sp/>successfully</highlight><highlight class="normal"></highlight></codeline>
+<codeline><highlight class="normal">}</highlight></codeline>
+</programlisting> </para>
+</simplesect>
+</para>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_BASE64_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_BASE64_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>__has_include(&quot;syn_config.h&quot;)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;syn_config.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>!defined(SYN_USE_BASE64)<sp/>||<sp/>SYN_USE_BASE64</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stddef.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;string.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="47"><highlight class="normal"></highlight></codeline>
+<codeline lineno="56" refid="syn__base64_8h_1aeee27946f6cafe7a8e318fe6dee44030" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="syn__base64_8h_1aeee27946f6cafe7a8e318fe6dee44030" kindref="member">syn_base64_calc_encoded_size</ref>(</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>raw_len)</highlight></codeline>
+<codeline lineno="57"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(((raw_len<sp/>+<sp/>2U)<sp/>/<sp/>3U)<sp/>*<sp/>4U)<sp/>+<sp/>1U;</highlight></codeline>
+<codeline lineno="59"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"></highlight></codeline>
+<codeline lineno="67" refid="syn__base64_8h_1a6b9b7419be92cb821cf2a77e35f74308" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="syn__base64_8h_1a6b9b7419be92cb821cf2a77e35f74308" kindref="member">syn_base64_calc_max_decoded_size</ref>(</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>b64_len)</highlight></codeline>
+<codeline lineno="68"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>((b64_len<sp/>+<sp/>3U)<sp/>/<sp/>4U)<sp/>*<sp/>3U;</highlight></codeline>
+<codeline lineno="70"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"></highlight></codeline>
+<codeline lineno="86"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__base64_8h_1a7801014b6916d13ce38c82541159839e" kindref="member">syn_base64_encode</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*src,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>src_len,<sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*dst,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>dst_size,</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>*out_len);</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"></highlight></codeline>
+<codeline lineno="102"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__base64_8h_1a6f8039a4ba0886500b72908a787d0136" kindref="member">syn_base64_decode</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*src,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>src_len,<sp/>uint8_t<sp/>*dst,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>dst_size,</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>*out_len);</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"></highlight></codeline>
+<codeline lineno="118"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__base64_8h_1a32a05a30985c48730f950f721168c2a2" kindref="member">syn_base64url_encode</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*src,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>src_len,<sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*dst,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>dst_size,</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>with_padding,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>*out_len);</highlight></codeline>
+<codeline lineno="120"><highlight class="normal"></highlight></codeline>
+<codeline lineno="133"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__base64_8h_1a561339e8289904324b2cd292fed1b289" kindref="member">syn_base64url_decode</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*src,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>src_len,<sp/>uint8_t<sp/>*dst,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>dst_size,</highlight></codeline>
+<codeline lineno="134"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>*out_len);</highlight></codeline>
+<codeline lineno="135"><highlight class="normal"></highlight></codeline>
+<codeline lineno="136"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="137"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="138"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="139"><highlight class="normal"></highlight></codeline>
+<codeline lineno="140"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_USE_BASE64<sp/>*/</highlight><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="141"><highlight class="normal"></highlight></codeline>
+<codeline lineno="142"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_BASE64_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/util/syn_base64.h"/>
+  </compounddef>
+</doxygen>

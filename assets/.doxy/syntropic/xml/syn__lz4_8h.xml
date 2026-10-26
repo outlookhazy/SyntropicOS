@@ -1,0 +1,340 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__lz4_8h" kind="file" language="C++">
+    <compoundname>syn_lz4.h</compoundname>
+    <includes refid="syn__defs_8h" local="yes">../common/syn_defs.h</includes>
+    <includes local="no">stdbool.h</includes>
+    <includes local="no">stddef.h</includes>
+    <includes local="no">stdint.h</includes>
+    <includedby refid="syntropic_8h" local="yes">src/syntropic/syntropic.h</includedby>
+    <includedby refid="syn__lz4_8c" local="yes">src/syntropic/util/syn_lz4.c</includedby>
+    <incdepgraph>
+      <node id="2">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/util/syn_lz4.h</label>
+        <link refid="syn__lz4_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>stdbool.h</label>
+      </node>
+      <node id="3">
+        <label>stddef.h</label>
+      </node>
+      <node id="4">
+        <label>stdint.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="4">
+        <label>src/syntropic/proto/syn_doip.c</label>
+        <link refid="syn__doip_8c"/>
+      </node>
+      <node id="3">
+        <label>src/syntropic/proto/syn_doip.h</label>
+        <link refid="syn__doip_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>src/syntropic/syntropic.h</label>
+        <link refid="syntropic_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>src/syntropic/util/syn_lz4.c</label>
+        <link refid="syn__lz4_8c"/>
+      </node>
+      <node id="1">
+        <label>src/syntropic/util/syn_lz4.h</label>
+        <link refid="syn__lz4_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="structSYN__Lz4" prot="public">SYN_Lz4</innerclass>
+    <sectiondef kind="define">
+      <memberdef kind="define" id="syn__lz4_8h_1a81e149384ef0e536bcc1e0860bd72a8c" prot="public" static="no">
+        <name>SYN_LZ4_HASH_SIZE</name>
+        <initializer>4096U</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>LZ4 hash table size (4096 entries = 8 KB) </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_lz4.h" line="24" column="9" bodyfile="src/syntropic/util/syn_lz4.h" bodystart="24" bodyend="-1"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__lz4_8h_1afda22d733b9d59e5cab30c20ccad231f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_lz4_init</definition>
+        <argsstring>(SYN_Lz4 *ctx)</argsstring>
+        <name>syn_lz4_init</name>
+        <param>
+          <type><ref refid="structSYN__Lz4" kindref="compound">SYN_Lz4</ref> *</type>
+          <declname>ctx</declname>
+        </param>
+        <briefdescription>
+<para>Initialize an LZ4 compression context. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ctx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to LZ4 context instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, or SYN_INVALID_PARAM. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_lz4.h" line="43" column="12" bodyfile="src/syntropic/util/syn_lz4.c" bodystart="35" bodyend="42" declfile="src/syntropic/util/syn_lz4.h" declline="43" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__lz4_8h_1a33127bf5998718b4bfa1e97c1008fb11" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>size_t</type>
+        <definition>size_t syn_lz4_compress_bound</definition>
+        <argsstring>(size_t input_size)</argsstring>
+        <name>syn_lz4_compress_bound</name>
+        <param>
+          <type>size_t</type>
+          <declname>input_size</declname>
+        </param>
+        <briefdescription>
+<para>Calculate worst-case compressed output bound for a given input size. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>input_size</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Uncompressed payload size in bytes. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Maximum compressed buffer size required. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_lz4.h" line="51" column="8" bodyfile="src/syntropic/util/syn_lz4.c" bodystart="44" bodyend="50" declfile="src/syntropic/util/syn_lz4.h" declline="51" declcolumn="8"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__lz4_8h_1a3b20db2fa809519fdaeee7f11c41d2e8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>size_t</type>
+        <definition>size_t syn_lz4_compress</definition>
+        <argsstring>(SYN_Lz4 *ctx, const void *src, size_t src_size, void *dst, size_t dst_capacity)</argsstring>
+        <name>syn_lz4_compress</name>
+        <param>
+          <type><ref refid="structSYN__Lz4" kindref="compound">SYN_Lz4</ref> *</type>
+          <declname>ctx</declname>
+        </param>
+        <param>
+          <type>const void *</type>
+          <declname>src</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>src_size</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>dst</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>dst_capacity</declname>
+        </param>
+        <briefdescription>
+<para>Compress data buffer into LZ4 raw block format. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ctx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to initialized LZ4 context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>src</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Source data buffer to compress. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>src_size</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Source data size in bytes. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dst</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Destination buffer for compressed output. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dst_capacity</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Capacity of destination buffer in bytes. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Number of compressed bytes written to dst, or 0 on error/overflow. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_lz4.h" line="63" column="8" bodyfile="src/syntropic/util/syn_lz4.c" bodystart="52" bodyend="207" declfile="src/syntropic/util/syn_lz4.h" declline="63" declcolumn="8"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__lz4_8h_1ac946664f9de61bd2b570c84a11371dc5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>size_t</type>
+        <definition>size_t syn_lz4_decompress</definition>
+        <argsstring>(const void *src, size_t src_size, void *dst, size_t dst_capacity)</argsstring>
+        <name>syn_lz4_decompress</name>
+        <param>
+          <type>const void *</type>
+          <declname>src</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>src_size</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>dst</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>dst_capacity</declname>
+        </param>
+        <briefdescription>
+<para>Decompress LZ4 raw block buffer. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Decompression is fully stateless and requires no context workspace.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>src</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Compressed source buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>src_size</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Compressed source size in bytes. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dst</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Destination buffer for decompressed output. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dst_capacity</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Capacity of destination buffer in bytes. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Number of decompressed bytes written to dst, or 0 on corruption/overflow. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/util/syn_lz4.h" line="77" column="8" bodyfile="src/syntropic/util/syn_lz4.c" bodystart="209" bodyend="284" declfile="src/syntropic/util/syn_lz4.h" declline="77" declcolumn="8"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Zero-Heap LZ4 Raw Block Compression &amp; Decompression. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Implements standard LZ4 raw block format compression and decompression without dynamic memory allocation or complex framing overhead. </para>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_LZ4_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_LZ4_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../common/syn_defs.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stddef.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_LZ4_HASH_SIZE</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="24" refid="syn__lz4_8h_1a81e149384ef0e536bcc1e0860bd72a8c" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_LZ4_HASH_SIZE<sp/>4096U<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight></codeline>
+<codeline lineno="33" refid="structSYN__Lz4" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="34" refid="structSYN__Lz4_1a0cd1f433c88e984537bdebf87d5da535" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/>hash_table[<ref refid="syn__lz4_8h_1a81e149384ef0e536bcc1e0860bd72a8c" kindref="member">SYN_LZ4_HASH_SIZE</ref>];<sp/></highlight></codeline>
+<codeline lineno="35"><highlight class="normal">}<sp/><ref refid="structSYN__Lz4" kindref="compound">SYN_Lz4</ref>;</highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight></codeline>
+<codeline lineno="43"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__lz4_8h_1afda22d733b9d59e5cab30c20ccad231f" kindref="member">syn_lz4_init</ref>(<ref refid="structSYN__Lz4" kindref="compound">SYN_Lz4</ref><sp/>*ctx);</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight></codeline>
+<codeline lineno="51"><highlight class="normal"></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="syn__lz4_8h_1a33127bf5998718b4bfa1e97c1008fb11" kindref="member">syn_lz4_compress_bound</ref>(</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>input_size);</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"></highlight></codeline>
+<codeline lineno="63"><highlight class="normal"></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="syn__lz4_8h_1a3b20db2fa809519fdaeee7f11c41d2e8" kindref="member">syn_lz4_compress</ref>(<ref refid="structSYN__Lz4" kindref="compound">SYN_Lz4</ref><sp/>*ctx,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*src,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>src_size,<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*dst,</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>dst_capacity);</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"></highlight></codeline>
+<codeline lineno="77"><highlight class="normal"></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="syn__lz4_8h_1ac946664f9de61bd2b570c84a11371dc5" kindref="member">syn_lz4_decompress</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*src,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>src_size,<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*dst,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>dst_capacity);</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"></highlight></codeline>
+<codeline lineno="79"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="80"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="82"><highlight class="normal"></highlight></codeline>
+<codeline lineno="83"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_LZ4_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/util/syn_lz4.h"/>
+  </compounddef>
+</doxygen>

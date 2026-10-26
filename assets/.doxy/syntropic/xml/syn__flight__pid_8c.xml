@@ -1,0 +1,303 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__flight__pid_8c" kind="file" language="C++">
+    <compoundname>syn_flight_pid.c</compoundname>
+    <includes refid="syn__flight__pid_8h" local="yes">syntropic/control/syn_flight_pid.h</includes>
+    <includes local="no">string.h</includes>
+    <incdepgraph>
+      <node id="3">
+        <label>syntropic/common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/control/syn_flight_pid.c</label>
+        <link refid="syn__flight__pid_8c"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>syntropic/control/syn_flight_pid.h</label>
+        <link refid="syn__flight__pid_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>syntropic/control/syn_pid.h</label>
+        <link refid="syn__pid_8h"/>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>syntropic/util/syn_qmath.h</label>
+        <link refid="syn__qmath_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>stdbool.h</label>
+      </node>
+      <node id="4">
+        <label>stddef.h</label>
+      </node>
+      <node id="5">
+        <label>stdint.h</label>
+      </node>
+      <node id="9">
+        <label>string.h</label>
+      </node>
+    </incdepgraph>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__flight__pid_8c_1a1fa7513979733924a4b52ad8959cdf8f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_flight_init</definition>
+        <argsstring>(SYN_Flight_Controller *fc)</argsstring>
+        <name>syn_flight_init</name>
+        <param>
+          <type><ref refid="structSYN__Flight__Controller" kindref="compound">SYN_Flight_Controller</ref> *</type>
+          <declname>fc</declname>
+        </param>
+        <briefdescription>
+<para>Initialize 3-axis flight PID controller instance. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>fc</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to flight controller struct. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/control/syn_flight_pid.c" line="10" column="12" bodyfile="src/syntropic/control/syn_flight_pid.c" bodystart="10" bodyend="34"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__flight__pid_8c_1a7ccfa0937a72f42eb6cf99a1401d966d" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint16_t</type>
+        <definition>static uint16_t clamp_us</definition>
+        <argsstring>(int32_t val)</argsstring>
+        <name>clamp_us</name>
+        <param>
+          <type>int32_t</type>
+          <declname>val</declname>
+        </param>
+        <briefdescription>
+<para>Clamp pulse width value to 1000..2000 us servo range. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>val</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Input pulse width value. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Clamped pulse width in us. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/control/syn_flight_pid.c" line="41" column="17" bodyfile="src/syntropic/control/syn_flight_pid.c" bodystart="41" bodyend="50"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__flight__pid_8c_1a5379b8ca96e76cf35d42ba812a09cf75" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_flight_update</definition>
+        <argsstring>(SYN_Flight_Controller *fc, const SYN_Flight_IMU *imu, const SYN_Flight_Commands *cmd, uint32_t dt_ms, SYN_Flight_MotorOutputs *motors)</argsstring>
+        <name>syn_flight_update</name>
+        <param>
+          <type><ref refid="structSYN__Flight__Controller" kindref="compound">SYN_Flight_Controller</ref> *</type>
+          <declname>fc</declname>
+        </param>
+        <param>
+          <type>const <ref refid="structSYN__Flight__IMU" kindref="compound">SYN_Flight_IMU</ref> *</type>
+          <declname>imu</declname>
+        </param>
+        <param>
+          <type>const <ref refid="structSYN__Flight__Commands" kindref="compound">SYN_Flight_Commands</ref> *</type>
+          <declname>cmd</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>dt_ms</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__Flight__MotorOutputs" kindref="compound">SYN_Flight_MotorOutputs</ref> *</type>
+          <declname>motors</declname>
+        </param>
+        <briefdescription>
+<para>Step 3-axis flight controller and compute Quad-X motor outputs. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>fc</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to flight controller struct. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>imu</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to IMU measurements. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>cmd</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to pilot command inputs. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dt_ms</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Time step in milliseconds (e.g. 1ms = 1kHz loop). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>motors</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to output motor commands struct. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/control/syn_flight_pid.c" line="52" column="12" bodyfile="src/syntropic/control/syn_flight_pid.c" bodystart="52" bodyend="94"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Zero-Heap 3-Axis Quadcopter Flight PID Stabilization &amp; Motor Mixer Implementation. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__flight__pid_8h" kindref="compound">syntropic/control/syn_flight_pid.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;string.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__flight__pid_8c_1a1fa7513979733924a4b52ad8959cdf8f" kindref="member">syn_flight_init</ref>(<ref refid="structSYN__Flight__Controller" kindref="compound">SYN_Flight_Controller</ref><sp/>*fc)</highlight></codeline>
+<codeline lineno="11"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="12"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!fc)<sp/>{</highlight></codeline>
+<codeline lineno="13"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="14"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"><sp/><sp/><sp/><sp/>memset(fc,<sp/>0,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(*fc));</highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Initialize<sp/>Rate<sp/>Loop<sp/>PID<sp/>gains<sp/>(Roll,<sp/>Pitch,<sp/>Yaw)<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structSYN__PID__Config" kindref="compound">SYN_PID_Config</ref><sp/>rate_roll_cfg<sp/>=<sp/><ref refid="syn__pid_8h_1a5c2df664219d291524a8a8dc4ecad0e5" kindref="member">SYN_PID_GAINS</ref>(1.5f,<sp/>0.2f,<sp/>0.05f,<sp/>100,<sp/>-500,<sp/>500);</highlight></codeline>
+<codeline lineno="20"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structSYN__PID__Config" kindref="compound">SYN_PID_Config</ref><sp/>rate_pitch_cfg<sp/>=<sp/><ref refid="syn__pid_8h_1a5c2df664219d291524a8a8dc4ecad0e5" kindref="member">SYN_PID_GAINS</ref>(1.5f,<sp/>0.2f,<sp/>0.05f,<sp/>100,<sp/>-500,<sp/>500);</highlight></codeline>
+<codeline lineno="21"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structSYN__PID__Config" kindref="compound">SYN_PID_Config</ref><sp/>rate_yaw_cfg<sp/>=<sp/><ref refid="syn__pid_8h_1a5c2df664219d291524a8a8dc4ecad0e5" kindref="member">SYN_PID_GAINS</ref>(2.0f,<sp/>0.1f,<sp/>0.0f,<sp/>100,<sp/>-500,<sp/>500);</highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Initialize<sp/>Outer<sp/>Angle<sp/>Loop<sp/>P-Gains<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structSYN__PID__Config" kindref="compound">SYN_PID_Config</ref><sp/>angle_roll_cfg<sp/>=<sp/><ref refid="syn__pid_8h_1a5c2df664219d291524a8a8dc4ecad0e5" kindref="member">SYN_PID_GAINS</ref>(4.5f,<sp/>0.0f,<sp/>0.0f,<sp/>100,<sp/>-200,<sp/>200);</highlight></codeline>
+<codeline lineno="25"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structSYN__PID__Config" kindref="compound">SYN_PID_Config</ref><sp/>angle_pitch_cfg<sp/>=<sp/><ref refid="syn__pid_8h_1a5c2df664219d291524a8a8dc4ecad0e5" kindref="member">SYN_PID_GAINS</ref>(4.5f,<sp/>0.0f,<sp/>0.0f,<sp/>100,<sp/>-200,<sp/>200);</highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__pid_8c_1a5bc56c333e2a9570ac7e9d4b0a45f013" kindref="member">syn_pid_init</ref>(&amp;fc-&gt;<ref refid="structSYN__Flight__Controller_1a2f8774cd82edcccf279540bc582773ab" kindref="member">pid_rate_roll</ref>,<sp/>&amp;rate_roll_cfg);</highlight></codeline>
+<codeline lineno="28"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__pid_8c_1a5bc56c333e2a9570ac7e9d4b0a45f013" kindref="member">syn_pid_init</ref>(&amp;fc-&gt;<ref refid="structSYN__Flight__Controller_1ac46244d614736c0346f1a22c17732894" kindref="member">pid_rate_pitch</ref>,<sp/>&amp;rate_pitch_cfg);</highlight></codeline>
+<codeline lineno="29"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__pid_8c_1a5bc56c333e2a9570ac7e9d4b0a45f013" kindref="member">syn_pid_init</ref>(&amp;fc-&gt;<ref refid="structSYN__Flight__Controller_1a1e73437a9cd9c9ef523b60474ecb7673" kindref="member">pid_rate_yaw</ref>,<sp/>&amp;rate_yaw_cfg);</highlight></codeline>
+<codeline lineno="30"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__pid_8c_1a5bc56c333e2a9570ac7e9d4b0a45f013" kindref="member">syn_pid_init</ref>(&amp;fc-&gt;<ref refid="structSYN__Flight__Controller_1ad16d3c62b7264e6d552b4bf65db79df3" kindref="member">pid_angle_roll</ref>,<sp/>&amp;angle_roll_cfg);</highlight></codeline>
+<codeline lineno="31"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__pid_8c_1a5bc56c333e2a9570ac7e9d4b0a45f013" kindref="member">syn_pid_init</ref>(&amp;fc-&gt;<ref refid="structSYN__Flight__Controller_1ae5b65d4647dff3f0967037777ee2180a" kindref="member">pid_angle_pitch</ref>,<sp/>&amp;angle_pitch_cfg);</highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="34"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/>uint16_t<sp/><ref refid="syn__flight__pid_8c_1a7ccfa0937a72f42eb6cf99a1401d966d" kindref="member">clamp_us</ref>(int32_t<sp/>val)</highlight></codeline>
+<codeline lineno="42"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(val<sp/>&lt;<sp/>1000)<sp/>{</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>1000U;</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(val<sp/>&gt;<sp/>2000)<sp/>{</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>2000U;</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(uint16_t)val;</highlight></codeline>
+<codeline lineno="50"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"></highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__flight__pid_8c_1a5379b8ca96e76cf35d42ba812a09cf75" kindref="member">syn_flight_update</ref>(<ref refid="structSYN__Flight__Controller" kindref="compound">SYN_Flight_Controller</ref><sp/>*fc,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__Flight__IMU" kindref="compound">SYN_Flight_IMU</ref><sp/>*imu,</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__Flight__Commands" kindref="compound">SYN_Flight_Commands</ref><sp/>*cmd,<sp/>uint32_t<sp/>dt_ms,</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__Flight__MotorOutputs" kindref="compound">SYN_Flight_MotorOutputs</ref><sp/>*motors)</highlight></codeline>
+<codeline lineno="55"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!fc<sp/>||<sp/>!imu<sp/>||<sp/>!cmd<sp/>||<sp/>!motors)<sp/>{</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"></highlight></codeline>
+<codeline lineno="60"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>roll_rate_setpoint<sp/>=<sp/>cmd-&gt;<ref refid="structSYN__Flight__Commands_1a73cf842c321576f7a5347225972e5313" kindref="member">roll_target</ref>;</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>pitch_rate_setpoint<sp/>=<sp/>cmd-&gt;<ref refid="structSYN__Flight__Commands_1ac8443ec4f5fab1412731ab7d2319b922" kindref="member">pitch_target</ref>;</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>yaw_rate_setpoint<sp/>=<sp/>cmd-&gt;<ref refid="structSYN__Flight__Commands_1a2503be574d6d31425de66fca7535be91" kindref="member">yaw_target</ref>;</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"></highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Outer<sp/>Angle<sp/>Loop<sp/>(Self-Leveling<sp/>Mode)<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(cmd-&gt;<ref refid="structSYN__Flight__Commands_1a4ef3fc231a80172334de7ca38facd7c0" kindref="member">angle_mode</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int32_t<sp/>roll_sp<sp/>=</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__pid_8c_1a990a5ab14c6776c0ad1ae2d91d443519" kindref="member">syn_pid_update</ref>(&amp;fc-&gt;<ref refid="structSYN__Flight__Controller_1ad16d3c62b7264e6d552b4bf65db79df3" kindref="member">pid_angle_roll</ref>,<sp/>cmd-&gt;<ref refid="structSYN__Flight__Commands_1a73cf842c321576f7a5347225972e5313" kindref="member">roll_target</ref>,<sp/>imu-&gt;<ref refid="structSYN__Flight__IMU_1af44efab47795fa7b6cdb537dbd19e50e" kindref="member">angle_roll</ref>,<sp/>dt_ms);</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int32_t<sp/>pitch_sp<sp/>=</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__pid_8c_1a990a5ab14c6776c0ad1ae2d91d443519" kindref="member">syn_pid_update</ref>(&amp;fc-&gt;<ref refid="structSYN__Flight__Controller_1ae5b65d4647dff3f0967037777ee2180a" kindref="member">pid_angle_pitch</ref>,<sp/>cmd-&gt;<ref refid="structSYN__Flight__Commands_1ac8443ec4f5fab1412731ab7d2319b922" kindref="member">pitch_target</ref>,<sp/>imu-&gt;<ref refid="structSYN__Flight__IMU_1afaead1cc757704556cbeabbb94578f69" kindref="member">angle_pitch</ref>,<sp/>dt_ms);</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>roll_rate_setpoint<sp/>=<sp/>(<ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref>)roll_sp;</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>pitch_rate_setpoint<sp/>=<sp/>(<ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref>)pitch_sp;</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"></highlight></codeline>
+<codeline lineno="74"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Inner<sp/>Gyro<sp/>Rate<sp/>Loop<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/><sp/><sp/>int32_t<sp/>u_roll<sp/>=<sp/><ref refid="syn__pid_8c_1a990a5ab14c6776c0ad1ae2d91d443519" kindref="member">syn_pid_update</ref>(&amp;fc-&gt;<ref refid="structSYN__Flight__Controller_1a2f8774cd82edcccf279540bc582773ab" kindref="member">pid_rate_roll</ref>,<sp/>roll_rate_setpoint,<sp/>imu-&gt;<ref refid="structSYN__Flight__IMU_1a6144a3aab6d4fea6ddaaa1bfbeb0c082" kindref="member">gyro_roll</ref>,<sp/>dt_ms);</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/><sp/><sp/>int32_t<sp/>u_pitch<sp/>=</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__pid_8c_1a990a5ab14c6776c0ad1ae2d91d443519" kindref="member">syn_pid_update</ref>(&amp;fc-&gt;<ref refid="structSYN__Flight__Controller_1ac46244d614736c0346f1a22c17732894" kindref="member">pid_rate_pitch</ref>,<sp/>pitch_rate_setpoint,<sp/>imu-&gt;<ref refid="structSYN__Flight__IMU_1aaa0a1dfff7e634d01e1a6f5e9ef24df0" kindref="member">gyro_pitch</ref>,<sp/>dt_ms);</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/><sp/><sp/>int32_t<sp/>u_yaw<sp/>=<sp/><ref refid="syn__pid_8c_1a990a5ab14c6776c0ad1ae2d91d443519" kindref="member">syn_pid_update</ref>(&amp;fc-&gt;<ref refid="structSYN__Flight__Controller_1a1e73437a9cd9c9ef523b60474ecb7673" kindref="member">pid_rate_yaw</ref>,<sp/>yaw_rate_setpoint,<sp/>imu-&gt;<ref refid="structSYN__Flight__IMU_1aa07c4f853f57b617334423fe880c035d" kindref="member">gyro_yaw</ref>,<sp/>dt_ms);</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"></highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Convert<sp/>Q16.16<sp/>torque<sp/>commands<sp/>to<sp/>microsecond<sp/>pulse<sp/>offsets<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/><sp/><sp/>int32_t<sp/>r<sp/>=<sp/><ref refid="syn__qmath_8h_1a09dafb9bfc7dd713403210ec6c444d9f" kindref="member">Q16_TO_INT</ref>((<ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref>)u_roll);</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/>int32_t<sp/>p<sp/>=<sp/><ref refid="syn__qmath_8h_1a09dafb9bfc7dd713403210ec6c444d9f" kindref="member">Q16_TO_INT</ref>((<ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref>)u_pitch);</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/>int32_t<sp/>y<sp/>=<sp/><ref refid="syn__qmath_8h_1a09dafb9bfc7dd713403210ec6c444d9f" kindref="member">Q16_TO_INT</ref>((<ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref>)u_yaw);</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"></highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/>int32_t<sp/>base_throttle<sp/>=<sp/>(int32_t)cmd-&gt;<ref refid="structSYN__Flight__Commands_1ac00eff96fed70a36f98c761e5e840ba6" kindref="member">throttle_us</ref>;</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"></highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Quad-X<sp/>Motor<sp/>Mixer<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/><sp/><sp/>motors-&gt;<ref refid="structSYN__Flight__MotorOutputs_1a77f6e74802e425ea81035af21c4acbf6" kindref="member">m1</ref><sp/>=<sp/><ref refid="syn__flight__pid_8c_1a7ccfa0937a72f42eb6cf99a1401d966d" kindref="member">clamp_us</ref>(base_throttle<sp/>-<sp/>r<sp/>+<sp/>p<sp/>+<sp/>y);<sp/></highlight><highlight class="comment">/*<sp/>Front-Right<sp/>(CCW)<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="89"><highlight class="normal"><sp/><sp/><sp/><sp/>motors-&gt;<ref refid="structSYN__Flight__MotorOutputs_1af87aa2c4e5f4a68f6a656d250001162b" kindref="member">m2</ref><sp/>=<sp/><ref refid="syn__flight__pid_8c_1a7ccfa0937a72f42eb6cf99a1401d966d" kindref="member">clamp_us</ref>(base_throttle<sp/>-<sp/>r<sp/>-<sp/>p<sp/>-<sp/>y);<sp/></highlight><highlight class="comment">/*<sp/>Rear-Right<sp/><sp/>(CW)<sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="90"><highlight class="normal"><sp/><sp/><sp/><sp/>motors-&gt;<ref refid="structSYN__Flight__MotorOutputs_1aafa03a23048214bcebb0780d83537921" kindref="member">m3</ref><sp/>=<sp/><ref refid="syn__flight__pid_8c_1a7ccfa0937a72f42eb6cf99a1401d966d" kindref="member">clamp_us</ref>(base_throttle<sp/>+<sp/>r<sp/>-<sp/>p<sp/>+<sp/>y);<sp/></highlight><highlight class="comment">/*<sp/>Rear-Left<sp/><sp/><sp/>(CCW)<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="91"><highlight class="normal"><sp/><sp/><sp/><sp/>motors-&gt;<ref refid="structSYN__Flight__MotorOutputs_1a4056c8134467c2d4315dd37f8b7dd4bd" kindref="member">m4</ref><sp/>=<sp/><ref refid="syn__flight__pid_8c_1a7ccfa0937a72f42eb6cf99a1401d966d" kindref="member">clamp_us</ref>(base_throttle<sp/>+<sp/>r<sp/>+<sp/>p<sp/>-<sp/>y);<sp/></highlight><highlight class="comment">/*<sp/>Front-Left<sp/><sp/>(CW)<sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="92"><highlight class="normal"></highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="94"><highlight class="normal">}</highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/control/syn_flight_pid.c"/>
+  </compounddef>
+</doxygen>

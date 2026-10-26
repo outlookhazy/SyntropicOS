@@ -1,0 +1,362 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__sbus_8h" kind="file" language="C++">
+    <compoundname>syn_sbus.h</compoundname>
+    <includes refid="syn__defs_8h" local="yes">syntropic/common/syn_defs.h</includes>
+    <includes local="no">stdbool.h</includes>
+    <includes local="no">stddef.h</includes>
+    <includes local="no">stdint.h</includes>
+    <includedby refid="syn__sbus_8c" local="yes">src/syntropic/proto/syn_sbus.c</includedby>
+    <includedby refid="syntropic_8h" local="yes">src/syntropic/syntropic.h</includedby>
+    <incdepgraph>
+      <node id="2">
+        <label>syntropic/common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/proto/syn_sbus.h</label>
+        <link refid="syn__sbus_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>stdbool.h</label>
+      </node>
+      <node id="3">
+        <label>stddef.h</label>
+      </node>
+      <node id="4">
+        <label>stdint.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="5">
+        <label>src/syntropic/proto/syn_doip.c</label>
+        <link refid="syn__doip_8c"/>
+      </node>
+      <node id="4">
+        <label>src/syntropic/proto/syn_doip.h</label>
+        <link refid="syn__doip_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>src/syntropic/proto/syn_sbus.c</label>
+        <link refid="syn__sbus_8c"/>
+      </node>
+      <node id="1">
+        <label>src/syntropic/proto/syn_sbus.h</label>
+        <link refid="syn__sbus_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>src/syntropic/syntropic.h</label>
+        <link refid="syntropic_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="structSYN__SBUS__Frame" prot="public">SYN_SBUS_Frame</innerclass>
+    <innerclass refid="structSYN__SBUS__Parser" prot="public">SYN_SBUS_Parser</innerclass>
+    <sectiondef kind="define">
+      <memberdef kind="define" id="syn__sbus_8h_1aea88915c8a0c2c2ec9cf38b6654c77fc" prot="public" static="no">
+        <name>SYN_SBUS_NUM_CHANNELS</name>
+        <initializer>16</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Number of analog channels in SBUS frame (16) </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_sbus.h" line="28" column="9" bodyfile="src/syntropic/proto/syn_sbus.h" bodystart="28" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__sbus_8h_1a6c7b8f5746f2edacd681e5228412fc60" prot="public" static="no">
+        <name>SYN_SBUS_FRAME_SIZE</name>
+        <initializer>25</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Total byte length of standard SBUS frame (25) </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_sbus.h" line="29" column="9" bodyfile="src/syntropic/proto/syn_sbus.h" bodystart="29" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__sbus_8h_1a43cd6c54c816216923a171784fb9145f" prot="public" static="no">
+        <name>SYN_SBUS_HEADER</name>
+        <initializer>0x0FU</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>SBUS frame header marker byte (0x0F) </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_sbus.h" line="30" column="9" bodyfile="src/syntropic/proto/syn_sbus.h" bodystart="30" bodyend="-1"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__sbus_8h_1a5d10be9deb88472479570bc7d4bc752f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_sbus_init</definition>
+        <argsstring>(SYN_SBUS_Parser *parser)</argsstring>
+        <name>syn_sbus_init</name>
+        <param>
+          <type><ref refid="structSYN__SBUS__Parser" kindref="compound">SYN_SBUS_Parser</ref> *</type>
+          <declname>parser</declname>
+        </param>
+        <briefdescription>
+<para>Initialize SBUS parser state machine. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>parser</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to parser struct. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_sbus.h" line="57" column="12" bodyfile="src/syntropic/proto/syn_sbus.c" bodystart="10" bodyend="18" declfile="src/syntropic/proto/syn_sbus.h" declline="57" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__sbus_8h_1a855a8769ada113ed9ffe3682fb1bb8fe" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_sbus_parse_byte</definition>
+        <argsstring>(SYN_SBUS_Parser *parser, uint8_t byte, SYN_SBUS_Frame *frame)</argsstring>
+        <name>syn_sbus_parse_byte</name>
+        <param>
+          <type><ref refid="structSYN__SBUS__Parser" kindref="compound">SYN_SBUS_Parser</ref> *</type>
+          <declname>parser</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>byte</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__SBUS__Frame" kindref="compound">SYN_SBUS_Frame</ref> *</type>
+          <declname>frame</declname>
+        </param>
+        <briefdescription>
+<para>Process single incoming byte from UART. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>parser</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to parser struct. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>byte</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Incoming serial byte. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>frame</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to output frame struct (populated when a complete valid 25-byte frame is decoded). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK if complete frame decoded, SYN_BUSY if byte accepted but frame incomplete, SYN_ERROR on header mismatch. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_sbus.h" line="69" column="12" bodyfile="src/syntropic/proto/syn_sbus.c" bodystart="65" bodyend="100" declfile="src/syntropic/proto/syn_sbus.h" declline="69" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__sbus_8h_1a919d746ef10e615f6c6e7f30462ae7cc" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_sbus_decode_buffer</definition>
+        <argsstring>(const uint8_t buf[SYN_SBUS_FRAME_SIZE], SYN_SBUS_Frame *frame)</argsstring>
+        <name>syn_sbus_decode_buffer</name>
+        <param>
+          <type>const uint8_t</type>
+          <declname>buf</declname>
+          <array>[SYN_SBUS_FRAME_SIZE]</array>
+        </param>
+        <param>
+          <type><ref refid="structSYN__SBUS__Frame" kindref="compound">SYN_SBUS_Frame</ref> *</type>
+          <declname>frame</declname>
+        </param>
+        <briefdescription>
+<para>Decode raw 25-byte SBUS frame buffer directly. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to 25-byte buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>frame</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to destination frame struct. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on successful decode, SYN_INVALID_PARAM or SYN_ERROR on bad header/footer.</para>
+</simplesect>
+Decode raw 25-byte SBUS frame buffer directly.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to 25-byte raw SBUS frame buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>frame</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to output SBUS decoded frame structure. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_INVALID_PARAM or SYN_ERROR on header mismatch. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_sbus.h" line="78" column="12" bodyfile="src/syntropic/proto/syn_sbus.c" bodystart="27" bodyend="63" declfile="src/syntropic/proto/syn_sbus.h" declline="78" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__sbus_8h_1a8e9c0094174f6aaad276439d75148325" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint16_t</type>
+        <definition>uint16_t syn_sbus_raw_to_us</definition>
+        <argsstring>(uint16_t raw_val)</argsstring>
+        <name>syn_sbus_raw_to_us</name>
+        <param>
+          <type>uint16_t</type>
+          <declname>raw_val</declname>
+        </param>
+        <briefdescription>
+<para>Convert raw 11-bit SBUS channel value to pulse width in microseconds (us). </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Standard mapping:<itemizedlist>
+<listitem><para>172 raw -&gt; 1000 us</para>
+</listitem><listitem><para>992 raw -&gt; 1500 us</para>
+</listitem><listitem><para>1811 raw -&gt; 2000 us</para>
+</listitem></itemizedlist>
+</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>raw_val</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>11-bit raw SBUS channel value (172..1811). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Pulse width in microseconds (clamped 1000..2000 us). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_sbus.h" line="91" column="10" bodyfile="src/syntropic/proto/syn_sbus.c" bodystart="102" bodyend="120" declfile="src/syntropic/proto/syn_sbus.h" declline="91" declcolumn="10"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Zero-Heap SBUS (Futaba/FrSky) 16-Channel Receiver Decoder. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>SBUS Protocol Specifications:<itemizedlist>
+<listitem><para>Baud rate: 100,000 bps, 8 data bits, Even parity, 2 stop bits (8E2), Inverted logic.</para>
+</listitem><listitem><para>Frame length: 25 bytes.</para>
+</listitem><listitem><para>Header byte: 0x0F</para>
+</listitem><listitem><para>Channels: 16 11-bit channels (packed bitstream across bytes 1..22, raw range 172..1811, 1000..2000 us).</para>
+</listitem><listitem><para>Flags (byte 23): Channel 17 (bit 0), Channel 18 (bit 1), Frame Loss (bit 2), Failsafe (bit 3).</para>
+</listitem><listitem><para>Footer byte: 0x00 (or 0x04 for endbyte flags). </para>
+</listitem></itemizedlist>
+</para>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_SBUS_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_SBUS_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__defs_8h" kindref="compound">syntropic/common/syn_defs.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stddef.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight></codeline>
+<codeline lineno="28" refid="syn__sbus_8h_1aea88915c8a0c2c2ec9cf38b6654c77fc" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_SBUS_NUM_CHANNELS<sp/>16<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="29" refid="syn__sbus_8h_1a6c7b8f5746f2edacd681e5228412fc60" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_SBUS_FRAME_SIZE<sp/>25<sp/><sp/><sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="30" refid="syn__sbus_8h_1a43cd6c54c816216923a171784fb9145f" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_SBUS_HEADER<sp/>0x0FU<sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="33" refid="structSYN__SBUS__Frame" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="34" refid="structSYN__SBUS__Frame_1a78d978a73e5adb25b546b99d9c23f6e0" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/>channels[<ref refid="syn__sbus_8h_1aea88915c8a0c2c2ec9cf38b6654c77fc" kindref="member">SYN_SBUS_NUM_CHANNELS</ref>];<sp/></highlight></codeline>
+<codeline lineno="35" refid="structSYN__SBUS__Frame_1a90f28cd9d5afb2c0e6d91f0423c73154" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="structSYN__SBUS__Frame_1a90f28cd9d5afb2c0e6d91f0423c73154" kindref="member">ch17</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="36" refid="structSYN__SBUS__Frame_1a28e5cfc577b0a9433927dc43d76fab5a" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="structSYN__SBUS__Frame_1a28e5cfc577b0a9433927dc43d76fab5a" kindref="member">ch18</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="37" refid="structSYN__SBUS__Frame_1aa27b4f42ab7d123eb0ac215a764a6076" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="structSYN__SBUS__Frame_1aa27b4f42ab7d123eb0ac215a764a6076" kindref="member">frame_loss</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="38" refid="structSYN__SBUS__Frame_1a87915ff856deee3c055d2445c8d1a928" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="structSYN__SBUS__Frame_1a87915ff856deee3c055d2445c8d1a928" kindref="member">failsafe</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="39"><highlight class="normal">}<sp/><ref refid="structSYN__SBUS__Frame" kindref="compound">SYN_SBUS_Frame</ref>;</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight></codeline>
+<codeline lineno="42" refid="structSYN__SBUS__Parser" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="43" refid="structSYN__SBUS__Parser_1a2776b2521cff4e9dc5bc47da42de2cb1" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>buf[<ref refid="syn__sbus_8h_1a6c7b8f5746f2edacd681e5228412fc60" kindref="member">SYN_SBUS_FRAME_SIZE</ref>];<sp/></highlight></codeline>
+<codeline lineno="44" refid="structSYN__SBUS__Parser_1a47cedce3659d7760cf418832f71e83e0" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><ref refid="structSYN__SBUS__Parser_1a47cedce3659d7760cf418832f71e83e0" kindref="member">idx</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="45" refid="structSYN__SBUS__Parser_1a6466006f014d8be4b032ae54bddf129d" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structSYN__SBUS__Parser_1a6466006f014d8be4b032ae54bddf129d" kindref="member">frames_received</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="46" refid="structSYN__SBUS__Parser_1a7aca6a6d91db3bb30cac4bf34c3ea8d6" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structSYN__SBUS__Parser_1a7aca6a6d91db3bb30cac4bf34c3ea8d6" kindref="member">frame_loss_count</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="47" refid="structSYN__SBUS__Parser_1a21adf850a896e2551bdbbd75b60cee01" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structSYN__SBUS__Parser_1a21adf850a896e2551bdbbd75b60cee01" kindref="member">failsafe_count</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="48" refid="structSYN__SBUS__Parser_1ad50a0a08940867512d8bb26c58458283" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structSYN__SBUS__Frame" kindref="compound">SYN_SBUS_Frame</ref><sp/><ref refid="structSYN__SBUS__Parser_1ad50a0a08940867512d8bb26c58458283" kindref="member">last_frame</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="49"><highlight class="normal">}<sp/><ref refid="structSYN__SBUS__Parser" kindref="compound">SYN_SBUS_Parser</ref>;</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"></highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__sbus_8h_1a5d10be9deb88472479570bc7d4bc752f" kindref="member">syn_sbus_init</ref>(<ref refid="structSYN__SBUS__Parser" kindref="compound">SYN_SBUS_Parser</ref><sp/>*parser);</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"></highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__sbus_8h_1a855a8769ada113ed9ffe3682fb1bb8fe" kindref="member">syn_sbus_parse_byte</ref>(<ref refid="structSYN__SBUS__Parser" kindref="compound">SYN_SBUS_Parser</ref><sp/>*parser,<sp/>uint8_t<sp/></highlight><highlight class="keywordtype">byte</highlight><highlight class="normal">,<sp/><ref refid="structSYN__SBUS__Frame" kindref="compound">SYN_SBUS_Frame</ref><sp/>*frame);</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"></highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__sbus_8h_1a919d746ef10e615f6c6e7f30462ae7cc" kindref="member">syn_sbus_decode_buffer</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>buf[<ref refid="syn__sbus_8h_1a6c7b8f5746f2edacd681e5228412fc60" kindref="member">SYN_SBUS_FRAME_SIZE</ref>],<sp/><ref refid="structSYN__SBUS__Frame" kindref="compound">SYN_SBUS_Frame</ref><sp/>*frame);</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"></highlight></codeline>
+<codeline lineno="91"><highlight class="normal">uint16_t<sp/><ref refid="syn__sbus_8h_1a8e9c0094174f6aaad276439d75148325" kindref="member">syn_sbus_raw_to_us</ref>(uint16_t<sp/>raw_val);</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"></highlight></codeline>
+<codeline lineno="93"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="94"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="96"><highlight class="normal"></highlight></codeline>
+<codeline lineno="97"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_SBUS_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/proto/syn_sbus.h"/>
+  </compounddef>
+</doxygen>

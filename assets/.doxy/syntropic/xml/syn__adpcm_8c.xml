@@ -1,0 +1,532 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__adpcm_8c" kind="file" language="C++">
+    <compoundname>syn_adpcm.c</compoundname>
+    <includes refid="syn__assert_8h" local="yes">../util/syn_assert.h</includes>
+    <includes refid="syn__adpcm_8h" local="yes">syn_adpcm.h</includes>
+    <includes local="no">string.h</includes>
+    <incdepgraph>
+      <node id="1">
+        <label>src/syntropic/audio/syn_adpcm.c</label>
+        <link refid="syn__adpcm_8c"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>syn_adpcm.h</label>
+        <link refid="syn__adpcm_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>../common/syn_compiler.h</label>
+        <link refid="syn__compiler_8h"/>
+      </node>
+      <node id="5">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>../util/syn_assert.h</label>
+        <link refid="syn__assert_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>stdbool.h</label>
+      </node>
+      <node id="6">
+        <label>stddef.h</label>
+      </node>
+      <node id="7">
+        <label>stdint.h</label>
+      </node>
+      <node id="9">
+        <label>string.h</label>
+      </node>
+    </incdepgraph>
+    <sectiondef kind="var">
+      <memberdef kind="variable" id="syn__adpcm_8c_1aea8ef423e59f6dc77e144ede2b5f10dd" prot="public" static="yes" mutable="no">
+        <type>const int16_t</type>
+        <definition>const int16_t g_adpcm_step_table[89]</definition>
+        <argsstring>[89]</argsstring>
+        <name>g_adpcm_step_table</name>
+        <initializer>= {
+    7,     8,     9,     10,    11,    12,    13,    14,    16,    17,    19,   21,    23,
+    25,    28,    31,    34,    37,    41,    45,    50,    55,    60,    66,   73,    80,
+    88,    97,    107,   118,   130,   143,   157,   173,   190,   209,   230,  253,   279,
+    307,   337,   371,   408,   449,   494,   544,   598,   658,   724,   796,  876,   963,
+    1060,  1166,  1282,  1411,  1552,  1707,  1878,  2066,  2272,  2499,  2749, 3024,  3327,
+    3660,  4026,  4428,  4871,  5358,  5894,  6484,  7132,  7845,  8630,  9493, 10442, 11487,
+    12635, 13899, 15289, 16818, 18500, 20350, 22385, 24623, 27086, 29794, 32767}</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>IMA-ADPCM Quantization Step Table (89 entries) </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/audio/syn_adpcm.c" line="18" column="22" bodyfile="src/syntropic/audio/syn_adpcm.c" bodystart="18" bodyend="25"/>
+      </memberdef>
+      <memberdef kind="variable" id="syn__adpcm_8c_1a06a553d12ef909abfb674ceaa424deee" prot="public" static="yes" mutable="no">
+        <type>const int8_t</type>
+        <definition>const int8_t g_adpcm_index_table[16]</definition>
+        <argsstring>[16]</argsstring>
+        <name>g_adpcm_index_table</name>
+        <initializer>= {-1, -1, -1, -1, 2, 4, 6, 8,
+                                               -1, -1, -1, -1, 2, 4, 6, 8}</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>IMA-ADPCM Step Index Adjust Table (16 entries) </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/audio/syn_adpcm.c" line="28" column="21" bodyfile="src/syntropic/audio/syn_adpcm.c" bodystart="28" bodyend="29"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__adpcm_8c_1a0d04b5aa45afe6050786f3ae2749afd4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_adpcm_init</definition>
+        <argsstring>(SYN_ADPCM_State *state)</argsstring>
+        <name>syn_adpcm_init</name>
+        <param>
+          <type><ref refid="structSYN__ADPCM__State" kindref="compound">SYN_ADPCM_State</ref> *</type>
+          <declname>state</declname>
+        </param>
+        <briefdescription>
+<para>Initialize or reset an IMA-ADPCM state context. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>state</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>State context pointer. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/audio/syn_adpcm.c" line="55" column="6" bodyfile="src/syntropic/audio/syn_adpcm.c" bodystart="55" bodyend="62"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__adpcm_8c_1a291d21af3f22a7672c95432779f57012" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int16_t</type>
+        <definition>int16_t syn_adpcm_decode_sample</definition>
+        <argsstring>(SYN_ADPCM_State *state, uint8_t nibble)</argsstring>
+        <name>syn_adpcm_decode_sample</name>
+        <param>
+          <type><ref refid="structSYN__ADPCM__State" kindref="compound">SYN_ADPCM_State</ref> *</type>
+          <declname>state</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>nibble</declname>
+        </param>
+        <briefdescription>
+<para>Decode a single 4-bit ADPCM nibble to a 16-bit PCM sample. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>state</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>State context pointer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>nibble</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>4-bit ADPCM code (lower 4 bits used). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Decoded 16-bit PCM sample. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/audio/syn_adpcm.c" line="64" column="9" bodyfile="src/syntropic/audio/syn_adpcm.c" bodystart="64" bodyend="97"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__adpcm_8c_1af9f04d15e8dc1dc3f37e6d041d5e9824" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint8_t</type>
+        <definition>uint8_t syn_adpcm_encode_sample</definition>
+        <argsstring>(SYN_ADPCM_State *state, int16_t sample)</argsstring>
+        <name>syn_adpcm_encode_sample</name>
+        <param>
+          <type><ref refid="structSYN__ADPCM__State" kindref="compound">SYN_ADPCM_State</ref> *</type>
+          <declname>state</declname>
+        </param>
+        <param>
+          <type>int16_t</type>
+          <declname>sample</declname>
+        </param>
+        <briefdescription>
+<para>Encode a single 16-bit PCM sample to a 4-bit ADPCM nibble. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>state</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>State context pointer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>sample</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>16-bit linear PCM sample. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Encoded 4-bit ADPCM nibble (in bits 0-3). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/audio/syn_adpcm.c" line="99" column="9" bodyfile="src/syntropic/audio/syn_adpcm.c" bodystart="99" bodyend="140"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__adpcm_8c_1abb7b433dacc551414912d3c429c0aba4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>size_t</type>
+        <definition>size_t syn_adpcm_decode_block</definition>
+        <argsstring>(SYN_ADPCM_State *state, const uint8_t *in, int16_t *out, size_t sample_count)</argsstring>
+        <name>syn_adpcm_decode_block</name>
+        <param>
+          <type><ref refid="structSYN__ADPCM__State" kindref="compound">SYN_ADPCM_State</ref> *</type>
+          <declname>state</declname>
+        </param>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>in</declname>
+        </param>
+        <param>
+          <type>int16_t *</type>
+          <declname>out</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>sample_count</declname>
+        </param>
+        <briefdescription>
+<para>Decode a buffer of packed 4-bit ADPCM bytes into 16-bit PCM samples. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>state</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>State context pointer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>in</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Input packed ADPCM byte buffer (2 nibbles per byte, low nibble first). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output 16-bit PCM sample buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>sample_count</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Total number of samples to decode. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Number of samples successfully decoded. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/audio/syn_adpcm.c" line="142" column="8" bodyfile="src/syntropic/audio/syn_adpcm.c" bodystart="142" bodyend="161"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__adpcm_8c_1a9f35ed95dc42351e4959cfb5ce6f4866" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>size_t</type>
+        <definition>size_t syn_adpcm_encode_block</definition>
+        <argsstring>(SYN_ADPCM_State *state, const int16_t *in, uint8_t *out, size_t sample_count)</argsstring>
+        <name>syn_adpcm_encode_block</name>
+        <param>
+          <type><ref refid="structSYN__ADPCM__State" kindref="compound">SYN_ADPCM_State</ref> *</type>
+          <declname>state</declname>
+        </param>
+        <param>
+          <type>const int16_t *</type>
+          <declname>in</declname>
+        </param>
+        <param>
+          <type>uint8_t *</type>
+          <declname>out</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>sample_count</declname>
+        </param>
+        <briefdescription>
+<para>Encode 16-bit PCM samples into packed 4-bit ADPCM bytes. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>state</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>State context pointer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>in</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Input 16-bit PCM sample buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output packed ADPCM byte buffer (requires at least (sample_count + 1)/2 bytes). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>sample_count</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of samples to encode. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Number of packed bytes produced. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/audio/syn_adpcm.c" line="163" column="8" bodyfile="src/syntropic/audio/syn_adpcm.c" bodystart="163" bodyend="183"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>IMA/DVI ADPCM Speech and Audio Codec implementation. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#if<sp/>__has_include(&quot;syn_config.h&quot;)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;syn_config.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="4"><highlight class="normal"></highlight></codeline>
+<codeline lineno="5"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>!defined(SYN_USE_ADPCM)<sp/>||<sp/>SYN_USE_ADPCM</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../util/syn_assert.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__adpcm_8h" kindref="compound">syn_adpcm.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;string.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>int16_t<sp/><ref refid="syn__adpcm_8c_1aea8ef423e59f6dc77e144ede2b5f10dd" kindref="member">g_adpcm_step_table</ref>[89]<sp/>=<sp/>{</highlight></codeline>
+<codeline lineno="19"><highlight class="normal"><sp/><sp/><sp/><sp/>7,<sp/><sp/><sp/><sp/><sp/>8,<sp/><sp/><sp/><sp/><sp/>9,<sp/><sp/><sp/><sp/><sp/>10,<sp/><sp/><sp/><sp/>11,<sp/><sp/><sp/><sp/>12,<sp/><sp/><sp/><sp/>13,<sp/><sp/><sp/><sp/>14,<sp/><sp/><sp/><sp/>16,<sp/><sp/><sp/><sp/>17,<sp/><sp/><sp/><sp/>19,<sp/><sp/><sp/>21,<sp/><sp/><sp/><sp/>23,</highlight></codeline>
+<codeline lineno="20"><highlight class="normal"><sp/><sp/><sp/><sp/>25,<sp/><sp/><sp/><sp/>28,<sp/><sp/><sp/><sp/>31,<sp/><sp/><sp/><sp/>34,<sp/><sp/><sp/><sp/>37,<sp/><sp/><sp/><sp/>41,<sp/><sp/><sp/><sp/>45,<sp/><sp/><sp/><sp/>50,<sp/><sp/><sp/><sp/>55,<sp/><sp/><sp/><sp/>60,<sp/><sp/><sp/><sp/>66,<sp/><sp/><sp/>73,<sp/><sp/><sp/><sp/>80,</highlight></codeline>
+<codeline lineno="21"><highlight class="normal"><sp/><sp/><sp/><sp/>88,<sp/><sp/><sp/><sp/>97,<sp/><sp/><sp/><sp/>107,<sp/><sp/><sp/>118,<sp/><sp/><sp/>130,<sp/><sp/><sp/>143,<sp/><sp/><sp/>157,<sp/><sp/><sp/>173,<sp/><sp/><sp/>190,<sp/><sp/><sp/>209,<sp/><sp/><sp/>230,<sp/><sp/>253,<sp/><sp/><sp/>279,</highlight></codeline>
+<codeline lineno="22"><highlight class="normal"><sp/><sp/><sp/><sp/>307,<sp/><sp/><sp/>337,<sp/><sp/><sp/>371,<sp/><sp/><sp/>408,<sp/><sp/><sp/>449,<sp/><sp/><sp/>494,<sp/><sp/><sp/>544,<sp/><sp/><sp/>598,<sp/><sp/><sp/>658,<sp/><sp/><sp/>724,<sp/><sp/><sp/>796,<sp/><sp/>876,<sp/><sp/><sp/>963,</highlight></codeline>
+<codeline lineno="23"><highlight class="normal"><sp/><sp/><sp/><sp/>1060,<sp/><sp/>1166,<sp/><sp/>1282,<sp/><sp/>1411,<sp/><sp/>1552,<sp/><sp/>1707,<sp/><sp/>1878,<sp/><sp/>2066,<sp/><sp/>2272,<sp/><sp/>2499,<sp/><sp/>2749,<sp/>3024,<sp/><sp/>3327,</highlight></codeline>
+<codeline lineno="24"><highlight class="normal"><sp/><sp/><sp/><sp/>3660,<sp/><sp/>4026,<sp/><sp/>4428,<sp/><sp/>4871,<sp/><sp/>5358,<sp/><sp/>5894,<sp/><sp/>6484,<sp/><sp/>7132,<sp/><sp/>7845,<sp/><sp/>8630,<sp/><sp/>9493,<sp/>10442,<sp/>11487,</highlight></codeline>
+<codeline lineno="25"><highlight class="normal"><sp/><sp/><sp/><sp/>12635,<sp/>13899,<sp/>15289,<sp/>16818,<sp/>18500,<sp/>20350,<sp/>22385,<sp/>24623,<sp/>27086,<sp/>29794,<sp/>32767};</highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>int8_t<sp/><ref refid="syn__adpcm_8c_1a06a553d12ef909abfb674ceaa424deee" kindref="member">g_adpcm_index_table</ref>[16]<sp/>=<sp/>{-1,<sp/>-1,<sp/>-1,<sp/>-1,<sp/>2,<sp/>4,<sp/>6,<sp/>8,</highlight></codeline>
+<codeline lineno="29"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>-1,<sp/>-1,<sp/>-1,<sp/>-1,<sp/>2,<sp/>4,<sp/>6,<sp/>8};</highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>int16_t<sp/>clamp_s16(int32_t<sp/>val)</highlight></codeline>
+<codeline lineno="33"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="34"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(val<sp/>&gt;<sp/>32767)<sp/>{</highlight></codeline>
+<codeline lineno="35"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>32767;</highlight></codeline>
+<codeline lineno="36"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="37"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(val<sp/>&lt;<sp/>-32768)<sp/>{</highlight></codeline>
+<codeline lineno="38"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>-32768;</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(int16_t)val;</highlight></codeline>
+<codeline lineno="41"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>int8_t<sp/>clamp_step_idx(int32_t<sp/>idx)</highlight></codeline>
+<codeline lineno="44"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(idx<sp/>&lt;<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0;</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(idx<sp/>&gt;<sp/>88)<sp/>{</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>88;</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(int8_t)idx;</highlight></codeline>
+<codeline lineno="52"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__adpcm_8c_1a0d04b5aa45afe6050786f3ae2749afd4" kindref="member">syn_adpcm_init</ref>(<ref refid="structSYN__ADPCM__State" kindref="compound">SYN_ADPCM_State</ref><sp/>*state)</highlight></codeline>
+<codeline lineno="56"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(state<sp/>==<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"><sp/><sp/><sp/><sp/>state-&gt;<ref refid="structSYN__ADPCM__State_1aa3e28e0202847b335e93773c47c6be03" kindref="member">predicted_sample</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/><sp/><sp/>state-&gt;<ref refid="structSYN__ADPCM__State_1af00572fda663cd11883367cb18114979" kindref="member">step_index</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="62"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"></highlight></codeline>
+<codeline lineno="64"><highlight class="normal">int16_t<sp/><ref refid="syn__adpcm_8c_1a291d21af3f22a7672c95432779f57012" kindref="member">syn_adpcm_decode_sample</ref>(<ref refid="structSYN__ADPCM__State" kindref="compound">SYN_ADPCM_State</ref><sp/>*state,<sp/>uint8_t<sp/>nibble)</highlight></codeline>
+<codeline lineno="65"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(state<sp/>==<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0;</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"></highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>delta_code<sp/>=<sp/>nibble<sp/>&amp;<sp/>0x0FU;</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"><sp/><sp/><sp/><sp/>int16_t<sp/>step<sp/>=<sp/><ref refid="syn__adpcm_8c_1aea8ef423e59f6dc77e144ede2b5f10dd" kindref="member">g_adpcm_step_table</ref>[state-&gt;<ref refid="structSYN__ADPCM__State_1af00572fda663cd11883367cb18114979" kindref="member">step_index</ref>];</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"></highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Calculate<sp/>difference<sp/>=<sp/>step<sp/>*<sp/>(delta<sp/>+<sp/>0.5)<sp/>/<sp/>4<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="74"><highlight class="normal"><sp/><sp/><sp/><sp/>int32_t<sp/>diff<sp/>=<sp/>step<sp/>&gt;&gt;<sp/>3;</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>((delta_code<sp/>&amp;<sp/>0x04U)<sp/>!=<sp/>0U)<sp/>{</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>diff<sp/>+=<sp/>step;</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>((delta_code<sp/>&amp;<sp/>0x02U)<sp/>!=<sp/>0U)<sp/>{</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>diff<sp/>+=<sp/>step<sp/>&gt;&gt;<sp/>1;</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>((delta_code<sp/>&amp;<sp/>0x01U)<sp/>!=<sp/>0U)<sp/>{</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>diff<sp/>+=<sp/>step<sp/>&gt;&gt;<sp/>2;</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"></highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/>int32_t<sp/>pred<sp/>=<sp/>state-&gt;<ref refid="structSYN__ADPCM__State_1aa3e28e0202847b335e93773c47c6be03" kindref="member">predicted_sample</ref>;</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>((delta_code<sp/>&amp;<sp/>0x08U)<sp/>!=<sp/>0U)<sp/>{</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>pred<sp/>-=<sp/>diff;</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>pred<sp/>+=<sp/>diff;</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"></highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/><sp/><sp/>state-&gt;<ref refid="structSYN__ADPCM__State_1aa3e28e0202847b335e93773c47c6be03" kindref="member">predicted_sample</ref><sp/>=<sp/>clamp_s16(pred);</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><sp/><sp/><sp/><sp/>state-&gt;<ref refid="structSYN__ADPCM__State_1af00572fda663cd11883367cb18114979" kindref="member">step_index</ref><sp/>=</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>clamp_step_idx((int32_t)state-&gt;<ref refid="structSYN__ADPCM__State_1af00572fda663cd11883367cb18114979" kindref="member">step_index</ref><sp/>+<sp/><ref refid="syn__adpcm_8c_1a06a553d12ef909abfb674ceaa424deee" kindref="member">g_adpcm_index_table</ref>[delta_code]);</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"></highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>state-&gt;<ref refid="structSYN__ADPCM__State_1aa3e28e0202847b335e93773c47c6be03" kindref="member">predicted_sample</ref>;</highlight></codeline>
+<codeline lineno="97"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"></highlight></codeline>
+<codeline lineno="99"><highlight class="normal">uint8_t<sp/><ref refid="syn__adpcm_8c_1af9f04d15e8dc1dc3f37e6d041d5e9824" kindref="member">syn_adpcm_encode_sample</ref>(<ref refid="structSYN__ADPCM__State" kindref="compound">SYN_ADPCM_State</ref><sp/>*state,<sp/>int16_t<sp/>sample)</highlight></codeline>
+<codeline lineno="100"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(state<sp/>==<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0;</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"></highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><sp/><sp/><sp/><sp/>int16_t<sp/>step<sp/>=<sp/><ref refid="syn__adpcm_8c_1aea8ef423e59f6dc77e144ede2b5f10dd" kindref="member">g_adpcm_step_table</ref>[state-&gt;<ref refid="structSYN__ADPCM__State_1af00572fda663cd11883367cb18114979" kindref="member">step_index</ref>];</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"><sp/><sp/><sp/><sp/>int32_t<sp/>diff<sp/>=<sp/>(int32_t)sample<sp/>-<sp/>(int32_t)state-&gt;<ref refid="structSYN__ADPCM__State_1aa3e28e0202847b335e93773c47c6be03" kindref="member">predicted_sample</ref>;</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>delta_code<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"></highlight></codeline>
+<codeline lineno="109"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(diff<sp/>&lt;<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="110"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>delta_code<sp/>=<sp/>0x08U;</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>diff<sp/>=<sp/>-diff;</highlight></codeline>
+<codeline lineno="112"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="113"><highlight class="normal"></highlight></codeline>
+<codeline lineno="114"><highlight class="normal"><sp/><sp/><sp/><sp/>int32_t<sp/>mask<sp/>=<sp/>0x04;</highlight></codeline>
+<codeline lineno="115"><highlight class="normal"><sp/><sp/><sp/><sp/>int32_t<sp/>temp_step<sp/>=<sp/>step;</highlight></codeline>
+<codeline lineno="116"><highlight class="normal"><sp/><sp/><sp/><sp/>int32_t<sp/>diff_q<sp/>=<sp/>step<sp/>&gt;&gt;<sp/>3;</highlight></codeline>
+<codeline lineno="117"><highlight class="normal"></highlight></codeline>
+<codeline lineno="118"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>3;<sp/>i++)<sp/>{</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(diff<sp/>&gt;=<sp/>temp_step)<sp/>{</highlight></codeline>
+<codeline lineno="120"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>delta_code<sp/>|=<sp/>(uint8_t)mask;</highlight></codeline>
+<codeline lineno="121"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>diff<sp/>-=<sp/>temp_step;</highlight></codeline>
+<codeline lineno="122"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>diff_q<sp/>+=<sp/>temp_step;</highlight></codeline>
+<codeline lineno="123"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="124"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>temp_step<sp/>&gt;&gt;=<sp/>1;</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>mask<sp/>&gt;&gt;=<sp/>1;</highlight></codeline>
+<codeline lineno="126"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="127"><highlight class="normal"></highlight></codeline>
+<codeline lineno="128"><highlight class="normal"><sp/><sp/><sp/><sp/>int32_t<sp/>pred<sp/>=<sp/>state-&gt;<ref refid="structSYN__ADPCM__State_1aa3e28e0202847b335e93773c47c6be03" kindref="member">predicted_sample</ref>;</highlight></codeline>
+<codeline lineno="129"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>((delta_code<sp/>&amp;<sp/>0x08U)<sp/>!=<sp/>0U)<sp/>{</highlight></codeline>
+<codeline lineno="130"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>pred<sp/>-=<sp/>diff_q;</highlight></codeline>
+<codeline lineno="131"><highlight class="normal"><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="132"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>pred<sp/>+=<sp/>diff_q;</highlight></codeline>
+<codeline lineno="133"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="134"><highlight class="normal"></highlight></codeline>
+<codeline lineno="135"><highlight class="normal"><sp/><sp/><sp/><sp/>state-&gt;<ref refid="structSYN__ADPCM__State_1aa3e28e0202847b335e93773c47c6be03" kindref="member">predicted_sample</ref><sp/>=<sp/>clamp_s16(pred);</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"><sp/><sp/><sp/><sp/>state-&gt;<ref refid="structSYN__ADPCM__State_1af00572fda663cd11883367cb18114979" kindref="member">step_index</ref><sp/>=</highlight></codeline>
+<codeline lineno="137"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>clamp_step_idx((int32_t)state-&gt;<ref refid="structSYN__ADPCM__State_1af00572fda663cd11883367cb18114979" kindref="member">step_index</ref><sp/>+<sp/><ref refid="syn__adpcm_8c_1a06a553d12ef909abfb674ceaa424deee" kindref="member">g_adpcm_index_table</ref>[delta_code]);</highlight></codeline>
+<codeline lineno="138"><highlight class="normal"></highlight></codeline>
+<codeline lineno="139"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>delta_code;</highlight></codeline>
+<codeline lineno="140"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="141"><highlight class="normal"></highlight></codeline>
+<codeline lineno="142"><highlight class="normal"></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="syn__adpcm_8c_1abb7b433dacc551414912d3c429c0aba4" kindref="member">syn_adpcm_decode_block</ref>(<ref refid="structSYN__ADPCM__State" kindref="compound">SYN_ADPCM_State</ref><sp/>*state,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*in,<sp/>int16_t<sp/>*out,</highlight></codeline>
+<codeline lineno="143"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>sample_count)</highlight></codeline>
+<codeline lineno="144"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="145"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(state<sp/>==<sp/>NULL<sp/>||<sp/>in<sp/>==<sp/>NULL<sp/>||<sp/>out<sp/>==<sp/>NULL<sp/>||<sp/>sample_count<sp/>==<sp/>0U)<sp/>{</highlight></codeline>
+<codeline lineno="146"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0U;</highlight></codeline>
+<codeline lineno="147"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="148"><highlight class="normal"></highlight></codeline>
+<codeline lineno="149"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>samples_done<sp/>=<sp/>0U;</highlight></codeline>
+<codeline lineno="150"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>byte_idx<sp/>=<sp/>0U;</highlight></codeline>
+<codeline lineno="151"><highlight class="normal"></highlight></codeline>
+<codeline lineno="152"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">while</highlight><highlight class="normal"><sp/>(samples_done<sp/>&lt;<sp/>sample_count)<sp/>{</highlight></codeline>
+<codeline lineno="153"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/></highlight><highlight class="keywordtype">byte</highlight><highlight class="normal"><sp/>=<sp/>in[byte_idx++];</highlight></codeline>
+<codeline lineno="154"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>out[samples_done++]<sp/>=<sp/><ref refid="syn__adpcm_8c_1a291d21af3f22a7672c95432779f57012" kindref="member">syn_adpcm_decode_sample</ref>(state,<sp/></highlight><highlight class="keywordtype">byte</highlight><highlight class="normal"><sp/>&amp;<sp/>0x0FU);</highlight></codeline>
+<codeline lineno="155"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(samples_done<sp/>&lt;<sp/>sample_count)<sp/>{</highlight></codeline>
+<codeline lineno="156"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>out[samples_done++]<sp/>=<sp/><ref refid="syn__adpcm_8c_1a291d21af3f22a7672c95432779f57012" kindref="member">syn_adpcm_decode_sample</ref>(state,<sp/>(</highlight><highlight class="keywordtype">byte</highlight><highlight class="normal"><sp/>&gt;&gt;<sp/>4)<sp/>&amp;<sp/>0x0FU);</highlight></codeline>
+<codeline lineno="157"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="158"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="159"><highlight class="normal"></highlight></codeline>
+<codeline lineno="160"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>samples_done;</highlight></codeline>
+<codeline lineno="161"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="162"><highlight class="normal"></highlight></codeline>
+<codeline lineno="163"><highlight class="normal"></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="syn__adpcm_8c_1a9f35ed95dc42351e4959cfb5ce6f4866" kindref="member">syn_adpcm_encode_block</ref>(<ref refid="structSYN__ADPCM__State" kindref="compound">SYN_ADPCM_State</ref><sp/>*state,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>int16_t<sp/>*in,<sp/>uint8_t<sp/>*out,</highlight></codeline>
+<codeline lineno="164"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>sample_count)</highlight></codeline>
+<codeline lineno="165"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="166"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(state<sp/>==<sp/>NULL<sp/>||<sp/>in<sp/>==<sp/>NULL<sp/>||<sp/>out<sp/>==<sp/>NULL<sp/>||<sp/>sample_count<sp/>==<sp/>0U)<sp/>{</highlight></codeline>
+<codeline lineno="167"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0U;</highlight></codeline>
+<codeline lineno="168"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="169"><highlight class="normal"></highlight></codeline>
+<codeline lineno="170"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>samples_done<sp/>=<sp/>0U;</highlight></codeline>
+<codeline lineno="171"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>byte_idx<sp/>=<sp/>0U;</highlight></codeline>
+<codeline lineno="172"><highlight class="normal"></highlight></codeline>
+<codeline lineno="173"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">while</highlight><highlight class="normal"><sp/>(samples_done<sp/>&lt;<sp/>sample_count)<sp/>{</highlight></codeline>
+<codeline lineno="174"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>low_nibble<sp/>=<sp/><ref refid="syn__adpcm_8c_1af9f04d15e8dc1dc3f37e6d041d5e9824" kindref="member">syn_adpcm_encode_sample</ref>(state,<sp/>in[samples_done++]);</highlight></codeline>
+<codeline lineno="175"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>high_nibble<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="176"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(samples_done<sp/>&lt;<sp/>sample_count)<sp/>{</highlight></codeline>
+<codeline lineno="177"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>high_nibble<sp/>=<sp/><ref refid="syn__adpcm_8c_1af9f04d15e8dc1dc3f37e6d041d5e9824" kindref="member">syn_adpcm_encode_sample</ref>(state,<sp/>in[samples_done++]);</highlight></codeline>
+<codeline lineno="178"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="179"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>out[byte_idx++]<sp/>=<sp/>(uint8_t)((high_nibble<sp/>&lt;&lt;<sp/>4)<sp/>|<sp/>(low_nibble<sp/>&amp;<sp/>0x0FU));</highlight></codeline>
+<codeline lineno="180"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="181"><highlight class="normal"></highlight></codeline>
+<codeline lineno="182"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>byte_idx;</highlight></codeline>
+<codeline lineno="183"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="184"><highlight class="normal"></highlight></codeline>
+<codeline lineno="185"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_USE_ADPCM<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/audio/syn_adpcm.c"/>
+  </compounddef>
+</doxygen>

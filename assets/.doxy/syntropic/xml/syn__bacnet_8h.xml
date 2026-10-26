@@ -1,0 +1,904 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__bacnet_8h" kind="file" language="C++">
+    <compoundname>syn_bacnet.h</compoundname>
+    <includes refid="syn__defs_8h" local="yes">../common/syn_defs.h</includes>
+    <includes local="no">stdbool.h</includes>
+    <includes local="no">stddef.h</includes>
+    <includes local="no">stdint.h</includes>
+    <includedby refid="syn__bacnet_8c" local="yes">src/syntropic/proto/syn_bacnet.c</includedby>
+    <includedby refid="syntropic_8h" local="yes">src/syntropic/syntropic.h</includedby>
+    <incdepgraph>
+      <node id="2">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/proto/syn_bacnet.h</label>
+        <link refid="syn__bacnet_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>stdbool.h</label>
+      </node>
+      <node id="3">
+        <label>stddef.h</label>
+      </node>
+      <node id="4">
+        <label>stdint.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="2">
+        <label>src/syntropic/proto/syn_bacnet.c</label>
+        <link refid="syn__bacnet_8c"/>
+      </node>
+      <node id="1">
+        <label>src/syntropic/proto/syn_bacnet.h</label>
+        <link refid="syn__bacnet_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>src/syntropic/proto/syn_doip.c</label>
+        <link refid="syn__doip_8c"/>
+      </node>
+      <node id="4">
+        <label>src/syntropic/proto/syn_doip.h</label>
+        <link refid="syn__doip_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>src/syntropic/syntropic.h</label>
+        <link refid="syntropic_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="structSYN__BACnet__MSTP__Frame" prot="public">SYN_BACnet_MSTP_Frame</innerclass>
+    <innerclass refid="structSYN__BACnet__Object" prot="public">SYN_BACnet_Object</innerclass>
+    <innerclass refid="structSYN__BACnet__Node" prot="public">SYN_BACnet_Node</innerclass>
+    <sectiondef kind="define">
+      <memberdef kind="define" id="syn__bacnet_8h_1a04a35a8c1811090eca48373b6cecce82" prot="public" static="no">
+        <name>SYN_BACNET_MSTP_PREAMBLE_1</name>
+        <initializer>0x55U</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>First MS/TP preamble byte (0x55) </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_bacnet.h" line="26" column="9" bodyfile="src/syntropic/proto/syn_bacnet.h" bodystart="26" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__bacnet_8h_1aee4a1efb53ee28b3f5102bbbfc85a2ef" prot="public" static="no">
+        <name>SYN_BACNET_MSTP_PREAMBLE_2</name>
+        <initializer>0xFFU</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Second MS/TP preamble byte (0xFF) </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_bacnet.h" line="27" column="9" bodyfile="src/syntropic/proto/syn_bacnet.h" bodystart="27" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__bacnet_8h_1a2723ff4e3e5ada280499d41fdcdb98f1" prot="public" static="no">
+        <name>SYN_BACNET_BROADCAST_MAC</name>
+        <initializer>0xFFU</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Broadcast MAC address (0xFF) </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_bacnet.h" line="28" column="9" bodyfile="src/syntropic/proto/syn_bacnet.h" bodystart="28" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__bacnet_8h_1abdb65838ce5928ca6518b22b5918b171" prot="public" static="no">
+        <name>SYN_BACNET_MAX_OBJECTS</name>
+        <initializer>16</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Maximum supported BACnet objects per node instance </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_bacnet.h" line="89" column="9" bodyfile="src/syntropic/proto/syn_bacnet.h" bodystart="89" bodyend="-1"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="enum">
+      <memberdef kind="enum" id="syn__bacnet_8h_1a2ea90452dd8e4bf77853d78dbab526ae" prot="public" static="no" strong="no">
+        <type></type>
+        <name>SYN_BACnet_MSTP_FrameType</name>
+        <enumvalue id="syn__bacnet_8h_1a2ea90452dd8e4bf77853d78dbab526aea35efcc8713fc230768801f154da4f48b" prot="public">
+          <name>SYN_BACNET_MSTP_FRAME_TOKEN</name>
+          <initializer>= 0x00U</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__bacnet_8h_1a2ea90452dd8e4bf77853d78dbab526aeaff9075328c8159ede7c0e8e04df66dae" prot="public">
+          <name>SYN_BACNET_MSTP_FRAME_POLL_FOR_MASTER</name>
+          <initializer>= 0x01U</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__bacnet_8h_1a2ea90452dd8e4bf77853d78dbab526aea4c5a4295e02dc69d9660d7567b26d5d3" prot="public">
+          <name>SYN_BACNET_MSTP_FRAME_REPLY_TO_POLL_FOR_MASTER</name>
+          <initializer>= 0x02U</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__bacnet_8h_1a2ea90452dd8e4bf77853d78dbab526aea4641fed17d880e475bc667084f7a0662" prot="public">
+          <name>SYN_BACNET_MSTP_FRAME_TEST_REQUEST</name>
+          <initializer>= 0x03U</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__bacnet_8h_1a2ea90452dd8e4bf77853d78dbab526aeabb7bae22ec7a2b215dc0caf4d267c720" prot="public">
+          <name>SYN_BACNET_MSTP_FRAME_TEST_RESPONSE</name>
+          <initializer>= 0x04U</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__bacnet_8h_1a2ea90452dd8e4bf77853d78dbab526aea470ce34a6e18546a618baf0fb73e6283" prot="public">
+          <name>SYN_BACNET_MSTP_FRAME_DATA_NOT_EXPECTING_REPLY</name>
+          <initializer>= 0x05U</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__bacnet_8h_1a2ea90452dd8e4bf77853d78dbab526aead94d22c2d4526b0a2db37021e80c8f55" prot="public">
+          <name>SYN_BACNET_MSTP_FRAME_DATA_EXPECTING_REPLY</name>
+          <initializer>= 0x06U</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__bacnet_8h_1a2ea90452dd8e4bf77853d78dbab526aea2c14aecc634788f5d3ec364634e90bd5" prot="public">
+          <name>SYN_BACNET_MSTP_FRAME_REPLY_POSTPONED</name>
+          <initializer>= 0x07U</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>BACnet MS/TP Frame Types (ISO 16484-5 Clause 9.2) </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_bacnet.h" line="31" column="1" bodyfile="src/syntropic/proto/syn_bacnet.h" bodystart="31" bodyend="40"/>
+      </memberdef>
+      <memberdef kind="enum" id="syn__bacnet_8h_1a436b048eb239cdeae06fae64659177ba" prot="public" static="no" strong="no">
+        <type></type>
+        <name>SYN_BACnet_ServiceChoice</name>
+        <enumvalue id="syn__bacnet_8h_1a436b048eb239cdeae06fae64659177baaebb93b28a644d797eab62265974ef215" prot="public">
+          <name>SYN_BACNET_SERVICE_UNCONFIRMED_I_AM</name>
+          <initializer>= 0U</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__bacnet_8h_1a436b048eb239cdeae06fae64659177baa8a4d4bc820ac42d58f85c328e3fd2f78" prot="public">
+          <name>SYN_BACNET_SERVICE_UNCONFIRMED_WHO_IS</name>
+          <initializer>= 8U</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__bacnet_8h_1a436b048eb239cdeae06fae64659177baa87fc989ff50e9e04b560f884932c4f26" prot="public">
+          <name>SYN_BACNET_SERVICE_CONFIRMED_READ_PROPERTY</name>
+          <initializer>= 12U</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__bacnet_8h_1a436b048eb239cdeae06fae64659177baab17119ab2ebd69409ebb14b0b55e32b7" prot="public">
+          <name>SYN_BACNET_SERVICE_CONFIRMED_WRITE_PROPERTY</name>
+          <initializer>= 15U</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>BACnet Service Choices (Clause 21) </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_bacnet.h" line="43" column="1" bodyfile="src/syntropic/proto/syn_bacnet.h" bodystart="43" bodyend="48"/>
+      </memberdef>
+      <memberdef kind="enum" id="syn__bacnet_8h_1aa5f7fe8f3021ee3445e7cfe708731bab" prot="public" static="no" strong="no">
+        <type></type>
+        <name>SYN_BACnet_ObjectType</name>
+        <enumvalue id="syn__bacnet_8h_1aa5f7fe8f3021ee3445e7cfe708731babab4c4fffa9ee2f1da814efc86be63627a" prot="public">
+          <name>SYN_BACNET_OBJ_ANALOG_INPUT</name>
+          <initializer>= 0U</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__bacnet_8h_1aa5f7fe8f3021ee3445e7cfe708731baba982d6727930beff0659bbd611be8c73b" prot="public">
+          <name>SYN_BACNET_OBJ_ANALOG_OUTPUT</name>
+          <initializer>= 1U</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__bacnet_8h_1aa5f7fe8f3021ee3445e7cfe708731baba74184f04e1a47d923f91823889d7cd82" prot="public">
+          <name>SYN_BACNET_OBJ_BINARY_INPUT</name>
+          <initializer>= 3U</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__bacnet_8h_1aa5f7fe8f3021ee3445e7cfe708731baba49416dc2c032ec2cebd39efd1b87a3ee" prot="public">
+          <name>SYN_BACNET_OBJ_BINARY_OUTPUT</name>
+          <initializer>= 4U</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__bacnet_8h_1aa5f7fe8f3021ee3445e7cfe708731baba30ae40e5d3268165ab45afa3c94a6f4f" prot="public">
+          <name>SYN_BACNET_OBJ_DEVICE</name>
+          <initializer>= 8U</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>BACnet Object Types (Clause 12) </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_bacnet.h" line="51" column="1" bodyfile="src/syntropic/proto/syn_bacnet.h" bodystart="51" bodyend="57"/>
+      </memberdef>
+      <memberdef kind="enum" id="syn__bacnet_8h_1a96127fd2bf339bdfd641344d61ec2eb5" prot="public" static="no" strong="no">
+        <type></type>
+        <name>SYN_BACnet_PropertyID</name>
+        <enumvalue id="syn__bacnet_8h_1a96127fd2bf339bdfd641344d61ec2eb5a899545b28053f7b3a6e097429f662fc5" prot="public">
+          <name>SYN_BACNET_PROP_PRESENT_VALUE</name>
+          <initializer>= 85U</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__bacnet_8h_1a96127fd2bf339bdfd641344d61ec2eb5afad670d4128a9da1852604e23d1fc8cf" prot="public">
+          <name>SYN_BACNET_PROP_STATUS_FLAGS</name>
+          <initializer>= 111U</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__bacnet_8h_1a96127fd2bf339bdfd641344d61ec2eb5ae68e9ca7e84462122ae623304cd18eff" prot="public">
+          <name>SYN_BACNET_PROP_OBJECT_IDENTIFIER</name>
+          <initializer>= 75U</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__bacnet_8h_1a96127fd2bf339bdfd641344d61ec2eb5ac1bd5b4b7b580c5a30479f4fbfc7e0f8" prot="public">
+          <name>SYN_BACNET_PROP_OBJECT_NAME</name>
+          <initializer>= 77U</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__bacnet_8h_1a96127fd2bf339bdfd641344d61ec2eb5a5342f3f99f0f1ea497c093d16ab45f15" prot="public">
+          <name>SYN_BACNET_PROP_OBJECT_TYPE</name>
+          <initializer>= 79U</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__bacnet_8h_1a96127fd2bf339bdfd641344d61ec2eb5a206724ac789473e15c145792bd4a9e24" prot="public">
+          <name>SYN_BACNET_PROP_VENDOR_ID</name>
+          <initializer>= 121U</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>BACnet Property Identifiers. </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_bacnet.h" line="60" column="1" bodyfile="src/syntropic/proto/syn_bacnet.h" bodystart="60" bodyend="67"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__bacnet_8h_1a08dd6c70cf81305ca51059c2dde3e195" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint8_t</type>
+        <definition>uint8_t syn_bacnet_crc8</definition>
+        <argsstring>(const uint8_t *data, size_t len)</argsstring>
+        <name>syn_bacnet_crc8</name>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>len</declname>
+        </param>
+        <briefdescription>
+<para>Calculate BACnet MS/TP Header CRC-8. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>data</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Data buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Byte count. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>CRC-8 checksum value. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_bacnet.h" line="109" column="9" bodyfile="src/syntropic/proto/syn_bacnet.c" bodystart="12" bodyend="26" declfile="src/syntropic/proto/syn_bacnet.h" declline="109" declcolumn="9"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__bacnet_8h_1ad70b269d52e5b461c173dba6455f0ad9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint16_t</type>
+        <definition>uint16_t syn_bacnet_crc16</definition>
+        <argsstring>(const uint8_t *data, size_t len)</argsstring>
+        <name>syn_bacnet_crc16</name>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>data</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>len</declname>
+        </param>
+        <briefdescription>
+<para>Calculate BACnet MS/TP Data CRC-16. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>data</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Data buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Byte count. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>CRC-16 checksum value. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_bacnet.h" line="117" column="10" bodyfile="src/syntropic/proto/syn_bacnet.c" bodystart="28" bodyend="42" declfile="src/syntropic/proto/syn_bacnet.h" declline="117" declcolumn="10"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__bacnet_8h_1a7c371371e935298ec575cd6da4535502" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>size_t</type>
+        <definition>size_t syn_bacnet_mstp_encode_frame</definition>
+        <argsstring>(uint8_t frame_type, uint8_t dest_mac, uint8_t src_mac, const uint8_t *payload, uint16_t payload_len, uint8_t *out_buf)</argsstring>
+        <name>syn_bacnet_mstp_encode_frame</name>
+        <param>
+          <type>uint8_t</type>
+          <declname>frame_type</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>dest_mac</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>src_mac</declname>
+        </param>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>payload</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>payload_len</declname>
+        </param>
+        <param>
+          <type>uint8_t *</type>
+          <declname>out_buf</declname>
+        </param>
+        <briefdescription>
+<para>Encode a complete BACnet MS/TP Frame. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>frame_type</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Frame Type enum. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dest_mac</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Destination MAC address. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>src_mac</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Source MAC address. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>payload</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Payload buffer (can be NULL if payload_len == 0). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>payload_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Payload byte count. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out_buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Destination output buffer (must be &gt;= payload_len + 10 bytes). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Total encoded frame byte count. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_bacnet.h" line="130" column="8" bodyfile="src/syntropic/proto/syn_bacnet.c" bodystart="46" bodyend="72" declfile="src/syntropic/proto/syn_bacnet.h" declline="130" declcolumn="8"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__bacnet_8h_1a39defcc5833b8f50ce6bebc05ac33159" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_bacnet_mstp_decode_frame</definition>
+        <argsstring>(const uint8_t *buf, size_t len, SYN_BACnet_MSTP_Frame *frame)</argsstring>
+        <name>syn_bacnet_mstp_decode_frame</name>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>len</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__BACnet__MSTP__Frame" kindref="compound">SYN_BACnet_MSTP_Frame</ref> *</type>
+          <declname>frame</declname>
+        </param>
+        <briefdescription>
+<para>Decode a raw byte buffer into a BACnet MS/TP Frame structure. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Input raw frame byte array. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Input byte count. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>frame</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>[out] Decoded MS/TP Frame structure. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if valid MS/TP frame header and CRC-8/CRC-16 match. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_bacnet.h" line="141" column="6" bodyfile="src/syntropic/proto/syn_bacnet.c" bodystart="74" bodyend="109" declfile="src/syntropic/proto/syn_bacnet.h" declline="141" declcolumn="6"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__bacnet_8h_1aefb3979b96930a67006061ea6f3fd0be" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_bacnet_node_init</definition>
+        <argsstring>(SYN_BACnet_Node *node, uint8_t mac_address, uint32_t device_id)</argsstring>
+        <name>syn_bacnet_node_init</name>
+        <param>
+          <type><ref refid="structSYN__BACnet__Node" kindref="compound">SYN_BACnet_Node</ref> *</type>
+          <declname>node</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>mac_address</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>device_id</declname>
+        </param>
+        <briefdescription>
+<para>Initialize a BACnet MS/TP Node context. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>node</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Node handle. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>mac_address</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Local MAC address (0..127). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>device_id</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>BACnet Device Instance ID (0..4194302). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_bacnet.h" line="150" column="12" bodyfile="src/syntropic/proto/syn_bacnet.c" bodystart="113" bodyend="128" declfile="src/syntropic/proto/syn_bacnet.h" declline="150" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__bacnet_8h_1a65a8c0cdc7e067b2588f1ffa674e08b7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_bacnet_add_object</definition>
+        <argsstring>(SYN_BACnet_Node *node, uint8_t object_type, uint32_t instance_id, float init_value, const char *name)</argsstring>
+        <name>syn_bacnet_add_object</name>
+        <param>
+          <type><ref refid="structSYN__BACnet__Node" kindref="compound">SYN_BACnet_Node</ref> *</type>
+          <declname>node</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>object_type</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>instance_id</declname>
+        </param>
+        <param>
+          <type>float</type>
+          <declname>init_value</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>name</declname>
+        </param>
+        <briefdescription>
+<para>Register an Object in the BACnet Node database. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>node</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Node handle. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>object_type</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>SYN_BACnet_ObjectType (AI, AO, BI, BO). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>instance_id</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Instance ID. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>init_value</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Initial Present Value. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>name</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Object Name string. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_ERROR if database full. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_bacnet.h" line="161" column="12" bodyfile="src/syntropic/proto/syn_bacnet.c" bodystart="130" bodyend="143" declfile="src/syntropic/proto/syn_bacnet.h" declline="161" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__bacnet_8h_1a5864554fe03634c4fbaedebcae9b18af" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_bacnet_node_process</definition>
+        <argsstring>(SYN_BACnet_Node *node, const SYN_BACnet_MSTP_Frame *rx_frame, SYN_BACnet_MSTP_Frame *tx_frame, bool *has_tx)</argsstring>
+        <name>syn_bacnet_node_process</name>
+        <param>
+          <type><ref refid="structSYN__BACnet__Node" kindref="compound">SYN_BACnet_Node</ref> *</type>
+          <declname>node</declname>
+        </param>
+        <param>
+          <type>const <ref refid="structSYN__BACnet__MSTP__Frame" kindref="compound">SYN_BACnet_MSTP_Frame</ref> *</type>
+          <declname>rx_frame</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__BACnet__MSTP__Frame" kindref="compound">SYN_BACnet_MSTP_Frame</ref> *</type>
+          <declname>tx_frame</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref> *</type>
+          <declname>has_tx</declname>
+        </param>
+        <briefdescription>
+<para>Process an incoming BACnet MS/TP frame and generate a response if required. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>node</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Node context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>rx_frame</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Incoming received frame. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>tx_frame</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>[out] Outgoing response frame structure. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>has_tx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>[out] Set to true if a response frame must be transmitted. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_bacnet.h" line="173" column="12" bodyfile="src/syntropic/proto/syn_bacnet.c" bodystart="147" bodyend="302" declfile="src/syntropic/proto/syn_bacnet.h" declline="173" declcolumn="12"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Zero-malloc, cleanroom BACnet MS/TP &amp; APDU protocol stack (ISO 16484-5). </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Provides a lightweight, non-blocking BACnet MS/TP (Master-Slave/Token-Passing) frame encoder/decoder, CRC-8 / CRC-16 verifiers, APDU parser (Who-Is, I-Am, ReadProperty, WriteProperty), and static Object Database engine for embedded targets. </para>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_BACNET_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_BACNET_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../common/syn_defs.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stddef.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>BACnet<sp/>MS/TP<sp/>Constants<sp/>───────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight></codeline>
+<codeline lineno="26" refid="syn__bacnet_8h_1a04a35a8c1811090eca48373b6cecce82" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_BACNET_MSTP_PREAMBLE_1<sp/>0x55U<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="27" refid="syn__bacnet_8h_1aee4a1efb53ee28b3f5102bbbfc85a2ef" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_BACNET_MSTP_PREAMBLE_2<sp/>0xFFU<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="28" refid="syn__bacnet_8h_1a2723ff4e3e5ada280499d41fdcdb98f1" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_BACNET_BROADCAST_MAC<sp/>0xFFU<sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="31" refid="syn__bacnet_8h_1a2ea90452dd8e4bf77853d78dbab526ae" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="32"><highlight class="normal"><sp/><sp/><sp/><sp/>SYN_BACNET_MSTP_FRAME_TOKEN<sp/>=<sp/>0x00U,</highlight></codeline>
+<codeline lineno="33"><highlight class="normal"><sp/><sp/><sp/><sp/>SYN_BACNET_MSTP_FRAME_POLL_FOR_MASTER<sp/>=<sp/>0x01U,</highlight></codeline>
+<codeline lineno="34"><highlight class="normal"><sp/><sp/><sp/><sp/>SYN_BACNET_MSTP_FRAME_REPLY_TO_POLL_FOR_MASTER<sp/>=<sp/>0x02U,</highlight></codeline>
+<codeline lineno="35"><highlight class="normal"><sp/><sp/><sp/><sp/>SYN_BACNET_MSTP_FRAME_TEST_REQUEST<sp/>=<sp/>0x03U,</highlight></codeline>
+<codeline lineno="36"><highlight class="normal"><sp/><sp/><sp/><sp/>SYN_BACNET_MSTP_FRAME_TEST_RESPONSE<sp/>=<sp/>0x04U,</highlight></codeline>
+<codeline lineno="37"><highlight class="normal"><sp/><sp/><sp/><sp/>SYN_BACNET_MSTP_FRAME_DATA_NOT_EXPECTING_REPLY<sp/>=<sp/>0x05U,</highlight></codeline>
+<codeline lineno="38"><highlight class="normal"><sp/><sp/><sp/><sp/>SYN_BACNET_MSTP_FRAME_DATA_EXPECTING_REPLY<sp/>=<sp/>0x06U,</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"><sp/><sp/><sp/><sp/>SYN_BACNET_MSTP_FRAME_REPLY_POSTPONED<sp/>=<sp/>0x07U,</highlight></codeline>
+<codeline lineno="40"><highlight class="normal">}<sp/><ref refid="syn__bacnet_8h_1a2ea90452dd8e4bf77853d78dbab526ae" kindref="member">SYN_BACnet_MSTP_FrameType</ref>;</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight></codeline>
+<codeline lineno="43" refid="syn__bacnet_8h_1a436b048eb239cdeae06fae64659177ba" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"><sp/><sp/><sp/><sp/>SYN_BACNET_SERVICE_UNCONFIRMED_I_AM<sp/>=<sp/>0U,</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"><sp/><sp/><sp/><sp/>SYN_BACNET_SERVICE_UNCONFIRMED_WHO_IS<sp/>=<sp/>8U,</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/><sp/><sp/>SYN_BACNET_SERVICE_CONFIRMED_READ_PROPERTY<sp/>=<sp/>12U,</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/><sp/><sp/>SYN_BACNET_SERVICE_CONFIRMED_WRITE_PROPERTY<sp/>=<sp/>15U,</highlight></codeline>
+<codeline lineno="48"><highlight class="normal">}<sp/><ref refid="syn__bacnet_8h_1a436b048eb239cdeae06fae64659177ba" kindref="member">SYN_BACnet_ServiceChoice</ref>;</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"></highlight></codeline>
+<codeline lineno="51" refid="syn__bacnet_8h_1aa5f7fe8f3021ee3445e7cfe708731bab" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/><sp/><sp/>SYN_BACNET_OBJ_ANALOG_INPUT<sp/>=<sp/>0U,</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/><sp/><sp/>SYN_BACNET_OBJ_ANALOG_OUTPUT<sp/>=<sp/>1U,</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/><sp/><sp/>SYN_BACNET_OBJ_BINARY_INPUT<sp/>=<sp/>3U,</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/><sp/><sp/>SYN_BACNET_OBJ_BINARY_OUTPUT<sp/>=<sp/>4U,</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/><sp/><sp/>SYN_BACNET_OBJ_DEVICE<sp/>=<sp/>8U,</highlight></codeline>
+<codeline lineno="57"><highlight class="normal">}<sp/><ref refid="syn__bacnet_8h_1aa5f7fe8f3021ee3445e7cfe708731bab" kindref="member">SYN_BACnet_ObjectType</ref>;</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"></highlight></codeline>
+<codeline lineno="60" refid="syn__bacnet_8h_1a96127fd2bf339bdfd641344d61ec2eb5" refkind="member"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/><sp/><sp/>SYN_BACNET_PROP_PRESENT_VALUE<sp/>=<sp/>85U,</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"><sp/><sp/><sp/><sp/>SYN_BACNET_PROP_STATUS_FLAGS<sp/>=<sp/>111U,</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"><sp/><sp/><sp/><sp/>SYN_BACNET_PROP_OBJECT_IDENTIFIER<sp/>=<sp/>75U,</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/><sp/><sp/>SYN_BACNET_PROP_OBJECT_NAME<sp/>=<sp/>77U,</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/><sp/><sp/>SYN_BACNET_PROP_OBJECT_TYPE<sp/>=<sp/>79U,</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/><sp/><sp/>SYN_BACNET_PROP_VENDOR_ID<sp/>=<sp/>121U,</highlight></codeline>
+<codeline lineno="67"><highlight class="normal">}<sp/><ref refid="syn__bacnet_8h_1a96127fd2bf339bdfd641344d61ec2eb5" kindref="member">SYN_BACnet_PropertyID</ref>;</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"></highlight></codeline>
+<codeline lineno="69"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Data<sp/>Structures<sp/>──────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="70"><highlight class="normal"></highlight></codeline>
+<codeline lineno="72" refid="structSYN__BACnet__MSTP__Frame" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="73" refid="structSYN__BACnet__MSTP__Frame_1ad9c76b09e8daf9ab391f33b4f0b88bb7" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><ref refid="structSYN__BACnet__MSTP__Frame_1ad9c76b09e8daf9ab391f33b4f0b88bb7" kindref="member">frame_type</ref>;<sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="74" refid="structSYN__BACnet__MSTP__Frame_1a67c7fbb61abf45f93052ccae5725eaf9" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><ref refid="structSYN__BACnet__MSTP__Frame_1a67c7fbb61abf45f93052ccae5725eaf9" kindref="member">destination_mac</ref>;<sp/></highlight></codeline>
+<codeline lineno="75" refid="structSYN__BACnet__MSTP__Frame_1ac72210af80296219433c478fb1120cd2" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><ref refid="structSYN__BACnet__MSTP__Frame_1ac72210af80296219433c478fb1120cd2" kindref="member">source_mac</ref>;<sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="76" refid="structSYN__BACnet__MSTP__Frame_1a2da06daff2411c534fa9ae01cc9745fe" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/><ref refid="structSYN__BACnet__MSTP__Frame_1a2da06daff2411c534fa9ae01cc9745fe" kindref="member">data_len</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="77" refid="structSYN__BACnet__MSTP__Frame_1af07122c9127afe8657df304c2b10a7f5" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>payload[501];<sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="78"><highlight class="normal">}<sp/><ref refid="structSYN__BACnet__MSTP__Frame" kindref="compound">SYN_BACnet_MSTP_Frame</ref>;</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"></highlight></codeline>
+<codeline lineno="81" refid="structSYN__BACnet__Object" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="82" refid="structSYN__BACnet__Object_1afc5b3cd7009a6368f922ceb41581a679" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><ref refid="structSYN__BACnet__Object_1afc5b3cd7009a6368f922ceb41581a679" kindref="member">object_type</ref>;<sp/><sp/></highlight></codeline>
+<codeline lineno="83" refid="structSYN__BACnet__Object_1ad3b9dee6e4d479d7ce8cb8d36e2b0113" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structSYN__BACnet__Object_1ad3b9dee6e4d479d7ce8cb8d36e2b0113" kindref="member">instance_id</ref>;<sp/></highlight></codeline>
+<codeline lineno="84" refid="structSYN__BACnet__Object_1aca69125a251052beb6fa1ebbaaa9e162" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/><ref refid="structSYN__BACnet__Object_1aca69125a251052beb6fa1ebbaaa9e162" kindref="member">present_value</ref>;<sp/><sp/></highlight></codeline>
+<codeline lineno="85" refid="structSYN__BACnet__Object_1afd0478cc2512999f6efc6de19b174b18" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*<ref refid="structSYN__BACnet__Object_1afd0478cc2512999f6efc6de19b174b18" kindref="member">name</ref>;<sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="86"><highlight class="normal">}<sp/><ref refid="structSYN__BACnet__Object" kindref="compound">SYN_BACnet_Object</ref>;</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"></highlight></codeline>
+<codeline lineno="88"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_BACNET_MAX_OBJECTS</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="89" refid="syn__bacnet_8h_1abdb65838ce5928ca6518b22b5918b171" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_BACNET_MAX_OBJECTS<sp/>16<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="90"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="91"><highlight class="normal"></highlight></codeline>
+<codeline lineno="93" refid="structSYN__BACnet__Node" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="94" refid="structSYN__BACnet__Node_1abbe7eb125879e8de5a61a3791f277719" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><ref refid="structSYN__BACnet__Node_1abbe7eb125879e8de5a61a3791f277719" kindref="member">mac_address</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="95" refid="structSYN__BACnet__Node_1af538c657a32277246b7d7c5c030a33d5" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/><ref refid="structSYN__BACnet__Node_1af538c657a32277246b7d7c5c030a33d5" kindref="member">device_id</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="96" refid="structSYN__BACnet__Node_1a619723570e27964183ad4b808102719d" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/><ref refid="structSYN__BACnet__Node_1a619723570e27964183ad4b808102719d" kindref="member">max_master</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="97" refid="structSYN__BACnet__Node_1afce965f7d24401ed0449d959ca6c493a" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structSYN__BACnet__Object" kindref="compound">SYN_BACnet_Object</ref><sp/>objects[<ref refid="syn__bacnet_8h_1abdb65838ce5928ca6518b22b5918b171" kindref="member">SYN_BACNET_MAX_OBJECTS</ref>];<sp/></highlight></codeline>
+<codeline lineno="98" refid="structSYN__BACnet__Node_1a1d82db4dc855b1a2303f378336b2b7eb" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="structSYN__BACnet__Node_1a1d82db4dc855b1a2303f378336b2b7eb" kindref="member">object_count</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="99"><highlight class="normal">}<sp/><ref refid="structSYN__BACnet__Node" kindref="compound">SYN_BACnet_Node</ref>;</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"></highlight></codeline>
+<codeline lineno="101"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>API<sp/>Functions<sp/>────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="102"><highlight class="normal"></highlight></codeline>
+<codeline lineno="109"><highlight class="normal">uint8_t<sp/><ref refid="syn__bacnet_8h_1a08dd6c70cf81305ca51059c2dde3e195" kindref="member">syn_bacnet_crc8</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*data,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>len);</highlight></codeline>
+<codeline lineno="110"><highlight class="normal"></highlight></codeline>
+<codeline lineno="117"><highlight class="normal">uint16_t<sp/><ref refid="syn__bacnet_8h_1ad70b269d52e5b461c173dba6455f0ad9" kindref="member">syn_bacnet_crc16</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*data,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>len);</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"></highlight></codeline>
+<codeline lineno="130"><highlight class="normal"></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="syn__bacnet_8h_1a7c371371e935298ec575cd6da4535502" kindref="member">syn_bacnet_mstp_encode_frame</ref>(uint8_t<sp/>frame_type,<sp/>uint8_t<sp/>dest_mac,<sp/>uint8_t<sp/>src_mac,</highlight></codeline>
+<codeline lineno="131"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*payload,<sp/>uint16_t<sp/>payload_len,<sp/>uint8_t<sp/>*out_buf);</highlight></codeline>
+<codeline lineno="132"><highlight class="normal"></highlight></codeline>
+<codeline lineno="141"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__bacnet_8h_1a39defcc5833b8f50ce6bebc05ac33159" kindref="member">syn_bacnet_mstp_decode_frame</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*buf,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>len,<sp/><ref refid="structSYN__BACnet__MSTP__Frame" kindref="compound">SYN_BACnet_MSTP_Frame</ref><sp/>*frame);</highlight></codeline>
+<codeline lineno="142"><highlight class="normal"></highlight></codeline>
+<codeline lineno="150"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__bacnet_8h_1aefb3979b96930a67006061ea6f3fd0be" kindref="member">syn_bacnet_node_init</ref>(<ref refid="structSYN__BACnet__Node" kindref="compound">SYN_BACnet_Node</ref><sp/>*node,<sp/>uint8_t<sp/>mac_address,<sp/>uint32_t<sp/>device_id);</highlight></codeline>
+<codeline lineno="151"><highlight class="normal"></highlight></codeline>
+<codeline lineno="161"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__bacnet_8h_1a65a8c0cdc7e067b2588f1ffa674e08b7" kindref="member">syn_bacnet_add_object</ref>(<ref refid="structSYN__BACnet__Node" kindref="compound">SYN_BACnet_Node</ref><sp/>*node,<sp/>uint8_t<sp/>object_type,<sp/>uint32_t<sp/>instance_id,</highlight></codeline>
+<codeline lineno="162"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">float</highlight><highlight class="normal"><sp/>init_value,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*name);</highlight></codeline>
+<codeline lineno="163"><highlight class="normal"></highlight></codeline>
+<codeline lineno="173"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__bacnet_8h_1a5864554fe03634c4fbaedebcae9b18af" kindref="member">syn_bacnet_node_process</ref>(<ref refid="structSYN__BACnet__Node" kindref="compound">SYN_BACnet_Node</ref><sp/>*node,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__BACnet__MSTP__Frame" kindref="compound">SYN_BACnet_MSTP_Frame</ref><sp/>*rx_frame,</highlight></codeline>
+<codeline lineno="174"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__BACnet__MSTP__Frame" kindref="compound">SYN_BACnet_MSTP_Frame</ref><sp/>*tx_frame,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>*has_tx);</highlight></codeline>
+<codeline lineno="175"><highlight class="normal"></highlight></codeline>
+<codeline lineno="176"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="177"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="178"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="179"><highlight class="normal"></highlight></codeline>
+<codeline lineno="180"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_BACNET_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/proto/syn_bacnet.h"/>
+  </compounddef>
+</doxygen>

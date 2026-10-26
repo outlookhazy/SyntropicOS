@@ -1,0 +1,750 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__usb__host_8c" kind="file" language="C++">
+    <compoundname>syn_usb_host.c</compoundname>
+    <includes refid="syn__usb__host_8h" local="yes">syntropic/drivers/syn_usb_host.h</includes>
+    <includes refid="syn__port__usb_8h" local="yes">port/syn_port_usb.h</includes>
+    <includes refid="syn__port__usb__host_8h" local="yes">port/syn_port_usb_host.h</includes>
+    <includes local="no">string.h</includes>
+    <incdepgraph>
+      <node id="10">
+        <label>port/syn_port_usb.h</label>
+        <link refid="syn__port__usb_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="11">
+        <label>port/syn_port_usb_host.h</label>
+        <link refid="syn__port__usb__host_8h"/>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="9">
+        <label>../common/syn_compiler.h</label>
+        <link refid="syn__compiler_8h"/>
+      </node>
+      <node id="3">
+        <label>syntropic/common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>syntropic/drivers/syn_usb.h</label>
+        <link refid="syn__usb_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/drivers/syn_usb_host.c</label>
+        <link refid="syn__usb__host_8c"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>syntropic/drivers/syn_usb_host.h</label>
+        <link refid="syn__usb__host_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>syntropic/pt/syn_pt.h</label>
+        <link refid="syn__pt_8h"/>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>stdbool.h</label>
+      </node>
+      <node id="4">
+        <label>stddef.h</label>
+      </node>
+      <node id="5">
+        <label>stdint.h</label>
+      </node>
+      <node id="12">
+        <label>string.h</label>
+      </node>
+    </incdepgraph>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__usb__host_8c_1a88ba01577c3c4bbdbbe4097ac42fb1d1" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void build_setup</definition>
+        <argsstring>(SYN_USB_SetupPacket *pkt, uint8_t bmRequestType, uint8_t bRequest, uint16_t wValue, uint16_t wIndex, uint16_t wLength)</argsstring>
+        <name>build_setup</name>
+        <param>
+          <type><ref refid="structSYN__USB__SetupPacket" kindref="compound">SYN_USB_SetupPacket</ref> *</type>
+          <declname>pkt</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>bmRequestType</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>bRequest</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>wValue</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>wIndex</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>wLength</declname>
+        </param>
+        <briefdescription>
+<para>Build a standard USB control Setup Packet. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>pkt</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Target Setup Packet pointer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>bmRequestType</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Request characteristics bitfield. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>bRequest</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Specific request code. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>wValue</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Word-sized request parameter. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>wIndex</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Word-sized index or offset. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>wLength</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Transfer byte length. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_usb_host.c" line="28" column="13" bodyfile="src/syntropic/drivers/syn_usb_host.c" bodystart="28" bodyend="36"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__usb__host_8c_1acab768f9613cdc1414f130d92e4b0340" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void probe_class_drivers</definition>
+        <argsstring>(SYN_USB_Host *host)</argsstring>
+        <name>probe_class_drivers</name>
+        <param>
+          <type><ref refid="structSYN__USB__Host" kindref="compound">SYN_USB_Host</ref> *</type>
+          <declname>host</declname>
+        </param>
+        <briefdescription>
+<para>Walk configuration descriptor and probe registered class drivers against each interface descriptor&apos;s class/subclass/protocol triple. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>host</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to USB Host instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_usb_host.c" line="43" column="13" bodyfile="src/syntropic/drivers/syn_usb_host.c" bodystart="43" bodyend="99"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__usb__host_8c_1a136c55b7725aea620190d7c5b0afa465" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>static SYN_Status enumerate_step</definition>
+        <argsstring>(SYN_USB_Host *host)</argsstring>
+        <name>enumerate_step</name>
+        <param>
+          <type><ref refid="structSYN__USB__Host" kindref="compound">SYN_USB_Host</ref> *</type>
+          <declname>host</declname>
+        </param>
+        <briefdescription>
+<para>Drive the enumeration sub-state machine. Non-blocking. Each call performs at most one HAL operation. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>host</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to USB Host instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK when enumeration complete, SYN_BUSY while in progress, SYN_ERROR on failure. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_usb_host.c" line="111" column="19" bodyfile="src/syntropic/drivers/syn_usb_host.c" bodystart="111" bodyend="233"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__usb__host_8c_1a3d5300c752eebb921f4b7420b5923bf7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_usb_host_init</definition>
+        <argsstring>(SYN_USB_Host *host)</argsstring>
+        <name>syn_usb_host_init</name>
+        <param>
+          <type><ref refid="structSYN__USB__Host" kindref="compound">SYN_USB_Host</ref> *</type>
+          <declname>host</declname>
+        </param>
+        <briefdescription>
+<para>Initialize USB Host Core. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>host</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to USB Host instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_usb_host.c" line="237" column="12" bodyfile="src/syntropic/drivers/syn_usb_host.c" bodystart="237" bodyend="246"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__usb__host_8c_1a145dba0c00369741ff5bf318c1e13208" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_usb_host_register_class</definition>
+        <argsstring>(SYN_USB_Host *host, const SYN_USB_HostClassDriver *cls)</argsstring>
+        <name>syn_usb_host_register_class</name>
+        <param>
+          <type><ref refid="structSYN__USB__Host" kindref="compound">SYN_USB_Host</ref> *</type>
+          <declname>host</declname>
+        </param>
+        <param>
+          <type>const <ref refid="structSYN__USB__HostClassDriver" kindref="compound">SYN_USB_HostClassDriver</ref> *</type>
+          <declname>cls</declname>
+        </param>
+        <briefdescription>
+<para>Register a host class driver for interface matching. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>host</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to USB Host instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>cls</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Host class driver vtable. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_usb_host.c" line="248" column="12" bodyfile="src/syntropic/drivers/syn_usb_host.c" bodystart="248" bodyend="260"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__usb__host_8c_1a07c47361b637bb8dc4687ec38991acb2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_usb_host_process</definition>
+        <argsstring>(SYN_USB_Host *host)</argsstring>
+        <name>syn_usb_host_process</name>
+        <param>
+          <type><ref refid="structSYN__USB__Host" kindref="compound">SYN_USB_Host</ref> *</type>
+          <declname>host</declname>
+        </param>
+        <briefdescription>
+<para>Process USB Host state machine (call each scheduler tick). </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Drives attach detection, bus reset, enumeration, class probing, and detach handling. Non-blocking.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>host</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to USB Host instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_BUSY if transfer pending. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_usb_host.c" line="262" column="12" bodyfile="src/syntropic/drivers/syn_usb_host.c" bodystart="262" bodyend="333"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__usb__host_8c_1afc41c37a05324d49eade329d16a361da" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_usb_host_is_ready</definition>
+        <argsstring>(const SYN_USB_Host *host)</argsstring>
+        <name>syn_usb_host_is_ready</name>
+        <param>
+          <type>const <ref refid="structSYN__USB__Host" kindref="compound">SYN_USB_Host</ref> *</type>
+          <declname>host</declname>
+        </param>
+        <briefdescription>
+<para>Check if USB Host has a device enumerated and ready. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>host</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to USB Host instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true if host state is READY. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_usb_host.c" line="335" column="6" bodyfile="src/syntropic/drivers/syn_usb_host.c" bodystart="335" bodyend="338"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__usb__host_8c_1a38d1347bb5e797baa80b79137165a41a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>const <ref refid="structSYN__USB__HostDevInfo" kindref="compound">SYN_USB_HostDevInfo</ref> *</type>
+        <definition>const SYN_USB_HostDevInfo * syn_usb_host_get_dev_info</definition>
+        <argsstring>(const SYN_USB_Host *host)</argsstring>
+        <name>syn_usb_host_get_dev_info</name>
+        <param>
+          <type>const <ref refid="structSYN__USB__Host" kindref="compound">SYN_USB_Host</ref> *</type>
+          <declname>host</declname>
+        </param>
+        <briefdescription>
+<para>Get cached device information from last enumeration. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>host</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to USB Host instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Pointer to device info struct, or NULL if no device. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_usb_host.c" line="340" column="27" bodyfile="src/syntropic/drivers/syn_usb_host.c" bodystart="340" bodyend="346"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Zero-Heap USB 2.0 Host Core Protocol Engine Implementation. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Tick-driven state machine handling device attach detection, bus reset, standard USB enumeration (Device/Config descriptor reads, SET_ADDRESS, SET_CONFIGURATION), and host class driver interface matching. </para>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__usb__host_8h" kindref="compound">syntropic/drivers/syn_usb_host.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__port__usb_8h" kindref="compound">port/syn_port_usb.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__port__usb__host_8h" kindref="compound">port/syn_port_usb_host.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;string.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Internal<sp/>helpers<sp/>────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__usb__host_8c_1a88ba01577c3c4bbdbbe4097ac42fb1d1" kindref="member">build_setup</ref>(<ref refid="structSYN__USB__SetupPacket" kindref="compound">SYN_USB_SetupPacket</ref><sp/>*pkt,<sp/>uint8_t<sp/>bmRequestType,<sp/>uint8_t<sp/>bRequest,</highlight></codeline>
+<codeline lineno="29"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint16_t<sp/>wValue,<sp/>uint16_t<sp/>wIndex,<sp/>uint16_t<sp/>wLength)</highlight></codeline>
+<codeline lineno="30"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="31"><highlight class="normal"><sp/><sp/><sp/><sp/>pkt-&gt;<ref refid="structSYN__USB__SetupPacket_1aea7156ef75becd66b99cf7f04b3211e4" kindref="member">bmRequestType</ref><sp/>=<sp/>bmRequestType;</highlight></codeline>
+<codeline lineno="32"><highlight class="normal"><sp/><sp/><sp/><sp/>pkt-&gt;<ref refid="structSYN__USB__SetupPacket_1afa2d659fae8f45520dec915e9cd1bba6" kindref="member">bRequest</ref><sp/>=<sp/>bRequest;</highlight></codeline>
+<codeline lineno="33"><highlight class="normal"><sp/><sp/><sp/><sp/>pkt-&gt;<ref refid="structSYN__USB__SetupPacket_1ab662b0cd718ffd862834339178c78a88" kindref="member">wValue</ref><sp/>=<sp/>wValue;</highlight></codeline>
+<codeline lineno="34"><highlight class="normal"><sp/><sp/><sp/><sp/>pkt-&gt;<ref refid="structSYN__USB__SetupPacket_1ad8b34f24e2e55c420fffa5eb2296d761" kindref="member">wIndex</ref><sp/>=<sp/>wIndex;</highlight></codeline>
+<codeline lineno="35"><highlight class="normal"><sp/><sp/><sp/><sp/>pkt-&gt;<ref refid="structSYN__USB__SetupPacket_1a3fe5dc074b59f18d3f7ab7208ebc07a6" kindref="member">wLength</ref><sp/>=<sp/>wLength;</highlight></codeline>
+<codeline lineno="36"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__usb__host_8c_1acab768f9613cdc1414f130d92e4b0340" kindref="member">probe_class_drivers</ref>(<ref refid="structSYN__USB__Host" kindref="compound">SYN_USB_Host</ref><sp/>*host)</highlight></codeline>
+<codeline lineno="44"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*buf<sp/>=<sp/>host-&gt;<ref refid="structSYN__USB__Host_1af05195cde6f21d58106554c88480935a" kindref="member">enum_buf</ref>;</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/>total<sp/>=<sp/>host-&gt;<ref refid="structSYN__USB__Host_1a4ff15f8aedcfef403368c0c5f14fadac" kindref="member">enum_buf_len</ref>;</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/>pos<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"></highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">while</highlight><highlight class="normal"><sp/>(pos<sp/>+<sp/>2U<sp/>&lt;=<sp/>total)<sp/>{</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>bLength<sp/>=<sp/>buf[pos];</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>bDescType<sp/>=<sp/>buf[pos<sp/>+<sp/>1U];</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"></highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(bLength<sp/>&lt;<sp/>2U<sp/>||<sp/>(pos<sp/>+<sp/>bLength)<sp/>&gt;<sp/>total)<sp/>{</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"></highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Interface<sp/>Descriptor<sp/>(bDescriptorType<sp/>==<sp/>0x04,<sp/>bLength<sp/>&gt;=<sp/>9)<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(bDescType<sp/>==<sp/><ref refid="syn__usb_8h_1a419d06e13085d9ad906be7a5a141ca28" kindref="member">SYN_USB_DESC_TYPE_INTERFACE</ref><sp/>&amp;&amp;<sp/>bLength<sp/>&gt;=<sp/>9U)<sp/>{</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>iface_class<sp/>=<sp/>buf[pos<sp/>+<sp/>5U];</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>iface_sub<sp/>=<sp/>buf[pos<sp/>+<sp/>6U];</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>iface_proto<sp/>=<sp/>buf[pos<sp/>+<sp/>7U];</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"></highlight></codeline>
+<codeline lineno="63"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Calculate<sp/>length<sp/>of<sp/>this<sp/>interface<sp/>+<sp/>subordinate<sp/>descriptors<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint16_t<sp/>iface_start<sp/>=<sp/>pos;</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint16_t<sp/>next<sp/>=<sp/>pos<sp/>+<sp/>bLength;</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">while</highlight><highlight class="normal"><sp/>(next<sp/>+<sp/>2U<sp/>&lt;=<sp/>total)<sp/>{</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>nLen<sp/>=<sp/>buf[next];</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>nType<sp/>=<sp/>buf[next<sp/>+<sp/>1U];</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(nLen<sp/>&lt;<sp/>2U<sp/>||<sp/>(next<sp/>+<sp/>nLen)<sp/>&gt;<sp/>total<sp/>||<sp/>nType<sp/>==<sp/><ref refid="syn__usb_8h_1a419d06e13085d9ad906be7a5a141ca28" kindref="member">SYN_USB_DESC_TYPE_INTERFACE</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>next<sp/>+=<sp/>nLen;</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint16_t<sp/>iface_total_len<sp/>=<sp/>next<sp/>-<sp/>iface_start;</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"></highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Match<sp/>against<sp/>registered<sp/>class<sp/>drivers<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(uint8_t<sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>host-&gt;<ref refid="structSYN__USB__Host_1a44c19a4adc0df0117fd375479a5d8e31" kindref="member">class_count</ref>;<sp/>i++)<sp/>{</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__USB__HostClassDriver" kindref="compound">SYN_USB_HostClassDriver</ref><sp/>*cls<sp/>=<sp/>&amp;host-&gt;<ref refid="structSYN__USB__Host_1a88a07a623f717c924400c813fd7833c2" kindref="member">classes</ref>[i];</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(cls-&gt;<ref refid="structSYN__USB__HostClassDriver_1ad2b4c76dbf9caa26ae65fda79b69e4ed" kindref="member">matched</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">continue</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>class_match<sp/>=<sp/>(cls-&gt;<ref refid="structSYN__USB__HostClassDriver_1a18ac5e12b92f3d201cbb02c901086c62" kindref="member">class_code</ref><sp/>==<sp/>0xFFU)<sp/>||<sp/>(cls-&gt;<ref refid="structSYN__USB__HostClassDriver_1a18ac5e12b92f3d201cbb02c901086c62" kindref="member">class_code</ref><sp/>==<sp/>iface_class);</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>sub_match<sp/>=<sp/>(cls-&gt;<ref refid="structSYN__USB__HostClassDriver_1a4980dee7be31ce62cc569a01f3b3e3f2" kindref="member">subclass_code</ref><sp/>==<sp/>0xFFU)<sp/>||<sp/>(cls-&gt;<ref refid="structSYN__USB__HostClassDriver_1a4980dee7be31ce62cc569a01f3b3e3f2" kindref="member">subclass_code</ref><sp/>==<sp/>iface_sub);</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>proto_match<sp/>=</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(cls-&gt;<ref refid="structSYN__USB__HostClassDriver_1a6977d0a9fef6cbc28bac7274e7a1e9bb" kindref="member">protocol_code</ref><sp/>==<sp/>0xFFU)<sp/>||<sp/>(cls-&gt;<ref refid="structSYN__USB__HostClassDriver_1a6977d0a9fef6cbc28bac7274e7a1e9bb" kindref="member">protocol_code</ref><sp/>==<sp/>iface_proto);</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"></highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(class_match<sp/>&amp;&amp;<sp/>sub_match<sp/>&amp;&amp;<sp/>proto_match<sp/>&amp;&amp;<sp/>cls-&gt;<ref refid="structSYN__USB__HostClassDriver_1a501725d4a94f3d28088ee0897aaf8764" kindref="member">probe</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(cls-&gt;<ref refid="structSYN__USB__HostClassDriver_1a501725d4a94f3d28088ee0897aaf8764" kindref="member">probe</ref>(cls-&gt;<ref refid="structSYN__USB__HostClassDriver_1a4fe8be4268a2d6fc70540aca1f50e257" kindref="member">ctx</ref>,<sp/>host-&gt;<ref refid="structSYN__USB__Host_1abad849c7a051b5736575294ef6031013" kindref="member">dev_info</ref>.<ref refid="structSYN__USB__HostDevInfo_1ae962ae4669fb76193b5958d566079ce0" kindref="member">dev_addr</ref>,<sp/>&amp;buf[iface_start],</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>iface_total_len)<sp/>==<sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>cls-&gt;<ref refid="structSYN__USB__HostClassDriver_1ad2b4c76dbf9caa26ae65fda79b69e4ed" kindref="member">matched</ref><sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;<sp/></highlight><highlight class="comment">/*<sp/>One<sp/>driver<sp/>per<sp/>interface<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"></highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>pos<sp/>+=<sp/>bLength;</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="99"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"></highlight></codeline>
+<codeline lineno="101"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Enumeration<sp/>state<sp/>machine<sp/>───────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="102"><highlight class="normal"></highlight></codeline>
+<codeline lineno="111"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__usb__host_8c_1a136c55b7725aea620190d7c5b0afa465" kindref="member">enumerate_step</ref>(<ref refid="structSYN__USB__Host" kindref="compound">SYN_USB_Host</ref><sp/>*host)</highlight></codeline>
+<codeline lineno="112"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="113"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structSYN__USB__SetupPacket" kindref="compound">SYN_USB_SetupPacket</ref><sp/>pkt;</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"></highlight></codeline>
+<codeline lineno="115"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>If<sp/>a<sp/>transfer<sp/>is<sp/>pending,<sp/>poll<sp/>for<sp/>completion<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="116"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(host-&gt;<ref refid="structSYN__USB__Host_1a839947affef54d96d353060633ffe165" kindref="member">xfer_pending</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="117"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!<ref refid="syn__port__usb__host_8h_1a0034ba64c8cd3d81d8070e4499775854" kindref="member">syn_port_usb_host_xfer_done</ref>(0U))<sp/>{</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a3be376d242928cd8de46b32c69647539" kindref="member">SYN_BUSY</ref>;</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="120"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>host-&gt;<ref refid="structSYN__USB__Host_1a839947affef54d96d353060633ffe165" kindref="member">xfer_pending</ref><sp/>=<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="121"><highlight class="normal"></highlight></codeline>
+<codeline lineno="122"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint16_t<sp/>actual<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="123"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/>xfer_st<sp/>=<sp/><ref refid="syn__port__usb__host_8h_1a03359db2271bd47b57b36212d937755e" kindref="member">syn_port_usb_host_xfer_result</ref>(0U,<sp/>&amp;actual);</highlight></codeline>
+<codeline lineno="124"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(xfer_st<sp/>!=<sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00acd5d2701b7cfa9fb446640ecbeb19fc9" kindref="member">SYN_ERROR</ref>;</highlight></codeline>
+<codeline lineno="126"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="127"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>host-&gt;<ref refid="structSYN__USB__Host_1a4ff15f8aedcfef403368c0c5f14fadac" kindref="member">enum_buf_len</ref><sp/>=<sp/>actual;</highlight></codeline>
+<codeline lineno="128"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="129"><highlight class="normal"></highlight></codeline>
+<codeline lineno="130"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">switch</highlight><highlight class="normal"><sp/>(host-&gt;<ref refid="structSYN__USB__Host_1aaf0298eaa98f3f4df86c154ac57551ac" kindref="member">enum_step</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="131"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__usb__host_8h_1aa6fb95b190ec12537dedac4cf3e14528" kindref="member">SYN_USB_HOST_ENUM_GET_DEV8</ref>:</highlight></codeline>
+<codeline lineno="132"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Open<sp/>pipe<sp/>0<sp/>to<sp/>address<sp/>0,<sp/>max_pkt<sp/>8<sp/>(minimum<sp/>guaranteed)<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="133"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__port__usb__host_8h_1a3b1497951836430e4e801b858334e99d" kindref="member">syn_port_usb_host_pipe_open</ref>(0U,<sp/>0U,<sp/>0x00U,<sp/><ref refid="syn__port__usb_8h_1a5051f4016445cdc9206ec807ba67d911" kindref="member">SYN_USB_EP_TYPE_CONTROL</ref>,<sp/>8U);</highlight></codeline>
+<codeline lineno="134"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>GET_DESCRIPTOR(Device,<sp/>8<sp/>bytes)<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="135"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__usb__host_8c_1a88ba01577c3c4bbdbbe4097ac42fb1d1" kindref="member">build_setup</ref>(&amp;pkt,<sp/>0x80U,<sp/><ref refid="syn__usb_8h_1ac6564472d5c50a472a9a3e7ba79d7369" kindref="member">SYN_USB_REQ_GET_DESCRIPTOR</ref>,</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(uint16_t)(<ref refid="syn__usb_8h_1a82efb5d5a68ec46e457ce7aa8f1197f7" kindref="member">SYN_USB_DESC_TYPE_DEVICE</ref><sp/>&lt;&lt;<sp/>8),<sp/>0U,<sp/>8U);</highlight></codeline>
+<codeline lineno="137"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__port__usb__host_8h_1aa5159bf610baeb39bb3307b124fc0d40" kindref="member">syn_port_usb_host_submit_setup</ref>(0U,<sp/>&amp;pkt);</highlight></codeline>
+<codeline lineno="138"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__port__usb__host_8h_1ac812ab16cb555e4d0875575d04269430" kindref="member">syn_port_usb_host_submit_data</ref>(0U,<sp/>host-&gt;<ref refid="structSYN__USB__Host_1af05195cde6f21d58106554c88480935a" kindref="member">enum_buf</ref>,<sp/>8U,<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="139"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>host-&gt;<ref refid="structSYN__USB__Host_1a839947affef54d96d353060633ffe165" kindref="member">xfer_pending</ref><sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="140"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>host-&gt;<ref refid="structSYN__USB__Host_1aaf0298eaa98f3f4df86c154ac57551ac" kindref="member">enum_step</ref><sp/>=<sp/><ref refid="syn__usb__host_8h_1ac9a29437f536a9c08e9850920a4f1d64" kindref="member">SYN_USB_HOST_ENUM_SET_ADDR</ref>;</highlight></codeline>
+<codeline lineno="141"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a3be376d242928cd8de46b32c69647539" kindref="member">SYN_BUSY</ref>;</highlight></codeline>
+<codeline lineno="142"><highlight class="normal"></highlight></codeline>
+<codeline lineno="143"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__usb__host_8h_1ac9a29437f536a9c08e9850920a4f1d64" kindref="member">SYN_USB_HOST_ENUM_SET_ADDR</ref>:<sp/>{</highlight></codeline>
+<codeline lineno="144"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Parse<sp/>bMaxPacketSize0<sp/>from<sp/>byte<sp/>7<sp/>of<sp/>device<sp/>descriptor<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="145"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>max_pkt0<sp/>=<sp/>host-&gt;<ref refid="structSYN__USB__Host_1af05195cde6f21d58106554c88480935a" kindref="member">enum_buf</ref>[7];</highlight></codeline>
+<codeline lineno="146"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(max_pkt0<sp/>==<sp/>0U)<sp/>{</highlight></codeline>
+<codeline lineno="147"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>max_pkt0<sp/>=<sp/>8U;</highlight></codeline>
+<codeline lineno="148"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="149"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>host-&gt;<ref refid="structSYN__USB__Host_1abad849c7a051b5736575294ef6031013" kindref="member">dev_info</ref>.<ref refid="structSYN__USB__HostDevInfo_1a36799af5a47620a7c55466996d4598cf" kindref="member">max_pkt_ep0</ref><sp/>=<sp/>max_pkt0;</highlight></codeline>
+<codeline lineno="150"><highlight class="normal"></highlight></codeline>
+<codeline lineno="151"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Re-open<sp/>pipe<sp/>0<sp/>with<sp/>actual<sp/>max<sp/>packet<sp/>size<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="152"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__port__usb__host_8h_1aeccf076d353439d2be3ca68f4c7774ec" kindref="member">syn_port_usb_host_pipe_close</ref>(0U);</highlight></codeline>
+<codeline lineno="153"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__port__usb__host_8h_1a3b1497951836430e4e801b858334e99d" kindref="member">syn_port_usb_host_pipe_open</ref>(0U,<sp/>0U,<sp/>0x00U,<sp/><ref refid="syn__port__usb_8h_1a5051f4016445cdc9206ec807ba67d911" kindref="member">SYN_USB_EP_TYPE_CONTROL</ref>,<sp/>max_pkt0);</highlight></codeline>
+<codeline lineno="154"><highlight class="normal"></highlight></codeline>
+<codeline lineno="155"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>SET_ADDRESS<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="156"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>addr<sp/>=<sp/>host-&gt;<ref refid="structSYN__USB__Host_1a4d46fd73cad3c1a5406d28b4ab1b3bbf" kindref="member">next_addr</ref>;</highlight></codeline>
+<codeline lineno="157"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(addr<sp/>&gt;<sp/>127U)<sp/>{</highlight></codeline>
+<codeline lineno="158"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>addr<sp/>=<sp/>1U;</highlight></codeline>
+<codeline lineno="159"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="160"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>host-&gt;<ref refid="structSYN__USB__Host_1a4d46fd73cad3c1a5406d28b4ab1b3bbf" kindref="member">next_addr</ref><sp/>=<sp/>addr<sp/>+<sp/>1U;</highlight></codeline>
+<codeline lineno="161"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>host-&gt;<ref refid="structSYN__USB__Host_1abad849c7a051b5736575294ef6031013" kindref="member">dev_info</ref>.<ref refid="structSYN__USB__HostDevInfo_1ae962ae4669fb76193b5958d566079ce0" kindref="member">dev_addr</ref><sp/>=<sp/>addr;</highlight></codeline>
+<codeline lineno="162"><highlight class="normal"></highlight></codeline>
+<codeline lineno="163"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__usb__host_8c_1a88ba01577c3c4bbdbbe4097ac42fb1d1" kindref="member">build_setup</ref>(&amp;pkt,<sp/>0x00U,<sp/><ref refid="syn__usb_8h_1aba8fd25fa82768c12e6107806a184386" kindref="member">SYN_USB_REQ_SET_ADDRESS</ref>,<sp/>addr,<sp/>0U,<sp/>0U);</highlight></codeline>
+<codeline lineno="164"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__port__usb__host_8h_1aa5159bf610baeb39bb3307b124fc0d40" kindref="member">syn_port_usb_host_submit_setup</ref>(0U,<sp/>&amp;pkt);</highlight></codeline>
+<codeline lineno="165"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>host-&gt;<ref refid="structSYN__USB__Host_1a839947affef54d96d353060633ffe165" kindref="member">xfer_pending</ref><sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="166"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>host-&gt;<ref refid="structSYN__USB__Host_1aaf0298eaa98f3f4df86c154ac57551ac" kindref="member">enum_step</ref><sp/>=<sp/><ref refid="syn__usb__host_8h_1a4a55c41ce0906051b56420b4bb413a9d" kindref="member">SYN_USB_HOST_ENUM_GET_DEV_FULL</ref>;</highlight></codeline>
+<codeline lineno="167"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a3be376d242928cd8de46b32c69647539" kindref="member">SYN_BUSY</ref>;</highlight></codeline>
+<codeline lineno="168"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="169"><highlight class="normal"></highlight></codeline>
+<codeline lineno="170"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__usb__host_8h_1a4a55c41ce0906051b56420b4bb413a9d" kindref="member">SYN_USB_HOST_ENUM_GET_DEV_FULL</ref>:</highlight></codeline>
+<codeline lineno="171"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Re-open<sp/>pipe<sp/>0<sp/>to<sp/>new<sp/>address<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="172"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__port__usb__host_8h_1aeccf076d353439d2be3ca68f4c7774ec" kindref="member">syn_port_usb_host_pipe_close</ref>(0U);</highlight></codeline>
+<codeline lineno="173"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__port__usb__host_8h_1a3b1497951836430e4e801b858334e99d" kindref="member">syn_port_usb_host_pipe_open</ref>(0U,<sp/>host-&gt;<ref refid="structSYN__USB__Host_1abad849c7a051b5736575294ef6031013" kindref="member">dev_info</ref>.<ref refid="structSYN__USB__HostDevInfo_1ae962ae4669fb76193b5958d566079ce0" kindref="member">dev_addr</ref>,<sp/>0x00U,<sp/><ref refid="syn__port__usb_8h_1a5051f4016445cdc9206ec807ba67d911" kindref="member">SYN_USB_EP_TYPE_CONTROL</ref>,</highlight></codeline>
+<codeline lineno="174"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>host-&gt;<ref refid="structSYN__USB__Host_1abad849c7a051b5736575294ef6031013" kindref="member">dev_info</ref>.<ref refid="structSYN__USB__HostDevInfo_1a36799af5a47620a7c55466996d4598cf" kindref="member">max_pkt_ep0</ref>);</highlight></codeline>
+<codeline lineno="175"><highlight class="normal"></highlight></codeline>
+<codeline lineno="176"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>GET_DESCRIPTOR(Device,<sp/>18<sp/>bytes)<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="177"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__usb__host_8c_1a88ba01577c3c4bbdbbe4097ac42fb1d1" kindref="member">build_setup</ref>(&amp;pkt,<sp/>0x80U,<sp/><ref refid="syn__usb_8h_1ac6564472d5c50a472a9a3e7ba79d7369" kindref="member">SYN_USB_REQ_GET_DESCRIPTOR</ref>,</highlight></codeline>
+<codeline lineno="178"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(uint16_t)(<ref refid="syn__usb_8h_1a82efb5d5a68ec46e457ce7aa8f1197f7" kindref="member">SYN_USB_DESC_TYPE_DEVICE</ref><sp/>&lt;&lt;<sp/>8),<sp/>0U,<sp/>18U);</highlight></codeline>
+<codeline lineno="179"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__port__usb__host_8h_1aa5159bf610baeb39bb3307b124fc0d40" kindref="member">syn_port_usb_host_submit_setup</ref>(0U,<sp/>&amp;pkt);</highlight></codeline>
+<codeline lineno="180"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__port__usb__host_8h_1ac812ab16cb555e4d0875575d04269430" kindref="member">syn_port_usb_host_submit_data</ref>(0U,<sp/>host-&gt;<ref refid="structSYN__USB__Host_1af05195cde6f21d58106554c88480935a" kindref="member">enum_buf</ref>,<sp/>18U,<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="181"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>host-&gt;<ref refid="structSYN__USB__Host_1a839947affef54d96d353060633ffe165" kindref="member">xfer_pending</ref><sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="182"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>host-&gt;<ref refid="structSYN__USB__Host_1aaf0298eaa98f3f4df86c154ac57551ac" kindref="member">enum_step</ref><sp/>=<sp/><ref refid="syn__usb__host_8h_1a8c395123e723a4182c95924c36211529" kindref="member">SYN_USB_HOST_ENUM_GET_CFG</ref>;</highlight></codeline>
+<codeline lineno="183"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a3be376d242928cd8de46b32c69647539" kindref="member">SYN_BUSY</ref>;</highlight></codeline>
+<codeline lineno="184"><highlight class="normal"></highlight></codeline>
+<codeline lineno="185"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__usb__host_8h_1a8c395123e723a4182c95924c36211529" kindref="member">SYN_USB_HOST_ENUM_GET_CFG</ref>:<sp/>{</highlight></codeline>
+<codeline lineno="186"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Parse<sp/>full<sp/>device<sp/>descriptor<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="187"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*d<sp/>=<sp/>host-&gt;<ref refid="structSYN__USB__Host_1af05195cde6f21d58106554c88480935a" kindref="member">enum_buf</ref>;</highlight></codeline>
+<codeline lineno="188"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>host-&gt;<ref refid="structSYN__USB__Host_1abad849c7a051b5736575294ef6031013" kindref="member">dev_info</ref>.<ref refid="structSYN__USB__HostDevInfo_1ac6932667decd924da85fcfdc485d9946" kindref="member">vid</ref><sp/>=<sp/>(uint16_t)((uint16_t)d[9]<sp/>&lt;&lt;<sp/>8)<sp/>|<sp/>d[8];</highlight></codeline>
+<codeline lineno="189"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>host-&gt;<ref refid="structSYN__USB__Host_1abad849c7a051b5736575294ef6031013" kindref="member">dev_info</ref>.<ref refid="structSYN__USB__HostDevInfo_1a15afdcfd231b42be7cf5fa6cf0f8225c" kindref="member">pid</ref><sp/>=<sp/>(uint16_t)((uint16_t)d[11]<sp/>&lt;&lt;<sp/>8)<sp/>|<sp/>d[10];</highlight></codeline>
+<codeline lineno="190"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>host-&gt;<ref refid="structSYN__USB__Host_1abad849c7a051b5736575294ef6031013" kindref="member">dev_info</ref>.<ref refid="structSYN__USB__HostDevInfo_1ab8bc2297e5987a80f13d59d3a20408b4" kindref="member">dev_class</ref><sp/>=<sp/>d[4];</highlight></codeline>
+<codeline lineno="191"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>host-&gt;<ref refid="structSYN__USB__Host_1abad849c7a051b5736575294ef6031013" kindref="member">dev_info</ref>.<ref refid="structSYN__USB__HostDevInfo_1ab473b91c1e299db659603dc9d2c319f7" kindref="member">dev_subclass</ref><sp/>=<sp/>d[5];</highlight></codeline>
+<codeline lineno="192"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>host-&gt;<ref refid="structSYN__USB__Host_1abad849c7a051b5736575294ef6031013" kindref="member">dev_info</ref>.<ref refid="structSYN__USB__HostDevInfo_1af070a7e938ceb8ceac0703fa95d5e2b1" kindref="member">dev_protocol</ref><sp/>=<sp/>d[6];</highlight></codeline>
+<codeline lineno="193"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>host-&gt;<ref refid="structSYN__USB__Host_1abad849c7a051b5736575294ef6031013" kindref="member">dev_info</ref>.<ref refid="structSYN__USB__HostDevInfo_1ae16ff3babb7ca7afea89630e09ff6078" kindref="member">num_configs</ref><sp/>=<sp/>d[17];</highlight></codeline>
+<codeline lineno="194"><highlight class="normal"></highlight></codeline>
+<codeline lineno="195"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>GET_DESCRIPTOR(Configuration<sp/>0,<sp/>up<sp/>to<sp/>enum_buf<sp/>size)<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="196"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__usb__host_8c_1a88ba01577c3c4bbdbbe4097ac42fb1d1" kindref="member">build_setup</ref>(&amp;pkt,<sp/>0x80U,<sp/><ref refid="syn__usb_8h_1ac6564472d5c50a472a9a3e7ba79d7369" kindref="member">SYN_USB_REQ_GET_DESCRIPTOR</ref>,</highlight></codeline>
+<codeline lineno="197"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(uint16_t)(<ref refid="syn__usb_8h_1a76c9bf1640fb7033bcfdb6deb792ee83" kindref="member">SYN_USB_DESC_TYPE_CONFIGURATION</ref><sp/>&lt;&lt;<sp/>8),<sp/>0U,</highlight></codeline>
+<codeline lineno="198"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__usb__host_8h_1a17bc19fb16fc12bee0652b5e57a9a499" kindref="member">SYN_USB_HOST_ENUM_BUF_SIZE</ref>);</highlight></codeline>
+<codeline lineno="199"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__port__usb__host_8h_1aa5159bf610baeb39bb3307b124fc0d40" kindref="member">syn_port_usb_host_submit_setup</ref>(0U,<sp/>&amp;pkt);</highlight></codeline>
+<codeline lineno="200"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__port__usb__host_8h_1ac812ab16cb555e4d0875575d04269430" kindref="member">syn_port_usb_host_submit_data</ref>(0U,<sp/>host-&gt;<ref refid="structSYN__USB__Host_1af05195cde6f21d58106554c88480935a" kindref="member">enum_buf</ref>,<sp/><ref refid="syn__usb__host_8h_1a17bc19fb16fc12bee0652b5e57a9a499" kindref="member">SYN_USB_HOST_ENUM_BUF_SIZE</ref>,<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="201"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>host-&gt;<ref refid="structSYN__USB__Host_1a839947affef54d96d353060633ffe165" kindref="member">xfer_pending</ref><sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="202"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>host-&gt;<ref refid="structSYN__USB__Host_1aaf0298eaa98f3f4df86c154ac57551ac" kindref="member">enum_step</ref><sp/>=<sp/><ref refid="syn__usb__host_8h_1a9cb3df314ab51d34df0954226a92bcf5" kindref="member">SYN_USB_HOST_ENUM_SET_CFG</ref>;</highlight></codeline>
+<codeline lineno="203"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a3be376d242928cd8de46b32c69647539" kindref="member">SYN_BUSY</ref>;</highlight></codeline>
+<codeline lineno="204"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="205"><highlight class="normal"></highlight></codeline>
+<codeline lineno="206"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__usb__host_8h_1a9cb3df314ab51d34df0954226a92bcf5" kindref="member">SYN_USB_HOST_ENUM_SET_CFG</ref>:<sp/>{</highlight></codeline>
+<codeline lineno="207"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Config<sp/>descriptor<sp/>received.<sp/>Parse<sp/>bConfigurationValue<sp/>(byte<sp/>5)<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="208"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>cfg_val<sp/>=<sp/>1U;</highlight></codeline>
+<codeline lineno="209"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(host-&gt;<ref refid="structSYN__USB__Host_1a4ff15f8aedcfef403368c0c5f14fadac" kindref="member">enum_buf_len</ref><sp/>&gt;=<sp/>6U)<sp/>{</highlight></codeline>
+<codeline lineno="210"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>cfg_val<sp/>=<sp/>host-&gt;<ref refid="structSYN__USB__Host_1af05195cde6f21d58106554c88480935a" kindref="member">enum_buf</ref>[5];</highlight></codeline>
+<codeline lineno="211"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="212"><highlight class="normal"></highlight></codeline>
+<codeline lineno="213"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>SET_CONFIGURATION<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="214"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__usb__host_8c_1a88ba01577c3c4bbdbbe4097ac42fb1d1" kindref="member">build_setup</ref>(&amp;pkt,<sp/>0x00U,<sp/><ref refid="syn__usb_8h_1a8e0060aedf38003c2eaa2af1d8d070d5" kindref="member">SYN_USB_REQ_SET_CONFIGURATION</ref>,<sp/>cfg_val,<sp/>0U,<sp/>0U);</highlight></codeline>
+<codeline lineno="215"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__port__usb__host_8h_1aa5159bf610baeb39bb3307b124fc0d40" kindref="member">syn_port_usb_host_submit_setup</ref>(0U,<sp/>&amp;pkt);</highlight></codeline>
+<codeline lineno="216"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>host-&gt;<ref refid="structSYN__USB__Host_1a839947affef54d96d353060633ffe165" kindref="member">xfer_pending</ref><sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="217"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>host-&gt;<ref refid="structSYN__USB__Host_1aaf0298eaa98f3f4df86c154ac57551ac" kindref="member">enum_step</ref><sp/>=<sp/><ref refid="syn__usb__host_8h_1a01bce83b4c2dc86df83a0b989f4ec939" kindref="member">SYN_USB_HOST_ENUM_CLASS_PROBE</ref>;</highlight></codeline>
+<codeline lineno="218"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a3be376d242928cd8de46b32c69647539" kindref="member">SYN_BUSY</ref>;</highlight></codeline>
+<codeline lineno="219"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="220"><highlight class="normal"></highlight></codeline>
+<codeline lineno="221"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__usb__host_8h_1a01bce83b4c2dc86df83a0b989f4ec939" kindref="member">SYN_USB_HOST_ENUM_CLASS_PROBE</ref>:</highlight></codeline>
+<codeline lineno="222"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Probe<sp/>class<sp/>drivers<sp/>against<sp/>interface<sp/>descriptors<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="223"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__usb__host_8c_1acab768f9613cdc1414f130d92e4b0340" kindref="member">probe_class_drivers</ref>(host);</highlight></codeline>
+<codeline lineno="224"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>host-&gt;<ref refid="structSYN__USB__Host_1aaf0298eaa98f3f4df86c154ac57551ac" kindref="member">enum_step</ref><sp/>=<sp/><ref refid="syn__usb__host_8h_1afb664bb03f2acc6755a1a2f3abaf6b90" kindref="member">SYN_USB_HOST_ENUM_DONE</ref>;</highlight></codeline>
+<codeline lineno="225"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="226"><highlight class="normal"></highlight></codeline>
+<codeline lineno="227"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__usb__host_8h_1afb664bb03f2acc6755a1a2f3abaf6b90" kindref="member">SYN_USB_HOST_ENUM_DONE</ref>:</highlight></codeline>
+<codeline lineno="228"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="229"><highlight class="normal"></highlight></codeline>
+<codeline lineno="230"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">default</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="231"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00acd5d2701b7cfa9fb446640ecbeb19fc9" kindref="member">SYN_ERROR</ref>;</highlight></codeline>
+<codeline lineno="232"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="233"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="234"><highlight class="normal"></highlight></codeline>
+<codeline lineno="235"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>Public<sp/>API<sp/>──────────────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="236"><highlight class="normal"></highlight></codeline>
+<codeline lineno="237"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__usb__host_8c_1a3d5300c752eebb921f4b7420b5923bf7" kindref="member">syn_usb_host_init</ref>(<ref refid="structSYN__USB__Host" kindref="compound">SYN_USB_Host</ref><sp/>*host)</highlight></codeline>
+<codeline lineno="238"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="239"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!host)<sp/>{</highlight></codeline>
+<codeline lineno="240"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="241"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="242"><highlight class="normal"><sp/><sp/><sp/><sp/>memset(host,<sp/>0,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(*host));</highlight></codeline>
+<codeline lineno="243"><highlight class="normal"><sp/><sp/><sp/><sp/>host-&gt;<ref refid="structSYN__USB__Host_1ad32181d8f2f93967030f0d4de46bed30" kindref="member">state</ref><sp/>=<sp/><ref refid="syn__usb__host_8h_1abcf91a85080e893349784ff21e259d8d" kindref="member">SYN_USB_HOST_STATE_DISCONNECTED</ref>;</highlight></codeline>
+<codeline lineno="244"><highlight class="normal"><sp/><sp/><sp/><sp/>host-&gt;<ref refid="structSYN__USB__Host_1a4d46fd73cad3c1a5406d28b4ab1b3bbf" kindref="member">next_addr</ref><sp/>=<sp/>1U;</highlight></codeline>
+<codeline lineno="245"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="246"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="247"><highlight class="normal"></highlight></codeline>
+<codeline lineno="248"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__usb__host_8c_1a145dba0c00369741ff5bf318c1e13208" kindref="member">syn_usb_host_register_class</ref>(<ref refid="structSYN__USB__Host" kindref="compound">SYN_USB_Host</ref><sp/>*host,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__USB__HostClassDriver" kindref="compound">SYN_USB_HostClassDriver</ref><sp/>*cls)</highlight></codeline>
+<codeline lineno="249"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="250"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!host<sp/>||<sp/>!cls)<sp/>{</highlight></codeline>
+<codeline lineno="251"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="252"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="253"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(host-&gt;<ref refid="structSYN__USB__Host_1a44c19a4adc0df0117fd375479a5d8e31" kindref="member">class_count</ref><sp/>&gt;=<sp/><ref refid="syn__usb__host_8h_1a6f075a9036c3098875121bb8d6bed7bf" kindref="member">SYN_USB_HOST_MAX_CLASSES</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="254"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00acd5d2701b7cfa9fb446640ecbeb19fc9" kindref="member">SYN_ERROR</ref>;</highlight></codeline>
+<codeline lineno="255"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="256"><highlight class="normal"><sp/><sp/><sp/><sp/>host-&gt;<ref refid="structSYN__USB__Host_1a88a07a623f717c924400c813fd7833c2" kindref="member">classes</ref>[host-&gt;<ref refid="structSYN__USB__Host_1a44c19a4adc0df0117fd375479a5d8e31" kindref="member">class_count</ref>]<sp/>=<sp/>*cls;</highlight></codeline>
+<codeline lineno="257"><highlight class="normal"><sp/><sp/><sp/><sp/>host-&gt;<ref refid="structSYN__USB__Host_1a88a07a623f717c924400c813fd7833c2" kindref="member">classes</ref>[host-&gt;<ref refid="structSYN__USB__Host_1a44c19a4adc0df0117fd375479a5d8e31" kindref="member">class_count</ref>].<ref refid="structSYN__USB__HostClassDriver_1ad2b4c76dbf9caa26ae65fda79b69e4ed" kindref="member">matched</ref><sp/>=<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="258"><highlight class="normal"><sp/><sp/><sp/><sp/>host-&gt;<ref refid="structSYN__USB__Host_1a44c19a4adc0df0117fd375479a5d8e31" kindref="member">class_count</ref>++;</highlight></codeline>
+<codeline lineno="259"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="260"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="261"><highlight class="normal"></highlight></codeline>
+<codeline lineno="262"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__usb__host_8c_1a07c47361b637bb8dc4687ec38991acb2" kindref="member">syn_usb_host_process</ref>(<ref refid="structSYN__USB__Host" kindref="compound">SYN_USB_Host</ref><sp/>*host)</highlight></codeline>
+<codeline lineno="263"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="264"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!host)<sp/>{</highlight></codeline>
+<codeline lineno="265"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="266"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="267"><highlight class="normal"></highlight></codeline>
+<codeline lineno="268"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">switch</highlight><highlight class="normal"><sp/>(host-&gt;<ref refid="structSYN__USB__Host_1ad32181d8f2f93967030f0d4de46bed30" kindref="member">state</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="269"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__usb__host_8h_1abcf91a85080e893349784ff21e259d8d" kindref="member">SYN_USB_HOST_STATE_DISCONNECTED</ref>:</highlight></codeline>
+<codeline lineno="270"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="syn__port__usb__host_8h_1afbee79eec8b196180aed9eb025cff553" kindref="member">syn_port_usb_host_device_attached</ref>())<sp/>{</highlight></codeline>
+<codeline lineno="271"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__port__usb__host_8h_1ad71dd5f7a4d1e98cc7cf2b241c3d57c3" kindref="member">syn_port_usb_host_vbus</ref>(</highlight><highlight class="keyword">true</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="272"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>host-&gt;<ref refid="structSYN__USB__Host_1ad32181d8f2f93967030f0d4de46bed30" kindref="member">state</ref><sp/>=<sp/><ref refid="syn__usb__host_8h_1ab47eaf18a95dc72656d3211408e09790" kindref="member">SYN_USB_HOST_STATE_ATTACHED</ref>;</highlight></codeline>
+<codeline lineno="273"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="274"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="275"><highlight class="normal"></highlight></codeline>
+<codeline lineno="276"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__usb__host_8h_1ab47eaf18a95dc72656d3211408e09790" kindref="member">SYN_USB_HOST_STATE_ATTACHED</ref>:</highlight></codeline>
+<codeline lineno="277"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__port__usb__host_8h_1ad71dd5f7a4d1e98cc7cf2b241c3d57c3" kindref="member">syn_port_usb_host_vbus</ref>(</highlight><highlight class="keyword">true</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="278"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__port__usb__host_8h_1a2fa5ab4e082092e3076d5ee233423c64" kindref="member">syn_port_usb_host_bus_reset</ref>();</highlight></codeline>
+<codeline lineno="279"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>host-&gt;<ref refid="structSYN__USB__Host_1aaf0298eaa98f3f4df86c154ac57551ac" kindref="member">enum_step</ref><sp/>=<sp/><ref refid="syn__usb__host_8h_1aa6fb95b190ec12537dedac4cf3e14528" kindref="member">SYN_USB_HOST_ENUM_GET_DEV8</ref>;</highlight></codeline>
+<codeline lineno="280"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>host-&gt;<ref refid="structSYN__USB__Host_1a839947affef54d96d353060633ffe165" kindref="member">xfer_pending</ref><sp/>=<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="281"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>host-&gt;<ref refid="structSYN__USB__Host_1a4ff15f8aedcfef403368c0c5f14fadac" kindref="member">enum_buf_len</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="282"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>memset(&amp;host-&gt;<ref refid="structSYN__USB__Host_1abad849c7a051b5736575294ef6031013" kindref="member">dev_info</ref>,<sp/>0,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(host-&gt;<ref refid="structSYN__USB__Host_1abad849c7a051b5736575294ef6031013" kindref="member">dev_info</ref>));</highlight></codeline>
+<codeline lineno="283"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Clear<sp/>matched<sp/>flags<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="284"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(uint8_t<sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>host-&gt;<ref refid="structSYN__USB__Host_1a44c19a4adc0df0117fd375479a5d8e31" kindref="member">class_count</ref>;<sp/>i++)<sp/>{</highlight></codeline>
+<codeline lineno="285"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>host-&gt;<ref refid="structSYN__USB__Host_1a88a07a623f717c924400c813fd7833c2" kindref="member">classes</ref>[i].<ref refid="structSYN__USB__HostClassDriver_1ad2b4c76dbf9caa26ae65fda79b69e4ed" kindref="member">matched</ref><sp/>=<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="286"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="287"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>host-&gt;<ref refid="structSYN__USB__Host_1ad32181d8f2f93967030f0d4de46bed30" kindref="member">state</ref><sp/>=<sp/><ref refid="syn__usb__host_8h_1a77e598ed66dbcb9ce79cc69312608c9d" kindref="member">SYN_USB_HOST_STATE_ENUMERATING</ref>;</highlight></codeline>
+<codeline lineno="288"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="289"><highlight class="normal"></highlight></codeline>
+<codeline lineno="290"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__usb__host_8h_1a77e598ed66dbcb9ce79cc69312608c9d" kindref="member">SYN_USB_HOST_STATE_ENUMERATING</ref>:<sp/>{</highlight></codeline>
+<codeline lineno="291"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/>st<sp/>=<sp/><ref refid="syn__usb__host_8c_1a136c55b7725aea620190d7c5b0afa465" kindref="member">enumerate_step</ref>(host);</highlight></codeline>
+<codeline lineno="292"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(st<sp/>==<sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="293"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>host-&gt;<ref refid="structSYN__USB__Host_1ad32181d8f2f93967030f0d4de46bed30" kindref="member">state</ref><sp/>=<sp/><ref refid="syn__usb__host_8h_1a5fe37618f553d1b1fc24a99383086514" kindref="member">SYN_USB_HOST_STATE_READY</ref>;</highlight></codeline>
+<codeline lineno="294"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(st<sp/>==<sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00acd5d2701b7cfa9fb446640ecbeb19fc9" kindref="member">SYN_ERROR</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="295"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>host-&gt;<ref refid="structSYN__USB__Host_1ad32181d8f2f93967030f0d4de46bed30" kindref="member">state</ref><sp/>=<sp/><ref refid="syn__usb__host_8h_1aec5dda75a0b0684301a9ea9937977695" kindref="member">SYN_USB_HOST_STATE_ERROR</ref>;</highlight></codeline>
+<codeline lineno="296"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="297"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>st;</highlight></codeline>
+<codeline lineno="298"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="299"><highlight class="normal"></highlight></codeline>
+<codeline lineno="300"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__usb__host_8h_1a5fe37618f553d1b1fc24a99383086514" kindref="member">SYN_USB_HOST_STATE_READY</ref>:</highlight></codeline>
+<codeline lineno="301"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Check<sp/>for<sp/>detach<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="302"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!<ref refid="syn__port__usb__host_8h_1afbee79eec8b196180aed9eb025cff553" kindref="member">syn_port_usb_host_device_attached</ref>())<sp/>{</highlight></codeline>
+<codeline lineno="303"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(uint8_t<sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>host-&gt;<ref refid="structSYN__USB__Host_1a44c19a4adc0df0117fd375479a5d8e31" kindref="member">class_count</ref>;<sp/>i++)<sp/>{</highlight></codeline>
+<codeline lineno="304"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(host-&gt;<ref refid="structSYN__USB__Host_1a88a07a623f717c924400c813fd7833c2" kindref="member">classes</ref>[i].<ref refid="structSYN__USB__HostClassDriver_1ad2b4c76dbf9caa26ae65fda79b69e4ed" kindref="member">matched</ref><sp/>&amp;&amp;<sp/>host-&gt;<ref refid="structSYN__USB__Host_1a88a07a623f717c924400c813fd7833c2" kindref="member">classes</ref>[i].<ref refid="structSYN__USB__HostClassDriver_1a9c320c8b155c0b323261c4d18ebf32f3" kindref="member">disconnected</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="305"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>host-&gt;<ref refid="structSYN__USB__Host_1a88a07a623f717c924400c813fd7833c2" kindref="member">classes</ref>[i].<ref refid="structSYN__USB__HostClassDriver_1a9c320c8b155c0b323261c4d18ebf32f3" kindref="member">disconnected</ref>(host-&gt;<ref refid="structSYN__USB__Host_1a88a07a623f717c924400c813fd7833c2" kindref="member">classes</ref>[i].<ref refid="structSYN__USB__HostClassDriver_1a4fe8be4268a2d6fc70540aca1f50e257" kindref="member">ctx</ref>);</highlight></codeline>
+<codeline lineno="306"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="307"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>host-&gt;<ref refid="structSYN__USB__Host_1a88a07a623f717c924400c813fd7833c2" kindref="member">classes</ref>[i].<ref refid="structSYN__USB__HostClassDriver_1ad2b4c76dbf9caa26ae65fda79b69e4ed" kindref="member">matched</ref><sp/>=<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="308"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="309"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__port__usb__host_8h_1aeccf076d353439d2be3ca68f4c7774ec" kindref="member">syn_port_usb_host_pipe_close</ref>(0U);</highlight></codeline>
+<codeline lineno="310"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__port__usb__host_8h_1ad71dd5f7a4d1e98cc7cf2b241c3d57c3" kindref="member">syn_port_usb_host_vbus</ref>(</highlight><highlight class="keyword">false</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="311"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>host-&gt;<ref refid="structSYN__USB__Host_1ad32181d8f2f93967030f0d4de46bed30" kindref="member">state</ref><sp/>=<sp/><ref refid="syn__usb__host_8h_1abcf91a85080e893349784ff21e259d8d" kindref="member">SYN_USB_HOST_STATE_DISCONNECTED</ref>;</highlight></codeline>
+<codeline lineno="312"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="313"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="314"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Tick<sp/>class<sp/>drivers<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="315"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(uint8_t<sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>host-&gt;<ref refid="structSYN__USB__Host_1a44c19a4adc0df0117fd375479a5d8e31" kindref="member">class_count</ref>;<sp/>i++)<sp/>{</highlight></codeline>
+<codeline lineno="316"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(host-&gt;<ref refid="structSYN__USB__Host_1a88a07a623f717c924400c813fd7833c2" kindref="member">classes</ref>[i].<ref refid="structSYN__USB__HostClassDriver_1ad2b4c76dbf9caa26ae65fda79b69e4ed" kindref="member">matched</ref><sp/>&amp;&amp;<sp/>host-&gt;<ref refid="structSYN__USB__Host_1a88a07a623f717c924400c813fd7833c2" kindref="member">classes</ref>[i].<ref refid="structSYN__USB__HostClassDriver_1a993378ad1ca89fd461bd8bcfd82a9b1b" kindref="member">process</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="317"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>host-&gt;<ref refid="structSYN__USB__Host_1a88a07a623f717c924400c813fd7833c2" kindref="member">classes</ref>[i].<ref refid="structSYN__USB__HostClassDriver_1a993378ad1ca89fd461bd8bcfd82a9b1b" kindref="member">process</ref>(host-&gt;<ref refid="structSYN__USB__Host_1a88a07a623f717c924400c813fd7833c2" kindref="member">classes</ref>[i].<ref refid="structSYN__USB__HostClassDriver_1a4fe8be4268a2d6fc70540aca1f50e257" kindref="member">ctx</ref>);</highlight></codeline>
+<codeline lineno="318"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="319"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="320"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="321"><highlight class="normal"></highlight></codeline>
+<codeline lineno="322"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__usb__host_8h_1aec5dda75a0b0684301a9ea9937977695" kindref="member">SYN_USB_HOST_STATE_ERROR</ref>:</highlight></codeline>
+<codeline lineno="323"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>On<sp/>error,<sp/>check<sp/>detach<sp/>to<sp/>allow<sp/>re-enumeration<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="324"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!<ref refid="syn__port__usb__host_8h_1afbee79eec8b196180aed9eb025cff553" kindref="member">syn_port_usb_host_device_attached</ref>())<sp/>{</highlight></codeline>
+<codeline lineno="325"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__port__usb__host_8h_1ad71dd5f7a4d1e98cc7cf2b241c3d57c3" kindref="member">syn_port_usb_host_vbus</ref>(</highlight><highlight class="keyword">false</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="326"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>host-&gt;<ref refid="structSYN__USB__Host_1ad32181d8f2f93967030f0d4de46bed30" kindref="member">state</ref><sp/>=<sp/><ref refid="syn__usb__host_8h_1abcf91a85080e893349784ff21e259d8d" kindref="member">SYN_USB_HOST_STATE_DISCONNECTED</ref>;</highlight></codeline>
+<codeline lineno="327"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="328"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00acd5d2701b7cfa9fb446640ecbeb19fc9" kindref="member">SYN_ERROR</ref>;</highlight></codeline>
+<codeline lineno="329"><highlight class="normal"></highlight></codeline>
+<codeline lineno="330"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">default</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="331"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00acd5d2701b7cfa9fb446640ecbeb19fc9" kindref="member">SYN_ERROR</ref>;</highlight></codeline>
+<codeline lineno="332"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="333"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="334"><highlight class="normal"></highlight></codeline>
+<codeline lineno="335"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__usb__host_8c_1afc41c37a05324d49eade329d16a361da" kindref="member">syn_usb_host_is_ready</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__USB__Host" kindref="compound">SYN_USB_Host</ref><sp/>*host)</highlight></codeline>
+<codeline lineno="336"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="337"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(host<sp/>!=<sp/>NULL)<sp/>&amp;&amp;<sp/>(host-&gt;<ref refid="structSYN__USB__Host_1ad32181d8f2f93967030f0d4de46bed30" kindref="member">state</ref><sp/>==<sp/><ref refid="syn__usb__host_8h_1a5fe37618f553d1b1fc24a99383086514" kindref="member">SYN_USB_HOST_STATE_READY</ref>);</highlight></codeline>
+<codeline lineno="338"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="339"><highlight class="normal"></highlight></codeline>
+<codeline lineno="340"><highlight class="normal"></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__USB__HostDevInfo" kindref="compound">SYN_USB_HostDevInfo</ref><sp/>*<ref refid="syn__usb__host_8c_1a38d1347bb5e797baa80b79137165a41a" kindref="member">syn_usb_host_get_dev_info</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__USB__Host" kindref="compound">SYN_USB_Host</ref><sp/>*host)</highlight></codeline>
+<codeline lineno="341"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="342"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!host<sp/>||<sp/>host-&gt;<ref refid="structSYN__USB__Host_1ad32181d8f2f93967030f0d4de46bed30" kindref="member">state</ref><sp/>&lt;<sp/><ref refid="syn__usb__host_8h_1a5fe37618f553d1b1fc24a99383086514" kindref="member">SYN_USB_HOST_STATE_READY</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="343"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>NULL;</highlight></codeline>
+<codeline lineno="344"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="345"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>&amp;host-&gt;<ref refid="structSYN__USB__Host_1abad849c7a051b5736575294ef6031013" kindref="member">dev_info</ref>;</highlight></codeline>
+<codeline lineno="346"><highlight class="normal">}</highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/drivers/syn_usb_host.c"/>
+  </compounddef>
+</doxygen>

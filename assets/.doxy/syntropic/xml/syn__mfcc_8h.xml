@@ -1,0 +1,304 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__mfcc_8h" kind="file" language="C++">
+    <compoundname>syn_mfcc.h</compoundname>
+    <includes refid="syn__defs_8h" local="yes">syntropic/common/syn_defs.h</includes>
+    <includes refid="syn__dsp_8h" local="yes">syntropic/dsp/syn_dsp.h</includes>
+    <includes refid="syn__fft_8h" local="yes">syntropic/dsp/syn_fft.h</includes>
+    <includes refid="syn__qmath_8h" local="yes">syntropic/util/syn_qmath.h</includes>
+    <includes local="no">stdbool.h</includes>
+    <includes local="no">stddef.h</includes>
+    <includes local="no">stdint.h</includes>
+    <includedby refid="syn__mfcc_8c" local="yes">src/syntropic/dsp/syn_mfcc.c</includedby>
+    <includedby refid="syntropic_8h" local="yes">src/syntropic/syntropic.h</includedby>
+    <incdepgraph>
+      <node id="2">
+        <label>syntropic/common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>syntropic/dsp/syn_dsp.h</label>
+        <link refid="syn__dsp_8h"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>syntropic/dsp/syn_fft.h</label>
+        <link refid="syn__fft_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/dsp/syn_mfcc.h</label>
+        <link refid="syn__mfcc_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>../util/syn_qmath.h</label>
+        <link refid="syn__qmath_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>stdbool.h</label>
+      </node>
+      <node id="3">
+        <label>stddef.h</label>
+      </node>
+      <node id="4">
+        <label>stdint.h</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="2">
+        <label>src/syntropic/dsp/syn_mfcc.c</label>
+        <link refid="syn__mfcc_8c"/>
+      </node>
+      <node id="1">
+        <label>src/syntropic/dsp/syn_mfcc.h</label>
+        <link refid="syn__mfcc_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="5">
+        <label>src/syntropic/proto/syn_doip.c</label>
+        <link refid="syn__doip_8c"/>
+      </node>
+      <node id="4">
+        <label>src/syntropic/proto/syn_doip.h</label>
+        <link refid="syn__doip_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>src/syntropic/syntropic.h</label>
+        <link refid="syntropic_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="structSYN__MFCC" prot="public">SYN_MFCC</innerclass>
+    <sectiondef kind="define">
+      <memberdef kind="define" id="syn__mfcc_8h_1a63669df36c913b2dcbadabad2ecd5580" prot="public" static="no">
+        <name>SYN_MFCC_MAX_FFT_SIZE</name>
+        <initializer>128U</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Maximum supported FFT length (128 samples) </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/dsp/syn_mfcc.h" line="27" column="9" bodyfile="src/syntropic/dsp/syn_mfcc.h" bodystart="27" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__mfcc_8h_1a9cb3fa4d0ef0a4d835f9f15901b70123" prot="public" static="no">
+        <name>SYN_MFCC_NUM_MEL_FILTERS</name>
+        <initializer>26U</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Standard Mel filterbank count (26 filters) </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/dsp/syn_mfcc.h" line="28" column="9" bodyfile="src/syntropic/dsp/syn_mfcc.h" bodystart="28" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="define" id="syn__mfcc_8h_1a741a1b92f9051aae9cf196b20d94d4ad" prot="public" static="no">
+        <name>SYN_MFCC_NUM_COEFFS</name>
+        <initializer>13U</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Retained MFCC cepstral coefficient count (13) </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/dsp/syn_mfcc.h" line="29" column="9" bodyfile="src/syntropic/dsp/syn_mfcc.h" bodystart="29" bodyend="-1"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__mfcc_8h_1a14f2f78409bbbd1f0daf5eb5e5a74107" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_mfcc_init</definition>
+        <argsstring>(SYN_MFCC *mfcc, uint16_t sample_rate_hz, uint16_t fft_size)</argsstring>
+        <name>syn_mfcc_init</name>
+        <param>
+          <type><ref refid="structSYN__MFCC" kindref="compound">SYN_MFCC</ref> *</type>
+          <declname>mfcc</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>sample_rate_hz</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>fft_size</declname>
+        </param>
+        <briefdescription>
+<para>Initialize MFCC Extractor Context. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>mfcc</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to MFCC context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>sample_rate_hz</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Audio sample rate in Hz. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>fft_size</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>FFT window size (must be 64 or 128). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_INVALID_PARAM if invalid. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/dsp/syn_mfcc.h" line="48" column="12" bodyfile="src/syntropic/dsp/syn_mfcc.c" bodystart="11" bodyend="28" declfile="src/syntropic/dsp/syn_mfcc.h" declline="48" declcolumn="12"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__mfcc_8h_1a0fb3c13b88123f241e4a56957ef561d6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_mfcc_process_frame</definition>
+        <argsstring>(SYN_MFCC *mfcc, const int16_t *pcm_in, q7_t mfcc_out[SYN_MFCC_NUM_COEFFS])</argsstring>
+        <name>syn_mfcc_process_frame</name>
+        <param>
+          <type><ref refid="structSYN__MFCC" kindref="compound">SYN_MFCC</ref> *</type>
+          <declname>mfcc</declname>
+        </param>
+        <param>
+          <type>const int16_t *</type>
+          <declname>pcm_in</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__qmath_8h_1ae541b6f232c305361e9b416fc9eed263" kindref="member">q7_t</ref></type>
+          <declname>mfcc_out</declname>
+          <array>[SYN_MFCC_NUM_COEFFS]</array>
+        </param>
+        <briefdescription>
+<para>Process one window of 16-bit PCM audio samples and compute 13 Q7 MFCC coefficients. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>mfcc</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to MFCC context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>pcm_in</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Array of 16-bit PCM input samples (length = fft_size). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>mfcc_out</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output buffer for 13 Q7 MFCC coefficients. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_INVALID_PARAM if NULL. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/dsp/syn_mfcc.h" line="57" column="12" bodyfile="src/syntropic/dsp/syn_mfcc.c" bodystart="30" bodyend="84" declfile="src/syntropic/dsp/syn_mfcc.h" declline="57" declcolumn="12"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Zero-Heap Fixed-Point Mel-Frequency Cepstral Coefficients (MFCC) Extractor. </para>
+    </briefdescription>
+    <detaileddescription>
+<para>Extracts 13 Mel-Frequency Cepstral Coefficients (MFCC) from raw 16-bit PCM audio using fixed-point Q15 arithmetic for microcontrollers running keyword spotting (KWS) and acoustic anomaly detection with syn_nn. </para>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight><highlight class="preprocessor">#ifndef<sp/>SYN_MFCC_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_MFCC_H</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__defs_8h" kindref="compound">syntropic/common/syn_defs.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__dsp_8h" kindref="compound">syntropic/dsp/syn_dsp.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__fft_8h" kindref="compound">syntropic/dsp/syn_fft.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__qmath_8h" kindref="compound">syntropic/util/syn_qmath.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdbool.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stddef.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;stdint.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight><highlight class="keyword">extern</highlight><highlight class="normal"><sp/></highlight><highlight class="stringliteral">&quot;C&quot;</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight></codeline>
+<codeline lineno="27" refid="syn__mfcc_8h_1a63669df36c913b2dcbadabad2ecd5580" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_MFCC_MAX_FFT_SIZE<sp/>128U<sp/><sp/><sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="28" refid="syn__mfcc_8h_1a9cb3fa4d0ef0a4d835f9f15901b70123" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_MFCC_NUM_MEL_FILTERS<sp/>26U<sp/></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="29" refid="syn__mfcc_8h_1a741a1b92f9051aae9cf196b20d94d4ad" refkind="member"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>SYN_MFCC_NUM_COEFFS<sp/>13U<sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="32" refid="structSYN__MFCC" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="33" refid="structSYN__MFCC_1a04070573e2989945fbf746eedacd626c" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/><ref refid="structSYN__MFCC_1a04070573e2989945fbf746eedacd626c" kindref="member">sample_rate_hz</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="34" refid="structSYN__MFCC_1ad5a127bf82562aa70a62c16d753e095d" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/><ref refid="structSYN__MFCC_1ad5a127bf82562aa70a62c16d753e095d" kindref="member">fft_size</ref>;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="35" refid="structSYN__MFCC_1a098e5abae85df3e5dadf2560151b2356" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>fft_real[<ref refid="syn__mfcc_8h_1a63669df36c913b2dcbadabad2ecd5580" kindref="member">SYN_MFCC_MAX_FFT_SIZE</ref>];<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="36" refid="structSYN__MFCC_1a2cc574545841d06df3d6e9eb0127e607" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>fft_imag[<ref refid="syn__mfcc_8h_1a63669df36c913b2dcbadabad2ecd5580" kindref="member">SYN_MFCC_MAX_FFT_SIZE</ref>];<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="37" refid="structSYN__MFCC_1a0fb97d6b32db76e2988aeddc5776857c" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1a29af0527baa1b0cd842a0eb099bbb220" kindref="member">q16_t</ref><sp/>mel_energies[<ref refid="syn__mfcc_8h_1a9cb3fa4d0ef0a4d835f9f15901b70123" kindref="member">SYN_MFCC_NUM_MEL_FILTERS</ref>];<sp/></highlight></codeline>
+<codeline lineno="38" refid="structSYN__MFCC_1acfc3c23657a997665b7dad63212f6953" refkind="member"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1ae541b6f232c305361e9b416fc9eed263" kindref="member">q7_t</ref><sp/>mfcc_coeffs[<ref refid="syn__mfcc_8h_1a741a1b92f9051aae9cf196b20d94d4ad" kindref="member">SYN_MFCC_NUM_COEFFS</ref>];<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="39"><highlight class="normal">}<sp/><ref refid="structSYN__MFCC" kindref="compound">SYN_MFCC</ref>;</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__mfcc_8h_1a14f2f78409bbbd1f0daf5eb5e5a74107" kindref="member">syn_mfcc_init</ref>(<ref refid="structSYN__MFCC" kindref="compound">SYN_MFCC</ref><sp/>*mfcc,<sp/>uint16_t<sp/>sample_rate_hz,<sp/>uint16_t<sp/>fft_size);</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"></highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__mfcc_8h_1a0fb3c13b88123f241e4a56957ef561d6" kindref="member">syn_mfcc_process_frame</ref>(<ref refid="structSYN__MFCC" kindref="compound">SYN_MFCC</ref><sp/>*mfcc,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>int16_t<sp/>*pcm_in,</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__qmath_8h_1ae541b6f232c305361e9b416fc9eed263" kindref="member">q7_t</ref><sp/>mfcc_out[<ref refid="syn__mfcc_8h_1a741a1b92f9051aae9cf196b20d94d4ad" kindref="member">SYN_MFCC_NUM_COEFFS</ref>]);</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"></highlight></codeline>
+<codeline lineno="60"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>__cplusplus</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="61"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="63"><highlight class="normal"></highlight></codeline>
+<codeline lineno="64"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_MFCC_H<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/dsp/syn_mfcc.h"/>
+  </compounddef>
+</doxygen>

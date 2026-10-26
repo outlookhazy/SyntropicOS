@@ -1,0 +1,532 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__audio__mixer_8c" kind="file" language="C++">
+    <compoundname>syn_audio_mixer.c</compoundname>
+    <includes refid="syn__audio__mixer_8h" local="yes">syn_audio_mixer.h</includes>
+    <includes local="no">string.h</includes>
+    <incdepgraph>
+      <node id="1">
+        <label>src/syntropic/audio/syn_audio_mixer.c</label>
+        <link refid="syn__audio__mixer_8c"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>syn_audio_mixer.h</label>
+        <link refid="syn__audio__mixer_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>stdbool.h</label>
+      </node>
+      <node id="4">
+        <label>stddef.h</label>
+      </node>
+      <node id="5">
+        <label>stdint.h</label>
+      </node>
+      <node id="7">
+        <label>string.h</label>
+      </node>
+    </incdepgraph>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__audio__mixer_8c_1a4208a7f907d53be67ce6bb19df8c4d89" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>int16_t</type>
+        <definition>static int16_t saturate_i32_to_i16</definition>
+        <argsstring>(int32_t val)</argsstring>
+        <name>saturate_i32_to_i16</name>
+        <param>
+          <type>int32_t</type>
+          <declname>val</declname>
+        </param>
+        <briefdescription>
+<para>Clamp signed 32-bit value into signed 16-bit range. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>val</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Input 32-bit sample value. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Clamped 16-bit sample value. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/audio/syn_audio_mixer.c" line="16" column="23" bodyfile="src/syntropic/audio/syn_audio_mixer.c" bodystart="16" bodyend="25"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__audio__mixer_8c_1ad5563bf6d1cd2a6e215675799eeb8bd5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_audio_mixer_init</definition>
+        <argsstring>(SYN_Audio_Mixer *mixer)</argsstring>
+        <name>syn_audio_mixer_init</name>
+        <param>
+          <type><ref refid="structSYN__Audio__Mixer" kindref="compound">SYN_Audio_Mixer</ref> *</type>
+          <declname>mixer</declname>
+        </param>
+        <briefdescription>
+<para>Initialize an Audio Mixer instance. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>mixer</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to Audio Mixer instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, or SYN_INVALID_PARAM. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/audio/syn_audio_mixer.c" line="27" column="12" bodyfile="src/syntropic/audio/syn_audio_mixer.c" bodystart="27" bodyend="37"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__audio__mixer_8c_1aadec764d5f7a2f795096e50c2df5118f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_audio_mixer_play</definition>
+        <argsstring>(SYN_Audio_Mixer *mixer, uint8_t channel_idx, const int16_t *pcm_buf, size_t sample_count, uint16_t volume_q15, bool loop)</argsstring>
+        <name>syn_audio_mixer_play</name>
+        <param>
+          <type><ref refid="structSYN__Audio__Mixer" kindref="compound">SYN_Audio_Mixer</ref> *</type>
+          <declname>mixer</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>channel_idx</declname>
+        </param>
+        <param>
+          <type>const int16_t *</type>
+          <declname>pcm_buf</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>sample_count</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>volume_q15</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+          <declname>loop</declname>
+        </param>
+        <briefdescription>
+<para>Assign a PCM sample buffer to a mixer channel for playback. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>mixer</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to Audio Mixer instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>channel_idx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Channel index (0 .. SYN_AUDIO_MIXER_MAX_CHANNELS - 1). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>pcm_buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to 16-bit PCM sample array. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>sample_count</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Sample count in pcm_buf. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>volume_q15</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Channel gain (Q15, 32768 = 1.0). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>loop</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>True to restart automatically upon reaching buffer end. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, or SYN_INVALID_PARAM. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/audio/syn_audio_mixer.c" line="39" column="12" bodyfile="src/syntropic/audio/syn_audio_mixer.c" bodystart="39" bodyend="59"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__audio__mixer_8c_1aa432ea666ee7989907ed12ffa5371fa0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_audio_mixer_stop</definition>
+        <argsstring>(SYN_Audio_Mixer *mixer, uint8_t channel_idx)</argsstring>
+        <name>syn_audio_mixer_stop</name>
+        <param>
+          <type><ref refid="structSYN__Audio__Mixer" kindref="compound">SYN_Audio_Mixer</ref> *</type>
+          <declname>mixer</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>channel_idx</declname>
+        </param>
+        <briefdescription>
+<para>Stop channel playback immediately. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>mixer</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to Audio Mixer instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>channel_idx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Channel index (0 .. SYN_AUDIO_MIXER_MAX_CHANNELS - 1). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, or SYN_INVALID_PARAM / SYN_ERR_OUT_OF_BOUNDS. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/audio/syn_audio_mixer.c" line="61" column="12" bodyfile="src/syntropic/audio/syn_audio_mixer.c" bodystart="61" bodyend="75"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__audio__mixer_8c_1ad4479c718bf6718bf81c6005e795563a" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_audio_mixer_set_channel_volume</definition>
+        <argsstring>(SYN_Audio_Mixer *mixer, uint8_t channel_idx, uint16_t volume_q15)</argsstring>
+        <name>syn_audio_mixer_set_channel_volume</name>
+        <param>
+          <type><ref refid="structSYN__Audio__Mixer" kindref="compound">SYN_Audio_Mixer</ref> *</type>
+          <declname>mixer</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>channel_idx</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>volume_q15</declname>
+        </param>
+        <briefdescription>
+<para>Adjust gain for a specific channel. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>mixer</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to Audio Mixer instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>channel_idx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Channel index (0 .. SYN_AUDIO_MIXER_MAX_CHANNELS - 1). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>volume_q15</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>New gain value (Q15). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, or SYN_INVALID_PARAM / SYN_ERR_OUT_OF_BOUNDS. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/audio/syn_audio_mixer.c" line="77" column="12" bodyfile="src/syntropic/audio/syn_audio_mixer.c" bodystart="77" bodyend="91"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__audio__mixer_8c_1aca7842d4d3fe9bcd8d4dc1962230e0cc" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_audio_mixer_set_master_volume</definition>
+        <argsstring>(SYN_Audio_Mixer *mixer, uint16_t volume_q15)</argsstring>
+        <name>syn_audio_mixer_set_master_volume</name>
+        <param>
+          <type><ref refid="structSYN__Audio__Mixer" kindref="compound">SYN_Audio_Mixer</ref> *</type>
+          <declname>mixer</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>volume_q15</declname>
+        </param>
+        <briefdescription>
+<para>Adjust master gain across all channels. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>mixer</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to Audio Mixer instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>volume_q15</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>New master gain value (Q15). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, or SYN_INVALID_PARAM. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/audio/syn_audio_mixer.c" line="93" column="12" bodyfile="src/syntropic/audio/syn_audio_mixer.c" bodystart="93" bodyend="102"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__audio__mixer_8c_1a2c996165068bf877d844a66304294b3f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>size_t</type>
+        <definition>size_t syn_audio_mixer_render</definition>
+        <argsstring>(SYN_Audio_Mixer *mixer, int16_t *out_pcm, size_t sample_count)</argsstring>
+        <name>syn_audio_mixer_render</name>
+        <param>
+          <type><ref refid="structSYN__Audio__Mixer" kindref="compound">SYN_Audio_Mixer</ref> *</type>
+          <declname>mixer</declname>
+        </param>
+        <param>
+          <type>int16_t *</type>
+          <declname>out_pcm</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>sample_count</declname>
+        </param>
+        <briefdescription>
+<para>Render mixed PCM audio into an output sample buffer. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Accumulates active channels, applies Q15 scaling, saturates to [-32768, 32767], and writes to out_pcm.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>mixer</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to Audio Mixer instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out_pcm</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output 16-bit PCM buffer pointer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>sample_count</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output sample count to render. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Number of samples actually generated (0 if no active channels or NULL). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/audio/syn_audio_mixer.c" line="104" column="8" bodyfile="src/syntropic/audio/syn_audio_mixer.c" bodystart="104" bodyend="139"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Implementation of Zero-Heap Multi-Channel Audio Mixer. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__audio__mixer_8h" kindref="compound">syn_audio_mixer.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;string.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>int16_t<sp/><ref refid="syn__audio__mixer_8c_1a4208a7f907d53be67ce6bb19df8c4d89" kindref="member">saturate_i32_to_i16</ref>(int32_t<sp/>val)</highlight></codeline>
+<codeline lineno="17"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="18"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(val<sp/>&gt;<sp/>32767)<sp/>{</highlight></codeline>
+<codeline lineno="19"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>32767;</highlight></codeline>
+<codeline lineno="20"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="21"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(val<sp/>&lt;<sp/>-32768)<sp/>{</highlight></codeline>
+<codeline lineno="22"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>-32768;</highlight></codeline>
+<codeline lineno="23"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="24"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(int16_t)val;</highlight></codeline>
+<codeline lineno="25"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__audio__mixer_8c_1ad5563bf6d1cd2a6e215675799eeb8bd5" kindref="member">syn_audio_mixer_init</ref>(<ref refid="structSYN__Audio__Mixer" kindref="compound">SYN_Audio_Mixer</ref><sp/>*mixer)</highlight></codeline>
+<codeline lineno="28"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="29"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(mixer<sp/>==<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="30"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="31"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"><sp/><sp/><sp/><sp/>memset(mixer,<sp/>0,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(<ref refid="structSYN__Audio__Mixer" kindref="compound">SYN_Audio_Mixer</ref>));</highlight></codeline>
+<codeline lineno="34"><highlight class="normal"><sp/><sp/><sp/><sp/>mixer-&gt;<ref refid="structSYN__Audio__Mixer_1abd72134b68f37ffa2699f2e29da965f7" kindref="member">master_volume_q15</ref><sp/>=<sp/><ref refid="syn__audio__mixer_8h_1a4d0c57eb5f1b77e4dceabca3a95f020b" kindref="member">SYN_AUDIO_GAIN_UNITY</ref>;</highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="37"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="38"><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__audio__mixer_8c_1aadec764d5f7a2f795096e50c2df5118f" kindref="member">syn_audio_mixer_play</ref>(<ref refid="structSYN__Audio__Mixer" kindref="compound">SYN_Audio_Mixer</ref><sp/>*mixer,<sp/>uint8_t<sp/>channel_idx,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>int16_t<sp/>*pcm_buf,</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>sample_count,<sp/>uint16_t<sp/>volume_q15,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>loop)</highlight></codeline>
+<codeline lineno="41"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>((mixer<sp/>==<sp/>NULL)<sp/>||<sp/>(pcm_buf<sp/>==<sp/>NULL)<sp/>||<sp/>(sample_count<sp/>==<sp/>0U))<sp/>{</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"></highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(channel_idx<sp/>&gt;=<sp/><ref refid="syn__audio__mixer_8h_1a9e56ef540313b40ef8ffbdab73c98aa7" kindref="member">SYN_AUDIO_MIXER_MAX_CHANNELS</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"></highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structSYN__Audio__Mixer__Channel" kindref="compound">SYN_Audio_Mixer_Channel</ref><sp/>*<ref refid="syn__sha256_8c_1a040629ce734f8c5b8c1b917ee7330a7b" kindref="member">ch</ref><sp/>=<sp/>&amp;mixer-&gt;<ref refid="structSYN__Audio__Mixer_1abcce51e34c9795397be1135d6e31bff6" kindref="member">channels</ref>[channel_idx];</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__sha256_8c_1a040629ce734f8c5b8c1b917ee7330a7b" kindref="member">ch</ref>-&gt;<ref refid="structSYN__Audio__Mixer__Channel_1a708f37a8e589427f8934628c43965f8d" kindref="member">buf</ref><sp/>=<sp/>pcm_buf;</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__sha256_8c_1a040629ce734f8c5b8c1b917ee7330a7b" kindref="member">ch</ref>-&gt;sample_count<sp/>=<sp/>sample_count;</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__sha256_8c_1a040629ce734f8c5b8c1b917ee7330a7b" kindref="member">ch</ref>-&gt;pos<sp/>=<sp/>0U;</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__sha256_8c_1a040629ce734f8c5b8c1b917ee7330a7b" kindref="member">ch</ref>-&gt;volume_q15<sp/>=<sp/>volume_q15;</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__sha256_8c_1a040629ce734f8c5b8c1b917ee7330a7b" kindref="member">ch</ref>-&gt;loop<sp/>=<sp/>loop;</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__sha256_8c_1a040629ce734f8c5b8c1b917ee7330a7b" kindref="member">ch</ref>-&gt;active<sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"></highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="59"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"></highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__audio__mixer_8c_1aa432ea666ee7989907ed12ffa5371fa0" kindref="member">syn_audio_mixer_stop</ref>(<ref refid="structSYN__Audio__Mixer" kindref="compound">SYN_Audio_Mixer</ref><sp/>*mixer,<sp/>uint8_t<sp/>channel_idx)</highlight></codeline>
+<codeline lineno="62"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(mixer<sp/>==<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"></highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(channel_idx<sp/>&gt;=<sp/><ref refid="syn__audio__mixer_8h_1a9e56ef540313b40ef8ffbdab73c98aa7" kindref="member">SYN_AUDIO_MIXER_MAX_CHANNELS</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"></highlight></codeline>
+<codeline lineno="71"><highlight class="normal"><sp/><sp/><sp/><sp/>mixer-&gt;<ref refid="structSYN__Audio__Mixer_1abcce51e34c9795397be1135d6e31bff6" kindref="member">channels</ref>[channel_idx].<ref refid="structSYN__Audio__Mixer__Channel_1a2cc87d40b2c20fe7b8f4f506e4777816" kindref="member">active</ref><sp/>=<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"><sp/><sp/><sp/><sp/>mixer-&gt;<ref refid="structSYN__Audio__Mixer_1abcce51e34c9795397be1135d6e31bff6" kindref="member">channels</ref>[channel_idx].<ref refid="structSYN__Audio__Mixer__Channel_1afd16b8942a8b4462cfac055cab655250" kindref="member">pos</ref><sp/>=<sp/>0U;</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"></highlight></codeline>
+<codeline lineno="74"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="75"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"></highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__audio__mixer_8c_1ad4479c718bf6718bf81c6005e795563a" kindref="member">syn_audio_mixer_set_channel_volume</ref>(<ref refid="structSYN__Audio__Mixer" kindref="compound">SYN_Audio_Mixer</ref><sp/>*mixer,<sp/>uint8_t<sp/>channel_idx,</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint16_t<sp/>volume_q15)</highlight></codeline>
+<codeline lineno="79"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(mixer<sp/>==<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"></highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(channel_idx<sp/>&gt;=<sp/><ref refid="syn__audio__mixer_8h_1a9e56ef540313b40ef8ffbdab73c98aa7" kindref="member">SYN_AUDIO_MIXER_MAX_CHANNELS</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"></highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/><sp/><sp/>mixer-&gt;<ref refid="structSYN__Audio__Mixer_1abcce51e34c9795397be1135d6e31bff6" kindref="member">channels</ref>[channel_idx].<ref refid="structSYN__Audio__Mixer__Channel_1a1670e13c6d6d5ac0ef7b70aab22fbe00" kindref="member">volume_q15</ref><sp/>=<sp/>volume_q15;</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"></highlight></codeline>
+<codeline lineno="90"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="91"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"></highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__audio__mixer_8c_1aca7842d4d3fe9bcd8d4dc1962230e0cc" kindref="member">syn_audio_mixer_set_master_volume</ref>(<ref refid="structSYN__Audio__Mixer" kindref="compound">SYN_Audio_Mixer</ref><sp/>*mixer,<sp/>uint16_t<sp/>volume_q15)</highlight></codeline>
+<codeline lineno="94"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(mixer<sp/>==<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"></highlight></codeline>
+<codeline lineno="99"><highlight class="normal"><sp/><sp/><sp/><sp/>mixer-&gt;<ref refid="structSYN__Audio__Mixer_1abd72134b68f37ffa2699f2e29da965f7" kindref="member">master_volume_q15</ref><sp/>=<sp/>volume_q15;</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"></highlight></codeline>
+<codeline lineno="101"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="102"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"></highlight></codeline>
+<codeline lineno="104"><highlight class="normal"></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/><ref refid="syn__audio__mixer_8c_1a2c996165068bf877d844a66304294b3f" kindref="member">syn_audio_mixer_render</ref>(<ref refid="structSYN__Audio__Mixer" kindref="compound">SYN_Audio_Mixer</ref><sp/>*mixer,<sp/>int16_t<sp/>*out_pcm,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>sample_count)</highlight></codeline>
+<codeline lineno="105"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>((mixer<sp/>==<sp/>NULL)<sp/>||<sp/>(out_pcm<sp/>==<sp/>NULL)<sp/>||<sp/>(sample_count<sp/>==<sp/>0U))<sp/>{</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0U;</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="109"><highlight class="normal"></highlight></codeline>
+<codeline lineno="110"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>s<sp/>=<sp/>0U;<sp/>s<sp/>&lt;<sp/>sample_count;<sp/>s++)<sp/>{</highlight></codeline>
+<codeline lineno="111"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int32_t<sp/>acc<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="112"><highlight class="normal"></highlight></codeline>
+<codeline lineno="113"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(uint8_t<sp/>i<sp/>=<sp/>0U;<sp/>i<sp/>&lt;<sp/><ref refid="syn__audio__mixer_8h_1a9e56ef540313b40ef8ffbdab73c98aa7" kindref="member">SYN_AUDIO_MIXER_MAX_CHANNELS</ref>;<sp/>i++)<sp/>{</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="structSYN__Audio__Mixer__Channel" kindref="compound">SYN_Audio_Mixer_Channel</ref><sp/>*<ref refid="syn__sha256_8c_1a040629ce734f8c5b8c1b917ee7330a7b" kindref="member">ch</ref><sp/>=<sp/>&amp;mixer-&gt;<ref refid="structSYN__Audio__Mixer_1abcce51e34c9795397be1135d6e31bff6" kindref="member">channels</ref>[i];</highlight></codeline>
+<codeline lineno="115"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!<ref refid="syn__sha256_8c_1a040629ce734f8c5b8c1b917ee7330a7b" kindref="member">ch</ref>-&gt;active<sp/>||<sp/>(<ref refid="syn__sha256_8c_1a040629ce734f8c5b8c1b917ee7330a7b" kindref="member">ch</ref>-&gt;buf<sp/>==<sp/>NULL))<sp/>{</highlight></codeline>
+<codeline lineno="116"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">continue</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="117"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"></highlight></codeline>
+<codeline lineno="119"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="syn__sha256_8c_1a040629ce734f8c5b8c1b917ee7330a7b" kindref="member">ch</ref>-&gt;pos<sp/>&gt;=<sp/><ref refid="syn__sha256_8c_1a040629ce734f8c5b8c1b917ee7330a7b" kindref="member">ch</ref>-&gt;sample_count)<sp/>{</highlight></codeline>
+<codeline lineno="120"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="syn__sha256_8c_1a040629ce734f8c5b8c1b917ee7330a7b" kindref="member">ch</ref>-&gt;loop)<sp/>{</highlight></codeline>
+<codeline lineno="121"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__sha256_8c_1a040629ce734f8c5b8c1b917ee7330a7b" kindref="member">ch</ref>-&gt;<ref refid="structSYN__Audio__Mixer__Channel_1afd16b8942a8b4462cfac055cab655250" kindref="member">pos</ref><sp/>=<sp/>0U;</highlight></codeline>
+<codeline lineno="122"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="123"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__sha256_8c_1a040629ce734f8c5b8c1b917ee7330a7b" kindref="member">ch</ref>-&gt;active<sp/>=<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="124"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">continue</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="126"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="127"><highlight class="normal"></highlight></codeline>
+<codeline lineno="128"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int32_t<sp/>sample<sp/>=<sp/><ref refid="syn__sha256_8c_1a040629ce734f8c5b8c1b917ee7330a7b" kindref="member">ch</ref>-&gt;buf[<ref refid="syn__sha256_8c_1a040629ce734f8c5b8c1b917ee7330a7b" kindref="member">ch</ref>-&gt;pos++];</highlight></codeline>
+<codeline lineno="129"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int32_t<sp/>scaled<sp/>=<sp/>(sample<sp/>*<sp/>(int32_t)<ref refid="syn__sha256_8c_1a040629ce734f8c5b8c1b917ee7330a7b" kindref="member">ch</ref>-&gt;volume_q15)<sp/>&gt;&gt;<sp/>15;</highlight></codeline>
+<codeline lineno="130"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>acc<sp/>+=<sp/>scaled;</highlight></codeline>
+<codeline lineno="131"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="132"><highlight class="normal"></highlight></codeline>
+<codeline lineno="133"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Apply<sp/>master<sp/>volume<sp/>scaling<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="134"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>int32_t<sp/>master_scaled<sp/>=<sp/>(acc<sp/>*<sp/>(int32_t)mixer-&gt;<ref refid="structSYN__Audio__Mixer_1abd72134b68f37ffa2699f2e29da965f7" kindref="member">master_volume_q15</ref>)<sp/>&gt;&gt;<sp/>15;</highlight></codeline>
+<codeline lineno="135"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>out_pcm[s]<sp/>=<sp/><ref refid="syn__audio__mixer_8c_1a4208a7f907d53be67ce6bb19df8c4d89" kindref="member">saturate_i32_to_i16</ref>(master_scaled);</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="137"><highlight class="normal"></highlight></codeline>
+<codeline lineno="138"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>sample_count;</highlight></codeline>
+<codeline lineno="139"><highlight class="normal">}</highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/audio/syn_audio_mixer.c"/>
+  </compounddef>
+</doxygen>

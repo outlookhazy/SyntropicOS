@@ -1,0 +1,490 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__autoip_8c" kind="file" language="C++">
+    <compoundname>syn_autoip.c</compoundname>
+    <includes refid="syn__autoip_8h" local="yes">syntropic/net/syn_autoip.h</includes>
+    <includes local="no">string.h</includes>
+    <incdepgraph>
+      <node id="8">
+        <label>port/syn_port_eth.h</label>
+        <link refid="syn__port__eth_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="10">
+        <label>../common/syn_compiler.h</label>
+        <link refid="syn__compiler_8h"/>
+      </node>
+      <node id="3">
+        <label>syntropic/common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/net/syn_autoip.c</label>
+        <link refid="syn__autoip_8c"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>syntropic/net/syn_autoip.h</label>
+        <link refid="syn__autoip_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>syntropic/net/syn_eth.h</label>
+        <link refid="syn__eth_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="9">
+        <label>syntropic/pt/syn_pt.h</label>
+        <link refid="syn__pt_8h"/>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>stdbool.h</label>
+      </node>
+      <node id="4">
+        <label>stddef.h</label>
+      </node>
+      <node id="5">
+        <label>stdint.h</label>
+      </node>
+      <node id="11">
+        <label>string.h</label>
+      </node>
+    </incdepgraph>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__autoip_8c_1adb5788ddee695e174f8f0259b4bc24b1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_autoip_init</definition>
+        <argsstring>(SYN_AUTOIP *autoip, const uint8_t mac_addr[6])</argsstring>
+        <name>syn_autoip_init</name>
+        <param>
+          <type><ref refid="structSYN__AUTOIP" kindref="compound">SYN_AUTOIP</ref> *</type>
+          <declname>autoip</declname>
+        </param>
+        <param>
+          <type>const uint8_t</type>
+          <declname>mac_addr</declname>
+          <array>[6]</array>
+        </param>
+        <briefdescription>
+<para>Initialize RFC 3927 AutoIP Engine Context. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>autoip</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to AutoIP context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>mac_addr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>6-byte client MAC address (used to seed candidate IP selection). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/net/syn_autoip.c" line="10" column="12" bodyfile="src/syntropic/net/syn_autoip.c" bodystart="10" bodyend="25"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__autoip_8c_1ab53b56dc7eec86bed26128918d879020" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_autoip_build_probe</definition>
+        <argsstring>(SYN_AUTOIP *autoip, const uint8_t mac_addr[6], uint8_t *buf_out, size_t *len_out)</argsstring>
+        <name>syn_autoip_build_probe</name>
+        <param>
+          <type><ref refid="structSYN__AUTOIP" kindref="compound">SYN_AUTOIP</ref> *</type>
+          <declname>autoip</declname>
+        </param>
+        <param>
+          <type>const uint8_t</type>
+          <declname>mac_addr</declname>
+          <array>[6]</array>
+        </param>
+        <param>
+          <type>uint8_t *</type>
+          <declname>buf_out</declname>
+        </param>
+        <param>
+          <type>size_t *</type>
+          <declname>len_out</declname>
+        </param>
+        <briefdescription>
+<para>Build an ARP Probe frame to verify IP availability. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>autoip</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to AutoIP context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>mac_addr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>6-byte client MAC address. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>buf_out</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output frame buffer (must hold at least 60 bytes). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>len_out</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to receive length. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/net/syn_autoip.c" line="27" column="12" bodyfile="src/syntropic/net/syn_autoip.c" bodystart="27" bodyend="67"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__autoip_8c_1a5763712f9c71d62b87d7fcf71c1e9760" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_autoip_build_announce</definition>
+        <argsstring>(SYN_AUTOIP *autoip, const uint8_t mac_addr[6], uint8_t *buf_out, size_t *len_out)</argsstring>
+        <name>syn_autoip_build_announce</name>
+        <param>
+          <type><ref refid="structSYN__AUTOIP" kindref="compound">SYN_AUTOIP</ref> *</type>
+          <declname>autoip</declname>
+        </param>
+        <param>
+          <type>const uint8_t</type>
+          <declname>mac_addr</declname>
+          <array>[6]</array>
+        </param>
+        <param>
+          <type>uint8_t *</type>
+          <declname>buf_out</declname>
+        </param>
+        <param>
+          <type>size_t *</type>
+          <declname>len_out</declname>
+        </param>
+        <briefdescription>
+<para>Build an ARP Announcement frame to announce claimed IP. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>autoip</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to AutoIP context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>mac_addr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>6-byte client MAC address. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>buf_out</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output frame buffer (must hold at least 60 bytes). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>len_out</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to receive length. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/net/syn_autoip.c" line="69" column="12" bodyfile="src/syntropic/net/syn_autoip.c" bodystart="69" bodyend="109"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__autoip_8c_1a365564d188b764f88d97e8b1fea21af9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_autoip_process_arp</definition>
+        <argsstring>(SYN_AUTOIP *autoip, SYN_ETH *eth, const uint8_t *arp_frame, size_t len)</argsstring>
+        <name>syn_autoip_process_arp</name>
+        <param>
+          <type><ref refid="structSYN__AUTOIP" kindref="compound">SYN_AUTOIP</ref> *</type>
+          <declname>autoip</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__ETH" kindref="compound">SYN_ETH</ref> *</type>
+          <declname>eth</declname>
+        </param>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>arp_frame</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>len</declname>
+        </param>
+        <briefdescription>
+<para>Process ARP response frame during probing. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>autoip</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to AutoIP context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>eth</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to Ethernet context (auto-updated when BOUND). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>arp_frame</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to received frame. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Length in bytes. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK when BOUND, SYN_BUSY if conflict detected and new candidate picked. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/net/syn_autoip.c" line="111" column="12" bodyfile="src/syntropic/net/syn_autoip.c" bodystart="111" bodyend="147"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Zero-Heap Native RFC 3927 AutoIP Engine Implementation. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__autoip_8h" kindref="compound">syntropic/net/syn_autoip.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;string.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__autoip_8c_1adb5788ddee695e174f8f0259b4bc24b1" kindref="member">syn_autoip_init</ref>(<ref refid="structSYN__AUTOIP" kindref="compound">SYN_AUTOIP</ref><sp/>*autoip,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>mac_addr[6])</highlight></codeline>
+<codeline lineno="11"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="12"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!autoip<sp/>||<sp/>!mac_addr)<sp/>{</highlight></codeline>
+<codeline lineno="13"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="14"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="15"><highlight class="normal"><sp/><sp/><sp/><sp/>memset(autoip,<sp/>0,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(*autoip));</highlight></codeline>
+<codeline lineno="16"><highlight class="normal"><sp/><sp/><sp/><sp/>autoip-&gt;<ref refid="structSYN__AUTOIP_1abcae11f9e9f1e4636fa5b26cc0972189" kindref="member">state</ref><sp/>=<sp/><ref refid="syn__autoip_8h_1a2e7877d4130f61dfd80a223558335414abf8755dd1700aa0efe2a6e33db136cd2" kindref="member">SYN_AUTOIP_STATE_INIT</ref>;</highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Generate<sp/>candidate<sp/>IP<sp/>in<sp/>169.254.1.1<sp/>..<sp/>169.254.254.255<sp/>seeded<sp/>by<sp/>MAC<sp/>address<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/>seed<sp/>=<sp/>((uint16_t)mac_addr[4]<sp/>&lt;&lt;<sp/>8)<sp/>|<sp/>mac_addr[5];</highlight></codeline>
+<codeline lineno="20"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>octet3<sp/>=<sp/>(uint8_t)(1<sp/>+<sp/>(seed<sp/>%<sp/>254));</highlight></codeline>
+<codeline lineno="21"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>octet4<sp/>=<sp/>(uint8_t)(1<sp/>+<sp/>((seed<sp/>&gt;&gt;<sp/>4)<sp/>%<sp/>254));</highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"><sp/><sp/><sp/><sp/>autoip-&gt;<ref refid="structSYN__AUTOIP_1ab9f3f84db47d989ae2f963734a49fff3" kindref="member">ip_addr</ref><sp/>=<sp/>0xA9FE0000UL<sp/>|<sp/>((uint32_t)octet3<sp/>&lt;&lt;<sp/>8)<sp/>|<sp/>octet4;</highlight></codeline>
+<codeline lineno="24"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="25"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__autoip_8c_1ab53b56dc7eec86bed26128918d879020" kindref="member">syn_autoip_build_probe</ref>(<ref refid="structSYN__AUTOIP" kindref="compound">SYN_AUTOIP</ref><sp/>*autoip,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>mac_addr[6],<sp/>uint8_t<sp/>*buf_out,</highlight></codeline>
+<codeline lineno="28"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>*len_out)</highlight></codeline>
+<codeline lineno="29"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="30"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!autoip<sp/>||<sp/>!mac_addr<sp/>||<sp/>!buf_out<sp/>||<sp/>!len_out)<sp/>{</highlight></codeline>
+<codeline lineno="31"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="32"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"><sp/><sp/><sp/><sp/>memset(buf_out,<sp/>0,<sp/>60);</highlight></codeline>
+<codeline lineno="35"><highlight class="normal"><sp/><sp/><sp/><sp/>memset(&amp;buf_out[0],<sp/>0xFF,<sp/>6);<sp/></highlight><highlight class="comment">/*<sp/>Broadcast<sp/>Dst<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"><sp/><sp/><sp/><sp/>memcpy(&amp;buf_out[6],<sp/>mac_addr,<sp/>6);</highlight></codeline>
+<codeline lineno="37"><highlight class="normal"><sp/><sp/><sp/><sp/>buf_out[12]<sp/>=<sp/>0x08;</highlight></codeline>
+<codeline lineno="38"><highlight class="normal"><sp/><sp/><sp/><sp/>buf_out[13]<sp/>=<sp/>0x06;<sp/></highlight><highlight class="comment">/*<sp/>EtherType<sp/>=<sp/>ARP<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"><sp/><sp/><sp/><sp/>buf_out[14]<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"><sp/><sp/><sp/><sp/>buf_out[15]<sp/>=<sp/>1;<sp/></highlight><highlight class="comment">/*<sp/>Ethernet<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"><sp/><sp/><sp/><sp/>buf_out[16]<sp/>=<sp/>0x08;</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"><sp/><sp/><sp/><sp/>buf_out[17]<sp/>=<sp/>0x00;<sp/></highlight><highlight class="comment">/*<sp/>IPv4<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal"><sp/><sp/><sp/><sp/>buf_out[18]<sp/>=<sp/>6;</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"><sp/><sp/><sp/><sp/>buf_out[19]<sp/>=<sp/>4;</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/><sp/><sp/>buf_out[20]<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/><sp/><sp/>buf_out[21]<sp/>=<sp/>1;<sp/></highlight><highlight class="comment">/*<sp/>Request<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="48"><highlight class="normal"></highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/><sp/><sp/>memcpy(&amp;buf_out[22],<sp/>mac_addr,<sp/>6);</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Sender<sp/>IP<sp/>=<sp/>0.0.0.0<sp/>for<sp/>ARP<sp/>Probe<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><sp/><sp/><sp/><sp/>buf_out[28]<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/><sp/><sp/>buf_out[29]<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/><sp/><sp/>buf_out[30]<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/><sp/><sp/>buf_out[31]<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"></highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/><sp/><sp/>memset(&amp;buf_out[32],<sp/>0,<sp/>6);</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/><sp/><sp/>buf_out[38]<sp/>=<sp/>(uint8_t)(autoip-&gt;<ref refid="structSYN__AUTOIP_1ab9f3f84db47d989ae2f963734a49fff3" kindref="member">ip_addr</ref><sp/>&gt;&gt;<sp/>24);</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/>buf_out[39]<sp/>=<sp/>(uint8_t)(autoip-&gt;<ref refid="structSYN__AUTOIP_1ab9f3f84db47d989ae2f963734a49fff3" kindref="member">ip_addr</ref><sp/>&gt;&gt;<sp/>16);</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><sp/><sp/><sp/><sp/>buf_out[40]<sp/>=<sp/>(uint8_t)(autoip-&gt;<ref refid="structSYN__AUTOIP_1ab9f3f84db47d989ae2f963734a49fff3" kindref="member">ip_addr</ref><sp/>&gt;&gt;<sp/>8);</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"><sp/><sp/><sp/><sp/>buf_out[41]<sp/>=<sp/>(uint8_t)(autoip-&gt;<ref refid="structSYN__AUTOIP_1ab9f3f84db47d989ae2f963734a49fff3" kindref="member">ip_addr</ref>);</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"></highlight></codeline>
+<codeline lineno="62"><highlight class="normal"><sp/><sp/><sp/><sp/>autoip-&gt;<ref refid="structSYN__AUTOIP_1abcae11f9e9f1e4636fa5b26cc0972189" kindref="member">state</ref><sp/>=<sp/><ref refid="syn__autoip_8h_1a2e7877d4130f61dfd80a223558335414a4e0e2a4b783d160b45c8a266aecae2e3" kindref="member">SYN_AUTOIP_STATE_PROBE</ref>;</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"><sp/><sp/><sp/><sp/>autoip-&gt;<ref refid="structSYN__AUTOIP_1a7a5d5d18393f4ad1307bab0b34532b97" kindref="member">probe_count</ref>++;</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/><sp/><sp/>*len_out<sp/>=<sp/>60;</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"></highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="67"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"></highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__autoip_8c_1a5763712f9c71d62b87d7fcf71c1e9760" kindref="member">syn_autoip_build_announce</ref>(<ref refid="structSYN__AUTOIP" kindref="compound">SYN_AUTOIP</ref><sp/>*autoip,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>mac_addr[6],</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>*buf_out,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>*len_out)</highlight></codeline>
+<codeline lineno="71"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!autoip<sp/>||<sp/>!mac_addr<sp/>||<sp/>!buf_out<sp/>||<sp/>!len_out)<sp/>{</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"></highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/><sp/><sp/>memset(buf_out,<sp/>0,<sp/>60);</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/><sp/><sp/>memset(&amp;buf_out[0],<sp/>0xFF,<sp/>6);</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/><sp/><sp/>memcpy(&amp;buf_out[6],<sp/>mac_addr,<sp/>6);</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/><sp/><sp/>buf_out[12]<sp/>=<sp/>0x08;</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/><sp/><sp/>buf_out[13]<sp/>=<sp/>0x06;</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"></highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/>buf_out[14]<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/>buf_out[15]<sp/>=<sp/>1;</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/><sp/><sp/>buf_out[16]<sp/>=<sp/>0x08;</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/>buf_out[17]<sp/>=<sp/>0x00;</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/><sp/><sp/>buf_out[18]<sp/>=<sp/>6;</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/><sp/><sp/>buf_out[19]<sp/>=<sp/>4;</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/><sp/><sp/>buf_out[20]<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"><sp/><sp/><sp/><sp/>buf_out[21]<sp/>=<sp/>1;</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"></highlight></codeline>
+<codeline lineno="91"><highlight class="normal"><sp/><sp/><sp/><sp/>memcpy(&amp;buf_out[22],<sp/>mac_addr,<sp/>6);</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Sender<sp/>IP<sp/>=<sp/>candidate<sp/>IP<sp/>for<sp/>ARP<sp/>Announcement<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><sp/><sp/><sp/><sp/>buf_out[28]<sp/>=<sp/>(uint8_t)(autoip-&gt;<ref refid="structSYN__AUTOIP_1ab9f3f84db47d989ae2f963734a49fff3" kindref="member">ip_addr</ref><sp/>&gt;&gt;<sp/>24);</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><sp/><sp/><sp/><sp/>buf_out[29]<sp/>=<sp/>(uint8_t)(autoip-&gt;<ref refid="structSYN__AUTOIP_1ab9f3f84db47d989ae2f963734a49fff3" kindref="member">ip_addr</ref><sp/>&gt;&gt;<sp/>16);</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/>buf_out[30]<sp/>=<sp/>(uint8_t)(autoip-&gt;<ref refid="structSYN__AUTOIP_1ab9f3f84db47d989ae2f963734a49fff3" kindref="member">ip_addr</ref><sp/>&gt;&gt;<sp/>8);</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/><sp/><sp/>buf_out[31]<sp/>=<sp/>(uint8_t)(autoip-&gt;<ref refid="structSYN__AUTOIP_1ab9f3f84db47d989ae2f963734a49fff3" kindref="member">ip_addr</ref>);</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"></highlight></codeline>
+<codeline lineno="98"><highlight class="normal"><sp/><sp/><sp/><sp/>memset(&amp;buf_out[32],<sp/>0,<sp/>6);</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"><sp/><sp/><sp/><sp/>buf_out[38]<sp/>=<sp/>buf_out[28];</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><sp/><sp/><sp/><sp/>buf_out[39]<sp/>=<sp/>buf_out[29];</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"><sp/><sp/><sp/><sp/>buf_out[40]<sp/>=<sp/>buf_out[30];</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><sp/><sp/><sp/><sp/>buf_out[41]<sp/>=<sp/>buf_out[31];</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"></highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/><sp/><sp/><sp/>autoip-&gt;<ref refid="structSYN__AUTOIP_1abcae11f9e9f1e4636fa5b26cc0972189" kindref="member">state</ref><sp/>=<sp/><ref refid="syn__autoip_8h_1a2e7877d4130f61dfd80a223558335414a28c1690a23093ca8371ffe49b4f70a49" kindref="member">SYN_AUTOIP_STATE_ANNOUNCE</ref>;</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><sp/><sp/><sp/><sp/>autoip-&gt;<ref refid="structSYN__AUTOIP_1a2a077faacaccb0dead3f5e996f35cd0c" kindref="member">announce_count</ref>++;</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"><sp/><sp/><sp/><sp/>*len_out<sp/>=<sp/>60;</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"></highlight></codeline>
+<codeline lineno="108"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="109"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="110"><highlight class="normal"></highlight></codeline>
+<codeline lineno="111"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__autoip_8c_1a365564d188b764f88d97e8b1fea21af9" kindref="member">syn_autoip_process_arp</ref>(<ref refid="structSYN__AUTOIP" kindref="compound">SYN_AUTOIP</ref><sp/>*autoip,<sp/><ref refid="structSYN__ETH" kindref="compound">SYN_ETH</ref><sp/>*eth,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*arp_frame,</highlight></codeline>
+<codeline lineno="112"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>len)</highlight></codeline>
+<codeline lineno="113"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!autoip<sp/>||<sp/>!arp_frame<sp/>||<sp/>len<sp/>&lt;<sp/>42)<sp/>{</highlight></codeline>
+<codeline lineno="115"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="116"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="117"><highlight class="normal"></highlight></codeline>
+<codeline lineno="118"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/>ethertype<sp/>=<sp/>((uint16_t)arp_frame[12]<sp/>&lt;&lt;<sp/>8)<sp/>|<sp/>arp_frame[13];</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(ethertype<sp/>!=<sp/><ref refid="syn__eth_8h_1a3688fe4c4425dabf7a0bbeb9d8fcda09" kindref="member">SYN_ETHTYPE_ARP</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="120"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="121"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="122"><highlight class="normal"></highlight></codeline>
+<codeline lineno="123"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/>sender_ip<sp/>=<sp/>((uint32_t)arp_frame[28]<sp/>&lt;&lt;<sp/>24)<sp/>|<sp/>((uint32_t)arp_frame[29]<sp/>&lt;&lt;<sp/>16)<sp/>|</highlight></codeline>
+<codeline lineno="124"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>((uint32_t)arp_frame[30]<sp/>&lt;&lt;<sp/>8)<sp/>|<sp/>arp_frame[31];</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"></highlight></codeline>
+<codeline lineno="126"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Conflict<sp/>check<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="127"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(sender_ip<sp/>==<sp/>autoip-&gt;<ref refid="structSYN__AUTOIP_1ab9f3f84db47d989ae2f963734a49fff3" kindref="member">ip_addr</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="128"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>autoip-&gt;<ref refid="structSYN__AUTOIP_1a504e7998948722d4c57a08d5fcedf039" kindref="member">collisions</ref>++;</highlight></codeline>
+<codeline lineno="129"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Pick<sp/>next<sp/>candidate<sp/>IP<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="130"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>octet4<sp/>=<sp/>(uint8_t)(autoip-&gt;<ref refid="structSYN__AUTOIP_1ab9f3f84db47d989ae2f963734a49fff3" kindref="member">ip_addr</ref><sp/>&amp;<sp/>0xFF)<sp/>+<sp/>1;</highlight></codeline>
+<codeline lineno="131"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(octet4<sp/>==<sp/>0<sp/>||<sp/>octet4<sp/>==<sp/>255)</highlight></codeline>
+<codeline lineno="132"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>octet4<sp/>=<sp/>1;</highlight></codeline>
+<codeline lineno="133"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>autoip-&gt;<ref refid="structSYN__AUTOIP_1ab9f3f84db47d989ae2f963734a49fff3" kindref="member">ip_addr</ref><sp/>=<sp/>(autoip-&gt;<ref refid="structSYN__AUTOIP_1ab9f3f84db47d989ae2f963734a49fff3" kindref="member">ip_addr</ref><sp/>&amp;<sp/>0xFFFFFF00UL)<sp/>|<sp/>octet4;</highlight></codeline>
+<codeline lineno="134"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>autoip-&gt;<ref refid="structSYN__AUTOIP_1abcae11f9e9f1e4636fa5b26cc0972189" kindref="member">state</ref><sp/>=<sp/><ref refid="syn__autoip_8h_1a2e7877d4130f61dfd80a223558335414abf8755dd1700aa0efe2a6e33db136cd2" kindref="member">SYN_AUTOIP_STATE_INIT</ref>;</highlight></codeline>
+<codeline lineno="135"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a3be376d242928cd8de46b32c69647539" kindref="member">SYN_BUSY</ref>;</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="137"><highlight class="normal"></highlight></codeline>
+<codeline lineno="138"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>No<sp/>conflict<sp/>detected<sp/>-&gt;<sp/>transition<sp/>to<sp/>BOUND<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="139"><highlight class="normal"><sp/><sp/><sp/><sp/>autoip-&gt;<ref refid="structSYN__AUTOIP_1abcae11f9e9f1e4636fa5b26cc0972189" kindref="member">state</ref><sp/>=<sp/><ref refid="syn__autoip_8h_1a2e7877d4130f61dfd80a223558335414afe4c40b8430abe2b50bc1458eef8c83a" kindref="member">SYN_AUTOIP_STATE_BOUND</ref>;</highlight></codeline>
+<codeline lineno="140"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(eth)<sp/>{</highlight></codeline>
+<codeline lineno="141"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>eth-&gt;<ref refid="structSYN__ETH_1aecc63b98856296fa6826cc8a87d5b7ee" kindref="member">ip_addr</ref><sp/>=<sp/>autoip-&gt;<ref refid="structSYN__AUTOIP_1ab9f3f84db47d989ae2f963734a49fff3" kindref="member">ip_addr</ref>;</highlight></codeline>
+<codeline lineno="142"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>eth-&gt;<ref refid="structSYN__ETH_1a39280057a42782949218c5d9cbb6f022" kindref="member">netmask</ref><sp/>=<sp/><ref refid="syn__autoip_8h_1ab0846b82a969802e7dcbc106c92b7ee2" kindref="member">SYN_AUTOIP_NETMASK</ref>;</highlight></codeline>
+<codeline lineno="143"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>eth-&gt;<ref refid="structSYN__ETH_1a6a66d99362d0b6d031342f55f71696cd" kindref="member">gateway</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="144"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="145"><highlight class="normal"></highlight></codeline>
+<codeline lineno="146"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="147"><highlight class="normal">}</highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/net/syn_autoip.c"/>
+  </compounddef>
+</doxygen>

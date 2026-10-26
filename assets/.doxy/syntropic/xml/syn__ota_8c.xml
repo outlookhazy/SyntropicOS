@@ -1,0 +1,1472 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__ota_8c" kind="file" language="C++">
+    <compoundname>syn_ota.c</compoundname>
+    <includes refid="syn__assert_8h" local="yes">../util/syn_assert.h</includes>
+    <includes refid="syn__ota_8h" local="yes">syn_ota.h</includes>
+    <includes local="no">string.h</includes>
+    <incdepgraph>
+      <node id="3">
+        <label>../common/syn_compiler.h</label>
+        <link refid="syn__compiler_8h"/>
+      </node>
+      <node id="5">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>syn_fwboot.h</label>
+        <link refid="syn__fwboot_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="9">
+        <label>syn_fwimage.h</label>
+        <link refid="syn__fwimage_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="12">
+        <label>syn_fwupdate.h</label>
+        <link refid="syn__fwupdate_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/system/syn_ota.c</label>
+        <link refid="syn__ota_8c"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="13" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>syn_ota.h</label>
+        <link refid="syn__ota_8h"/>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="9" relation="include">
+        </childnode>
+        <childnode refid="12" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>../util/syn_assert.h</label>
+        <link refid="syn__assert_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="10">
+        <label>../util/syn_crc.h</label>
+        <link refid="syn__crc_8h"/>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="11">
+        <label>stdbool.h</label>
+      </node>
+      <node id="6">
+        <label>stddef.h</label>
+      </node>
+      <node id="7">
+        <label>stdint.h</label>
+      </node>
+      <node id="13">
+        <label>string.h</label>
+      </node>
+    </incdepgraph>
+    <innerclass refid="structLwM2M__FwCtx" prot="public">LwM2M_FwCtx</innerclass>
+    <sectiondef kind="enum">
+      <memberdef kind="enum" id="syn__ota_8c_1a5f766a9b1d954041da97f04e1cb6e23f" prot="public" static="no" strong="no">
+        <type></type>
+        <name>LwM2M_FwState</name>
+        <enumvalue id="syn__ota_8c_1a5f766a9b1d954041da97f04e1cb6e23fa6ba505a71b4c491c01d4ad9cc598fab6" prot="public">
+          <name>LWM2M_FW_STATE_IDLE</name>
+          <initializer>= 0</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Idle state. </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__ota_8c_1a5f766a9b1d954041da97f04e1cb6e23fac70923f2fe82046d7b9c20565c5693ed" prot="public">
+          <name>LWM2M_FW_STATE_DOWNLOADING</name>
+          <initializer>= 1</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Downloading state. </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__ota_8c_1a5f766a9b1d954041da97f04e1cb6e23face98cc6a9fd931d0ab06ab09c48e405e" prot="public">
+          <name>LWM2M_FW_STATE_DOWNLOADED</name>
+          <initializer>= 2</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Download complete state. </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__ota_8c_1a5f766a9b1d954041da97f04e1cb6e23fa67011e5debc896b272d47c07c30a04c8" prot="public">
+          <name>LWM2M_FW_STATE_UPDATING</name>
+          <initializer>= 3</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Applying update state. </para>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>LwM2M Firmware State enumeration (Object 5 Resource 3). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/system/syn_ota.c" line="22" column="1" bodyfile="src/syntropic/system/syn_ota.c" bodystart="22" bodyend="27"/>
+      </memberdef>
+      <memberdef kind="enum" id="syn__ota_8c_1a172c6f973585d82c16ae71d3ee4f315c" prot="public" static="no" strong="no">
+        <type></type>
+        <name>LwM2M_FwResult</name>
+        <enumvalue id="syn__ota_8c_1a172c6f973585d82c16ae71d3ee4f315ca18a20d31ac4a7ff89c76b5ee34ed6207" prot="public">
+          <name>LWM2M_FW_RES_DEFAULT</name>
+          <initializer>= 0</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Default / in progress. </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__ota_8c_1a172c6f973585d82c16ae71d3ee4f315ca13ec454c16b0b08df677f9c45ac24c9c" prot="public">
+          <name>LWM2M_FW_RES_SUCCESS</name>
+          <initializer>= 1</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Firmware update successful. </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__ota_8c_1a172c6f973585d82c16ae71d3ee4f315ca13b6b050acd170c29fde1f931a5dd33f" prot="public">
+          <name>LWM2M_FW_RES_NO_FLASH</name>
+          <initializer>= 2</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Insufficient flash space. </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__ota_8c_1a172c6f973585d82c16ae71d3ee4f315ca92b40042ed129942a7ba1f48098992b9" prot="public">
+          <name>LWM2M_FW_RES_OUT_OF_RAM</name>
+          <initializer>= 3</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Out of RAM error. </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__ota_8c_1a172c6f973585d82c16ae71d3ee4f315ca8163b76991697e18ed964b8fbc5faa4d" prot="public">
+          <name>LWM2M_FW_RES_CONN_LOST</name>
+          <initializer>= 4</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Connection lost during download. </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__ota_8c_1a172c6f973585d82c16ae71d3ee4f315ca5971040dcc0c59af9e016ec506094028" prot="public">
+          <name>LWM2M_FW_RES_INTEGRITY_FAIL</name>
+          <initializer>= 5</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Integrity check failed. </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__ota_8c_1a172c6f973585d82c16ae71d3ee4f315ca052245093e518841362a73b7454df241" prot="public">
+          <name>LWM2M_FW_RES_BAD_PKG_TYPE</name>
+          <initializer>= 6</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Unsupported package type. </para>
+          </detaileddescription>
+        </enumvalue>
+        <enumvalue id="syn__ota_8c_1a172c6f973585d82c16ae71d3ee4f315ca2cab7fd7ae8c95d71d877f5883b75f33" prot="public">
+          <name>LWM2M_FW_RES_INVALID_URI</name>
+          <initializer>= 7</initializer>
+          <briefdescription>
+          </briefdescription>
+          <detaileddescription>
+<para>Invalid package URI. </para>
+          </detaileddescription>
+        </enumvalue>
+        <briefdescription>
+<para>LwM2M Firmware Update Result enumeration (Object 5 Resource 5). </para>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/system/syn_ota.c" line="32" column="1" bodyfile="src/syntropic/system/syn_ota.c" bodystart="32" bodyend="41"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__ota_8c_1a0885a976ed05fce8c6f6621df2f2ccdd" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_ota_init</definition>
+        <argsstring>(SYN_OTA_Manager *mgr, SYN_FwBootManager *boot_mgr, uint32_t slot_size, uint8_t *page_buf, size_t page_buf_sz)</argsstring>
+        <name>syn_ota_init</name>
+        <param>
+          <type><ref refid="structSYN__OTA__Manager" kindref="compound">SYN_OTA_Manager</ref> *</type>
+          <declname>mgr</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__FwBootManager" kindref="compound">SYN_FwBootManager</ref> *</type>
+          <declname>boot_mgr</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>slot_size</declname>
+        </param>
+        <param>
+          <type>uint8_t *</type>
+          <declname>page_buf</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>page_buf_sz</declname>
+        </param>
+        <briefdescription>
+<para>Initialize the OTA manager. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>mgr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>OTA manager instance to initialize. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>boot_mgr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Dual-bank boot manager instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>slot_size</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Maximum firmware capacity per slot in bytes. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>page_buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Caller-provided page-aligned flash write buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>page_buf_sz</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Size of page buffer (must match flash write granularity). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_INVALID_PARAM on NULL or invalid inputs. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/system/syn_ota.c" line="57" column="12" bodyfile="src/syntropic/system/syn_ota.c" bodystart="57" bodyend="76"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__ota_8c_1a4f14cfaebe03612756bbbad9213ac6a6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_ota_set_target_slot</definition>
+        <argsstring>(SYN_OTA_Manager *mgr, uint8_t slot_idx)</argsstring>
+        <name>syn_ota_set_target_slot</name>
+        <param>
+          <type><ref refid="structSYN__OTA__Manager" kindref="compound">SYN_OTA_Manager</ref> *</type>
+          <declname>mgr</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>slot_idx</declname>
+        </param>
+        <briefdescription>
+<para>Configure target flash slot (explicit slot index or automatic selection). </para>
+        </briefdescription>
+        <detaileddescription>
+<para>If set to SYN_OTA_SLOT_AUTO, <ref refid="syn__ota_8h_1a643dabd9d7d8537d49d57eb88a0e0547" kindref="member">syn_ota_begin()</ref> will automatically pick the currently inactive slot based on boot_mgr-&gt;active_slot.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>mgr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>OTA manager instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>slot_idx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>SYN_FW_SLOT_A (0), SYN_FW_SLOT_B (1), or SYN_OTA_SLOT_AUTO (0xFF). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_INVALID_PARAM on invalid slot index. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/system/syn_ota.c" line="78" column="12" bodyfile="src/syntropic/system/syn_ota.c" bodystart="78" bodyend="92"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__ota_8c_1a71623b0db9fd41a60264e0f9796014b1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_ota_set_verification_key</definition>
+        <argsstring>(SYN_OTA_Manager *mgr, SYN_OTA_CryptoMode mode, const uint8_t *key, size_t key_len)</argsstring>
+        <name>syn_ota_set_verification_key</name>
+        <param>
+          <type><ref refid="structSYN__OTA__Manager" kindref="compound">SYN_OTA_Manager</ref> *</type>
+          <declname>mgr</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__ota_8h_1a8ef8fe96d8e4b3f4a25210e14d7e5c4a" kindref="member">SYN_OTA_CryptoMode</ref></type>
+          <declname>mode</declname>
+        </param>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>key</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>key_len</declname>
+        </param>
+        <briefdescription>
+<para>Configure cryptographic verification key. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>mgr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>OTA manager instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>mode</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Cryptographic verification mode. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>key</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Secret key or public key buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>key_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Length of key buffer. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_INVALID_PARAM or SYN_ERROR on unsupported mode. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/system/syn_ota.c" line="94" column="12" bodyfile="src/syntropic/system/syn_ota.c" bodystart="94" bodyend="141"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__ota_8c_1aaa106c9d385914080bfb37a6b5fe97c7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_ota_set_aes_gcm_params</definition>
+        <argsstring>(SYN_OTA_Manager *mgr, const uint8_t *key, size_t key_len, const uint8_t *iv, size_t iv_len)</argsstring>
+        <name>syn_ota_set_aes_gcm_params</name>
+        <param>
+          <type><ref refid="structSYN__OTA__Manager" kindref="compound">SYN_OTA_Manager</ref> *</type>
+          <declname>mgr</declname>
+        </param>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>key</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>key_len</declname>
+        </param>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>iv</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>iv_len</declname>
+        </param>
+        <briefdescription>
+<para>Configure AES-GCM decryption key and IV for encrypted updates. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>mgr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>OTA manager instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>key</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>AES key (16, 24, or 32 bytes). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>key_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Key length in bytes. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>iv</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>12-byte initialization vector / nonce. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>iv_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Length of IV (must be 12). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_INVALID_PARAM or SYN_ERROR if AES-GCM disabled. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/system/syn_ota.c" line="143" column="12" bodyfile="src/syntropic/system/syn_ota.c" bodystart="143" bodyend="168"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__ota_8c_1a643dabd9d7d8537d49d57eb88a0e0547" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_ota_begin</definition>
+        <argsstring>(SYN_OTA_Manager *mgr, uint32_t expected_total_sz, uint32_t target_version, uint32_t expected_crc)</argsstring>
+        <name>syn_ota_begin</name>
+        <param>
+          <type><ref refid="structSYN__OTA__Manager" kindref="compound">SYN_OTA_Manager</ref> *</type>
+          <declname>mgr</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>expected_total_sz</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>target_version</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>expected_crc</declname>
+        </param>
+        <briefdescription>
+<para>Begin a new OTA firmware update session. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Resolves target slot, erases initial flash sector, primes running digests, and enters SYN_OTA_STATE_DOWNLOADING.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>mgr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>OTA manager instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>expected_total_sz</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Total expected firmware binary size (excl header). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>target_version</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Version code for the incoming firmware. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>expected_crc</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Expected CRC-32 checksum (0 to compute dynamically). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, error code on flash erase or configuration failure. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/system/syn_ota.c" line="170" column="12" bodyfile="src/syntropic/system/syn_ota.c" bodystart="170" bodyend="238"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__ota_8c_1a1a674f7120ddc6eaf8cf79a672866697" prot="public" static="yes" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>uint32_t</type>
+        <definition>static uint32_t syn_ota_bytes_ingested</definition>
+        <argsstring>(const SYN_OTA_Manager *mgr)</argsstring>
+        <name>syn_ota_bytes_ingested</name>
+        <param>
+          <type>const <ref refid="structSYN__OTA__Manager" kindref="compound">SYN_OTA_Manager</ref> *</type>
+          <declname>mgr</declname>
+        </param>
+        <briefdescription>
+<para>Calculate total bytes ingested across flash and in-memory page buffer. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>mgr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>OTA manager instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Total ingested bytes. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/system/syn_ota.c" line="245" column="24" bodyfile="src/syntropic/system/syn_ota.c" bodystart="245" bodyend="248"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__ota_8c_1aba7fa3f4e5786dd849a16d405eb3b682" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_ota_write_chunk</definition>
+        <argsstring>(SYN_OTA_Manager *mgr, const uint8_t *chunk, size_t chunk_sz)</argsstring>
+        <name>syn_ota_write_chunk</name>
+        <param>
+          <type><ref refid="structSYN__OTA__Manager" kindref="compound">SYN_OTA_Manager</ref> *</type>
+          <declname>mgr</declname>
+        </param>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>chunk</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>chunk_sz</declname>
+        </param>
+        <briefdescription>
+<para>Write a chunk of incoming firmware stream into the target flash slot. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>mgr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>OTA manager instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>chunk</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Incoming data chunk buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>chunk_sz</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Length of chunk in bytes. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_ERROR on flash write failure, overflow, or invalid state. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/system/syn_ota.c" line="250" column="12" bodyfile="src/syntropic/system/syn_ota.c" bodystart="250" bodyend="282"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__ota_8c_1aa7151e16a27eb4679ce1a1421b427c02" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_ota_finish</definition>
+        <argsstring>(SYN_OTA_Manager *mgr, const uint8_t *expected_sig_or_tag, size_t sig_len)</argsstring>
+        <name>syn_ota_finish</name>
+        <param>
+          <type><ref refid="structSYN__OTA__Manager" kindref="compound">SYN_OTA_Manager</ref> *</type>
+          <declname>mgr</declname>
+        </param>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>expected_sig_or_tag</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>sig_len</declname>
+        </param>
+        <briefdescription>
+<para>Finalize and verify the downloaded firmware image. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Flushes page buffers, verifies CRC-32 and cryptographic signature / HMAC / GCM tag, and writes the new image header to mark the slot as SYN_FW_STATE_NEW.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>mgr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>OTA manager instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>expected_sig_or_tag</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Expected signature, HMAC, or GCM tag (NULL if CRC-32 only). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>sig_len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Length of expected signature / tag buffer. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on successful verification, SYN_ERROR on verification failure. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/system/syn_ota.c" line="284" column="12" bodyfile="src/syntropic/system/syn_ota.c" bodystart="284" bodyend="345"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__ota_8c_1a04c45bec610e5bbdba873f4e1416ba66" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_ota_apply</definition>
+        <argsstring>(SYN_OTA_Manager *mgr)</argsstring>
+        <name>syn_ota_apply</name>
+        <param>
+          <type><ref refid="structSYN__OTA__Manager" kindref="compound">SYN_OTA_Manager</ref> *</type>
+          <declname>mgr</declname>
+        </param>
+        <briefdescription>
+<para>Mark the verified slot as ready for immediate boot on next system restart. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Promotes OTA state to SYN_OTA_STATE_APPLIED and synchronizes LwM2M Object 5.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>mgr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>OTA manager instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_ERROR if not in READY_TO_APPLY state. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/system/syn_ota.c" line="347" column="12" bodyfile="src/syntropic/system/syn_ota.c" bodystart="347" bodyend="359"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__ota_8c_1ad06ab6726324ed1b668ecd6e75b12db3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_ota_abort</definition>
+        <argsstring>(SYN_OTA_Manager *mgr, SYN_OTA_ErrorCode err)</argsstring>
+        <name>syn_ota_abort</name>
+        <param>
+          <type><ref refid="structSYN__OTA__Manager" kindref="compound">SYN_OTA_Manager</ref> *</type>
+          <declname>mgr</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__ota_8h_1a8b8f621c4bdf4f0cf70efadda2eda96c" kindref="member">SYN_OTA_ErrorCode</ref></type>
+          <declname>err</declname>
+        </param>
+        <briefdescription>
+<para>Abort an active or failed OTA session. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Invalidate the target flash slot header and resets state to SYN_OTA_STATE_IDLE or ERROR.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>mgr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>OTA manager instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>err</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Error code triggering the abort. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/system/syn_ota.c" line="361" column="6" bodyfile="src/syntropic/system/syn_ota.c" bodystart="361" bodyend="374"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__ota_8c_1adbaa007c0106f0b015d947ad3ae5fc1d" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_ota_get_progress</definition>
+        <argsstring>(const SYN_OTA_Manager *mgr, uint32_t *out_written, uint32_t *out_total, uint8_t *out_percent)</argsstring>
+        <name>syn_ota_get_progress</name>
+        <param>
+          <type>const <ref refid="structSYN__OTA__Manager" kindref="compound">SYN_OTA_Manager</ref> *</type>
+          <declname>mgr</declname>
+        </param>
+        <param>
+          <type>uint32_t *</type>
+          <declname>out_written</declname>
+        </param>
+        <param>
+          <type>uint32_t *</type>
+          <declname>out_total</declname>
+        </param>
+        <param>
+          <type>uint8_t *</type>
+          <declname>out_percent</declname>
+        </param>
+        <briefdescription>
+<para>Query current OTA download and flash write progress. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>mgr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>OTA manager instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out_written</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>[out] Bytes written so far (optional, may be NULL). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out_total</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>[out] Total expected bytes (optional, may be NULL). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out_percent</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>[out] Integer percentage 0..100 (optional, may be NULL). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_INVALID_PARAM on NULL mgr. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/system/syn_ota.c" line="376" column="12" bodyfile="src/syntropic/system/syn_ota.c" bodystart="376" bodyend="405"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__ota_8c_1a2ef46856a5ac661a4d4d98fe131cf27b" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__ota_8h_1a9a9540143ed7763111bb9ee78eb1bea6" kindref="member">SYN_OTA_State</ref></type>
+        <definition>SYN_OTA_State syn_ota_get_state</definition>
+        <argsstring>(const SYN_OTA_Manager *mgr)</argsstring>
+        <name>syn_ota_get_state</name>
+        <param>
+          <type>const <ref refid="structSYN__OTA__Manager" kindref="compound">SYN_OTA_Manager</ref> *</type>
+          <declname>mgr</declname>
+        </param>
+        <briefdescription>
+<para>Get current OTA lifecycle state. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>mgr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>OTA manager instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Current SYN_OTA_State. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/system/syn_ota.c" line="407" column="15" bodyfile="src/syntropic/system/syn_ota.c" bodystart="407" bodyend="413"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__ota_8c_1a6683aee6b3a038668df09adf84840184" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__ota_8h_1a8b8f621c4bdf4f0cf70efadda2eda96c" kindref="member">SYN_OTA_ErrorCode</ref></type>
+        <definition>SYN_OTA_ErrorCode syn_ota_get_last_error</definition>
+        <argsstring>(const SYN_OTA_Manager *mgr)</argsstring>
+        <name>syn_ota_get_last_error</name>
+        <param>
+          <type>const <ref refid="structSYN__OTA__Manager" kindref="compound">SYN_OTA_Manager</ref> *</type>
+          <declname>mgr</declname>
+        </param>
+        <briefdescription>
+<para>Get last recorded error code. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>mgr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>OTA manager instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Last SYN_OTA_ErrorCode. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/system/syn_ota.c" line="415" column="19" bodyfile="src/syntropic/system/syn_ota.c" bodystart="415" bodyend="421"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__ota_8c_1ac15f0f454c1bdbb85daa12622e69a9d4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_ota_bind_lwm2m</definition>
+        <argsstring>(SYN_OTA_Manager *mgr, void *lwm2m_fw_ctx)</argsstring>
+        <name>syn_ota_bind_lwm2m</name>
+        <param>
+          <type><ref refid="structSYN__OTA__Manager" kindref="compound">SYN_OTA_Manager</ref> *</type>
+          <declname>mgr</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>lwm2m_fw_ctx</declname>
+        </param>
+        <briefdescription>
+<para>Bind an OMA LwM2M Object 5 (Firmware Update) context to the OTA manager. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Allows automatic bidirectional synchronization between OTA progress/states and LwM2M.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>mgr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>OTA manager instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>lwm2m_fw_ctx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to <ref refid="structSYN__LwM2M__FirmwareContext" kindref="compound">SYN_LwM2M_FirmwareContext</ref> instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/system/syn_ota.c" line="423" column="12" bodyfile="src/syntropic/system/syn_ota.c" bodystart="423" bodyend="431"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__ota_8c_1aadd1c7dbeb1305423b0e90d11cbd6550" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_ota_sync_lwm2m</definition>
+        <argsstring>(SYN_OTA_Manager *mgr)</argsstring>
+        <name>syn_ota_sync_lwm2m</name>
+        <param>
+          <type><ref refid="structSYN__OTA__Manager" kindref="compound">SYN_OTA_Manager</ref> *</type>
+          <declname>mgr</declname>
+        </param>
+        <briefdescription>
+<para>Synchronize OTA state and results into bound LwM2M Object 5 context. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>mgr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>OTA manager instance. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/system/syn_ota.c" line="433" column="6" bodyfile="src/syntropic/system/syn_ota.c" bodystart="433" bodyend="487"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Secure Streaming OTA Orchestrator implementation. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#if<sp/>__has_include(&quot;syn_config.h&quot;)</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;syn_config.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="4"><highlight class="normal"></highlight></codeline>
+<codeline lineno="5"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>!defined(SYN_USE_OTA)<sp/>||<sp/>SYN_USE_OTA</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../util/syn_assert.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__ota_8h" kindref="compound">syn_ota.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;string.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>LwM2M<sp/>Object<sp/>5<sp/>Forward<sp/>Types<sp/>(if<sp/>bound)<sp/>───────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="23"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__ota_8c_1a5f766a9b1d954041da97f04e1cb6e23fa6ba505a71b4c491c01d4ad9cc598fab6" kindref="member">LWM2M_FW_STATE_IDLE</ref><sp/>=<sp/>0,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__ota_8c_1a5f766a9b1d954041da97f04e1cb6e23fac70923f2fe82046d7b9c20565c5693ed" kindref="member">LWM2M_FW_STATE_DOWNLOADING</ref><sp/>=<sp/>1,<sp/></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__ota_8c_1a5f766a9b1d954041da97f04e1cb6e23face98cc6a9fd931d0ab06ab09c48e405e" kindref="member">LWM2M_FW_STATE_DOWNLOADED</ref><sp/>=<sp/>2,<sp/><sp/></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__ota_8c_1a5f766a9b1d954041da97f04e1cb6e23fa67011e5debc896b272d47c07c30a04c8" kindref="member">LWM2M_FW_STATE_UPDATING</ref><sp/>=<sp/>3,<sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="27"><highlight class="normal">}<sp/><ref refid="syn__ota_8c_1a5f766a9b1d954041da97f04e1cb6e23f" kindref="member">LwM2M_FwState</ref>;</highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">enum</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="33"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__ota_8c_1a172c6f973585d82c16ae71d3ee4f315ca18a20d31ac4a7ff89c76b5ee34ed6207" kindref="member">LWM2M_FW_RES_DEFAULT</ref><sp/>=<sp/>0,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__ota_8c_1a172c6f973585d82c16ae71d3ee4f315ca13ec454c16b0b08df677f9c45ac24c9c" kindref="member">LWM2M_FW_RES_SUCCESS</ref><sp/>=<sp/>1,<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="35"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__ota_8c_1a172c6f973585d82c16ae71d3ee4f315ca13b6b050acd170c29fde1f931a5dd33f" kindref="member">LWM2M_FW_RES_NO_FLASH</ref><sp/>=<sp/>2,<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__ota_8c_1a172c6f973585d82c16ae71d3ee4f315ca92b40042ed129942a7ba1f48098992b9" kindref="member">LWM2M_FW_RES_OUT_OF_RAM</ref><sp/>=<sp/>3,<sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__ota_8c_1a172c6f973585d82c16ae71d3ee4f315ca8163b76991697e18ed964b8fbc5faa4d" kindref="member">LWM2M_FW_RES_CONN_LOST</ref><sp/>=<sp/>4,<sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__ota_8c_1a172c6f973585d82c16ae71d3ee4f315ca5971040dcc0c59af9e016ec506094028" kindref="member">LWM2M_FW_RES_INTEGRITY_FAIL</ref><sp/>=<sp/>5,<sp/></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__ota_8c_1a172c6f973585d82c16ae71d3ee4f315ca052245093e518841362a73b7454df241" kindref="member">LWM2M_FW_RES_BAD_PKG_TYPE</ref><sp/>=<sp/>6,<sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__ota_8c_1a172c6f973585d82c16ae71d3ee4f315ca2cab7fd7ae8c95d71d877f5883b75f33" kindref="member">LWM2M_FW_RES_INVALID_URI</ref><sp/>=<sp/>7,<sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="41"><highlight class="normal">}<sp/><ref refid="syn__ota_8c_1a172c6f973585d82c16ae71d3ee4f315c" kindref="member">LwM2M_FwResult</ref>;</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"></highlight></codeline>
+<codeline lineno="46" refid="structLwM2M__FwCtx" refkind="compound"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">struct<sp/></highlight><highlight class="normal">{</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__ota_8c_1a5f766a9b1d954041da97f04e1cb6e23f" kindref="member">LwM2M_FwState</ref><sp/>state;<sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__ota_8c_1a172c6f973585d82c16ae71d3ee4f315c" kindref="member">LwM2M_FwResult</ref><sp/>result;<sp/></highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>package_uri[128];<sp/></highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>pkg_name[32];<sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>pkg_version[32];<sp/><sp/></highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>update_requested;<sp/></highlight></codeline>
+<codeline lineno="53"><highlight class="normal">}<sp/><ref refid="structLwM2M__FwCtx" kindref="compound">LwM2M_FwCtx</ref>;</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"></highlight></codeline>
+<codeline lineno="55"><highlight class="normal"></highlight><highlight class="comment">/*<sp/>──<sp/>API<sp/>Implementation<sp/>───────────────────────────────────────────────────<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="56"><highlight class="normal"></highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__ota_8c_1a0885a976ed05fce8c6f6621df2f2ccdd" kindref="member">syn_ota_init</ref>(<ref refid="structSYN__OTA__Manager" kindref="compound">SYN_OTA_Manager</ref><sp/>*mgr,<sp/><ref refid="structSYN__FwBootManager" kindref="compound">SYN_FwBootManager</ref><sp/>*boot_mgr,<sp/>uint32_t<sp/>slot_size,</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>*page_buf,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>page_buf_sz)</highlight></codeline>
+<codeline lineno="59"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(mgr<sp/>==<sp/>NULL<sp/>||<sp/>boot_mgr<sp/>==<sp/>NULL<sp/>||<sp/>page_buf<sp/>==<sp/>NULL<sp/>||<sp/>page_buf_sz<sp/>&lt;<sp/>16U<sp/>||</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>slot_size<sp/>&lt;=<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(<ref refid="structSYN__FwImageHeader" kindref="compound">SYN_FwImageHeader</ref>))<sp/>{</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"></highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/><sp/><sp/>(void)memset(mgr,<sp/>0,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(*mgr));</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/><sp/><sp/>mgr-&gt;<ref refid="structSYN__OTA__Manager_1aa1e0757bd43e37fdb06d381fcb7b530b" kindref="member">boot_mgr</ref><sp/>=<sp/>boot_mgr;</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/><sp/><sp/>mgr-&gt;<ref refid="structSYN__OTA__Manager_1a21cb4117b11367ec02d4ddb40b15e269" kindref="member">slot_size</ref><sp/>=<sp/>slot_size;</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/><sp/><sp/>mgr-&gt;<ref refid="structSYN__OTA__Manager_1ab9f3108a2c955de7a5cc12f19c42baf4" kindref="member">page_buf</ref><sp/>=<sp/>page_buf;</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/>mgr-&gt;<ref refid="structSYN__OTA__Manager_1a90654347292cce9446f156d52c9f5f57" kindref="member">page_buf_sz</ref><sp/>=<sp/>page_buf_sz;</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/><sp/><sp/>mgr-&gt;<ref refid="structSYN__OTA__Manager_1ab6c8af29fcbed198b8d0efe811e3a15b" kindref="member">target_slot</ref><sp/>=<sp/><ref refid="syn__ota_8h_1a6f748ac21f6c059dc5e7b435c015fcbc" kindref="member">SYN_OTA_SLOT_AUTO</ref>;</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"><sp/><sp/><sp/><sp/>mgr-&gt;<ref refid="structSYN__OTA__Manager_1a112a3dddb8ed934a0207460b81e447f0" kindref="member">state</ref><sp/>=<sp/><ref refid="syn__ota_8h_1a9a9540143ed7763111bb9ee78eb1bea6a2a84f32257d9bce8e0f04ae371f0d20d" kindref="member">SYN_OTA_STATE_IDLE</ref>;</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"><sp/><sp/><sp/><sp/>mgr-&gt;<ref refid="structSYN__OTA__Manager_1a28b4e42b1a6f100b6064745faadf2931" kindref="member">last_error</ref><sp/>=<sp/><ref refid="syn__ota_8h_1a8b8f621c4bdf4f0cf70efadda2eda96ca3edb3b69f91e8dd906b893742341132c" kindref="member">SYN_OTA_ERR_NONE</ref>;</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><sp/><sp/><sp/><sp/>mgr-&gt;<ref refid="structSYN__OTA__Manager_1af49834a19daedbbdc970c809a52119a0" kindref="member">crypto_mode</ref><sp/>=<sp/><ref refid="syn__ota_8h_1a8ef8fe96d8e4b3f4a25210e14d7e5c4aa453d09ca15ec1e2e60c11ec1b27acda5" kindref="member">SYN_OTA_CRYPTO_NONE</ref>;</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"></highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="76"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"></highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__ota_8c_1a4f14cfaebe03612756bbbad9213ac6a6" kindref="member">syn_ota_set_target_slot</ref>(<ref refid="structSYN__OTA__Manager" kindref="compound">SYN_OTA_Manager</ref><sp/>*mgr,<sp/>uint8_t<sp/>slot_idx)</highlight></codeline>
+<codeline lineno="79"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(mgr<sp/>==<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(mgr-&gt;<ref refid="structSYN__OTA__Manager_1a112a3dddb8ed934a0207460b81e447f0" kindref="member">state</ref><sp/>!=<sp/><ref refid="syn__ota_8h_1a9a9540143ed7763111bb9ee78eb1bea6a2a84f32257d9bce8e0f04ae371f0d20d" kindref="member">SYN_OTA_STATE_IDLE</ref><sp/>&amp;&amp;<sp/>mgr-&gt;<ref refid="structSYN__OTA__Manager_1a112a3dddb8ed934a0207460b81e447f0" kindref="member">state</ref><sp/>!=<sp/><ref refid="syn__ota_8h_1a9a9540143ed7763111bb9ee78eb1bea6afed8229e046592fca5263c30885421e2" kindref="member">SYN_OTA_STATE_ERROR</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00acd5d2701b7cfa9fb446640ecbeb19fc9" kindref="member">SYN_ERROR</ref>;</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(slot_idx<sp/>!=<sp/><ref refid="syn__fwboot_8h_1a77b8a8c6b9f6a299eb649b5466bb4ce9" kindref="member">SYN_FW_SLOT_A</ref><sp/>&amp;&amp;<sp/>slot_idx<sp/>!=<sp/><ref refid="syn__fwboot_8h_1a6c027ae9439a524174865f00a1dd72fb" kindref="member">SYN_FW_SLOT_B</ref><sp/>&amp;&amp;<sp/>slot_idx<sp/>!=<sp/><ref refid="syn__ota_8h_1a6f748ac21f6c059dc5e7b435c015fcbc" kindref="member">SYN_OTA_SLOT_AUTO</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"></highlight></codeline>
+<codeline lineno="90"><highlight class="normal"><sp/><sp/><sp/><sp/>mgr-&gt;<ref refid="structSYN__OTA__Manager_1ab6c8af29fcbed198b8d0efe811e3a15b" kindref="member">target_slot</ref><sp/>=<sp/>slot_idx;</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="92"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"></highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__ota_8c_1a71623b0db9fd41a60264e0f9796014b1" kindref="member">syn_ota_set_verification_key</ref>(<ref refid="structSYN__OTA__Manager" kindref="compound">SYN_OTA_Manager</ref><sp/>*mgr,<sp/><ref refid="syn__ota_8h_1a8ef8fe96d8e4b3f4a25210e14d7e5c4a" kindref="member">SYN_OTA_CryptoMode</ref><sp/>mode,</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*key,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>key_len)</highlight></codeline>
+<codeline lineno="96"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(mgr<sp/>==<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(mgr-&gt;<ref refid="structSYN__OTA__Manager_1a112a3dddb8ed934a0207460b81e447f0" kindref="member">state</ref><sp/>!=<sp/><ref refid="syn__ota_8h_1a9a9540143ed7763111bb9ee78eb1bea6a2a84f32257d9bce8e0f04ae371f0d20d" kindref="member">SYN_OTA_STATE_IDLE</ref><sp/>&amp;&amp;<sp/>mgr-&gt;<ref refid="structSYN__OTA__Manager_1a112a3dddb8ed934a0207460b81e447f0" kindref="member">state</ref><sp/>!=<sp/><ref refid="syn__ota_8h_1a9a9540143ed7763111bb9ee78eb1bea6afed8229e046592fca5263c30885421e2" kindref="member">SYN_OTA_STATE_ERROR</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00acd5d2701b7cfa9fb446640ecbeb19fc9" kindref="member">SYN_ERROR</ref>;</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"></highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">switch</highlight><highlight class="normal"><sp/>(mode)<sp/>{</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__ota_8h_1a8ef8fe96d8e4b3f4a25210e14d7e5c4aa453d09ca15ec1e2e60c11ec1b27acda5" kindref="member">SYN_OTA_CRYPTO_NONE</ref>:</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>mgr-&gt;<ref refid="structSYN__OTA__Manager_1af49834a19daedbbdc970c809a52119a0" kindref="member">crypto_mode</ref><sp/>=<sp/><ref refid="syn__ota_8h_1a8ef8fe96d8e4b3f4a25210e14d7e5c4aa453d09ca15ec1e2e60c11ec1b27acda5" kindref="member">SYN_OTA_CRYPTO_NONE</ref>;</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"></highlight></codeline>
+<codeline lineno="109"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__ota_8h_1a8ef8fe96d8e4b3f4a25210e14d7e5c4aa99041467470f6d798bdc460f0f9be6e4" kindref="member">SYN_OTA_CRYPTO_HMAC_SHA256</ref>:</highlight></codeline>
+<codeline lineno="110"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(SYN_FW_USE_HMAC)<sp/>&amp;&amp;<sp/>SYN_FW_USE_HMAC</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="111"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(key<sp/>==<sp/>NULL<sp/>||<sp/>key_len<sp/>==<sp/>0U<sp/>||<sp/>key_len<sp/>&gt;<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(mgr-&gt;hmac_key))<sp/>{</highlight></codeline>
+<codeline lineno="112"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="113"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(void)memcpy(mgr-&gt;hmac_key,<sp/>key,<sp/>key_len);</highlight></codeline>
+<codeline lineno="115"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>mgr-&gt;hmac_key_len<sp/>=<sp/>key_len;</highlight></codeline>
+<codeline lineno="116"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>mgr-&gt;hmac_key_set<sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="117"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>mgr-&gt;<ref refid="structSYN__OTA__Manager_1af49834a19daedbbdc970c809a52119a0" kindref="member">crypto_mode</ref><sp/>=<sp/><ref refid="syn__ota_8h_1a8ef8fe96d8e4b3f4a25210e14d7e5c4aa99041467470f6d798bdc460f0f9be6e4" kindref="member">SYN_OTA_CRYPTO_HMAC_SHA256</ref>;</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"></highlight><highlight class="preprocessor">#else</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="120"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>mgr-&gt;<ref refid="structSYN__OTA__Manager_1a28b4e42b1a6f100b6064745faadf2931" kindref="member">last_error</ref><sp/>=<sp/><ref refid="syn__ota_8h_1a8b8f621c4bdf4f0cf70efadda2eda96cabad93bd187d6fe7fbf81b2aaa6900acf" kindref="member">SYN_OTA_ERR_UNSUPPORTED_CRYPTO</ref>;</highlight></codeline>
+<codeline lineno="121"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00acd5d2701b7cfa9fb446640ecbeb19fc9" kindref="member">SYN_ERROR</ref>;</highlight></codeline>
+<codeline lineno="122"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="123"><highlight class="normal"></highlight></codeline>
+<codeline lineno="124"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__ota_8h_1a8ef8fe96d8e4b3f4a25210e14d7e5c4aa2b6d1fcc77beaf0abb9586645fe18524" kindref="member">SYN_OTA_CRYPTO_ED25519</ref>:</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(SYN_FW_USE_ED25519)<sp/>&amp;&amp;<sp/>SYN_FW_USE_ED25519</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="126"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(key<sp/>==<sp/>NULL<sp/>||<sp/>key_len<sp/>!=<sp/>32U)<sp/>{</highlight></codeline>
+<codeline lineno="127"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="128"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="129"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(void)memcpy(mgr-&gt;ed25519_pubkey,<sp/>key,<sp/>32U);</highlight></codeline>
+<codeline lineno="130"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>mgr-&gt;ed25519_key_set<sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="131"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>mgr-&gt;<ref refid="structSYN__OTA__Manager_1af49834a19daedbbdc970c809a52119a0" kindref="member">crypto_mode</ref><sp/>=<sp/><ref refid="syn__ota_8h_1a8ef8fe96d8e4b3f4a25210e14d7e5c4aa2b6d1fcc77beaf0abb9586645fe18524" kindref="member">SYN_OTA_CRYPTO_ED25519</ref>;</highlight></codeline>
+<codeline lineno="132"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="133"><highlight class="normal"></highlight><highlight class="preprocessor">#else</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="134"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>mgr-&gt;<ref refid="structSYN__OTA__Manager_1a28b4e42b1a6f100b6064745faadf2931" kindref="member">last_error</ref><sp/>=<sp/><ref refid="syn__ota_8h_1a8b8f621c4bdf4f0cf70efadda2eda96cabad93bd187d6fe7fbf81b2aaa6900acf" kindref="member">SYN_OTA_ERR_UNSUPPORTED_CRYPTO</ref>;</highlight></codeline>
+<codeline lineno="135"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00acd5d2701b7cfa9fb446640ecbeb19fc9" kindref="member">SYN_ERROR</ref>;</highlight></codeline>
+<codeline lineno="136"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="137"><highlight class="normal"></highlight></codeline>
+<codeline lineno="138"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">default</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="139"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="140"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="141"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="142"><highlight class="normal"></highlight></codeline>
+<codeline lineno="143"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__ota_8c_1aaa106c9d385914080bfb37a6b5fe97c7" kindref="member">syn_ota_set_aes_gcm_params</ref>(<ref refid="structSYN__OTA__Manager" kindref="compound">SYN_OTA_Manager</ref><sp/>*mgr,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*key,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>key_len,</highlight></codeline>
+<codeline lineno="144"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*iv,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>iv_len)</highlight></codeline>
+<codeline lineno="145"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="146"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(mgr<sp/>==<sp/>NULL<sp/>||<sp/>key<sp/>==<sp/>NULL<sp/>||<sp/>iv<sp/>==<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="147"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="148"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="149"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(mgr-&gt;<ref refid="structSYN__OTA__Manager_1a112a3dddb8ed934a0207460b81e447f0" kindref="member">state</ref><sp/>!=<sp/><ref refid="syn__ota_8h_1a9a9540143ed7763111bb9ee78eb1bea6a2a84f32257d9bce8e0f04ae371f0d20d" kindref="member">SYN_OTA_STATE_IDLE</ref><sp/>&amp;&amp;<sp/>mgr-&gt;<ref refid="structSYN__OTA__Manager_1a112a3dddb8ed934a0207460b81e447f0" kindref="member">state</ref><sp/>!=<sp/><ref refid="syn__ota_8h_1a9a9540143ed7763111bb9ee78eb1bea6afed8229e046592fca5263c30885421e2" kindref="member">SYN_OTA_STATE_ERROR</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="150"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00acd5d2701b7cfa9fb446640ecbeb19fc9" kindref="member">SYN_ERROR</ref>;</highlight></codeline>
+<codeline lineno="151"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="152"><highlight class="normal"></highlight></codeline>
+<codeline lineno="153"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(SYN_FW_USE_AES_GCM)<sp/>&amp;&amp;<sp/>SYN_FW_USE_AES_GCM</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="154"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>((key_len<sp/>!=<sp/>16U<sp/>&amp;&amp;<sp/>key_len<sp/>!=<sp/>24U<sp/>&amp;&amp;<sp/>key_len<sp/>!=<sp/>32U)<sp/>||<sp/>iv_len<sp/>!=<sp/>12U)<sp/>{</highlight></codeline>
+<codeline lineno="155"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="156"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="157"><highlight class="normal"></highlight></codeline>
+<codeline lineno="158"><highlight class="normal"><sp/><sp/><sp/><sp/>(void)memcpy(mgr-&gt;gcm_key,<sp/>key,<sp/>key_len);</highlight></codeline>
+<codeline lineno="159"><highlight class="normal"><sp/><sp/><sp/><sp/>mgr-&gt;gcm_key_len<sp/>=<sp/>key_len;</highlight></codeline>
+<codeline lineno="160"><highlight class="normal"><sp/><sp/><sp/><sp/>(void)memcpy(mgr-&gt;gcm_iv,<sp/>iv,<sp/>12U);</highlight></codeline>
+<codeline lineno="161"><highlight class="normal"><sp/><sp/><sp/><sp/>mgr-&gt;gcm_key_set<sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="162"><highlight class="normal"><sp/><sp/><sp/><sp/>mgr-&gt;<ref refid="structSYN__OTA__Manager_1af49834a19daedbbdc970c809a52119a0" kindref="member">crypto_mode</ref><sp/>=<sp/><ref refid="syn__ota_8h_1a8ef8fe96d8e4b3f4a25210e14d7e5c4aa30d5c013f7549d70dabf14b1ace84d2c" kindref="member">SYN_OTA_CRYPTO_AES_GCM</ref>;</highlight></codeline>
+<codeline lineno="163"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="164"><highlight class="normal"></highlight><highlight class="preprocessor">#else</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="165"><highlight class="normal"><sp/><sp/><sp/><sp/>mgr-&gt;<ref refid="structSYN__OTA__Manager_1a28b4e42b1a6f100b6064745faadf2931" kindref="member">last_error</ref><sp/>=<sp/><ref refid="syn__ota_8h_1a8b8f621c4bdf4f0cf70efadda2eda96cabad93bd187d6fe7fbf81b2aaa6900acf" kindref="member">SYN_OTA_ERR_UNSUPPORTED_CRYPTO</ref>;</highlight></codeline>
+<codeline lineno="166"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00acd5d2701b7cfa9fb446640ecbeb19fc9" kindref="member">SYN_ERROR</ref>;</highlight></codeline>
+<codeline lineno="167"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="168"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="169"><highlight class="normal"></highlight></codeline>
+<codeline lineno="170"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__ota_8c_1a643dabd9d7d8537d49d57eb88a0e0547" kindref="member">syn_ota_begin</ref>(<ref refid="structSYN__OTA__Manager" kindref="compound">SYN_OTA_Manager</ref><sp/>*mgr,<sp/>uint32_t<sp/>expected_total_sz,<sp/>uint32_t<sp/>target_version,</highlight></codeline>
+<codeline lineno="171"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>expected_crc)</highlight></codeline>
+<codeline lineno="172"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="173"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(mgr<sp/>==<sp/>NULL<sp/>||<sp/>mgr-&gt;<ref refid="structSYN__OTA__Manager_1aa1e0757bd43e37fdb06d381fcb7b530b" kindref="member">boot_mgr</ref><sp/>==<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="174"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="175"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="176"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(mgr-&gt;<ref refid="structSYN__OTA__Manager_1a112a3dddb8ed934a0207460b81e447f0" kindref="member">state</ref><sp/>!=<sp/><ref refid="syn__ota_8h_1a9a9540143ed7763111bb9ee78eb1bea6a2a84f32257d9bce8e0f04ae371f0d20d" kindref="member">SYN_OTA_STATE_IDLE</ref><sp/>&amp;&amp;<sp/>mgr-&gt;<ref refid="structSYN__OTA__Manager_1a112a3dddb8ed934a0207460b81e447f0" kindref="member">state</ref><sp/>!=<sp/><ref refid="syn__ota_8h_1a9a9540143ed7763111bb9ee78eb1bea6afed8229e046592fca5263c30885421e2" kindref="member">SYN_OTA_STATE_ERROR</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="177"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00acd5d2701b7cfa9fb446640ecbeb19fc9" kindref="member">SYN_ERROR</ref>;</highlight></codeline>
+<codeline lineno="178"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="179"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(expected_total_sz<sp/>==<sp/>0U<sp/>||</highlight></codeline>
+<codeline lineno="180"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(expected_total_sz<sp/>+<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(<ref refid="structSYN__FwImageHeader" kindref="compound">SYN_FwImageHeader</ref>))<sp/>&gt;<sp/>mgr-&gt;<ref refid="structSYN__OTA__Manager_1a21cb4117b11367ec02d4ddb40b15e269" kindref="member">slot_size</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="181"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>mgr-&gt;<ref refid="structSYN__OTA__Manager_1a28b4e42b1a6f100b6064745faadf2931" kindref="member">last_error</ref><sp/>=<sp/><ref refid="syn__ota_8h_1a8b8f621c4bdf4f0cf70efadda2eda96ca9b5648c44f6b20d615f94fe841521b8a" kindref="member">SYN_OTA_ERR_OUT_OF_SPACE</ref>;</highlight></codeline>
+<codeline lineno="182"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="183"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="184"><highlight class="normal"></highlight></codeline>
+<codeline lineno="185"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Resolve<sp/>destination<sp/>flash<sp/>slot<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="186"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>slot<sp/>=<sp/>mgr-&gt;<ref refid="structSYN__OTA__Manager_1ab6c8af29fcbed198b8d0efe811e3a15b" kindref="member">target_slot</ref>;</highlight></codeline>
+<codeline lineno="187"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(slot<sp/>==<sp/><ref refid="syn__ota_8h_1a6f748ac21f6c059dc5e7b435c015fcbc" kindref="member">SYN_OTA_SLOT_AUTO</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="188"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>active<sp/>=<sp/>mgr-&gt;<ref refid="structSYN__OTA__Manager_1aa1e0757bd43e37fdb06d381fcb7b530b" kindref="member">boot_mgr</ref>-&gt;<ref refid="structSYN__FwBootManager_1aa435244af10e836930d0415cd6503cf9" kindref="member">active_slot</ref>;</highlight></codeline>
+<codeline lineno="189"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>slot<sp/>=<sp/>(active<sp/>==<sp/><ref refid="syn__fwboot_8h_1a77b8a8c6b9f6a299eb649b5466bb4ce9" kindref="member">SYN_FW_SLOT_A</ref>)<sp/>?<sp/>(uint8_t)<ref refid="syn__fwboot_8h_1a6c027ae9439a524174865f00a1dd72fb" kindref="member">SYN_FW_SLOT_B</ref><sp/>:<sp/>(uint8_t)<ref refid="syn__fwboot_8h_1a77b8a8c6b9f6a299eb649b5466bb4ce9" kindref="member">SYN_FW_SLOT_A</ref>;</highlight></codeline>
+<codeline lineno="190"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="191"><highlight class="normal"></highlight></codeline>
+<codeline lineno="192"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(slot<sp/>&gt;<sp/>1U)<sp/>{</highlight></codeline>
+<codeline lineno="193"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>mgr-&gt;<ref refid="structSYN__OTA__Manager_1a28b4e42b1a6f100b6064745faadf2931" kindref="member">last_error</ref><sp/>=<sp/><ref refid="syn__ota_8h_1a8b8f621c4bdf4f0cf70efadda2eda96ca295f859f76f2da4dbaf1a35af3f70596" kindref="member">SYN_OTA_ERR_NO_FLASH_SLOT</ref>;</highlight></codeline>
+<codeline lineno="194"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>mgr-&gt;<ref refid="structSYN__OTA__Manager_1a112a3dddb8ed934a0207460b81e447f0" kindref="member">state</ref><sp/>=<sp/><ref refid="syn__ota_8h_1a9a9540143ed7763111bb9ee78eb1bea6afed8229e046592fca5263c30885421e2" kindref="member">SYN_OTA_STATE_ERROR</ref>;</highlight></codeline>
+<codeline lineno="195"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__ota_8c_1aadd1c7dbeb1305423b0e90d11cbd6550" kindref="member">syn_ota_sync_lwm2m</ref>(mgr);</highlight></codeline>
+<codeline lineno="196"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00acd5d2701b7cfa9fb446640ecbeb19fc9" kindref="member">SYN_ERROR</ref>;</highlight></codeline>
+<codeline lineno="197"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="198"><highlight class="normal"></highlight></codeline>
+<codeline lineno="199"><highlight class="normal"><sp/><sp/><sp/><sp/>mgr-&gt;<ref refid="structSYN__OTA__Manager_1ac5d99f4a648486074d1f3ae2a3104460" kindref="member">target_slot_addr</ref><sp/>=<sp/>mgr-&gt;<ref refid="structSYN__OTA__Manager_1aa1e0757bd43e37fdb06d381fcb7b530b" kindref="member">boot_mgr</ref>-&gt;<ref refid="structSYN__FwBootManager_1a4a19a82eac51800223ba47040947925c" kindref="member">slot_addr</ref>[slot];</highlight></codeline>
+<codeline lineno="200"><highlight class="normal"><sp/><sp/><sp/><sp/>mgr-&gt;<ref refid="structSYN__OTA__Manager_1a09522c67e6ece52aeb363bf84ad0f0f2" kindref="member">expected_total_sz</ref><sp/>=<sp/>expected_total_sz;</highlight></codeline>
+<codeline lineno="201"><highlight class="normal"><sp/><sp/><sp/><sp/>mgr-&gt;<ref refid="structSYN__OTA__Manager_1aceba590eb3fe6bbb48de8f562e7b8cac" kindref="member">target_version</ref><sp/>=<sp/>target_version;</highlight></codeline>
+<codeline lineno="202"><highlight class="normal"><sp/><sp/><sp/><sp/>mgr-&gt;<ref refid="structSYN__OTA__Manager_1a6cbb6b710c5dd3c6aaecc157c8b85677" kindref="member">expected_crc</ref><sp/>=<sp/>expected_crc;</highlight></codeline>
+<codeline lineno="203"><highlight class="normal"></highlight></codeline>
+<codeline lineno="204"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/>max_img_sz<sp/>=<sp/>mgr-&gt;<ref refid="structSYN__OTA__Manager_1a21cb4117b11367ec02d4ddb40b15e269" kindref="member">slot_size</ref><sp/>-<sp/>(uint32_t)</highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(<ref refid="structSYN__FwImageHeader" kindref="compound">SYN_FwImageHeader</ref>);</highlight></codeline>
+<codeline lineno="205"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/>st<sp/>=<sp/><ref refid="syn__fwupdate_8c_1a59bb4546413521e0fbff9e09adeb41d6" kindref="member">syn_fwupdate_begin</ref>(&amp;mgr-&gt;<ref refid="structSYN__OTA__Manager_1a7b7228377fba73a37d7e4a57294614cb" kindref="member">fw_upd</ref>,<sp/>mgr-&gt;<ref refid="structSYN__OTA__Manager_1ac5d99f4a648486074d1f3ae2a3104460" kindref="member">target_slot_addr</ref>,<sp/>max_img_sz,</highlight></codeline>
+<codeline lineno="206"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>mgr-&gt;<ref refid="structSYN__OTA__Manager_1ab9f3108a2c955de7a5cc12f19c42baf4" kindref="member">page_buf</ref>,<sp/>(uint16_t)mgr-&gt;<ref refid="structSYN__OTA__Manager_1a90654347292cce9446f156d52c9f5f57" kindref="member">page_buf_sz</ref>);</highlight></codeline>
+<codeline lineno="207"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(st<sp/>!=<sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="208"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>mgr-&gt;<ref refid="structSYN__OTA__Manager_1a28b4e42b1a6f100b6064745faadf2931" kindref="member">last_error</ref><sp/>=<sp/><ref refid="syn__ota_8h_1a8b8f621c4bdf4f0cf70efadda2eda96ca50552b2e80d7609f847deeda75d0a350" kindref="member">SYN_OTA_ERR_FLASH_ERASE</ref>;</highlight></codeline>
+<codeline lineno="209"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>mgr-&gt;<ref refid="structSYN__OTA__Manager_1a112a3dddb8ed934a0207460b81e447f0" kindref="member">state</ref><sp/>=<sp/><ref refid="syn__ota_8h_1a9a9540143ed7763111bb9ee78eb1bea6afed8229e046592fca5263c30885421e2" kindref="member">SYN_OTA_STATE_ERROR</ref>;</highlight></codeline>
+<codeline lineno="210"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__ota_8c_1aadd1c7dbeb1305423b0e90d11cbd6550" kindref="member">syn_ota_sync_lwm2m</ref>(mgr);</highlight></codeline>
+<codeline lineno="211"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>st;</highlight></codeline>
+<codeline lineno="212"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="213"><highlight class="normal"></highlight></codeline>
+<codeline lineno="214"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Configure<sp/>cryptographic<sp/>verification<sp/>hooks<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="215"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(SYN_FW_USE_HMAC)<sp/>&amp;&amp;<sp/>SYN_FW_USE_HMAC</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="216"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(mgr-&gt;<ref refid="structSYN__OTA__Manager_1af49834a19daedbbdc970c809a52119a0" kindref="member">crypto_mode</ref><sp/>==<sp/><ref refid="syn__ota_8h_1a8ef8fe96d8e4b3f4a25210e14d7e5c4aa99041467470f6d798bdc460f0f9be6e4" kindref="member">SYN_OTA_CRYPTO_HMAC_SHA256</ref><sp/>&amp;&amp;<sp/>mgr-&gt;hmac_key_set)<sp/>{</highlight></codeline>
+<codeline lineno="217"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>syn_fwupdate_set_key(&amp;mgr-&gt;<ref refid="structSYN__OTA__Manager_1a7b7228377fba73a37d7e4a57294614cb" kindref="member">fw_upd</ref>,<sp/>mgr-&gt;hmac_key,<sp/>mgr-&gt;hmac_key_len);</highlight></codeline>
+<codeline lineno="218"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="219"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="220"><highlight class="normal"></highlight></codeline>
+<codeline lineno="221"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(SYN_FW_USE_ED25519)<sp/>&amp;&amp;<sp/>SYN_FW_USE_ED25519</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="222"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(mgr-&gt;<ref refid="structSYN__OTA__Manager_1af49834a19daedbbdc970c809a52119a0" kindref="member">crypto_mode</ref><sp/>==<sp/><ref refid="syn__ota_8h_1a8ef8fe96d8e4b3f4a25210e14d7e5c4aa2b6d1fcc77beaf0abb9586645fe18524" kindref="member">SYN_OTA_CRYPTO_ED25519</ref><sp/>&amp;&amp;<sp/>mgr-&gt;ed25519_key_set)<sp/>{</highlight></codeline>
+<codeline lineno="223"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>syn_fwupdate_set_public_key(&amp;mgr-&gt;<ref refid="structSYN__OTA__Manager_1a7b7228377fba73a37d7e4a57294614cb" kindref="member">fw_upd</ref>,<sp/>mgr-&gt;ed25519_pubkey);</highlight></codeline>
+<codeline lineno="224"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="225"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="226"><highlight class="normal"></highlight></codeline>
+<codeline lineno="227"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(SYN_FW_USE_AES_GCM)<sp/>&amp;&amp;<sp/>SYN_FW_USE_AES_GCM</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="228"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(mgr-&gt;<ref refid="structSYN__OTA__Manager_1af49834a19daedbbdc970c809a52119a0" kindref="member">crypto_mode</ref><sp/>==<sp/><ref refid="syn__ota_8h_1a8ef8fe96d8e4b3f4a25210e14d7e5c4aa30d5c013f7549d70dabf14b1ace84d2c" kindref="member">SYN_OTA_CRYPTO_AES_GCM</ref><sp/>&amp;&amp;<sp/>mgr-&gt;gcm_key_set)<sp/>{</highlight></codeline>
+<codeline lineno="229"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(void)syn_fwupdate_set_aes_gcm_key(&amp;mgr-&gt;<ref refid="structSYN__OTA__Manager_1a7b7228377fba73a37d7e4a57294614cb" kindref="member">fw_upd</ref>,<sp/>mgr-&gt;gcm_key,<sp/>mgr-&gt;gcm_key_len,</highlight></codeline>
+<codeline lineno="230"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>mgr-&gt;gcm_iv,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(mgr-&gt;gcm_iv));</highlight></codeline>
+<codeline lineno="231"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="232"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="233"><highlight class="normal"></highlight></codeline>
+<codeline lineno="234"><highlight class="normal"><sp/><sp/><sp/><sp/>mgr-&gt;<ref refid="structSYN__OTA__Manager_1a112a3dddb8ed934a0207460b81e447f0" kindref="member">state</ref><sp/>=<sp/><ref refid="syn__ota_8h_1a9a9540143ed7763111bb9ee78eb1bea6a8c030628a16de4e4d8b75023f55734e6" kindref="member">SYN_OTA_STATE_DOWNLOADING</ref>;</highlight></codeline>
+<codeline lineno="235"><highlight class="normal"><sp/><sp/><sp/><sp/>mgr-&gt;<ref refid="structSYN__OTA__Manager_1a28b4e42b1a6f100b6064745faadf2931" kindref="member">last_error</ref><sp/>=<sp/><ref refid="syn__ota_8h_1a8b8f621c4bdf4f0cf70efadda2eda96ca3edb3b69f91e8dd906b893742341132c" kindref="member">SYN_OTA_ERR_NONE</ref>;</highlight></codeline>
+<codeline lineno="236"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__ota_8c_1aadd1c7dbeb1305423b0e90d11cbd6550" kindref="member">syn_ota_sync_lwm2m</ref>(mgr);</highlight></codeline>
+<codeline lineno="237"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="238"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="239"><highlight class="normal"></highlight></codeline>
+<codeline lineno="245"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">inline</highlight><highlight class="normal"><sp/>uint32_t<sp/><ref refid="syn__ota_8c_1a1a674f7120ddc6eaf8cf79a672866697" kindref="member">syn_ota_bytes_ingested</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__OTA__Manager" kindref="compound">SYN_OTA_Manager</ref><sp/>*mgr)</highlight></codeline>
+<codeline lineno="246"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="247"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>mgr-&gt;<ref refid="structSYN__OTA__Manager_1a7b7228377fba73a37d7e4a57294614cb" kindref="member">fw_upd</ref>.<ref refid="structSYN__FwUpdate_1ae2e7153cc4c52cc7cf4768ba0f26f728" kindref="member">bytes_written</ref><sp/>+<sp/>(uint32_t)mgr-&gt;<ref refid="structSYN__OTA__Manager_1a7b7228377fba73a37d7e4a57294614cb" kindref="member">fw_upd</ref>.<ref refid="structSYN__FwUpdate_1a6bf4937c7d7d82fcda517d975d198569" kindref="member">page_buf_used</ref>;</highlight></codeline>
+<codeline lineno="248"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="249"><highlight class="normal"></highlight></codeline>
+<codeline lineno="250"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__ota_8c_1aba7fa3f4e5786dd849a16d405eb3b682" kindref="member">syn_ota_write_chunk</ref>(<ref refid="structSYN__OTA__Manager" kindref="compound">SYN_OTA_Manager</ref><sp/>*mgr,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*chunk,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>chunk_sz)</highlight></codeline>
+<codeline lineno="251"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="252"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(mgr<sp/>==<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="253"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="254"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="255"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(chunk_sz<sp/>==<sp/>0U)<sp/>{</highlight></codeline>
+<codeline lineno="256"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="257"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="258"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(mgr-&gt;<ref refid="structSYN__OTA__Manager_1a112a3dddb8ed934a0207460b81e447f0" kindref="member">state</ref><sp/>!=<sp/><ref refid="syn__ota_8h_1a9a9540143ed7763111bb9ee78eb1bea6a8c030628a16de4e4d8b75023f55734e6" kindref="member">SYN_OTA_STATE_DOWNLOADING</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="259"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00acd5d2701b7cfa9fb446640ecbeb19fc9" kindref="member">SYN_ERROR</ref>;</highlight></codeline>
+<codeline lineno="260"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="261"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(chunk<sp/>==<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="262"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="263"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="264"><highlight class="normal"></highlight></codeline>
+<codeline lineno="265"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>((<ref refid="syn__ota_8c_1a1a674f7120ddc6eaf8cf79a672866697" kindref="member">syn_ota_bytes_ingested</ref>(mgr)<sp/>+<sp/>chunk_sz)<sp/>&gt;<sp/>mgr-&gt;<ref refid="structSYN__OTA__Manager_1a09522c67e6ece52aeb363bf84ad0f0f2" kindref="member">expected_total_sz</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="266"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__ota_8c_1ad06ab6726324ed1b668ecd6e75b12db3" kindref="member">syn_ota_abort</ref>(mgr,<sp/><ref refid="syn__ota_8h_1a8b8f621c4bdf4f0cf70efadda2eda96ca9b5648c44f6b20d615f94fe841521b8a" kindref="member">SYN_OTA_ERR_OUT_OF_SPACE</ref>);</highlight></codeline>
+<codeline lineno="267"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00acd5d2701b7cfa9fb446640ecbeb19fc9" kindref="member">SYN_ERROR</ref>;</highlight></codeline>
+<codeline lineno="268"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="269"><highlight class="normal"></highlight></codeline>
+<codeline lineno="270"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/>st<sp/>=<sp/><ref refid="syn__fwupdate_8c_1acc0f7d0ac4d290c9f557a91d02216480" kindref="member">syn_fwupdate_write</ref>(&amp;mgr-&gt;<ref refid="structSYN__OTA__Manager_1a7b7228377fba73a37d7e4a57294614cb" kindref="member">fw_upd</ref>,<sp/>chunk,<sp/>chunk_sz);</highlight></codeline>
+<codeline lineno="271"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(st<sp/>!=<sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="272"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__ota_8c_1ad06ab6726324ed1b668ecd6e75b12db3" kindref="member">syn_ota_abort</ref>(mgr,<sp/><ref refid="syn__ota_8h_1a8b8f621c4bdf4f0cf70efadda2eda96cae1da1686b7608b1821175a63f0554121" kindref="member">SYN_OTA_ERR_FLASH_WRITE</ref>);</highlight></codeline>
+<codeline lineno="273"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>st;</highlight></codeline>
+<codeline lineno="274"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="275"><highlight class="normal"></highlight></codeline>
+<codeline lineno="276"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="syn__ota_8c_1a1a674f7120ddc6eaf8cf79a672866697" kindref="member">syn_ota_bytes_ingested</ref>(mgr)<sp/>==<sp/>mgr-&gt;<ref refid="structSYN__OTA__Manager_1a09522c67e6ece52aeb363bf84ad0f0f2" kindref="member">expected_total_sz</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="277"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>mgr-&gt;<ref refid="structSYN__OTA__Manager_1a112a3dddb8ed934a0207460b81e447f0" kindref="member">state</ref><sp/>=<sp/><ref refid="syn__ota_8h_1a9a9540143ed7763111bb9ee78eb1bea6a0d0c871afa95a4c1993e35b7ba34e306" kindref="member">SYN_OTA_STATE_DOWNLOADED</ref>;</highlight></codeline>
+<codeline lineno="278"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="279"><highlight class="normal"></highlight></codeline>
+<codeline lineno="280"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__ota_8c_1aadd1c7dbeb1305423b0e90d11cbd6550" kindref="member">syn_ota_sync_lwm2m</ref>(mgr);</highlight></codeline>
+<codeline lineno="281"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="282"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="283"><highlight class="normal"></highlight></codeline>
+<codeline lineno="284"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__ota_8c_1aa7151e16a27eb4679ce1a1421b427c02" kindref="member">syn_ota_finish</ref>(<ref refid="structSYN__OTA__Manager" kindref="compound">SYN_OTA_Manager</ref><sp/>*mgr,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*expected_sig_or_tag,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>sig_len)</highlight></codeline>
+<codeline lineno="285"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="286"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(mgr<sp/>==<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="287"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="288"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="289"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(mgr-&gt;<ref refid="structSYN__OTA__Manager_1a112a3dddb8ed934a0207460b81e447f0" kindref="member">state</ref><sp/>!=<sp/><ref refid="syn__ota_8h_1a9a9540143ed7763111bb9ee78eb1bea6a8c030628a16de4e4d8b75023f55734e6" kindref="member">SYN_OTA_STATE_DOWNLOADING</ref><sp/>&amp;&amp;<sp/>mgr-&gt;<ref refid="structSYN__OTA__Manager_1a112a3dddb8ed934a0207460b81e447f0" kindref="member">state</ref><sp/>!=<sp/><ref refid="syn__ota_8h_1a9a9540143ed7763111bb9ee78eb1bea6a0d0c871afa95a4c1993e35b7ba34e306" kindref="member">SYN_OTA_STATE_DOWNLOADED</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="290"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00acd5d2701b7cfa9fb446640ecbeb19fc9" kindref="member">SYN_ERROR</ref>;</highlight></codeline>
+<codeline lineno="291"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="292"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(SYN_FW_USE_AES_GCM)<sp/>&amp;&amp;<sp/>SYN_FW_USE_AES_GCM</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="293"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(mgr-&gt;<ref refid="structSYN__OTA__Manager_1af49834a19daedbbdc970c809a52119a0" kindref="member">crypto_mode</ref><sp/>==<sp/><ref refid="syn__ota_8h_1a8ef8fe96d8e4b3f4a25210e14d7e5c4aa30d5c013f7549d70dabf14b1ace84d2c" kindref="member">SYN_OTA_CRYPTO_AES_GCM</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="294"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(expected_sig_or_tag<sp/>==<sp/>NULL<sp/>||<sp/>sig_len<sp/>!=<sp/>16U)<sp/>{</highlight></codeline>
+<codeline lineno="295"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__ota_8c_1ad06ab6726324ed1b668ecd6e75b12db3" kindref="member">syn_ota_abort</ref>(mgr,<sp/><ref refid="syn__ota_8h_1a8b8f621c4bdf4f0cf70efadda2eda96ca76a059dddb695b03e2eeaa5faf8580fe" kindref="member">SYN_OTA_ERR_INVALID_PARAM</ref>);</highlight></codeline>
+<codeline lineno="296"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="297"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="298"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="299"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="300"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="syn__ota_8c_1a1a674f7120ddc6eaf8cf79a672866697" kindref="member">syn_ota_bytes_ingested</ref>(mgr)<sp/>!=<sp/>mgr-&gt;<ref refid="structSYN__OTA__Manager_1a09522c67e6ece52aeb363bf84ad0f0f2" kindref="member">expected_total_sz</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="301"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__ota_8c_1ad06ab6726324ed1b668ecd6e75b12db3" kindref="member">syn_ota_abort</ref>(mgr,<sp/><ref refid="syn__ota_8h_1a8b8f621c4bdf4f0cf70efadda2eda96ca85627d6460767b75e37739799289539e" kindref="member">SYN_OTA_ERR_INTEGRITY_CHECK</ref>);</highlight></codeline>
+<codeline lineno="302"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00acd5d2701b7cfa9fb446640ecbeb19fc9" kindref="member">SYN_ERROR</ref>;</highlight></codeline>
+<codeline lineno="303"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="304"><highlight class="normal"></highlight></codeline>
+<codeline lineno="305"><highlight class="normal"><sp/><sp/><sp/><sp/>mgr-&gt;<ref refid="structSYN__OTA__Manager_1a112a3dddb8ed934a0207460b81e447f0" kindref="member">state</ref><sp/>=<sp/><ref refid="syn__ota_8h_1a9a9540143ed7763111bb9ee78eb1bea6a341f35254512b87bf496c819733b8c9b" kindref="member">SYN_OTA_STATE_VERIFYING</ref>;</highlight></codeline>
+<codeline lineno="306"><highlight class="normal"></highlight></codeline>
+<codeline lineno="307"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/>st<sp/>=<sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00acd5d2701b7cfa9fb446640ecbeb19fc9" kindref="member">SYN_ERROR</ref>;</highlight></codeline>
+<codeline lineno="308"><highlight class="normal"></highlight></codeline>
+<codeline lineno="309"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(SYN_FW_USE_AES_GCM)<sp/>&amp;&amp;<sp/>SYN_FW_USE_AES_GCM</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="310"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(mgr-&gt;<ref refid="structSYN__OTA__Manager_1af49834a19daedbbdc970c809a52119a0" kindref="member">crypto_mode</ref><sp/>==<sp/><ref refid="syn__ota_8h_1a8ef8fe96d8e4b3f4a25210e14d7e5c4aa30d5c013f7549d70dabf14b1ace84d2c" kindref="member">SYN_OTA_CRYPTO_AES_GCM</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="311"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>st<sp/>=<sp/>syn_fwupdate_finish_gcm(&amp;mgr-&gt;<ref refid="structSYN__OTA__Manager_1a7b7228377fba73a37d7e4a57294614cb" kindref="member">fw_upd</ref>,<sp/>expected_sig_or_tag,<sp/>mgr-&gt;<ref refid="structSYN__OTA__Manager_1aceba590eb3fe6bbb48de8f562e7b8cac" kindref="member">target_version</ref>);</highlight></codeline>
+<codeline lineno="312"><highlight class="normal"><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="313"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="314"><highlight class="normal"><sp/><sp/><sp/><sp/>{</highlight></codeline>
+<codeline lineno="315"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(void)sig_len;</highlight></codeline>
+<codeline lineno="316"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(SYN_FW_USE_HMAC)<sp/>&amp;&amp;<sp/>SYN_FW_USE_HMAC</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="317"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*hmac_ptr<sp/>=</highlight></codeline>
+<codeline lineno="318"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(mgr-&gt;<ref refid="structSYN__OTA__Manager_1af49834a19daedbbdc970c809a52119a0" kindref="member">crypto_mode</ref><sp/>==<sp/><ref refid="syn__ota_8h_1a8ef8fe96d8e4b3f4a25210e14d7e5c4aa99041467470f6d798bdc460f0f9be6e4" kindref="member">SYN_OTA_CRYPTO_HMAC_SHA256</ref>)<sp/>?<sp/>expected_sig_or_tag<sp/>:<sp/>NULL;</highlight></codeline>
+<codeline lineno="319"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="320"><highlight class="normal"></highlight><highlight class="preprocessor">#if<sp/>defined(SYN_FW_USE_ED25519)<sp/>&amp;&amp;<sp/>SYN_FW_USE_ED25519</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="321"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*sig_ptr<sp/>=</highlight></codeline>
+<codeline lineno="322"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(mgr-&gt;<ref refid="structSYN__OTA__Manager_1af49834a19daedbbdc970c809a52119a0" kindref="member">crypto_mode</ref><sp/>==<sp/><ref refid="syn__ota_8h_1a8ef8fe96d8e4b3f4a25210e14d7e5c4aa2b6d1fcc77beaf0abb9586645fe18524" kindref="member">SYN_OTA_CRYPTO_ED25519</ref>)<sp/>?<sp/>expected_sig_or_tag<sp/>:<sp/>NULL;</highlight></codeline>
+<codeline lineno="323"><highlight class="normal"></highlight><highlight class="preprocessor">#endif</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="324"><highlight class="normal"></highlight></codeline>
+<codeline lineno="325"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>st<sp/>=<sp/><ref refid="syn__fwupdate_8c_1a0b2318a6d6c4cef6635fd45ea7bd0f4e" kindref="member">syn_fwupdate_finish</ref>(&amp;mgr-&gt;<ref refid="structSYN__OTA__Manager_1a7b7228377fba73a37d7e4a57294614cb" kindref="member">fw_upd</ref>,<sp/>mgr-&gt;<ref refid="structSYN__OTA__Manager_1a6cbb6b710c5dd3c6aaecc157c8b85677" kindref="member">expected_crc</ref>,</highlight></codeline>
+<codeline lineno="326"><highlight class="normal">#</highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>defined(<ref refid="syn__config__template_8h_1a4a0d4f0641f19638f834ae23b59bb743" kindref="member">SYN_FW_USE_HMAC</ref>)<sp/>&amp;&amp;<sp/><ref refid="syn__config__template_8h_1a4a0d4f0641f19638f834ae23b59bb743" kindref="member">SYN_FW_USE_HMAC</ref></highlight></codeline>
+<codeline lineno="327"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>hmac_ptr,</highlight></codeline>
+<codeline lineno="328"><highlight class="normal">#endif</highlight></codeline>
+<codeline lineno="329"><highlight class="normal">#</highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>defined(<ref refid="syn__config__template_8h_1a83f38a2e40b888f350a672a42eecd7ad" kindref="member">SYN_FW_USE_ED25519</ref>)<sp/>&amp;&amp;<sp/><ref refid="syn__config__template_8h_1a83f38a2e40b888f350a672a42eecd7ad" kindref="member">SYN_FW_USE_ED25519</ref></highlight></codeline>
+<codeline lineno="330"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>sig_ptr,</highlight></codeline>
+<codeline lineno="331"><highlight class="normal">#endif</highlight></codeline>
+<codeline lineno="332"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>mgr-&gt;<ref refid="structSYN__OTA__Manager_1aceba590eb3fe6bbb48de8f562e7b8cac" kindref="member">target_version</ref>);</highlight></codeline>
+<codeline lineno="333"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="334"><highlight class="normal"></highlight></codeline>
+<codeline lineno="335"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(st<sp/>!=<sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="336"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__ota_8c_1ad06ab6726324ed1b668ecd6e75b12db3" kindref="member">syn_ota_abort</ref>(mgr,<sp/><ref refid="syn__ota_8h_1a8b8f621c4bdf4f0cf70efadda2eda96ca85627d6460767b75e37739799289539e" kindref="member">SYN_OTA_ERR_INTEGRITY_CHECK</ref>);</highlight></codeline>
+<codeline lineno="337"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>st;</highlight></codeline>
+<codeline lineno="338"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="339"><highlight class="normal"></highlight></codeline>
+<codeline lineno="340"><highlight class="normal"><sp/><sp/><sp/><sp/>(void)<ref refid="syn__fwboot_8c_1ac9cef61055d3ce675f3b54b14a07676f" kindref="member">syn_fwboot_refresh</ref>(mgr-&gt;<ref refid="structSYN__OTA__Manager_1aa1e0757bd43e37fdb06d381fcb7b530b" kindref="member">boot_mgr</ref>);</highlight></codeline>
+<codeline lineno="341"><highlight class="normal"><sp/><sp/><sp/><sp/>mgr-&gt;<ref refid="structSYN__OTA__Manager_1a112a3dddb8ed934a0207460b81e447f0" kindref="member">state</ref><sp/>=<sp/><ref refid="syn__ota_8h_1a9a9540143ed7763111bb9ee78eb1bea6ac315b8e7ee2ca50a21504c261ed04684" kindref="member">SYN_OTA_STATE_READY_TO_APPLY</ref>;</highlight></codeline>
+<codeline lineno="342"><highlight class="normal"><sp/><sp/><sp/><sp/>mgr-&gt;<ref refid="structSYN__OTA__Manager_1a28b4e42b1a6f100b6064745faadf2931" kindref="member">last_error</ref><sp/>=<sp/><ref refid="syn__ota_8h_1a8b8f621c4bdf4f0cf70efadda2eda96ca3edb3b69f91e8dd906b893742341132c" kindref="member">SYN_OTA_ERR_NONE</ref>;</highlight></codeline>
+<codeline lineno="343"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__ota_8c_1aadd1c7dbeb1305423b0e90d11cbd6550" kindref="member">syn_ota_sync_lwm2m</ref>(mgr);</highlight></codeline>
+<codeline lineno="344"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="345"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="346"><highlight class="normal"></highlight></codeline>
+<codeline lineno="347"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__ota_8c_1a04c45bec610e5bbdba873f4e1416ba66" kindref="member">syn_ota_apply</ref>(<ref refid="structSYN__OTA__Manager" kindref="compound">SYN_OTA_Manager</ref><sp/>*mgr)</highlight></codeline>
+<codeline lineno="348"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="349"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(mgr<sp/>==<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="350"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="351"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="352"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(mgr-&gt;<ref refid="structSYN__OTA__Manager_1a112a3dddb8ed934a0207460b81e447f0" kindref="member">state</ref><sp/>!=<sp/><ref refid="syn__ota_8h_1a9a9540143ed7763111bb9ee78eb1bea6ac315b8e7ee2ca50a21504c261ed04684" kindref="member">SYN_OTA_STATE_READY_TO_APPLY</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="353"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00acd5d2701b7cfa9fb446640ecbeb19fc9" kindref="member">SYN_ERROR</ref>;</highlight></codeline>
+<codeline lineno="354"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="355"><highlight class="normal"></highlight></codeline>
+<codeline lineno="356"><highlight class="normal"><sp/><sp/><sp/><sp/>mgr-&gt;<ref refid="structSYN__OTA__Manager_1a112a3dddb8ed934a0207460b81e447f0" kindref="member">state</ref><sp/>=<sp/><ref refid="syn__ota_8h_1a9a9540143ed7763111bb9ee78eb1bea6aefaaf1b2c28c3f3e710634e7e37abd45" kindref="member">SYN_OTA_STATE_APPLIED</ref>;</highlight></codeline>
+<codeline lineno="357"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__ota_8c_1aadd1c7dbeb1305423b0e90d11cbd6550" kindref="member">syn_ota_sync_lwm2m</ref>(mgr);</highlight></codeline>
+<codeline lineno="358"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="359"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="360"><highlight class="normal"></highlight></codeline>
+<codeline lineno="361"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__ota_8c_1ad06ab6726324ed1b668ecd6e75b12db3" kindref="member">syn_ota_abort</ref>(<ref refid="structSYN__OTA__Manager" kindref="compound">SYN_OTA_Manager</ref><sp/>*mgr,<sp/><ref refid="syn__ota_8h_1a8b8f621c4bdf4f0cf70efadda2eda96c" kindref="member">SYN_OTA_ErrorCode</ref><sp/>err)</highlight></codeline>
+<codeline lineno="362"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="363"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(mgr<sp/>==<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="364"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="365"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="366"><highlight class="normal"></highlight></codeline>
+<codeline lineno="367"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(mgr-&gt;<ref refid="structSYN__OTA__Manager_1a7b7228377fba73a37d7e4a57294614cb" kindref="member">fw_upd</ref>.<ref refid="structSYN__FwUpdate_1aecdb5e3ef8a9475f07f4d8ed8b641638" kindref="member">active</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="368"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__fwupdate_8c_1adbee6c5b19226626fc91c21fe5e51520" kindref="member">syn_fwupdate_abort</ref>(&amp;mgr-&gt;<ref refid="structSYN__OTA__Manager_1a7b7228377fba73a37d7e4a57294614cb" kindref="member">fw_upd</ref>);</highlight></codeline>
+<codeline lineno="369"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="370"><highlight class="normal"></highlight></codeline>
+<codeline lineno="371"><highlight class="normal"><sp/><sp/><sp/><sp/>mgr-&gt;<ref refid="structSYN__OTA__Manager_1a112a3dddb8ed934a0207460b81e447f0" kindref="member">state</ref><sp/>=<sp/><ref refid="syn__ota_8h_1a9a9540143ed7763111bb9ee78eb1bea6afed8229e046592fca5263c30885421e2" kindref="member">SYN_OTA_STATE_ERROR</ref>;</highlight></codeline>
+<codeline lineno="372"><highlight class="normal"><sp/><sp/><sp/><sp/>mgr-&gt;<ref refid="structSYN__OTA__Manager_1a28b4e42b1a6f100b6064745faadf2931" kindref="member">last_error</ref><sp/>=<sp/>err;</highlight></codeline>
+<codeline lineno="373"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__ota_8c_1aadd1c7dbeb1305423b0e90d11cbd6550" kindref="member">syn_ota_sync_lwm2m</ref>(mgr);</highlight></codeline>
+<codeline lineno="374"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="375"><highlight class="normal"></highlight></codeline>
+<codeline lineno="376"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__ota_8c_1adbaa007c0106f0b015d947ad3ae5fc1d" kindref="member">syn_ota_get_progress</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__OTA__Manager" kindref="compound">SYN_OTA_Manager</ref><sp/>*mgr,<sp/>uint32_t<sp/>*out_written,</highlight></codeline>
+<codeline lineno="377"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>*out_total,<sp/>uint8_t<sp/>*out_percent)</highlight></codeline>
+<codeline lineno="378"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="379"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(mgr<sp/>==<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="380"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="381"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="382"><highlight class="normal"></highlight></codeline>
+<codeline lineno="383"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/>written<sp/>=<sp/><ref refid="syn__ota_8c_1a1a674f7120ddc6eaf8cf79a672866697" kindref="member">syn_ota_bytes_ingested</ref>(mgr);</highlight></codeline>
+<codeline lineno="384"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/>total<sp/>=<sp/>mgr-&gt;<ref refid="structSYN__OTA__Manager_1a09522c67e6ece52aeb363bf84ad0f0f2" kindref="member">expected_total_sz</ref>;</highlight></codeline>
+<codeline lineno="385"><highlight class="normal"></highlight></codeline>
+<codeline lineno="386"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(out_written<sp/>!=<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="387"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*out_written<sp/>=<sp/>written;</highlight></codeline>
+<codeline lineno="388"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="389"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(out_total<sp/>!=<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="390"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*out_total<sp/>=<sp/>total;</highlight></codeline>
+<codeline lineno="391"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="392"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(out_percent<sp/>!=<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="393"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(total<sp/>==<sp/>0U)<sp/>{</highlight></codeline>
+<codeline lineno="394"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*out_percent<sp/>=<sp/>0U;</highlight></codeline>
+<codeline lineno="395"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="396"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint64_t<sp/>pct<sp/>=<sp/>((uint64_t)written<sp/>*<sp/>100ULL)<sp/>/<sp/>(uint64_t)total;</highlight></codeline>
+<codeline lineno="397"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(pct<sp/>&gt;<sp/>100ULL)<sp/>{</highlight></codeline>
+<codeline lineno="398"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>pct<sp/>=<sp/>100ULL;</highlight></codeline>
+<codeline lineno="399"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="400"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*out_percent<sp/>=<sp/>(uint8_t)pct;</highlight></codeline>
+<codeline lineno="401"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="402"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="403"><highlight class="normal"></highlight></codeline>
+<codeline lineno="404"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="405"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="406"><highlight class="normal"></highlight></codeline>
+<codeline lineno="407"><highlight class="normal"><ref refid="syn__ota_8h_1a9a9540143ed7763111bb9ee78eb1bea6" kindref="member">SYN_OTA_State</ref><sp/><ref refid="syn__ota_8c_1a2ef46856a5ac661a4d4d98fe131cf27b" kindref="member">syn_ota_get_state</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__OTA__Manager" kindref="compound">SYN_OTA_Manager</ref><sp/>*mgr)</highlight></codeline>
+<codeline lineno="408"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="409"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(mgr<sp/>==<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="410"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__ota_8h_1a9a9540143ed7763111bb9ee78eb1bea6afed8229e046592fca5263c30885421e2" kindref="member">SYN_OTA_STATE_ERROR</ref>;</highlight></codeline>
+<codeline lineno="411"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="412"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>mgr-&gt;<ref refid="structSYN__OTA__Manager_1a112a3dddb8ed934a0207460b81e447f0" kindref="member">state</ref>;</highlight></codeline>
+<codeline lineno="413"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="414"><highlight class="normal"></highlight></codeline>
+<codeline lineno="415"><highlight class="normal"><ref refid="syn__ota_8h_1a8b8f621c4bdf4f0cf70efadda2eda96c" kindref="member">SYN_OTA_ErrorCode</ref><sp/><ref refid="syn__ota_8c_1a6683aee6b3a038668df09adf84840184" kindref="member">syn_ota_get_last_error</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__OTA__Manager" kindref="compound">SYN_OTA_Manager</ref><sp/>*mgr)</highlight></codeline>
+<codeline lineno="416"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="417"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(mgr<sp/>==<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="418"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__ota_8h_1a8b8f621c4bdf4f0cf70efadda2eda96ca76a059dddb695b03e2eeaa5faf8580fe" kindref="member">SYN_OTA_ERR_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="419"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="420"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>mgr-&gt;<ref refid="structSYN__OTA__Manager_1a28b4e42b1a6f100b6064745faadf2931" kindref="member">last_error</ref>;</highlight></codeline>
+<codeline lineno="421"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="422"><highlight class="normal"></highlight></codeline>
+<codeline lineno="423"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__ota_8c_1ac15f0f454c1bdbb85daa12622e69a9d4" kindref="member">syn_ota_bind_lwm2m</ref>(<ref refid="structSYN__OTA__Manager" kindref="compound">SYN_OTA_Manager</ref><sp/>*mgr,<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*lwm2m_fw_ctx)</highlight></codeline>
+<codeline lineno="424"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="425"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(mgr<sp/>==<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="426"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="427"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="428"><highlight class="normal"><sp/><sp/><sp/><sp/>mgr-&gt;<ref refid="structSYN__OTA__Manager_1a2f3e26bd119a342428cc99c0f1466db9" kindref="member">lwm2m_fw_ctx</ref><sp/>=<sp/>lwm2m_fw_ctx;</highlight></codeline>
+<codeline lineno="429"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__ota_8c_1aadd1c7dbeb1305423b0e90d11cbd6550" kindref="member">syn_ota_sync_lwm2m</ref>(mgr);</highlight></codeline>
+<codeline lineno="430"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="431"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="432"><highlight class="normal"></highlight></codeline>
+<codeline lineno="433"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__ota_8c_1aadd1c7dbeb1305423b0e90d11cbd6550" kindref="member">syn_ota_sync_lwm2m</ref>(<ref refid="structSYN__OTA__Manager" kindref="compound">SYN_OTA_Manager</ref><sp/>*mgr)</highlight></codeline>
+<codeline lineno="434"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="435"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(mgr<sp/>==<sp/>NULL<sp/>||<sp/>mgr-&gt;<ref refid="structSYN__OTA__Manager_1a2f3e26bd119a342428cc99c0f1466db9" kindref="member">lwm2m_fw_ctx</ref><sp/>==<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="436"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="437"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="438"><highlight class="normal"></highlight></codeline>
+<codeline lineno="439"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="structLwM2M__FwCtx" kindref="compound">LwM2M_FwCtx</ref><sp/>*ctx<sp/>=<sp/>(<ref refid="structLwM2M__FwCtx" kindref="compound">LwM2M_FwCtx</ref><sp/>*)mgr-&gt;<ref refid="structSYN__OTA__Manager_1a2f3e26bd119a342428cc99c0f1466db9" kindref="member">lwm2m_fw_ctx</ref>;</highlight></codeline>
+<codeline lineno="440"><highlight class="normal"></highlight></codeline>
+<codeline lineno="441"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">switch</highlight><highlight class="normal"><sp/>(mgr-&gt;<ref refid="structSYN__OTA__Manager_1a112a3dddb8ed934a0207460b81e447f0" kindref="member">state</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="442"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__ota_8h_1a9a9540143ed7763111bb9ee78eb1bea6a2a84f32257d9bce8e0f04ae371f0d20d" kindref="member">SYN_OTA_STATE_IDLE</ref>:</highlight></codeline>
+<codeline lineno="443"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ctx-&gt;state<sp/>=<sp/><ref refid="syn__ota_8c_1a5f766a9b1d954041da97f04e1cb6e23fa6ba505a71b4c491c01d4ad9cc598fab6" kindref="member">LWM2M_FW_STATE_IDLE</ref>;</highlight></codeline>
+<codeline lineno="444"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="445"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__ota_8h_1a9a9540143ed7763111bb9ee78eb1bea6a8c030628a16de4e4d8b75023f55734e6" kindref="member">SYN_OTA_STATE_DOWNLOADING</ref>:</highlight></codeline>
+<codeline lineno="446"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ctx-&gt;state<sp/>=<sp/><ref refid="syn__ota_8c_1a5f766a9b1d954041da97f04e1cb6e23fac70923f2fe82046d7b9c20565c5693ed" kindref="member">LWM2M_FW_STATE_DOWNLOADING</ref>;</highlight></codeline>
+<codeline lineno="447"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="448"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__ota_8h_1a9a9540143ed7763111bb9ee78eb1bea6a0d0c871afa95a4c1993e35b7ba34e306" kindref="member">SYN_OTA_STATE_DOWNLOADED</ref>:</highlight></codeline>
+<codeline lineno="449"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__ota_8h_1a9a9540143ed7763111bb9ee78eb1bea6a341f35254512b87bf496c819733b8c9b" kindref="member">SYN_OTA_STATE_VERIFYING</ref>:</highlight></codeline>
+<codeline lineno="450"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__ota_8h_1a9a9540143ed7763111bb9ee78eb1bea6ac315b8e7ee2ca50a21504c261ed04684" kindref="member">SYN_OTA_STATE_READY_TO_APPLY</ref>:</highlight></codeline>
+<codeline lineno="451"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ctx-&gt;state<sp/>=<sp/><ref refid="syn__ota_8c_1a5f766a9b1d954041da97f04e1cb6e23face98cc6a9fd931d0ab06ab09c48e405e" kindref="member">LWM2M_FW_STATE_DOWNLOADED</ref>;</highlight></codeline>
+<codeline lineno="452"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="453"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__ota_8h_1a9a9540143ed7763111bb9ee78eb1bea6aefaaf1b2c28c3f3e710634e7e37abd45" kindref="member">SYN_OTA_STATE_APPLIED</ref>:</highlight></codeline>
+<codeline lineno="454"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ctx-&gt;state<sp/>=<sp/><ref refid="syn__ota_8c_1a5f766a9b1d954041da97f04e1cb6e23fa67011e5debc896b272d47c07c30a04c8" kindref="member">LWM2M_FW_STATE_UPDATING</ref>;</highlight></codeline>
+<codeline lineno="455"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ctx-&gt;result<sp/>=<sp/><ref refid="syn__ota_8c_1a172c6f973585d82c16ae71d3ee4f315ca13ec454c16b0b08df677f9c45ac24c9c" kindref="member">LWM2M_FW_RES_SUCCESS</ref>;</highlight></codeline>
+<codeline lineno="456"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="457"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__ota_8h_1a9a9540143ed7763111bb9ee78eb1bea6afed8229e046592fca5263c30885421e2" kindref="member">SYN_OTA_STATE_ERROR</ref>:</highlight></codeline>
+<codeline lineno="458"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">default</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="459"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ctx-&gt;state<sp/>=<sp/><ref refid="syn__ota_8c_1a5f766a9b1d954041da97f04e1cb6e23fa6ba505a71b4c491c01d4ad9cc598fab6" kindref="member">LWM2M_FW_STATE_IDLE</ref>;</highlight></codeline>
+<codeline lineno="460"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="461"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="462"><highlight class="normal"></highlight></codeline>
+<codeline lineno="463"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">switch</highlight><highlight class="normal"><sp/>(mgr-&gt;<ref refid="structSYN__OTA__Manager_1a28b4e42b1a6f100b6064745faadf2931" kindref="member">last_error</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="464"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__ota_8h_1a8b8f621c4bdf4f0cf70efadda2eda96ca3edb3b69f91e8dd906b893742341132c" kindref="member">SYN_OTA_ERR_NONE</ref>:</highlight></codeline>
+<codeline lineno="465"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(mgr-&gt;<ref refid="structSYN__OTA__Manager_1a112a3dddb8ed934a0207460b81e447f0" kindref="member">state</ref><sp/>==<sp/><ref refid="syn__ota_8h_1a9a9540143ed7763111bb9ee78eb1bea6aefaaf1b2c28c3f3e710634e7e37abd45" kindref="member">SYN_OTA_STATE_APPLIED</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="466"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ctx-&gt;result<sp/>=<sp/><ref refid="syn__ota_8c_1a172c6f973585d82c16ae71d3ee4f315ca13ec454c16b0b08df677f9c45ac24c9c" kindref="member">LWM2M_FW_RES_SUCCESS</ref>;</highlight></codeline>
+<codeline lineno="467"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="468"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ctx-&gt;result<sp/>=<sp/><ref refid="syn__ota_8c_1a172c6f973585d82c16ae71d3ee4f315ca18a20d31ac4a7ff89c76b5ee34ed6207" kindref="member">LWM2M_FW_RES_DEFAULT</ref>;</highlight></codeline>
+<codeline lineno="469"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="470"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="471"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__ota_8h_1a8b8f621c4bdf4f0cf70efadda2eda96ca9b5648c44f6b20d615f94fe841521b8a" kindref="member">SYN_OTA_ERR_OUT_OF_SPACE</ref>:</highlight></codeline>
+<codeline lineno="472"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__ota_8h_1a8b8f621c4bdf4f0cf70efadda2eda96ca50552b2e80d7609f847deeda75d0a350" kindref="member">SYN_OTA_ERR_FLASH_ERASE</ref>:</highlight></codeline>
+<codeline lineno="473"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__ota_8h_1a8b8f621c4bdf4f0cf70efadda2eda96cae1da1686b7608b1821175a63f0554121" kindref="member">SYN_OTA_ERR_FLASH_WRITE</ref>:</highlight></codeline>
+<codeline lineno="474"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ctx-&gt;result<sp/>=<sp/><ref refid="syn__ota_8c_1a172c6f973585d82c16ae71d3ee4f315ca13b6b050acd170c29fde1f931a5dd33f" kindref="member">LWM2M_FW_RES_NO_FLASH</ref>;</highlight></codeline>
+<codeline lineno="475"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="476"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__ota_8h_1a8b8f621c4bdf4f0cf70efadda2eda96ca85627d6460767b75e37739799289539e" kindref="member">SYN_OTA_ERR_INTEGRITY_CHECK</ref>:</highlight></codeline>
+<codeline lineno="477"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ctx-&gt;result<sp/>=<sp/><ref refid="syn__ota_8c_1a172c6f973585d82c16ae71d3ee4f315ca5971040dcc0c59af9e016ec506094028" kindref="member">LWM2M_FW_RES_INTEGRITY_FAIL</ref>;</highlight></codeline>
+<codeline lineno="478"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="479"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__ota_8h_1a8b8f621c4bdf4f0cf70efadda2eda96cabad93bd187d6fe7fbf81b2aaa6900acf" kindref="member">SYN_OTA_ERR_UNSUPPORTED_CRYPTO</ref>:</highlight></codeline>
+<codeline lineno="480"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">case</highlight><highlight class="normal"><sp/><ref refid="syn__ota_8h_1a8b8f621c4bdf4f0cf70efadda2eda96ca76a059dddb695b03e2eeaa5faf8580fe" kindref="member">SYN_OTA_ERR_INVALID_PARAM</ref>:</highlight></codeline>
+<codeline lineno="481"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ctx-&gt;result<sp/>=<sp/><ref refid="syn__ota_8c_1a172c6f973585d82c16ae71d3ee4f315ca052245093e518841362a73b7454df241" kindref="member">LWM2M_FW_RES_BAD_PKG_TYPE</ref>;</highlight></codeline>
+<codeline lineno="482"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="483"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">default</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="484"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ctx-&gt;result<sp/>=<sp/><ref refid="syn__ota_8c_1a172c6f973585d82c16ae71d3ee4f315ca18a20d31ac4a7ff89c76b5ee34ed6207" kindref="member">LWM2M_FW_RES_DEFAULT</ref>;</highlight></codeline>
+<codeline lineno="485"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="486"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="487"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="488"><highlight class="normal"></highlight></codeline>
+<codeline lineno="489"><highlight class="normal"></highlight><highlight class="preprocessor">#else</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="490"><highlight class="normal"></highlight><highlight class="keyword">typedef</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>syn_ota_dummy_t;</highlight></codeline>
+<codeline lineno="491"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">/*<sp/>SYN_USE_OTA<sp/>*/</highlight><highlight class="preprocessor"></highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/system/syn_ota.c"/>
+  </compounddef>
+</doxygen>

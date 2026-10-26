@@ -1,0 +1,399 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__keypad_8c" kind="file" language="C++">
+    <compoundname>syn_keypad.c</compoundname>
+    <includes refid="syn__keypad_8h" local="yes">syn_keypad.h</includes>
+    <includes refid="syn__assert_8h" local="yes">../util/syn_assert.h</includes>
+    <includes local="no">string.h</includes>
+    <incdepgraph>
+      <node id="9">
+        <label>../common/syn_compiler.h</label>
+        <link refid="syn__compiler_8h"/>
+      </node>
+      <node id="3">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/input/syn_keypad.c</label>
+        <link refid="syn__keypad_8c"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>syn_keypad.h</label>
+        <link refid="syn__keypad_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>../port/syn_port_gpio.h</label>
+        <link refid="syn__port__gpio_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>../util/syn_assert.h</label>
+        <link refid="syn__assert_8h"/>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>stdbool.h</label>
+      </node>
+      <node id="4">
+        <label>stddef.h</label>
+      </node>
+      <node id="5">
+        <label>stdint.h</label>
+      </node>
+      <node id="10">
+        <label>string.h</label>
+      </node>
+    </incdepgraph>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__keypad_8c_1a25c80a9bd5302716db13878c52d773dd" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_keypad_init</definition>
+        <argsstring>(SYN_Keypad *kp, const SYN_GPIO_Pin *rows, uint8_t num_rows, const SYN_GPIO_Pin *cols, uint8_t num_cols, const char *keymap)</argsstring>
+        <name>syn_keypad_init</name>
+        <param>
+          <type><ref refid="structSYN__Keypad" kindref="compound">SYN_Keypad</ref> *</type>
+          <declname>kp</declname>
+        </param>
+        <param>
+          <type>const <ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref> *</type>
+          <declname>rows</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>num_rows</declname>
+        </param>
+        <param>
+          <type>const <ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref> *</type>
+          <declname>cols</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>num_cols</declname>
+        </param>
+        <param>
+          <type>const char *</type>
+          <declname>keymap</declname>
+        </param>
+        <briefdescription>
+<para>Initialize a Matrix Keypad instance. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Configures row pins as outputs and col pins as inputs with pull-down/up.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>kp</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Keypad context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>rows</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Array of row GPIO pins. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>num_rows</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of row pins (1-8). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>cols</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Array of column GPIO pins. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>num_cols</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Number of column pins (1-8). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>keymap</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>String keymap of length (num_rows * num_cols). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/input/syn_keypad.c" line="12" column="12" bodyfile="src/syntropic/input/syn_keypad.c" bodystart="12" bodyend="42"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__keypad_8c_1ae876fa993295ba3a35d685cccd1b9ef5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_keypad_scan</definition>
+        <argsstring>(SYN_Keypad *kp)</argsstring>
+        <name>syn_keypad_scan</name>
+        <param>
+          <type><ref refid="structSYN__Keypad" kindref="compound">SYN_Keypad</ref> *</type>
+          <declname>kp</declname>
+        </param>
+        <briefdescription>
+<para>Perform a non-blocking matrix scan. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>kp</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Keypad context. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/input/syn_keypad.c" line="44" column="6" bodyfile="src/syntropic/input/syn_keypad.c" bodystart="44" bodyend="91"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__keypad_8c_1a3ca40fa9941eac434d5555774bf83477" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1af6a258d8f3ee5206d682d799316314b1" kindref="member">bool</ref></type>
+        <definition>bool syn_keypad_get_key</definition>
+        <argsstring>(const SYN_Keypad *kp, char *out_key)</argsstring>
+        <name>syn_keypad_get_key</name>
+        <param>
+          <type>const <ref refid="structSYN__Keypad" kindref="compound">SYN_Keypad</ref> *</type>
+          <declname>kp</declname>
+        </param>
+        <param>
+          <type>char *</type>
+          <declname>out_key</declname>
+        </param>
+        <briefdescription>
+<para>Get the currently pressed key character. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>kp</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Keypad context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>out_key</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>[out] Key character (if pressed). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>True if a key is currently held pressed. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/input/syn_keypad.c" line="93" column="6" bodyfile="src/syntropic/input/syn_keypad.c" bodystart="93" bodyend="101"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__keypad_8c_1a4303a029dc1a46dbad760df2cf326757" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_keypad_set_callback</definition>
+        <argsstring>(SYN_Keypad *kp, SYN_KeypadCallback callback, void *user_ctx)</argsstring>
+        <name>syn_keypad_set_callback</name>
+        <param>
+          <type><ref refid="structSYN__Keypad" kindref="compound">SYN_Keypad</ref> *</type>
+          <declname>kp</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__keypad_8h_1a5fad2301c9f1f5e76d7004ae63ca32a2" kindref="member">SYN_KeypadCallback</ref></type>
+          <declname>callback</declname>
+        </param>
+        <param>
+          <type>void *</type>
+          <declname>user_ctx</declname>
+        </param>
+        <briefdescription>
+<para>Set event callback for key press and release events. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>kp</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Keypad context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>callback</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Event handler callback function. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>user_ctx</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>User context pointer. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/input/syn_keypad.c" line="103" column="6" bodyfile="src/syntropic/input/syn_keypad.c" bodystart="103" bodyend="109"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Non-blocking Matrix Keypad Scanner (3x4, 4x4, etc.). </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__keypad_8h" kindref="compound">syn_keypad.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../util/syn_assert.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;string.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__keypad_8c_1a25c80a9bd5302716db13878c52d773dd" kindref="member">syn_keypad_init</ref>(<ref refid="structSYN__Keypad" kindref="compound">SYN_Keypad</ref><sp/>*kp,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref><sp/>*rows,<sp/>uint8_t<sp/>num_rows,</highlight></codeline>
+<codeline lineno="13"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref><sp/>*cols,<sp/>uint8_t<sp/>num_cols,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*keymap)</highlight></codeline>
+<codeline lineno="14"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="15"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(kp<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="16"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(rows<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="17"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(cols<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="18"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(num_rows<sp/>&gt;<sp/>0<sp/>&amp;&amp;<sp/>num_rows<sp/>&lt;=<sp/><ref refid="syn__keypad_8h_1a6d51f8f23a924c283dc2f7b9d632cb78" kindref="member">SYN_KEYPAD_MAX_ROWS</ref>);</highlight></codeline>
+<codeline lineno="19"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(num_cols<sp/>&gt;<sp/>0<sp/>&amp;&amp;<sp/>num_cols<sp/>&lt;=<sp/><ref refid="syn__keypad_8h_1a85a798ec85f530c58e3bcf7807428034" kindref="member">SYN_KEYPAD_MAX_COLS</ref>);</highlight></codeline>
+<codeline lineno="20"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(keymap<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight></codeline>
+<codeline lineno="22"><highlight class="normal"><sp/><sp/><sp/><sp/>memset(kp,<sp/>0,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(*kp));</highlight></codeline>
+<codeline lineno="23"><highlight class="normal"><sp/><sp/><sp/><sp/>kp-&gt;<ref refid="structSYN__Keypad_1a48795188d13501dcfd3ccb76e98ff337" kindref="member">num_rows</ref><sp/>=<sp/>num_rows;</highlight></codeline>
+<codeline lineno="24"><highlight class="normal"><sp/><sp/><sp/><sp/>kp-&gt;<ref refid="structSYN__Keypad_1a543d3c64032e7cd460132c26aa6a15ee" kindref="member">num_cols</ref><sp/>=<sp/>num_cols;</highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"><sp/><sp/><sp/><sp/>memcpy(kp-&gt;<ref refid="structSYN__Keypad_1aadd3f21ea22cc977b3d14455bfbadad6" kindref="member">rows</ref>,<sp/>rows,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(<ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref>)<sp/>*<sp/>num_rows);</highlight></codeline>
+<codeline lineno="27"><highlight class="normal"><sp/><sp/><sp/><sp/>memcpy(kp-&gt;<ref refid="structSYN__Keypad_1a3dd56ced194972655eb88a565043526e" kindref="member">cols</ref>,<sp/>cols,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(<ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref>)<sp/>*<sp/>num_cols);</highlight></codeline>
+<codeline lineno="28"><highlight class="normal"><sp/><sp/><sp/><sp/>memcpy(kp-&gt;<ref refid="structSYN__Keypad_1a431dcd111da57c5bcdd2be75720fe4e8" kindref="member">keymap</ref>,<sp/>keymap,<sp/>(</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal">)num_rows<sp/>*<sp/>num_cols);</highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight></codeline>
+<codeline lineno="30"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Rows<sp/>as<sp/>Outputs<sp/>(Idle<sp/>LOW)<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="31"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(uint8_t<sp/>r<sp/>=<sp/>0;<sp/>r<sp/>&lt;<sp/>num_rows;<sp/>r++)<sp/>{</highlight></codeline>
+<codeline lineno="32"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__port__gpio_8h_1a885fe878ae93414309a62202b5c30b79" kindref="member">syn_port_gpio_init</ref>(kp-&gt;<ref refid="structSYN__Keypad_1aadd3f21ea22cc977b3d14455bfbadad6" kindref="member">rows</ref>[r],<sp/>SYN_GPIO_OUTPUT);</highlight></codeline>
+<codeline lineno="33"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__port__gpio_8h_1a797218e188e548d3e6116e87554b29fe" kindref="member">syn_port_gpio_write</ref>(kp-&gt;<ref refid="structSYN__Keypad_1aadd3f21ea22cc977b3d14455bfbadad6" kindref="member">rows</ref>[r],<sp/>SYN_GPIO_LOW);</highlight></codeline>
+<codeline lineno="34"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="35"><highlight class="normal"></highlight></codeline>
+<codeline lineno="36"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Cols<sp/>as<sp/>Inputs<sp/>with<sp/>PULL-DOWN<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(uint8_t<sp/>c<sp/>=<sp/>0;<sp/>c<sp/>&lt;<sp/>num_cols;<sp/>c++)<sp/>{</highlight></codeline>
+<codeline lineno="38"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__port__gpio_8h_1a885fe878ae93414309a62202b5c30b79" kindref="member">syn_port_gpio_init</ref>(kp-&gt;<ref refid="structSYN__Keypad_1a3dd56ced194972655eb88a565043526e" kindref="member">cols</ref>[c],<sp/>SYN_GPIO_INPUT_PULLDOWN);</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="42"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"></highlight></codeline>
+<codeline lineno="44"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__keypad_8c_1ae876fa993295ba3a35d685cccd1b9ef5" kindref="member">syn_keypad_scan</ref>(<ref refid="structSYN__Keypad" kindref="compound">SYN_Keypad</ref><sp/>*kp)</highlight></codeline>
+<codeline lineno="45"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(kp<sp/>==<sp/>NULL)</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"></highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>found_key<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"></highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(uint8_t<sp/>r<sp/>=<sp/>0;<sp/>r<sp/>&lt;<sp/>kp-&gt;<ref refid="structSYN__Keypad_1a48795188d13501dcfd3ccb76e98ff337" kindref="member">num_rows</ref>;<sp/>r++)<sp/>{</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Drive<sp/>row<sp/>HIGH<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__port__gpio_8h_1a797218e188e548d3e6116e87554b29fe" kindref="member">syn_port_gpio_write</ref>(kp-&gt;<ref refid="structSYN__Keypad_1aadd3f21ea22cc977b3d14455bfbadad6" kindref="member">rows</ref>[r],<sp/>SYN_GPIO_HIGH);</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"></highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(uint8_t<sp/>c<sp/>=<sp/>0;<sp/>c<sp/>&lt;<sp/>kp-&gt;<ref refid="structSYN__Keypad_1a543d3c64032e7cd460132c26aa6a15ee" kindref="member">num_cols</ref>;<sp/>c++)<sp/>{</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(<ref refid="syn__port__gpio_8h_1ad51a5855a1190c56a0ab79cfdc4c2bbf" kindref="member">syn_port_gpio_read</ref>(kp-&gt;<ref refid="structSYN__Keypad_1a3dd56ced194972655eb88a565043526e" kindref="member">cols</ref>[c])<sp/>==<sp/>SYN_GPIO_HIGH)<sp/>{</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>found_key<sp/>=<sp/>kp-&gt;<ref refid="structSYN__Keypad_1a431dcd111da57c5bcdd2be75720fe4e8" kindref="member">keymap</ref>[r<sp/>*<sp/>kp-&gt;<ref refid="structSYN__Keypad_1a543d3c64032e7cd460132c26aa6a15ee" kindref="member">num_cols</ref><sp/>+<sp/>c];</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"></highlight></codeline>
+<codeline lineno="62"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Set<sp/>row<sp/>back<sp/>to<sp/>LOW<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="63"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__port__gpio_8h_1a797218e188e548d3e6116e87554b29fe" kindref="member">syn_port_gpio_write</ref>(kp-&gt;<ref refid="structSYN__Keypad_1aadd3f21ea22cc977b3d14455bfbadad6" kindref="member">rows</ref>[r],<sp/>SYN_GPIO_LOW);</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"></highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(found_key<sp/>!=<sp/>0)</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">break</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"></highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Process<sp/>state<sp/>changes<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(found_key<sp/>!=<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!kp-&gt;<ref refid="structSYN__Keypad_1a15c8e403d0e8c8fcc3d6b4c193651e7f" kindref="member">is_pressed</ref><sp/>||<sp/>kp-&gt;<ref refid="structSYN__Keypad_1a645aa499a924062734ab68dc1273c741" kindref="member">active_key</ref><sp/>!=<sp/>found_key)<sp/>{</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>kp-&gt;<ref refid="structSYN__Keypad_1a645aa499a924062734ab68dc1273c741" kindref="member">active_key</ref><sp/>=<sp/>found_key;</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>kp-&gt;<ref refid="structSYN__Keypad_1a15c8e403d0e8c8fcc3d6b4c193651e7f" kindref="member">is_pressed</ref><sp/>=<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>kp-&gt;<ref refid="structSYN__Keypad_1ac09217fbadf4279e8b35ecb1f66a230f" kindref="member">press_count</ref>++;</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"></highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(kp-&gt;<ref refid="structSYN__Keypad_1a0f7b470cb6eeb339bfa40f7c9b51c01c" kindref="member">on_event</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>kp-&gt;<ref refid="structSYN__Keypad_1a0f7b470cb6eeb339bfa40f7c9b51c01c" kindref="member">on_event</ref>(kp,<sp/>found_key,<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">,<sp/>kp-&gt;<ref refid="structSYN__Keypad_1a646f59950f47ff04ae4dbb1e3b4897af" kindref="member">user_ctx</ref>);</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(kp-&gt;<ref refid="structSYN__Keypad_1a15c8e403d0e8c8fcc3d6b4c193651e7f" kindref="member">is_pressed</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>released_key<sp/>=<sp/>kp-&gt;<ref refid="structSYN__Keypad_1a645aa499a924062734ab68dc1273c741" kindref="member">active_key</ref>;</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>kp-&gt;<ref refid="structSYN__Keypad_1a15c8e403d0e8c8fcc3d6b4c193651e7f" kindref="member">is_pressed</ref><sp/>=<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>kp-&gt;<ref refid="structSYN__Keypad_1a645aa499a924062734ab68dc1273c741" kindref="member">active_key</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"></highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(kp-&gt;<ref refid="structSYN__Keypad_1a0f7b470cb6eeb339bfa40f7c9b51c01c" kindref="member">on_event</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>kp-&gt;<ref refid="structSYN__Keypad_1a0f7b470cb6eeb339bfa40f7c9b51c01c" kindref="member">on_event</ref>(kp,<sp/>released_key,<sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">,<sp/>kp-&gt;<ref refid="structSYN__Keypad_1a646f59950f47ff04ae4dbb1e3b4897af" kindref="member">user_ctx</ref>);</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="91"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"></highlight></codeline>
+<codeline lineno="93"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/><ref refid="syn__keypad_8c_1a3ca40fa9941eac434d5555774bf83477" kindref="member">syn_keypad_get_key</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/><ref refid="structSYN__Keypad" kindref="compound">SYN_Keypad</ref><sp/>*kp,<sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*out_key)</highlight></codeline>
+<codeline lineno="94"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(kp<sp/>==<sp/>NULL<sp/>||<sp/>!kp-&gt;<ref refid="structSYN__Keypad_1a15c8e403d0e8c8fcc3d6b4c193651e7f" kindref="member">is_pressed</ref>)</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(out_key<sp/>!=<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*out_key<sp/>=<sp/>kp-&gt;<ref refid="structSYN__Keypad_1a645aa499a924062734ab68dc1273c741" kindref="member">active_key</ref>;</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="101"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="102"><highlight class="normal"></highlight></codeline>
+<codeline lineno="103"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__keypad_8c_1a4303a029dc1a46dbad760df2cf326757" kindref="member">syn_keypad_set_callback</ref>(<ref refid="structSYN__Keypad" kindref="compound">SYN_Keypad</ref><sp/>*kp,<sp/><ref refid="syn__keypad_8h_1a5fad2301c9f1f5e76d7004ae63ca32a2" kindref="member">SYN_KeypadCallback</ref><sp/>callback,<sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>*user_ctx)</highlight></codeline>
+<codeline lineno="104"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(kp<sp/>==<sp/>NULL)</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"><sp/><sp/><sp/><sp/>kp-&gt;<ref refid="structSYN__Keypad_1a0f7b470cb6eeb339bfa40f7c9b51c01c" kindref="member">on_event</ref><sp/>=<sp/>callback;</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"><sp/><sp/><sp/><sp/>kp-&gt;<ref refid="structSYN__Keypad_1a646f59950f47ff04ae4dbb1e3b4897af" kindref="member">user_ctx</ref><sp/>=<sp/>user_ctx;</highlight></codeline>
+<codeline lineno="109"><highlight class="normal">}</highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/input/syn_keypad.c"/>
+  </compounddef>
+</doxygen>

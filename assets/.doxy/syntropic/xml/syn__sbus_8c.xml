@@ -1,0 +1,333 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__sbus_8c" kind="file" language="C++">
+    <compoundname>syn_sbus.c</compoundname>
+    <includes refid="syn__sbus_8h" local="yes">syntropic/proto/syn_sbus.h</includes>
+    <includes local="no">string.h</includes>
+    <incdepgraph>
+      <node id="3">
+        <label>syntropic/common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/proto/syn_sbus.c</label>
+        <link refid="syn__sbus_8c"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>syntropic/proto/syn_sbus.h</label>
+        <link refid="syn__sbus_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>stdbool.h</label>
+      </node>
+      <node id="4">
+        <label>stddef.h</label>
+      </node>
+      <node id="5">
+        <label>stdint.h</label>
+      </node>
+      <node id="7">
+        <label>string.h</label>
+      </node>
+    </incdepgraph>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__sbus_8c_1a5d10be9deb88472479570bc7d4bc752f" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_sbus_init</definition>
+        <argsstring>(SYN_SBUS_Parser *parser)</argsstring>
+        <name>syn_sbus_init</name>
+        <param>
+          <type><ref refid="structSYN__SBUS__Parser" kindref="compound">SYN_SBUS_Parser</ref> *</type>
+          <declname>parser</declname>
+        </param>
+        <briefdescription>
+<para>Initialize SBUS parser state machine. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>parser</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to parser struct. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_sbus.c" line="10" column="12" bodyfile="src/syntropic/proto/syn_sbus.c" bodystart="10" bodyend="18"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__sbus_8c_1a919d746ef10e615f6c6e7f30462ae7cc" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_sbus_decode_buffer</definition>
+        <argsstring>(const uint8_t buf[SYN_SBUS_FRAME_SIZE], SYN_SBUS_Frame *frame)</argsstring>
+        <name>syn_sbus_decode_buffer</name>
+        <param>
+          <type>const uint8_t</type>
+          <declname>buf</declname>
+          <array>[SYN_SBUS_FRAME_SIZE]</array>
+        </param>
+        <param>
+          <type><ref refid="structSYN__SBUS__Frame" kindref="compound">SYN_SBUS_Frame</ref> *</type>
+          <declname>frame</declname>
+        </param>
+        <briefdescription>
+<para>Decode raw 25-byte SBUS frame buffer into channel outputs. </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Decode raw 25-byte SBUS frame buffer directly.</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to 25-byte raw SBUS frame buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>frame</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to output SBUS decoded frame structure. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_INVALID_PARAM or SYN_ERROR on header mismatch. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_sbus.c" line="27" column="12" bodyfile="src/syntropic/proto/syn_sbus.c" bodystart="27" bodyend="63"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__sbus_8c_1a855a8769ada113ed9ffe3682fb1bb8fe" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_sbus_parse_byte</definition>
+        <argsstring>(SYN_SBUS_Parser *parser, uint8_t byte, SYN_SBUS_Frame *frame)</argsstring>
+        <name>syn_sbus_parse_byte</name>
+        <param>
+          <type><ref refid="structSYN__SBUS__Parser" kindref="compound">SYN_SBUS_Parser</ref> *</type>
+          <declname>parser</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>byte</declname>
+        </param>
+        <param>
+          <type><ref refid="structSYN__SBUS__Frame" kindref="compound">SYN_SBUS_Frame</ref> *</type>
+          <declname>frame</declname>
+        </param>
+        <briefdescription>
+<para>Process single incoming byte from UART. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>parser</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to parser struct. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>byte</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Incoming serial byte. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>frame</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to output frame struct (populated when a complete valid 25-byte frame is decoded). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK if complete frame decoded, SYN_BUSY if byte accepted but frame incomplete, SYN_ERROR on header mismatch. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_sbus.c" line="65" column="12" bodyfile="src/syntropic/proto/syn_sbus.c" bodystart="65" bodyend="100"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__sbus_8c_1a8e9c0094174f6aaad276439d75148325" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint16_t</type>
+        <definition>uint16_t syn_sbus_raw_to_us</definition>
+        <argsstring>(uint16_t raw_val)</argsstring>
+        <name>syn_sbus_raw_to_us</name>
+        <param>
+          <type>uint16_t</type>
+          <declname>raw_val</declname>
+        </param>
+        <briefdescription>
+<para>Convert raw 11-bit SBUS channel value to pulse width in microseconds (us). </para>
+        </briefdescription>
+        <detaileddescription>
+<para>Standard mapping:<itemizedlist>
+<listitem><para>172 raw -&gt; 1000 us</para>
+</listitem><listitem><para>992 raw -&gt; 1500 us</para>
+</listitem><listitem><para>1811 raw -&gt; 2000 us</para>
+</listitem></itemizedlist>
+</para>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>raw_val</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>11-bit raw SBUS channel value (172..1811). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>Pulse width in microseconds (clamped 1000..2000 us). </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/proto/syn_sbus.c" line="102" column="10" bodyfile="src/syntropic/proto/syn_sbus.c" bodystart="102" bodyend="120"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Zero-Heap SBUS (Futaba/FrSky) 16-Channel Receiver Decoder Implementation. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__sbus_8h" kindref="compound">syntropic/proto/syn_sbus.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;string.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__sbus_8c_1a5d10be9deb88472479570bc7d4bc752f" kindref="member">syn_sbus_init</ref>(<ref refid="structSYN__SBUS__Parser" kindref="compound">SYN_SBUS_Parser</ref><sp/>*parser)</highlight></codeline>
+<codeline lineno="11"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="12"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!parser)<sp/>{</highlight></codeline>
+<codeline lineno="13"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="14"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"><sp/><sp/><sp/><sp/>memset(parser,<sp/>0,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(*parser));</highlight></codeline>
+<codeline lineno="17"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="18"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__sbus_8c_1a919d746ef10e615f6c6e7f30462ae7cc" kindref="member">syn_sbus_decode_buffer</ref>(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>buf[<ref refid="syn__sbus_8h_1a6c7b8f5746f2edacd681e5228412fc60" kindref="member">SYN_SBUS_FRAME_SIZE</ref>],<sp/><ref refid="structSYN__SBUS__Frame" kindref="compound">SYN_SBUS_Frame</ref><sp/>*frame)</highlight></codeline>
+<codeline lineno="28"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="29"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!buf<sp/>||<sp/>!frame)<sp/>{</highlight></codeline>
+<codeline lineno="30"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="31"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight></codeline>
+<codeline lineno="33"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(buf[0]<sp/>!=<sp/><ref refid="syn__sbus_8h_1a43cd6c54c816216923a171784fb9145f" kindref="member">SYN_SBUS_HEADER</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="34"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00acd5d2701b7cfa9fb446640ecbeb19fc9" kindref="member">SYN_ERROR</ref>;</highlight></codeline>
+<codeline lineno="35"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Unpack<sp/>16<sp/>11-bit<sp/>channels<sp/>from<sp/>bytes<sp/>1..22<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"><sp/><sp/><sp/><sp/>frame-&gt;<ref refid="structSYN__SBUS__Frame_1a78d978a73e5adb25b546b99d9c23f6e0" kindref="member">channels</ref>[0]<sp/>=<sp/>(uint16_t)(((buf[1])<sp/>|<sp/>(buf[2]<sp/>&lt;&lt;<sp/>8))<sp/>&amp;<sp/>0x07FFU);</highlight></codeline>
+<codeline lineno="39"><highlight class="normal"><sp/><sp/><sp/><sp/>frame-&gt;<ref refid="structSYN__SBUS__Frame_1a78d978a73e5adb25b546b99d9c23f6e0" kindref="member">channels</ref>[1]<sp/>=<sp/>(uint16_t)(((buf[2]<sp/>&gt;&gt;<sp/>3)<sp/>|<sp/>(buf[3]<sp/>&lt;&lt;<sp/>5))<sp/>&amp;<sp/>0x07FFU);</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"><sp/><sp/><sp/><sp/>frame-&gt;<ref refid="structSYN__SBUS__Frame_1a78d978a73e5adb25b546b99d9c23f6e0" kindref="member">channels</ref>[2]<sp/>=<sp/>(uint16_t)(((buf[3]<sp/>&gt;&gt;<sp/>6)<sp/>|<sp/>(buf[4]<sp/>&lt;&lt;<sp/>2)<sp/>|<sp/>(buf[5]<sp/>&lt;&lt;<sp/>10))<sp/>&amp;<sp/>0x07FFU);</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"><sp/><sp/><sp/><sp/>frame-&gt;<ref refid="structSYN__SBUS__Frame_1a78d978a73e5adb25b546b99d9c23f6e0" kindref="member">channels</ref>[3]<sp/>=<sp/>(uint16_t)(((buf[5]<sp/>&gt;&gt;<sp/>1)<sp/>|<sp/>(buf[6]<sp/>&lt;&lt;<sp/>7))<sp/>&amp;<sp/>0x07FFU);</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"><sp/><sp/><sp/><sp/>frame-&gt;<ref refid="structSYN__SBUS__Frame_1a78d978a73e5adb25b546b99d9c23f6e0" kindref="member">channels</ref>[4]<sp/>=<sp/>(uint16_t)(((buf[6]<sp/>&gt;&gt;<sp/>4)<sp/>|<sp/>(buf[7]<sp/>&lt;&lt;<sp/>4))<sp/>&amp;<sp/>0x07FFU);</highlight></codeline>
+<codeline lineno="43"><highlight class="normal"><sp/><sp/><sp/><sp/>frame-&gt;<ref refid="structSYN__SBUS__Frame_1a78d978a73e5adb25b546b99d9c23f6e0" kindref="member">channels</ref>[5]<sp/>=<sp/>(uint16_t)(((buf[7]<sp/>&gt;&gt;<sp/>7)<sp/>|<sp/>(buf[8]<sp/>&lt;&lt;<sp/>1)<sp/>|<sp/>(buf[9]<sp/>&lt;&lt;<sp/>9))<sp/>&amp;<sp/>0x07FFU);</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"><sp/><sp/><sp/><sp/>frame-&gt;<ref refid="structSYN__SBUS__Frame_1a78d978a73e5adb25b546b99d9c23f6e0" kindref="member">channels</ref>[6]<sp/>=<sp/>(uint16_t)(((buf[9]<sp/>&gt;&gt;<sp/>2)<sp/>|<sp/>(buf[10]<sp/>&lt;&lt;<sp/>6))<sp/>&amp;<sp/>0x07FFU);</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"><sp/><sp/><sp/><sp/>frame-&gt;<ref refid="structSYN__SBUS__Frame_1a78d978a73e5adb25b546b99d9c23f6e0" kindref="member">channels</ref>[7]<sp/>=<sp/>(uint16_t)(((buf[10]<sp/>&gt;&gt;<sp/>5)<sp/>|<sp/>(buf[11]<sp/>&lt;&lt;<sp/>3))<sp/>&amp;<sp/>0x07FFU);</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/><sp/><sp/>frame-&gt;<ref refid="structSYN__SBUS__Frame_1a78d978a73e5adb25b546b99d9c23f6e0" kindref="member">channels</ref>[8]<sp/>=<sp/>(uint16_t)(((buf[12])<sp/>|<sp/>(buf[13]<sp/>&lt;&lt;<sp/>8))<sp/>&amp;<sp/>0x07FFU);</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/><sp/><sp/>frame-&gt;<ref refid="structSYN__SBUS__Frame_1a78d978a73e5adb25b546b99d9c23f6e0" kindref="member">channels</ref>[9]<sp/>=<sp/>(uint16_t)(((buf[13]<sp/>&gt;&gt;<sp/>3)<sp/>|<sp/>(buf[14]<sp/>&lt;&lt;<sp/>5))<sp/>&amp;<sp/>0x07FFU);</highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/><sp/><sp/>frame-&gt;<ref refid="structSYN__SBUS__Frame_1a78d978a73e5adb25b546b99d9c23f6e0" kindref="member">channels</ref>[10]<sp/>=<sp/>(uint16_t)(((buf[14]<sp/>&gt;&gt;<sp/>6)<sp/>|<sp/>(buf[15]<sp/>&lt;&lt;<sp/>2)<sp/>|<sp/>(buf[16]<sp/>&lt;&lt;<sp/>10))<sp/>&amp;<sp/>0x07FFU);</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/><sp/><sp/>frame-&gt;<ref refid="structSYN__SBUS__Frame_1a78d978a73e5adb25b546b99d9c23f6e0" kindref="member">channels</ref>[11]<sp/>=<sp/>(uint16_t)(((buf[16]<sp/>&gt;&gt;<sp/>1)<sp/>|<sp/>(buf[17]<sp/>&lt;&lt;<sp/>7))<sp/>&amp;<sp/>0x07FFU);</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/><sp/><sp/>frame-&gt;<ref refid="structSYN__SBUS__Frame_1a78d978a73e5adb25b546b99d9c23f6e0" kindref="member">channels</ref>[12]<sp/>=<sp/>(uint16_t)(((buf[17]<sp/>&gt;&gt;<sp/>4)<sp/>|<sp/>(buf[18]<sp/>&lt;&lt;<sp/>4))<sp/>&amp;<sp/>0x07FFU);</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><sp/><sp/><sp/><sp/>frame-&gt;<ref refid="structSYN__SBUS__Frame_1a78d978a73e5adb25b546b99d9c23f6e0" kindref="member">channels</ref>[13]<sp/>=<sp/>(uint16_t)(((buf[18]<sp/>&gt;&gt;<sp/>7)<sp/>|<sp/>(buf[19]<sp/>&lt;&lt;<sp/>1)<sp/>|<sp/>(buf[20]<sp/>&lt;&lt;<sp/>9))<sp/>&amp;<sp/>0x07FFU);</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/><sp/><sp/>frame-&gt;<ref refid="structSYN__SBUS__Frame_1a78d978a73e5adb25b546b99d9c23f6e0" kindref="member">channels</ref>[14]<sp/>=<sp/>(uint16_t)(((buf[20]<sp/>&gt;&gt;<sp/>2)<sp/>|<sp/>(buf[21]<sp/>&lt;&lt;<sp/>6))<sp/>&amp;<sp/>0x07FFU);</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/><sp/><sp/>frame-&gt;<ref refid="structSYN__SBUS__Frame_1a78d978a73e5adb25b546b99d9c23f6e0" kindref="member">channels</ref>[15]<sp/>=<sp/>(uint16_t)(((buf[21]<sp/>&gt;&gt;<sp/>5)<sp/>|<sp/>(buf[22]<sp/>&lt;&lt;<sp/>3))<sp/>&amp;<sp/>0x07FFU);</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"></highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Flags<sp/>in<sp/>byte<sp/>23<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="56"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>flags<sp/>=<sp/>buf[23];</highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/><sp/><sp/>frame-&gt;<ref refid="structSYN__SBUS__Frame_1a90f28cd9d5afb2c0e6d91f0423c73154" kindref="member">ch17</ref><sp/>=<sp/>(flags<sp/>&amp;<sp/>0x01U)<sp/>!=<sp/>0;</highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/>frame-&gt;<ref refid="structSYN__SBUS__Frame_1a28e5cfc577b0a9433927dc43d76fab5a" kindref="member">ch18</ref><sp/>=<sp/>(flags<sp/>&amp;<sp/>0x02U)<sp/>!=<sp/>0;</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><sp/><sp/><sp/><sp/>frame-&gt;<ref refid="structSYN__SBUS__Frame_1aa27b4f42ab7d123eb0ac215a764a6076" kindref="member">frame_loss</ref><sp/>=<sp/>(flags<sp/>&amp;<sp/>0x04U)<sp/>!=<sp/>0;</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"><sp/><sp/><sp/><sp/>frame-&gt;<ref refid="structSYN__SBUS__Frame_1a87915ff856deee3c055d2445c8d1a928" kindref="member">failsafe</ref><sp/>=<sp/>(flags<sp/>&amp;<sp/>0x08U)<sp/>!=<sp/>0;</highlight></codeline>
+<codeline lineno="61"><highlight class="normal"></highlight></codeline>
+<codeline lineno="62"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="63"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"></highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__sbus_8c_1a855a8769ada113ed9ffe3682fb1bb8fe" kindref="member">syn_sbus_parse_byte</ref>(<ref refid="structSYN__SBUS__Parser" kindref="compound">SYN_SBUS_Parser</ref><sp/>*parser,<sp/>uint8_t<sp/></highlight><highlight class="keywordtype">byte</highlight><highlight class="normal">,<sp/><ref refid="structSYN__SBUS__Frame" kindref="compound">SYN_SBUS_Frame</ref><sp/>*frame)</highlight></codeline>
+<codeline lineno="66"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!parser)<sp/>{</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"></highlight></codeline>
+<codeline lineno="71"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Start<sp/>of<sp/>new<sp/>frame<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="72"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(parser-&gt;<ref refid="structSYN__SBUS__Parser_1a47cedce3659d7760cf418832f71e83e0" kindref="member">idx</ref><sp/>==<sp/>0)<sp/>{</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">byte</highlight><highlight class="normal"><sp/>!=<sp/><ref refid="syn__sbus_8h_1a43cd6c54c816216923a171784fb9145f" kindref="member">SYN_SBUS_HEADER</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00acd5d2701b7cfa9fb446640ecbeb19fc9" kindref="member">SYN_ERROR</ref>;</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"></highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/><sp/><sp/>parser-&gt;<ref refid="structSYN__SBUS__Parser_1a2776b2521cff4e9dc5bc47da42de2cb1" kindref="member">buf</ref>[parser-&gt;<ref refid="structSYN__SBUS__Parser_1a47cedce3659d7760cf418832f71e83e0" kindref="member">idx</ref>++]<sp/>=<sp/>byte;</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"></highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(parser-&gt;<ref refid="structSYN__SBUS__Parser_1a47cedce3659d7760cf418832f71e83e0" kindref="member">idx</ref><sp/>&gt;=<sp/><ref refid="syn__sbus_8h_1a6c7b8f5746f2edacd681e5228412fc60" kindref="member">SYN_SBUS_FRAME_SIZE</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>parser-&gt;<ref refid="structSYN__SBUS__Parser_1a47cedce3659d7760cf418832f71e83e0" kindref="member">idx</ref><sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/>status<sp/>=<sp/><ref refid="syn__sbus_8c_1a919d746ef10e615f6c6e7f30462ae7cc" kindref="member">syn_sbus_decode_buffer</ref>(parser-&gt;<ref refid="structSYN__SBUS__Parser_1a2776b2521cff4e9dc5bc47da42de2cb1" kindref="member">buf</ref>,<sp/>&amp;parser-&gt;<ref refid="structSYN__SBUS__Parser_1ad50a0a08940867512d8bb26c58458283" kindref="member">last_frame</ref>);</highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(status<sp/>==<sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>parser-&gt;<ref refid="structSYN__SBUS__Parser_1a6466006f014d8be4b032ae54bddf129d" kindref="member">frames_received</ref>++;</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(parser-&gt;<ref refid="structSYN__SBUS__Parser_1ad50a0a08940867512d8bb26c58458283" kindref="member">last_frame</ref>.<ref refid="structSYN__SBUS__Frame_1aa27b4f42ab7d123eb0ac215a764a6076" kindref="member">frame_loss</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>parser-&gt;<ref refid="structSYN__SBUS__Parser_1a7aca6a6d91db3bb30cac4bf34c3ea8d6" kindref="member">frame_loss_count</ref>++;</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(parser-&gt;<ref refid="structSYN__SBUS__Parser_1ad50a0a08940867512d8bb26c58458283" kindref="member">last_frame</ref>.<ref refid="structSYN__SBUS__Frame_1a87915ff856deee3c055d2445c8d1a928" kindref="member">failsafe</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>parser-&gt;<ref refid="structSYN__SBUS__Parser_1a21adf850a896e2551bdbbd75b60cee01" kindref="member">failsafe_count</ref>++;</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(frame)<sp/>{</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>*frame<sp/>=<sp/>parser-&gt;<ref refid="structSYN__SBUS__Parser_1ad50a0a08940867512d8bb26c58458283" kindref="member">last_frame</ref>;</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>status;</highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="98"><highlight class="normal"></highlight></codeline>
+<codeline lineno="99"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a3be376d242928cd8de46b32c69647539" kindref="member">SYN_BUSY</ref>;</highlight></codeline>
+<codeline lineno="100"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"></highlight></codeline>
+<codeline lineno="102"><highlight class="normal">uint16_t<sp/><ref refid="syn__sbus_8c_1a8e9c0094174f6aaad276439d75148325" kindref="member">syn_sbus_raw_to_us</ref>(uint16_t<sp/>raw_val)</highlight></codeline>
+<codeline lineno="103"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="104"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(raw_val<sp/>&lt;<sp/>172U)<sp/>{</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>1000U;</highlight></codeline>
+<codeline lineno="106"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="107"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(raw_val<sp/>&gt;<sp/>1811U)<sp/>{</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>2000U;</highlight></codeline>
+<codeline lineno="109"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="110"><highlight class="normal"></highlight></codeline>
+<codeline lineno="111"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*</highlight></codeline>
+<codeline lineno="112"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/>*<sp/>Linear<sp/>interpolation:</highlight></codeline>
+<codeline lineno="113"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/>*<sp/>raw<sp/>range:<sp/>[172,<sp/>1811]<sp/>-&gt;<sp/>span<sp/>=<sp/>1639</highlight></codeline>
+<codeline lineno="114"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/>*<sp/>us<sp/>range:<sp/><sp/>[1000,<sp/>2000]<sp/>-&gt;<sp/>span<sp/>=<sp/>1000</highlight></codeline>
+<codeline lineno="115"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/>*<sp/>us<sp/>=<sp/>1000<sp/>+<sp/>((raw_val<sp/>-<sp/>172)<sp/>*<sp/>1000)<sp/>/<sp/>1639</highlight></codeline>
+<codeline lineno="116"><highlight class="comment"><sp/><sp/><sp/><sp/><sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="117"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/>val<sp/>=<sp/>(uint32_t)(raw_val<sp/>-<sp/>172U);</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/>us<sp/>=<sp/>1000U<sp/>+<sp/>((val<sp/>*<sp/>1000U)<sp/>/<sp/>1639U);</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(uint16_t)us;</highlight></codeline>
+<codeline lineno="120"><highlight class="normal">}</highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/proto/syn_sbus.c"/>
+  </compounddef>
+</doxygen>

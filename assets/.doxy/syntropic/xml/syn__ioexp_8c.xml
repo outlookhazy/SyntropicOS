@@ -1,0 +1,565 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__ioexp_8c" kind="file" language="C++">
+    <compoundname>syn_ioexp.c</compoundname>
+    <includes refid="syn__ioexp_8h" local="yes">syn_ioexp.h</includes>
+    <includes refid="syn__assert_8h" local="yes">../util/syn_assert.h</includes>
+    <includes local="no">string.h</includes>
+    <incdepgraph>
+      <node id="9">
+        <label>../common/syn_compiler.h</label>
+        <link refid="syn__compiler_8h"/>
+      </node>
+      <node id="3">
+        <label>../common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/drivers/syn_ioexp.c</label>
+        <link refid="syn__ioexp_8c"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>syn_ioexp.h</label>
+        <link refid="syn__ioexp_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>../drivers/syn_soft_i2c.h</label>
+        <link refid="syn__soft__i2c_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="8">
+        <label>../util/syn_assert.h</label>
+        <link refid="syn__assert_8h"/>
+        <childnode refid="9" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>stdbool.h</label>
+      </node>
+      <node id="4">
+        <label>stddef.h</label>
+      </node>
+      <node id="5">
+        <label>stdint.h</label>
+      </node>
+      <node id="10">
+        <label>string.h</label>
+      </node>
+    </incdepgraph>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__ioexp_8c_1a6592017ec6abc504283708450c8124f1" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void write_i2c_bytes</definition>
+        <argsstring>(SYN_SoftI2C *i2c, uint8_t dev_addr, const uint8_t *buf, size_t len)</argsstring>
+        <name>write_i2c_bytes</name>
+        <param>
+          <type><ref refid="structSYN__SoftI2C" kindref="compound">SYN_SoftI2C</ref> *</type>
+          <declname>i2c</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>dev_addr</declname>
+        </param>
+        <param>
+          <type>const uint8_t *</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>len</declname>
+        </param>
+        <briefdescription>
+<para>Write buffer over software I2C bus. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>i2c</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to software I2C instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>dev_addr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>7-bit device I2C address. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to data buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>len</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Byte length to write. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_ioexp.c" line="19" column="13" bodyfile="src/syntropic/drivers/syn_ioexp.c" bodystart="19" bodyend="27"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__ioexp_8c_1acff6d77c3f2b0bc09a2569ed7d023aaa" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_ioexp_init</definition>
+        <argsstring>(SYN_IOExp *ioexp, SYN_GPIO_Pin scl, SYN_GPIO_Pin sda, uint8_t i2c_addr, SYN_IOExpType type)</argsstring>
+        <name>syn_ioexp_init</name>
+        <param>
+          <type><ref refid="structSYN__IOExp" kindref="compound">SYN_IOExp</ref> *</type>
+          <declname>ioexp</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref></type>
+          <declname>scl</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref></type>
+          <declname>sda</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>i2c_addr</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__ioexp_8h_1aac345d69b400928e1b8eaeb26d1f3378" kindref="member">SYN_IOExpType</ref></type>
+          <declname>type</declname>
+        </param>
+        <briefdescription>
+<para>Initialize an I2C GPIO Expander instance. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ioexp</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Expander context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>scl</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>I2C SCL pin. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>sda</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>I2C SDA pin. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>i2c_addr</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>I2C slave address (e.g. 0x20 or 0x27). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>type</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Expander IC type (MCP23017, MCP23008, PCF8574, TCA9555). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_ioexp.c" line="29" column="12" bodyfile="src/syntropic/drivers/syn_ioexp.c" bodystart="29" bodyend="58"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__ioexp_8c_1a19aa8daf2e4ba3fb544cee7a134cec70" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_ioexp_set_pin_mode</definition>
+        <argsstring>(SYN_IOExp *ioexp, uint8_t pin, SYN_GPIO_Mode mode)</argsstring>
+        <name>syn_ioexp_set_pin_mode</name>
+        <param>
+          <type><ref refid="structSYN__IOExp" kindref="compound">SYN_IOExp</ref> *</type>
+          <declname>ioexp</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>pin</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__defs_8h_1aa3126491e1d1a15a159caaa4640d0866" kindref="member">SYN_GPIO_Mode</ref></type>
+          <declname>mode</declname>
+        </param>
+        <briefdescription>
+<para>Set pin mode (input vs output). </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ioexp</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Expander context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>pin</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pin index (0 to num_pins-1). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>mode</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Mode (SYN_GPIO_INPUT, SYN_GPIO_OUTPUT, SYN_GPIO_INPUT_PULLUP). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_ioexp.c" line="60" column="6" bodyfile="src/syntropic/drivers/syn_ioexp.c" bodystart="60" bodyend="81"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__ioexp_8c_1ae683740d5d83cb2e30a199d553214ca1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_ioexp_write_pin</definition>
+        <argsstring>(SYN_IOExp *ioexp, uint8_t pin, SYN_GPIO_State state)</argsstring>
+        <name>syn_ioexp_write_pin</name>
+        <param>
+          <type><ref refid="structSYN__IOExp" kindref="compound">SYN_IOExp</ref> *</type>
+          <declname>ioexp</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>pin</declname>
+        </param>
+        <param>
+          <type><ref refid="syn__defs_8h_1aaa3b9a5c8a9518fd3c3ca7bbe8b4de4a" kindref="member">SYN_GPIO_State</ref></type>
+          <declname>state</declname>
+        </param>
+        <briefdescription>
+<para>Write digital output state to a pin. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ioexp</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Expander context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>pin</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pin index (0 to num_pins-1). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>state</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>State (SYN_GPIO_HIGH or SYN_GPIO_LOW). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_ioexp.c" line="83" column="6" bodyfile="src/syntropic/drivers/syn_ioexp.c" bodystart="83" bodyend="95"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__ioexp_8c_1af1fa64bee165e8bd3250d1266ae4ccad" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1aaa3b9a5c8a9518fd3c3ca7bbe8b4de4a" kindref="member">SYN_GPIO_State</ref></type>
+        <definition>SYN_GPIO_State syn_ioexp_read_pin</definition>
+        <argsstring>(SYN_IOExp *ioexp, uint8_t pin)</argsstring>
+        <name>syn_ioexp_read_pin</name>
+        <param>
+          <type><ref refid="structSYN__IOExp" kindref="compound">SYN_IOExp</ref> *</type>
+          <declname>ioexp</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>pin</declname>
+        </param>
+        <briefdescription>
+<para>Read digital input state from a pin. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ioexp</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Expander context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>pin</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pin index (0 to num_pins-1). </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_GPIO_HIGH or SYN_GPIO_LOW. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_ioexp.c" line="97" column="16" bodyfile="src/syntropic/drivers/syn_ioexp.c" bodystart="97" bodyend="104"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__ioexp_8c_1a40a62f2b4735f5956ca681b84aa4f7f6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void syn_ioexp_write_port</definition>
+        <argsstring>(SYN_IOExp *ioexp, uint16_t mask)</argsstring>
+        <name>syn_ioexp_write_port</name>
+        <param>
+          <type><ref refid="structSYN__IOExp" kindref="compound">SYN_IOExp</ref> *</type>
+          <declname>ioexp</declname>
+        </param>
+        <param>
+          <type>uint16_t</type>
+          <declname>mask</declname>
+        </param>
+        <briefdescription>
+<para>Write entire 16-bit output port mask. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ioexp</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Expander context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>mask</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>16-bit port value. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_ioexp.c" line="106" column="6" bodyfile="src/syntropic/drivers/syn_ioexp.c" bodystart="106" bodyend="126"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__ioexp_8c_1ad468841c744ef2d687ab2f42816be181" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>uint16_t</type>
+        <definition>uint16_t syn_ioexp_read_port</definition>
+        <argsstring>(SYN_IOExp *ioexp)</argsstring>
+        <name>syn_ioexp_read_port</name>
+        <param>
+          <type><ref refid="structSYN__IOExp" kindref="compound">SYN_IOExp</ref> *</type>
+          <declname>ioexp</declname>
+        </param>
+        <briefdescription>
+<para>Read entire 16-bit input port mask. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>ioexp</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Expander context. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>16-bit port value. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/drivers/syn_ioexp.c" line="128" column="10" bodyfile="src/syntropic/drivers/syn_ioexp.c" bodystart="128" bodyend="133"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Generic I2C GPIO Expander Driver (MCP23017, MCP23008, PCF8574, TCA9555). </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__ioexp_8h" kindref="compound">syn_ioexp.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;../util/syn_assert.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;string.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__ioexp_8c_1a6592017ec6abc504283708450c8124f1" kindref="member">write_i2c_bytes</ref>(<ref refid="structSYN__SoftI2C" kindref="compound">SYN_SoftI2C</ref><sp/>*i2c,<sp/>uint8_t<sp/>dev_addr,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>*buf,<sp/></highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>len)</highlight></codeline>
+<codeline lineno="20"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="21"><highlight class="normal"><sp/><sp/><sp/><sp/>syn_soft_i2c_start(i2c);</highlight></codeline>
+<codeline lineno="22"><highlight class="normal"><sp/><sp/><sp/><sp/>syn_soft_i2c_write(i2c,<sp/>(uint8_t)(dev_addr<sp/>&lt;&lt;<sp/>1));</highlight></codeline>
+<codeline lineno="23"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal"><sp/>(</highlight><highlight class="keywordtype">size_t</highlight><highlight class="normal"><sp/>i<sp/>=<sp/>0;<sp/>i<sp/>&lt;<sp/>len;<sp/>i++)<sp/>{</highlight></codeline>
+<codeline lineno="24"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>syn_soft_i2c_write(i2c,<sp/>buf[i]);</highlight></codeline>
+<codeline lineno="25"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="26"><highlight class="normal"><sp/><sp/><sp/><sp/>syn_soft_i2c_stop(i2c);</highlight></codeline>
+<codeline lineno="27"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__ioexp_8c_1acff6d77c3f2b0bc09a2569ed7d023aaa" kindref="member">syn_ioexp_init</ref>(<ref refid="structSYN__IOExp" kindref="compound">SYN_IOExp</ref><sp/>*ioexp,<sp/><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref><sp/>scl,<sp/><ref refid="syn__defs_8h_1a746895ced827747dec9b95cc7f412981" kindref="member">SYN_GPIO_Pin</ref><sp/>sda,<sp/>uint8_t<sp/>i2c_addr,</highlight></codeline>
+<codeline lineno="30"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__ioexp_8h_1aac345d69b400928e1b8eaeb26d1f3378" kindref="member">SYN_IOExpType</ref><sp/>type)</highlight></codeline>
+<codeline lineno="31"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="32"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__assert_8h_1ad36711aab4d7fb37f59998aa445c036e" kindref="member">SYN_ASSERT</ref>(ioexp<sp/>!=<sp/>NULL);</highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"><sp/><sp/><sp/><sp/>memset(ioexp,<sp/>0,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(*ioexp));</highlight></codeline>
+<codeline lineno="35"><highlight class="normal"><sp/><sp/><sp/><sp/>ioexp-&gt;<ref refid="structSYN__IOExp_1a14287cc3f551669235fef407e6aabc4b" kindref="member">type</ref><sp/>=<sp/>type;</highlight></codeline>
+<codeline lineno="36"><highlight class="normal"><sp/><sp/><sp/><sp/>ioexp-&gt;<ref refid="structSYN__IOExp_1a62d10d7983f298f1d2102a498ecdbb9b" kindref="member">i2c_addr</ref><sp/>=<sp/>i2c_addr;</highlight></codeline>
+<codeline lineno="37"><highlight class="normal"><sp/><sp/><sp/><sp/>ioexp-&gt;<ref refid="structSYN__IOExp_1a7a2e59af8a55cb30868150e56f8a8690" kindref="member">num_pins</ref><sp/>=<sp/>(type<sp/>==<sp/><ref refid="syn__ioexp_8h_1aac345d69b400928e1b8eaeb26d1f3378ae280629aa1860e4c7045fecd2059c772" kindref="member">SYN_IOEXP_MCP23008</ref><sp/>||<sp/>type<sp/>==<sp/><ref refid="syn__ioexp_8h_1aac345d69b400928e1b8eaeb26d1f3378afe3498d74021cfb7215ced5cd5a03abf" kindref="member">SYN_IOEXP_PCF8574</ref>)<sp/>?<sp/>8<sp/>:<sp/>16;</highlight></codeline>
+<codeline lineno="38"><highlight class="normal"><sp/><sp/><sp/><sp/>ioexp-&gt;<ref refid="structSYN__IOExp_1a941cbe2285ca0048326ef5c04c59f384" kindref="member">dir_mask</ref><sp/>=<sp/>0xFFFF;<sp/></highlight><highlight class="comment">/*<sp/>All<sp/>inputs<sp/>by<sp/>default<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="39"><highlight class="normal"></highlight></codeline>
+<codeline lineno="40"><highlight class="normal"><sp/><sp/><sp/><sp/>syn_soft_i2c_init(&amp;ioexp-&gt;<ref refid="structSYN__IOExp_1adc3e949d37efb344cf4c08b8e53d4b11" kindref="member">i2c</ref>,<sp/>scl,<sp/>sda,<sp/>10);</highlight></codeline>
+<codeline lineno="41"><highlight class="normal"></highlight></codeline>
+<codeline lineno="42"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Initialize<sp/>chip<sp/>registers<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="43"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(type<sp/>==<sp/><ref refid="syn__ioexp_8h_1aac345d69b400928e1b8eaeb26d1f3378a45bc38b7ca9536ed504c88e06fea29a2" kindref="member">SYN_IOEXP_MCP23017</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>buf[3]<sp/>=<sp/>{0x00,<sp/>0xFF,<sp/>0xFF};<sp/></highlight><highlight class="comment">/*<sp/>IODIRA<sp/>and<sp/>IODIRB<sp/>to<sp/>all<sp/>inputs<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="45"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__ioexp_8c_1a6592017ec6abc504283708450c8124f1" kindref="member">write_i2c_bytes</ref>(&amp;ioexp-&gt;<ref refid="structSYN__IOExp_1adc3e949d37efb344cf4c08b8e53d4b11" kindref="member">i2c</ref>,<sp/>i2c_addr,<sp/>buf,<sp/>3);</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(type<sp/>==<sp/><ref refid="syn__ioexp_8h_1aac345d69b400928e1b8eaeb26d1f3378ae280629aa1860e4c7045fecd2059c772" kindref="member">SYN_IOEXP_MCP23008</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>buf[2]<sp/>=<sp/>{0x00,<sp/>0xFF};<sp/></highlight><highlight class="comment">/*<sp/>IODIR<sp/>all<sp/>inputs<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__ioexp_8c_1a6592017ec6abc504283708450c8124f1" kindref="member">write_i2c_bytes</ref>(&amp;ioexp-&gt;<ref refid="structSYN__IOExp_1adc3e949d37efb344cf4c08b8e53d4b11" kindref="member">i2c</ref>,<sp/>i2c_addr,<sp/>buf,<sp/>2);</highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(type<sp/>==<sp/><ref refid="syn__ioexp_8h_1aac345d69b400928e1b8eaeb26d1f3378ab9a77bf6ecde1cb5c4d0ee3a20ba0aee" kindref="member">SYN_IOEXP_TCA9555</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>buf[3]<sp/>=<sp/>{0x06,<sp/>0xFF,<sp/>0xFF};<sp/></highlight><highlight class="comment">/*<sp/>Configuration<sp/>registers<sp/>to<sp/>all<sp/>inputs<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__ioexp_8c_1a6592017ec6abc504283708450c8124f1" kindref="member">write_i2c_bytes</ref>(&amp;ioexp-&gt;<ref refid="structSYN__IOExp_1adc3e949d37efb344cf4c08b8e53d4b11" kindref="member">i2c</ref>,<sp/>i2c_addr,<sp/>buf,<sp/>3);</highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(type<sp/>==<sp/><ref refid="syn__ioexp_8h_1aac345d69b400928e1b8eaeb26d1f3378afe3498d74021cfb7215ced5cd5a03abf" kindref="member">SYN_IOEXP_PCF8574</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>val<sp/>=<sp/>0xFF;<sp/></highlight><highlight class="comment">/*<sp/>PCF8574<sp/>pseudo-bidirectional<sp/>high<sp/>=<sp/>input<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="54"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__ioexp_8c_1a6592017ec6abc504283708450c8124f1" kindref="member">write_i2c_bytes</ref>(&amp;ioexp-&gt;<ref refid="structSYN__IOExp_1adc3e949d37efb344cf4c08b8e53d4b11" kindref="member">i2c</ref>,<sp/>i2c_addr,<sp/>&amp;val,<sp/>1);</highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"></highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="58"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"></highlight></codeline>
+<codeline lineno="60"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__ioexp_8c_1a19aa8daf2e4ba3fb544cee7a134cec70" kindref="member">syn_ioexp_set_pin_mode</ref>(<ref refid="structSYN__IOExp" kindref="compound">SYN_IOExp</ref><sp/>*ioexp,<sp/>uint8_t<sp/>pin,<sp/><ref refid="syn__defs_8h_1aa3126491e1d1a15a159caaa4640d0866" kindref="member">SYN_GPIO_Mode</ref><sp/>mode)</highlight></codeline>
+<codeline lineno="61"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="62"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(ioexp<sp/>==<sp/>NULL<sp/>||<sp/>pin<sp/>&gt;=<sp/>ioexp-&gt;<ref refid="structSYN__IOExp_1a7a2e59af8a55cb30868150e56f8a8690" kindref="member">num_pins</ref>)</highlight></codeline>
+<codeline lineno="63"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="64"><highlight class="normal"></highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(mode<sp/>==<sp/>SYN_GPIO_OUTPUT)<sp/>{</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ioexp-&gt;<ref refid="structSYN__IOExp_1a941cbe2285ca0048326ef5c04c59f384" kindref="member">dir_mask</ref><sp/>&amp;=<sp/>(uint16_t)~(1u<sp/>&lt;&lt;<sp/>pin);</highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ioexp-&gt;<ref refid="structSYN__IOExp_1a941cbe2285ca0048326ef5c04c59f384" kindref="member">dir_mask</ref><sp/>|=<sp/>(uint16_t)(1u<sp/>&lt;&lt;<sp/>pin);</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(mode<sp/>==<sp/>SYN_GPIO_INPUT_PULLUP)<sp/>{</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ioexp-&gt;<ref refid="structSYN__IOExp_1a6d852b16b103582f0c6a58baf7a13857" kindref="member">pullup_mask</ref><sp/>|=<sp/>(uint16_t)(1u<sp/>&lt;&lt;<sp/>pin);</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="73"><highlight class="normal"></highlight></codeline>
+<codeline lineno="74"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(ioexp-&gt;<ref refid="structSYN__IOExp_1a14287cc3f551669235fef407e6aabc4b" kindref="member">type</ref><sp/>==<sp/><ref refid="syn__ioexp_8h_1aac345d69b400928e1b8eaeb26d1f3378a45bc38b7ca9536ed504c88e06fea29a2" kindref="member">SYN_IOEXP_MCP23017</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>buf[3]<sp/>=<sp/>{0x00,<sp/>(uint8_t)(ioexp-&gt;<ref refid="structSYN__IOExp_1a941cbe2285ca0048326ef5c04c59f384" kindref="member">dir_mask</ref><sp/>&amp;<sp/>0xFF),<sp/>(uint8_t)(ioexp-&gt;<ref refid="structSYN__IOExp_1a941cbe2285ca0048326ef5c04c59f384" kindref="member">dir_mask</ref><sp/>&gt;&gt;<sp/>8)};</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__ioexp_8c_1a6592017ec6abc504283708450c8124f1" kindref="member">write_i2c_bytes</ref>(&amp;ioexp-&gt;<ref refid="structSYN__IOExp_1adc3e949d37efb344cf4c08b8e53d4b11" kindref="member">i2c</ref>,<sp/>ioexp-&gt;<ref refid="structSYN__IOExp_1a62d10d7983f298f1d2102a498ecdbb9b" kindref="member">i2c_addr</ref>,<sp/>buf,<sp/>3);</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>gppu[3]<sp/>=<sp/>{0x0C,<sp/>(uint8_t)(ioexp-&gt;<ref refid="structSYN__IOExp_1a6d852b16b103582f0c6a58baf7a13857" kindref="member">pullup_mask</ref><sp/>&amp;<sp/>0xFF),</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>(uint8_t)(ioexp-&gt;<ref refid="structSYN__IOExp_1a6d852b16b103582f0c6a58baf7a13857" kindref="member">pullup_mask</ref><sp/>&gt;&gt;<sp/>8)};</highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__ioexp_8c_1a6592017ec6abc504283708450c8124f1" kindref="member">write_i2c_bytes</ref>(&amp;ioexp-&gt;<ref refid="structSYN__IOExp_1adc3e949d37efb344cf4c08b8e53d4b11" kindref="member">i2c</ref>,<sp/>ioexp-&gt;<ref refid="structSYN__IOExp_1a62d10d7983f298f1d2102a498ecdbb9b" kindref="member">i2c_addr</ref>,<sp/>gppu,<sp/>3);</highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="81"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"></highlight></codeline>
+<codeline lineno="83"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__ioexp_8c_1ae683740d5d83cb2e30a199d553214ca1" kindref="member">syn_ioexp_write_pin</ref>(<ref refid="structSYN__IOExp" kindref="compound">SYN_IOExp</ref><sp/>*ioexp,<sp/>uint8_t<sp/>pin,<sp/><ref refid="syn__defs_8h_1aaa3b9a5c8a9518fd3c3ca7bbe8b4de4a" kindref="member">SYN_GPIO_State</ref><sp/>state)</highlight></codeline>
+<codeline lineno="84"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(ioexp<sp/>==<sp/>NULL<sp/>||<sp/>pin<sp/>&gt;=<sp/>ioexp-&gt;<ref refid="structSYN__IOExp_1a7a2e59af8a55cb30868150e56f8a8690" kindref="member">num_pins</ref>)</highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="87"><highlight class="normal"></highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(state<sp/>==<sp/>SYN_GPIO_HIGH)<sp/>{</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ioexp-&gt;<ref refid="structSYN__IOExp_1a2c0389a1ade4f77d77e18c0a967981f0" kindref="member">out_mask</ref><sp/>|=<sp/>(uint16_t)(1u<sp/>&lt;&lt;<sp/>pin);</highlight></codeline>
+<codeline lineno="90"><highlight class="normal"><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
+<codeline lineno="91"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>ioexp-&gt;<ref refid="structSYN__IOExp_1a2c0389a1ade4f77d77e18c0a967981f0" kindref="member">out_mask</ref><sp/>&amp;=<sp/>(uint16_t)~(1u<sp/>&lt;&lt;<sp/>pin);</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"></highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__ioexp_8c_1a40a62f2b4735f5956ca681b84aa4f7f6" kindref="member">syn_ioexp_write_port</ref>(ioexp,<sp/>ioexp-&gt;<ref refid="structSYN__IOExp_1a2c0389a1ade4f77d77e18c0a967981f0" kindref="member">out_mask</ref>);</highlight></codeline>
+<codeline lineno="95"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="96"><highlight class="normal"></highlight></codeline>
+<codeline lineno="97"><highlight class="normal"><ref refid="syn__defs_8h_1aaa3b9a5c8a9518fd3c3ca7bbe8b4de4a" kindref="member">SYN_GPIO_State</ref><sp/><ref refid="syn__ioexp_8c_1af1fa64bee165e8bd3250d1266ae4ccad" kindref="member">syn_ioexp_read_pin</ref>(<ref refid="structSYN__IOExp" kindref="compound">SYN_IOExp</ref><sp/>*ioexp,<sp/>uint8_t<sp/>pin)</highlight></codeline>
+<codeline lineno="98"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="99"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(ioexp<sp/>==<sp/>NULL<sp/>||<sp/>pin<sp/>&gt;=<sp/>ioexp-&gt;<ref refid="structSYN__IOExp_1a7a2e59af8a55cb30868150e56f8a8690" kindref="member">num_pins</ref>)</highlight></codeline>
+<codeline lineno="100"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>SYN_GPIO_LOW;</highlight></codeline>
+<codeline lineno="101"><highlight class="normal"></highlight></codeline>
+<codeline lineno="102"><highlight class="normal"><sp/><sp/><sp/><sp/>uint16_t<sp/>port<sp/>=<sp/><ref refid="syn__ioexp_8c_1ad468841c744ef2d687ab2f42816be181" kindref="member">syn_ioexp_read_port</ref>(ioexp);</highlight></codeline>
+<codeline lineno="103"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>(port<sp/>&amp;<sp/>(1u<sp/>&lt;&lt;<sp/>pin))<sp/>?<sp/>SYN_GPIO_HIGH<sp/>:<sp/>SYN_GPIO_LOW;</highlight></codeline>
+<codeline lineno="104"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="105"><highlight class="normal"></highlight></codeline>
+<codeline lineno="106"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__ioexp_8c_1a40a62f2b4735f5956ca681b84aa4f7f6" kindref="member">syn_ioexp_write_port</ref>(<ref refid="structSYN__IOExp" kindref="compound">SYN_IOExp</ref><sp/>*ioexp,<sp/>uint16_t<sp/>mask)</highlight></codeline>
+<codeline lineno="107"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="108"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(ioexp<sp/>==<sp/>NULL)</highlight></codeline>
+<codeline lineno="109"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="110"><highlight class="normal"></highlight></codeline>
+<codeline lineno="111"><highlight class="normal"><sp/><sp/><sp/><sp/>ioexp-&gt;<ref refid="structSYN__IOExp_1a2c0389a1ade4f77d77e18c0a967981f0" kindref="member">out_mask</ref><sp/>=<sp/>mask;</highlight></codeline>
+<codeline lineno="112"><highlight class="normal"></highlight></codeline>
+<codeline lineno="113"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(ioexp-&gt;<ref refid="structSYN__IOExp_1a14287cc3f551669235fef407e6aabc4b" kindref="member">type</ref><sp/>==<sp/><ref refid="syn__ioexp_8h_1aac345d69b400928e1b8eaeb26d1f3378a45bc38b7ca9536ed504c88e06fea29a2" kindref="member">SYN_IOEXP_MCP23017</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="114"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>buf[3]<sp/>=<sp/>{0x12,<sp/>(uint8_t)(mask<sp/>&amp;<sp/>0xFF),<sp/>(uint8_t)(mask<sp/>&gt;&gt;<sp/>8)};</highlight></codeline>
+<codeline lineno="115"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__ioexp_8c_1a6592017ec6abc504283708450c8124f1" kindref="member">write_i2c_bytes</ref>(&amp;ioexp-&gt;<ref refid="structSYN__IOExp_1adc3e949d37efb344cf4c08b8e53d4b11" kindref="member">i2c</ref>,<sp/>ioexp-&gt;<ref refid="structSYN__IOExp_1a62d10d7983f298f1d2102a498ecdbb9b" kindref="member">i2c_addr</ref>,<sp/>buf,<sp/>3);</highlight></codeline>
+<codeline lineno="116"><highlight class="normal"><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(ioexp-&gt;<ref refid="structSYN__IOExp_1a14287cc3f551669235fef407e6aabc4b" kindref="member">type</ref><sp/>==<sp/><ref refid="syn__ioexp_8h_1aac345d69b400928e1b8eaeb26d1f3378ae280629aa1860e4c7045fecd2059c772" kindref="member">SYN_IOEXP_MCP23008</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="117"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>buf[2]<sp/>=<sp/>{0x09,<sp/>(uint8_t)(mask<sp/>&amp;<sp/>0xFF)};</highlight></codeline>
+<codeline lineno="118"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__ioexp_8c_1a6592017ec6abc504283708450c8124f1" kindref="member">write_i2c_bytes</ref>(&amp;ioexp-&gt;<ref refid="structSYN__IOExp_1adc3e949d37efb344cf4c08b8e53d4b11" kindref="member">i2c</ref>,<sp/>ioexp-&gt;<ref refid="structSYN__IOExp_1a62d10d7983f298f1d2102a498ecdbb9b" kindref="member">i2c_addr</ref>,<sp/>buf,<sp/>2);</highlight></codeline>
+<codeline lineno="119"><highlight class="normal"><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(ioexp-&gt;<ref refid="structSYN__IOExp_1a14287cc3f551669235fef407e6aabc4b" kindref="member">type</ref><sp/>==<sp/><ref refid="syn__ioexp_8h_1aac345d69b400928e1b8eaeb26d1f3378afe3498d74021cfb7215ced5cd5a03abf" kindref="member">SYN_IOEXP_PCF8574</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="120"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>val<sp/>=<sp/>(uint8_t)(mask<sp/>&amp;<sp/>0xFF);</highlight></codeline>
+<codeline lineno="121"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__ioexp_8c_1a6592017ec6abc504283708450c8124f1" kindref="member">write_i2c_bytes</ref>(&amp;ioexp-&gt;<ref refid="structSYN__IOExp_1adc3e949d37efb344cf4c08b8e53d4b11" kindref="member">i2c</ref>,<sp/>ioexp-&gt;<ref refid="structSYN__IOExp_1a62d10d7983f298f1d2102a498ecdbb9b" kindref="member">i2c_addr</ref>,<sp/>&amp;val,<sp/>1);</highlight></codeline>
+<codeline lineno="122"><highlight class="normal"><sp/><sp/><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(ioexp-&gt;<ref refid="structSYN__IOExp_1a14287cc3f551669235fef407e6aabc4b" kindref="member">type</ref><sp/>==<sp/><ref refid="syn__ioexp_8h_1aac345d69b400928e1b8eaeb26d1f3378ab9a77bf6ecde1cb5c4d0ee3a20ba0aee" kindref="member">SYN_IOEXP_TCA9555</ref>)<sp/>{</highlight></codeline>
+<codeline lineno="123"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>buf[3]<sp/>=<sp/>{0x02,<sp/>(uint8_t)(mask<sp/>&amp;<sp/>0xFF),<sp/>(uint8_t)(mask<sp/>&gt;&gt;<sp/>8)};</highlight></codeline>
+<codeline lineno="124"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="syn__ioexp_8c_1a6592017ec6abc504283708450c8124f1" kindref="member">write_i2c_bytes</ref>(&amp;ioexp-&gt;<ref refid="structSYN__IOExp_1adc3e949d37efb344cf4c08b8e53d4b11" kindref="member">i2c</ref>,<sp/>ioexp-&gt;<ref refid="structSYN__IOExp_1a62d10d7983f298f1d2102a498ecdbb9b" kindref="member">i2c_addr</ref>,<sp/>buf,<sp/>3);</highlight></codeline>
+<codeline lineno="125"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="126"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="127"><highlight class="normal"></highlight></codeline>
+<codeline lineno="128"><highlight class="normal">uint16_t<sp/><ref refid="syn__ioexp_8c_1ad468841c744ef2d687ab2f42816be181" kindref="member">syn_ioexp_read_port</ref>(<ref refid="structSYN__IOExp" kindref="compound">SYN_IOExp</ref><sp/>*ioexp)</highlight></codeline>
+<codeline lineno="129"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="130"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(ioexp<sp/>==<sp/>NULL)</highlight></codeline>
+<codeline lineno="131"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>0;</highlight></codeline>
+<codeline lineno="132"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>ioexp-&gt;<ref refid="structSYN__IOExp_1a2c0389a1ade4f77d77e18c0a967981f0" kindref="member">out_mask</ref>;</highlight></codeline>
+<codeline lineno="133"><highlight class="normal">}</highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/drivers/syn_ioexp.c"/>
+  </compounddef>
+</doxygen>

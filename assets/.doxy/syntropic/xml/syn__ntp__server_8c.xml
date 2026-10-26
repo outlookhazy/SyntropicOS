@@ -1,0 +1,307 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.8" xml:lang="en-US">
+  <compounddef id="syn__ntp__server_8c" kind="file" language="C++">
+    <compoundname>syn_ntp_server.c</compoundname>
+    <includes refid="syn__ntp__server_8h" local="yes">syn_ntp_server.h</includes>
+    <includes local="no">string.h</includes>
+    <incdepgraph>
+      <node id="3">
+        <label>syntropic/common/syn_defs.h</label>
+        <link refid="syn__defs_8h"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>src/syntropic/net/syn_ntp_server.c</label>
+        <link refid="syn__ntp__server_8c"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+        <childnode refid="8" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>syn_ntp_server.h</label>
+        <link refid="syn__ntp__server_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+        <childnode refid="7" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="6">
+        <label>syntropic/port/syn_port_socket.h</label>
+        <link refid="syn__port__socket_8h"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="4" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+      </node>
+      <node id="7">
+        <label>stdbool.h</label>
+      </node>
+      <node id="4">
+        <label>stddef.h</label>
+      </node>
+      <node id="5">
+        <label>stdint.h</label>
+      </node>
+      <node id="8">
+        <label>string.h</label>
+      </node>
+    </incdepgraph>
+    <sectiondef kind="func">
+      <memberdef kind="function" id="syn__ntp__server_8c_1ad8ca86c41054382031982c532197ad67" prot="public" static="yes" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>static void write_u32_be</definition>
+        <argsstring>(uint8_t *buf, uint32_t val)</argsstring>
+        <name>write_u32_be</name>
+        <param>
+          <type>uint8_t *</type>
+          <declname>buf</declname>
+        </param>
+        <param>
+          <type>uint32_t</type>
+          <declname>val</declname>
+        </param>
+        <briefdescription>
+<para>Write 32-bit integer into big-endian byte buffer. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>buf</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to 4-byte destination buffer. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>val</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>32-bit unsigned integer value. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/net/syn_ntp_server.c" line="16" column="13" bodyfile="src/syntropic/net/syn_ntp_server.c" bodystart="16" bodyend="22"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__ntp__server_8c_1aa662da178640288ed1677ad7bc15e051" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_ntp_server_init</definition>
+        <argsstring>(SYN_NTPServer *server, uint8_t stratum, uint32_t(*get_epoch_sec_cb)(void))</argsstring>
+        <name>syn_ntp_server_init</name>
+        <param>
+          <type><ref refid="structSYN__NTPServer" kindref="compound">SYN_NTPServer</ref> *</type>
+          <declname>server</declname>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>stratum</declname>
+        </param>
+        <param>
+          <type>uint32_t(*)(void)</type>
+          <declname>get_epoch_sec_cb</declname>
+        </param>
+        <briefdescription>
+<para>Initialize NTP Server Instance. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>server</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to NTP server instance. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>stratum</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Server stratum level (e.g. 1 for GPS, 2 for SNTP relay). </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>get_epoch_sec_cb</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Callback returning current UTC epoch seconds. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_INVALID_PARAM if NULL. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/net/syn_ntp_server.c" line="24" column="12" bodyfile="src/syntropic/net/syn_ntp_server.c" bodystart="24" bodyend="39"/>
+      </memberdef>
+      <memberdef kind="function" id="syn__ntp__server_8c_1a87e27a5a28ffcfb385c819d5661c0471" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref></type>
+        <definition>SYN_Status syn_ntp_server_process_packet</definition>
+        <argsstring>(SYN_NTPServer *server, const uint8_t request_pkt[48], uint8_t response_pkt[48])</argsstring>
+        <name>syn_ntp_server_process_packet</name>
+        <param>
+          <type><ref refid="structSYN__NTPServer" kindref="compound">SYN_NTPServer</ref> *</type>
+          <declname>server</declname>
+        </param>
+        <param>
+          <type>const uint8_t</type>
+          <declname>request_pkt</declname>
+          <array>[48]</array>
+        </param>
+        <param>
+          <type>uint8_t</type>
+          <declname>response_pkt</declname>
+          <array>[48]</array>
+        </param>
+        <briefdescription>
+<para>Process an incoming 48-byte NTP client request packet and format response. </para>
+        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>server</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Pointer to NTP server context. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>request_pkt</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Raw 48-byte input request packet. </para>
+</parameterdescription>
+</parameteritem>
+<parameteritem>
+<parameternamelist>
+<parametername>response_pkt</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>Output 48-byte response packet buffer. </para>
+</parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>SYN_OK on success, SYN_INVALID_PARAM if NULL or invalid. </para>
+</simplesect>
+</para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="src/syntropic/net/syn_ntp_server.c" line="41" column="12" bodyfile="src/syntropic/net/syn_ntp_server.c" bodystart="41" bodyend="95"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+<para>Zero-Heap NTP v4 Server Implementation. </para>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="syn__ntp__server_8h" kindref="compound">syn_ntp_server.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;string.h&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/><ref refid="syn__ntp__server_8c_1ad8ca86c41054382031982c532197ad67" kindref="member">write_u32_be</ref>(uint8_t<sp/>*buf,<sp/>uint32_t<sp/>val)</highlight></codeline>
+<codeline lineno="17"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="18"><highlight class="normal"><sp/><sp/><sp/><sp/>buf[0]<sp/>=<sp/>(uint8_t)((val<sp/>&gt;&gt;<sp/>24)<sp/>&amp;<sp/>0xFFU);</highlight></codeline>
+<codeline lineno="19"><highlight class="normal"><sp/><sp/><sp/><sp/>buf[1]<sp/>=<sp/>(uint8_t)((val<sp/>&gt;&gt;<sp/>16)<sp/>&amp;<sp/>0xFFU);</highlight></codeline>
+<codeline lineno="20"><highlight class="normal"><sp/><sp/><sp/><sp/>buf[2]<sp/>=<sp/>(uint8_t)((val<sp/>&gt;&gt;<sp/>8)<sp/>&amp;<sp/>0xFFU);</highlight></codeline>
+<codeline lineno="21"><highlight class="normal"><sp/><sp/><sp/><sp/>buf[3]<sp/>=<sp/>(uint8_t)(val<sp/>&amp;<sp/>0xFFU);</highlight></codeline>
+<codeline lineno="22"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__ntp__server_8c_1aa662da178640288ed1677ad7bc15e051" kindref="member">syn_ntp_server_init</ref>(<ref refid="structSYN__NTPServer" kindref="compound">SYN_NTPServer</ref><sp/>*server,<sp/>uint8_t<sp/>stratum,</highlight></codeline>
+<codeline lineno="25"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint32_t<sp/>(*get_epoch_sec_cb)(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">))</highlight></codeline>
+<codeline lineno="26"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="27"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(server<sp/>==<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="28"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="29"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="30"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>((stratum<sp/>==<sp/>0U)<sp/>||<sp/>(stratum<sp/>&gt;<sp/>15U))<sp/>{</highlight></codeline>
+<codeline lineno="31"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="32"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"><sp/><sp/><sp/><sp/>memset(server,<sp/>0,<sp/></highlight><highlight class="keyword">sizeof</highlight><highlight class="normal">(*server));</highlight></codeline>
+<codeline lineno="35"><highlight class="normal"><sp/><sp/><sp/><sp/>server-&gt;<ref refid="structSYN__NTPServer_1a28827b2504b549dc6630a42fb8be3a29" kindref="member">stratum</ref><sp/>=<sp/>stratum;</highlight></codeline>
+<codeline lineno="36"><highlight class="normal"><sp/><sp/><sp/><sp/>server-&gt;<ref refid="structSYN__NTPServer_1ac99e8d9ac81add995f8b0f07fa90659d" kindref="member">get_epoch_sec_cb</ref><sp/>=<sp/>get_epoch_sec_cb;</highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight></codeline>
+<codeline lineno="38"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="39"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="40"><highlight class="normal"></highlight></codeline>
+<codeline lineno="41"><highlight class="normal"><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00" kindref="member">SYN_Status</ref><sp/><ref refid="syn__ntp__server_8c_1a87e27a5a28ffcfb385c819d5661c0471" kindref="member">syn_ntp_server_process_packet</ref>(<ref refid="structSYN__NTPServer" kindref="compound">SYN_NTPServer</ref><sp/>*server,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>uint8_t<sp/>request_pkt[48],</highlight></codeline>
+<codeline lineno="42"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>uint8_t<sp/>response_pkt[48])</highlight></codeline>
+<codeline lineno="43"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="44"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>((server<sp/>==<sp/>NULL)<sp/>||<sp/>(request_pkt<sp/>==<sp/>NULL)<sp/>||<sp/>(response_pkt<sp/>==<sp/>NULL))<sp/>{</highlight></codeline>
+<codeline lineno="45"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00a665ca721c73f662b5ceafe25aff4663b" kindref="member">SYN_INVALID_PARAM</ref>;</highlight></codeline>
+<codeline lineno="46"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="47"><highlight class="normal"></highlight></codeline>
+<codeline lineno="48"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Extract<sp/>Leap<sp/>Indicator<sp/>(LI),<sp/>Version<sp/>Number<sp/>(VN),<sp/>Mode<sp/>from<sp/>client<sp/>packet<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="49"><highlight class="normal"><sp/><sp/><sp/><sp/>uint8_t<sp/>mode<sp/>=<sp/>request_pkt[0]<sp/>&amp;<sp/>0x07U;</highlight></codeline>
+<codeline lineno="50"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>((mode<sp/>!=<sp/>3U)<sp/>&amp;&amp;<sp/>(mode<sp/>!=<sp/>1U))<sp/>{</highlight></codeline>
+<codeline lineno="51"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Not<sp/>a<sp/>client<sp/>request<sp/>(mode<sp/>3)<sp/>or<sp/>symmetric<sp/>active<sp/>(mode<sp/>1)<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="52"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00acd5d2701b7cfa9fb446640ecbeb19fc9" kindref="member">SYN_ERROR</ref>;</highlight></codeline>
+<codeline lineno="53"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="54"><highlight class="normal"></highlight></codeline>
+<codeline lineno="55"><highlight class="normal"><sp/><sp/><sp/><sp/>memset(response_pkt,<sp/>0,<sp/>48);</highlight></codeline>
+<codeline lineno="56"><highlight class="normal"></highlight></codeline>
+<codeline lineno="57"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>LI<sp/>=<sp/>0<sp/>(no<sp/>warning),<sp/>VN<sp/>=<sp/>4<sp/>(NTPv4),<sp/>Mode<sp/>=<sp/>4<sp/>(Server<sp/>response)<sp/>=&gt;<sp/>0x24<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/>response_pkt[0]<sp/>=<sp/>0x24U;</highlight></codeline>
+<codeline lineno="59"><highlight class="normal"><sp/><sp/><sp/><sp/>response_pkt[1]<sp/>=<sp/>server-&gt;<ref refid="structSYN__NTPServer_1a28827b2504b549dc6630a42fb8be3a29" kindref="member">stratum</ref>;</highlight></codeline>
+<codeline lineno="60"><highlight class="normal"><sp/><sp/><sp/><sp/>response_pkt[2]<sp/>=<sp/>6U;<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Poll<sp/>interval<sp/>(64<sp/>sec)<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="61"><highlight class="normal"><sp/><sp/><sp/><sp/>response_pkt[3]<sp/>=<sp/>(uint8_t)-20;<sp/></highlight><highlight class="comment">/*<sp/>Precision<sp/>~1<sp/>microsecond<sp/>(2^-20<sp/>s)<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="62"><highlight class="normal"></highlight></codeline>
+<codeline lineno="63"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Root<sp/>Delay<sp/>(0)<sp/>&amp;<sp/>Root<sp/>Dispersion<sp/>(0)<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="64"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__ntp__server_8c_1ad8ca86c41054382031982c532197ad67" kindref="member">write_u32_be</ref>(&amp;response_pkt[4],<sp/>0);</highlight></codeline>
+<codeline lineno="65"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__ntp__server_8c_1ad8ca86c41054382031982c532197ad67" kindref="member">write_u32_be</ref>(&amp;response_pkt[8],<sp/>0);</highlight></codeline>
+<codeline lineno="66"><highlight class="normal"></highlight></codeline>
+<codeline lineno="67"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Reference<sp/>ID:<sp/>&quot;LOCL&quot;<sp/>for<sp/>local<sp/>clock<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="68"><highlight class="normal"><sp/><sp/><sp/><sp/>response_pkt[12]<sp/>=<sp/></highlight><highlight class="charliteral">&apos;L&apos;</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/>response_pkt[13]<sp/>=<sp/></highlight><highlight class="charliteral">&apos;O&apos;</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="70"><highlight class="normal"><sp/><sp/><sp/><sp/>response_pkt[14]<sp/>=<sp/></highlight><highlight class="charliteral">&apos;C&apos;</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="71"><highlight class="normal"><sp/><sp/><sp/><sp/>response_pkt[15]<sp/>=<sp/></highlight><highlight class="charliteral">&apos;L&apos;</highlight><highlight class="normal">;</highlight></codeline>
+<codeline lineno="72"><highlight class="normal"></highlight></codeline>
+<codeline lineno="73"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/>now_utc<sp/>=<sp/>0;</highlight></codeline>
+<codeline lineno="74"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(server-&gt;<ref refid="structSYN__NTPServer_1ac99e8d9ac81add995f8b0f07fa90659d" kindref="member">get_epoch_sec_cb</ref><sp/>!=<sp/>NULL)<sp/>{</highlight></codeline>
+<codeline lineno="75"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>now_utc<sp/>=<sp/>server-&gt;<ref refid="structSYN__NTPServer_1ac99e8d9ac81add995f8b0f07fa90659d" kindref="member">get_epoch_sec_cb</ref>();</highlight></codeline>
+<codeline lineno="76"><highlight class="normal"><sp/><sp/><sp/><sp/>}</highlight></codeline>
+<codeline lineno="77"><highlight class="normal"><sp/><sp/><sp/><sp/>uint32_t<sp/>ntp_sec<sp/>=<sp/>now_utc<sp/>+<sp/><ref refid="syn__ntp__server_8h_1a5a3c954e1c017f71ea11af50378a22eb" kindref="member">SYN_NTP_EPOCH_OFFSET</ref>;</highlight></codeline>
+<codeline lineno="78"><highlight class="normal"></highlight></codeline>
+<codeline lineno="79"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Reference<sp/>Timestamp<sp/>(bytes<sp/>16..23)<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="80"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__ntp__server_8c_1ad8ca86c41054382031982c532197ad67" kindref="member">write_u32_be</ref>(&amp;response_pkt[16],<sp/>ntp_sec);</highlight></codeline>
+<codeline lineno="81"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__ntp__server_8c_1ad8ca86c41054382031982c532197ad67" kindref="member">write_u32_be</ref>(&amp;response_pkt[20],<sp/>0);</highlight></codeline>
+<codeline lineno="82"><highlight class="normal"></highlight></codeline>
+<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Originate<sp/>Timestamp<sp/>(bytes<sp/>24..31)<sp/>&lt;-<sp/>Copy<sp/>client<sp/>transmit<sp/>timestamp<sp/>from<sp/>bytes<sp/>40..47<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="84"><highlight class="normal"><sp/><sp/><sp/><sp/>memcpy(&amp;response_pkt[24],<sp/>&amp;request_pkt[40],<sp/>8);</highlight></codeline>
+<codeline lineno="85"><highlight class="normal"></highlight></codeline>
+<codeline lineno="86"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Receive<sp/>Timestamp<sp/>(bytes<sp/>32..39)<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="87"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__ntp__server_8c_1ad8ca86c41054382031982c532197ad67" kindref="member">write_u32_be</ref>(&amp;response_pkt[32],<sp/>ntp_sec);</highlight></codeline>
+<codeline lineno="88"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__ntp__server_8c_1ad8ca86c41054382031982c532197ad67" kindref="member">write_u32_be</ref>(&amp;response_pkt[36],<sp/>0);</highlight></codeline>
+<codeline lineno="89"><highlight class="normal"></highlight></codeline>
+<codeline lineno="90"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>Transmit<sp/>Timestamp<sp/>(bytes<sp/>40..47)<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="91"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__ntp__server_8c_1ad8ca86c41054382031982c532197ad67" kindref="member">write_u32_be</ref>(&amp;response_pkt[40],<sp/>ntp_sec);</highlight></codeline>
+<codeline lineno="92"><highlight class="normal"><sp/><sp/><sp/><sp/><ref refid="syn__ntp__server_8c_1ad8ca86c41054382031982c532197ad67" kindref="member">write_u32_be</ref>(&amp;response_pkt[44],<sp/>0);</highlight></codeline>
+<codeline lineno="93"><highlight class="normal"></highlight></codeline>
+<codeline lineno="94"><highlight class="normal"><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="syn__defs_8h_1ac74d19fd322a889de9e46b79fb277c00aceb73e9e406b79a470310af32f2768c6" kindref="member">SYN_OK</ref>;</highlight></codeline>
+<codeline lineno="95"><highlight class="normal">}</highlight></codeline>
+    </programlisting>
+    <location file="src/syntropic/net/syn_ntp_server.c"/>
+  </compounddef>
+</doxygen>
